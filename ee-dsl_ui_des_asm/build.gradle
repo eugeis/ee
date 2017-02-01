@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':ee-dsl_data')
+    compile project(':ee-asm')
+}

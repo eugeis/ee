@@ -1,0 +1,16 @@
+apply plugin: 'org.springframework.boot'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	compile('org.springframework.boot:spring-boot-starter-jersey')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	runtime('org.hsqldb:hsqldb')
+	compileOnly('org.projectlombok:lombok')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	compile("org.axonframework:axon-spring:${version_axon}")
+	testCompile("org.axonframework:axon-test:${version_axon}")
+}
