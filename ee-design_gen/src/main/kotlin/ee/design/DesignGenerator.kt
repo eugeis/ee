@@ -69,7 +69,7 @@ private fun prepareModel(): StructureUnitI {
     n.initObjectTree()
     l.initObjectTree()
     //println(l.render())
-    val ret = c.initObjectTree()
+    val ret = d.initObjectTree()
     ret.sortByName()
     //println(ret.render())
     return ret

@@ -2,7 +2,7 @@ package ee.design
 
 import ee.lang.*
 
-object c : StructureUnit({ artifact("ee-design").namespace("ee.design").name("Design") }) {
+object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("Design") }) {
 
     object Model : CompilationUnit({ superUnit(l.StructureUnit) }) {
         val models = prop(Model).multi(true)
