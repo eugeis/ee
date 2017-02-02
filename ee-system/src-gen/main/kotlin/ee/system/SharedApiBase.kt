@@ -1,6 +1,6 @@
 package ee.system
 
-import ee.design.Composite
+import ee.lang.Composite
 import java.nio.file.Path
 import java.nio.file.Paths
 

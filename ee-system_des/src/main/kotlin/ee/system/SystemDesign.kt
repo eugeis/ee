@@ -1,12 +1,12 @@
 package ee.system
 
+import ee.lang.*
 import ee.design.*
-import ee.design.*
-import ee.task.Task.shared.Task
 import ee.task.Task.shared.PathResolver
+import ee.task.Task.shared.Result
+import ee.task.Task.shared.Task
 import ee.task.Task.shared.TaskFactory
 import ee.task.Task.shared.TaskRegistry
-import ee.task.Task.shared.Result
 
 object SystemDesign : Model({ namespace("ee") }) {
     object System : Comp() {

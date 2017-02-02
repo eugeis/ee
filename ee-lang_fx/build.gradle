@@ -1,0 +1,17 @@
+apply plugin: 'application'
+mainClassName = 'ee.item.fx.ModelApp'
+
+dependencies {
+    compile project(':ee-design_task')
+    compile "no.tornado:tornadofx:$version_tornadofx"
+}
+
+jar {
+    manifest {
+        attributes(
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'ee.item.fx.ModelApp'
+        )
+    }
+    from configurations.compile.collect { entry -> zipTree(entry) }
+}

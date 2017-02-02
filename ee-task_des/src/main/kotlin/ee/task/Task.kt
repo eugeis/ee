@@ -1,7 +1,7 @@
 package ee.task
 
 import ee.design.*
-import ee.design.*
+import ee.lang.*
 
 object Task : Comp({ namespace("ee.task") }) {
     object shared : Module() {

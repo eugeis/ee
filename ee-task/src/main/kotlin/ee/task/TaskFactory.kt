@@ -1,6 +1,6 @@
 package ee.task
 
-import ee.design.ItemI
+import ee.lang.ItemI
 
 open class TaskFactory<T : Task> : TaskFactoryBase<Task> {
     companion object {

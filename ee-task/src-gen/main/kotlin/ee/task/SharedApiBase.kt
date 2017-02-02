@@ -1,6 +1,6 @@
 package ee.task
 
-import ee.design.ItemI
+import ee.lang.ItemI
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
