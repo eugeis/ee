@@ -8,7 +8,7 @@ import org.junit.Before
 import org.junit.Test
 
 private object TestModel : StructureUnit() {
-    object SimpleEnum : EnumType({ namespace("ee.dsl.test") }) {
+    object SimpleEnum : EnumType({ namespace("ee.lang.test") }) {
         val LitName1 = lit()
         val LitName2 = lit()
     }
