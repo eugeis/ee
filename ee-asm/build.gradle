@@ -1,4 +1,1 @@
-dependencies {
-    compile project(':ee-common')
-    compile "org.ow2.asm:asm-debug-all:${version_asm}"
-}
+

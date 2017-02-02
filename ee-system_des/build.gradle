@@ -1,4 +1,0 @@
-dependencies {
-    compile project(':ee-task_des')
-    compile project(':ee-task')
-}

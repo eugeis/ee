@@ -1,4 +1,0 @@
-dependencies {
-    compile project(':ee-design')
-    compile project(':ee-asm')
-}
