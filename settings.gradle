@@ -1,5 +1,5 @@
 include 'ee-common', 'ee-lang_item', 'ee-lang_fx',
-				'ee-lang_gen', 'ee-lang',
+        'ee-lang_gen', 'ee-lang',
         'ee-design_gen', 'ee-design', 'ee-design_task',
         'ee-asm',
         'ee-design_ui', 'ee-design_ui_des', 'ee-design_ui_des_asm',
