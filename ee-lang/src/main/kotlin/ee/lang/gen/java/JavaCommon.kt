@@ -3,7 +3,7 @@ package ee.lang.gen.java
 import ee.lang.StructureUnit
 import ee.lang.Type
 
-object Java : StructureUnit() {
+object j : StructureUnit({ name("Java").namespace("java") }) {
     object util : StructureUnit({ namespace("java.util") }) {
         val Date = Type()
 
@@ -12,8 +12,10 @@ object Java : StructureUnit() {
         }
     }
 
-    object nioFile : StructureUnit({ namespace("java.nio.file") }) {
-        val Path = Type()
-        val Paths = Type()
+    object nio {
+        object file : StructureUnit({ namespace("java.nio.file") }) {
+            val Path = Type()
+            val Paths = Type()
+        }
     }
 }

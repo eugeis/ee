@@ -2,11 +2,8 @@ package ee.design
 
 import ee.lang.*
 import ee.lang.integ.eePath
-import ee.lang.gen.kt.toKotlinDslBuilder
-import ee.lang.gen.kt.toKotlinDslBuilderI
-import ee.lang.gen.kt.toKotlinDslComposite
-import ee.lang.gen.kt.toKotlinIsEmptyExt
 import ee.lang.gen.KotlinContext
+import ee.lang.gen.kt.*
 import java.nio.file.Path
 
 fun main(args: Array<String>) {
@@ -19,8 +16,7 @@ private fun generate(target: Path) {
     val nameBuilder: Template<CompilationUnitI>.(CompilationUnitI) -> NamesI = { Names("${it.name()}.kt") }
 
     //interfaces
-    var context = KotlinContext(namespace = model.namespace())
-    prepareDerivedController(context)
+    var context = KotlinContextFactory.buildForDslBuilder(model.namespace())
 
     var generator = Generator<StructureUnitI, CompilationUnitI>(
             moduleFolder = model.artifact(), genFolder = "src-gen/main/kotlin", deleteGenFolder = true,
@@ -47,22 +43,6 @@ private fun generate(target: Path) {
             fileName = "${model.name()}Composites.kt"
     )
     generator.generate(target, model)
-}
-
-private fun prepareDerivedController(context: KotlinContext) {
-    val derivedController = context.derivedController
-
-    val isNotPartOfDslTypes: ItemI.() -> Boolean = { n != this.parent() }
-    val isNotPartOfDslModelAndTypes: ItemI.() -> Boolean = {
-        l != this.parent() && n != this.parent()
-    }
-
-    derivedController.registerKind(DerivedNames.API.name, isNotPartOfDslTypes, { "${name()}I" })
-    derivedController.registerKind(DerivedNames.API_BASE.name, isNotPartOfDslTypes, { "${name()}IfcBase" })
-    derivedController.registerKind(DerivedNames.IMPL.name, isNotPartOfDslTypes, { name() })
-    derivedController.registerKind(DerivedNames.IMPL_BASE.name, isNotPartOfDslTypes, { "${name()}Base" })
-    derivedController.registerKind(DerivedNames.COMPOSITE.name, isNotPartOfDslTypes, { "${name()}s" })
-    derivedController.registerKind(DerivedNames.DSL_TYPE.name, isNotPartOfDslModelAndTypes, { "ItemTypes.${name()}" })
 }
 
 private fun prepareModel(): StructureUnitI {

@@ -50,12 +50,17 @@ open class DerivedController {
         this.storage = storage
     }
 
-    open fun registerKind(kind: String, support: ItemI.() -> Boolean, transformer: ItemI.() -> String) {
-        register(DerivedByTransformer(kind, support, transformer))
+    open fun registerKinds(kinds: Collection<String>, support: ItemI.() -> Boolean, transformer: ItemI.() -> String) {
+        kinds.forEach { register(DerivedByTransformer(it, support, transformer)) }
     }
 
-    open fun <T : ItemI> register(kind: DerivedKind<T>) {
+    open fun registerKind(kind: String, support: ItemI.() -> Boolean, transformer: ItemI.() -> String): DerivedKind<*> {
+        return register(DerivedByTransformer(kind, support, transformer))
+    }
+
+    open fun <T : ItemI> register(kind: DerivedKind<T>): DerivedKind<T> {
         nameToDerivedKind.put(kind.name, kind)
+        return kind
     }
 
     open fun <T : ItemI> derive(item: T, kind: DerivedKind<T>) = storage.getOrPut(item, kind.name, kind.init)

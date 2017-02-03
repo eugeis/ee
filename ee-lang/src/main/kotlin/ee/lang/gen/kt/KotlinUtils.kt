@@ -1,10 +1,10 @@
 package ee.lang.gen.kt
 
 import ee.lang.*
-import ee.lang.gen.java.Java
+import ee.lang.gen.java.j
 import ee.lang.gen.KotlinContext
 
-object Kotlin : StructureUnit() {
+object k : StructureUnit({ name("Kotlin") }) {
     object Core : StructureUnit() {
         object List : ExternalType() {
             val T = G()
@@ -22,31 +22,51 @@ object Kotlin : StructureUnit() {
 }
 
 object KotlinContextFactory {
-    fun build(namespace: String): KotlinContext {
+    private val isNotPartOfNativeTypes: ItemI.() -> Boolean = { n != parent() && j != parent() && k != parent() }
+
+    fun buildForImplOnly(namespace: String): KotlinContext {
         var ret = KotlinContext(namespace = namespace)
-        prepareDerivedController(ret)
+        val controller = ret.derivedController
+
+        controller.registerKinds(listOf(DerivedNames.API.name, DerivedNames.IMPL.name),
+                isNotPartOfNativeTypes, { "${name()}" })
+        controller.registerKinds(listOf(DerivedNames.API_BASE.name, DerivedNames.IMPL_BASE.name),
+                isNotPartOfNativeTypes, { "${name()}Base" })
+        controller.registerKind(DerivedNames.COMPOSITE.name, isNotPartOfNativeTypes, { "${name()}s" })
+
+        return ret
+    }
+
+    fun buildForApiAndImpl(namespace: String): KotlinContext {
+        var ret = KotlinContext(namespace = namespace)
+        val controller = ret.derivedController
+
+        controller.registerKind(DerivedNames.API.name, isNotPartOfNativeTypes, { "${name()}" })
+        controller.registerKind(DerivedNames.API_BASE.name, isNotPartOfNativeTypes, { "${name()}Base" })
+        controller.registerKind(DerivedNames.IMPL.name, isNotPartOfNativeTypes, { "${name()}Impl" })
+        controller.registerKind(DerivedNames.IMPL_BASE.name, isNotPartOfNativeTypes, { "${name()}ImplBase" })
+        controller.registerKind(DerivedNames.COMPOSITE.name, isNotPartOfNativeTypes, { "${name()}s" })
+
+        return ret
+    }
+
+    fun buildForDslBuilder(namespace: String): KotlinContext {
+        var ret = KotlinContext(namespace = namespace)
+        val controller = ret.derivedController
+
+        controller.registerKind(DerivedNames.API.name, isNotPartOfNativeTypes, { "${name()}I" })
+        controller.registerKind(DerivedNames.API_BASE.name, isNotPartOfNativeTypes, { "${name()}IfcBase" })
+        controller.registerKind(DerivedNames.IMPL.name, isNotPartOfNativeTypes, { name() })
+        controller.registerKind(DerivedNames.IMPL_BASE.name, isNotPartOfNativeTypes, { "${name()}Base" })
+        controller.registerKind(DerivedNames.COMPOSITE.name, isNotPartOfNativeTypes, { "${name()}s" })
+
         return ret
     }
 }
 
-private fun prepareDerivedController(context: KotlinContext) {
-    val derivedController = context.derivedController
-
-    val isNotPartOfDslTypes: ItemI.() -> Boolean = { n != this.parent() }
-    val isNotPartOfDslModelAndTypes: ItemI.() -> Boolean = {
-        l != this.parent() && n != this.parent()
-    }
-
-    derivedController.registerKind(DerivedNames.API.name, isNotPartOfDslTypes, { "${name()}I" })
-    derivedController.registerKind(DerivedNames.API_BASE.name, isNotPartOfDslTypes, { "${name()}IfcBase" })
-    derivedController.registerKind(DerivedNames.IMPL.name, isNotPartOfDslTypes, { name() })
-    derivedController.registerKind(DerivedNames.IMPL_BASE.name, isNotPartOfDslTypes, { "${name()}Base" })
-    derivedController.registerKind(DerivedNames.COMPOSITE.name, isNotPartOfDslTypes, { "${name()}s" })
-    derivedController.registerKind(DerivedNames.DSL_TYPE.name, isNotPartOfDslModelAndTypes, { "ItemTypes.${name()}" })
-}
 
 fun <T : CompositeI> T.prepareForKotlinGeneration() {
-    initObjectTrees()
+    initObjectTreesForKotlin()
 
     //declare as 'base' all compilation units with non implemented operations.
     declareAsBaseWithNonImplementedOperation()
@@ -57,10 +77,9 @@ fun <T : CompositeI> T.prepareForKotlinGeneration() {
     defineConstructorAllForNonConstructors()
 }
 
-fun <T : CompositeI> T.initObjectTrees() {
-    n.initObjectTree()
-    Java.initObjectTree()
-    Kotlin.initObjectTree()
-    initObjectTree()
-    initBlackNames()
+fun <T : CompositeI> T.initObjectTreesForKotlin(): T {
+    val ret = initObjectTrees()
+    j.initObjectTree()
+    k.initObjectTree()
+    return ret
 }

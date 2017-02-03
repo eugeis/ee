@@ -4,7 +4,7 @@ import ee.common.ext.ifElse
 import ee.common.ext.joinWrappedToString
 import ee.common.ext.then
 import ee.lang.*
-import ee.lang.gen.java.Java
+import ee.lang.gen.java.j
 
 fun <T : ItemI> T.toKotlinEmpty(c: GenerationContext, derived: String): String {
     return (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
@@ -40,9 +40,9 @@ fun <T : TypeI> T.toKotlinIfNative(c: GenerationContext, derived: String): Strin
         n.Int -> "Int"
         n.Long -> "Long"
         n.Float -> "Float"
-        n.Date -> c.n(Java.util.Date)
-        n.TimeUnit -> c.n(Java.util.concurrent.TimeUnit)
-        n.Path -> c.n(Java.nioFile.Path)
+        n.Date -> c.n(j.util.Date)
+        n.TimeUnit -> c.n(j.util.concurrent.TimeUnit)
+        n.Path -> c.n(j.nio.file.Path)
         n.Text -> "String"
         n.Blob -> "ByteArray"
         n.Exception -> "Exception"

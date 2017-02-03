@@ -83,20 +83,6 @@ fun p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): A
 
 fun p(name: AttributeI, init: AttributeI.() -> Unit = {}): AttributeI = name.derive(init)
 
-fun <T : CompositeI> T.prepareModel(): T {
-    n.initObjectTree()
-    val ret = initObjectTree()
-    ret.sortByName()
-    return ret
-}
-
-fun <T : CompositeI> T.extendModel(): T {
-    n.initObjectTree()
-    val ret = initObjectTree()
-    ret.sortByName()
-    return ret
-}
-
 fun <T : CompositeI> T.defineConstructorAllForNonConstructors() {
     findDownByType(CompilationUnit::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
             .extend { constructorAll() }
@@ -161,3 +147,18 @@ fun LogicUnitI.p(name: String, type: TypeI = n.String, body: AttributeI.() -> Un
             type(type).name(name)
             body()
         }))
+
+
+fun <T : CompositeI> T.extendModel(): T {
+    val ret = initObjectTrees()
+    return ret
+}
+
+fun <T : CompositeI> T.initObjectTrees(): T {
+    n.initObjectTree()
+    l.initObjectTrees()
+    val ret = initObjectTree()
+    ret.initBlackNames()
+    ret.sortByName()
+    return ret
+}

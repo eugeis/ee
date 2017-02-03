@@ -30,8 +30,8 @@ open class KotlinGenerator {
 
     protected fun initObjectTrees() {
         /*
-        Java.initObjectTree()
-        Kotlin.initObjectTree()
+        j.initObjectTree()
+        k.initObjectTree()
         Jpa.initObjectTree()
         */
         n.initObjectTree()
