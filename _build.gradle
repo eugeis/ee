@@ -1,0 +1,182 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        maven { url 'http://dl.bintray.com/kotlin/kotlin-eap' }
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$version_spring_boot")
+    }
+}
+
+allprojects {
+    group = 'ee'
+    version = 'dev-SNAPSHOT'
+
+    task wrapper(type: Wrapper) { gradleVersion = '2.14' }
+}
+
+subprojects {
+
+    apply plugin: "kotlin"
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    sourceSets {
+        main {
+            kotlin.srcDirs = ['src/main/kotlin', 'src-gen/main/kotlin']
+        }
+    }
+
+    repositories {
+        mavenLocal()
+        maven { url 'http://dl.bintray.com/kotlin/kotlin-eap' }
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        compile "org.slf4j:slf4j-api:$version_slf4j"
+        compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
+        testCompile "junit:junit:$version_junit"
+
+        runtime "ch.qos.logback:logback-classic:$version_logback"
+    }
+}
+
+project(':ee-asm') {
+    dependencies {
+        compile project(':ee-common')
+        compile "org.ow2.asm:asm-debug-all:${version_asm}"
+    }
+}
+
+project(':ee-axon_example') {
+    apply plugin: 'org.springframework.boot'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compile('org.springframework.boot:spring-boot-starter-data-jpa')
+        compile('org.springframework.boot:spring-boot-starter-jersey')
+        compile('org.springframework.boot:spring-boot-starter-web')
+        runtime('org.hsqldb:hsqldb')
+        compileOnly('org.projectlombok:lombok')
+        testCompile('org.springframework.boot:spring-boot-starter-test')
+        compile("org.axonframework:axon-spring:${version_axon}")
+        testCompile("org.axonframework:axon-test:${version_axon}")
+    }
+}
+
+project(':ee-lang_item') {
+    dependencies {
+        compile project(':ee-common')
+        compile "com.fasterxml.jackson.module:jackson-module-kotlin:$version_jackson"
+    }
+}
+
+project(':ee-design') {
+    dependencies {
+        compile project(':ee-lang')
+    }
+}
+
+project(':ee-design_gen') {
+    dependencies {
+        compile project(':ee-lang')
+    }
+}
+
+project(':ee-design_ui') {
+    dependencies {
+        compile project(':ee-design')
+    }
+}
+
+project(':ee-design_ui_des') {
+    dependencies {
+        compile project(':ee-design')
+        compile project(':ee-asm')
+    }
+}
+
+project(':ee-design_ui_des_asm') {
+    dependencies {
+        compile project(':ee-design')
+        compile project(':ee-asm')
+    }
+}
+
+project(':ee-lang') {
+    dependencies {
+        compile project(':ee-lang_item')
+    }
+}
+
+project(':ee-lang_gen') {
+    dependencies {
+        compile project(':ee-lang_item')
+    }
+}
+
+project(':ee-task') {
+    dependencies {
+        compile project(':ee-lang')
+    }
+}
+
+project(':ee-task_des') {
+    dependencies {
+        compile project(':ee-design')
+    }
+}
+
+project(':ee-system_des') {
+    dependencies {
+        compile project(':ee-task_des')
+        compile project(':ee-task')
+    }
+}
+
+project(':ee-system') {
+    dependencies {
+        compile project(':ee-task')
+    }
+}
+
+project(':ee-design_task') {
+    dependencies {
+        compile project(':ee-design')
+        compile project(':ee-system')
+    }
+}
+
+project(':ee-lang_fx') {
+    apply plugin: 'application'
+    mainClassName = 'ee.lang.fx.ModelApp'
+
+    dependencies {
+        compile project(':ee-design_task')
+        compile "no.tornado:tornadofx:$version_tornadofx"
+    }
+
+    jar {
+        manifest {
+            attributes(
+                    'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                    'Main-Class': 'ee.lang.fx.ModelApp'
+            )
+        }
+        from configurations.compile.collect { entry -> zipTree(entry) }
+    }
+}
