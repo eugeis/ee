@@ -84,12 +84,12 @@ fun p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): A
 fun p(name: AttributeI, init: AttributeI.() -> Unit = {}): AttributeI = name.derive(init)
 
 fun <T : CompositeI> T.defineConstructorAllForNonConstructors() {
-    findDownByType(CompilationUnit::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
+    findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
             .extend { constructorAll() }
 }
 
 fun <T : CompositeI> T.declareAsBaseWithNonImplementedOperation() {
-    findDownByType(CompilationUnit::class.java).filter { it.operations().isNotEmpty() && !it.base() }.forEach { it.base(true) }
+    findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEmpty() && !it.base() }.forEach { it.base(true) }
 }
 
 fun <T : CompositeI> T.prepareAttributesOfEnums() {

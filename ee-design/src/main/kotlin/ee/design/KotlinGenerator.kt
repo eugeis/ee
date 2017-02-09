@@ -1,6 +1,9 @@
 package ee.design
 
-import ee.lang.*
+import ee.lang.CompilationUnitI
+import ee.lang.StructureUnitI
+import ee.lang.findDownByType
+import ee.lang.gen.kt.prepareForKotlinGeneration
 import java.nio.file.Path
 
 open class KotlinGenerator {
@@ -15,43 +18,24 @@ open class KotlinGenerator {
     }
 
     protected fun StructureUnitI.extendForKotlinGeneration() {
-        initObjectTrees()
-
-        //declare as 'base' all compilation units with non implemented operations.
-        declareAsBaseWithNonImplementedOperation()
-
-        //define constructor with all parameters.
-        defineConstructorAllForNonConstructors()
-
+        model.prepareForKotlinGeneration()
 
         //define names for data type controllers
         defineNamesForDataTypeControllers()
-    }
 
-    protected fun initObjectTrees() {
-        /*
-        j.initObjectTree()
-        k.initObjectTree()
-        Jpa.initObjectTree()
-        */
-        n.initObjectTree()
+        declareAsBaseWithNonImplementedOperation()
     }
 
     protected fun StructureUnitI.defineNamesForDataTypeControllers() {
 
     }
 
-    protected fun StructureUnitI.defineConstructorAllForNonConstructors() {
-        findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
-                .extend { constructorAll() }
-    }
-
     protected fun StructureUnitI.declareAsBaseWithNonImplementedOperation() {
         findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEmpty() && !it.base() }.forEach { it.base(true) }
 
         //derive controllers from super units
-        findDownByType(ControllerI::class.java).filter { it.parent() is CompilationUnit }.forEach {
-            val dataItem = it.parent() as CompilationUnit
+        findDownByType(ControllerI::class.java).filter { it.parent() is CompilationUnitI }.forEach {
+            val dataItem = it.parent() as CompilationUnitI
             dataItem.propagateItemToSubtypes(it)
 
             val T = it.G { type(dataItem).name("T") }
@@ -61,9 +45,9 @@ open class KotlinGenerator {
         }
     }
 
-    protected fun <T : CompilationUnit> T.propagateItemToSubtypes(item: CompilationUnit) {
+    protected fun <T : CompilationUnitI> T.propagateItemToSubtypes(item: CompilationUnitI) {
         superUnitFor().filter { superUnitChild ->
-            superUnitChild.items().filterIsInstance<CompilationUnit>().find {
+            superUnitChild.items().filterIsInstance<CompilationUnitI>().find {
                 (it.name() == item.name() || it.superUnit() == superUnitChild)
             } == null
         }.forEach { superUnitChild ->

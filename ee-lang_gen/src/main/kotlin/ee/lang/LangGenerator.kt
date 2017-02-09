@@ -17,8 +17,11 @@ fun generate(target: Path) {
     var context = KotlinContext(namespace = model.namespace())
     prepareDerivedController(context)
 
+    val genFolder = "src-gen/main/kotlin"
+    val module = "ee-lang"
+
     var generator = Generator<CompositeI, CompositeI>(
-            moduleFolder = "ee-lang", genFolder = "src-gen/main/kotlin", deleteGenFolder = true,
+            moduleFolder = module, genFolder = genFolder, deleteGenFolder = true,
             context = context,
             items = { items().filterIsInstance(CompositeI::class.java) }, templates = { templatesApiBase(nameBuilder) },
             fileName = "LangIfcBase.kt"
@@ -27,7 +30,7 @@ fun generate(target: Path) {
 
     context.clear()
     generator = Generator<CompositeI, CompositeI>(
-            moduleFolder = "ee-lang", genFolder = "src-gen/main/kotlin", deleteGenFolder = false,
+            moduleFolder = module, genFolder = genFolder, deleteGenFolder = false,
             context = context,
             items = { items().filterIsInstance(CompositeI::class.java) }, templates = { templatesImplBase(nameBuilder) },
             fileName = "LangApiBase.kt"
@@ -36,15 +39,16 @@ fun generate(target: Path) {
 
     context.clear()
     generator = Generator<CompositeI, CompositeI>(
-            moduleFolder = "ee-lang", genFolder = "src-gen/main/kotlin", deleteGenFolder = false,
+            moduleFolder = module, genFolder = genFolder, deleteGenFolder = false,
             context = context,
             items = { items().filterIsInstance(CompositeI::class.java) }, templates = { templatesComposites(nameBuilder) },
             fileName = "LangComposites.kt"
     )
     generator.generate(target, model)
+
     context.clear()
     generator = Generator<CompositeI, CompositeI>(
-            moduleFolder = "ee-lang", genFolder = "src-gen/main/kotlin", deleteGenFolder = false,
+            moduleFolder = module, genFolder = genFolder, deleteGenFolder = false,
             context = context,
             items = { listOf(this) }, templates = { templatesObjectTree(nameBuilder) },
             fileName = "l.kt"
@@ -53,21 +57,21 @@ fun generate(target: Path) {
 }
 
 private fun prepareDerivedController(context: KotlinContext) {
-    val derivedController = context.derivedController
+    val controller = context.derivedController
 
     val isNotPartOfDslTypes: ItemI.() -> Boolean = { n != this.parent() }
     val isNotPartOfDslModelAndTypes: ItemI.() -> Boolean = {
         l != this.parent() && n != this.parent()
     }
 
-    derivedController.registerKind(DerivedNames.API.name, isNotPartOfDslTypes, { "${name()}I" })
-    derivedController.registerKind(DerivedNames.API_BASE.name, isNotPartOfDslTypes, { "${name()}IfcBase" })
-    derivedController.registerKind(DerivedNames.IMPL.name, isNotPartOfDslTypes, { name() })
-    derivedController.registerKind(DerivedNames.IMPL_BASE.name, isNotPartOfDslTypes, { "${name()}Base" })
-    derivedController.registerKind(DerivedNames.COMPOSITE.name, isNotPartOfDslTypes, { "${name()}s" })
-    derivedController.registerKind(DerivedNames.EMPTY.name, isNotPartOfDslTypes, { "${name()}Empty" })
-    derivedController.registerKind(DerivedNames.EMPTY_CLASS.name, isNotPartOfDslTypes, { "${name()}EmptyClass" })
-    derivedController.registerKind(DerivedNames.DSL_TYPE.name, isNotPartOfDslModelAndTypes, { "ItemTypes.${name()}" })
+    controller.registerKind(DerivedNames.API.name, isNotPartOfDslTypes, { "${name()}I" })
+    controller.registerKind(DerivedNames.API_BASE.name, isNotPartOfDslTypes, { "${name()}IfcBase" })
+    controller.registerKind(DerivedNames.IMPL.name, isNotPartOfDslTypes, { name() })
+    controller.registerKind(DerivedNames.IMPL_BASE.name, isNotPartOfDslTypes, { "${name()}Base" })
+    controller.registerKind(DerivedNames.COMPOSITE.name, isNotPartOfDslTypes, { "${name()}s" })
+    controller.registerKind(DerivedNames.EMPTY.name, isNotPartOfDslTypes, { "${name()}Empty" })
+    controller.registerKind(DerivedNames.EMPTY_CLASS.name, isNotPartOfDslTypes, { "${name()}EmptyClass" })
+    controller.registerKind(DerivedNames.DSL_TYPE.name, isNotPartOfDslModelAndTypes, { "ItemTypes.${name()}" })
 }
 
 fun prepareModel(): CompositeI {
