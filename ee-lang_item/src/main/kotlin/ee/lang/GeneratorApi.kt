@@ -12,6 +12,7 @@ val tab = "    "
 val nL = "\n"
 
 open class Generator<M, I> {
+    val facet: String
     val moduleFolder: String
     val genFolder: String
     val deleteGenFolder: Boolean
@@ -20,9 +21,10 @@ open class Generator<M, I> {
     val templates: I.() -> Collection<Template<I>>
     val fileName: String?
 
-    constructor(moduleFolder: String, genFolder: String, deleteGenFolder: Boolean = false,
+    constructor(facet: String, moduleFolder: String, genFolder: String, deleteGenFolder: Boolean = false,
                 context: GenerationContext, items: M.() -> Collection<I>,
                 templates: I.() -> Collection<Template<I>>, fileName: String? = null) {
+        this.facet = facet
         this.moduleFolder = moduleFolder
         this.genFolder = genFolder
         this.deleteGenFolder = deleteGenFolder

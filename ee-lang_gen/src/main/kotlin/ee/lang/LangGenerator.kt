@@ -21,6 +21,7 @@ fun generate(target: Path) {
     val module = "ee-lang"
 
     var generator = Generator<CompositeI, CompositeI>(
+            facet = "apiBase",
             moduleFolder = module, genFolder = genFolder, deleteGenFolder = true,
             context = context,
             items = { items().filterIsInstance(CompositeI::class.java) }, templates = { templatesApiBase(nameBuilder) },
@@ -30,6 +31,7 @@ fun generate(target: Path) {
 
     context.clear()
     generator = Generator<CompositeI, CompositeI>(
+            facet = "implBase",
             moduleFolder = module, genFolder = genFolder, deleteGenFolder = false,
             context = context,
             items = { items().filterIsInstance(CompositeI::class.java) }, templates = { templatesImplBase(nameBuilder) },
@@ -39,6 +41,7 @@ fun generate(target: Path) {
 
     context.clear()
     generator = Generator<CompositeI, CompositeI>(
+            facet = "composites",
             moduleFolder = module, genFolder = genFolder, deleteGenFolder = false,
             context = context,
             items = { items().filterIsInstance(CompositeI::class.java) }, templates = { templatesComposites(nameBuilder) },
@@ -48,6 +51,7 @@ fun generate(target: Path) {
 
     context.clear()
     generator = Generator<CompositeI, CompositeI>(
+            facet = "objectTree",
             moduleFolder = module, genFolder = genFolder, deleteGenFolder = false,
             context = context,
             items = { listOf(this) }, templates = { templatesObjectTree(nameBuilder) },
