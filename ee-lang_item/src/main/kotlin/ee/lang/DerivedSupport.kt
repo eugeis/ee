@@ -67,8 +67,8 @@ open class DerivedController {
 
     open fun <T : ItemI> derive(item: T, kindName: String): T {
         if (kindName.isNotBlank()) {
-            val kind: DerivedKind<T>? = nameToDerivedKind[kindName] as DerivedKind<T>
-            return if (kind != null) derive(item, kind) else {
+            val kind = nameToDerivedKind[kindName]
+            return if (kind != null && kind is DerivedKind<*>) derive(item, kind as DerivedKind<T>) else {
                 println("There is no $kind registered")
                 item
             }

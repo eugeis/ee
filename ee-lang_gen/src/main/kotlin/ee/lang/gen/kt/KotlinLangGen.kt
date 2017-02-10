@@ -1,4 +1,4 @@
-package ee.lang.gen
+package ee.lang.gen.kt
 
 import ee.common.ext.ifElse
 import ee.common.ext.joinSurroundIfNotEmptyToString
@@ -139,7 +139,7 @@ fun <T : ItemI> T.toKotlinObjectTreeCompilationUnit(c: GenerationContext, derive
     }})"""
 }
 
-fun <T : CompositeI> T.toKotlinDslTypes(c: GenerationContext, derived: String = DerivedNames.DSL_TYPE.name): String {
+fun <T : CompositeI> T.toKotlinDslObjectTree(c: GenerationContext, derived: String = DerivedNames.DSL_TYPE.name): String {
     return """
 object ${c.n(this)} : ${c.n(l.StructureUnit)}({ namespace("${namespace()}") }) {
 ${items().filter { !it.name().equals("TypedComposite") }.joinSurroundIfNotEmptyToString(nL) { it.toKotlinObjectTreeCompilationUnit(c, derived) }}

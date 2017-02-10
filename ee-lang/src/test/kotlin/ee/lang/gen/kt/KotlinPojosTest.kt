@@ -2,6 +2,8 @@ package ee.lang.gen.kt
 
 import ee.common.ext.logger
 import ee.lang.*
+import ee.lang.gen.KotlinContextFactory
+import ee.lang.gen.prepareForKotlinGeneration
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert
 import org.junit.Before

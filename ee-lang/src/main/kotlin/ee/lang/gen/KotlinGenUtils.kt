@@ -1,8 +1,7 @@
-package ee.lang.gen.kt
+package ee.lang.gen
 
 import ee.lang.*
 import ee.lang.gen.java.j
-import ee.lang.gen.KotlinContext
 
 object k : StructureUnit({ name("Kotlin") }) {
     object Core : StructureUnit() {
@@ -65,7 +64,7 @@ object KotlinContextFactory {
 }
 
 
-fun <T : CompositeI> T.prepareForKotlinGeneration() {
+fun <T : CompositeI> T.prepareForKotlinGeneration(): T {
     initObjectTreesForKotlin()
 
     //declare as 'base' all compilation units with non implemented operations.
@@ -75,11 +74,11 @@ fun <T : CompositeI> T.prepareForKotlinGeneration() {
 
     //define constructor with all parameters.
     defineConstructorAllForNonConstructors()
+    return this
 }
 
 fun <T : CompositeI> T.initObjectTreesForKotlin(): T {
     val ret = initObjectTrees()
-    j.initObjectTree()
-    k.initObjectTree()
+    initObjectTree()
     return ret
 }

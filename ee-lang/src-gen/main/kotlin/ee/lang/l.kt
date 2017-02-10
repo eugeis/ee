@@ -26,4 +26,3 @@ object l : StructureUnit({ namespace("ee.lang") }) {
         val T = G({ type(Item) })
     }
 }
-

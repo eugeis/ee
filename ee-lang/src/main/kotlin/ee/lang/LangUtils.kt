@@ -156,7 +156,7 @@ fun <T : CompositeI> T.extendModel(): T {
 
 fun <T : CompositeI> T.initObjectTrees(): T {
     n.initObjectTree()
-    l.initObjectTrees()
+    l.initObjectTree()
     val ret = initObjectTree()
     ret.initBlackNames()
     ret.sortByName()

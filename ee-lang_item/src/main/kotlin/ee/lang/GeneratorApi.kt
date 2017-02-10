@@ -11,8 +11,25 @@ import java.util.*
 val tab = "    "
 val nL = "\n"
 
-open class Generator<M, I> {
-    val facet: String
+interface GeneratorI<M> {
+    fun generate(target: Path, model: M)
+}
+
+open class GeneratorGroup<M> : GeneratorI<M> {
+    val generators: Collection<GeneratorI<M>>
+
+    constructor(generators: Collection<GeneratorI<M>>) {
+        this.generators = generators
+    }
+
+    override fun generate(target: Path, model: M) {
+        generators.forEach {
+            it.generate(target, model)
+        }
+    }
+}
+
+open class Generator<M, I> : GeneratorI<M> {
     val moduleFolder: String
     val genFolder: String
     val deleteGenFolder: Boolean
@@ -21,10 +38,9 @@ open class Generator<M, I> {
     val templates: I.() -> Collection<Template<I>>
     val fileName: String?
 
-    constructor(facet: String, moduleFolder: String, genFolder: String, deleteGenFolder: Boolean = false,
+    constructor(moduleFolder: String, genFolder: String, deleteGenFolder: Boolean = false,
                 context: GenerationContext, items: M.() -> Collection<I>,
                 templates: I.() -> Collection<Template<I>>, fileName: String? = null) {
-        this.facet = facet
         this.moduleFolder = moduleFolder
         this.genFolder = genFolder
         this.deleteGenFolder = deleteGenFolder
@@ -34,7 +50,7 @@ open class Generator<M, I> {
         this.fileName = fileName
     }
 
-    open fun generate(target: Path, model: M) {
+    override fun generate(target: Path, model: M) {
         val module = target.resolve(moduleFolder)
         val metaData = module.loadMetaData()
 
@@ -52,6 +68,7 @@ open class Generator<M, I> {
                 }
                 path.toFile().writeText(context.complete(buffer.toString()))
                 metaData.track(relative, path.lastModified())
+                context.clear()
             } else {
                 println("File exists $path and was modified after generation, skip generation.")
             }
@@ -64,6 +81,7 @@ open class Generator<M, I> {
                     if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
                         path.toFile().writeText(context.complete(template.generate(template, item, context)))
                         metaData.track(relative, path.lastModified())
+                        context.clear()
                     } else {
                         println("File exists $path and was modified after generation, skip generation.")
                     }
