@@ -23,7 +23,7 @@ enum class $name${primaryConstructor().toKotlinPrimary(c, derived, api)} {
 }"""
 }
 
-fun <T : EnumTypeI> T.toKotlinEnumParserMethod(c: GenerationContext,
+fun <T : EnumTypeI> T.toKotlinEnumParseMethod(c: GenerationContext,
                                                derived: String = DerivedNames.API.name): String {
     val name = c.n(this, derived)
     return """

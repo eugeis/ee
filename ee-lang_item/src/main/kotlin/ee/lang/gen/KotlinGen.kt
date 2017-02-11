@@ -1,8 +1,7 @@
 package ee.lang.gen
 
 import ee.common.ext.then
-import ee.lang.GenerationContext
-import ee.lang.nL
+import ee.lang.*
 
 open class KotlinContext : GenerationContext {
 
@@ -25,4 +24,11 @@ open class KotlinContext : GenerationContext {
             }
         }
     }
+}
+
+val templateNameAsKotlinFileName: TemplateI<*>.(CompositeI) -> Names = {
+    Names("$name.kt")
+}
+val itemNameAsKotlinFileName: TemplateI<*>.(CompositeI) -> Names = {
+    Names("${it.name()}.kt")
 }

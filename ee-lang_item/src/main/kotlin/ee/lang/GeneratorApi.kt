@@ -23,72 +23,22 @@ open class GeneratorGroup<M> : GeneratorI<M> {
     }
 
     override fun generate(target: Path, model: M) {
-        generators.forEach {
-            it.generate(target, model)
-        }
+        generators.forEach { it.generate(target, model) }
     }
 }
 
-open class Generator<M, I> : GeneratorI<M> {
+abstract class GeneratorBase<M> : GeneratorI<M> {
     val moduleFolder: String
     val genFolder: String
     val deleteGenFolder: Boolean
     val context: GenerationContext
-    val items: M.() -> Collection<I>
-    val templates: I.() -> Collection<Template<I>>
-    val fileName: String?
 
     constructor(moduleFolder: String, genFolder: String, deleteGenFolder: Boolean = false,
-                context: GenerationContext, items: M.() -> Collection<I>,
-                templates: I.() -> Collection<Template<I>>, fileName: String? = null) {
+                context: GenerationContext) {
         this.moduleFolder = moduleFolder
         this.genFolder = genFolder
         this.deleteGenFolder = deleteGenFolder
         this.context = context
-        this.items = items
-        this.templates = templates
-        this.fileName = fileName
-    }
-
-    override fun generate(target: Path, model: M) {
-        val module = target.resolve(moduleFolder)
-        val metaData = module.loadMetaData()
-
-        if (fileName != null) {
-            val pkg = prepareNamespace(module, context)
-            val path = pkg.resolve(fileName)
-            val relative = target.relativize(path).toString()
-            if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
-                val buffer = StringBuffer()
-                model.items().forEach { item ->
-                    item.templates().forEach { template ->
-                        buffer.appendln(template.generate(template, item, context))
-                        buffer.appendln()
-                    }
-                }
-                path.toFile().writeText(context.complete(buffer.toString()))
-                metaData.track(relative, path.lastModified())
-                context.clear()
-            } else {
-                println("File exists $path and was modified after generation, skip generation.")
-            }
-        } else {
-            model.items().forEach { item ->
-                item.templates().forEach { template ->
-                    val pkg = prepareNamespace(module, context)
-                    val path = pkg.resolve(template.name(item).fileName)
-                    val relative = target.relativize(path).toString()
-                    if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
-                        path.toFile().writeText(context.complete(template.generate(template, item, context)))
-                        metaData.track(relative, path.lastModified())
-                        context.clear()
-                    } else {
-                        println("File exists $path and was modified after generation, skip generation.")
-                    }
-                }
-            }
-        }
-        metaData.store(target)
     }
 
     protected open fun prepareNamespace(target: Path, context: GenerationContext): Path {
@@ -102,27 +52,124 @@ open class Generator<M, I> : GeneratorI<M> {
     }
 }
 
+open class GeneratorSimple<M> : GeneratorBase<M> {
+    val template: TemplateI<M>
+
+    constructor(moduleFolder: String, genFolder: String, deleteGenFolder: Boolean = false,
+                context: GenerationContext, template: TemplateI<M>)
+            : super(moduleFolder, genFolder, deleteGenFolder, context) {
+        this.template = template
+    }
+
+    override fun generate(target: Path, model: M) {
+        val module = target.resolve(moduleFolder)
+        val metaData = module.loadMetaData()
+
+        val pkg = prepareNamespace(module, context)
+        val path = pkg.resolve(template.name(model).fileName)
+        val relative = target.relativize(path).toString()
+        if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
+            path.toFile().writeText(context.complete(template.generate(model, context)))
+            metaData.track(relative, path.lastModified())
+            context.clear()
+            metaData.store(target)
+        } else {
+            println("File exists $path and was modified after generation, skip generation.")
+        }
+    }
+}
+
+open class Generator<M, I> : GeneratorBase<M> {
+    val items: M.() -> Collection<I>
+    val templates: I.() -> Collection<Template<I>>
+
+    constructor(moduleFolder: String, genFolder: String, deleteGenFolder: Boolean = false,
+                context: GenerationContext, items: M.() -> Collection<I>,
+                templates: I.() -> Collection<Template<I>>) : super(moduleFolder, genFolder, deleteGenFolder, context) {
+        this.items = items
+        this.templates = templates
+    }
+
+    override fun generate(target: Path, model: M) {
+        val module = target.resolve(moduleFolder)
+        val metaData = module.loadMetaData()
+
+        model.items().forEach { item ->
+            item.templates().forEach { template ->
+                val pkg = prepareNamespace(module, context)
+                val path = pkg.resolve(template.name(item).fileName)
+                val relative = target.relativize(path).toString()
+                if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
+                    path.toFile().writeText(context.complete(template.generate(template, item, context)))
+                    metaData.track(relative, path.lastModified())
+                    context.clear()
+                } else {
+                    println("File exists $path and was modified after generation, skip generation.")
+                }
+            }
+        }
+        metaData.store(target)
+    }
+}
+
 interface NamesI {
     val fileName: String
 }
 
 open class Names(override val fileName: String) : NamesI
 
-open class Template<I> {
+interface TemplateI<I> {
     val name: String
-    val nameBuilder: Template<I>.(I) -> NamesI
-    val generate: Template<I>.(I, GenerationContext) -> String
+    fun generate(item: I, context: GenerationContext): String
+    fun name(item: I): NamesI
+}
 
-    constructor(name: String,
-                nameBuilder: Template<I>.(I) -> NamesI,
-                generate: Template<I>.(item: I, context: GenerationContext) -> String) {
+open class Template<I> : TemplateI<I> {
+    override val name: String
+    val generate: TemplateI<I>.(I, GenerationContext) -> String
+    val nameBuilder: TemplateI<I>.(I) -> NamesI
+
+    constructor(name: String, nameBuilder: TemplateI<I>.(I) -> NamesI,
+                generate: TemplateI<I>.(item: I, context: GenerationContext) -> String) {
         this.name = name
         this.nameBuilder = nameBuilder
         this.generate = generate
     }
 
-    fun name(item: I): NamesI {
+    override fun generate(item: I, context: GenerationContext): String = generate(this, item, context)
+
+    override fun name(item: I): NamesI {
         return nameBuilder(item)
+    }
+}
+
+open class TemplatesForSameFilename<M, I> : TemplateI<M> {
+    override val name: String
+    val items: M.() -> Collection<I>
+    val templates: I.() -> Collection<TemplateI<I>>
+    val nameBuilder: TemplateI<M>.(M) -> NamesI
+
+    constructor(name: String, items: M.() -> Collection<I>, templates: I.() -> Collection<Template<I>>,
+                nameBuilder: TemplateI<M>.(M) -> NamesI) {
+        this.name = name
+        this.nameBuilder = nameBuilder
+        this.items = items
+        this.templates = templates
+    }
+
+    override fun generate(model: M, context: GenerationContext): String {
+        val buffer = StringBuffer()
+        model.items().forEach { item ->
+            item.templates().forEach { template ->
+                buffer.appendln(template.generate(item, context))
+                buffer.appendln()
+            }
+        }
+        return buffer.toString()
+    }
+
+    override fun name(item: M): NamesI {
+        return nameBuilder(this, item)
     }
 }
 
