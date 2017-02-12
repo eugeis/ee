@@ -1,12 +1,14 @@
-package ee.design
+package ee.design.gen
 
+import ee.design.ControllerI
+import ee.design.QueryControllerI
 import ee.lang.CompilationUnitI
 import ee.lang.StructureUnitI
 import ee.lang.findDownByType
 import ee.lang.gen.prepareForKotlinGeneration
 import java.nio.file.Path
 
-open class KotlinGenerator {
+open class DesingKotlinGenerator {
     val model: StructureUnitI
 
     constructor(model: StructureUnitI) {
@@ -15,6 +17,9 @@ open class KotlinGenerator {
 
     fun generate(target: Path) {
         model.extendForKotlinGeneration()
+        val generatorFactory = DesignGeneratorFactory()
+        val generator = generatorFactory.pojo()
+        generator.generate(target, model)
     }
 
     protected fun StructureUnitI.extendForKotlinGeneration() {

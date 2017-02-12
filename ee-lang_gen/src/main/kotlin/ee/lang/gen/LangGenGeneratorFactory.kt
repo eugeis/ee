@@ -14,33 +14,29 @@ open class LangGenGeneratorFactory {
     }
 
     fun dsl(fileNamePrefix: String = ""): GeneratorI<CompositeI> {
-        val genFolder = "src-gen/main/kotlin"
-        var context = KotlinContextFactory.buildForDslBuilder(namespace)
+        val contextBuilder = KotlinContextFactory.buildForDslBuilder(namespace = namespace, moduleFolder = module)
         val composites: CompositeI.() -> List<CompositeI> = { items().filterIsInstance(CompositeI::class.java) }
 
 
         return GeneratorGroup<CompositeI>(listOf(
                 GeneratorSimple<CompositeI>(
-                        moduleFolder = module, genFolder = genFolder, deleteGenFolder = true,
-                        context = context, template = TemplatesForSameFilename<CompositeI, CompositeI>(
+                        deleteGenFolder = true,
+                        contextBuilder = contextBuilder, template = TemplatesForSameFilename<CompositeI, CompositeI>(
                         name = "${fileNamePrefix}IfcBase", nameBuilder = templateNameAsKotlinFileName,
                         items = composites, templates = { listOf(kotlinTemplates.dslBuilderI()) })
                 ),
                 GeneratorSimple<CompositeI>(
-                        moduleFolder = module, genFolder = genFolder,
-                        context = context, template = TemplatesForSameFilename<CompositeI, CompositeI>(
+                        contextBuilder = contextBuilder, template = TemplatesForSameFilename<CompositeI, CompositeI>(
                         name = "${fileNamePrefix}ApiBase", nameBuilder = templateNameAsKotlinFileName,
                         items = composites, templates = { listOf(kotlinTemplates.dslBuilder(), kotlinTemplates.isEmptyExt()) })
                 ),
                 GeneratorSimple<CompositeI>(
-                        moduleFolder = module, genFolder = genFolder,
-                        context = context, template = TemplatesForSameFilename<CompositeI, CompositeI>(
+                        contextBuilder = contextBuilder, template = TemplatesForSameFilename<CompositeI, CompositeI>(
                         name = "${fileNamePrefix}Composites", nameBuilder = templateNameAsKotlinFileName,
                         items = composites, templates = { listOf(kotlinTemplates.dslComposite()) })
                 ),
                 GeneratorSimple<CompositeI>(
-                        moduleFolder = module, genFolder = genFolder,
-                        context = context, template = kotlinTemplates.dslObjectTree()
+                        contextBuilder = contextBuilder, template = kotlinTemplates.dslObjectTree()
                 )
         ))
     }

@@ -23,8 +23,8 @@ object k : StructureUnit({ name("Kotlin") }) {
 object KotlinContextFactory {
     private val isNotPartOfNativeTypes: ItemI.() -> Boolean = { n != parent() && j != parent() && k != parent() }
 
-    fun buildForImplOnly(namespace: String): KotlinContext {
-        var ret = KotlinContext(namespace = namespace)
+    fun buildForImplOnly(): KotlinContext {
+        var ret = KotlinContext()
         val controller = ret.derivedController
 
         controller.registerKinds(listOf(DerivedNames.API.name, DerivedNames.IMPL.name),
@@ -36,9 +36,8 @@ object KotlinContextFactory {
         return ret
     }
 
-    fun buildForApiAndImpl(namespace: String): KotlinContext {
-        var ret = KotlinContext(namespace = namespace)
-        val controller = ret.derivedController
+    fun buildForApiAndImpl(): StructureUnitI.() -> KotlinContext {
+        val controller = DerivedController(DerivedStorage<ItemI>())
 
         controller.registerKind(DerivedNames.API.name, isNotPartOfNativeTypes, { "${name()}" })
         controller.registerKind(DerivedNames.API_BASE.name, isNotPartOfNativeTypes, { "${name()}Base" })
@@ -46,11 +45,11 @@ object KotlinContextFactory {
         controller.registerKind(DerivedNames.IMPL_BASE.name, isNotPartOfNativeTypes, { "${name()}ImplBase" })
         controller.registerKind(DerivedNames.COMPOSITE.name, isNotPartOfNativeTypes, { "${name()}s" })
 
-        return ret
+        return contextBuilder(controller)
     }
 
-    fun buildForDslBuilder(namespace: String): KotlinContext {
-        var ret = KotlinContext(namespace = namespace)
+    fun buildForDslBuilder(): StructureUnitI.() -> KotlinContext {
+        var ret = KotlinContext()
         val controller = ret.derivedController
 
         controller.registerKind(DerivedNames.API.name, isNotPartOfNativeTypes, { "${name()}I" })
@@ -59,7 +58,18 @@ object KotlinContextFactory {
         controller.registerKind(DerivedNames.IMPL_BASE.name, isNotPartOfNativeTypes, { "${name()}Base" })
         controller.registerKind(DerivedNames.COMPOSITE.name, isNotPartOfNativeTypes, { "${name()}s" })
 
-        return ret
+        return contextBuilder(controller)
+    }
+
+    private fun contextBuilder(controller: DerivedController): StructureUnitI.() -> KotlinContext {
+        return {
+            val structureUnit = this
+            KotlinContext(moduleFolder = structureUnit.artifact(),
+                    namespace = structureUnit.namespace(),
+                    genFolder = "src-gen/main/kotlin",
+                    derivedController = controller
+            )
+        }
     }
 }
 

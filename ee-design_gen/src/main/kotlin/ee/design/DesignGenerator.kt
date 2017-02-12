@@ -11,7 +11,7 @@ fun main(args: Array<String>) {
 
 fun generate(target: Path) {
     var model = d.prepareForKotlinGeneration()
-    val generatorFactory = LangGeneratorFactory(namespace = model.namespace(), module = model.artifact())
+    val generatorFactory = LangGeneratorFactory()
     val generator = generatorFactory.dsl("Design")
     generator.generate(target, model)
 }

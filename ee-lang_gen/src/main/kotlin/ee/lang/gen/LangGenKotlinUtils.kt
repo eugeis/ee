@@ -1,15 +1,13 @@
 package ee.lang.gen
 
 import ee.lang.*
-import ee.lang.gen.KotlinContext
 
 object KotlinContextFactory {
     private val isNotPartOfNativeTypes: ItemI.() -> Boolean = { n != this.parent() }
     private val isNotPartOfNativeAndModelTypes: ItemI.() -> Boolean = { n != this.parent() && l != this.parent() }
 
-    fun buildForDslBuilder(namespace: String): KotlinContext {
-        var ret = KotlinContext(namespace = namespace)
-        val controller = ret.derivedController
+    fun buildForDslBuilder(namespace: String, moduleFolder: String): CompositeI.() -> KotlinContext {
+        val controller = DerivedController(DerivedStorage<ItemI>())
 
         controller.registerKind(DerivedNames.API.name, isNotPartOfNativeTypes, { "${name()}I" })
         controller.registerKind(DerivedNames.API_BASE.name, isNotPartOfNativeTypes, { "${name()}IfcBase" })
@@ -20,7 +18,9 @@ object KotlinContextFactory {
         controller.registerKind(DerivedNames.EMPTY_CLASS.name, isNotPartOfNativeTypes, { "${name()}EmptyClass" })
         controller.registerKind(DerivedNames.DSL_TYPE.name, isNotPartOfNativeAndModelTypes, { "ItemTypes.${name()}" })
 
-        return ret
+        val ret = KotlinContext(namespace = namespace, moduleFolder = moduleFolder, genFolder = "src-gen/main/kotlin",
+                derivedController = controller)
+        return { ret }
     }
 }
 

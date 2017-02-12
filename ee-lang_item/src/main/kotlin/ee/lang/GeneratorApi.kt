@@ -28,21 +28,16 @@ open class GeneratorGroup<M> : GeneratorI<M> {
 }
 
 abstract class GeneratorBase<M> : GeneratorI<M> {
-    val moduleFolder: String
-    val genFolder: String
-    val deleteGenFolder: Boolean
-    val context: GenerationContext
+    val contextBuilder: M.() -> GenerationContext
+    var deleteGenFolder: Boolean
 
-    constructor(moduleFolder: String, genFolder: String, deleteGenFolder: Boolean = false,
-                context: GenerationContext) {
-        this.moduleFolder = moduleFolder
-        this.genFolder = genFolder
+    constructor(deleteGenFolder: Boolean = false, contextBuilder: M.() -> GenerationContext) {
         this.deleteGenFolder = deleteGenFolder
-        this.context = context
+        this.contextBuilder = contextBuilder
     }
 
     protected open fun prepareNamespace(target: Path, context: GenerationContext): Path {
-        val folder = target.resolve(genFolder)
+        val folder = target.resolve(context.genFolder)
         if (deleteGenFolder) folder.deleteRecursively()
 
         val ret = folder.resolve(context.namespace.toDotsAsPath())
@@ -55,23 +50,23 @@ abstract class GeneratorBase<M> : GeneratorI<M> {
 open class GeneratorSimple<M> : GeneratorBase<M> {
     val template: TemplateI<M>
 
-    constructor(moduleFolder: String, genFolder: String, deleteGenFolder: Boolean = false,
-                context: GenerationContext, template: TemplateI<M>)
-            : super(moduleFolder, genFolder, deleteGenFolder, context) {
+    constructor(deleteGenFolder: Boolean = false, contextBuilder: M.() -> GenerationContext, template: TemplateI<M>) :
+            super(deleteGenFolder, contextBuilder) {
         this.template = template
     }
 
     override fun generate(target: Path, model: M) {
-        val module = target.resolve(moduleFolder)
+        val c = model.contextBuilder()
+        val module = target.resolve(c.moduleFolder)
         val metaData = module.loadMetaData()
 
-        val pkg = prepareNamespace(module, context)
+        val pkg = prepareNamespace(module, c)
         val path = pkg.resolve(template.name(model).fileName)
         val relative = target.relativize(path).toString()
         if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
-            path.toFile().writeText(context.complete(template.generate(model, context)))
+            path.toFile().writeText(c.complete(template.generate(model, c)))
             metaData.track(relative, path.lastModified())
-            context.clear()
+            c.clear()
             metaData.store(target)
         } else {
             println("File exists $path and was modified after generation, skip generation.")
@@ -83,26 +78,26 @@ open class Generator<M, I> : GeneratorBase<M> {
     val items: M.() -> Collection<I>
     val templates: I.() -> Collection<Template<I>>
 
-    constructor(moduleFolder: String, genFolder: String, deleteGenFolder: Boolean = false,
-                context: GenerationContext, items: M.() -> Collection<I>,
-                templates: I.() -> Collection<Template<I>>) : super(moduleFolder, genFolder, deleteGenFolder, context) {
+    constructor(deleteGenFolder: Boolean = false, context: M.() -> GenerationContext, items: M.() -> Collection<I>,
+                templates: I.() -> Collection<Template<I>>) : super(deleteGenFolder, context) {
         this.items = items
         this.templates = templates
     }
 
     override fun generate(target: Path, model: M) {
-        val module = target.resolve(moduleFolder)
+        val c = model.contextBuilder()
+        val module = target.resolve(c.moduleFolder)
         val metaData = module.loadMetaData()
 
         model.items().forEach { item ->
             item.templates().forEach { template ->
-                val pkg = prepareNamespace(module, context)
+                val pkg = prepareNamespace(module, c)
                 val path = pkg.resolve(template.name(item).fileName)
                 val relative = target.relativize(path).toString()
                 if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
-                    path.toFile().writeText(context.complete(template.generate(template, item, context)))
+                    path.toFile().writeText(c.complete(template.generate(template, item, c)))
                     metaData.track(relative, path.lastModified())
-                    context.clear()
+                    c.clear()
                 } else {
                     println("File exists $path and was modified after generation, skip generation.")
                 }
@@ -175,18 +170,25 @@ open class TemplatesForSameFilename<M, I> : TemplateI<M> {
 
 
 open class GenerationContext : Cloneable {
-    val namespace: String
-    val header: String
-    val footer: String
-    val storage = DerivedStorage<ItemI>()
-    val derivedController = DerivedController(storage)
+    var namespace: String
+
+    var moduleFolder: String
+    var genFolder: String
+
+    var header: String = ""
+    var footer: String = ""
+
+    var derivedController: DerivedController
 
     val types: MutableSet<ItemI> = hashSetOf()
 
-    constructor(namespace: String, header: String = "", footer: String = "") {
+    constructor(namespace: String = "",
+                moduleFolder: String = "", genFolder: String = "",
+                derivedController: DerivedController = DerivedController(DerivedStorage<ItemI>())) {
         this.namespace = namespace
-        this.header = header
-        this.footer = footer
+        this.moduleFolder = moduleFolder
+        this.genFolder = genFolder
+        this.derivedController = derivedController
     }
 
     open fun toHeader(indent: String = ""): String {
