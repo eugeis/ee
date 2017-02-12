@@ -23,9 +23,8 @@ object k : StructureUnit({ name("Kotlin") }) {
 object KotlinContextFactory {
     private val isNotPartOfNativeTypes: ItemI.() -> Boolean = { n != parent() && j != parent() && k != parent() }
 
-    fun buildForImplOnly(): KotlinContext {
-        var ret = KotlinContext()
-        val controller = ret.derivedController
+    fun buildForImplOnly(): StructureUnitI.() -> KotlinContext {
+        val controller = DerivedController()
 
         controller.registerKinds(listOf(DerivedNames.API.name, DerivedNames.IMPL.name),
                 isNotPartOfNativeTypes, { "${name()}" })
@@ -33,11 +32,11 @@ object KotlinContextFactory {
                 isNotPartOfNativeTypes, { "${name()}Base" })
         controller.registerKind(DerivedNames.COMPOSITE.name, isNotPartOfNativeTypes, { "${name()}s" })
 
-        return ret
+        return contextBuilder(controller)
     }
 
     fun buildForApiAndImpl(): StructureUnitI.() -> KotlinContext {
-        val controller = DerivedController(DerivedStorage<ItemI>())
+        val controller = DerivedController()
 
         controller.registerKind(DerivedNames.API.name, isNotPartOfNativeTypes, { "${name()}" })
         controller.registerKind(DerivedNames.API_BASE.name, isNotPartOfNativeTypes, { "${name()}Base" })
@@ -49,8 +48,7 @@ object KotlinContextFactory {
     }
 
     fun buildForDslBuilder(): StructureUnitI.() -> KotlinContext {
-        var ret = KotlinContext()
-        val controller = ret.derivedController
+        val controller = DerivedController()
 
         controller.registerKind(DerivedNames.API.name, isNotPartOfNativeTypes, { "${name()}I" })
         controller.registerKind(DerivedNames.API_BASE.name, isNotPartOfNativeTypes, { "${name()}IfcBase" })
@@ -66,7 +64,6 @@ object KotlinContextFactory {
             val structureUnit = this
             KotlinContext(moduleFolder = structureUnit.artifact(),
                     namespace = structureUnit.namespace(),
-                    genFolder = "src-gen/main/kotlin",
                     derivedController = controller
             )
         }

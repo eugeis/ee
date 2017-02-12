@@ -19,7 +19,7 @@ object KotlinContextFactory {
         controller.registerKind(DerivedNames.DSL_TYPE.name, isNotPartOfNativeAndModelTypes, { "ItemTypes.${name()}" })
 
         val ret = KotlinContext(namespace = namespace, moduleFolder = moduleFolder, genFolder = "src-gen/main/kotlin",
-                derivedController = controller)
+                genFolderDeletable = true, derivedController = controller)
         return { ret }
     }
 }

@@ -13,6 +13,7 @@ val nL = "\n"
 
 interface GeneratorI<M> {
     fun generate(target: Path, model: M)
+    fun delete(target: Path, model: M)
 }
 
 open class GeneratorGroup<M> : GeneratorI<M> {
@@ -22,6 +23,10 @@ open class GeneratorGroup<M> : GeneratorI<M> {
         this.generators = generators
     }
 
+    override fun delete(target: Path, model: M) {
+        generators.forEach { it.delete(target, model) }
+    }
+
     override fun generate(target: Path, model: M) {
         generators.forEach { it.generate(target, model) }
     }
@@ -29,29 +34,30 @@ open class GeneratorGroup<M> : GeneratorI<M> {
 
 abstract class GeneratorBase<M> : GeneratorI<M> {
     val contextBuilder: M.() -> GenerationContext
-    var deleteGenFolder: Boolean
 
-    constructor(deleteGenFolder: Boolean = false, contextBuilder: M.() -> GenerationContext) {
-        this.deleteGenFolder = deleteGenFolder
+    constructor(contextBuilder: M.() -> GenerationContext) {
         this.contextBuilder = contextBuilder
     }
 
-    protected open fun prepareNamespace(target: Path, context: GenerationContext): Path {
-        val folder = target.resolve(context.genFolder)
-        if (deleteGenFolder) folder.deleteRecursively()
-
+    protected open fun prepareNamespace(module: Path, context: GenerationContext): Path {
+        val folder = module.resolve(context.genFolder)
         val ret = folder.resolve(context.namespace.toDotsAsPath())
-
         ret.mkdirs()
         return ret
+    }
+
+    override fun delete(target: Path, model: M) {
+        val c = model.contextBuilder()
+        val module = target.resolve(c.moduleFolder)
+        val folder = module.resolve(c.genFolder)
+        if (c.genFolderDeletable) folder.deleteRecursively()
     }
 }
 
 open class GeneratorSimple<M> : GeneratorBase<M> {
     val template: TemplateI<M>
 
-    constructor(deleteGenFolder: Boolean = false, contextBuilder: M.() -> GenerationContext, template: TemplateI<M>) :
-            super(deleteGenFolder, contextBuilder) {
+    constructor(contextBuilder: M.() -> GenerationContext, template: TemplateI<M>) : super(contextBuilder) {
         this.template = template
     }
 
@@ -78,8 +84,8 @@ open class Generator<M, I> : GeneratorBase<M> {
     val items: M.() -> Collection<I>
     val templates: I.() -> Collection<Template<I>>
 
-    constructor(deleteGenFolder: Boolean = false, context: M.() -> GenerationContext, items: M.() -> Collection<I>,
-                templates: I.() -> Collection<Template<I>>) : super(deleteGenFolder, context) {
+    constructor(genFolderDeletable: Boolean = false, context: M.() -> GenerationContext, items: M.() -> Collection<I>,
+                templates: I.() -> Collection<Template<I>>) : super(context) {
         this.items = items
         this.templates = templates
     }
@@ -174,6 +180,7 @@ open class GenerationContext : Cloneable {
 
     var moduleFolder: String
     var genFolder: String
+    var genFolderDeletable: Boolean
 
     var header: String = ""
     var footer: String = ""
@@ -183,11 +190,12 @@ open class GenerationContext : Cloneable {
     val types: MutableSet<ItemI> = hashSetOf()
 
     constructor(namespace: String = "",
-                moduleFolder: String = "", genFolder: String = "",
+                moduleFolder: String = "", genFolder: String = "", genFolderDeletable: Boolean = false,
                 derivedController: DerivedController = DerivedController(DerivedStorage<ItemI>())) {
         this.namespace = namespace
         this.moduleFolder = moduleFolder
         this.genFolder = genFolder
+        this.genFolderDeletable = genFolderDeletable
         this.derivedController = derivedController
     }
 

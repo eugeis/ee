@@ -46,7 +46,7 @@ open class DerivedController {
     val nameToDerivedKind = HashMap<String, DerivedKind<*>>()
     val storage: DerivedStorage<ItemI>
 
-    constructor(storage: DerivedStorage<ItemI>) {
+    constructor(storage: DerivedStorage<ItemI> = DerivedStorage()) {
         this.storage = storage
     }
 

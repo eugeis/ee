@@ -13,5 +13,6 @@ fun generate(target: Path) {
     var model = l.prepareForKotlinGeneration()
     val generatorFactory = LangGenGeneratorFactory(namespace = model.namespace(), module = "ee-lang")
     val generator = generatorFactory.dsl("Lang")
+    generator.delete(target, model)
     generator.generate(target, model)
 }

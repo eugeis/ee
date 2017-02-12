@@ -20,7 +20,6 @@ open class LangGenGeneratorFactory {
 
         return GeneratorGroup<CompositeI>(listOf(
                 GeneratorSimple<CompositeI>(
-                        deleteGenFolder = true,
                         contextBuilder = contextBuilder, template = TemplatesForSameFilename<CompositeI, CompositeI>(
                         name = "${fileNamePrefix}IfcBase", nameBuilder = templateNameAsKotlinFileName,
                         items = composites, templates = { listOf(kotlinTemplates.dslBuilderI()) })

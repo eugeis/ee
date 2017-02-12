@@ -12,7 +12,6 @@ open class LangGeneratorFactory {
         return GeneratorGroup<StructureUnitI>(listOf(
 
                 GeneratorSimple<StructureUnitI>(
-                        deleteGenFolder = true,
                         contextBuilder = contextBuilder, template = TemplatesForSameFilename<StructureUnitI, CompilationUnitI>(
                         name = "${fileNamePrefix}IfcBase", nameBuilder = templateNameAsKotlinFileName,
                         items = composites, templates = { listOf(kotlinTemplates.dslBuilderI()) })
@@ -38,7 +37,6 @@ open class LangGeneratorFactory {
         return GeneratorGroup<StructureUnitI>(listOf(
 
                 GeneratorSimple<StructureUnitI>(
-                        deleteGenFolder = true,
                         contextBuilder = contextBuilder, template = TemplatesForSameFilename<StructureUnitI, CompilationUnitI>(
                         name = "${fileNamePrefix}IfcBase", nameBuilder = templateNameAsKotlinFileName,
                         items = composites, templates = { listOf(kotlinTemplates.dslBuilderI()) })

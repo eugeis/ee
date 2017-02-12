@@ -8,7 +8,7 @@ import ee.lang.findDownByType
 import ee.lang.gen.prepareForKotlinGeneration
 import java.nio.file.Path
 
-open class DesingKotlinGenerator {
+open class DesignKotlinGenerator {
     val model: StructureUnitI
 
     constructor(model: StructureUnitI) {
