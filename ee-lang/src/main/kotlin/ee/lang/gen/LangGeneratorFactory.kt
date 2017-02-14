@@ -31,9 +31,9 @@ open class LangGeneratorFactory {
 
     open fun pojo(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
         val contextBuilder = buildKotlinContextFactory().buildForImplOnly()
-        val enums: StructureUnitI.() -> List<EnumTypeI> = { items().filterIsInstance(EnumTypeI::class.java) }
+        val enums: StructureUnitI.() -> List<EnumTypeI> = { findDownByType(EnumTypeI::class.java) }
         val compilationUnits: StructureUnitI.() -> List<CompilationUnitI> = {
-            items().filterIsInstance(CompilationUnitI::class.java).filter { it is EnumTypeI }
+            findDownByType(CompilationUnitI::class.java).filter { it !is EnumTypeI }
         }
 
         return GeneratorGroup<StructureUnitI>(listOf(

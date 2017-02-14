@@ -3,8 +3,8 @@ package ee.lang
 import ee.common.ext.buildLabel
 import java.util.*
 
-fun <T : ItemI> List<T>.extend(init: T.() -> Unit = {}) {
-    forEach { it.init() }
+fun <T : ItemI> List<T>.extend(code: T.() -> Unit = {}) {
+    forEach { it.code() }
 }
 
 fun <T : ItemI> T.doc(comment: String): T = apply { doc(Comment({ name(comment) })) }
@@ -27,7 +27,7 @@ fun <T : ItemI> ItemI.findParent(clazz: Class<T>): T? {
     }
 }
 
-fun <T : ItemI> CompositeI.findAllByType(type: Class<T>): List<T> {
+fun <T : ItemI> TypedCompositeI<*>.findAllByType(type: Class<T>): List<T> {
     return items().filterIsInstance(type)
 }
 
@@ -44,18 +44,18 @@ fun <T : ItemI> ItemI.findAcrossByType(type: Class<T>, destination: MutableList<
             if (type.isInstance(this)) this as T else null
         }, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
 
-fun <T : ItemI> CompositeI.findDownByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
+fun <T : ItemI> TypedCompositeI<*>.findDownByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
                                           alreadyHandled: MutableSet<ItemI> = HashSet(),
                                           stopSteppingDownIfFound: Boolean = true): List<T> =
         findAcrossByType(type, destination, alreadyHandled, stopSteppingDownIfFound, {
-            if (this is CompositeI) this.items() else emptyList()
+            if (this is TypedCompositeI<*>) this.items() else emptyList()
         })
 
 fun <T : ItemI> ItemI.findDown(select: ItemI.() -> T?, destination: MutableList<T> = ArrayList<T>(),
                                alreadyHandled: MutableSet<ItemI> = HashSet(),
                                stopSteppingAcrossIfFound: Boolean = true): List<T> =
         findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound, {
-            if (this is CompositeI) this.items() else emptyList()
+            if (this is TypedCompositeI<*>) this.items() else emptyList()
         })
 
 fun <T : ItemI> ItemI.findAcross(select: ItemI.() -> T?, destination: MutableList<T> = ArrayList<T>(),
@@ -79,7 +79,7 @@ fun <T : ItemI> ItemI.findAcross(select: ItemI.() -> T?, destination: MutableLis
 }
 
 
-fun <T : CompositeI> T.initObjectTree(searchForTargetComposite: Boolean = false): T {
+fun <T : TypedCompositeI<*>> T.initObjectTree(searchForTargetComposite: Boolean = false): T {
     if (!isInitialized()) init()
     if (name().isBlank()) {
         name(buildLabel().name)
@@ -113,7 +113,7 @@ fun <T : CompositeI> T.initObjectTree(searchForTargetComposite: Boolean = false)
                     val targetComposite = if(searchForTargetComposite) findSupportsItem(child) else this
                     if (!targetComposite.contains(child)){
                         targetComposite.add(child)
-                        if (child is CompositeI) child.initObjectTree()
+                        if (child is TypedCompositeI<*>) child.initObjectTree(searchForTargetComposite)
                     }
                 }
             }
@@ -136,7 +136,7 @@ fun <T> Class<T>.findInstance(): Any? {
 }
 
 
-fun CompositeI.initBlackNames() {
+fun TypedCompositeI<*>.initBlackNames() {
     findDown({ if (this.name().isBlank()) this else null }).forEach(ItemI::initBlackName)
 }
 

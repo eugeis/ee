@@ -2,7 +2,7 @@ package ee.lang
 
 
 open class Attribute : Composite, AttributeI {
-    private var _type: ValueHolderI<TypeI> = add(ValueHolder(Type.EMPTY as TypeI, { name("type") }))
+    private var _type: ValueHolderI<TypeI> = add(ValueHolder(n.String as TypeI, { name("type") }))
     private var _key: ValueHolderI<Boolean> = add(ValueHolder(false, { name("key") }))
     private var _unique: ValueHolderI<Boolean> = add(ValueHolder(false, { name("unique") }))
     private var _value: NullValueHolderI<Any> = add(NullValueHolder({ name("value") }))
@@ -279,6 +279,7 @@ fun NativeTypeI?.isNotEmpty(): Boolean = !isEmpty()
 open class Operation : LogicUnit, OperationI {
     private var _generics: Generics = add(Generics({ name("generics") }))
     private var _ret: ValueHolderI<AttributeI> = add(ValueHolder(Attribute.EMPTY as AttributeI, { name("ret") }))
+    private var _open: ValueHolderI<Boolean> = add(ValueHolder(true, { name("open") }))
 
     constructor(value: Operation.() -> Unit = {}) : super(value as LogicUnit.() -> Unit)
 
@@ -291,6 +292,9 @@ open class Operation : LogicUnit, OperationI {
     override fun ret(value: AttributeI): OperationI = apply { _ret.value(value) }
     override fun r(value: AttributeI): AttributeI = applyAndReturn { _ret.value(value) }
     override fun r(value: AttributeI.() -> Unit) : AttributeI = r(Attribute(value))
+
+    override fun open(): Boolean = _open.value()
+    override fun open(value: Boolean): OperationI = apply { _open.value(value) }
 
     companion object {
         val EMPTY = Operation()

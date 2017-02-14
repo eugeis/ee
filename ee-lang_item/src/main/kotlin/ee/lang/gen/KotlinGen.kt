@@ -34,9 +34,9 @@ val itemAndTemplateNameAsKotlinFileName: TemplateI<*>.(CompositeI) -> Names = {
 }
 
 val templateNameAsKotlinFileName: TemplateI<*>.(CompositeI) -> Names = {
-    Names("${name.capitalize()}.kt")
+    Names("$name.kt")
 }
 
 val itemNameAsKotlinFileName: TemplateI<*>.(CompositeI) -> Names = {
-    Names("${it.name().capitalize()}.kt")
+    Names("${it.name()}.kt")
 }

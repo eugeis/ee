@@ -145,6 +145,9 @@ interface OperationI : LogicUnitI {
     fun ret(value: AttributeI): OperationI
     fun r(value: AttributeI): AttributeI
     fun r(value: AttributeI.() -> Unit = {}) : AttributeI
+
+    fun open(): Boolean
+    fun open(value: Boolean): OperationI
 }
 
 

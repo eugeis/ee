@@ -14,7 +14,7 @@ open class LangGenGeneratorFactory {
     }
 
     fun dsl(fileNamePrefix: String = ""): GeneratorI<CompositeI> {
-        val contextBuilder = KotlinContextFactory.buildForDslBuilder(namespace = namespace, moduleFolder = module)
+        val contextBuilder = KotlinContextFactory().buildForDslBuilder(namespace = namespace, moduleFolder = module)
         val composites: CompositeI.() -> List<CompositeI> = { items().filterIsInstance(CompositeI::class.java) }
 
 

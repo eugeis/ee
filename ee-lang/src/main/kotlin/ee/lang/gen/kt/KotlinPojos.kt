@@ -26,7 +26,7 @@ enum class $name${primaryConstructor().toKotlinPrimary(c, derived, api)} {
 }
 
 fun <T : EnumTypeI> T.toKotlinEnumParseMethod(c: GenerationContext,
-                                               derived: String = DerivedNames.API.name): String {
+                                              derived: String = DerivedNames.API.name): String {
     val name = c.n(this, derived)
     return """
 fun String?.to$name(): $name {
@@ -34,15 +34,21 @@ fun String?.to$name(): $name {
 }"""
 }
 
-fun <T : CompilationUnitI> T.toKotlinPojo(c: GenerationContext,
-                                                derived: String = DerivedNames.IMPL.name,
-                                                api: String = DerivedNames.API.name
+fun <T : CompilationUnitI> T.toKotlinImpl(c: GenerationContext,
+                                          derived: String = DerivedNames.IMPL.name,
+                                          api: String = DerivedNames.API.name
 ): String {
+
+
+
     return """
-open class ${c.n(this, derived)} : ${c.n(superUnit(), derived)}${(derived != api).then(
-            { ", ${c.n(this, DerivedNames.API.name)}" })} {${
-    props().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) { it.toKotlinMember(c, derived, api) }}
-    constructor(value: ${c.n(this, derived)}.() -> Unit = {}) : super(value as ${c.n(superUnit(), derived)}.() -> Unit)${
+${open().then("open ")}class ${c.n(this, derived)}${toKotlinExtends(c, derived, api)} {${
+    props().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) { it.toKotlinMember(c, derived, api) }}${
+    otherConstructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+        it.toKotlinPrimary(c, derived, api)
+    }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+        it.toKotlinImpl(c, derived, api)
+    }}${
     toKotlinEmptyObject(c, derived)}
 }"""
 }

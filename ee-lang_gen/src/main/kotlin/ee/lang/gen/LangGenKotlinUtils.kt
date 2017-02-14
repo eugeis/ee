@@ -2,7 +2,7 @@ package ee.lang.gen
 
 import ee.lang.*
 
-object KotlinContextFactory {
+open class KotlinContextFactory {
     private val isNotPartOfNativeTypes: ItemI.() -> Boolean = { n != this.parent() }
     private val isNotPartOfNativeAndModelTypes: ItemI.() -> Boolean = { n != this.parent() && l != this.parent() }
 

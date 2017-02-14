@@ -1,13 +1,11 @@
 package ee.design.gen
 
-import ee.design.CompI
 import ee.design.ControllerI
 import ee.design.ModuleI
 import ee.design.QueryControllerI
 import ee.lang.CompilationUnitI
 import ee.lang.StructureUnitI
 import ee.lang.findDownByType
-import ee.lang.findThisOrParent
 import ee.lang.gen.prepareForKotlinGeneration
 import java.nio.file.Path
 

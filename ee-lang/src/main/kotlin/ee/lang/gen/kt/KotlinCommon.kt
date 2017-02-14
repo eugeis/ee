@@ -20,9 +20,7 @@ fun <T : AttributeI> T.toKotlinTypeSingle(c: GenerationContext, api: String): St
 }
 
 fun <T : AttributeI> T.toKotlinTypeDef(c: GenerationContext, api: String): String {
-    return """${type().multi().ifElse(
-            { "MutableList<${c.n(type(), api)}>" },
-            { c.n(type(), api) })}${nullable().then("?")}"""
+    return """${c.n(type(), api)}${nullable().then("?")}"""
 }
 
 fun <T : CompilationUnitI> T.toKotlinEmptyObject(c: GenerationContext, derived: String): String {
@@ -31,6 +29,18 @@ fun <T : CompilationUnitI> T.toKotlinEmptyObject(c: GenerationContext, derived: 
     companion object {
         val EMPTY = ${c.n(this, derived)}()
     }"""
+}
+
+fun <T : CompilationUnitI> T.toKotlinExtends(c: GenerationContext, derived: String, api: String): String {
+    if (superUnit().isNotEmpty() && derived != api) {
+        return ": ${c.n(superUnit(), derived)}, ${c.n(this, api)}"
+    } else if (superUnit().isNotEmpty()) {
+        return ": ${c.n(superUnit(), derived)}"
+    } else if (derived != api) {
+        return ": ${c.n(this, api)}"
+    } else {
+        return ""
+    }
 }
 
 fun <T : TypeI> T.toKotlinIfNative(c: GenerationContext, derived: String): String? {
@@ -122,7 +132,7 @@ fun <T : AttributeI> T.toKotlinSignature(c: GenerationContext, derived: String, 
 }
 
 fun <T : AttributeI> T.toKotlinMember(c: GenerationContext, derived: String, api: String): String {
-    return "${replaceable().ifElse("var ", "val ")}${toKotlinSignature(c, derived, api)}"
+    return "    ${replaceable().ifElse("var ", "val ")}${toKotlinSignature(c, derived, api)}"
 }
 
 fun List<AttributeI>.toKotlinSignature(c: GenerationContext, derived: String, api: String): String {
@@ -162,7 +172,7 @@ fun <T : OperationI> T.toKotlinLamnda(c: GenerationContext, derived: String): St
 
 fun <T : OperationI> T.toKotlinImpl(c: GenerationContext, derived: String, api: String): String {
     return """
-    fun ${toKotlinGenerics(c, derived)}${name()}(${
+    ${open().then("open ")}fun ${toKotlinGenerics(c, derived)}${name()}(${
     params().toKotlinSignature(c, derived, api)})${ret().toKotlinTypeDef(c, api)} {
         throw IllegalAccessException("Not implemented yet.")
     }"""

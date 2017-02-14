@@ -32,7 +32,7 @@ object l : Composite({ namespace("ee.lang") }) {
     object ExternalType : Composite({ derivedFrom(Type) })
 
     object Attribute : Composite({ derivedFrom(Composite) }) {
-        val type = AttributeI({ type(Type) })
+        val type = AttributeI({ type(Type).value("n.String as TypeI") })
         val key = AttributeI({ type(n.Boolean).value(false) })
         val unique = AttributeI({ type(n.Boolean).value(false) })
         val value = AttributeI({ type(n.Any).nullable(true) })
@@ -59,6 +59,7 @@ object l : Composite({ namespace("ee.lang") }) {
     object Operation : Composite({ derivedFrom(LogicUnit) }) {
         val generics = AttributeI({ type(Generic).multi(true).nonFluent("G") })
         val ret = AttributeI({ type(Attribute).nonFluent("r") })
+        val open = AttributeI({ type(n.Boolean).value(true) })
     }
 
     object CompilationUnit : Composite({ derivedFrom(Type) }) {
