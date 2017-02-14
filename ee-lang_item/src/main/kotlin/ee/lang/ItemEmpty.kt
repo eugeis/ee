@@ -35,6 +35,7 @@ open class CompositeEmptyClass : ItemEmptyClass(), CompositeI {
     override fun addAll(elements: Collection<ItemI>) {}
     override fun iterator(): Iterator<ItemI> = items().iterator()
     override fun first(): ItemI = items().first()
+    override fun <T: ItemI> supportsItemType(item: Class<T>): Boolean = false
     override fun <T: ItemI> supportsItem(item: T): Boolean = false
     override fun <T: ItemI> findSupportsItem(item: T): TypedComposite<T> = this as TypedComposite<T>
     override fun sortByName() {}

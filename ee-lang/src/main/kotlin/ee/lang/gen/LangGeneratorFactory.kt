@@ -6,7 +6,7 @@ open class LangGeneratorFactory {
     val kotlinTemplates = buildKotlinTemplates()
 
     open fun dsl(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
-        val contextBuilder = KotlinContextFactory.buildForDslBuilder()
+        val contextBuilder = buildKotlinContextFactory().buildForDslBuilder()
         val composites: StructureUnitI.() -> List<CompilationUnitI> = { items().filterIsInstance(CompilationUnitI::class.java) }
 
         return GeneratorGroup<StructureUnitI>(listOf(
@@ -30,7 +30,7 @@ open class LangGeneratorFactory {
     }
 
     open fun pojo(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
-        val contextBuilder = KotlinContextFactory.buildForDslBuilder()
+        val contextBuilder = buildKotlinContextFactory().buildForImplOnly()
         val composites: StructureUnitI.() -> List<CompilationUnitI> = { items().filterIsInstance(CompilationUnitI::class.java) }
         val enums: StructureUnitI.() -> List<EnumTypeI> = { items().filterIsInstance(EnumTypeI::class.java) }
 
@@ -38,16 +38,18 @@ open class LangGeneratorFactory {
 
                 GeneratorSimple<StructureUnitI>(
                         contextBuilder = contextBuilder, template = TemplatesForSameFilename<StructureUnitI, CompilationUnitI>(
-                        name = "${fileNamePrefix}IfcBase", nameBuilder = templateNameAsKotlinFileName,
+                        name = "${fileNamePrefix}IfcBase", nameBuilder = itemAndTemplateNameAsKotlinFileName,
                         items = composites, templates = { listOf(kotlinTemplates.dslBuilderI()) })
                 ),
                 GeneratorSimple<StructureUnitI>(
                         contextBuilder = contextBuilder, template = TemplatesForSameFilename<StructureUnitI, EnumTypeI>(
-                        name = "${fileNamePrefix}ApiBase", nameBuilder = templateNameAsKotlinFileName,
+                        name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsKotlinFileName,
                         items = enums, templates = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) })
                 )
         ))
     }
+
+    protected open fun buildKotlinContextFactory() = LangKotlinContextFactory()
 
     protected open fun buildKotlinTemplates() = LangKotlinTemplates({ Names("${it.name()}.kt") })
 }

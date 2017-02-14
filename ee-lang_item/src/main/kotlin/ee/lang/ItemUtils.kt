@@ -13,6 +13,10 @@ fun <T : ItemI> List<T>.derive(init: T.() -> Unit = {}): List<T> {
     return map { it.derive(init) }
 }
 
+fun <T : ItemI> ItemI.findThisOrParent(clazz: Class<T>): T? {
+    return if (clazz.isInstance(this)) this as T else findParent(clazz)
+}
+
 fun <T : ItemI> ItemI.findParent(clazz: Class<T>): T? {
     if (parent() == Item.EMPTY) {
         return null

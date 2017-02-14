@@ -2,7 +2,7 @@ package ee.lang.gen.kt
 
 import ee.common.ext.logger
 import ee.lang.*
-import ee.lang.gen.KotlinContextFactory
+import ee.lang.gen.LangKotlinContextFactory
 import ee.lang.gen.prepareForKotlinGeneration
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert
@@ -59,5 +59,5 @@ enum class ComplexEnum(val order: Int) {
 }"""))
     }
 
-    private fun context() = KotlinContextFactory.buildForImplOnly().invoke(TestModel)
+    private fun context() = LangKotlinContextFactory().buildForImplOnly().invoke(TestModel)
 }

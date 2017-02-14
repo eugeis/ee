@@ -29,9 +29,14 @@ open class KotlinContext : GenerationContext {
     }
 }
 
-val templateNameAsKotlinFileName: TemplateI<*>.(CompositeI) -> Names = {
-    Names("$name.kt")
+val itemAndTemplateNameAsKotlinFileName: TemplateI<*>.(CompositeI) -> Names = {
+    Names("${it.name().capitalize()}${name.capitalize()}.kt")
 }
+
+val templateNameAsKotlinFileName: TemplateI<*>.(CompositeI) -> Names = {
+    Names("${name.capitalize()}.kt")
+}
+
 val itemNameAsKotlinFileName: TemplateI<*>.(CompositeI) -> Names = {
-    Names("${it.name()}.kt")
+    Names("${it.name().capitalize()}.kt")
 }

@@ -201,6 +201,8 @@ open class TypedComposite<I : ItemI> : Item, TypedCompositeI<I> {
         _items.sortBy(ItemI::name)
     }
 
+    override fun <T : ItemI> supportsItemType(itemType: Class<T>): Boolean = itemType.isAssignableFrom(_type)
+
     override fun <T : ItemI> supportsItem(item: T): Boolean = _type.isInstance(item)
 
     override fun <T : ItemI> findSupportsItem(item: T): TypedComposite<T> =

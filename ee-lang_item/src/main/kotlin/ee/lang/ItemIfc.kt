@@ -64,6 +64,8 @@ interface TypedCompositeI<I : ItemI> : ItemI, Iterable<I> {
 
     fun <T : ItemI> supportsItem(item: T): Boolean
 
+    fun <T : ItemI> supportsItemType(itemType: Class<T>): Boolean
+
     fun <T : ItemI> findSupportsItem(item: T): TypedCompositeI<T>
 }
 

@@ -177,20 +177,28 @@ fun <T : StructureUnitI> T.initNamespaceFullNameArtifacts() {
     }
 
     val name = name().toLowerCase()
-    val parent = parent()
+    val parent = findParent(StructureUnitI::class.java)
 
     if (namespace().isBlank()) {
-        if (parent == Item.EMPTY) {
+        if (parent == null || parent == Item.EMPTY) {
             namespace(name)
         } else if (parent is StructureUnitI) {
             namespace(parent.deriveNamespace(name))
         }
     }
     if (artifact().isBlank()) {
-        if (parent == Item.EMPTY) {
+        if (parent == null || parent == Item.EMPTY) {
             artifact(name)
         } else if (parent is StructureUnitI) {
             artifact(parent.deriveArtifact(name))
+        }
+    }
+
+    items().forEach {
+        if (it is StructureUnitI) {
+            it.initNamespaceFullNameArtifacts()
+        } else if (it is TypedCompositeI<*> && it.supportsItemType(StructureUnitI::class.java)) {
+            it.filterIsInstance(StructureUnitI::class.java).forEach { it.initNamespaceFullNameArtifacts() }
         }
     }
 }
