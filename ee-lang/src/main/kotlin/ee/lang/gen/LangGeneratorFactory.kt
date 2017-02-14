@@ -31,8 +31,10 @@ open class LangGeneratorFactory {
 
     open fun pojo(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
         val contextBuilder = buildKotlinContextFactory().buildForImplOnly()
-        val composites: StructureUnitI.() -> List<CompilationUnitI> = { items().filterIsInstance(CompilationUnitI::class.java) }
         val enums: StructureUnitI.() -> List<EnumTypeI> = { items().filterIsInstance(EnumTypeI::class.java) }
+        val compilationUnits: StructureUnitI.() -> List<CompilationUnitI> = {
+            items().filterIsInstance(CompilationUnitI::class.java).filter { it is EnumTypeI }
+        }
 
         return GeneratorGroup<StructureUnitI>(listOf(
                 GeneratorSimple<StructureUnitI>(
@@ -40,7 +42,9 @@ open class LangGeneratorFactory {
                         name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsKotlinFileName,
                         fragments = {
                             listOf(ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
-                                    fragments = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) }))
+                                    fragments = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) }),
+                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = compilationUnits,
+                                            fragments = { listOf(kotlinTemplates.pojo()) }))
                         })
                 )
         ))

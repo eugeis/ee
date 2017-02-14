@@ -31,4 +31,7 @@ open class LangKotlinTemplates {
     fun enumParseMethod(nameBuilder: TemplateI<EnumTypeI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
             = Template<EnumTypeI>("EnumParseMethod", nameBuilder) { item, c -> item.toKotlinEnumParseMethod(c) }
 
+    fun pojo(nameBuilder: TemplateI<CompilationUnitI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
+            = Template<CompilationUnitI>("Pojo", nameBuilder) { item, c -> item.toKotlinPojo(c) }
+
 }

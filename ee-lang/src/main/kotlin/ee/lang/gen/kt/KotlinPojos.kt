@@ -1,5 +1,7 @@
 package ee.lang.gen.kt
 
+import ee.common.ext.joinSurroundIfNotEmptyToString
+import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 
@@ -29,5 +31,18 @@ fun <T : EnumTypeI> T.toKotlinEnumParseMethod(c: GenerationContext,
     return """
 fun String?.to$name(): $name {
     return if (this != null) $name.valueOf(this) else $name.${literals().first().toKotlin()}
+}"""
+}
+
+fun <T : CompilationUnitI> T.toKotlinPojo(c: GenerationContext,
+                                                derived: String = DerivedNames.IMPL.name,
+                                                api: String = DerivedNames.API.name
+): String {
+    return """
+open class ${c.n(this, derived)} : ${c.n(superUnit(), derived)}${(derived != api).then(
+            { ", ${c.n(this, DerivedNames.API.name)}" })} {${
+    props().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) { it.toKotlinMember(c, derived, api) }}
+    constructor(value: ${c.n(this, derived)}.() -> Unit = {}) : super(value as ${c.n(superUnit(), derived)}.() -> Unit)${
+    toKotlinEmptyObject(c, derived)}
 }"""
 }
