@@ -12,7 +12,7 @@ open class DesignKotlinContextFactory : LangKotlinContextFactory() {
         return {
             val structureUnit = this
             val compOrStructureUnit = this.findThisOrParent(CompI::class.java) ?: structureUnit
-            KotlinContext(moduleFolder = compOrStructureUnit.artifact(),
+            KotlinContext(moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}",
                     namespace = structureUnit.namespace(),
                     derivedController = controller
             )

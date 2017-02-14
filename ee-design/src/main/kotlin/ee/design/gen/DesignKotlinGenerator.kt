@@ -2,17 +2,19 @@ package ee.design.gen
 
 import ee.design.CompI
 import ee.design.ControllerI
+import ee.design.ModuleI
 import ee.design.QueryControllerI
 import ee.lang.CompilationUnitI
 import ee.lang.StructureUnitI
 import ee.lang.findDownByType
+import ee.lang.findThisOrParent
 import ee.lang.gen.prepareForKotlinGeneration
 import java.nio.file.Path
 
 open class DesignKotlinGenerator {
-    val model: CompI
+    val model: StructureUnitI
 
-    constructor(model: CompI) {
+    constructor(model: StructureUnitI) {
         this.model = model
     }
 
@@ -20,7 +22,8 @@ open class DesignKotlinGenerator {
         model.extendForKotlinGeneration()
         val generatorFactory = DesignGeneratorFactory()
         val generator = generatorFactory.pojo()
-        model.modules().forEach { module ->
+        generator.delete(target, model)
+        model.findDownByType(ModuleI::class.java).forEach { module ->
             generator.generate(target, module)
         }
     }

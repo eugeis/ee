@@ -20,19 +20,19 @@ open class LangGenGeneratorFactory {
 
         return GeneratorGroup<CompositeI>(listOf(
                 GeneratorSimple<CompositeI>(
-                        contextBuilder = contextBuilder, template = TemplatesForSameFilename<CompositeI, CompositeI>(
+                        contextBuilder = contextBuilder, template = ItemsTemplate<CompositeI, CompositeI>(
                         name = "${fileNamePrefix}IfcBase", nameBuilder = templateNameAsKotlinFileName,
-                        items = composites, templates = { listOf(kotlinTemplates.dslBuilderI()) })
+                        items = composites, fragments = { listOf(kotlinTemplates.dslBuilderI()) })
                 ),
                 GeneratorSimple<CompositeI>(
-                        contextBuilder = contextBuilder, template = TemplatesForSameFilename<CompositeI, CompositeI>(
+                        contextBuilder = contextBuilder, template = ItemsTemplate<CompositeI, CompositeI>(
                         name = "${fileNamePrefix}ApiBase", nameBuilder = templateNameAsKotlinFileName,
-                        items = composites, templates = { listOf(kotlinTemplates.dslBuilder(), kotlinTemplates.isEmptyExt()) })
+                        items = composites, fragments = { listOf(kotlinTemplates.dslBuilder(), kotlinTemplates.isEmptyExt()) })
                 ),
                 GeneratorSimple<CompositeI>(
-                        contextBuilder = contextBuilder, template = TemplatesForSameFilename<CompositeI, CompositeI>(
+                        contextBuilder = contextBuilder, template = ItemsTemplate<CompositeI, CompositeI>(
                         name = "${fileNamePrefix}Composites", nameBuilder = templateNameAsKotlinFileName,
-                        items = composites, templates = { listOf(kotlinTemplates.dslComposite()) })
+                        items = composites, fragments = { listOf(kotlinTemplates.dslComposite()) })
                 ),
                 GeneratorSimple<CompositeI>(
                         contextBuilder = contextBuilder, template = kotlinTemplates.dslObjectTree()

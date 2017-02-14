@@ -119,9 +119,12 @@ interface NamesI {
 
 open class Names(override val fileName: String) : NamesI
 
-interface TemplateI<I> {
+interface FragmentI<I> {
     val name: String
     fun generate(item: I, context: GenerationContext): String
+}
+
+interface TemplateI<I> : FragmentI<I> {
     fun name(item: I): NamesI
 }
 
@@ -144,29 +147,61 @@ open class Template<I> : TemplateI<I> {
     }
 }
 
-open class TemplatesForSameFilename<M, I> : TemplateI<M> {
+open class FragmentsTemplate<M> : TemplateI<M> {
     override val name: String
-    val items: M.() -> Collection<I>
-    val templates: I.() -> Collection<TemplateI<I>>
+    val fragments: M.() -> Collection<FragmentI<M>>
     val nameBuilder: TemplateI<M>.(M) -> NamesI
 
-    constructor(name: String, items: M.() -> Collection<I>, templates: I.() -> Collection<Template<I>>,
+    constructor(name: String, fragments: M.() -> Collection<FragmentI<M>>,
                 nameBuilder: TemplateI<M>.(M) -> NamesI) {
         this.name = name
         this.nameBuilder = nameBuilder
+        this.fragments = fragments
+    }
+
+    override fun generate(model: M, context: GenerationContext): String {
+        val buffer = StringBuffer()
+        model.fragments().forEach { fragment ->
+            buffer.appendln(fragment.generate(model, context))
+            buffer.appendln()
+        }
+        return buffer.toString()
+    }
+
+    override fun name(item: M): NamesI {
+        return nameBuilder(this, item)
+    }
+}
+
+open class ItemsFragment<M, I> : FragmentI<M> {
+    override val name: String
+    val items: M.() -> Collection<I>
+    val fragments: I.() -> Collection<FragmentI<I>>
+
+    constructor(name: String = "", items: M.() -> Collection<I>, fragments: I.() -> Collection<FragmentI<I>>) {
+        this.name = name
         this.items = items
-        this.templates = templates
+        this.fragments = fragments
     }
 
     override fun generate(model: M, context: GenerationContext): String {
         val buffer = StringBuffer()
         model.items().forEach { item ->
-            item.templates().forEach { template ->
-                buffer.appendln(template.generate(item, context))
+            item.fragments().forEach { fragment ->
+                buffer.appendln(fragment.generate(item, context))
                 buffer.appendln()
             }
         }
         return buffer.toString()
+    }
+}
+
+open class ItemsTemplate<M, I> : ItemsFragment<M, I>, TemplateI<M> {
+    val nameBuilder: TemplateI<M>.(M) -> NamesI
+
+    constructor(name: String, items: M.() -> Collection<I>, fragments: I.() -> Collection<FragmentI<I>>,
+                nameBuilder: TemplateI<M>.(M) -> NamesI) : super(name, items, fragments) {
+        this.nameBuilder = nameBuilder
     }
 
     override fun name(item: M): NamesI {

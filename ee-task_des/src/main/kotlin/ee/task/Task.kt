@@ -96,8 +96,3 @@ object Task : Comp({ namespace("ee.task") }) {
         }
     }
 }
-
-fun model(): StructureUnitI {
-    n.initObjectTree()
-    return Task.initObjectTree()
-}

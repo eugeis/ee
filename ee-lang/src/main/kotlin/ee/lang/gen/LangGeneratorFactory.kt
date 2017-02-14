@@ -12,19 +12,19 @@ open class LangGeneratorFactory {
         return GeneratorGroup<StructureUnitI>(listOf(
 
                 GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = TemplatesForSameFilename<StructureUnitI, CompilationUnitI>(
+                        contextBuilder = contextBuilder, template = ItemsTemplate<StructureUnitI, CompilationUnitI>(
                         name = "${fileNamePrefix}IfcBase", nameBuilder = templateNameAsKotlinFileName,
-                        items = composites, templates = { listOf(kotlinTemplates.dslBuilderI()) })
+                        items = composites, fragments = { listOf(kotlinTemplates.dslBuilderI()) })
                 ),
                 GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = TemplatesForSameFilename<StructureUnitI, CompilationUnitI>(
+                        contextBuilder = contextBuilder, template = ItemsTemplate<StructureUnitI, CompilationUnitI>(
                         name = "${fileNamePrefix}ApiBase", nameBuilder = templateNameAsKotlinFileName,
-                        items = composites, templates = { listOf(kotlinTemplates.dslBuilder(), kotlinTemplates.isEmptyExt()) })
+                        items = composites, fragments = { listOf(kotlinTemplates.dslBuilder(), kotlinTemplates.isEmptyExt()) })
                 ),
                 GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = TemplatesForSameFilename<StructureUnitI, CompilationUnitI>(
+                        contextBuilder = contextBuilder, template = ItemsTemplate<StructureUnitI, CompilationUnitI>(
                         name = "${fileNamePrefix}Composites", nameBuilder = templateNameAsKotlinFileName,
-                        items = composites, templates = { listOf(kotlinTemplates.dslComposite()) })
+                        items = composites, fragments = { listOf(kotlinTemplates.dslComposite()) })
                 )
         ))
     }
@@ -35,16 +35,13 @@ open class LangGeneratorFactory {
         val enums: StructureUnitI.() -> List<EnumTypeI> = { items().filterIsInstance(EnumTypeI::class.java) }
 
         return GeneratorGroup<StructureUnitI>(listOf(
-
                 GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = TemplatesForSameFilename<StructureUnitI, CompilationUnitI>(
-                        name = "${fileNamePrefix}IfcBase", nameBuilder = itemAndTemplateNameAsKotlinFileName,
-                        items = composites, templates = { listOf(kotlinTemplates.dslBuilderI()) })
-                ),
-                GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = TemplatesForSameFilename<StructureUnitI, EnumTypeI>(
+                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
                         name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsKotlinFileName,
-                        items = enums, templates = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) })
+                        fragments = {
+                            listOf(ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
+                                    fragments = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) }))
+                        })
                 )
         ))
     }
