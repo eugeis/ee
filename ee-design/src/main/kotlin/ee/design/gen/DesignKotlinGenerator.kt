@@ -1,5 +1,6 @@
 package ee.design.gen
 
+import ee.design.CompI
 import ee.design.ControllerI
 import ee.design.QueryControllerI
 import ee.lang.CompilationUnitI
@@ -9,9 +10,9 @@ import ee.lang.gen.prepareForKotlinGeneration
 import java.nio.file.Path
 
 open class DesignKotlinGenerator {
-    val model: StructureUnitI
+    val model: CompI
 
-    constructor(model: StructureUnitI) {
+    constructor(model: CompI) {
         this.model = model
     }
 
@@ -19,11 +20,13 @@ open class DesignKotlinGenerator {
         model.extendForKotlinGeneration()
         val generatorFactory = DesignGeneratorFactory()
         val generator = generatorFactory.pojo()
-        generator.generate(target, model)
+        model.modules().forEach { module ->
+            generator.generate(target, module)
+        }
     }
 
     protected fun StructureUnitI.extendForKotlinGeneration() {
-        model.prepareForKotlinGeneration()
+        prepareForKotlinGeneration()
 
         //define names for data type controllers
         defineNamesForDataTypeControllers()

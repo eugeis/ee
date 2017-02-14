@@ -71,8 +71,8 @@ object KotlinContextFactory {
 }
 
 
-fun <T : CompositeI> T.prepareForKotlinGeneration(): T {
-    initObjectTreesForKotlin()
+fun <T : StructureUnitI> T.prepareForKotlinGeneration(searchForTargetComposite: Boolean = true): T {
+    initObjectTrees(searchForTargetComposite)
 
     //declare as 'base' all compilation units with non implemented operations.
     declareAsBaseWithNonImplementedOperation()
@@ -82,10 +82,4 @@ fun <T : CompositeI> T.prepareForKotlinGeneration(): T {
     //define constructor with all parameters.
     defineConstructorAllForNonConstructors()
     return this
-}
-
-fun <T : CompositeI> T.initObjectTreesForKotlin(): T {
-    val ret = initObjectTrees()
-    initObjectTree()
-    return ret
 }

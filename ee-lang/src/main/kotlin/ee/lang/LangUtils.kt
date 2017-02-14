@@ -1,5 +1,7 @@
 package ee.lang
 
+import ee.common.ext.ifElse
+
 fun <T : LogicUnitI> T.findGeneric(name: String): GenericI? = findParent(TypeI::class.java)?.findGeneric(name)
 
 fun <T : TypeI> T.findGeneric(name: String): GenericI? =
@@ -148,17 +150,47 @@ fun LogicUnitI.p(name: String, type: TypeI = n.String, body: AttributeI.() -> Un
             body()
         }))
 
+fun StructureUnitI.deriveNamespace(name: String) = (namespace().endsWith(name) || "shared".equals(name, true)).
+        ifElse(namespace(), { "${namespace()}.$name" })
 
-fun <T : CompositeI> T.extendModel(): T {
+fun StructureUnitI.deriveArtifact(name: String) = (artifact().endsWith(name)).
+        ifElse(artifact(), { "${artifact()}-$name" })
+
+fun <T : StructureUnitI> T.extendModel(): T {
     val ret = initObjectTrees()
     return ret
 }
 
-fun <T : CompositeI> T.initObjectTrees(): T {
+fun <T : StructureUnitI> T.initObjectTrees(searchForTargetComposite: Boolean = false): T {
     n.initObjectTree()
     l.initObjectTree()
-    val ret = initObjectTree()
+    val ret = initObjectTree(searchForTargetComposite)
     ret.initBlackNames()
+    ret.initNamespaceFullNameArtifacts()
     ret.sortByName()
     return ret
+}
+
+fun <T : StructureUnitI> T.initNamespaceFullNameArtifacts() {
+    if (fullName().isBlank()) {
+        fullName(name())
+    }
+
+    val name = name().toLowerCase()
+    val parent = parent()
+
+    if (namespace().isBlank()) {
+        if (parent == Item.EMPTY) {
+            namespace(name)
+        } else if (parent is StructureUnitI) {
+            namespace(parent.deriveNamespace(name))
+        }
+    }
+    if (artifact().isBlank()) {
+        if (parent == Item.EMPTY) {
+            artifact(name)
+        } else if (parent is StructureUnitI) {
+            artifact(parent.deriveArtifact(name))
+        }
+    }
 }

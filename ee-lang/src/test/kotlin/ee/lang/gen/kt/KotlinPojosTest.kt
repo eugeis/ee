@@ -59,5 +59,5 @@ enum class ComplexEnum(val order: Int) {
 }"""))
     }
 
-    private fun context() = KotlinContextFactory.buildForDslBuilder().invoke(TestModel)
+    private fun context() = KotlinContextFactory.buildForImplOnly().invoke(TestModel)
 }
