@@ -19,7 +19,6 @@ import ee.lang.ValueHolderI
 
 open class Basic : CompilationUnit, BasicI {
     constructor(value: Basic.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
-
     companion object {
         val EMPTY = Basic()
     }
@@ -37,7 +36,6 @@ open class Bundle : StructureUnit, BundleI {
 
     override fun units(): List<StructureUnitI> = _units.items()
     override fun units(vararg value: StructureUnitI): BundleI = apply { _units.addAll(value.toList()) }
-
     companion object {
         val EMPTY = Bundle()
     }
@@ -50,7 +48,6 @@ fun BundleI?.isNotEmpty(): Boolean = !isEmpty()
 
 open class Command : DataTypeOperation, CommandI {
     constructor(value: Command.() -> Unit = {}) : super(value as DataTypeOperation.() -> Unit)
-
     companion object {
         val EMPTY = Command()
     }
@@ -94,7 +91,6 @@ open class CommandController : Controller, CommandControllerI {
     override fun deleteBys(vararg value: DeleteByI): CommandControllerI = apply { _deleteBys.addAll(value.toList()) }
     override fun deleteBy(value: DeleteByI): DeleteByI = applyAndReturn { _deleteBys.add(value); value }
     override fun deleteBy(value: DeleteByI.() -> Unit) : DeleteByI = deleteBy(DeleteBy(value))
-
     companion object {
         val EMPTY = CommandController()
     }
@@ -112,7 +108,6 @@ open class Comp : ModuleGroup, CompI {
 
     override fun moduleGroups(): List<ModuleGroupI> = _moduleGroups.items()
     override fun moduleGroups(vararg value: ModuleGroupI): CompI = apply { _moduleGroups.addAll(value.toList()) }
-
     companion object {
         val EMPTY = Comp()
     }
@@ -130,7 +125,6 @@ open class CompositeCommand : DataTypeOperation, CompositeCommandI {
 
     override fun operations(): List<OperationI> = _operations.items()
     override fun operations(vararg value: OperationI): CompositeCommandI = apply { _operations.addAll(value.toList()) }
-
     companion object {
         val EMPTY = CompositeCommand()
     }
@@ -143,7 +137,6 @@ fun CompositeCommandI?.isNotEmpty(): Boolean = !isEmpty()
 
 open class Controller : CompilationUnit, ControllerI {
     constructor(value: Controller.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
-
     companion object {
         val EMPTY = Controller()
     }
@@ -156,7 +149,6 @@ fun ControllerI?.isNotEmpty(): Boolean = !isEmpty()
 
 open class CountBy : DataTypeOperation, CountByI {
     constructor(value: CountBy.() -> Unit = {}) : super(value as DataTypeOperation.() -> Unit)
-
     companion object {
         val EMPTY = CountBy()
     }
@@ -169,7 +161,6 @@ fun CountByI?.isNotEmpty(): Boolean = !isEmpty()
 
 open class CreateBy : Command, CreateByI {
     constructor(value: CreateBy.() -> Unit = {}) : super(value as Command.() -> Unit)
-
     companion object {
         val EMPTY = CreateBy()
     }
@@ -182,7 +173,6 @@ fun CreateByI?.isNotEmpty(): Boolean = !isEmpty()
 
 open class DataTypeOperation : Operation, DataTypeOperationI {
     constructor(value: DataTypeOperation.() -> Unit = {}) : super(value as Operation.() -> Unit)
-
     companion object {
         val EMPTY = DataTypeOperation()
     }
@@ -195,7 +185,6 @@ fun DataTypeOperationI?.isNotEmpty(): Boolean = !isEmpty()
 
 open class DeleteBy : Command, DeleteByI {
     constructor(value: DeleteBy.() -> Unit = {}) : super(value as Command.() -> Unit)
-
     companion object {
         val EMPTY = DeleteBy()
     }
@@ -225,7 +214,6 @@ open class Entity : CompilationUnit, EntityI {
 
     override fun queries(): List<QueryControllerI> = _queries.items()
     override fun queries(vararg value: QueryControllerI): EntityI = apply { _queries.addAll(value.toList()) }
-
     companion object {
         val EMPTY = Entity()
     }
@@ -238,7 +226,6 @@ fun EntityI?.isNotEmpty(): Boolean = !isEmpty()
 
 open class Event : CompilationUnit, EventI {
     constructor(value: Event.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
-
     companion object {
         val EMPTY = Event()
     }
@@ -251,7 +238,6 @@ fun EventI?.isNotEmpty(): Boolean = !isEmpty()
 
 open class ExistBy : DataTypeOperation, ExistByI {
     constructor(value: ExistBy.() -> Unit = {}) : super(value as DataTypeOperation.() -> Unit)
-
     companion object {
         val EMPTY = ExistBy()
     }
@@ -269,7 +255,6 @@ open class ExternalModule : Module, ExternalModuleI {
 
     override fun externalTypes(): List<ExternalTypeI> = _externalTypes.items()
     override fun externalTypes(vararg value: ExternalTypeI): ExternalModuleI = apply { _externalTypes.addAll(value.toList()) }
-
     companion object {
         val EMPTY = ExternalModule()
     }
@@ -282,7 +267,6 @@ fun ExternalModuleI?.isNotEmpty(): Boolean = !isEmpty()
 
 open class Facet : ModuleGroup, FacetI {
     constructor(value: Facet.() -> Unit = {}) : super(value as ModuleGroup.() -> Unit)
-
     companion object {
         val EMPTY = Facet()
     }
@@ -295,7 +279,6 @@ fun FacetI?.isNotEmpty(): Boolean = !isEmpty()
 
 open class FindBy : DataTypeOperation, FindByI {
     constructor(value: FindBy.() -> Unit = {}) : super(value as DataTypeOperation.() -> Unit)
-
     companion object {
         val EMPTY = FindBy()
     }
@@ -317,7 +300,6 @@ open class Model : StructureUnit, ModelI {
 
     override fun comps(): List<CompI> = _comps.items()
     override fun comps(vararg value: CompI): ModelI = apply { _comps.addAll(value.toList()) }
-
     companion object {
         val EMPTY = Model()
     }
@@ -367,7 +349,6 @@ open class Module : StructureUnit, ModuleI {
 
     override fun controllers(): List<ControllerI> = _controllers.items()
     override fun controllers(vararg value: ControllerI): ModuleI = apply { _controllers.addAll(value.toList()) }
-
     companion object {
         val EMPTY = Module()
     }
@@ -385,7 +366,6 @@ open class ModuleGroup : StructureUnit, ModuleGroupI {
 
     override fun modules(): List<ModuleI> = _modules.items()
     override fun modules(vararg value: ModuleI): ModuleGroupI = apply { _modules.addAll(value.toList()) }
-
     companion object {
         val EMPTY = ModuleGroup()
     }
@@ -417,7 +397,6 @@ open class QueryController : Controller, QueryControllerI {
     override fun existBys(vararg value: ExistByI): QueryControllerI = apply { _existBys.addAll(value.toList()) }
     override fun existBy(value: ExistByI): ExistByI = applyAndReturn { _existBys.add(value); value }
     override fun existBy(value: ExistByI.() -> Unit) : ExistByI = existBy(ExistBy(value))
-
     companion object {
         val EMPTY = QueryController()
     }
@@ -430,7 +409,6 @@ fun QueryControllerI?.isNotEmpty(): Boolean = !isEmpty()
 
 open class UpdateBy : Command, UpdateByI {
     constructor(value: UpdateBy.() -> Unit = {}) : super(value as Command.() -> Unit)
-
     companion object {
         val EMPTY = UpdateBy()
     }
@@ -443,7 +421,6 @@ fun UpdateByI?.isNotEmpty(): Boolean = !isEmpty()
 
 open class Values : CompilationUnit, ValuesI {
     constructor(value: Values.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
-
     companion object {
         val EMPTY = Values()
     }
@@ -456,7 +433,6 @@ fun ValuesI?.isNotEmpty(): Boolean = !isEmpty()
 
 open class Widget : CompilationUnit, WidgetI {
     constructor(value: Widget.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
-
     companion object {
         val EMPTY = Widget()
     }

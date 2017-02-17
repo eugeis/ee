@@ -4,28 +4,51 @@ import ee.common.ext.ifElse
 import ee.common.ext.joinWrappedToString
 import ee.common.ext.then
 import ee.lang.*
-import ee.lang.gen.java.j
+import ee.lang.gen.j
+import ee.lang.gen.k
 
-fun <T : ItemI> T.toKotlinEmpty(c: GenerationContext, derived: String): String {
-    return (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
+fun <T : TypeI> T.toKotlinEmpty(c: GenerationContext, derived: String, attr: AttributeI): String {
+    val baseType = findDerivedOrThis()
+    return when (baseType) {
+        n.String, n.Text -> "\"\""
+        n.Boolean -> "false"
+        n.Int -> "0"
+        n.Long -> "0L"
+        n.Float -> "0f"
+        n.Date -> "${n.Date.toKotlin(c, derived, attr)}()"
+        n.Path -> "${c.n(j.nio.file.Paths, derived)}.get(\"\")"
+        n.Blob -> "ByteArray(0)"
+        n.Void -> ""
+        n.Error -> "Throwable()"
+        n.Exception -> "Exception()"
+        n.Map -> (attr.isNotEmpty() && attr.mutable()).ifElse("hashMapOf()", "emptyMap()")
+        n.List -> (attr.isNotEmpty() && attr.mutable()).ifElse("arrayListOf()", "arrayListOf()")
+        else -> {
+            if (baseType is Literal) {
+                "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI).toKotlin(c, derived, attr)}.${baseType.toKotlin()}"
+            } else {
+                (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
+            }
+        }
+    }
 }
 
+
 fun <T : AttributeI> T.toKotlinEmpty(c: GenerationContext, derived: String): String {
-    return type().toKotlinEmpty(c, derived)
+    return type().toKotlinEmpty(c, derived, this)
 }
 
 
 fun <T : AttributeI> T.toKotlinTypeSingle(c: GenerationContext, api: String): String {
-    return """${c.n(type(), api)}"""
+    return type().toKotlin(c, api, this)
 }
 
 fun <T : AttributeI> T.toKotlinTypeDef(c: GenerationContext, api: String): String {
-    return """${c.n(type(), api)}${nullable().then("?")}"""
+    return """${type().toKotlin(c, api, this)}${nullable().then("?")}"""
 }
 
 fun <T : CompilationUnitI> T.toKotlinEmptyObject(c: GenerationContext, derived: String): String {
     return """
-
     companion object {
         val EMPTY = ${c.n(this, derived)}()
     }"""
@@ -43,8 +66,9 @@ fun <T : CompilationUnitI> T.toKotlinExtends(c: GenerationContext, derived: Stri
     }
 }
 
-fun <T : TypeI> T.toKotlinIfNative(c: GenerationContext, derived: String): String? {
-    return when (this) {
+fun <T : TypeI> T.toKotlinIfNative(c: GenerationContext, derived: String, attr: AttributeI): String? {
+    val baseType = findDerivedOrThis()
+    return when (baseType) {
         n.String -> "String"
         n.Boolean -> "Boolean"
         n.Int -> "Int"
@@ -58,30 +82,32 @@ fun <T : TypeI> T.toKotlinIfNative(c: GenerationContext, derived: String): Strin
         n.Exception -> "Exception"
         n.Error -> "Throwable"
         n.Void -> "Unit"
+        n.List -> "${c.n((attr.isNotEmpty() && attr.mutable()).ifElse(k.core.MutableList, k.core.List), derived)}${toKotlinGenericTypes(c, derived, attr)}"
+        n.Map -> "${c.n((attr.isNotEmpty() && attr.mutable()).ifElse(k.core.MutableMap, k.core.Map), derived)}${toKotlinGenericTypes(c, derived, attr)}"
         else -> {
             if (this is Lambda) operation().toKotlinLamnda(c, derived) else null
         }
     }
 }
 
-fun TypeI.toKotlinGenericTypes(c: GenerationContext, derived: String): String {
-    return """${generics().joinWrappedToString(", ", "", "<", ">") { "${it.type().toKotlin(c, derived)}" }}"""
+fun TypeI.toKotlinGenericTypes(c: GenerationContext, derived: String, attr: AttributeI): String {
+    return """${generics().joinWrappedToString(", ", "", "<", ">") { "${it.type().toKotlin(c, derived, attr)}" }}"""
 }
 
 fun GenericI.toKotlin(c: GenerationContext, derived: String): String {
     return c.n(type(), derived)
 }
 
-fun TypeI.toKotlinGenerics(c: GenerationContext, derived: String): String {
-    return """${generics().joinWrappedToString(", ", "", "<", ">") { "${it.toKotlin(c, derived)}" }}"""
+fun TypeI.toKotlinGenerics(c: GenerationContext, derived: String, attr: AttributeI): String {
+    return """${generics().joinWrappedToString(", ", "", "<", ">") { "${it.toKotlin(c, derived, attr)}" }}"""
 }
 
-fun TypeI.toKotlinGenericsClassDef(c: GenerationContext, derived: String): String {
-    return """${generics().joinWrappedToString(", ", "", "<", ">") { "${it.name()} : ${it.type().toKotlin(c, derived)}" }}"""
+fun TypeI.toKotlinGenericsClassDef(c: GenerationContext, derived: String, attr: AttributeI): String {
+    return """${generics().joinWrappedToString(", ", "", "<", ">") { "${it.name()} : ${it.type().toKotlin(c, derived, attr)}" }}"""
 }
 
-fun TypeI.toKotlinGenericsMethodDef(c: GenerationContext, derived: String): String {
-    return """${generics().joinWrappedToString(", ", "", "<", "> ") { "${it.name()} : ${it.type().toKotlin(c, derived)}" }}"""
+fun TypeI.toKotlinGenericsMethodDef(c: GenerationContext, derived: String, attr: AttributeI): String {
+    return """${generics().joinWrappedToString(", ", "", "<", "> ") { "${it.name()} : ${it.type().toKotlin(c, derived, attr)}" }}"""
 }
 
 fun TypeI.toKotlinGenericsStar(context: GenerationContext, derived: String): String {
@@ -92,8 +118,8 @@ fun OperationI.toKotlinGenerics(c: GenerationContext, derived: String): String {
     return """${generics().joinWrappedToString(", ", "", "<", "> ") { "${it.name()} : ${it.type().toKotlin(c, derived)}" }}"""
 }
 
-fun <T : TypeI> T.toKotlin(c: GenerationContext, derived: String, attr: AttributeI? = findParent(AttributeI::class.java)): String {
-    return toKotlinIfNative(c, derived) ?: "${c.n(this, derived)}${this.toKotlinGenericTypes(c, derived)}"
+fun <T : TypeI> T.toKotlin(c: GenerationContext, derived: String, attr: AttributeI = Attribute.EMPTY): String {
+    return toKotlinIfNative(c, derived, attr) ?: "${c.n(this, derived)}${this.toKotlinGenericTypes(c, derived, attr)}"
 }
 
 fun <T : AttributeI> T.toKotlinValue(c: GenerationContext, derived: String): String {
@@ -104,7 +130,7 @@ fun <T : AttributeI> T.toKotlinValue(c: GenerationContext, derived: String): Str
             else -> {
                 if (value() is Literal) {
                     val lit = value() as Literal
-                    "${(lit.parent() as EnumTypeI).toKotlin(c, derived)}.${lit.toKotlin()}"
+                    "${(lit.parent() as EnumTypeI).toKotlin(c, derived, this)}.${lit.toKotlin()}"
                 } else {
                     "${value()}"
                 }

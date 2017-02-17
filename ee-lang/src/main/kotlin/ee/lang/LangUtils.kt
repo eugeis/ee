@@ -150,7 +150,7 @@ fun LogicUnitI.p(name: String, type: TypeI = n.String, body: AttributeI.() -> Un
             body()
         }))
 
-fun StructureUnitI.deriveNamespace(name: String) = (namespace().endsWith(name) || "shared".equals(name, true)).
+fun ItemI.deriveNamespace(name: String) = (namespace().endsWith(name) || "shared".equals(name, true)).
         ifElse(namespace(), { "${namespace()}.$name" })
 
 fun StructureUnitI.deriveArtifact(name: String) = (artifact().endsWith(name)).
@@ -164,14 +164,26 @@ fun <T : StructureUnitI> T.extendModel(): T {
 fun <T : StructureUnitI> T.initObjectTrees(searchForTargetComposite: Boolean = false): T {
     n.initObjectTree()
     l.initObjectTree()
-    val ret = initObjectTree(searchForTargetComposite)
-    ret.initBlackNames()
-    ret.initNamespaceFullNameArtifacts()
-    ret.sortByName()
-    return ret
+    return initObjectTree(searchForTargetComposite)
 }
 
-fun <T : StructureUnitI> T.initNamespaceFullNameArtifacts() {
+fun <T : StructureUnitI> T.initObjectTree(searchForTargetComposite: Boolean = false): T {
+    (this as TypedComposite<*>).initObjectTree(searchForTargetComposite, {
+        if (this is StructureUnitI) {
+            val parent = parent()
+            if (parent.namespace().isBlank() || this !is StructureUnitI) parent.namespace()
+            else parent.deriveNamespace(name())
+        } else {
+            parent().namespace()
+        }
+    })
+    initBlackNames()
+    initFullNameArtifacts()
+    sortByName()
+    return this
+}
+
+fun <T : StructureUnitI> T.initFullNameArtifacts() {
     if (fullName().isBlank()) {
         fullName(name())
     }
@@ -179,13 +191,6 @@ fun <T : StructureUnitI> T.initNamespaceFullNameArtifacts() {
     val name = name().toLowerCase()
     val parent = findParent(StructureUnitI::class.java)
 
-    if (namespace().isBlank()) {
-        if (parent == null || parent == Item.EMPTY) {
-            namespace(name)
-        } else if (parent is StructureUnitI) {
-            namespace(parent.deriveNamespace(name))
-        }
-    }
     if (artifact().isBlank()) {
         if (parent == null || parent == Item.EMPTY) {
             artifact(name)
@@ -196,9 +201,9 @@ fun <T : StructureUnitI> T.initNamespaceFullNameArtifacts() {
 
     items().forEach {
         if (it is StructureUnitI) {
-            it.initNamespaceFullNameArtifacts()
+            it.initFullNameArtifacts()
         } else if (it is TypedCompositeI<*> && it.supportsItemType(StructureUnitI::class.java)) {
-            it.filterIsInstance(StructureUnitI::class.java).forEach { it.initNamespaceFullNameArtifacts() }
+            it.filterIsInstance(StructureUnitI::class.java).forEach { it.initFullNameArtifacts() }
         }
     }
 }

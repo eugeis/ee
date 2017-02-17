@@ -48,26 +48,27 @@ open class Item : ItemI, Cloneable {
         _derivedFrom = value
         value.onDerived(this)
     }
-
-    override fun <T : ItemI> derive(init: T.() -> Unit): T {
+    override fun <T : ItemI> derive(adapt: T.() -> Unit): T {
+        init()
         val ret = clone() as T
         ret.derivedFrom(this)
-        ret.init()
+        ret.adapt()
         return ret
     }
 
-    override fun <T : ItemI> deriveDeep(init: T.() -> Unit): T {
+    override fun <T : ItemI> deriveDeep(adapt: T.() -> Unit): T {
+        init()
         val ret = deepCopy() as T
         ret.derivedFrom(this)
-        ret.init()
+        ret.adapt()
         return ret
     }
 
-    override fun <T : ItemI> deriveSubType(init: T.() -> Unit): T {
+    override fun <T : ItemI> deriveSubType(adapt: T.() -> Unit): T {
         val ret = createType<T>()
         ret.name(name())
         ret.derivedFrom(this)
-        ret.init()
+        ret.adapt()
         return ret
     }
 
@@ -181,7 +182,6 @@ open class TypedComposite<I : ItemI> : Item, TypedCompositeI<I> {
     }
 
     override fun <T : ItemI> add(item: T): T {
-        if (item.namespace().isBlank()) item.namespace(namespace())
         item.parent(this)
         _items.add(item as I)
         return item

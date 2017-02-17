@@ -3,6 +3,9 @@ package ee.lang
 import ee.common.ext.buildLabel
 import java.util.*
 
+fun ItemI.findDerivedOrThis() = if (derivedFrom().isEMPTY()) this else derivedFrom()
+fun ItemI.isOrDerived(item: ItemI) = this == item || derivedFrom() == item
+
 fun <T : ItemI> List<T>.extend(code: T.() -> Unit = {}) {
     forEach { it.code() }
 }
@@ -45,8 +48,8 @@ fun <T : ItemI> ItemI.findAcrossByType(type: Class<T>, destination: MutableList<
         }, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
 
 fun <T : ItemI> TypedCompositeI<*>.findDownByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                          alreadyHandled: MutableSet<ItemI> = HashSet(),
-                                          stopSteppingDownIfFound: Boolean = true): List<T> =
+                                                  alreadyHandled: MutableSet<ItemI> = HashSet(),
+                                                  stopSteppingDownIfFound: Boolean = true): List<T> =
         findAcrossByType(type, destination, alreadyHandled, stopSteppingDownIfFound, {
             if (this is TypedCompositeI<*>) this.items() else emptyList()
         })
@@ -79,7 +82,8 @@ fun <T : ItemI> ItemI.findAcross(select: ItemI.() -> T?, destination: MutableLis
 }
 
 
-fun <T : TypedCompositeI<*>> T.initObjectTree(searchForTargetComposite: Boolean = false): T {
+fun <T : TypedCompositeI<*>> T.initObjectTree(searchForTargetComposite: Boolean = false,
+                                              deriveNamespace: ItemI.() -> String = { parent().namespace() }): T {
     if (!isInitialized()) init()
     if (name().isBlank()) {
         name(buildLabel().name)
@@ -93,9 +97,10 @@ fun <T : TypedCompositeI<*>> T.initObjectTree(searchForTargetComposite: Boolean 
                     if (!child.isInitialized()) child.init()
                     if (child.name().isBlank()) child.name(f.name)
                     if (child.parent().isEMPTY()) {
-                        val targetComposite = if(searchForTargetComposite) findSupportsItem(child) else this
+                        val targetComposite = if (searchForTargetComposite) findSupportsItem(child) else this
                         if (!targetComposite.contains(child)) targetComposite.add(child)
                     }
+                    if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
                 }
             }
         } catch (e: Exception) {
@@ -110,12 +115,14 @@ fun <T : TypedCompositeI<*>> T.initObjectTree(searchForTargetComposite: Boolean 
                 if (!child.isInitialized()) child.init()
                 if (child.name().isBlank()) child.name(child.buildLabel().name)
                 if (child.parent().isEMPTY()) {
-                    val targetComposite = if(searchForTargetComposite) findSupportsItem(child) else this
-                    if (!targetComposite.contains(child)){
+                    val targetComposite = if (searchForTargetComposite) findSupportsItem(child) else this
+                    if (!targetComposite.contains(child)) {
                         targetComposite.add(child)
-                        if (child is TypedCompositeI<*>) child.initObjectTree(searchForTargetComposite)
+                        if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
+                        if (child is TypedCompositeI<*>) child.initObjectTree(searchForTargetComposite, deriveNamespace)
                     }
                 }
+                if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
             }
         }
     }

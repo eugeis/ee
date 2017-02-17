@@ -1,7 +1,7 @@
 package ee.lang.gen
 
 import ee.lang.*
-import ee.lang.gen.java.j
+import ee.lang.gen.j
 
 open class LangKotlinContextFactory {
     private val isNotPartOfNativeTypes: ItemI.() -> Boolean = { n != parent() && j != parent() && k != parent() }

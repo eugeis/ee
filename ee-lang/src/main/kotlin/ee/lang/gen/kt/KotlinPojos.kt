@@ -36,11 +36,7 @@ fun String?.to$name(): $name {
 
 fun <T : CompilationUnitI> T.toKotlinImpl(c: GenerationContext,
                                           derived: String = DerivedNames.IMPL.name,
-                                          api: String = DerivedNames.API.name
-): String {
-
-
-
+                                          api: String = DerivedNames.API.name): String {
     return """
 ${open().then("open ")}class ${c.n(this, derived)}${toKotlinExtends(c, derived, api)} {${
     props().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) { it.toKotlinMember(c, derived, api) }}${
