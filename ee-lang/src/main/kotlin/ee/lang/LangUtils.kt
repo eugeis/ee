@@ -174,7 +174,7 @@ fun <T : StructureUnitI> T.initObjectTrees(searchForTargetComposite: Boolean = f
 fun <T : StructureUnitI> T.initObjectTree(searchForTargetComposite: Boolean = false): T {
     (this as TypedComposite<*>).initObjectTree(searchForTargetComposite, {
         if (this is StructureUnitI) {
-            val parent = parent()
+            val parent = findParent(StructureUnitI::class.java) ?: parent()
             if (parent.namespace().isBlank() || this !is StructureUnitI) parent.namespace()
             else parent.deriveNamespace(name())
         } else {

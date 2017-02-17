@@ -15,6 +15,7 @@ object n : StructureUnit({ name("native") }) {
     val Date = NativeType()
     val Exception = NativeType()
     val Error = NativeType()
+    val Url = NativeType()
 
     object TimeUnit : EnumType() {
         val Milliseconds = lit()

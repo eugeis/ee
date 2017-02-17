@@ -12,6 +12,10 @@ object j : StructureUnit({ namespace("java").name("Java") }) {
         }
     }
 
+    object net : StructureUnit() {
+        val URL = Type()
+    }
+
     object nio : StructureUnit() {
         object file : StructureUnit() {
             val Path = Type()

@@ -15,12 +15,13 @@ fun <T : TypeI> T.toKotlinEmpty(c: GenerationContext, derived: String, attr: Att
         n.Int -> "0"
         n.Long -> "0L"
         n.Float -> "0f"
-        n.Date -> "${n.Date.toKotlin(c, derived, attr)}()"
-        n.Path -> "${c.n(j.nio.file.Paths, derived)}.get(\"\")"
+        n.Date -> "${c.n(j.util.Date)}()"
+        n.Path -> "${c.n(j.nio.file.Paths)}.get(\"\")"
         n.Blob -> "ByteArray(0)"
         n.Void -> ""
         n.Error -> "Throwable()"
         n.Exception -> "Exception()"
+        n.Url -> "${c.n(j.net.URL)}(\"\")"
         n.Map -> (attr.isNotEmpty() && attr.mutable()).ifElse("hashMapOf()", "emptyMap()")
         n.List -> (attr.isNotEmpty() && attr.mutable()).ifElse("arrayListOf()", "arrayListOf()")
         else -> {
@@ -82,6 +83,7 @@ fun <T : TypeI> T.toKotlinIfNative(c: GenerationContext, derived: String, attr: 
         n.Exception -> "Exception"
         n.Error -> "Throwable"
         n.Void -> "Unit"
+        n.Url -> c.n(j.net.URL)
         n.List -> "${c.n((attr.isNotEmpty() && attr.mutable()).ifElse(k.core.MutableList, k.core.List), derived)}${toKotlinGenericTypes(c, derived, attr)}"
         n.Map -> "${c.n((attr.isNotEmpty() && attr.mutable()).ifElse(k.core.MutableMap, k.core.Map), derived)}${toKotlinGenericTypes(c, derived, attr)}"
         else -> {
