@@ -280,14 +280,14 @@ fun Path.lastModified(): Date {
 // Collections
 
 fun <T> Collection<T>.joinSurroundIfNotEmptyToString(separator: CharSequence = ", ",
-                                               prefix: CharSequence = "", postfix: CharSequence = "",
-                                               emptyString: String = "", transform: ((T) -> CharSequence)? = null): String {
+                                                     prefix: CharSequence = "", postfix: CharSequence = "",
+                                                     emptyString: String = "", transform: ((T) -> CharSequence)? = null): String {
     return joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
 }
 
 fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(buffer: A, separator: CharSequence = ", ",
-                                                         prefix: CharSequence = "", postfix: CharSequence = "",
-                                                         emptyString: String = "", transform: ((T) -> CharSequence)? = null): A {
+                                                               prefix: CharSequence = "", postfix: CharSequence = "",
+                                                               emptyString: String = "", transform: ((T) -> CharSequence)? = null): A {
     if (size > 0) {
         buffer.append(prefix)
         var count = 0
@@ -305,15 +305,15 @@ fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(buffer: A, separa
     return buffer
 }
 
-fun <T> Collection<T>.joinWrappedToString(separator: CharSequence = ", ", indent: CharSequence = "",
-                                    prefix: CharSequence = "", postfix: CharSequence = "",
-                                    width: Int = 120, emptyString: String = "", transform: ((T) -> CharSequence)? = null): String {
-    return joinWrappedTo(StringBuilder(), separator, indent, prefix, postfix, width, emptyString, transform).toString()
+fun <T> Collection<T>.joinWrappedToString(separator: CharSequence = ", ", wrapIndent: CharSequence = "",
+                                          prefix: CharSequence = "", postfix: CharSequence = "",
+                                          width: Int = 120, emptyString: String = "", transform: ((T) -> CharSequence)? = null): String {
+    return joinWrappedTo(StringBuilder(), separator, wrapIndent, prefix, postfix, width, emptyString, transform).toString()
 }
 
-fun <T, A : Appendable> Collection<T>.joinWrappedTo(buffer: A, separator: CharSequence = ", ", indent: CharSequence = "",
-                                              prefix: CharSequence = "", postfix: CharSequence = "",
-                                              width: Int = 120, emptyString: String = "", transform: ((T) -> CharSequence)? = null): A {
+fun <T, A : Appendable> Collection<T>.joinWrappedTo(buffer: A, separator: CharSequence = ", ", wrapIndent: CharSequence = "",
+                                                    prefix: CharSequence = "", postfix: CharSequence = "",
+                                                    width: Int = 120, emptyString: String = "", transform: ((T) -> CharSequence)? = null): A {
     if (size > 0) {
         buffer.append(prefix)
         var count = 0
@@ -326,8 +326,8 @@ fun <T, A : Appendable> Collection<T>.joinWrappedTo(buffer: A, separator: CharSe
             }
             val str = if (transform != null) transform(element) else if (element == null) "" else element.toString()
             if (currentWidth + str.length > width) {
-                buffer.appendln().append(indent)
-                currentWidth = indent.length
+                buffer.appendln().append(wrapIndent)
+                currentWidth = wrapIndent.length
             }
             currentWidth += str.length
             buffer.append(str)

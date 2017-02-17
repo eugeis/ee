@@ -153,12 +153,12 @@ fun <T : AttributeI> T.toKotlinInit(c: GenerationContext, derived: String, api: 
     }
 }
 
-fun <T : AttributeI> T.toKotlinSignature(c: GenerationContext, derived: String, api: String): String {
-    return "${name()}: ${toKotlinTypeDef(c, api)}${toKotlinInit(c, derived, api)}"
+fun <T : AttributeI> T.toKotlinSignature(c: GenerationContext, derived: String, api: String, init: Boolean = true): String {
+    return "${name()}: ${toKotlinTypeDef(c, api)}${init.then { toKotlinInit(c, derived, api) }}"
 }
 
-fun <T : AttributeI> T.toKotlinMember(c: GenerationContext, derived: String, api: String): String {
-    return "    ${replaceable().ifElse("var ", "val ")}${toKotlinSignature(c, derived, api)}"
+fun <T : AttributeI> T.toKotlinMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String {
+    return "    ${replaceable().ifElse("var ", "val ")}${toKotlinSignature(c, derived, api, init)}"
 }
 
 fun List<AttributeI>.toKotlinSignature(c: GenerationContext, derived: String, api: String): String {
@@ -173,6 +173,20 @@ fun <T : ConstructorI> T.toKotlinPrimary(c: GenerationContext, derived: String, 
     return if (isNotEmpty()) """(${params().
             joinWrappedToString(", ", "      ") { it.toKotlinMember(c, derived, api) }})${
     superUnit().toKotlinCall(c)}""" else ""
+}
+
+fun <T : ConstructorI> T.toKotlin(c: GenerationContext, derived: String, api: String): String {
+    return if (isNotEmpty()) """
+    constructor(${params().joinWrappedToString(", ", "                ") {
+        it.toKotlinSignature(c, derived, api)
+    }}${superUnit().toKotlinCall(c)}) ${paramsWithOut(superUnit()).joinWrappedToString("$nL        ", prefix = "{$nL        ") {
+        it.toKotlinAssign(c)
+    }}
+    }""" else ""
+}
+
+fun <T : AttributeI> T.toKotlinAssign(c: GenerationContext): String {
+    return "this.${name()} = ${name()}"
 }
 
 fun <T : LogicUnitI> T.toKotlinCall(c: GenerationContext): String {

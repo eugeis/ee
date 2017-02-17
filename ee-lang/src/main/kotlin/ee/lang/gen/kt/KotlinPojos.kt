@@ -38,10 +38,11 @@ fun <T : CompilationUnitI> T.toKotlinImpl(c: GenerationContext,
                                           derived: String = DerivedNames.IMPL.name,
                                           api: String = DerivedNames.API.name): String {
     return """
-${open().then("open ")}class ${c.n(this, derived)}${toKotlinExtends(c, derived, api)} {${
-    props().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) { it.toKotlinMember(c, derived, api) }}${
+${open().then("open ")}class ${c.n(this, derived)}${toKotlinExtends(c, derived, api)}${
+    primaryConstructor().toKotlinPrimary(c, derived, api)} {${
+    props().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) { it.toKotlinMember(c, derived, api, false) }}${
     otherConstructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
-        it.toKotlinPrimary(c, derived, api)
+        it.toKotlin(c, derived, api)
     }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toKotlinImpl(c, derived, api)
     }}${

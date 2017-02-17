@@ -4,6 +4,10 @@ import ee.common.ext.ifElse
 
 fun <T : LogicUnitI> T.findGeneric(name: String): GenericI? = findParent(TypeI::class.java)?.findGeneric(name)
 
+
+fun <T : LogicUnitI> T.paramsWithOut(superUnit: LogicUnitI)
+        = params().filter { param -> superUnit.params().firstOrNull { it.name() == param.name() } == null }
+
 fun <T : TypeI> T.findGeneric(name: String): GenericI? =
         generics().find { it.name() == name } ?: findParent(LogicUnitI::class.java)?.findGeneric(name)
 
@@ -12,7 +16,7 @@ fun CompilationUnitI.primaryConstructor(): ConstructorI = storage.getOrPut(this,
 })
 
 fun CompilationUnitI.otherConstructors(): List<ConstructorI> = storage.getOrPut(this, "otherConstructors", {
-    if (constructors().size > 1) constructors().subList(1, constructors().size) else emptyList()
+    constructors().filterNot { it.primary() }
 })
 
 fun ConstructorI.props(): List<AttributeI> = storage.getOrPut(this, "props", {
@@ -87,7 +91,7 @@ fun p(name: AttributeI, init: AttributeI.() -> Unit = {}): AttributeI = name.der
 
 fun <T : CompositeI> T.defineConstructorAllForNonConstructors() {
     findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
-            .extend { constructorAll() }
+            .extend { constructorAll().init() }
 }
 
 fun <T : CompositeI> T.declareAsBaseWithNonImplementedOperation() {
