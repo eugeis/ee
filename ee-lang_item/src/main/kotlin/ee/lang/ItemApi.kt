@@ -65,6 +65,7 @@ open class Item : ItemI, Cloneable {
     }
 
     override fun <T : ItemI> deriveSubType(adapt: T.() -> Unit): T {
+        init()
         val ret = createType<T>()
         ret.name(name())
         ret.derivedFrom(this)

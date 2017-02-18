@@ -9,7 +9,7 @@ open class Attribute : Composite, AttributeI {
     private var _initByDefaultTypeValue: ValueHolderI<Boolean> = add(ValueHolder(true, { name("initByDefaultTypeValue") }))
     private var _nullable: ValueHolderI<Boolean> = add(ValueHolder(false, { name("nullable") }))
     private var _accessible: ValueHolderI<Boolean> = add(ValueHolder(true, { name("accessible") }))
-    private var _replaceable: ValueHolderI<Boolean> = add(ValueHolder(true, { name("replaceable") }))
+    private var _replaceable: ValueHolderI<Boolean> = add(ValueHolder(false, { name("replaceable") }))
     private var _meta: ValueHolderI<Boolean> = add(ValueHolder(false, { name("meta") }))
     private var _multi: ValueHolderI<Boolean> = add(ValueHolder(false, { name("multi") }))
     private var _hidden: ValueHolderI<Boolean> = add(ValueHolder(false, { name("hidden") }))

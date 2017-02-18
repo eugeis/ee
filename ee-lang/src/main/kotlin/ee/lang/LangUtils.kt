@@ -106,8 +106,8 @@ fun <T : CompilationUnitI> T.constructorAll(): ConstructorI {
     val constrProps = propsAll().filter { !it.meta() }.map { p(it) }
     val primary = this is EnumTypeI
     return if (constrProps.isNotEmpty()) constr {
-        params(*constrProps.toTypedArray())
-        primary(primary)
+        primary(primary).params(*constrProps.toTypedArray()).name("constructorAll")
+        superUnit(this@constructorAll.superUnit().constructors().firstOrNull() ?: Constructor.EMPTY)
     } else Constructor.EMPTY
 }
 
@@ -129,7 +129,7 @@ fun <T : CompilationUnitI> T.propagateItemToSubtypes(item: CompilationUnitI) {
 fun <T : TypeI> T.GT(vararg types: TypeI): T {
     if (generics().size >= types.size) {
         var i = 0
-        val ret = derive<T> {
+        val ret = deriveDeep<T> {
             val generics = generics()
             for (type in types) {
                 if (type is GenericI && generics is MutableList) {

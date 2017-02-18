@@ -1,6 +1,7 @@
 package ee.lang.gen.kt
 
 import ee.common.ext.ifElse
+import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.joinWrappedToString
 import ee.common.ext.then
 import ee.lang.*
@@ -57,11 +58,11 @@ fun <T : CompilationUnitI> T.toKotlinEmptyObject(c: GenerationContext, derived: 
 
 fun <T : CompilationUnitI> T.toKotlinExtends(c: GenerationContext, derived: String, api: String): String {
     if (superUnit().isNotEmpty() && derived != api) {
-        return ": ${c.n(superUnit(), derived)}, ${c.n(this, api)}"
+        return " : ${c.n(superUnit(), derived)}, ${c.n(this, api)}"
     } else if (superUnit().isNotEmpty()) {
-        return ": ${c.n(superUnit(), derived)}"
+        return " : ${c.n(superUnit(), derived)}"
     } else if (derived != api) {
-        return ": ${c.n(this, api)}"
+        return " : ${c.n(this, api)}"
     } else {
         return ""
     }
@@ -179,12 +180,16 @@ fun <T : ConstructorI> T.toKotlinPrimary(c: GenerationContext, derived: String, 
 
 fun <T : ConstructorI> T.toKotlin(c: GenerationContext, derived: String, api: String): String {
     return if (isNotEmpty()) """
-    constructor(${params().joinWrappedToString(", ", "                ") {
-        it.toKotlinSignature(c, derived, api)
-    }}${superUnit().toKotlinCall(c)}) ${paramsWithOut(superUnit()).joinWrappedToString("$nL        ", prefix = "{$nL        ") {
+    constructor(${params().joinWrappedToString(", ", "                ") { it.toKotlinSignature(c, derived, api) }
+    })${(superUnit() as ConstructorI).toKotlinCall(c, "${(parent() != superUnit().parent()).ifElse("super", "this")}")} ${
+    paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("$nL        ", prefix = "{$nL        ") {
         it.toKotlinAssign(c)
     }}
     }""" else ""
+}
+
+fun <T : ConstructorI> T.toKotlinCall(c: GenerationContext, name: String = "this"): String {
+    return isNotEmpty().then { " : $name(${params().joinWrappedToString(", ") { it.name() }})" }
 }
 
 fun <T : AttributeI> T.toKotlinAssign(c: GenerationContext): String {
