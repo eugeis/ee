@@ -64,22 +64,26 @@ interface CompilationUnitI : TypeI {
 
     fun superUnitFor(): List<CompilationUnitI>
     fun superUnitFor(vararg value: CompilationUnitI): CompilationUnitI
+    fun superUnitFor(value: CompilationUnits): CompilationUnitI
 
     fun superUnit(): CompilationUnitI
     fun superUnit(value: CompilationUnitI): CompilationUnitI
 
     fun props(): List<AttributeI>
     fun props(vararg value: AttributeI): CompilationUnitI
+    fun props(value: Attributes): CompilationUnitI
     fun prop(value: AttributeI): AttributeI
     fun prop(value: AttributeI.() -> Unit = {}) : AttributeI
 
     fun operations(): List<OperationI>
     fun operations(vararg value: OperationI): CompilationUnitI
+    fun operations(value: Operations): CompilationUnitI
     fun op(value: OperationI): OperationI
     fun op(value: OperationI.() -> Unit = {}) : OperationI
 
     fun constructors(): List<ConstructorI>
     fun constructors(vararg value: ConstructorI): CompilationUnitI
+    fun constructors(value: Constructors): CompilationUnitI
     fun constr(value: ConstructorI): ConstructorI
     fun constr(value: ConstructorI.() -> Unit = {}) : ConstructorI
 }
@@ -94,6 +98,7 @@ interface ConstructorI : LogicUnitI {
 interface EnumTypeI : CompilationUnitI {
     fun literals(): List<LiteralI>
     fun literals(vararg value: LiteralI): EnumTypeI
+    fun literals(value: Literals): EnumTypeI
     fun lit(value: LiteralI): LiteralI
     fun lit(value: LiteralI.() -> Unit = {}) : LiteralI
 }
@@ -128,6 +133,7 @@ interface LogicUnitI : TextCompositeI {
 
     fun params(): List<AttributeI>
     fun params(vararg value: AttributeI): LogicUnitI
+    fun params(value: Attributes): LogicUnitI
 }
 
 
@@ -138,6 +144,7 @@ interface NativeTypeI : TypeI {
 interface OperationI : LogicUnitI {
     fun generics(): List<GenericI>
     fun generics(vararg value: GenericI): OperationI
+    fun generics(value: Generics): OperationI
     fun G(value: GenericI): GenericI
     fun G(value: GenericI.() -> Unit = {}) : GenericI
 
@@ -170,6 +177,7 @@ interface TextCompositeI : CompositeI {
 interface TypeI : CompositeI {
     fun generics(): List<GenericI>
     fun generics(vararg value: GenericI): TypeI
+    fun generics(value: Generics): TypeI
     fun G(value: GenericI): GenericI
     fun G(value: GenericI.() -> Unit = {}) : GenericI
 

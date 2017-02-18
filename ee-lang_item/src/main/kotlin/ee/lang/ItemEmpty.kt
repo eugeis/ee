@@ -40,6 +40,8 @@ open class CompositeEmptyClass : ItemEmptyClass(), CompositeI {
     override fun <T: ItemI> findSupportsItem(item: T): TypedComposite<T> = this as TypedComposite<T>
     override fun sortByName() {}
     override fun contains(item: ItemI): Boolean = false
+    override fun remove(item: ItemI): Boolean = false
+    override fun <T : ItemI> replace(old: T, new: T): T = new
 }
 
 val CommentEmpty = CommentEmptyClass()

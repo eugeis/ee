@@ -102,22 +102,26 @@ open class CompilationUnit : Type, CompilationUnitI {
 
     override fun superUnitFor(): List<CompilationUnitI> = _superUnitFor.items()
     override fun superUnitFor(vararg value: CompilationUnitI): CompilationUnitI = apply { _superUnitFor.addAll(value.toList()) }
+    override fun superUnitFor(value: CompilationUnits): CompilationUnitI = apply { _superUnitFor = value }
 
     override fun superUnit(): CompilationUnitI = _superUnit.value()
     override fun superUnit(value: CompilationUnitI): CompilationUnitI = apply { _superUnit.value(value) }
 
     override fun props(): List<AttributeI> = _props.items()
     override fun props(vararg value: AttributeI): CompilationUnitI = apply { _props.addAll(value.toList()) }
+    override fun props(value: Attributes): CompilationUnitI = apply { _props = value }
     override fun prop(value: AttributeI): AttributeI = applyAndReturn { _props.add(value); value }
     override fun prop(value: AttributeI.() -> Unit) : AttributeI = prop(Attribute(value))
 
     override fun operations(): List<OperationI> = _operations.items()
     override fun operations(vararg value: OperationI): CompilationUnitI = apply { _operations.addAll(value.toList()) }
+    override fun operations(value: Operations): CompilationUnitI = apply { _operations = value }
     override fun op(value: OperationI): OperationI = applyAndReturn { _operations.add(value); value }
     override fun op(value: OperationI.() -> Unit) : OperationI = op(Operation(value))
 
     override fun constructors(): List<ConstructorI> = _constructors.items()
     override fun constructors(vararg value: ConstructorI): CompilationUnitI = apply { _constructors.addAll(value.toList()) }
+    override fun constructors(value: Constructors): CompilationUnitI = apply { _constructors = value }
     override fun constr(value: ConstructorI): ConstructorI = applyAndReturn { _constructors.add(value); value }
     override fun constr(value: ConstructorI.() -> Unit) : ConstructorI = constr(Constructor(value))
 
@@ -156,6 +160,7 @@ open class EnumType : CompilationUnit, EnumTypeI {
 
     override fun literals(): List<LiteralI> = _literals.items()
     override fun literals(vararg value: LiteralI): EnumTypeI = apply { _literals.addAll(value.toList()) }
+    override fun literals(value: Literals): EnumTypeI = apply { _literals = value }
     override fun lit(value: LiteralI): LiteralI = applyAndReturn { _literals.add(value); value }
     override fun lit(value: LiteralI.() -> Unit) : LiteralI = lit(Literal(value))
 
@@ -250,6 +255,7 @@ open class LogicUnit : TextComposite, LogicUnitI {
 
     override fun params(): List<AttributeI> = _params.items()
     override fun params(vararg value: AttributeI): LogicUnitI = apply { _params.addAll(value.toList()) }
+    override fun params(value: Attributes): LogicUnitI = apply { _params = value }
 
     companion object {
         val EMPTY = LogicUnitEmpty
@@ -285,6 +291,7 @@ open class Operation : LogicUnit, OperationI {
 
     override fun generics(): List<GenericI> = _generics.items()
     override fun generics(vararg value: GenericI): OperationI = apply { _generics.addAll(value.toList()) }
+    override fun generics(value: Generics): OperationI = apply { _generics = value }
     override fun G(value: GenericI): GenericI = applyAndReturn { _generics.add(value); value }
     override fun G(value: GenericI.() -> Unit) : GenericI = G(Generic(value))
 
@@ -356,6 +363,7 @@ open class Type : Composite, TypeI {
 
     override fun generics(): List<GenericI> = _generics.items()
     override fun generics(vararg value: GenericI): TypeI = apply { _generics.addAll(value.toList()) }
+    override fun generics(value: Generics): TypeI = apply { _generics = value }
     override fun G(value: GenericI): GenericI = applyAndReturn { _generics.add(value); value }
     override fun G(value: GenericI.() -> Unit) : GenericI = G(Generic(value))
 

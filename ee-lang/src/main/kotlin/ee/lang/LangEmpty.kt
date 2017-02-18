@@ -24,6 +24,10 @@ object CompilationUnitEmpty : Type(), CompilationUnitI {
     override fun constructors(vararg value: ConstructorI): CompilationUnitI = this
     override fun constr(value: ConstructorI): ConstructorI = Constructor.EMPTY
     override fun constr(value: ConstructorI.() -> Unit): ConstructorI = Constructor.EMPTY
+    override fun superUnitFor(value: CompilationUnits): CompilationUnitI = this
+    override fun props(value: Attributes): CompilationUnitI = this
+    override fun operations(value: Operations): CompilationUnitI = this
+    override fun constructors(value: Constructors): CompilationUnitI = this
 }
 
 object LogicUnitEmpty : TextComposite(), LogicUnitI {
@@ -33,4 +37,5 @@ object LogicUnitEmpty : TextComposite(), LogicUnitI {
     override fun superUnit(value: LogicUnitI): LogicUnitI = this
     override fun params(): List<AttributeI> = Attributes.EMPTY.items()
     override fun params(vararg value: AttributeI): LogicUnitI = this
+    override fun params(value: Attributes): LogicUnitI = this
 }

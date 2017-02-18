@@ -58,6 +58,11 @@ interface TypedCompositeI<I : ItemI> : ItemI, Iterable<I> {
 
     fun contains(item: I): Boolean
 
+    fun remove(item: I): Boolean
+
+    //return new
+    fun <T : ItemI> replace(old: T, new: T): T
+
     fun first(): I
 
     fun sortByName()

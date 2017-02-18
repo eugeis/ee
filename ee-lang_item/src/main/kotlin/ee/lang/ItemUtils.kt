@@ -1,7 +1,10 @@
 package ee.lang
 
 import ee.common.ext.buildLabel
+import org.slf4j.LoggerFactory
 import java.util.*
+
+private val log = LoggerFactory.getLogger("ItemUtils")
 
 fun ItemI.findDerivedOrThis() = if (derivedFrom().isEMPTY()) this else derivedFrom()
 fun ItemI.isOrDerived(item: ItemI) = this == item || derivedFrom() == item
@@ -88,6 +91,7 @@ fun <T : TypedCompositeI<*>> T.initObjectTree(searchForTargetComposite: Boolean 
     if (name().isBlank()) {
         name(buildLabel().name)
     }
+    log.debug("iot of ${name()}")
     for (f in javaClass.declaredFields) {
         try {
             val getter = javaClass.declaredMethods.find { it.name == "get${f.name.capitalize()}" }
@@ -96,6 +100,7 @@ fun <T : TypedCompositeI<*>> T.initObjectTree(searchForTargetComposite: Boolean 
                 if (child is ItemI) {
                     if (!child.isInitialized()) child.init()
                     if (child.name().isBlank()) child.name(f.name)
+                    log.debug("iot of ${name()}: ${child.name()}")
                     if (child.parent().isEMPTY()) {
                         val targetComposite = if (searchForTargetComposite) findSupportsItem(child) else this
                         if (!targetComposite.contains(child)) targetComposite.add(child)
@@ -110,20 +115,19 @@ fun <T : TypedCompositeI<*>> T.initObjectTree(searchForTargetComposite: Boolean 
     }
     javaClass.declaredClasses.forEach {
         val child = it.findInstance()
-        if (child != null) {
-            if (child is ItemI) {
-                if (!child.isInitialized()) child.init()
-                if (child.name().isBlank()) child.name(child.buildLabel().name)
-                if (child.parent().isEMPTY()) {
-                    val targetComposite = if (searchForTargetComposite) findSupportsItem(child) else this
-                    if (!targetComposite.contains(child)) {
-                        targetComposite.add(child)
-                        if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
-                        if (child is TypedCompositeI<*>) child.initObjectTree(searchForTargetComposite, deriveNamespace)
-                    }
+        if (child != null && child is ItemI) {
+            if (!child.isInitialized()) child.init()
+            if (child.name().isBlank()) child.name(child.buildLabel().name)
+            log.debug("iot of ${name()}: ${child.name()}")
+            if (child.parent().isEMPTY()) {
+                val targetComposite = if (searchForTargetComposite) findSupportsItem(child) else this
+                if (!targetComposite.contains(child)) {
+                    targetComposite.add(child)
+                    if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
+                    if (child is TypedCompositeI<*>) child.initObjectTree(searchForTargetComposite, deriveNamespace)
                 }
-                if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
             }
+            if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
         }
     }
     return this

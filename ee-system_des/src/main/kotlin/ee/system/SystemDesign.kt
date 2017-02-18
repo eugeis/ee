@@ -8,7 +8,7 @@ import ee.task.Task.shared.Task
 import ee.task.Task.shared.TaskFactory
 import ee.task.Task.shared.TaskRegistry
 
-object System : Comp({ namespace("ee.system") }) {
+object System : Comp({ artifact("ee-system").namespace("ee.system") }) {
     object shared : Module() {
         object SystemBase : Values({
             superUnit(l.Composite)

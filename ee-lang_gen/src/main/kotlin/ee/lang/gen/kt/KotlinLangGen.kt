@@ -49,7 +49,8 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: Str
     return """
     fun ${name()}(): ${toKotlinDslTypeDef(c, api)}${multi().ifElse({
         """
-    fun ${name()}(vararg $value: ${toKotlinTypeSingle(c, api)}): ${c.n(parent, api)}"""
+    fun ${name()}(vararg $value: ${toKotlinTypeSingle(c, api)}): ${c.n(parent, api)}
+    fun ${name()}($value: ${toKotlinDslTypeDefMember(c, api)}): ${c.n(parent, api)}"""
     }, {
         """
     fun ${name()}($value: ${toKotlinDslTypeDef(c, api)}): ${c.n(parent, api)}"""
@@ -66,7 +67,8 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: 
     return """${multi().ifElse({
         """
     ${override}fun ${name()}(): ${toKotlinDslTypeDef(c, api)} = _${name()}.items()
-    ${override}fun ${name()}(vararg $value: ${toKotlinTypeSingle(c, api)}): ${c.n(parent, api)} = apply { _${name()}.addAll(value.toList()) }"""
+    ${override}fun ${name()}(vararg $value: ${toKotlinTypeSingle(c, api)}): ${c.n(parent, api)} = apply { _${name()}.addAll(value.toList()) }
+    ${override}fun ${name()}($value: ${toKotlinDslTypeDefMember(c, api)}): ${c.n(parent, api)} = apply { _${name()} = replace(_${name()}, $value) }"""
     }, {
         """
     ${override}fun ${name()}(): ${toKotlinDslTypeDef(c, api)} = _${name()}.value()

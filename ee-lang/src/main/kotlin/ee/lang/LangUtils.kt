@@ -129,8 +129,11 @@ fun <T : CompilationUnitI> T.propagateItemToSubtypes(item: CompilationUnitI) {
 fun <T : TypeI> T.GT(vararg types: TypeI): T {
     if (generics().size >= types.size) {
         var i = 0
-        val ret = deriveDeep<T> {
-            val generics = generics()
+        val ret = derive<T> {
+            //replace generics. We need better derive function
+            val newGenerics = Generics({ addAll(generics()) })
+            newGenerics.init()
+            val generics = generics(newGenerics).generics()
             for (type in types) {
                 if (type is GenericI && generics is MutableList) {
                     generics[i++] = type

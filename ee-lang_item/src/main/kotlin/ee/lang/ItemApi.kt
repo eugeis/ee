@@ -48,6 +48,7 @@ open class Item : ItemI, Cloneable {
         _derivedFrom = value
         value.onDerived(this)
     }
+
     override fun <T : ItemI> derive(adapt: T.() -> Unit): T {
         init()
         val ret = clone() as T
@@ -58,7 +59,18 @@ open class Item : ItemI, Cloneable {
 
     override fun <T : ItemI> deriveDeep(adapt: T.() -> Unit): T {
         init()
+
+        //reset some cycle dependencies
+        val parent = parent()
+        parent(Item.EMPTY)
+        val derivedFrom = _derivedFrom
+        derivedFrom(Item.EMPTY)
+
         val ret = deepCopy() as T
+
+        parent(parent)
+        derivedFrom(derivedFrom)
+
         ret.derivedFrom(this)
         ret.adapt()
         return ret
@@ -193,6 +205,13 @@ open class TypedComposite<I : ItemI> : Item, TypedCompositeI<I> {
     }
 
     override fun contains(item: I): Boolean = _items.contains(item)
+
+    override fun remove(item: I): Boolean = _items.remove(item)
+
+    override fun <T : ItemI> replace(old: T, new: T): T {
+        remove(old as I)
+        return add(new)
+    }
 
     override fun first(): I = _items.first()
 
