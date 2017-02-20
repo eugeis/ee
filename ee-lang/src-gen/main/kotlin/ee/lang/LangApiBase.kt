@@ -19,7 +19,9 @@ open class Attribute : Composite, AttributeI {
     private var _open: ValueHolderI<Boolean> = add(ValueHolder(false, { name("open") }))
     private var _nonFluent: ValueHolderI<String> = add(ValueHolder("" as String, { name("nonFluent") }))
 
-    constructor(value: Attribute.() -> Unit = {}) : super(value as Composite.() -> Unit)
+    constructor(value: Attribute.() -> Unit = {}) : super(value as Composite.() -> Unit, {
+
+    })
 
     override fun type(): TypeI = _type.value()
     override fun type(value: TypeI): AttributeI = apply { _type.value(value) }
@@ -111,19 +113,19 @@ open class CompilationUnit : Type, CompilationUnitI {
     override fun props(vararg value: AttributeI): CompilationUnitI = apply { _props.addAll(value.toList()) }
     override fun props(value: Attributes): CompilationUnitI = apply { _props = value }
     override fun prop(value: AttributeI): AttributeI = applyAndReturn { _props.add(value); value }
-    override fun prop(value: AttributeI.() -> Unit) : AttributeI = prop(Attribute(value))
+    override fun prop(value: AttributeI.() -> Unit): AttributeI = prop(Attribute(value))
 
     override fun operations(): List<OperationI> = _operations.items()
     override fun operations(vararg value: OperationI): CompilationUnitI = apply { _operations.addAll(value.toList()) }
     override fun operations(value: Operations): CompilationUnitI = apply { _operations = value }
     override fun op(value: OperationI): OperationI = applyAndReturn { _operations.add(value); value }
-    override fun op(value: OperationI.() -> Unit) : OperationI = op(Operation(value))
+    override fun op(value: OperationI.() -> Unit): OperationI = op(Operation(value))
 
     override fun constructors(): List<ConstructorI> = _constructors.items()
     override fun constructors(vararg value: ConstructorI): CompilationUnitI = apply { _constructors.addAll(value.toList()) }
     override fun constructors(value: Constructors): CompilationUnitI = apply { _constructors = value }
     override fun constr(value: ConstructorI): ConstructorI = applyAndReturn { _constructors.add(value); value }
-    override fun constr(value: ConstructorI.() -> Unit) : ConstructorI = constr(Constructor(value))
+    override fun constr(value: ConstructorI.() -> Unit): ConstructorI = constr(Constructor(value))
 
     companion object {
         val EMPTY = CompilationUnitEmpty
@@ -162,7 +164,7 @@ open class EnumType : CompilationUnit, EnumTypeI {
     override fun literals(vararg value: LiteralI): EnumTypeI = apply { _literals.addAll(value.toList()) }
     override fun literals(value: Literals): EnumTypeI = apply { _literals = value }
     override fun lit(value: LiteralI): LiteralI = applyAndReturn { _literals.add(value); value }
-    override fun lit(value: LiteralI.() -> Unit) : LiteralI = lit(Literal(value))
+    override fun lit(value: LiteralI.() -> Unit): LiteralI = lit(Literal(value))
 
     companion object {
         val EMPTY = EnumType()
@@ -293,12 +295,12 @@ open class Operation : LogicUnit, OperationI {
     override fun generics(vararg value: GenericI): OperationI = apply { _generics.addAll(value.toList()) }
     override fun generics(value: Generics): OperationI = apply { _generics = value }
     override fun G(value: GenericI): GenericI = applyAndReturn { _generics.add(value); value }
-    override fun G(value: GenericI.() -> Unit) : GenericI = G(Generic(value))
+    override fun G(value: GenericI.() -> Unit): GenericI = G(Generic(value))
 
     override fun ret(): AttributeI = _ret.value()
     override fun ret(value: AttributeI): OperationI = apply { _ret.value(value) }
     override fun r(value: AttributeI): AttributeI = applyAndReturn { _ret.value(value) }
-    override fun r(value: AttributeI.() -> Unit) : AttributeI = r(Attribute(value))
+    override fun r(value: AttributeI.() -> Unit): AttributeI = r(Attribute(value))
 
     override fun open(): Boolean = _open.value()
     override fun open(value: Boolean): OperationI = apply { _open.value(value) }
@@ -365,7 +367,7 @@ open class Type : Composite, TypeI {
     override fun generics(vararg value: GenericI): TypeI = apply { _generics.addAll(value.toList()) }
     override fun generics(value: Generics): TypeI = apply { _generics = value }
     override fun G(value: GenericI): GenericI = applyAndReturn { _generics.add(value); value }
-    override fun G(value: GenericI.() -> Unit) : GenericI = G(Generic(value))
+    override fun G(value: GenericI.() -> Unit): GenericI = G(Generic(value))
 
     override fun multi(): Boolean = _multi.value()
     override fun multi(value: Boolean): TypeI = apply { _multi.value(value) }

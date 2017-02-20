@@ -1,18 +1,17 @@
 package ee.lang
 
-import ee.common.ext.declaredConstuctorWithOneGenericType
-import ee.common.ext.deepCopy
 import ee.common.ext.joinSurroundIfNotEmptyTo
+import java.util.*
 
-open class Item : ItemI, Cloneable {
+open class Item : ItemI {
     private var _name: String = ""
     private var _namespace: String = ""
     private var _doc: CommentI = CommentEmpty
     private var _parent: ItemI = EMPTY
     private var _derivedFrom: ItemI = EMPTY
     private var _derivedItems: MutableList<ItemI> = arrayListOf()
-    private var _init: Item.() -> Unit
     private var _initialized: Boolean = false
+    protected var _init: Item.() -> Unit
 
     constructor(value: Item.() -> Unit = {}) {
         this._init = value
@@ -51,26 +50,7 @@ open class Item : ItemI, Cloneable {
 
     override fun <T : ItemI> derive(adapt: T.() -> Unit): T {
         init()
-        val ret = clone() as T
-        ret.derivedFrom(this)
-        ret.adapt()
-        return ret
-    }
-
-    override fun <T : ItemI> deriveDeep(adapt: T.() -> Unit): T {
-        init()
-
-        //reset some cycle dependencies
-        val parent = parent()
-        parent(Item.EMPTY)
-        val derivedFrom = _derivedFrom
-        derivedFrom(Item.EMPTY)
-
-        val ret = deepCopy() as T
-
-        parent(parent)
-        derivedFrom(derivedFrom)
-
+        val ret = copy<T>()
         ret.derivedFrom(this)
         ret.adapt()
         return ret
@@ -85,9 +65,19 @@ open class Item : ItemI, Cloneable {
         return ret
     }
 
-    override fun <T : ItemI> createType(): T {
-        val ret = javaClass.newInstance() as T
+    override fun <T : ItemI> copy(): T = fill(createType()) as T
+
+    open protected fun <T : ItemI> createType(): T {
+        val ret = javaClass.constructors.first().newInstance(_init) as T
         return ret
+    }
+
+    open protected fun fill(item: ItemI) {
+        item.name(_name)
+        item.namespace(_namespace)
+        item.doc(_doc.copy())
+        item.parent(_parent)
+        item.derivedFrom(_derivedFrom)
     }
 
     override fun <T : ItemI> apply(code: T.() -> Unit): T {
@@ -113,16 +103,16 @@ open class Item : ItemI, Cloneable {
     }
 }
 
-open class ValueHolder<T> : Item, ValueHolderI<T> {
-    private var _value: T
+open class ValueHolder<I> : Item, ValueHolderI<I> {
+    private var _value: I
 
-    constructor(value: T, init: ValueHolder<T>.() -> Unit = {}) : super(init as Item.() -> Unit) {
+    constructor(value: I, init: ValueHolder<I>.() -> Unit = {}) : super(init as Item.() -> Unit) {
         this._value = value
     }
 
-    override fun value(): T = _value
+    override fun value(): I = _value
 
-    override fun value(value: T): T {
+    override fun value(value: I): I {
         this._value = value
         return value
     }
@@ -132,6 +122,13 @@ open class ValueHolder<T> : Item, ValueHolderI<T> {
         val currentValue = _value
         if (currentValue is ItemI && !currentValue.isInitialized()) {
             currentValue.init()
+        }
+    }
+
+    override fun fill(item: ItemI) {
+        super.fill(item)
+        if (item is ValueHolder<*>) {
+            item.value(_value as Nothing)
         }
     }
 
@@ -146,18 +143,18 @@ open class ValueHolder<T> : Item, ValueHolderI<T> {
     }
 }
 
-open class NullValueHolder<T> : Item, NullValueHolderI<T> {
-    private var _value: T? = null
+open class NullValueHolder<I> : Item, NullValueHolderI<I> {
+    private var _value: I? = null
 
-    constructor(init: NullValueHolder<T>.() -> Unit = {}) : super(init as Item.() -> Unit)
+    constructor(init: NullValueHolder<I>.() -> Unit = {}) : super(init as Item.() -> Unit)
 
-    constructor(value: T?, init: NullValueHolder<T>.() -> Unit = {}) : super(init as Item.() -> Unit) {
+    constructor(value: I?, init: NullValueHolder<I>.() -> Unit = {}) : super(init as Item.() -> Unit) {
         this._value = value
     }
 
-    override fun value(): T? = _value
+    override fun value(): I? = _value
 
-    override fun value(value: T?): T? {
+    override fun value(value: I?): I? {
         this._value = value
         return value
     }
@@ -167,6 +164,13 @@ open class NullValueHolder<T> : Item, NullValueHolderI<T> {
         val currentValue = _value
         if (currentValue != null && currentValue is ItemI && !currentValue.isInitialized()) {
             currentValue.init()
+        }
+    }
+
+    override fun fill(item: ItemI) {
+        super.fill(item)
+        if (item is NullValueHolder<*>) {
+            item.value(_value as Nothing)
         }
     }
 
@@ -181,54 +185,44 @@ open class NullValueHolder<T> : Item, NullValueHolderI<T> {
     }
 }
 
-open class TypedComposite<I : ItemI> : Item, TypedCompositeI<I> {
-    private val _type: Class<I>
-    private val _items: MutableList<I> = arrayListOf()
-
-    constructor(type: Class<I>, value: TypedComposite<I>.() -> Unit = {}) : super(value as Item.() -> Unit) {
-        _type = type
-    }
+abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>.() -> Unit = {}) :
+        Item(value as Item.() -> Unit), MultiHolderI<I> {
 
     override fun init() {
         super.init()
-        items().forEach { if (!it.isInitialized()) it.init() }
+        items().filterIsInstance<ItemI>().forEach { if (!it.isInitialized()) it.init() }
     }
 
-    override fun <T : ItemI> add(item: T): T {
-        item.parent(this)
-        _items.add(item as I)
-        return item
+    override fun <T : ItemI> createType(): T {
+        val ret = javaClass.constructors.first().newInstance(_type, _init) as T
+        return ret
     }
 
-    override fun addAll(collection: Collection<I>) {
-        collection.forEach { add(it) }
+
+    override fun fill(item: ItemI) {
+        super.fill(item)
+        if (item is MultiListHolderI<*>) {
+            val itemToFill = item as MultiHolderI<I>
+            items().forEach {
+                if (it is ItemI) {
+                    itemToFill.addR(it.copy<ItemI>() as I)
+                } else {
+                    itemToFill.addR(it)
+                }
+            }
+        }
     }
 
-    override fun contains(item: I): Boolean = _items.contains(item)
+    override fun containsItem(item: I): Boolean = items().contains(item)
 
-    override fun remove(item: I): Boolean = _items.remove(item)
+    override fun <T> supportsItemType(itemType: Class<T>): Boolean = itemType.isAssignableFrom(_type)
 
-    override fun <T : ItemI> replace(old: T, new: T): T {
-        remove(old as I)
-        return add(new)
-    }
+    override fun <T> supportsItem(item: T): Boolean = _type.isInstance(item)
 
-    override fun first(): I = _items.first()
-
-    override fun iterator(): Iterator<I> = _items.iterator()
-
-    override fun sortByName() {
-        _items.sortBy(ItemI::name)
-    }
-
-    override fun <T : ItemI> supportsItemType(itemType: Class<T>): Boolean = itemType.isAssignableFrom(_type)
-
-    override fun <T : ItemI> supportsItem(item: T): Boolean = _type.isInstance(item)
-
-    override fun <T : ItemI> findSupportsItem(item: T): TypedComposite<T> =
-            (_items.filterIsInstance(TypedComposite::class.java).find { it.supportsItem(item) } ?: this) as TypedComposite<T>
-
-    override fun items(): List<I> = _items
+    override fun <T> findSupportsItem(item: T): MultiHolderI<T> =
+            (items().filterIsInstance(MultiHolderI::class.java).find {
+                it.supportsItem(item)
+            } ?: this) as MultiHolderI<T>
 
     //renderer
     override fun render(builder: StringBuilder, indent: String) {
@@ -238,14 +232,50 @@ open class TypedComposite<I : ItemI> : Item, TypedCompositeI<I> {
 
     open fun renderChildren(builder: StringBuilder, indent: String) {
         items().joinSurroundIfNotEmptyTo(builder, "", " {\n", "$indent}") {
-            it.render(builder, indent + "  ")
-            "\n"
+            if (it is ItemI) {
+                it.render(builder, indent + "  ")
+                "\n"
+            } else {
+                "$it"
+            }
         }
     }
 }
 
-open class Composite : TypedComposite<ItemI>, CompositeI {
-    constructor(value: Composite.() -> Unit = {}) : super(ItemI::class.java, value as TypedComposite<ItemI>.() -> Unit)
+open class MultiListHolder<I>(_type: Class<I>, value: MultiListHolder<I>.() -> Unit = {},
+                              private val _items: MutableList<I> = arrayListOf()) :
+        MultiHolder<I>(_type, value as MultiHolder<*>.() -> Unit), MultiListHolderI<I>, MutableList<I> by _items {
+
+    override fun <T : I> addR(item: T): T {
+        if (item is ItemI) item.parent(this)
+        _items.add(item)
+        return item
+    }
+
+    override fun items(): Collection<I> = _items
+}
+
+open class MultiMapHolder<I : ItemI>(_type: Class<I>, adapt: MultiMapHolder<I>.() -> Unit = {},
+                                     default: MultiMapHolder<I>.() -> Unit = {},
+                                     private val _items: MutableMap<String, I> = TreeMap()) :
+        MultiHolder<I>(_type, adapt as MultiHolder<*>.() -> Unit), MultiMapHolderI<I> {
+
+    init {
+        default()
+    }
+
+    override fun <T : I> addR(item: T): T {
+        item.parent(this)
+        _items.put(item.name(), item)
+        return item
+    }
+
+    override fun items(): Collection<I> = _items.values
+}
+
+open class Composite : MultiMapHolder<ItemI>, CompositeI {
+    constructor(adapt: Composite.() -> Unit = {}, default: Composite.() -> Unit = {}) : super(ItemI::class.java,
+            adapt as MultiMapHolder<ItemI>.() -> Unit, default as MultiMapHolder<ItemI>.() -> Unit)
 }
 
 open class Comment : Composite, CommentI {

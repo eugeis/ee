@@ -97,9 +97,9 @@ fun <T : CompositeI> T.toKotlinDslComposite(c: GenerationContext,
                                             api: String = DerivedNames.API.name): String {
 
     return """
-open class ${c.n(this, derived)} : ${c.n(l.TypedComposite, DerivedNames.IMPL.name)}<${c.n(this, api)}> {
+open class ${c.n(this, derived)} : ${c.n(l.MultiListHolder, DerivedNames.IMPL.name)}<${c.n(this, api)}> {
     constructor(value: ${c.n(this, derived)}.() -> Unit = {}) : super(${c.n(this, api)}::class.java,
-            value as ${c.n(l.TypedComposite, DerivedNames.IMPL.name)}<${c.n(this, api)}>.() -> Unit)${
+            value as ${c.n(l.MultiListHolder, DerivedNames.IMPL.name)}<${c.n(this, api)}>.() -> Unit)${
     toKotlinEmptyObject(c, derived)}
 }"""
 }
@@ -144,9 +144,9 @@ fun <T : ItemI> T.toKotlinObjectTreeCompilationUnit(c: GenerationContext, derive
 fun <T : CompositeI> T.toKotlinDslObjectTree(c: GenerationContext, derived: String = DerivedNames.DSL_TYPE.name): String {
     return """
 object ${c.n(this)} : ${c.n(l.StructureUnit)}({ namespace("${namespace()}") }) {
-${items().filter { !it.name().equals("TypedComposite") }.joinSurroundIfNotEmptyToString(nL) { it.toKotlinObjectTreeCompilationUnit(c, derived) }}
+${items().filter { !it.name().equals("MultiHolder") }.joinSurroundIfNotEmptyToString(nL) { it.toKotlinObjectTreeCompilationUnit(c, derived) }}
 
-    object TypedComposite : CompilationUnit({ derivedFrom(Item) }) {
+    object MultiHolder : CompilationUnit({ derivedFrom(Item) }) {
         val T = G({ type(Item) })
     }
 }"""

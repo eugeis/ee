@@ -33,7 +33,7 @@ fun <T : ItemI> ItemI.findParent(clazz: Class<T>): T? {
     }
 }
 
-fun <T : ItemI> TypedCompositeI<*>.findAllByType(type: Class<T>): List<T> {
+fun <T : ItemI> MultiHolderI<*>.findAllByType(type: Class<T>): List<T> {
     return items().filterIsInstance(type)
 }
 
@@ -50,18 +50,18 @@ fun <T : ItemI> ItemI.findAcrossByType(type: Class<T>, destination: MutableList<
             if (type.isInstance(this)) this as T else null
         }, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
 
-fun <T : ItemI> TypedCompositeI<*>.findDownByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                                  alreadyHandled: MutableSet<ItemI> = HashSet(),
-                                                  stopSteppingDownIfFound: Boolean = true): List<T> =
+fun <T : ItemI> MultiHolderI<*>.findDownByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
+                                               alreadyHandled: MutableSet<ItemI> = HashSet(),
+                                               stopSteppingDownIfFound: Boolean = true): List<T> =
         findAcrossByType(type, destination, alreadyHandled, stopSteppingDownIfFound, {
-            if (this is TypedCompositeI<*>) this.items() else emptyList()
+            if (this is MultiHolderI<*>) this.items() else emptyList()
         })
 
 fun <T : ItemI> ItemI.findDown(select: ItemI.() -> T?, destination: MutableList<T> = ArrayList<T>(),
                                alreadyHandled: MutableSet<ItemI> = HashSet(),
                                stopSteppingAcrossIfFound: Boolean = true): List<T> =
         findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound, {
-            if (this is TypedCompositeI<*>) this.items() else emptyList()
+            if (this is MultiHolderI<*>) this.items() else emptyList()
         })
 
 fun <T : ItemI> ItemI.findAcross(select: ItemI.() -> T?, destination: MutableList<T> = ArrayList<T>(),
@@ -85,13 +85,12 @@ fun <T : ItemI> ItemI.findAcross(select: ItemI.() -> T?, destination: MutableLis
 }
 
 
-fun <T : TypedCompositeI<*>> T.initObjectTree(searchForTargetComposite: Boolean = false,
-                                              deriveNamespace: ItemI.() -> String = { parent().namespace() }): T {
+fun <T : MultiHolderI<*>> T.initObjectTree(searchForTargetComposite: Boolean = false,
+                                           deriveNamespace: ItemI.() -> String = { parent().namespace() }): T {
     if (!isInitialized()) init()
     if (name().isBlank()) {
         name(buildLabel().name)
     }
-    log.debug("iot of ${name()}")
     for (f in javaClass.declaredFields) {
         try {
             val getter = javaClass.declaredMethods.find { it.name == "get${f.name.capitalize()}" }
@@ -100,7 +99,6 @@ fun <T : TypedCompositeI<*>> T.initObjectTree(searchForTargetComposite: Boolean 
                 if (child is ItemI) {
                     if (!child.isInitialized()) child.init()
                     if (child.name().isBlank()) child.name(f.name)
-                    log.debug("iot of ${name()}: ${child.name()}")
                     if (child.parent().isEMPTY()) {
                         val targetComposite = if (searchForTargetComposite) findSupportsItem(child) else this
                         if (!targetComposite.contains(child)) targetComposite.add(child)
@@ -118,13 +116,14 @@ fun <T : TypedCompositeI<*>> T.initObjectTree(searchForTargetComposite: Boolean 
         if (child != null && child is ItemI) {
             if (!child.isInitialized()) child.init()
             if (child.name().isBlank()) child.name(child.buildLabel().name)
-            log.debug("iot of ${name()}: ${child.name()}")
+
+            //initObjectTree recursively if the parent is not set
             if (child.parent().isEMPTY()) {
                 val targetComposite = if (searchForTargetComposite) findSupportsItem(child) else this
                 if (!targetComposite.contains(child)) {
                     targetComposite.add(child)
                     if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
-                    if (child is TypedCompositeI<*>) child.initObjectTree(searchForTargetComposite, deriveNamespace)
+                    if (child is MultiHolderI<*>) child.initObjectTree(searchForTargetComposite, deriveNamespace)
                 }
             }
             if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
@@ -147,7 +146,7 @@ fun <T> Class<T>.findInstance(): Any? {
 }
 
 
-fun TypedCompositeI<*>.initBlackNames() {
+fun MultiHolderI<*>.initBlackNames() {
     findDown({ if (this.name().isBlank()) this else null }).forEach(ItemI::initBlackName)
 }
 

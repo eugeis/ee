@@ -18,13 +18,12 @@ open class ItemEmptyClass : ItemI {
     override fun <T : ItemI> derive(init: T.() -> Unit): T = this as T
     override fun <T : ItemI> apply(code: T.() -> Unit): T = this as T
     override fun <R> applyAndReturn(code: () -> R): R = code()
-    override fun <T : ItemI> deriveDeep(init: T.() -> Unit): T = this as T
     override fun <T : ItemI> deriveSubType(init: T.() -> Unit): T = this as T
-    override fun <T : ItemI> createType(): T = this as T
     override fun render(builder: StringBuilder, indent: String) {}
     override fun render(): String = ""
     override fun isInitialized(): Boolean = true
     override fun init() {}
+    override fun <T : ItemI> copy(): T = this as T
 }
 
 val CompositeEmpty = CompositeEmptyClass()
@@ -35,9 +34,9 @@ open class CompositeEmptyClass : ItemEmptyClass(), CompositeI {
     override fun addAll(elements: Collection<ItemI>) {}
     override fun iterator(): Iterator<ItemI> = items().iterator()
     override fun first(): ItemI = items().first()
-    override fun <T: ItemI> supportsItemType(item: Class<T>): Boolean = false
-    override fun <T: ItemI> supportsItem(item: T): Boolean = false
-    override fun <T: ItemI> findSupportsItem(item: T): TypedComposite<T> = this as TypedComposite<T>
+    override fun <T : ItemI> supportsItemType(item: Class<T>): Boolean = false
+    override fun <T : ItemI> supportsItem(item: T): Boolean = false
+    override fun <T : ItemI> findSupportsItem(item: T): MultiHolder<T> = this as MultiHolder<T>
     override fun sortByName() {}
     override fun contains(item: ItemI): Boolean = false
     override fun remove(item: ItemI): Boolean = false

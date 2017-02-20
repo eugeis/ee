@@ -5,7 +5,7 @@ object l : StructureUnit({ namespace("ee.lang") }) {
     val Attribute = CompilationUnit({ derivedFrom(Composite) })
     val Comment = CompilationUnit({ derivedFrom(Composite) })
     val CompilationUnit = CompilationUnit({ derivedFrom(Type) })
-    val Composite = CompilationUnit({ derivedFrom(TypedComposite) })
+    val Composite = CompilationUnit({ derivedFrom(MultiHolder) })
     val Constructor = CompilationUnit({ derivedFrom(LogicUnit) })
     val EnumType = CompilationUnit({ derivedFrom(CompilationUnit) })
     val ExternalType = CompilationUnit({ derivedFrom(Type) })
@@ -22,7 +22,7 @@ object l : StructureUnit({ namespace("ee.lang") }) {
     val Type = CompilationUnit({ derivedFrom(Composite) })
     val ValueHolder = CompilationUnit({ derivedFrom(Item) })
 
-    object TypedComposite : CompilationUnit({ derivedFrom(Item) }) {
+    object MultiHolder : CompilationUnit({ derivedFrom(Item) }) {
         val T = G({ type(Item) })
     }
 }

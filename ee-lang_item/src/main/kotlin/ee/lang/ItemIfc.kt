@@ -24,11 +24,10 @@ interface ItemI : Serializable {
     fun <T : ItemI> apply(code: T.() -> Unit): T
     fun <R> applyAndReturn(code: () -> R): R
 
-    fun <T : ItemI> derive(init: T.() -> Unit = {}): T
-    fun <T : ItemI> deriveDeep(init: T.() -> Unit): T
+    fun <T : ItemI> derive(adapt: T.() -> Unit = {}): T
+    fun <T : ItemI> deriveSubType(adapt: T.() -> Unit): T
 
-    fun <T : ItemI> deriveSubType(init: T.() -> Unit): T
-    fun <T : ItemI> createType(): T
+    fun <T : ItemI> copy(): T
 
     fun render(builder: StringBuilder, indent: String)
 
@@ -49,32 +48,27 @@ interface NullValueHolderI<T> : ItemI {
     fun value(value: T?): T?
 }
 
-interface TypedCompositeI<I : ItemI> : ItemI, Iterable<I> {
-    fun items(): List<I>
+interface MultiHolderI<I> : ItemI {
+    fun items(): Collection<I>
 
-    fun <T : ItemI> add(item: T): T
+    fun containsItem(item: I): Boolean
 
-    fun addAll(elements: Collection<I>)
+    fun <T : I> addR(item: T) : T
 
-    fun contains(item: I): Boolean
+    fun <T> supportsItem(item: T): Boolean
 
-    fun remove(item: I): Boolean
+    fun <T> supportsItemType(itemType: Class<T>): Boolean
 
-    //return new
-    fun <T : ItemI> replace(old: T, new: T): T
-
-    fun first(): I
-
-    fun sortByName()
-
-    fun <T : ItemI> supportsItem(item: T): Boolean
-
-    fun <T : ItemI> supportsItemType(itemType: Class<T>): Boolean
-
-    fun <T : ItemI> findSupportsItem(item: T): TypedCompositeI<T>
+    fun <T> findSupportsItem(item: T): MultiHolderI<T>
 }
 
-interface CompositeI : TypedCompositeI<ItemI> {
+interface MultiListHolderI<I> : MultiHolderI<I>, MutableList<I> {
+}
+
+interface MultiMapHolderI<I> : MultiHolderI<I> {
+}
+
+interface CompositeI : MultiHolderI<ItemI> {
 }
 
 interface CommentI : CompositeI {

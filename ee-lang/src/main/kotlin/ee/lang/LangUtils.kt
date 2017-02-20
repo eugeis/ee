@@ -175,7 +175,7 @@ fun <T : StructureUnitI> T.initObjectTrees(searchForTargetComposite: Boolean = f
 }
 
 fun <T : StructureUnitI> T.initObjectTree(searchForTargetComposite: Boolean = false): T {
-    (this as TypedComposite<*>).initObjectTree(searchForTargetComposite, {
+    (this as MultiHolder<*>).initObjectTree(searchForTargetComposite, {
         if (this is StructureUnitI) {
             val parent = findParent(StructureUnitI::class.java) ?: parent()
             if (parent.namespace().isBlank() || this !is StructureUnitI) parent.namespace()
@@ -209,7 +209,7 @@ fun <T : StructureUnitI> T.initFullNameArtifacts() {
     items().forEach {
         if (it is StructureUnitI) {
             it.initFullNameArtifacts()
-        } else if (it is TypedCompositeI<*> && it.supportsItemType(StructureUnitI::class.java)) {
+        } else if (it is MultiHolderI<*> && it.supportsItemType(StructureUnitI::class.java)) {
             it.filterIsInstance(StructureUnitI::class.java).forEach { it.initFullNameArtifacts() }
         }
     }

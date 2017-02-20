@@ -93,8 +93,8 @@ fun <T : CompilationUnitI> T.toKotlinDslComposite(c: GenerationContext,
                                                   api: String = DerivedNames.API.name): String {
 
     return """
-open class ${c.n(this, derived)} : ${c.n(l.TypedComposite, DerivedNames.IMPL.name)}<${c.n(this, api)}> {
+open class ${c.n(this, derived)} : ${c.n(l.MultiHolder, DerivedNames.IMPL.name)}<${c.n(this, api)}> {
     constructor(value: ${c.n(this, derived)}.() -> Unit = {}) : super(${c.n(this, api)}::class.java,
-            value as ${c.n(l.TypedComposite, DerivedNames.IMPL.name)}<${c.n(this, api)}>.() -> Unit)
+            value as ${c.n(l.MultiHolder, DerivedNames.IMPL.name)}<${c.n(this, api)}>.() -> Unit)
 }"""
 }
