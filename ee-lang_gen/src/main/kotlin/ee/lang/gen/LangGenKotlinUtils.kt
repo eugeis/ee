@@ -27,6 +27,5 @@ open class KotlinContextFactory {
 fun <T : CompositeI> T.prepareForKotlinGeneration(): CompositeI {
     n.initObjectTree()
     val ret = initObjectTree()
-    ret.sortByName()
     return ret
 }

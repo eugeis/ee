@@ -205,9 +205,9 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
             val itemToFill = item as MultiHolderI<I>
             items().forEach {
                 if (it is ItemI) {
-                    itemToFill.addR(it.copy<ItemI>() as I)
+                    itemToFill.addItem(it.copy<ItemI>() as I)
                 } else {
-                    itemToFill.addR(it)
+                    itemToFill.addItem(it)
                 }
             }
         }
@@ -219,10 +219,10 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
 
     override fun <T> supportsItem(item: T): Boolean = _type.isInstance(item)
 
-    override fun <T> findSupportsItem(item: T): MultiHolderI<T> =
-            (items().filterIsInstance(MultiHolderI::class.java).find {
+    override fun <T> findSupportsItem(item: T, childrenFirst: Boolean): MultiHolderI<T> =
+            (if (childrenFirst) items().filterIsInstance(MultiHolderI::class.java).find {
                 it.supportsItem(item)
-            } ?: this) as MultiHolderI<T>
+            } ?: this else this) as MultiHolderI<T>
 
     //renderer
     override fun render(builder: StringBuilder, indent: String) {
@@ -246,7 +246,7 @@ open class MultiListHolder<I>(_type: Class<I>, value: MultiListHolder<I>.() -> U
                               private val _items: MutableList<I> = arrayListOf()) :
         MultiHolder<I>(_type, value as MultiHolder<*>.() -> Unit), MultiListHolderI<I>, MutableList<I> by _items {
 
-    override fun <T : I> addR(item: T): T {
+    override fun <T : I> addItem(item: T): T {
         if (item is ItemI) item.parent(this)
         _items.add(item)
         return item
@@ -255,29 +255,70 @@ open class MultiListHolder<I>(_type: Class<I>, value: MultiListHolder<I>.() -> U
     override fun items(): Collection<I> = _items
 }
 
-open class MultiMapHolder<I : ItemI>(_type: Class<I>, adapt: MultiMapHolder<I>.() -> Unit = {},
-                                     default: MultiMapHolder<I>.() -> Unit = {},
-                                     private val _items: MutableMap<String, I> = TreeMap()) :
+open class MultiMapHolder<I>(_type: Class<I>, adapt: MultiMapHolder<I>.() -> Unit = {},
+                             private val _items: MutableMap<String, I> = TreeMap()) :
         MultiHolder<I>(_type, adapt as MultiHolder<*>.() -> Unit), MultiMapHolderI<I> {
 
-    init {
-        default()
+    override fun <T : I> addItem(item: T): T {
+        if (item is ItemI) {
+            item.parent(this)
+            _items.put(item.name(), item)
+        } else {
+            _items.put(item.toString(), item)
+        }
+        return item
     }
 
-    override fun <T : I> addR(item: T): T {
-        item.parent(this)
-        _items.put(item.name(), item)
+    override fun removeItem(name: String) {
+        _items.remove(name)
+    }
+
+    override fun <T : I> addItem(name: String, item: T): T {
+        _items.put(name, item)
         return item
     }
 
     override fun items(): Collection<I> = _items.values
+    override fun itemsMap(): Map<String, I> = _items
+
+    open fun <T : I> item(name: String): T? {
+        var ret = _items[name]
+        return if (ret != null) ret as T else null
+    }
+
+    open fun <T : I> item(name: String, factory: () -> T): T {
+        var ret = _items[name]
+        return if (ret == null) addItem(name, factory()) else ret as T
+    }
 }
 
 open class Composite : MultiMapHolder<ItemI>, CompositeI {
-    constructor(adapt: Composite.() -> Unit = {}, default: Composite.() -> Unit = {}) : super(ItemI::class.java,
-            adapt as MultiMapHolder<ItemI>.() -> Unit, default as MultiMapHolder<ItemI>.() -> Unit)
+    constructor(adapt: Composite.() -> Unit) : super(ItemI::class.java, adapt as MultiMapHolder<ItemI>.() -> Unit)
+
+    open fun <R> itemAsMap(name: String, type: Class<R>): MultiMapHolder<R> =
+            item(name, { MultiMapHolder<R>(type, { name(name) }) })
+
+    open fun <R> itemAsList(name: String, type: Class<R>): MultiListHolder<R> =
+            item(name, { MultiListHolder<R>(type, { name(name) }) })
+
+    open fun <T : Any> attr(name: String): T? = attributes().item(name)
+    open fun <T : Any> attr(name: String, factory: () -> T): T = attributes().item(name, factory)
+
+    override fun <T : Any> attr(name: String, attr: T?): T? {
+        if (attr != null) {
+            attributes().addItem(name, attr)
+        } else {
+            attributes().addItem(name, attr)
+        }
+        return attr
+    }
+
+    override fun attributes(): MultiMapHolder<Any> = itemAsMap("attributes", Any::class.java)
+
+    companion object {
+    }
 }
 
-open class Comment : Composite, CommentI {
-    constructor(value: Comment.() -> Unit = {}) : super(value as Composite.() -> Unit)
+open class Comment : MultiListHolder<String>, CommentI {
+    constructor(value: Comment.() -> Unit = {}) : super(String::class.java, value as MultiListHolder<*>.() -> Unit)
 }

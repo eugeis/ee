@@ -51,25 +51,28 @@ interface NullValueHolderI<T> : ItemI {
 interface MultiHolderI<I> : ItemI {
     fun items(): Collection<I>
 
+    fun <T : I> addItem(item: T): T
     fun containsItem(item: I): Boolean
 
-    fun <T : I> addR(item: T) : T
-
     fun <T> supportsItem(item: T): Boolean
-
     fun <T> supportsItemType(itemType: Class<T>): Boolean
 
-    fun <T> findSupportsItem(item: T): MultiHolderI<T>
+    fun <T> findSupportsItem(item: T, childrenFirst: Boolean = false): MultiHolderI<T>
 }
 
 interface MultiListHolderI<I> : MultiHolderI<I>, MutableList<I> {
 }
 
 interface MultiMapHolderI<I> : MultiHolderI<I> {
+    fun <T : I> addItem(name: String, item: T): T
+    fun removeItem(name: String)
+    fun itemsMap(): Map<String, I>
 }
 
-interface CompositeI : MultiHolderI<ItemI> {
+interface CompositeI : MultiMapHolderI<ItemI> {
+    fun <T : Any> attr(name: String, attr: T?): T?
+    fun attributes(): MultiMapHolderI<*>
 }
 
-interface CommentI : CompositeI {
+interface CommentI : MultiListHolderI<String> {
 }

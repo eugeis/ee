@@ -98,7 +98,6 @@ fun Boolean?.then(text: String): String =
 fun Boolean?.then(text: () -> String): String =
         if (this != null && this) text() else ""
 
-
 //System
 val osName: String = System.getProperty("os.name")
 var eeAppHome: String = {

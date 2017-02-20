@@ -30,11 +30,6 @@ open class LangGenGeneratorFactory {
                         items = composites, fragments = { listOf(kotlinTemplates.dslBuilder(), kotlinTemplates.isEmptyExt()) })
                 ),
                 GeneratorSimple<CompositeI>(
-                        contextBuilder = contextBuilder, template = ItemsTemplate<CompositeI, CompositeI>(
-                        name = "${fileNamePrefix}Composites", nameBuilder = templateNameAsKotlinFileName,
-                        items = composites, fragments = { listOf(kotlinTemplates.dslComposite()) })
-                ),
-                GeneratorSimple<CompositeI>(
                         contextBuilder = contextBuilder, template = kotlinTemplates.dslObjectTree()
                 )
         ))

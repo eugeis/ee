@@ -3,6 +3,7 @@ package ee.lang.gen.kt
 import ee.common.ext.ifElse
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
+import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 
 
@@ -49,8 +50,7 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: Str
     return """
     fun ${name()}(): ${toKotlinDslTypeDef(c, api)}${multi().ifElse({
         """
-    fun ${name()}(vararg $value: ${toKotlinTypeSingle(c, api)}): ${c.n(parent, api)}
-    fun ${name()}($value: ${toKotlinDslTypeDefMember(c, api)}): ${c.n(parent, api)}"""
+    fun ${name()}(vararg $value: ${toKotlinTypeSingle(c, api)}): ${c.n(parent, api)}"""
     }, {
         """
     fun ${name()}($value: ${toKotlinDslTypeDef(c, api)}): ${c.n(parent, api)}"""
@@ -66,13 +66,15 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: 
     val override = (derived != api).ifElse("override ", "")
     return """${multi().ifElse({
         """
-    ${override}fun ${name()}(): ${toKotlinDslTypeDef(c, api)} = _${name()}.items()
-    ${override}fun ${name()}(vararg $value: ${toKotlinTypeSingle(c, api)}): ${c.n(parent, api)} = apply { _${name()}.addAll(value.toList()) }
-    ${override}fun ${name()}($value: ${toKotlinDslTypeDefMember(c, api)}): ${c.n(parent, api)} = apply { _${name()} = replace(_${name()}, $value) }"""
+    ${override}fun ${name()}(): ${toKotlinDslTypeDef(c, api)} = itemAsList(${
+        name().toUnderscoredUpperCase()}, ${toKotlinTypeSingle(c, api)})
+    ${override}fun ${name()}(vararg $value: ${toKotlinTypeSingle(c, api)}): ${c.n(parent, api)} = apply { ${name()}.addAll(value) }"""
     }, {
         """
-    ${override}fun ${name()}(): ${toKotlinDslTypeDef(c, api)} = _${name()}.value()
-    ${override}fun ${name()}($value: ${toKotlinDslTypeDef(c, api)}): ${c.n(parent, api)} = apply { _${name()}.value($value) }"""
+    ${override}fun ${name()}(): ${toKotlinDslTypeDef(c, api)} = attr(${name().toUnderscoredUpperCase()}${
+        nullable().not().then { ", { ${value()} }" }})
+    ${override}fun ${name()}($value: ${toKotlinDslTypeDef(c, api)}): ${c.n(parent, api)} = apply { attr(${
+        name().toUnderscoredUpperCase()}, $value) }"""
     })}${nonFluent().isNotBlank().then {
         """
     ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}): ${toKotlinTypeSingle(c, api)} = applyAndReturn { ${multi().ifElse({
@@ -88,8 +90,12 @@ fun <T : CompositeI> T.toKotlinEmptyObject(c: GenerationContext, derived: String
     return """
 
     companion object {
-        val EMPTY = ${specialEmptyObjects.contains(target).ifElse({ "${target}Empty" }, { "${c.n(this, derived)}()" })}
+        val EMPTY = ${specialEmptyObjects.contains(target).ifElse({ "${target}Empty" }, { "$target()" })}
     }"""
+}
+
+fun <T : AttributeI> T.toKotlinCompanionObjectName(c: GenerationContext): String {
+    return """        val ${name().toUnderscoredUpperCase()} = "${name()}""""
 }
 
 fun <T : CompositeI> T.toKotlinDslComposite(c: GenerationContext,
@@ -116,14 +122,18 @@ fun <T : CompositeI> T.toKotlinDslBuilder(c: GenerationContext,
                                           derived: String = DerivedNames.IMPL.name,
                                           api: String = DerivedNames.API.name): String {
     val props = items().filterIsInstance(AttributeI::class.java)
+    val target = c.n(this, derived)
     return """
 open class ${c.n(this, derived)} : ${c.n(derivedFrom(), derived)}${(derived != api).then(
             { ", ${c.n(this, DerivedNames.API.name)}" })} {
-${props.joinSurroundIfNotEmptyToString(nL) { it.toKotlinDslBuilderProp(c, derived, api) }}
 
     constructor(value: ${c.n(this, derived)}.() -> Unit = {}) : super(value as ${c.n(derivedFrom(), derived)}.() -> Unit)${
-    props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}${
-    toKotlinEmptyObject(c, derived)}
+    props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}
+
+    companion object {
+        val EMPTY = ${specialEmptyObjects.contains(target).ifElse({ "${target}Empty" }, { "$target()" })}${
+    props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinCompanionObjectName(c)}}
+    }
 }"""
 }
 

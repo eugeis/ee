@@ -6,6 +6,14 @@ import java.util.*
 
 private val log = LoggerFactory.getLogger("ItemUtils")
 
+data class InitChain<T>(val initFunctions: List<T.() -> Unit>) : Function1<T, Unit> {
+    override fun invoke(p1: T): Unit {
+        initFunctions.forEach { it.invoke(p1) }
+    }
+}
+
+fun <T> inits(vararg initFunctions: T.() -> Unit) = InitChain<T>(initFunctions.toList())
+
 fun ItemI.findDerivedOrThis() = if (derivedFrom().isEMPTY()) this else derivedFrom()
 fun ItemI.isOrDerived(item: ItemI) = this == item || derivedFrom() == item
 
@@ -33,41 +41,41 @@ fun <T : ItemI> ItemI.findParent(clazz: Class<T>): T? {
     }
 }
 
-fun <T : ItemI> MultiHolderI<*>.findAllByType(type: Class<T>): List<T> {
+fun <T> MultiHolderI<*>.findAllByType(type: Class<T>): List<T> {
     return items().filterIsInstance(type)
 }
 
-fun <T : ItemI> ItemI.findUpByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                   alreadyHandled: MutableSet<ItemI> = HashSet(),
-                                   stopSteppingUpIfFound: Boolean = true): List<T> =
+fun <T> ItemI.findUpByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
+                           alreadyHandled: MutableSet<ItemI> = HashSet(),
+                           stopSteppingUpIfFound: Boolean = true): List<T> =
         findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound) { listOf(parent()) }
 
-fun <T : ItemI> ItemI.findAcrossByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                       alreadyHandled: MutableSet<ItemI> = HashSet(),
-                                       stopSteppingAcrossIfFound: Boolean = true,
-                                       acrossSelector: ItemI.() -> Collection<ItemI>): List<T> =
+fun <T> ItemI.findAcrossByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
+                               alreadyHandled: MutableSet<ItemI> = HashSet(),
+                               stopSteppingAcrossIfFound: Boolean = true,
+                               acrossSelector: ItemI.() -> Collection<ItemI>): List<T> =
         findAcross({
             if (type.isInstance(this)) this as T else null
         }, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
 
-fun <T : ItemI> MultiHolderI<*>.findDownByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                               alreadyHandled: MutableSet<ItemI> = HashSet(),
-                                               stopSteppingDownIfFound: Boolean = true): List<T> =
+fun <T> MultiHolderI<*>.findDownByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
+                                       alreadyHandled: MutableSet<ItemI> = HashSet(),
+                                       stopSteppingDownIfFound: Boolean = true): List<T> =
         findAcrossByType(type, destination, alreadyHandled, stopSteppingDownIfFound, {
-            if (this is MultiHolderI<*>) this.items() else emptyList()
+            if (this is MultiHolderI<*>) this.items() as Collection<ItemI> else emptyList()
         })
 
-fun <T : ItemI> ItemI.findDown(select: ItemI.() -> T?, destination: MutableList<T> = ArrayList<T>(),
-                               alreadyHandled: MutableSet<ItemI> = HashSet(),
-                               stopSteppingAcrossIfFound: Boolean = true): List<T> =
+fun <T> ItemI.findDown(select: ItemI.() -> T?, destination: MutableList<T> = ArrayList<T>(),
+                       alreadyHandled: MutableSet<ItemI> = HashSet(),
+                       stopSteppingAcrossIfFound: Boolean = true): List<T> =
         findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound, {
-            if (this is MultiHolderI<*>) this.items() else emptyList()
+            if (this is MultiHolderI<*>) this.items() as Collection<ItemI> else emptyList()
         })
 
-fun <T : ItemI> ItemI.findAcross(select: ItemI.() -> T?, destination: MutableList<T> = ArrayList<T>(),
-                                 alreadyHandled: MutableSet<ItemI> = HashSet(),
-                                 stopSteppingAcrossIfFound: Boolean = true,
-                                 acrossSelector: ItemI.() -> Collection<ItemI>): List<T> {
+fun <T> ItemI.findAcross(select: ItemI.() -> T?, destination: MutableList<T> = ArrayList<T>(),
+                         alreadyHandled: MutableSet<ItemI> = HashSet(),
+                         stopSteppingAcrossIfFound: Boolean = true,
+                         acrossSelector: ItemI.() -> Collection<ItemI>): List<T> {
     acrossSelector().forEach { acrossItem ->
         if (!alreadyHandled.contains(acrossItem)) {
             alreadyHandled.add(acrossItem)
@@ -100,8 +108,8 @@ fun <T : MultiHolderI<*>> T.initObjectTree(searchForTargetComposite: Boolean = f
                     if (!child.isInitialized()) child.init()
                     if (child.name().isBlank()) child.name(f.name)
                     if (child.parent().isEMPTY()) {
-                        val targetComposite = if (searchForTargetComposite) findSupportsItem(child) else this
-                        if (!targetComposite.contains(child)) targetComposite.add(child)
+                        val targetComposite = findSupportsItem(child, searchForTargetComposite)
+                        if (!targetComposite.containsItem(child)) targetComposite.addItem(child)
                     }
                     if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
                 }
@@ -119,9 +127,9 @@ fun <T : MultiHolderI<*>> T.initObjectTree(searchForTargetComposite: Boolean = f
 
             //initObjectTree recursively if the parent is not set
             if (child.parent().isEMPTY()) {
-                val targetComposite = if (searchForTargetComposite) findSupportsItem(child) else this
-                if (!targetComposite.contains(child)) {
-                    targetComposite.add(child)
+                val targetMultiHolder = findSupportsItem(child, searchForTargetComposite)
+                if (!targetMultiHolder.containsItem(child)) {
+                    targetMultiHolder.addItem(child)
                     if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
                     if (child is MultiHolderI<*>) child.initObjectTree(searchForTargetComposite, deriveNamespace)
                 }

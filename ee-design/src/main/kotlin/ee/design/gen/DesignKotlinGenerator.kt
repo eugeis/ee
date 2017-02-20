@@ -49,7 +49,7 @@ open class DesignKotlinGenerator {
 
             val T = it.G { type(dataItem).name("T") }
             if (it !is QueryControllerI) {
-                it.prop { type(T).name("item") }
+                it.prop { type(T).name("addItem") }
             }
         }
     }

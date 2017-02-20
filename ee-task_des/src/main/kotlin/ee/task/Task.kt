@@ -70,7 +70,7 @@ object Task : Comp({ namespace("ee.task") }) {
             val itemToHome = prop(n.Map.GT(n.String, n.String))
             val resolve = op {
                 val T = G { type(l.Item).name("T") }
-                p { type(T).nullable(false).initByDefaultTypeValue(false).name("item") }
+                p { type(T).nullable(false).initByDefaultTypeValue(false).name("addItem") }
                 ret(n.Path)
             }
         }
