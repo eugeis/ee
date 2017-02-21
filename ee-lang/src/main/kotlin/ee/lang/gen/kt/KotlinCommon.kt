@@ -1,9 +1,6 @@
 package ee.lang.gen.kt
 
-import ee.common.ext.ifElse
-import ee.common.ext.joinSurroundIfNotEmptyToString
-import ee.common.ext.joinWrappedToString
-import ee.common.ext.then
+import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.j
 import ee.lang.gen.k
@@ -54,6 +51,10 @@ fun <T : CompilationUnitI> T.toKotlinEmptyObject(c: GenerationContext, derived: 
     companion object {
         val EMPTY = ${c.n(this, derived)}()
     }"""
+}
+
+fun <T : AttributeI> T.toKotlinCompanionObjectName(c: GenerationContext): String {
+    return """        val ${name().toUnderscoredUpperCase()} = "_${name()}""""
 }
 
 fun <T : CompilationUnitI> T.toKotlinExtends(c: GenerationContext, derived: String, api: String): String {

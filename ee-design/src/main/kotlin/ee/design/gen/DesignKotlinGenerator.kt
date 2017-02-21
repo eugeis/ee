@@ -64,7 +64,7 @@ open class DesignKotlinGenerator {
                 namespace(superUnitChild.namespace())
                 G { type(superUnitChild).name("T") }
             }
-            superUnitChild.add(derivedItem)
+            superUnitChild.addItem(derivedItem)
             superUnitChild.propagateItemToSubtypes(derivedItem)
         }
     }

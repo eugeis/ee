@@ -2,7 +2,7 @@ package ee.lang
 
 import java.io.Serializable
 
-interface ItemI : Serializable {
+interface ItemI {
     fun namespace(): String
     fun namespace(value: String): ItemI
 
@@ -37,21 +37,11 @@ interface ItemI : Serializable {
     fun init()
 }
 
-
-interface ValueHolderI<T> : ItemI {
-    fun value(): T
-    fun value(value: T): T
-}
-
-interface NullValueHolderI<T> : ItemI {
-    fun value(): T?
-    fun value(value: T?): T?
-}
-
 interface MultiHolderI<I> : ItemI {
     fun items(): Collection<I>
 
     fun <T : I> addItem(item: T): T
+    fun <T : I> addItems(items: Collection<T>) : MultiHolderI<I>
     fun containsItem(item: I): Boolean
 
     fun <T> supportsItem(item: T): Boolean
@@ -60,19 +50,19 @@ interface MultiHolderI<I> : ItemI {
     fun <T> findSupportsItem(item: T, childrenFirst: Boolean = false): MultiHolderI<T>
 }
 
-interface MultiListHolderI<I> : MultiHolderI<I>, MutableList<I> {
+interface ListMultiHolderI<I> : MultiHolderI<I>, MutableList<I> {
 }
 
-interface MultiMapHolderI<I> : MultiHolderI<I> {
+interface MapMultiHolderI<I> : MultiHolderI<I> {
     fun <T : I> addItem(name: String, item: T): T
     fun removeItem(name: String)
     fun itemsMap(): Map<String, I>
 }
 
-interface CompositeI : MultiMapHolderI<ItemI> {
+interface CompositeI : MapMultiHolderI<ItemI> {
     fun <T : Any> attr(name: String, attr: T?): T?
-    fun attributes(): MultiMapHolderI<*>
+    fun attributes(): MapMultiHolderI<*>
 }
 
-interface CommentI : MultiListHolderI<String> {
+interface CommentI : ListMultiHolderI<String> {
 }

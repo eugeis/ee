@@ -51,6 +51,7 @@ open class Item : ItemI {
     override fun <T : ItemI> derive(adapt: T.() -> Unit): T {
         init()
         val ret = copy<T>()
+        ret.parent(Item.EMPTY)
         ret.derivedFrom(this)
         ret.adapt()
         return ret
@@ -59,17 +60,31 @@ open class Item : ItemI {
     override fun <T : ItemI> deriveSubType(adapt: T.() -> Unit): T {
         init()
         val ret = createType<T>()
-        ret.name(name())
-        ret.derivedFrom(this)
-        ret.adapt()
-        return ret
+        if (ret != null) {
+            ret.name(name())
+            ret.derivedFrom(this)
+            ret.adapt()
+            return ret
+        }
+        return this as T
     }
 
-    override fun <T : ItemI> copy(): T = fill(createType()) as T
+    override fun <T : ItemI> copy(): T {
+        val ret = createType<T>()
+        if (ret != null) {
+            fill(ret)
+            return ret
+        } else {
+            return this as T
+        }
+    }
 
-    open protected fun <T : ItemI> createType(): T {
-        val ret = javaClass.constructors.first().newInstance(_init) as T
-        return ret
+    open protected fun <T : ItemI> createType(): T? {
+        var constructor = javaClass.constructors.find {
+            it.toString().contains("(kotlin.jvm.functions.Function1)")
+        }
+        if (constructor != null) return constructor.newInstance(_init) as T
+        return null
     }
 
     open protected fun fill(item: ItemI) {
@@ -103,88 +118,6 @@ open class Item : ItemI {
     }
 }
 
-open class ValueHolder<I> : Item, ValueHolderI<I> {
-    private var _value: I
-
-    constructor(value: I, init: ValueHolder<I>.() -> Unit = {}) : super(init as Item.() -> Unit) {
-        this._value = value
-    }
-
-    override fun value(): I = _value
-
-    override fun value(value: I): I {
-        this._value = value
-        return value
-    }
-
-    override fun init() {
-        super.init()
-        val currentValue = _value
-        if (currentValue is ItemI && !currentValue.isInitialized()) {
-            currentValue.init()
-        }
-    }
-
-    override fun fill(item: ItemI) {
-        super.fill(item)
-        if (item is ValueHolder<*>) {
-            item.value(_value as Nothing)
-        }
-    }
-
-    override fun render(builder: StringBuilder, indent: String) {
-        super.render(builder, indent)
-        val currentValue = _value
-        if (currentValue is ItemI) {
-            builder.append(" = ").append(currentValue.name()).append("@${Integer.toHexString(hashCode())}")
-        } else {
-            builder.append(" = ").append(currentValue.toString())
-        }
-    }
-}
-
-open class NullValueHolder<I> : Item, NullValueHolderI<I> {
-    private var _value: I? = null
-
-    constructor(init: NullValueHolder<I>.() -> Unit = {}) : super(init as Item.() -> Unit)
-
-    constructor(value: I?, init: NullValueHolder<I>.() -> Unit = {}) : super(init as Item.() -> Unit) {
-        this._value = value
-    }
-
-    override fun value(): I? = _value
-
-    override fun value(value: I?): I? {
-        this._value = value
-        return value
-    }
-
-    override fun init() {
-        super.init()
-        val currentValue = _value
-        if (currentValue != null && currentValue is ItemI && !currentValue.isInitialized()) {
-            currentValue.init()
-        }
-    }
-
-    override fun fill(item: ItemI) {
-        super.fill(item)
-        if (item is NullValueHolder<*>) {
-            item.value(_value as Nothing)
-        }
-    }
-
-    override fun render(builder: StringBuilder, indent: String) {
-        super.render(builder, indent)
-        val currentValue = _value
-        if (currentValue != null && currentValue is ItemI) {
-            builder.append(" = ").append(currentValue.name()).append("@${Integer.toHexString(hashCode())}")
-        } else {
-            builder.append(" = ").append(currentValue.toString())
-        }
-    }
-}
-
 abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>.() -> Unit = {}) :
         Item(value as Item.() -> Unit), MultiHolderI<I> {
 
@@ -193,18 +126,25 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
         items().filterIsInstance<ItemI>().forEach { if (!it.isInitialized()) it.init() }
     }
 
-    override fun <T : ItemI> createType(): T {
-        val ret = javaClass.constructors.first().newInstance(_type, _init) as T
-        return ret
-    }
+    override fun <T : ItemI> createType(): T? {
+        var constructor = javaClass.constructors.find {
+            it.toString().contains("(java.lang.Class,kotlin.jvm.functions.Function1)")
+        }
+        if (constructor != null) return constructor.newInstance(_type, _init) as T
 
+        constructor = javaClass.constructors.find {
+            it.toString().contains("(kotlin.jvm.functions.Function1)")
+        }
+        if (constructor != null) return constructor.newInstance(_init) as T
+        return null
+    }
 
     override fun fill(item: ItemI) {
         super.fill(item)
-        if (item is MultiListHolderI<*>) {
+        if (item is MultiHolderI<*>) {
             val itemToFill = item as MultiHolderI<I>
             items().forEach {
-                if (it is ItemI) {
+                if (it is ItemI && it.isNotEMPTY()) {
                     itemToFill.addItem(it.copy<ItemI>() as I)
                 } else {
                     itemToFill.addItem(it)
@@ -213,6 +153,8 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
         }
     }
 
+    override fun <T : I> addItems(items: Collection<T>): MultiHolderI<I> = apply { items.forEach { addItem(it) } }
+
     override fun containsItem(item: I): Boolean = items().contains(item)
 
     override fun <T> supportsItemType(itemType: Class<T>): Boolean = itemType.isAssignableFrom(_type)
@@ -220,9 +162,11 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
     override fun <T> supportsItem(item: T): Boolean = _type.isInstance(item)
 
     override fun <T> findSupportsItem(item: T, childrenFirst: Boolean): MultiHolderI<T> =
-            (if (childrenFirst) items().filterIsInstance(MultiHolderI::class.java).find {
+            (if (childrenFirst && item !is ItemI) items().filterIsInstance(MultiHolderI::class.java).find {
                 it.supportsItem(item)
             } ?: this else this) as MultiHolderI<T>
+
+    fun itemType(): Class<I> = _type
 
     //renderer
     override fun render(builder: StringBuilder, indent: String) {
@@ -242,27 +186,52 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
     }
 }
 
-open class MultiListHolder<I>(_type: Class<I>, value: MultiListHolder<I>.() -> Unit = {},
+open class ListMultiHolder<I>(_type: Class<I>, value: ListMultiHolder<I>.() -> Unit = {},
                               private val _items: MutableList<I> = arrayListOf()) :
-        MultiHolder<I>(_type, value as MultiHolder<*>.() -> Unit), MultiListHolderI<I>, MutableList<I> by _items {
+        MultiHolder<I>(_type, value as MultiHolder<*>.() -> Unit), ListMultiHolderI<I>, MutableList<I> by _items {
 
     override fun <T : I> addItem(item: T): T {
-        if (item is ItemI) item.parent(this)
+        if (item is ItemI) {
+            /*
+            if (item.parent().isEMPTY()) {
+                item.parent(this)
+            } else {
+                println("Parent not null $item")
+            }
+            */
+        }
         _items.add(item)
         return item
     }
 
     override fun items(): Collection<I> = _items
+
+    override fun <T : ItemI> createType(): T? {
+        var constructor = javaClass.constructors.find {
+            it.toString().contains("(java.lang.Class,kotlin.jvm.functions.Function1,java.util.List)")
+        }
+        if (constructor != null) return constructor.newInstance(itemType(), _init, ArrayList<I>()) as T
+
+        constructor = javaClass.constructors.find {
+            it.toString().contains("(kotlin.jvm.functions.Function1)")
+        }
+        if (constructor != null) return constructor.newInstance(_init) as T
+        return null
+    }
+
+    companion object {
+        fun <I> empty(): ListMultiHolder<I> = ListMultiHolder<Any>(Any::class.java) as ListMultiHolder<I>
+    }
 }
 
-open class MultiMapHolder<I>(_type: Class<I>, adapt: MultiMapHolder<I>.() -> Unit = {},
+open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Unit = {},
                              private val _items: MutableMap<String, I> = TreeMap()) :
-        MultiHolder<I>(_type, adapt as MultiHolder<*>.() -> Unit), MultiMapHolderI<I> {
+        MultiHolder<I>(_type, adapt as MultiHolder<*>.() -> Unit), MapMultiHolderI<I> {
 
     override fun <T : I> addItem(item: T): T {
         if (item is ItemI) {
-            item.parent(this)
-            _items.put(item.name(), item)
+            if (item is ItemI) item.parent(this)
+            addItem(item.name(), item)
         } else {
             _items.put(item.toString(), item)
         }
@@ -290,16 +259,29 @@ open class MultiMapHolder<I>(_type: Class<I>, adapt: MultiMapHolder<I>.() -> Uni
         var ret = _items[name]
         return if (ret == null) addItem(name, factory()) else ret as T
     }
+
+    override fun <T : ItemI> createType(): T? {
+        var constructor = javaClass.constructors.find {
+            it.toString().contains("(java.lang.Class,kotlin.jvm.functions.Function1,java.util.Map)")
+        }
+        if (constructor != null) return constructor.newInstance(itemType(), _init, TreeMap<String, I>()) as T
+
+        constructor = javaClass.constructors.find {
+            it.toString().contains("(kotlin.jvm.functions.Function1)")
+        }
+        if (constructor != null) return constructor.newInstance(_init) as T
+        return null
+    }
 }
 
-open class Composite : MultiMapHolder<ItemI>, CompositeI {
-    constructor(adapt: Composite.() -> Unit) : super(ItemI::class.java, adapt as MultiMapHolder<ItemI>.() -> Unit)
+open class Composite : MapMultiHolder<ItemI>, CompositeI {
+    constructor(adapt: Composite.() -> Unit) : super(ItemI::class.java, adapt as MapMultiHolder<ItemI>.() -> Unit)
 
-    open fun <R> itemAsMap(name: String, type: Class<R>): MultiMapHolder<R> =
-            item(name, { MultiMapHolder<R>(type, { name(name) }) })
+    open fun <R> itemAsMap(name: String, type: Class<R>): MapMultiHolder<R> =
+            item(name, { MapMultiHolder<R>(type, { name(name) }) })
 
-    open fun <R> itemAsList(name: String, type: Class<R>): MultiListHolder<R> =
-            item(name, { MultiListHolder<R>(type, { name(name) }) })
+    open fun <R> itemAsList(name: String, type: Class<R>): ListMultiHolder<R> =
+            item(name, { ListMultiHolder<R>(type, { name(name) }) })
 
     open fun <T : Any> attr(name: String): T? = attributes().item(name)
     open fun <T : Any> attr(name: String, factory: () -> T): T = attributes().item(name, factory)
@@ -308,17 +290,14 @@ open class Composite : MultiMapHolder<ItemI>, CompositeI {
         if (attr != null) {
             attributes().addItem(name, attr)
         } else {
-            attributes().addItem(name, attr)
+            attributes().removeItem(name)
         }
         return attr
     }
 
-    override fun attributes(): MultiMapHolder<Any> = itemAsMap("attributes", Any::class.java)
-
-    companion object {
-    }
+    override fun attributes(): MapMultiHolder<Any> = itemAsMap("_attributes", Any::class.java)
 }
 
-open class Comment : MultiListHolder<String>, CommentI {
-    constructor(value: Comment.() -> Unit = {}) : super(String::class.java, value as MultiListHolder<*>.() -> Unit)
+open class Comment : ListMultiHolder<String>, CommentI {
+    constructor(value: Comment.() -> Unit = {}) : super(String::class.java, value as ListMultiHolder<*>.() -> Unit)
 }

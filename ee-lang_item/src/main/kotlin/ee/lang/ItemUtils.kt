@@ -62,14 +62,16 @@ fun <T> MultiHolderI<*>.findDownByType(type: Class<T>, destination: MutableList<
                                        alreadyHandled: MutableSet<ItemI> = HashSet(),
                                        stopSteppingDownIfFound: Boolean = true): List<T> =
         findAcrossByType(type, destination, alreadyHandled, stopSteppingDownIfFound, {
-            if (this is MultiHolderI<*>) this.items() as Collection<ItemI> else emptyList()
+            if (this is MultiHolderI<*> && this.supportsItemType(ItemI::class.java))
+                this.items() as Collection<ItemI> else emptyList()
         })
 
 fun <T> ItemI.findDown(select: ItemI.() -> T?, destination: MutableList<T> = ArrayList<T>(),
                        alreadyHandled: MutableSet<ItemI> = HashSet(),
                        stopSteppingAcrossIfFound: Boolean = true): List<T> =
         findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound, {
-            if (this is MultiHolderI<*>) this.items() as Collection<ItemI> else emptyList()
+            if (this is MultiHolderI<*> && this.supportsItemType(ItemI::class.java))
+                this.items() as Collection<ItemI> else emptyList()
         })
 
 fun <T> ItemI.findAcross(select: ItemI.() -> T?, destination: MutableList<T> = ArrayList<T>(),
@@ -109,7 +111,10 @@ fun <T : MultiHolderI<*>> T.initObjectTree(searchForTargetComposite: Boolean = f
                     if (child.name().isBlank()) child.name(f.name)
                     if (child.parent().isEMPTY()) {
                         val targetComposite = findSupportsItem(child, searchForTargetComposite)
-                        if (!targetComposite.containsItem(child)) targetComposite.addItem(child)
+                        if (!targetComposite.containsItem(child)) {
+                            targetComposite.addItem(child)
+                            child.parent(targetComposite)
+                        }
                     }
                     if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
                 }
@@ -130,6 +135,7 @@ fun <T : MultiHolderI<*>> T.initObjectTree(searchForTargetComposite: Boolean = f
                 val targetMultiHolder = findSupportsItem(child, searchForTargetComposite)
                 if (!targetMultiHolder.containsItem(child)) {
                     targetMultiHolder.addItem(child)
+                    child.parent(targetMultiHolder)
                     if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
                     if (child is MultiHolderI<*>) child.initObjectTree(searchForTargetComposite, deriveNamespace)
                 }

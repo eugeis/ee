@@ -106,6 +106,7 @@ fun <T : CompilationUnitI> T.constructorAll(): ConstructorI {
     val constrProps = propsAll().filter { !it.meta() }.map { p(it) }
     val primary = this is EnumTypeI
     return if (constrProps.isNotEmpty()) constr {
+        parent(this@constructorAll)
         primary(primary).params(*constrProps.toTypedArray()).name("constructorAll")
         superUnit(this@constructorAll.superUnit().constructors().firstOrNull() ?: Constructor.EMPTY)
     } else Constructor.EMPTY
@@ -121,7 +122,7 @@ fun <T : CompilationUnitI> T.propagateItemToSubtypes(item: CompilationUnitI) {
             namespace(superUnitChild.namespace())
             G({ type(superUnitChild).name("T") })
         }
-        superUnitChild.add(derivedItem)
+        superUnitChild.addItem(derivedItem)
         superUnitChild.propagateItemToSubtypes(derivedItem)
     }
 }
@@ -130,12 +131,9 @@ fun <T : TypeI> T.GT(vararg types: TypeI): T {
     if (generics().size >= types.size) {
         var i = 0
         val ret = derive<T> {
-            //replace generics. We need better derive function
-            val newGenerics = Generics({ addAll(generics()) })
-            newGenerics.init()
-            val generics = generics(newGenerics).generics()
+            val generics = generics()
             for (type in types) {
-                if (type is GenericI && generics is MutableList) {
+                if (type is GenericI) {
                     generics[i++] = type
                 } else {
                     generics[i++].type(type)
@@ -186,7 +184,6 @@ fun <T : StructureUnitI> T.initObjectTree(searchForTargetComposite: Boolean = fa
     })
     initBlackNames()
     initFullNameArtifacts()
-    sortByName()
     return this
 }
 
@@ -210,7 +207,7 @@ fun <T : StructureUnitI> T.initFullNameArtifacts() {
         if (it is StructureUnitI) {
             it.initFullNameArtifacts()
         } else if (it is MultiHolderI<*> && it.supportsItemType(StructureUnitI::class.java)) {
-            it.filterIsInstance(StructureUnitI::class.java).forEach { it.initFullNameArtifacts() }
+            it.items().filterIsInstance(StructureUnitI::class.java).forEach { it.initFullNameArtifacts() }
         }
     }
 }

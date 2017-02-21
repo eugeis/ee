@@ -4,12 +4,10 @@ object l : Composite({ namespace("ee.lang") }) {
 
     //from lang_item
     val Item = ItemDsl()
-    val ValueHolder = ItemDsl({ derivedFrom(Item) })
-    val NullValueHolder = ItemDsl({ derivedFrom(Item) })
     val MultiHolder = ItemDsl({ derivedFrom(Item) })
-    val MultiListHolder = ItemDsl({ derivedFrom(MultiHolder) })
-    val MultiMapHolder = ItemDsl({ derivedFrom(MultiHolder) })
-    val Composite = ItemDsl({ derivedFrom(MultiMapHolder) })
+    val ListMultiHolder = ItemDsl({ derivedFrom(MultiHolder) })
+    val MapMultiHolder = ItemDsl({ derivedFrom(MultiHolder) })
+    val Composite = ItemDsl({ derivedFrom(MapMultiHolder) })
     val Comment = ItemDsl({ derivedFrom(Composite) })
 
     //lang types

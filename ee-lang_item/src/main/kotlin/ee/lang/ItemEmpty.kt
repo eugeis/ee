@@ -28,7 +28,7 @@ open class ItemEmptyClass : ItemI {
     override fun <T : ItemI> copy(): T = this as T
 }
 
-val MultiMapHolderEmpty = MultiMapHolderEmptyClass<Any>()
+val MultiMapHolderEmpty = MapMultiHolderEmptyClass<Any>()
 
 open class MultiHolderEmptyClass<I> : ItemEmptyClass(), MultiHolderI<I> {
     override fun items(): Collection<I> = emptyList()
@@ -37,6 +37,8 @@ open class MultiHolderEmptyClass<I> : ItemEmptyClass(), MultiHolderI<I> {
 
     override fun <T : I> addItem(item: T): T = item
 
+    override fun <T : I> addItems(items: Collection<T>): MultiHolderI<I> = this
+
     override fun <T> supportsItem(item: T): Boolean = false
 
     override fun <T> supportsItemType(itemType: Class<T>): Boolean = false
@@ -44,31 +46,26 @@ open class MultiHolderEmptyClass<I> : ItemEmptyClass(), MultiHolderI<I> {
     override fun <T> findSupportsItem(item: T, childrenFirst: Boolean): MultiHolderI<T> = this as MultiHolderI<T>
 }
 
-open class MultiListHolderEmptyClass<I>(private val items: MutableList<I> = ArrayList()) :
-        MultiHolderEmptyClass<I>(), MultiListHolderI<I>, MutableList<I> by items {
+open class ListMultiHolderEmptyClass<I>(private val items: MutableList<I> = ArrayList()) :
+        MultiHolderEmptyClass<I>(), ListMultiHolderI<I>, MutableList<I> by items {
 }
 
-open class MultiMapHolderEmptyClass<I> : MultiHolderEmptyClass<I>(), MultiMapHolderI<I> {
+open class MapMultiHolderEmptyClass<I> : MultiHolderEmptyClass<I>(), MapMultiHolderI<I> {
+    override fun removeItem(name: String) {}
     override fun <T : I> addItem(name: String, item: T): T = item
     override fun itemsMap(): Map<String, I> = emptyMap()
 }
 
 val CompositeEmpty = CompositeEmptyClass()
 
-open class CompositeEmptyClass : MultiMapHolderEmptyClass<ItemI>(), CompositeI {
-    override fun <T : Any> attr(name: String, attr: T): T = attr
-    override fun attributes(): MultiMapHolderI<*> = MultiMapHolderEmpty
+open class CompositeEmptyClass : MapMultiHolderEmptyClass<ItemI>(), CompositeI {
+    override fun <T : Any> attr(name: String, attr: T?) = attr
+    override fun attributes(): MapMultiHolderI<*> = MultiMapHolderEmpty
 }
 
 val CommentEmpty = CommentEmptyClass()
 
-open class CommentEmptyClass : MultiListHolderEmptyClass<String>(), CommentI
+open class CommentEmptyClass : ListMultiHolderEmptyClass<String>(), CommentI
 
-fun ItemI?.isEMPTY(): Boolean = (this == null || this == ItemEmpty)
+fun ItemI?.isEMPTY(): Boolean = (this == null || this == ItemEmpty || this.javaClass.toString().endsWith("Empty"))
 fun ItemI?.isNotEMPTY(): Boolean = !isEMPTY()
-
-fun CompositeI?.isEMPTY(): Boolean = (this == null || this == CompositeEmpty)
-fun CompositeI?.isNotEMPTY(): Boolean = !isEMPTY()
-
-fun CommentI?.isEMPTY(): Boolean = (this == null || this == CommentEmpty)
-fun CommentI?.isNotEMPTY(): Boolean = !isEMPTY()

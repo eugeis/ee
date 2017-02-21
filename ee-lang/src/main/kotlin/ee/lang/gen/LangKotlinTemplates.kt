@@ -13,9 +13,6 @@ open class LangKotlinTemplates {
     fun dslBuilderI(nameBuilder: TemplateI<CompilationUnitI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
             = Template<CompilationUnitI>("BuilderI", nameBuilder) { item, c -> item.toKotlinDslBuilderI(c) }
 
-    fun dslComposite(nameBuilder: TemplateI<CompilationUnitI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
-            = Template<CompilationUnitI>("Composite", nameBuilder) { item, c -> item.toKotlinDslComposite(c) }
-
     fun dslObjectTree(nameBuilder: TemplateI<CompilationUnitI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
             = Template<CompilationUnitI>("ObjectTree", nameBuilder) { item, c -> item.toKotlinObjectTree(c) }
 
