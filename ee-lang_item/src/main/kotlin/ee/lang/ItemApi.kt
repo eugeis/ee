@@ -1,7 +1,10 @@
 package ee.lang
 
 import ee.common.ext.joinSurroundIfNotEmptyTo
+import org.slf4j.LoggerFactory
 import java.util.*
+
+private val log = LoggerFactory.getLogger("ItemApi")
 
 open class Item : ItemI {
     private var _name: String = ""
@@ -144,7 +147,7 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
         if (item is MultiHolderI<*>) {
             val itemToFill = item as MultiHolderI<I>
             items().forEach {
-                if (it is ItemI && it.isNotEMPTY()) {
+                if (it is ItemI && it.parent() == this) {
                     itemToFill.addItem(it.copy<ItemI>() as I)
                 } else {
                     itemToFill.addItem(it)
@@ -167,6 +170,16 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
             } ?: this else this) as MultiHolderI<T>
 
     fun itemType(): Class<I> = _type
+
+    protected fun fillParent(item: I) {
+        if (item is ItemI) {
+            if (item.parent().isEMPTY()) {
+                item.parent(this)
+            } else {
+                log.debug("Parent not null $item")
+            }
+        }
+    }
 
     //renderer
     override fun render(builder: StringBuilder, indent: String) {
@@ -191,15 +204,7 @@ open class ListMultiHolder<I>(_type: Class<I>, value: ListMultiHolder<I>.() -> U
         MultiHolder<I>(_type, value as MultiHolder<*>.() -> Unit), ListMultiHolderI<I>, MutableList<I> by _items {
 
     override fun <T : I> addItem(item: T): T {
-        if (item is ItemI) {
-            /*
-            if (item.parent().isEMPTY()) {
-                item.parent(this)
-            } else {
-                println("Parent not null $item")
-            }
-            */
-        }
+        fillParent(item)
         _items.add(item)
         return item
     }
@@ -229,8 +234,8 @@ open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Uni
         MultiHolder<I>(_type, adapt as MultiHolder<*>.() -> Unit), MapMultiHolderI<I> {
 
     override fun <T : I> addItem(item: T): T {
+        fillParent(item)
         if (item is ItemI) {
-            if (item is ItemI) item.parent(this)
             addItem(item.name(), item)
         } else {
             _items.put(item.toString(), item)

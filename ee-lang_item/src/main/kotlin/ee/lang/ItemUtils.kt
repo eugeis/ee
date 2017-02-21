@@ -113,7 +113,6 @@ fun <T : MultiHolderI<*>> T.initObjectTree(searchForTargetComposite: Boolean = f
                         val targetComposite = findSupportsItem(child, searchForTargetComposite)
                         if (!targetComposite.containsItem(child)) {
                             targetComposite.addItem(child)
-                            child.parent(targetComposite)
                         }
                     }
                     if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
@@ -135,7 +134,6 @@ fun <T : MultiHolderI<*>> T.initObjectTree(searchForTargetComposite: Boolean = f
                 val targetMultiHolder = findSupportsItem(child, searchForTargetComposite)
                 if (!targetMultiHolder.containsItem(child)) {
                     targetMultiHolder.addItem(child)
-                    child.parent(targetMultiHolder)
                     if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
                     if (child is MultiHolderI<*>) child.initObjectTree(searchForTargetComposite, deriveNamespace)
                 }
@@ -171,7 +169,7 @@ fun ItemI.initBlackName() {
         } else if (parent().isNotEMPTY() && parent().name().isNotBlank()) {
             name(parent().name())
         } else {
-            println("Can't resolve name of $this")
+            log.debug("Can't resolve name of $this")
         }
     }
 }

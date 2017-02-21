@@ -27,7 +27,8 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: Str
     }}"""
 }
 
-fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: String, api: String, parent: ItemI = parent()): String {
+fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: String, api: String,
+                                                 parent: ItemI = findParent(CompilationUnitI::class.java) ?: parent()): String {
     val value = name().equals("value").ifElse("aValue", "value")
     val override = (derived != api).ifElse("override ", "")
     return """${multi().ifElse({
@@ -53,7 +54,7 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: 
 fun <T : CompilationUnitI> T.toKotlinDslBuilderI(c: GenerationContext, derived: String = DerivedNames.API.name): String {
     return """
 interface ${c.n(this, derived)} : ${c.n(superUnit(), derived)} {${
-    props().joinToString(nL) { it.toKotlinDslBuilderMethodsI(c, derived) }}
+    props().joinToString(nL) { it.toKotlinDslBuilderMethodsI(c, derived, this) }}
 }"""
 }
 
@@ -65,7 +66,7 @@ fun <T : CompilationUnitI> T.toKotlinDslBuilder(c: GenerationContext,
 open class ${c.n(this, derived)} : ${c.n(superUnit(), derived)}${(derived != api).then(
             { ", ${c.n(this, DerivedNames.API.name)}" })} {
     constructor(value: ${c.n(this, derived)}.() -> Unit = {}) : super(value as ${c.n(superUnit(), derived)}.() -> Unit)${
-    props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}
+    props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api, this) }}
 
     companion object {
         val EMPTY = ${c.n(this, derived)}()${
