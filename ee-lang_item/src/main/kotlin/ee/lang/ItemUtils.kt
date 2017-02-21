@@ -32,12 +32,13 @@ fun <T : ItemI> ItemI.findThisOrParent(clazz: Class<T>): T? {
 }
 
 fun <T : ItemI> ItemI.findParent(clazz: Class<T>): T? {
-    if (parent() == Item.EMPTY) {
+    val parent = parent()
+    if (parent.isEMPTY()) {
         return null
-    } else if (clazz.isInstance(parent())) {
-        return parent() as T
+    } else if (clazz.isInstance(parent)) {
+        return parent as T
     } else {
-        return parent().findParent(clazz)
+        return parent.findParent(clazz)
     }
 }
 
