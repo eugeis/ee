@@ -43,13 +43,13 @@ open class ItemNode(val el: ItemI, val factory: () -> List<ItemNode> = { emptyLi
 fun ItemI.toNode(filter: (ItemI) -> Boolean): ItemNode =
         if (this is MultiHolderI<*>) toNode(filter) else ItemNode(this)
 
-fun MultiHolderI<*>.toNode(filter: (ItemI) -> Boolean): ItemNode {
+fun MultiHolderI<Any>.toNode(filter: (Any) -> Boolean): ItemNode {
     return ItemNode(this) {
         val ret = arrayListOf<ItemNode>()
         items().filter(filter).forEach {
             if (it is MultiHolderI<*>) {
                 ret.add(it.toNode(filter))
-            } else {
+            } else if (it is ItemI) {
                 ret.add(it.toNode(filter))
             }
         }
