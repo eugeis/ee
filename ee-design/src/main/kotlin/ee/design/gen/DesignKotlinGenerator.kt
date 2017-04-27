@@ -6,7 +6,7 @@ import ee.design.QueryControllerI
 import ee.lang.CompilationUnitI
 import ee.lang.StructureUnitI
 import ee.lang.findDownByType
-import ee.lang.gen.prepareForKotlinGeneration
+import ee.lang.gen.kt.prepareForKotlinGeneration
 import java.nio.file.Path
 
 open class DesignKotlinGenerator {

@@ -1,6 +1,8 @@
 package ee.lang.gen
 
 import ee.lang.*
+import ee.lang.gen.kt.LangKotlinContextFactory
+import ee.lang.gen.kt.LangKotlinTemplates
 
 open class LangGeneratorFactory {
     val kotlinTemplates = buildKotlinTemplates()
@@ -36,8 +38,9 @@ open class LangGeneratorFactory {
                         contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
                         name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsKotlinFileName,
                         fragments = {
-                            listOf(ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
-                                    fragments = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) }),
+                            listOf(
+                                    ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
+                                            fragments = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) }),
                                     ItemsFragment<StructureUnitI, CompilationUnitI>(items = compilationUnits,
                                             fragments = { listOf(kotlinTemplates.pojo()) }))
                         })

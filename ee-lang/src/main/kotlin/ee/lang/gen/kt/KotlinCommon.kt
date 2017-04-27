@@ -2,8 +2,8 @@ package ee.lang.gen.kt
 
 import ee.common.ext.*
 import ee.lang.*
-import ee.lang.gen.j
-import ee.lang.gen.k
+import ee.lang.gen.java.j
+import ee.lang.gen.kt.k
 
 fun <T : TypeI> T.toKotlinEmpty(c: GenerationContext, derived: String, attr: AttributeI): String {
     val baseType = findDerivedOrThis()

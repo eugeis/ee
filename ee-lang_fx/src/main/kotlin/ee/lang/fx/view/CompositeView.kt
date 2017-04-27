@@ -46,7 +46,7 @@ fun ItemI.toNode(filter: (ItemI) -> Boolean): ItemNode =
 fun MultiHolderI<*>.toNode(filter: (ItemI) -> Boolean): ItemNode {
     return ItemNode(this) {
         val ret = arrayListOf<ItemNode>()
-        items().filter(filter).forEach {
+        items().filterIsInstance(ItemI::class.java).filter(filter).forEach {
             if (it is MultiHolderI<*>) {
                 ret.add(it.toNode(filter))
             } else {

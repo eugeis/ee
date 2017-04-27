@@ -5,7 +5,7 @@ import ee.lang.DerivedController
 import ee.lang.StructureUnitI
 import ee.lang.findThisOrParent
 import ee.lang.gen.KotlinContext
-import ee.lang.gen.LangKotlinContextFactory
+import ee.lang.gen.kt.LangKotlinContextFactory
 
 open class DesignKotlinContextFactory : LangKotlinContextFactory() {
     override fun contextBuilder(controller: DerivedController): StructureUnitI.() -> KotlinContext {

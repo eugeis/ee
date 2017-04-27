@@ -1,7 +1,6 @@
-package ee.lang.gen
+package ee.lang.gen.kt
 
 import ee.lang.*
-import ee.lang.gen.j
 
 object k : StructureUnit({ name("Kotlin") }) {
     object core : StructureUnit() {
@@ -26,9 +25,8 @@ object k : StructureUnit({ name("Kotlin") }) {
 }
 
 fun <T : StructureUnitI> T.prepareForKotlinGeneration(searchForTargetComposite: Boolean = true): T {
-    initObjectTrees(searchForTargetComposite)
-    j.initObjectTree()
     k.initObjectTree()
+    initObjectTrees(searchForTargetComposite)
 
     //declare as 'base' all compilation units with non implemented operations.
     declareAsBaseWithNonImplementedOperation()

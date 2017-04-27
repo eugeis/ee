@@ -1,4 +1,4 @@
-package ee.lang.gen
+package ee.lang.gen.java
 
 import ee.lang.StructureUnit
 import ee.lang.Type

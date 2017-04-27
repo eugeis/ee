@@ -1,6 +1,7 @@
-package ee.lang.gen
+package ee.lang.gen.kt
 
 import ee.lang.*
+import ee.lang.gen.itemNameAsKotlinFileName
 import ee.lang.gen.kt.*
 
 open class LangKotlinTemplates {

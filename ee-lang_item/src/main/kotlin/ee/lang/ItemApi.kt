@@ -205,7 +205,7 @@ open class ListMultiHolder<I>(_type: Class<I>, value: ListMultiHolder<I>.() -> U
         MultiHolder<I>(_type, value as MultiHolder<*>.() -> Unit), ListMultiHolderI<I>, MutableList<I> by _items {
 
     override fun <T : I> addItem(item: T, attachParent: Boolean): T {
-        if(attachParent) fillParent(item)
+        if (attachParent) fillParent(item)
         _items.add(item)
         return item
     }
@@ -235,7 +235,7 @@ open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Uni
         MultiHolder<I>(_type, adapt as MultiHolder<*>.() -> Unit), MapMultiHolderI<I> {
 
     override fun <T : I> addItem(item: T, attachParent: Boolean): T {
-        if(attachParent) fillParent(item)
+        if (attachParent) fillParent(item)
         if (item is ItemI) {
             addItem(item.name(), item)
         } else {
@@ -281,7 +281,7 @@ open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Uni
 }
 
 open class Composite : MapMultiHolder<ItemI>, CompositeI {
-    constructor(adapt: Composite.() -> Unit) : super(ItemI::class.java, adapt as MapMultiHolder<ItemI>.() -> Unit)
+    constructor(adapt: Composite.() -> Unit = {}) : super(ItemI::class.java, adapt as MapMultiHolder<ItemI>.() -> Unit)
 
     open fun <R> itemAsMap(name: String, type: Class<R>): MapMultiHolder<R> =
             item(name, { MapMultiHolder<R>(type, { name(name) }) })
