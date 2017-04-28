@@ -41,7 +41,7 @@ interface MultiHolderI<I> : ItemI {
     fun items(): Collection<I>
 
     fun <T : I> addItem(item: T, attachParent: Boolean = true): T
-    fun <T : I> addItems(items: Collection<T>, attachParent: Boolean = true) : MultiHolderI<I>
+    fun <T : I> addItems(items: Collection<T>, attachParent: Boolean = true): MultiHolderI<I>
     fun containsItem(item: I): Boolean
 
     fun <T> supportsItem(item: T): Boolean
@@ -54,13 +54,13 @@ interface ListMultiHolderI<I> : MultiHolderI<I>, MutableList<I> {
 }
 
 interface MapMultiHolderI<I> : MultiHolderI<I> {
-    fun <T : I> addItem(name: String, item: T): T
-    fun removeItem(name: String)
+    fun <T : I> addItem(childName: String, item: T, attachParent: Boolean = false): T
+    fun removeItem(childName: String)
     fun itemsMap(): Map<String, I>
 }
 
 interface CompositeI : MapMultiHolderI<ItemI> {
-    fun <T : Any> attr(name: String, attr: T?): T?
+    fun <T : Any> attr(name: String, attr: T?, attachParent: Boolean = false): T?
     fun attributes(): MapMultiHolderI<*>
 }
 

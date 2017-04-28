@@ -165,6 +165,10 @@ fun String.toKey(): String {
     return toConvertUmlauts().replace("[^a-zA-Z0-9.]".toRegex(), "_").replace("_+".toRegex(), "_")
 }
 
+fun String.toUrlKey(): String {
+    return toConvertUmlauts().toLowerCase().replace("[^a-z0-9]".toRegex(), "-").replace("_+".toRegex(), "-")
+}
+
 val strToCamelCase = WeakHashMap<String, String>()
 fun String.toCamelCase(): String {
     return strToCamelCase.getOrPut(this, { this.replace("_\\w".toRegex()) { it.value[1].toUpperCase().toString() } })

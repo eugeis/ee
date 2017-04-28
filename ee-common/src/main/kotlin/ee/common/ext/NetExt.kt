@@ -18,3 +18,5 @@ fun InetAddress.isLocalAddress(): Boolean {
     }
     return false
 }
+
+fun String.toInetAddress() = InetAddress.getByName(this)
