@@ -1,8 +1,9 @@
-package ee.design.gen
+package ee.design.gen.kt
 
 import ee.design.ControllerI
 import ee.design.ModuleI
 import ee.design.QueryControllerI
+import ee.design.gen.DesignGeneratorFactory
 import ee.lang.CompilationUnitI
 import ee.lang.StructureUnitI
 import ee.lang.findDownByType

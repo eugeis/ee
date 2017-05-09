@@ -28,3 +28,16 @@ open class GoContext : GenerationContext {
         }
     }
 }
+
+fun <T : StructureUnitI> T.prepareForGoGeneration(searchForTargetComposite: Boolean = true): T {
+    initObjectTrees(searchForTargetComposite)
+
+    //declare as 'base' all compilation units with non implemented operations.
+    declareAsBaseWithNonImplementedOperation()
+
+    prepareAttributesOfEnums()
+
+    //define constructor with all parameters.
+    defineConstructorAllForNonConstructors()
+    return this
+}

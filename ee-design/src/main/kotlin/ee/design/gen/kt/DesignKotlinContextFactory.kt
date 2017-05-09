@@ -1,4 +1,4 @@
-package ee.design.gen
+package ee.design.gen.kt
 
 import ee.design.CompI
 import ee.lang.DerivedController

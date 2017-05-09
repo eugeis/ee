@@ -1,4 +1,4 @@
-package ee.design.gen
+package ee.design.gen.kt
 
 import ee.lang.CompilationUnitI
 import ee.lang.NamesI

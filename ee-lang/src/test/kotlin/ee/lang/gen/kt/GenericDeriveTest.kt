@@ -1,7 +1,6 @@
 package ee.lang.gen.kt
 
 import ee.lang.*
-import ee.lang.gen.prepareForKotlinGeneration
 import org.hamcrest.CoreMatchers
 import org.junit.Assert
 import org.junit.Test
