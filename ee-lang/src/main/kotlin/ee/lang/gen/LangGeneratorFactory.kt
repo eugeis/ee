@@ -9,7 +9,7 @@ import ee.lang.gen.kt.LangKotlinTemplates
 open class LangGeneratorFactory {
     val kotlinTemplates = buildKotlinTemplates()
 
-    open fun dsl(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
+    open fun dslKt(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
         val contextBuilder = buildKotlinContextFactory().buildForDslBuilder()
         val composites: StructureUnitI.() -> List<CompilationUnitI> = { items().filterIsInstance(CompilationUnitI::class.java) }
 
@@ -28,7 +28,7 @@ open class LangGeneratorFactory {
         ))
     }
 
-    open fun pojo(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
+    open fun pojoKt(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
         val contextBuilder = buildKotlinContextFactory().buildForImplOnly()
         val enums: StructureUnitI.() -> List<EnumTypeI> = { findDownByType(EnumTypeI::class.java) }
         val compilationUnits: StructureUnitI.() -> List<CompilationUnitI> = {
