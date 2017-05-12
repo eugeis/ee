@@ -7,7 +7,7 @@ val ItemEmpty = ItemEmptyClass()
 open class ItemEmptyClass : ItemI {
     override fun namespace(): String = ""
     override fun namespace(value: String): ItemI = this
-    override fun name(): String = ""
+    override fun name(): String = "@@EMPTY@@"
     override fun name(value: String): ItemI = this
     override fun doc(): CommentI = CommentEmpty
     override fun doc(value: CommentI): ItemI = this
@@ -67,5 +67,7 @@ val CommentEmpty = CommentEmptyClass()
 
 open class CommentEmptyClass : ListMultiHolderEmptyClass<String>(), CommentI
 
-fun ItemI?.isEMPTY(): Boolean = (this == null || this == ItemEmpty || this.javaClass.toString().contains("Empty"))
-fun ItemI?.isNotEMPTY(): Boolean = !isEMPTY()
+fun <T : ItemI> T?.isEMPTY(): Boolean = (this == null || this == ItemEmpty ||
+        this.javaClass.toString().contains("Empty") || this.name().equals(ItemEmpty.name()))
+
+fun <T : ItemI> T?.isNotEMPTY(): Boolean = !isEMPTY()

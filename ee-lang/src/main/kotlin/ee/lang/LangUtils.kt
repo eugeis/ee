@@ -25,14 +25,14 @@ fun ConstructorI.props(): List<AttributeI> = storage.getOrPut(this, "props", {
 
 fun CompilationUnitI.propsExceptPrimaryConstructor(): List<AttributeI> = storage.getOrPut(this,
         "propsExceptPrimaryConstructor", {
-    if (primaryConstructor().isNotEmpty()) props().filter { prop ->
+    if (primaryConstructor().isNotEMPTY()) props().filter { prop ->
         primaryConstructor().props().find { it.name() == prop.name() } == null
     } else props()
 })
 
 
 fun CompilationUnitI.propsAll(): List<AttributeI> = storage.getOrPut(this, "propsAll", {
-    if (superUnit().isNotEmpty()) {
+    if (superUnit().isNotEMPTY()) {
         val ret = mutableListOf<AttributeI>()
         val myType = this
         superUnit().propsAll().mapTo(ret, {
@@ -95,7 +95,7 @@ fun <T : CompositeI> T.defineConstructorAllForNonConstructors() {
 }
 
 fun <T : CompositeI> T.declareAsBaseWithNonImplementedOperation() {
-    findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEmpty() && !it.base() }.forEach { it.base(true) }
+    findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEMPTY() && !it.base() }.forEach { it.base(true) }
 }
 
 fun <T : CompositeI> T.prepareAttributesOfEnums() {
@@ -108,7 +108,7 @@ fun <T : CompilationUnitI> T.constructorAll(): ConstructorI {
     return if (constrProps.isNotEmpty()) constr {
         parent(this@constructorAll)
         primary(primary).params(*constrProps.toTypedArray()).name("constructorAll")
-        superUnit(this@constructorAll.superUnit().constructors().firstOrNull() ?: Constructor.EMPTY)
+        superUnit(this@constructorAll.superUnit().primaryConstructor())
     } else Constructor.EMPTY
 }
 

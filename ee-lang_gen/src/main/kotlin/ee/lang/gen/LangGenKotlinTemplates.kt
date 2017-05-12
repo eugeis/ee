@@ -21,7 +21,4 @@ open class LangGenKotlinTemplates {
 
     fun dslBuilder(nameBuilder: TemplateI<CompositeI>.(CompositeI) -> NamesI = defaultNameBuilder)
             = Template<CompositeI>("Builder", nameBuilder) { item, c -> item.toKotlinDslBuilder(c) }
-
-    fun isEmptyExt(nameBuilder: TemplateI<CompositeI>.(CompositeI) -> NamesI = defaultNameBuilder)
-            = Template<CompositeI>("IsEmptyExt", nameBuilder) { item, c -> item.toKotlinIsEmptyExt(c) }
 }

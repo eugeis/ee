@@ -37,7 +37,7 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: Str
     })}${nonFluent().isNotBlank().then {
         """
     fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}): ${toKotlinTypeSingle(c, api)}
-    fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}.() -> Unit = {}) : ${toKotlinTypeSingle(c, api)}"""
+    fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}.() -> Unit = {}): ${toKotlinTypeSingle(c, api)}"""
     }}"""
 }
 
@@ -60,7 +60,7 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: 
     ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}): ${toKotlinTypeSingle(c, api)} = applyAndReturn { ${multi().ifElse({
             """${name()}().addItem($value); value"""
         }, { """${name()}().addItem($value)""" })} }
-    ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}.() -> Unit) : ${toKotlinTypeSingle(c, api)} = ${nonFluent()}(${toKotlinTypeSingle(c, derived)}($value))"""
+    ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}.() -> Unit): ${toKotlinTypeSingle(c, api)} = ${nonFluent()}(${toKotlinTypeSingle(c, derived)}($value))"""
     }}"""
 }
 
@@ -91,18 +91,10 @@ open class ${c.n(this, derived)} : ${c.n(derivedFrom(), derived)}${(derived != a
     props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}
 
     companion object {
-        val EMPTY = ${specialEmptyObjects.contains(target).ifElse({ "${target}Empty" }, { "$target()" })}${
+        val EMPTY = ${specialEmptyObjects.contains(target).ifElse({ "${target}Empty" }, { "$target({ name(ItemEmpty.name()) })" })}${
     props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinCompanionObjectName(c) }}
     }
 }"""
-}
-
-fun <T : CompositeI> T.toKotlinIsEmptyExt(c: GenerationContext,
-                                          derived: String = DerivedNames.IMPL.name,
-                                          api: String = DerivedNames.API.name): String {
-    return """
-fun ${c.n(this, api)}?.isEmpty(): Boolean = (this == null || this == ${c.n(this, derived)}.EMPTY)
-fun ${c.n(this, api)}?.isNotEmpty(): Boolean = !isEmpty()"""
 }
 
 fun <T : ItemI> T.toKotlinObjectTreeCompilationUnit(c: GenerationContext, derived: String = DerivedNames.DSL_TYPE.name): String {

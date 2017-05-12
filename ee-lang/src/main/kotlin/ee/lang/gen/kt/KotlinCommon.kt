@@ -3,7 +3,6 @@ package ee.lang.gen.kt
 import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
-import ee.lang.gen.kt.k
 
 fun <T : TypeI> T.toKotlinEmpty(c: GenerationContext, derived: String, attr: AttributeI): String {
     val baseType = findDerivedOrThis()
@@ -20,8 +19,8 @@ fun <T : TypeI> T.toKotlinEmpty(c: GenerationContext, derived: String, attr: Att
         n.Error -> "Throwable()"
         n.Exception -> "Exception()"
         n.Url -> "${c.n(j.net.URL)}(\"\")"
-        n.Map -> (attr.isNotEmpty() && attr.mutable()).ifElse("hashMapOf()", "emptyMap()")
-        n.List -> (attr.isNotEmpty() && attr.mutable()).ifElse("arrayListOf()", "arrayListOf()")
+        n.Map -> (attr.isNotEMPTY() && attr.mutable()).ifElse("hashMapOf()", "emptyMap()")
+        n.List -> (attr.isNotEMPTY() && attr.mutable()).ifElse("arrayListOf()", "arrayListOf()")
         else -> {
             if (baseType is Literal) {
                 "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI).toKotlin(c, derived, attr)}.${baseType.toKotlin()}"
@@ -58,9 +57,9 @@ fun <T : AttributeI> T.toKotlinCompanionObjectName(c: GenerationContext): String
 }
 
 fun <T : CompilationUnitI> T.toKotlinExtends(c: GenerationContext, derived: String, api: String): String {
-    if (superUnit().isNotEmpty() && derived != api) {
+    if (superUnit().isNotEMPTY() && derived != api) {
         return " : ${c.n(superUnit(), derived)}, ${c.n(this, api)}"
-    } else if (superUnit().isNotEmpty()) {
+    } else if (superUnit().isNotEMPTY()) {
         return " : ${c.n(superUnit(), derived)}"
     } else if (derived != api) {
         return " : ${c.n(this, api)}"
@@ -86,8 +85,8 @@ fun <T : TypeI> T.toKotlinIfNative(c: GenerationContext, derived: String, attr: 
         n.Error -> "Throwable"
         n.Void -> "Unit"
         n.Url -> c.n(j.net.URL)
-        n.List -> "${c.n((attr.isNotEmpty() && attr.mutable()).ifElse(k.core.MutableList, k.core.List), derived)}${toKotlinGenericTypes(c, derived, attr)}"
-        n.Map -> "${c.n((attr.isNotEmpty() && attr.mutable()).ifElse(k.core.MutableMap, k.core.Map), derived)}${toKotlinGenericTypes(c, derived, attr)}"
+        n.List -> "${c.n((attr.isNotEMPTY() && attr.mutable()).ifElse(k.core.MutableList, k.core.List), derived)}${toKotlinGenericTypes(c, derived, attr)}"
+        n.Map -> "${c.n((attr.isNotEMPTY() && attr.mutable()).ifElse(k.core.MutableMap, k.core.Map), derived)}${toKotlinGenericTypes(c, derived, attr)}"
         else -> {
             if (this is Lambda) operation().toKotlinLamnda(c, derived) else null
         }
@@ -161,6 +160,10 @@ fun <T : AttributeI> T.toKotlinSignature(c: GenerationContext, derived: String, 
     return "${name()}: ${toKotlinTypeDef(c, api)}${init.then { toKotlinInit(c, derived, api) }}"
 }
 
+fun <T : AttributeI> T.toKotlinConstructorMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String {
+    return "${replaceable().ifElse("var ", "val ")}${toKotlinSignature(c, derived, api, init)}"
+}
+
 fun <T : AttributeI> T.toKotlinMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String {
     return "    ${replaceable().ifElse("var ", "val ")}${toKotlinSignature(c, derived, api, init)}"
 }
@@ -174,13 +177,13 @@ fun List<AttributeI>.toKotlinMember(c: GenerationContext, derived: String, api: 
 }
 
 fun <T : ConstructorI> T.toKotlinPrimary(c: GenerationContext, derived: String, api: String): String {
-    return if (isNotEmpty()) """(${params().
-            joinWrappedToString(", ", "      ") { it.toKotlinMember(c, derived, api) }})${
+    return if (isNotEMPTY()) """(${params().
+            joinWrappedToString(", ", "      ") { it.toKotlinConstructorMember(c, derived, api) }})${
     superUnit().toKotlinCall(c)}""" else ""
 }
 
 fun <T : ConstructorI> T.toKotlin(c: GenerationContext, derived: String, api: String): String {
-    return if (isNotEmpty()) """
+    return if (isNotEMPTY()) """
     constructor(${params().joinWrappedToString(", ", "                ") { it.toKotlinSignature(c, derived, api) }
     })${(superUnit() as ConstructorI).toKotlinCall(c, "${(parent() != superUnit().parent()).ifElse("super", "this")}")} ${
     paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("$nL        ", prefix = "{$nL        ") {
@@ -190,7 +193,7 @@ fun <T : ConstructorI> T.toKotlin(c: GenerationContext, derived: String, api: St
 }
 
 fun <T : ConstructorI> T.toKotlinCall(c: GenerationContext, name: String = "this"): String {
-    return isNotEmpty().then { " : $name(${params().joinWrappedToString(", ") { it.name() }})" }
+    return isNotEMPTY().then { " : $name(${params().joinWrappedToString(", ") { it.name() }})" }
 }
 
 fun <T : AttributeI> T.toKotlinAssign(c: GenerationContext): String {
@@ -198,15 +201,15 @@ fun <T : AttributeI> T.toKotlinAssign(c: GenerationContext): String {
 }
 
 fun <T : LogicUnitI> T.toKotlinCall(c: GenerationContext): String {
-    return isNotEmpty().then { "(${params().joinWrappedToString(", ") { it.name() }})" }
+    return isNotEMPTY().then { "(${params().joinWrappedToString(", ") { it.name() }})" }
 }
 
 fun <T : LogicUnitI> T.toKotlinCallValue(c: GenerationContext, derived: String): String {
-    return isNotEmpty().then { "(${params().joinWrappedToString(", ") { it.toKotlinValue(c, derived) }})" }
+    return isNotEMPTY().then { "(${params().joinWrappedToString(", ") { it.toKotlinValue(c, derived) }})" }
 }
 
 fun <T : LiteralI> T.toKotlinCallValue(c: GenerationContext, derived: String): String {
-    return params().isNotEmpty().then { "(${params().joinWrappedToString(", ") { it.toKotlinValue(c, derived) }})" }
+    return params().isNotEMPTY().then { "(${params().joinWrappedToString(", ") { it.toKotlinValue(c, derived) }})" }
 }
 
 fun <T : AttributeI> T.toKotlinType(c: GenerationContext, derived: String): String = type().toKotlin(c, derived, this)
@@ -230,6 +233,6 @@ fun <T : CompositeI> T.toKotlinIsEmptyExt(c: GenerationContext,
                                           derived: String = DerivedNames.IMPL.name,
                                           api: String = DerivedNames.API.name): String {
     return """
-fun ${c.n(this, api)}?.isEmpty(): Boolean = (this == null || this == ${c.n(this, derived)}.EMPTY)
-fun ${c.n(this, api)}?.isNotEmpty(): Boolean = !isEmpty()"""
+fun ${c.n(this, api)}?.isEMPTY(): Boolean = (this == null || this == ${c.n(this, derived)}.EMPTY)
+fun ${c.n(this, api)}?.isNotEMPTY(): Boolean = !isEMPTY()"""
 }

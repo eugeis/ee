@@ -59,7 +59,7 @@ interface CompilationUnitI : TypeI {
     fun constructors(): ListMultiHolder<ConstructorI>
     fun constructors(vararg value: ConstructorI): CompilationUnitI
     fun constr(value: ConstructorI): ConstructorI
-    fun constr(value: ConstructorI.() -> Unit = {}) : ConstructorI
+    fun constr(value: ConstructorI.() -> Unit = {}): ConstructorI
 
     fun open(): Boolean
     fun open(value: Boolean): CompilationUnitI
@@ -67,12 +67,12 @@ interface CompilationUnitI : TypeI {
     fun operations(): ListMultiHolder<OperationI>
     fun operations(vararg value: OperationI): CompilationUnitI
     fun op(value: OperationI): OperationI
-    fun op(value: OperationI.() -> Unit = {}) : OperationI
+    fun op(value: OperationI.() -> Unit = {}): OperationI
 
     fun props(): ListMultiHolder<AttributeI>
     fun props(vararg value: AttributeI): CompilationUnitI
     fun prop(value: AttributeI): AttributeI
-    fun prop(value: AttributeI.() -> Unit = {}) : AttributeI
+    fun prop(value: AttributeI.() -> Unit = {}): AttributeI
 
     fun superUnit(): CompilationUnitI
     fun superUnit(value: CompilationUnitI): CompilationUnitI
@@ -95,7 +95,7 @@ interface EnumTypeI : CompilationUnitI {
     fun literals(): ListMultiHolder<LiteralI>
     fun literals(vararg value: LiteralI): EnumTypeI
     fun lit(value: LiteralI): LiteralI
-    fun lit(value: LiteralI.() -> Unit = {}) : LiteralI
+    fun lit(value: LiteralI.() -> Unit = {}): LiteralI
 }
 
 
@@ -139,7 +139,7 @@ interface OperationI : LogicUnitI {
     fun generics(): ListMultiHolder<GenericI>
     fun generics(vararg value: GenericI): OperationI
     fun G(value: GenericI): GenericI
-    fun G(value: GenericI.() -> Unit = {}) : GenericI
+    fun G(value: GenericI.() -> Unit = {}): GenericI
 
     fun open(): Boolean
     fun open(value: Boolean): OperationI
@@ -147,7 +147,7 @@ interface OperationI : LogicUnitI {
     fun ret(): AttributeI
     fun ret(value: AttributeI): OperationI
     fun r(value: AttributeI): AttributeI
-    fun r(value: AttributeI.() -> Unit = {}) : AttributeI
+    fun r(value: AttributeI.() -> Unit = {}): AttributeI
 }
 
 
@@ -174,7 +174,7 @@ interface TypeI : CompositeI {
     fun generics(): ListMultiHolder<GenericI>
     fun generics(vararg value: GenericI): TypeI
     fun G(value: GenericI): GenericI
-    fun G(value: GenericI.() -> Unit = {}) : GenericI
+    fun G(value: GenericI.() -> Unit = {}): GenericI
 
     fun multi(): Boolean
     fun multi(value: Boolean): TypeI

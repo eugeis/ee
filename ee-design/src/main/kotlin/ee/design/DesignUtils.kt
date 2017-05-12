@@ -21,7 +21,7 @@ fun StructureUnitI.defineNamesForDataTypeControllers() {
 }
 
 fun StructureUnitI.declareAsBaseWithNonImplementedOperation() {
-    findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEmpty() && !it.base() }.forEach { it.base(true) }
+    findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEMPTY() && !it.base() }.forEach { it.base(true) }
 
     //derive controllers from super units
     findDownByType(ControllerI::class.java).filter { it.parent() is CompilationUnitI }.forEach {

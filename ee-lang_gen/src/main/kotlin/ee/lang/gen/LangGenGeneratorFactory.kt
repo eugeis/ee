@@ -27,7 +27,7 @@ open class LangGenGeneratorFactory {
                 GeneratorSimple<CompositeI>(
                         contextBuilder = contextBuilder, template = ItemsTemplate<CompositeI, CompositeI>(
                         name = "${fileNamePrefix}ApiBase", nameBuilder = templateNameAsKotlinFileName,
-                        items = composites, fragments = { listOf(kotlinTemplates.dslBuilder(), kotlinTemplates.isEmptyExt()) })
+                        items = composites, fragments = { listOf(kotlinTemplates.dslBuilder()) })
                 ),
                 GeneratorSimple<CompositeI>(
                         contextBuilder = contextBuilder, template = kotlinTemplates.dslObjectTree()
