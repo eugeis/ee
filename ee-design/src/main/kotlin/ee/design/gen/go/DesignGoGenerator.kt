@@ -19,7 +19,7 @@ open class DesignGoGenerator {
     fun generate(target: Path) {
         model.extendForGoGeneration()
         val generatorFactory = DesignGeneratorFactory()
-        val generator = generatorFactory.pojoKt()
+        val generator = generatorFactory.pojoGo()
         generator.delete(target, model)
         model.findDownByType(ModuleI::class.java).forEach { module ->
             generator.generate(target, module)

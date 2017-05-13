@@ -11,6 +11,9 @@ open class LangGoTemplates {
         this.defaultNameBuilder = defaultNameBuilder
     }
 
+    fun enum(nameBuilder: TemplateI<EnumTypeI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
+            = Template<EnumTypeI>("Enum", nameBuilder) { item, c -> item.toGoEnum(c) }
+
     fun pojo(nameBuilder: TemplateI<CompilationUnitI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
             = Template<CompilationUnitI>("Pojo", nameBuilder) { item, c -> item.toGoImpl(c, DerivedNames.API.name) }
 

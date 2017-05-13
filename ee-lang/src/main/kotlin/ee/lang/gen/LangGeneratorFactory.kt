@@ -8,6 +8,7 @@ import ee.lang.gen.kt.LangKotlinTemplates
 
 open class LangGeneratorFactory {
     val kotlinTemplates = buildKotlinTemplates()
+    val goTemplates = buildGoTemplates()
 
     open fun dslKt(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
         val contextBuilder = buildKotlinContextFactory().buildForDslBuilder()
@@ -45,6 +46,28 @@ open class LangGeneratorFactory {
                                             fragments = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) }),
                                     ItemsFragment<StructureUnitI, CompilationUnitI>(items = compilationUnits,
                                             fragments = { listOf(kotlinTemplates.pojo()) }))
+                        })
+                )
+        ))
+    }
+
+    open fun pojoGo(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
+        val contextBuilder = buildGoContextFactory().buildForImplOnly()
+        val enums: StructureUnitI.() -> List<EnumTypeI> = { findDownByType(EnumTypeI::class.java) }
+        val compilationUnits: StructureUnitI.() -> List<CompilationUnitI> = {
+            findDownByType(CompilationUnitI::class.java).filter { it !is EnumTypeI }
+        }
+
+        return GeneratorGroup<StructureUnitI>(listOf(
+                GeneratorSimple<StructureUnitI>(
+                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
+                        name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsKotlinFileName,
+                        fragments = {
+                            listOf(
+                                    ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
+                                            fragments = { listOf(goTemplates.enum()) }),
+                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = compilationUnits,
+                                            fragments = { listOf(goTemplates.pojo()) }))
                         })
                 )
         ))
