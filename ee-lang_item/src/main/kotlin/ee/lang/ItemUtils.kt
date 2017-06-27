@@ -42,6 +42,17 @@ fun <T : ItemI> ItemI.findParent(clazz: Class<T>): T? {
     }
 }
 
+fun <T : ItemI> ItemI.findParentMust(clazz: Class<T>): T {
+    val parent = parent()
+    if (parent.isEMPTY()) {
+        throw IllegalStateException("There is no parent for $clazz in $this")
+    } else if (clazz.isInstance(parent)) {
+        return parent as T
+    } else {
+        return parent.findParentMust(clazz)
+    }
+}
+
 fun <T> MultiHolderI<*>.findAllByType(type: Class<T>): List<T> {
     return items().filterIsInstance(type)
 }

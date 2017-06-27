@@ -308,6 +308,33 @@ fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(buffer: A, separa
     return buffer
 }
 
+fun <T> Collection<T>.joinWithIndexToString(separator: CharSequence = ", ",
+                                            prefix: CharSequence = "", postfix: CharSequence = "",
+                                            emptyString: String = "", transform: ((Int, T) -> CharSequence)? = null): String {
+    return joinWithIndexToString(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
+}
+
+fun <T, A : Appendable> Collection<T>.joinWithIndexToString(buffer: A, separator: CharSequence = ", ",
+                                                            prefix: CharSequence = "", postfix: CharSequence = "",
+                                                            emptyString: String = "", transform: ((Int, T) -> CharSequence)? = null): A {
+    if (size > 0) {
+        buffer.append(prefix)
+        var count = 0
+        for (element in this) {
+            if (count > 0) {
+                buffer.append(separator)
+            }
+            val str = if (transform != null) transform(count, element) else if (element == null) "" else element.toString()
+            buffer.append(str)
+            count++
+        }
+        buffer.append(postfix)
+    } else if (emptyString.isNotEmpty()) {
+        buffer.append(emptyString)
+    }
+    return buffer
+}
+
 fun <T> Collection<T>.joinWrappedToString(separator: CharSequence = ", ", wrapIndent: CharSequence = "",
                                           prefix: CharSequence = "", postfix: CharSequence = "",
                                           width: Int = 120, emptyString: String = "", transform: ((T) -> CharSequence)? = null): String {

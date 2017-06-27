@@ -72,9 +72,9 @@ fun <T : CompilationUnitI> T.toGoExtends(c: GenerationContext, derived: String, 
 fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String, attr: AttributeI): String? {
     val baseType = findDerivedOrThis()
     return when (baseType) {
-        n.String -> "String"
-        n.Boolean -> "Boolean"
-        n.Int -> "Int"
+        n.String -> "string"
+        n.Boolean -> "bool"
+        n.Int -> "int"
         n.Long -> "Long"
         n.Float -> "Float"
         n.Date -> c.n(j.util.Date)

@@ -209,7 +209,7 @@ fun <T : LogicUnitI> T.toKotlinCallValue(c: GenerationContext, derived: String):
 }
 
 fun <T : LiteralI> T.toKotlinCallValue(c: GenerationContext, derived: String): String {
-    return params().isNotEMPTY().then { "(${params().joinWrappedToString(", ") { it.toKotlinValue(c, derived) }})" }
+    return params().isNotEmpty().then { "(${params().joinWrappedToString(", ") { it.toKotlinValue(c, derived) }})" }
 }
 
 fun <T : AttributeI> T.toKotlinType(c: GenerationContext, derived: String): String = type().toKotlin(c, derived, this)

@@ -2,14 +2,12 @@ package ee.lang.gen.kt
 
 import ee.common.ext.logger
 import ee.lang.*
-import ee.lang.gen.kt.LangKotlinContextFactory
-import ee.lang.gen.kt.prepareForKotlinGeneration
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
-private object TestModel : StructureUnit() {
+object TestModel : StructureUnit() {
     object SimpleEnum : EnumType({ namespace("ee.lang.test") }) {
         val LitName1 = lit()
         val LitName2 = lit()
