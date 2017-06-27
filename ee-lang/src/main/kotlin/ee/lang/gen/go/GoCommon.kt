@@ -158,11 +158,11 @@ fun <T : AttributeI> T.toGoInit(c: GenerationContext, derived: String, api: Stri
 }
 
 fun <T : AttributeI> T.toGoSignature(c: GenerationContext, derived: String, api: String, init: Boolean = true): String {
-    return "${name()}: ${toGoTypeDef(c, api)}${init.then { toGoInit(c, derived, api) }}"
+    return "${name()} ${toGoTypeDef(c, api)}${init.then { toGoInit(c, derived, api) }}"
 }
 
 fun <T : AttributeI> T.toGoMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String {
-    return "    ${replaceable().ifElse("var ", "val ")}${toGoSignature(c, derived, api, init)}"
+    return "    ${toGoSignature(c, derived, api, init)}"
 }
 
 fun List<AttributeI>.toGoSignature(c: GenerationContext, derived: String, api: String): String {
@@ -218,17 +218,18 @@ fun List<AttributeI>.toGoTypes(c: GenerationContext, derived: String): String {
 fun <T : OperationI> T.toGoLamnda(c: GenerationContext, derived: String): String =
         """(${params().toGoTypes(c, derived)}) -> ${ret().toGoType(c, derived)}"""
 
-fun <T : OperationI> T.toGoImpl(c: GenerationContext, derived: String, api: String): String {
-    return """
-    ${open().then("open ")}fun ${toGoGenerics(c, derived)}${name()}(${
+fun <T : OperationI> T.toGoImpl(c: GenerationContext, derived: String, api: String,
+                                parent: CompilationUnitI = findParentMust(CompilationUnitI::class.java)): String {
+    return """${open().then("open ")}
+func (o *${parent.toGo(c, derived)}) ${name()}(${
     params().toGoSignature(c, derived, api)})${ret().toGoTypeDef(c, api)} {
         throw IllegalAccessException("Not implemented yet.")
     }"""
 }
 
 fun <T : CompositeI> T.toGoIsEmptyExt(c: GenerationContext,
-                                          derived: String = DerivedNames.IMPL.name,
-                                          api: String = DerivedNames.API.name): String {
+                                      derived: String = DerivedNames.IMPL.name,
+                                      api: String = DerivedNames.API.name): String {
     return """
 fun ${c.n(this, api)}?.isEMPTY(): Boolean = (this == null || this == ${c.n(this, derived)}.EMPTY)
 fun ${c.n(this, api)}?.isNotEMPTY(): Boolean = !isEMPTY()"""

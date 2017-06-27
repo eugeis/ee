@@ -14,10 +14,10 @@ object TestModel : StructureUnit() {
     }
 
     object ComplexEnum : EnumType({}) {
-        val order = prop(n.Int)
+        val code = prop(n.Int)
 
-        val LitName1 = lit({ params(p(order) { value(0) }) })
-        val LitName2 = lit({ params(p(order) { value(1) }) })
+        val LitName1 = lit({ params(p(code) { value(1) }) })
+        val LitName2 = lit({ params(p(code) { value(2) }) })
     }
 }
 
@@ -48,9 +48,9 @@ enum class SimpleEnum {
         val out = TestModel.ComplexEnum.toKotlinEnum(context())
         //log.info(out)
         Assert.assertThat(out, `is`("""
-enum class ComplexEnum(val order: Int) {
-    LIT_NAME1(0),
-    LIT_NAME2(1);
+enum class ComplexEnum(val code: Int) {
+    LIT_NAME1(1),
+    LIT_NAME2(2);
 
     fun isLitName1() : Boolean = this == LIT_NAME1
     fun isLitName2() : Boolean = this == LIT_NAME2

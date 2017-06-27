@@ -10,6 +10,7 @@ import java.util.*
 
 val tab = "    "
 val nL = "\n"
+val nL2 = "\n\n"
 
 interface GeneratorI<M> {
     fun generate(target: Path, model: M)

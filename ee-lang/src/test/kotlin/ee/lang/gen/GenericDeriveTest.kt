@@ -1,6 +1,7 @@
-package ee.lang.gen.kt
+package ee.lang.gen
 
 import ee.lang.*
+import ee.lang.gen.kt.prepareForKotlinGeneration
 import org.hamcrest.CoreMatchers
 import org.junit.Assert
 import org.junit.Test
@@ -13,8 +14,8 @@ private object TestModel2 : StructureUnit() {
     }
 
     object Pojo : CompilationUnit() {
-        val prop1 = prop { type(n.List.GT(Type1)) }
-        val prop2 = prop { type(n.List.GT(Type2)) }
+        val prop1 = prop { type(GT(Type1)) }
+        val prop2 = prop { type(GT(Type2)) }
     }
 }
 
