@@ -23,6 +23,16 @@ func (o *$o) ${name().capitalize()}() ${toGoType(c, derived)} {
 }"""
 }
 
+fun AttributeI.toGoAddMethod(o: String, c: GenerationContext,
+                             derived: String = DerivedNames.API.name): String {
+    val type = type().generics()[0].toGo(c, derived)
+    return """
+func (o *$o) AddTo${name().capitalize()}(item $type) $type {
+    o.${nameForMember()} = append(o.${nameForMember()}, item)
+    return item
+}"""
+}
+
 fun LiteralI.toGoLitMethod(index: Int, enum: String, literals: String): String {
     return """
 func (o *$literals) ${name().capitalize()}() *$enum {
@@ -61,7 +71,7 @@ func (o *$name) Ordinal() int {
 }${
     props().joinSurroundIfNotEmptyToString("", nL) { it.toGoGetMethod(name, c, derived) }}
 ${literals().joinSurroundIfNotEmptyToString(nL) { item -> item.toGoIsMethod(name, literals) }}${
-    operations().joinToString(nL) { it.toGoImpl(c, derived, api) }}
+    operations().joinToString(nL) { it.toGoImpl(name, c, derived, api) }}
 
 type $literals struct {
 	values []*$name
@@ -90,13 +100,20 @@ func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {${
 fun <T : CompilationUnitI> T.toGoImpl(c: GenerationContext,
                                       derived: String = DerivedNames.IMPL.name,
                                       api: String = DerivedNames.API.name): String {
+    val name = c.n(this, derived)
     return """
-type ${c.n(this, derived)} struct {${
+type $name struct {${
     props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toGoMember(c, derived, api, false) }}
 }${
     constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGo(c, derived, api)
+    }}${
+    props().filter { it.accessible() && !it.mutable() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+        it.toGoGetMethod(name, c, derived)
+    }}${
+    props().filter { it.type().isOrDerived(n.List) }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+        it.toGoAddMethod(name, c, derived)
     }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-        it.toGoImpl(c, derived, api)
+        it.toGoImpl(name, c, derived, api)
     }}"""
 }

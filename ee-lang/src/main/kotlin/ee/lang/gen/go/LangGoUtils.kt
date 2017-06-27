@@ -6,6 +6,7 @@ import ee.lang.*
 object g : StructureUnit({ namespace("").name("Go") }) {
     object time : StructureUnit({ namespace("time") }) {
         val Time = Type()
+        val Now = Operation()
     }
 }
 
@@ -34,7 +35,7 @@ open class GoContext : GenerationContext {
                 "${outsideTypes.map { "$indent${it.namespace()}" }.toSortedSet().
                         joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
                             """    "${it.toLowerCase().toDotsAsPath()}""""
-                        }}$nL$nL"
+                        }}"
             }
         }
     }
@@ -62,6 +63,10 @@ fun <T : StructureUnitI> T.prepareForGoGeneration(searchForTargetComposite: Bool
     defineConstructorAllForNonConstructors()
     return this
 }
+
+fun AttributeI.nameForMember(): String = storage.getOrPut(this, "nameForMember", {
+    "${accessibleAndMutable().ifElse({ "${name().capitalize()} " }, { "${name().decapitalize()}" })}"
+})
 
 val itemAndTemplateNameAsGoFileName: TemplateI<*>.(CompositeI) -> Names = {
     Names("${it.name().capitalize()}${name.capitalize()}.go")

@@ -89,6 +89,10 @@ fun p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): A
 
 fun p(name: AttributeI, init: AttributeI.() -> Unit = {}): AttributeI = name.derive(init)
 
+fun AttributeI.accessibleAndMutable(): Boolean = storage.getOrPut(this, "accessibleAndMutable", {
+    accessible() && mutable()
+})
+
 fun <T : CompositeI> T.defineConstructorAllForNonConstructors() {
     findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
             .extend { constructorAll().init() }

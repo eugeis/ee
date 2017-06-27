@@ -8,20 +8,20 @@ import ee.lang.gen.kt.k
 fun <T : TypeI> T.toGoEmpty(c: GenerationContext, derived: String, attr: AttributeI): String {
     val baseType = findDerivedOrThis()
     return when (baseType) {
-        n.String, n.Text -> "\"\""
+        n.String, n.Text -> """"""""
         n.Boolean -> "false"
         n.Int -> "0"
-        n.Long -> "0L"
-        n.Float -> "0f"
-        n.Date -> "${c.n(j.util.Date)}()"
+        n.Long -> "0"
+        n.Float -> "0"
+        n.Date -> "${c.n(g.time.Now)}()"
         n.Path -> "${c.n(j.nio.file.Paths)}.get(\"\")"
-        n.Blob -> "ByteArray(0)"
+        n.Blob -> "make([]byte,0)"
         n.Void -> ""
-        n.Error -> "Throwable()"
-        n.Exception -> "Exception()"
+        n.Error -> """error.New("")"""
+        n.Exception -> """error.New("")"""
         n.Url -> "${c.n(j.net.URL)}(\"\")"
-        n.Map -> (attr.isNotEMPTY() && attr.mutable()).ifElse("hashMapOf()", "emptyMap()")
-        n.List -> (attr.isNotEMPTY() && attr.mutable()).ifElse("arrayListOf()", "arrayListOf()")
+        n.List -> "make([]${generics()[0].toGo(c, derived)}, 0)"
+        n.Map -> "make(map(${generics()[0].toGo(c, derived)})${generics()[1].toGo(c, derived)})"
         else -> {
             if (baseType is Literal) {
                 "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI).toGo(c, derived, attr)}.${baseType.toGo()}"
@@ -37,31 +37,15 @@ fun AttributeI.toGoInit(): String {
 }
 
 fun AttributeI.toGoInitCall(): String {
-    return """${this.name()}: ${this.name()}"""
+    return "${nameForMember()}: ${name()}"
 }
 
 fun <T : AttributeI> T.toGoEmpty(c: GenerationContext, derived: String): String {
     return type().toGoEmpty(c, derived, this)
 }
 
-
-fun <T : AttributeI> T.toGoTypeSingle(c: GenerationContext, api: String): String {
-    return type().toGo(c, api, this)
-}
-
 fun <T : AttributeI> T.toGoTypeDef(c: GenerationContext, api: String): String {
     return """${type().toGo(c, api, this)}"""
-}
-
-fun <T : CompilationUnitI> T.toGoEmptyObject(c: GenerationContext, derived: String): String {
-    return """
-    companion object {
-        val EMPTY = ${c.n(this, derived)}()
-    }"""
-}
-
-fun <T : AttributeI> T.toGoCompanionObjectName(c: GenerationContext): String {
-    return """        val ${name().toUnderscoredUpperCase()} = "_${name()}""""
 }
 
 fun <T : CompilationUnitI> T.toGoExtends(c: GenerationContext, derived: String, api: String): String {
@@ -76,7 +60,7 @@ fun <T : CompilationUnitI> T.toGoExtends(c: GenerationContext, derived: String, 
     }
 }
 
-fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String, attr: AttributeI): String? {
+fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String, pointer: Boolean = true): String? {
     val baseType = findDerivedOrThis()
     return when (baseType) {
         n.String -> "string"
@@ -84,8 +68,8 @@ fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String, attr: Attr
         n.Int -> "int"
         n.Long -> "int"
         n.Float -> "float64"
-        n.Date -> c.n(g.time.Time)
-        n.TimeUnit -> c.n(g.time.Time)
+        n.Date -> g.time.Time.toGo(c, derived, pointer = pointer)
+        n.TimeUnit -> g.time.Time.toGo(c, derived, pointer = pointer)
         n.Path -> "string"
         n.Text -> "string"
         n.Blob -> "[]byte"
@@ -93,8 +77,8 @@ fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String, attr: Attr
         n.Error -> "error"
         n.Void -> ""
         n.Url -> c.n(j.net.URL)
-        n.List -> "[]*${generics()[0].toGo(c, derived)}"
-        n.Map -> "map(${generics()[0].toGo(c, derived)})*${generics()[1].toGo(c, derived)}"
+        n.List -> "[]${generics()[0].toGo(c, derived)}"
+        n.Map -> "map(${generics()[0].toGo(c, derived)})${generics()[1].toGo(c, derived)}"
         else -> {
             if (this is Lambda) operation().toGoLamnda(c, derived) else null
         }
@@ -109,28 +93,8 @@ fun GenericI.toGo(c: GenerationContext, derived: String): String {
     return type().toGo(c, derived)
 }
 
-fun TypeI.toGoGenerics(c: GenerationContext, derived: String, attr: AttributeI): String {
-    return """${generics().joinWrappedToString(", ", "", "<", ">") { "${it.toGo(c, derived, attr)}" }}"""
-}
-
-fun TypeI.toGoGenericsClassDef(c: GenerationContext, derived: String, attr: AttributeI): String {
-    return """${generics().joinWrappedToString(", ", "", "<", ">") { "${it.name()} : ${it.type().toGo(c, derived, attr)}" }}"""
-}
-
-fun TypeI.toGoGenericsMethodDef(c: GenerationContext, derived: String, attr: AttributeI): String {
-    return """${generics().joinWrappedToString(", ", "", "<", "> ") { "${it.name()} : ${it.type().toGo(c, derived, attr)}" }}"""
-}
-
-fun TypeI.toGoGenericsStar(context: GenerationContext, derived: String): String {
-    return """${generics().joinWrappedToString(", ", "", "<", "> ") { "*" }}"""
-}
-
-fun OperationI.toGoGenerics(c: GenerationContext, derived: String): String {
-    return """${generics().joinWrappedToString(", ", "", "<", "> ") { "${it.name()} : ${it.type().toGo(c, derived)}" }}"""
-}
-
-fun <T : TypeI> T.toGo(c: GenerationContext, derived: String, attr: AttributeI = Attribute.EMPTY): String {
-    return toGoIfNative(c, derived, attr) ?: "${c.n(this, derived)}"
+fun <T : TypeI> T.toGo(c: GenerationContext, derived: String, attr: AttributeI = Attribute.EMPTY, pointer: Boolean = true): String {
+    return toGoIfNative(c, derived, pointer) ?: "${pointer.then("*")}${c.n(this, derived)}"
 }
 
 fun <T : AttributeI> T.toGoValue(c: GenerationContext, derived: String): String {
@@ -169,7 +133,7 @@ fun <T : AttributeI> T.toGoSignature(c: GenerationContext, derived: String, api:
 }
 
 fun <T : AttributeI> T.toGoMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String {
-    return "    ${toGoSignature(c, derived, api, init)}"
+    return "    ${nameForMember()} ${toGoTypeDef(c, api)}"
 }
 
 fun List<AttributeI>.toGoSignature(c: GenerationContext, derived: String, api: String): String {
@@ -204,7 +168,8 @@ fun <T : ConstructorI> T.toGoCall(c: GenerationContext, name: String = "this"): 
 }
 
 fun <T : AttributeI> T.toGoAssign(c: GenerationContext, o: String): String {
-    return "$o.${name()} = ${name()}"
+    return "$o.${mutable().ifElse({ name().capitalize() },
+            { name().decapitalize() })} = ${name()}"
 }
 
 fun <T : LogicUnitI> T.toGoCall(c: GenerationContext): String {
@@ -228,19 +193,10 @@ fun List<AttributeI>.toGoTypes(c: GenerationContext, derived: String): String {
 fun <T : OperationI> T.toGoLamnda(c: GenerationContext, derived: String): String =
         """(${params().toGoTypes(c, derived)}) -> ${ret().toGoType(c, derived)}"""
 
-fun <T : OperationI> T.toGoImpl(c: GenerationContext, derived: String, api: String,
-                                parent: CompilationUnitI = findParentMust(CompilationUnitI::class.java)): String {
-    return """${open().then("open ")}
-func (o *${parent.toGo(c, derived)}) ${name()}(${
+fun <T : OperationI> T.toGoImpl(o: String, c: GenerationContext, derived: String, api: String): String {
+    return """
+func (o *$o) ${name()}(${
     params().toGoSignature(c, derived, api)})${ret().toGoTypeDef(c, api)} {
         throw IllegalAccessException("Not implemented yet.")
     }"""
-}
-
-fun <T : CompositeI> T.toGoIsEmptyExt(c: GenerationContext,
-                                      derived: String = DerivedNames.IMPL.name,
-                                      api: String = DerivedNames.API.name): String {
-    return """
-fun ${c.n(this, api)}?.isEMPTY(): Boolean = (this == null || this == ${c.n(this, derived)}.EMPTY)
-fun ${c.n(this, api)}?.isNotEMPTY(): Boolean = !isEMPTY()"""
 }
