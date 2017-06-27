@@ -8,7 +8,7 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
-class GoPojosTest {
+class GoEnumTest {
     val log = logger()
 
     @Before
@@ -17,29 +17,70 @@ class GoPojosTest {
     }
 
     @Test
-    fun simplePojoTest() {
-        val out = TestModel.Trace.toGoImpl(context())
+    fun simpleEnumTest() {
+        val out = TestModel.SimpleEnum.toGoEnum(context())
         log.info(out)
         Assert.assertThat(out, `is`("""
-type Trace struct {
-    createdAt time.Time
-    updatedAt time.Time
-    modifiedBy string
+type SimpleEnum struct {
+	name  string
+	ordinal int
 }
 
-func NewTrace(createdAt time.Time, updatedAt time.Time, modifiedBy string) (ret Trace, err error) {
-    ret = Trace{
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        modifiedBy: modifiedBy,
+func (o *SimpleEnum) Name() string {
+    return o.name
+}
+
+func (o *SimpleEnum) Ordinal() int {
+    return o.ordinal
+}
+
+func (o *SimpleEnum) IsLitName1() bool {
+    return o == _simpleEnums.LitName1()
+}
+
+func (o *SimpleEnum) IsLitName2() bool {
+    return o == _simpleEnums.LitName2()
+}
+
+type simpleEnums struct {
+	values []*SimpleEnum
+}
+
+var _simpleEnums = &simpleEnums{values: []*SimpleEnum{
+    {name: "LitName1", ordinal: 0},
+    {name: "LitName2", ordinal: 1}},
+}
+
+func SimpleEnums() *simpleEnums {
+	return _simpleEnums
+}
+
+func (o *simpleEnums) Values() []*SimpleEnum {
+	return o.values
+}
+
+func (o *simpleEnums) LitName1() *SimpleEnum {
+    return _simpleEnums.values[0]
+}
+
+func (o *simpleEnums) LitName2() *SimpleEnum {
+    return _simpleEnums.values[1]
+}
+
+func (o *simpleEnums) ParseSimpleEnum(name string) (ret *SimpleEnum, ok bool) {
+    switch name {
+      case "LitName1":
+        ret = o.LitName1()
+      case "LitName2":
+        ret = o.LitName2()
     }
     return
 }"""))
     }
 
     @Test
-    fun complexPojoTest() {
-        val out = TestModel.Login.toGoImpl(context())
+    fun complexEnumTest() {
+        val out = TestModel.ComplexEnum.toGoEnum(context())
         log.info(out)
         Assert.assertThat(out, `is`("""
 type ComplexEnum struct {

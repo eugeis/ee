@@ -1,13 +1,11 @@
 package ee.lang.gen.go
 
 import ee.lang.*
-import ee.lang.gen.itemNameAsKotlinFileName
-import ee.lang.gen.kt.*
 
 open class LangGoTemplates {
     val defaultNameBuilder: TemplateI<*>.(CompilationUnitI) -> NamesI
 
-    constructor(defaultNameBuilder: TemplateI<*>.(CompilationUnitI) -> NamesI = itemNameAsKotlinFileName) {
+    constructor(defaultNameBuilder: TemplateI<*>.(CompilationUnitI) -> NamesI = itemNameAsGoFileName) {
         this.defaultNameBuilder = defaultNameBuilder
     }
 

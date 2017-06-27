@@ -34,7 +34,7 @@ open class LangGoContextFactory {
         return {
             val structureUnit = this
             GoContext(moduleFolder = structureUnit.artifact(),
-                    namespace = structureUnit.namespace(),
+                    namespace = structureUnit.namespace().toLowerCase(),
                     derivedController = controller
             )
         }

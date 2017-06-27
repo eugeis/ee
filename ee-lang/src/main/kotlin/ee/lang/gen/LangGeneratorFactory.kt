@@ -3,6 +3,7 @@ package ee.lang.gen
 import ee.lang.*
 import ee.lang.gen.go.LangGoContextFactory
 import ee.lang.gen.go.LangGoTemplates
+import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
 import ee.lang.gen.kt.LangKotlinContextFactory
 import ee.lang.gen.kt.LangKotlinTemplates
 
@@ -61,7 +62,7 @@ open class LangGeneratorFactory {
         return GeneratorGroup<StructureUnitI>(listOf(
                 GeneratorSimple<StructureUnitI>(
                         contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
-                        name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsKotlinFileName,
+                        name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsGoFileName,
                         fragments = {
                             listOf(
                                     ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
@@ -79,5 +80,5 @@ open class LangGeneratorFactory {
 
     protected open fun buildGoContextFactory() = LangGoContextFactory()
 
-    protected open fun buildGoTemplates() = LangGoTemplates({ Names("${it.name()}.kt") })
+    protected open fun buildGoTemplates() = LangGoTemplates({ Names("${it.name()}.go") })
 }

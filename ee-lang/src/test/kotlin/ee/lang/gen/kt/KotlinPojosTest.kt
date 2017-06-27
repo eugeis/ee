@@ -19,6 +19,20 @@ object TestModel : StructureUnit() {
         val LitName1 = lit({ params(p(code) { value(1) }) })
         val LitName2 = lit({ params(p(code) { value(2) }) })
     }
+
+    object Trace : CompilationUnit() {
+        val createdAt = prop(n.Date)
+        val updatedAt = prop(n.Date)
+        val modifiedBy = prop()
+    }
+
+    object Login : CompilationUnit() {
+        val principal = prop()
+        val password = prop()
+        val disabled = prop { type(n.Boolean) }
+        val lastLoginAt = prop { type(n.Date) }
+        val trace = prop { type(Trace).meta(true) }
+    }
 }
 
 class KotlinPojosTest {

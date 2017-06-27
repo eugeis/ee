@@ -39,54 +39,49 @@ fun LiteralI.toGoInit(index: Int): String {
     return """{name: "${this.name()}", ordinal: $index${this.params().joinSurroundIfNotEmptyToString(", ", ", ") { it.toGoInit() }}}"""
 }
 
-fun AttributeI.toGoInit(): String {
-    return """${this.name()}: ${this.value()}"""
-}
-
 fun <T : EnumTypeI> T.toGoEnum(c: GenerationContext,
                                derived: String = DerivedNames.API.name,
                                api: String = DerivedNames.API.name): String {
     val name = c.n(this, derived)
-    val enum = name.capitalize()
     val enums = toGoAccess()
-    val enumLiterals = toGoLiterals()
+    val literals = toGoLiterals()
     return """
-type $enum struct {
+type $name struct {
 	name  string
 	ordinal int${
     props().joinSurroundIfNotEmptyToString("", nL) { it.toGoMember(c, derived, api) }}
 }
 
-func (o *$enum) Name() string {
+func (o *$name) Name() string {
     return o.name
 }
 
-func (o *$enum) Ordinal() int {
+func (o *$name) Ordinal() int {
     return o.ordinal
 }${
-    props().joinSurroundIfNotEmptyToString("", nL) { it.toGoGetMethod(enum, c, derived) }}
-${literals().joinSurroundIfNotEmptyToString(nL) { item -> item.toGoIsMethod(enum, enumLiterals) }}${
+    props().joinSurroundIfNotEmptyToString("", nL) { it.toGoGetMethod(name, c, derived) }}
+${literals().joinSurroundIfNotEmptyToString(nL) { item -> item.toGoIsMethod(name, literals) }}${
     operations().joinToString(nL) { it.toGoImpl(c, derived, api) }}
 
-type $enumLiterals struct {
-	values []*$enum
+type $literals struct {
+	values []*$name
 }
 
-var _$enumLiterals = &$enumLiterals{values: []*$enum${literals().joinWithIndexToString(",$nL    ", "{$nL    ", "},") { i, item ->
+var _$literals = &$literals{values: []*$name${literals().joinWithIndexToString(",$nL    ", "{$nL    ", "},") { i, item ->
         item.toGoInit(i)
     }}
 }
 
-func $enums() *$enumLiterals {
-	return _$enumLiterals
+func $enums() *$literals {
+	return _$literals
 }
 
-func (o *$enumLiterals) Values() []*$enum {
+func (o *$literals) Values() []*$name {
 	return o.values
 }
-${literals().joinWithIndexToString(nL) { i, item -> item.toGoLitMethod(i, enum, enumLiterals) }}
+${literals().joinWithIndexToString(nL) { i, item -> item.toGoLitMethod(i, name, literals) }}
 
-func (o *$enumLiterals) Parse$name(name string) (ret *$name, ok bool) {${
+func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {${
     literals().joinToString("$nL    ", "$nL    switch name {$nL    ", "$nL    }") { it.toGoCase() }}
     return
 }"""
@@ -96,14 +91,12 @@ fun <T : CompilationUnitI> T.toGoImpl(c: GenerationContext,
                                       derived: String = DerivedNames.IMPL.name,
                                       api: String = DerivedNames.API.name): String {
     return """
-type ${c.n(this, derived)}${toGoExtends(c, derived, api)} struct ${
-    primaryConstructor().toGoPrimary(c, derived, api)} {${
-    props().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) { it.toGoMember(c, derived, api, false) }}${
-    otherConstructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+type ${c.n(this, derived)} struct {${
+    props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toGoMember(c, derived, api, false) }}
+}${
+    constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGo(c, derived, api)
-    }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+    }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGoImpl(c, derived, api)
-    }}${
-    toGoEmptyObject(c, derived)}
-}"""
+    }}"""
 }

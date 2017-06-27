@@ -48,7 +48,7 @@ open class LangKotlinContextFactory {
         return {
             val structureUnit = this
             KotlinContext(moduleFolder = structureUnit.artifact(),
-                    namespace = structureUnit.namespace(),
+                    namespace = structureUnit.namespace().toLowerCase(),
                     derivedController = controller
             )
         }
