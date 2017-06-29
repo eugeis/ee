@@ -76,7 +76,9 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
 
     object DeleteBy : CompilationUnit({ superUnit(Command) })
 
-    object UpdateBy : CompilationUnit({ superUnit(Command) })
+    object UpdateBy : CompilationUnit({ superUnit(Command) }) {
+        
+    }
 
     object Entity : CompilationUnit({ superUnit(l.CompilationUnit) }) {
         val id = prop(l.Attribute)
