@@ -21,12 +21,16 @@ open class Basic : CompilationUnit, BasicI {
 }
 
 
-fun BasicI?.isEmpty(): Boolean = (this == null || this == Basic.EMPTY)
-fun BasicI?.isNotEmpty(): Boolean = !isEmpty()
+fun BasicI?.isEMPTY(): Boolean = (this == null || this == Basic.EMPTY)
+fun BasicI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class Bundle : StructureUnit, BundleI {
-    constructor(value: Bundle.() -> Unit = {}) : super(value as StructureUnit.() -> Unit)
+    constructor(value: Bundle.() -> Unit = {}) : super({
+        val item = this as Bundle
+        item.units()
+        value(item)
+    })
 
     override fun units(): ListMultiHolderI<StructureUnitI> = itemAsList(UNITS, StructureUnitI::class.java)
     override fun units(vararg value: StructureUnitI): BundleI = apply { units().addItems(value.asList()) }
@@ -38,8 +42,8 @@ open class Bundle : StructureUnit, BundleI {
 }
 
 
-fun BundleI?.isEmpty(): Boolean = (this == null || this == Bundle.EMPTY)
-fun BundleI?.isNotEmpty(): Boolean = !isEmpty()
+fun BundleI?.isEMPTY(): Boolean = (this == null || this == Bundle.EMPTY)
+fun BundleI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class Command : DataTypeOperation, CommandI {
@@ -51,37 +55,45 @@ open class Command : DataTypeOperation, CommandI {
 }
 
 
-fun CommandI?.isEmpty(): Boolean = (this == null || this == Command.EMPTY)
-fun CommandI?.isNotEmpty(): Boolean = !isEmpty()
+fun CommandI?.isEMPTY(): Boolean = (this == null || this == Command.EMPTY)
+fun CommandI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class CommandController : Controller, CommandControllerI {
-    constructor(value: CommandController.() -> Unit = {}) : super(value as Controller.() -> Unit)
+    constructor(value: CommandController.() -> Unit = {}) : super({
+        val item = this as CommandController
+        item.commands()
+        item.composites()
+        item.createBys()
+        item.updateBys()
+        item.deleteBys()
+        value(item)
+    })
 
     override fun commands(): ListMultiHolderI<CommandI> = itemAsList(COMMANDS, CommandI::class.java)
     override fun commands(vararg value: CommandI): CommandControllerI = apply { commands().addItems(value.asList()) }
     override fun command(value: CommandI): CommandI = applyAndReturn { commands().add(value); value }
-    override fun command(value: CommandI.() -> Unit) : CommandI = command(Command(value))
+    override fun command(value: CommandI.() -> Unit): CommandI = command(Command(value))
 
     override fun composites(): ListMultiHolderI<CompositeCommandI> = itemAsList(COMPOSITES, CompositeCommandI::class.java)
     override fun composites(vararg value: CompositeCommandI): CommandControllerI = apply { composites().addItems(value.asList()) }
     override fun composite(value: CompositeCommandI): CompositeCommandI = applyAndReturn { composites().add(value); value }
-    override fun composite(value: CompositeCommandI.() -> Unit) : CompositeCommandI = composite(CompositeCommand(value))
+    override fun composite(value: CompositeCommandI.() -> Unit): CompositeCommandI = composite(CompositeCommand(value))
 
     override fun createBys(): ListMultiHolderI<CreateByI> = itemAsList(CREATE_BYS, CreateByI::class.java)
     override fun createBys(vararg value: CreateByI): CommandControllerI = apply { createBys().addItems(value.asList()) }
     override fun createBy(value: CreateByI): CreateByI = applyAndReturn { createBys().add(value); value }
-    override fun createBy(value: CreateByI.() -> Unit) : CreateByI = createBy(CreateBy(value))
+    override fun createBy(value: CreateByI.() -> Unit): CreateByI = createBy(CreateBy(value))
 
     override fun updateBys(): ListMultiHolderI<UpdateByI> = itemAsList(UPDATE_BYS, UpdateByI::class.java)
     override fun updateBys(vararg value: UpdateByI): CommandControllerI = apply { updateBys().addItems(value.asList()) }
     override fun updateBy(value: UpdateByI): UpdateByI = applyAndReturn { updateBys().add(value); value }
-    override fun updateBy(value: UpdateByI.() -> Unit) : UpdateByI = updateBy(UpdateBy(value))
+    override fun updateBy(value: UpdateByI.() -> Unit): UpdateByI = updateBy(UpdateBy(value))
 
     override fun deleteBys(): ListMultiHolderI<DeleteByI> = itemAsList(DELETE_BYS, DeleteByI::class.java)
     override fun deleteBys(vararg value: DeleteByI): CommandControllerI = apply { deleteBys().addItems(value.asList()) }
     override fun deleteBy(value: DeleteByI): DeleteByI = applyAndReturn { deleteBys().add(value); value }
-    override fun deleteBy(value: DeleteByI.() -> Unit) : DeleteByI = deleteBy(DeleteBy(value))
+    override fun deleteBy(value: DeleteByI.() -> Unit): DeleteByI = deleteBy(DeleteBy(value))
 
     companion object {
         val EMPTY = CommandController()
@@ -94,12 +106,16 @@ open class CommandController : Controller, CommandControllerI {
 }
 
 
-fun CommandControllerI?.isEmpty(): Boolean = (this == null || this == CommandController.EMPTY)
-fun CommandControllerI?.isNotEmpty(): Boolean = !isEmpty()
+fun CommandControllerI?.isEMPTY(): Boolean = (this == null || this == CommandController.EMPTY)
+fun CommandControllerI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class Comp : ModuleGroup, CompI {
-    constructor(value: Comp.() -> Unit = {}) : super(value as ModuleGroup.() -> Unit)
+    constructor(value: Comp.() -> Unit = {}) : super({
+        val item = this as Comp
+        item.moduleGroups()
+        value(item)
+    })
 
     override fun moduleGroups(): ListMultiHolderI<ModuleGroupI> = itemAsList(MODULE_GROUPS, ModuleGroupI::class.java)
     override fun moduleGroups(vararg value: ModuleGroupI): CompI = apply { moduleGroups().addItems(value.asList()) }
@@ -111,12 +127,16 @@ open class Comp : ModuleGroup, CompI {
 }
 
 
-fun CompI?.isEmpty(): Boolean = (this == null || this == Comp.EMPTY)
-fun CompI?.isNotEmpty(): Boolean = !isEmpty()
+fun CompI?.isEMPTY(): Boolean = (this == null || this == Comp.EMPTY)
+fun CompI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class CompositeCommand : DataTypeOperation, CompositeCommandI {
-    constructor(value: CompositeCommand.() -> Unit = {}) : super(value as DataTypeOperation.() -> Unit)
+    constructor(value: CompositeCommand.() -> Unit = {}) : super({
+        val item = this as CompositeCommand
+        item.operations()
+        value(item)
+    })
 
     override fun operations(): ListMultiHolderI<OperationI> = itemAsList(OPERATIONS, OperationI::class.java)
     override fun operations(vararg value: OperationI): CompositeCommandI = apply { operations().addItems(value.asList()) }
@@ -128,8 +148,8 @@ open class CompositeCommand : DataTypeOperation, CompositeCommandI {
 }
 
 
-fun CompositeCommandI?.isEmpty(): Boolean = (this == null || this == CompositeCommand.EMPTY)
-fun CompositeCommandI?.isNotEmpty(): Boolean = !isEmpty()
+fun CompositeCommandI?.isEMPTY(): Boolean = (this == null || this == CompositeCommand.EMPTY)
+fun CompositeCommandI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class Controller : CompilationUnit, ControllerI {
@@ -141,8 +161,8 @@ open class Controller : CompilationUnit, ControllerI {
 }
 
 
-fun ControllerI?.isEmpty(): Boolean = (this == null || this == Controller.EMPTY)
-fun ControllerI?.isNotEmpty(): Boolean = !isEmpty()
+fun ControllerI?.isEMPTY(): Boolean = (this == null || this == Controller.EMPTY)
+fun ControllerI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class CountBy : DataTypeOperation, CountByI {
@@ -154,8 +174,8 @@ open class CountBy : DataTypeOperation, CountByI {
 }
 
 
-fun CountByI?.isEmpty(): Boolean = (this == null || this == CountBy.EMPTY)
-fun CountByI?.isNotEmpty(): Boolean = !isEmpty()
+fun CountByI?.isEMPTY(): Boolean = (this == null || this == CountBy.EMPTY)
+fun CountByI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class CreateBy : Command, CreateByI {
@@ -167,8 +187,8 @@ open class CreateBy : Command, CreateByI {
 }
 
 
-fun CreateByI?.isEmpty(): Boolean = (this == null || this == CreateBy.EMPTY)
-fun CreateByI?.isNotEmpty(): Boolean = !isEmpty()
+fun CreateByI?.isEMPTY(): Boolean = (this == null || this == CreateBy.EMPTY)
+fun CreateByI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class DataTypeOperation : Operation, DataTypeOperationI {
@@ -180,8 +200,8 @@ open class DataTypeOperation : Operation, DataTypeOperationI {
 }
 
 
-fun DataTypeOperationI?.isEmpty(): Boolean = (this == null || this == DataTypeOperation.EMPTY)
-fun DataTypeOperationI?.isNotEmpty(): Boolean = !isEmpty()
+fun DataTypeOperationI?.isEMPTY(): Boolean = (this == null || this == DataTypeOperation.EMPTY)
+fun DataTypeOperationI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class DeleteBy : Command, DeleteByI {
@@ -193,12 +213,18 @@ open class DeleteBy : Command, DeleteByI {
 }
 
 
-fun DeleteByI?.isEmpty(): Boolean = (this == null || this == DeleteBy.EMPTY)
-fun DeleteByI?.isNotEmpty(): Boolean = !isEmpty()
+fun DeleteByI?.isEMPTY(): Boolean = (this == null || this == DeleteBy.EMPTY)
+fun DeleteByI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class Entity : CompilationUnit, EntityI {
-    constructor(value: Entity.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
+    constructor(value: Entity.() -> Unit = {}) : super({
+        val item = this as Entity
+        item.controllers()
+        item.commands()
+        item.queries()
+        value(item)
+    })
 
     override fun id(): AttributeI = attr(ID, { Attribute.EMPTY })
     override fun id(value: AttributeI): EntityI = apply { attr(ID, value) }
@@ -222,8 +248,8 @@ open class Entity : CompilationUnit, EntityI {
 }
 
 
-fun EntityI?.isEmpty(): Boolean = (this == null || this == Entity.EMPTY)
-fun EntityI?.isNotEmpty(): Boolean = !isEmpty()
+fun EntityI?.isEMPTY(): Boolean = (this == null || this == Entity.EMPTY)
+fun EntityI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class Event : CompilationUnit, EventI {
@@ -235,8 +261,8 @@ open class Event : CompilationUnit, EventI {
 }
 
 
-fun EventI?.isEmpty(): Boolean = (this == null || this == Event.EMPTY)
-fun EventI?.isNotEmpty(): Boolean = !isEmpty()
+fun EventI?.isEMPTY(): Boolean = (this == null || this == Event.EMPTY)
+fun EventI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class ExistBy : DataTypeOperation, ExistByI {
@@ -248,12 +274,16 @@ open class ExistBy : DataTypeOperation, ExistByI {
 }
 
 
-fun ExistByI?.isEmpty(): Boolean = (this == null || this == ExistBy.EMPTY)
-fun ExistByI?.isNotEmpty(): Boolean = !isEmpty()
+fun ExistByI?.isEMPTY(): Boolean = (this == null || this == ExistBy.EMPTY)
+fun ExistByI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class ExternalModule : Module, ExternalModuleI {
-    constructor(value: ExternalModule.() -> Unit = {}) : super(value as Module.() -> Unit)
+    constructor(value: ExternalModule.() -> Unit = {}) : super({
+        val item = this as ExternalModule
+        item.externalTypes()
+        value(item)
+    })
 
     override fun externalTypes(): ListMultiHolderI<ExternalTypeI> = itemAsList(EXTERNAL_TYPES, ExternalTypeI::class.java)
     override fun externalTypes(vararg value: ExternalTypeI): ExternalModuleI = apply { externalTypes().addItems(value.asList()) }
@@ -265,8 +295,8 @@ open class ExternalModule : Module, ExternalModuleI {
 }
 
 
-fun ExternalModuleI?.isEmpty(): Boolean = (this == null || this == ExternalModule.EMPTY)
-fun ExternalModuleI?.isNotEmpty(): Boolean = !isEmpty()
+fun ExternalModuleI?.isEMPTY(): Boolean = (this == null || this == ExternalModule.EMPTY)
+fun ExternalModuleI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class Facet : ModuleGroup, FacetI {
@@ -278,8 +308,8 @@ open class Facet : ModuleGroup, FacetI {
 }
 
 
-fun FacetI?.isEmpty(): Boolean = (this == null || this == Facet.EMPTY)
-fun FacetI?.isNotEmpty(): Boolean = !isEmpty()
+fun FacetI?.isEMPTY(): Boolean = (this == null || this == Facet.EMPTY)
+fun FacetI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class FindBy : DataTypeOperation, FindByI {
@@ -291,12 +321,17 @@ open class FindBy : DataTypeOperation, FindByI {
 }
 
 
-fun FindByI?.isEmpty(): Boolean = (this == null || this == FindBy.EMPTY)
-fun FindByI?.isNotEmpty(): Boolean = !isEmpty()
+fun FindByI?.isEMPTY(): Boolean = (this == null || this == FindBy.EMPTY)
+fun FindByI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class Model : StructureUnit, ModelI {
-    constructor(value: Model.() -> Unit = {}) : super(value as StructureUnit.() -> Unit)
+    constructor(value: Model.() -> Unit = {}) : super({
+        val item = this as Model
+        item.models()
+        item.comps()
+        value(item)
+    })
 
     override fun models(): ListMultiHolderI<ModelI> = itemAsList(MODELS, ModelI::class.java)
     override fun models(vararg value: ModelI): ModelI = apply { models().addItems(value.asList()) }
@@ -312,12 +347,23 @@ open class Model : StructureUnit, ModelI {
 }
 
 
-fun ModelI?.isEmpty(): Boolean = (this == null || this == Model.EMPTY)
-fun ModelI?.isNotEmpty(): Boolean = !isEmpty()
+fun ModelI?.isEMPTY(): Boolean = (this == null || this == Model.EMPTY)
+fun ModelI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class Module : StructureUnit, ModuleI {
-    constructor(value: Module.() -> Unit = {}) : super(value as StructureUnit.() -> Unit)
+    constructor(value: Module.() -> Unit = {}) : super({
+        val item = this as Module
+        item.dependencies()
+        item.events()
+        item.commands()
+        item.entities()
+        item.enums()
+        item.values()
+        item.basics()
+        item.controllers()
+        value(item)
+    })
 
     override fun parentNamespace(): Boolean = attr(PARENT_NAMESPACE, { false })
     override fun parentNamespace(value: Boolean): ModuleI = apply { attr(PARENT_NAMESPACE, value) }
@@ -361,12 +407,16 @@ open class Module : StructureUnit, ModuleI {
 }
 
 
-fun ModuleI?.isEmpty(): Boolean = (this == null || this == Module.EMPTY)
-fun ModuleI?.isNotEmpty(): Boolean = !isEmpty()
+fun ModuleI?.isEMPTY(): Boolean = (this == null || this == Module.EMPTY)
+fun ModuleI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class ModuleGroup : StructureUnit, ModuleGroupI {
-    constructor(value: ModuleGroup.() -> Unit = {}) : super(value as StructureUnit.() -> Unit)
+    constructor(value: ModuleGroup.() -> Unit = {}) : super({
+        val item = this as ModuleGroup
+        item.modules()
+        value(item)
+    })
 
     override fun modules(): ListMultiHolderI<ModuleI> = itemAsList(MODULES, ModuleI::class.java)
     override fun modules(vararg value: ModuleI): ModuleGroupI = apply { modules().addItems(value.asList()) }
@@ -378,27 +428,33 @@ open class ModuleGroup : StructureUnit, ModuleGroupI {
 }
 
 
-fun ModuleGroupI?.isEmpty(): Boolean = (this == null || this == ModuleGroup.EMPTY)
-fun ModuleGroupI?.isNotEmpty(): Boolean = !isEmpty()
+fun ModuleGroupI?.isEMPTY(): Boolean = (this == null || this == ModuleGroup.EMPTY)
+fun ModuleGroupI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class QueryController : Controller, QueryControllerI {
-    constructor(value: QueryController.() -> Unit = {}) : super(value as Controller.() -> Unit)
+    constructor(value: QueryController.() -> Unit = {}) : super({
+        val item = this as QueryController
+        item.findBys()
+        item.countBys()
+        item.existBys()
+        value(item)
+    })
 
     override fun findBys(): ListMultiHolderI<FindByI> = itemAsList(FIND_BYS, FindByI::class.java)
     override fun findBys(vararg value: FindByI): QueryControllerI = apply { findBys().addItems(value.asList()) }
     override fun findBy(value: FindByI): FindByI = applyAndReturn { findBys().add(value); value }
-    override fun findBy(value: FindByI.() -> Unit) : FindByI = findBy(FindBy(value))
+    override fun findBy(value: FindByI.() -> Unit): FindByI = findBy(FindBy(value))
 
     override fun countBys(): ListMultiHolderI<CountByI> = itemAsList(COUNT_BYS, CountByI::class.java)
     override fun countBys(vararg value: CountByI): QueryControllerI = apply { countBys().addItems(value.asList()) }
     override fun countBy(value: CountByI): CountByI = applyAndReturn { countBys().add(value); value }
-    override fun countBy(value: CountByI.() -> Unit) : CountByI = countBy(CountBy(value))
+    override fun countBy(value: CountByI.() -> Unit): CountByI = countBy(CountBy(value))
 
     override fun existBys(): ListMultiHolderI<ExistByI> = itemAsList(EXIST_BYS, ExistByI::class.java)
     override fun existBys(vararg value: ExistByI): QueryControllerI = apply { existBys().addItems(value.asList()) }
     override fun existBy(value: ExistByI): ExistByI = applyAndReturn { existBys().add(value); value }
-    override fun existBy(value: ExistByI.() -> Unit) : ExistByI = existBy(ExistBy(value))
+    override fun existBy(value: ExistByI.() -> Unit): ExistByI = existBy(ExistBy(value))
 
     companion object {
         val EMPTY = QueryController()
@@ -409,8 +465,8 @@ open class QueryController : Controller, QueryControllerI {
 }
 
 
-fun QueryControllerI?.isEmpty(): Boolean = (this == null || this == QueryController.EMPTY)
-fun QueryControllerI?.isNotEmpty(): Boolean = !isEmpty()
+fun QueryControllerI?.isEMPTY(): Boolean = (this == null || this == QueryController.EMPTY)
+fun QueryControllerI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class UpdateBy : Command, UpdateByI {
@@ -422,8 +478,8 @@ open class UpdateBy : Command, UpdateByI {
 }
 
 
-fun UpdateByI?.isEmpty(): Boolean = (this == null || this == UpdateBy.EMPTY)
-fun UpdateByI?.isNotEmpty(): Boolean = !isEmpty()
+fun UpdateByI?.isEMPTY(): Boolean = (this == null || this == UpdateBy.EMPTY)
+fun UpdateByI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class Values : CompilationUnit, ValuesI {
@@ -435,8 +491,8 @@ open class Values : CompilationUnit, ValuesI {
 }
 
 
-fun ValuesI?.isEmpty(): Boolean = (this == null || this == Values.EMPTY)
-fun ValuesI?.isNotEmpty(): Boolean = !isEmpty()
+fun ValuesI?.isEMPTY(): Boolean = (this == null || this == Values.EMPTY)
+fun ValuesI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 
 open class Widget : CompilationUnit, WidgetI {
@@ -448,6 +504,6 @@ open class Widget : CompilationUnit, WidgetI {
 }
 
 
-fun WidgetI?.isEmpty(): Boolean = (this == null || this == Widget.EMPTY)
-fun WidgetI?.isNotEmpty(): Boolean = !isEmpty()
+fun WidgetI?.isEMPTY(): Boolean = (this == null || this == Widget.EMPTY)
+fun WidgetI?.isNotEMPTY(): Boolean = !isEMPTY()
 

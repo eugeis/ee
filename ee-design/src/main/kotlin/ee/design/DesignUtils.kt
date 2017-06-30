@@ -20,6 +20,13 @@ fun CommandController.composite(vararg commands: CommandI) = composite { operati
 fun StructureUnitI.defineNamesForDataTypeControllers() {
 }
 
+fun StructureUnitI.addDefaultCommandsForEntities() {
+    findDownByType(EntityI::class.java).filter { it.commands().isEmpty() }.forEach {
+        println("Add commands to $it")
+
+    }
+}
+
 fun StructureUnitI.declareAsBaseWithNonImplementedOperation() {
     findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEMPTY() && !it.base() }.forEach { it.base(true) }
 

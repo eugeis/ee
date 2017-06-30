@@ -31,7 +31,5 @@ open class DesignKotlinGenerator {
 
         //define names for data type controllers
         defineNamesForDataTypeControllers()
-
-        declareAsBaseWithNonImplementedOperation()
     }
 }

@@ -64,6 +64,21 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: 
     }}"""
 }
 
+
+fun <T : CompositeI> T.toKotlinDslBuilderSuperInit(c: GenerationContext,
+                                                   derived: String = DerivedNames.IMPL.name,
+                                                   api: String = DerivedNames.API.name): String {
+    val props = items().filterIsInstance(AttributeI::class.java).filter { it.multi() }
+    return props.isEmpty().ifElse({ "value as ${c.n(derivedFrom(), derived)}.() -> Unit" }, {
+        """{
+        val item = this as ${c.n(this, derived)}${
+        props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { "        item.${it.name()}()" }}
+        value(item)
+    }"""
+    })
+}
+
+
 val specialEmptyObjects = setOf("CompilationUnit", "LogicUnit")
 
 fun <T : AttributeI> T.toKotlinCompanionObjectName(c: GenerationContext): String {
@@ -87,7 +102,7 @@ fun <T : CompositeI> T.toKotlinDslBuilder(c: GenerationContext,
 open class ${c.n(this, derived)} : ${c.n(derivedFrom(), derived)}${(derived != api).then(
             { ", ${c.n(this, DerivedNames.API.name)}" })} {
 
-    constructor(value: ${c.n(this, derived)}.() -> Unit = {}) : super(value as ${c.n(derivedFrom(), derived)}.() -> Unit)${
+    constructor(value: ${c.n(this, derived)}.() -> Unit = {}) : super(${toKotlinDslBuilderSuperInit(c, derived, api)})${
     props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}
 
     companion object {

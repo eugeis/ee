@@ -155,6 +155,7 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
     override fun <T> supportsItem(item: T): Boolean = _type.isInstance(item)
 
     override fun <T> findSupportsItem(item: T, childrenFirst: Boolean): MultiHolderI<T> =
+            //TODO we need checkinf of specific type and then a generic
             (if (childrenFirst && item !is ItemI) items().filterIsInstance(MultiHolderI::class.java).find {
                 it.supportsItem(item)
             } ?: this else this) as MultiHolderI<T>

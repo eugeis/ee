@@ -77,7 +77,14 @@ open class Attribute : Composite, AttributeI {
 
 open class CompilationUnit : Type, CompilationUnitI {
 
-    constructor(value: CompilationUnit.() -> Unit = {}) : super(value as Type.() -> Unit)
+    constructor(value: CompilationUnit.() -> Unit = {}) : super({
+        val item = this as CompilationUnit
+        item.constructors()
+        item.operations()
+        item.props()
+        item.superUnitFor()
+        value(item)
+    })
 
     override fun base(): Boolean = attr(BASE, { false })
     override fun base(value: Boolean): CompilationUnitI = apply { attr(BASE, value) }
@@ -139,7 +146,11 @@ open class Constructor : LogicUnit, ConstructorI {
 
 open class EnumType : CompilationUnit, EnumTypeI {
 
-    constructor(value: EnumType.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
+    constructor(value: EnumType.() -> Unit = {}) : super({
+        val item = this as EnumType
+        item.literals()
+        value(item)
+    })
 
     override fun literals(): ListMultiHolder<LiteralI> = itemAsList(LITERALS, LiteralI::class.java)
     override fun literals(vararg value: LiteralI): EnumTypeI = apply { literals().addItems(value.asList()) }
@@ -203,7 +214,11 @@ open class Literal : LogicUnit, LiteralI {
 
 open class LogicUnit : TextComposite, LogicUnitI {
 
-    constructor(value: LogicUnit.() -> Unit = {}) : super(value as TextComposite.() -> Unit)
+    constructor(value: LogicUnit.() -> Unit = {}) : super({
+        val item = this as LogicUnit
+        item.params()
+        value(item)
+    })
 
     override fun params(): ListMultiHolder<AttributeI> = itemAsList(PARAMS, AttributeI::class.java)
     override fun params(vararg value: AttributeI): LogicUnitI = apply { params().addItems(value.asList()) }
@@ -235,7 +250,11 @@ open class NativeType : Type, NativeTypeI {
 
 open class Operation : LogicUnit, OperationI {
 
-    constructor(value: Operation.() -> Unit = {}) : super(value as LogicUnit.() -> Unit)
+    constructor(value: Operation.() -> Unit = {}) : super({
+        val item = this as Operation
+        item.generics()
+        value(item)
+    })
 
     override fun generics(): ListMultiHolder<GenericI> = itemAsList(GENERICS, GenericI::class.java)
     override fun generics(vararg value: GenericI): OperationI = apply { generics().addItems(value.asList()) }
@@ -293,7 +312,11 @@ open class TextComposite : Composite, TextCompositeI {
 
 open class Type : Composite, TypeI {
 
-    constructor(value: Type.() -> Unit = {}) : super(value as Composite.() -> Unit)
+    constructor(value: Type.() -> Unit = {}) : super({
+        val item = this as Type
+        item.generics()
+        value(item)
+    })
 
     override fun defaultValue(): Any? = attr(DEFAULT_VALUE)
     override fun defaultValue(value: Any?): TypeI = apply { attr(DEFAULT_VALUE, value) }
