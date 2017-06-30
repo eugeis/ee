@@ -80,6 +80,17 @@ fun lambda(vararg params: AttributeI, body: OperationI.() -> Unit = {}): LambdaI
     }))
 })
 
+interface TypedAttributeI<T : TypeI> : AttributeI {
+    fun sub(subType: T.() -> AttributeI): AttributeI {
+        //TODO create new structure with parent and sub type
+        return (type() as T).subType()
+    }
+}
+
+open class TypedAttribute<T : TypeI> : Attribute, TypedAttributeI<T> {
+    constructor(value: Attribute.() -> Unit = {}) : super(value as Composite.() -> Unit)
+}
+
 fun p(init: AttributeI.() -> Unit = {}): AttributeI = Attribute(init)
 
 fun p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): AttributeI = Attribute({
@@ -151,7 +162,12 @@ fun <T : TypeI> T.GT(vararg types: TypeI): T {
 }
 
 fun TypeI.G(type: TypeI): GenericI = G { type(type) }
-fun CompilationUnitI.prop(type: TypeI): AttributeI = prop { type(type) }
+fun <T : TypeI> CompilationUnitI.prop(type: T): TypedAttributeI<T> {
+    val ret = TypedAttribute<T>({ type(type) })
+    props(ret)
+    return ret
+}
+
 fun OperationI.ret(type: TypeI): OperationI = ret(Attribute({ type(type) }))
 fun LogicUnitI.p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): LogicUnitI = params(
         Attribute({
