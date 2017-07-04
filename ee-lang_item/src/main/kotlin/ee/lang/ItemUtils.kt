@@ -1,6 +1,5 @@
 package ee.lang
 
-import com.sun.org.apache.xpath.internal.operations.Bool
 import ee.common.ext.buildLabel
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -118,7 +117,18 @@ fun <T : MultiHolderI<*>> T.initObjectTree(searchForTargetComposite: Boolean = f
         try {
             val getter = javaClass.declaredMethods.find { it.name == "get${f.name.capitalize()}" }
             if (getter != null) {
-                initChild(getter.invoke(this), searchForTargetComposite, deriveNamespace)
+                val child = getter.invoke(this)
+                if (child is ItemI) {
+                    if (!child.isInitialized()) child.init()
+                    if (child.name().isBlank()) child.name(f.name)
+                    if (child.parent().isEMPTY()) {
+                        val targetComposite = findSupportsItem(child, searchForTargetComposite)
+                        if (!targetComposite.containsItem(child)) {
+                            targetComposite.addItem(child)
+                        }
+                    }
+                    if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
+                }
             }
         } catch (e: Exception) {
             println("$f $e")
@@ -126,30 +136,24 @@ fun <T : MultiHolderI<*>> T.initObjectTree(searchForTargetComposite: Boolean = f
 
     }
     javaClass.declaredClasses.forEach {
-        initChild(it.findInstance(), searchForTargetComposite, deriveNamespace)
+        val child = it.findInstance()
+        if (child != null && child is ItemI) {
+            if (!child.isInitialized()) child.init()
+            if (child.name().isBlank()) child.name(child.buildLabel().name)
+
+            //initObjectTree recursively if the parent is not set
+            if (child.parent().isEMPTY()) {
+                val targetMultiHolder = findSupportsItem(child, searchForTargetComposite)
+                if (!targetMultiHolder.containsItem(child)) {
+                    targetMultiHolder.addItem(child)
+                    if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
+                    if (child is MultiHolderI<*>) child.initObjectTree(searchForTargetComposite, deriveNamespace)
+                }
+            }
+            if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
+        }
     }
     return this
-}
-
-fun <T : MultiHolderI<*>> T.initChild(child: Any?, searchForTargetComposite: Boolean = false,
-                                      deriveNamespace: ItemI.() -> String = { parent().namespace() }) {
-    if (child != null && child is ItemI) {
-        if (!child.isInitialized()) child.init()
-        if (child.name().isBlank()) child.name(child.buildLabel().name)
-
-        //initObjectTree recursively if the parent is not set
-        var parentSet = false
-        if (child.parent().isEMPTY()) {
-            val targetMultiHolder = findSupportsItem(child, searchForTargetComposite)
-            if (!targetMultiHolder.containsItem(child)) {
-                parentSet = true
-                targetMultiHolder.addItem(child)
-            }
-        }
-        if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
-        if (child is MultiHolderI<*> && (parentSet || child.name().startsWith("_")))
-            child.initObjectTree(searchForTargetComposite, deriveNamespace)
-    }
 }
 
 fun <T> Class<T>.findInstance(): Any? {
