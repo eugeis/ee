@@ -46,8 +46,8 @@ interface MultiHolderI<I> : ItemI {
 
     fun <T> supportsItem(item: T): Boolean
     fun <T> supportsItemType(itemType: Class<T>): Boolean
-
-    fun <T> findSupportsItem(item: T, childrenFirst: Boolean = false): MultiHolderI<T>
+    fun <T> fillSupportsItem(item: T): Boolean
+    fun fillSupportsItems()
 }
 
 interface ListMultiHolderI<I> : MultiHolderI<I>, MutableList<I> {

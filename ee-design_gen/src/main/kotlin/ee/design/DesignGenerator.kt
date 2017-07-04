@@ -10,7 +10,7 @@ fun main(args: Array<String>) {
 }
 
 fun generate(target: Path) {
-    var model = d.prepareForKotlinGeneration(false)
+    var model = d.prepareForKotlinGeneration()
     val generatorFactory = LangGeneratorFactory()
     val generator = generatorFactory.dslKt("Design")
     generator.delete(target, model)

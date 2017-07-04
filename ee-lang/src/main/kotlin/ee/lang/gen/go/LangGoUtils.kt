@@ -50,9 +50,9 @@ open class GoContext : GenerationContext {
     }
 }
 
-fun <T : StructureUnitI> T.prepareForGoGeneration(searchForTargetComposite: Boolean = true): T {
+fun <T : StructureUnitI> T.prepareForGoGeneration(): T {
     g.initObjectTree()
-    initObjectTrees(searchForTargetComposite)
+    initObjectTrees()
 
     //declare as 'base' all compilation units with non implemented operations.
     declareAsBaseWithNonImplementedOperation()

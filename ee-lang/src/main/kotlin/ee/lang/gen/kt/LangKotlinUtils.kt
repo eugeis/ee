@@ -24,9 +24,9 @@ object k : StructureUnit({ name("Kotlin") }) {
     }
 }
 
-fun <T : StructureUnitI> T.prepareForKotlinGeneration(searchForTargetComposite: Boolean = true): T {
+fun <T : StructureUnitI> T.prepareForKotlinGeneration(): T {
     k.initObjectTree()
-    initObjectTrees(searchForTargetComposite)
+    initObjectTrees()
 
     //declare as 'base' all compilation units with non implemented operations.
     declareAsBaseWithNonImplementedOperation()

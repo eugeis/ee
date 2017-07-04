@@ -43,7 +43,9 @@ open class MultiHolderEmptyClass<I> : ItemEmptyClass(), MultiHolderI<I> {
 
     override fun <T> supportsItemType(itemType: Class<T>): Boolean = false
 
-    override fun <T> findSupportsItem(item: T, childrenFirst: Boolean): MultiHolderI<T> = this as MultiHolderI<T>
+    override fun <T> fillSupportsItem(item: T): Boolean = false
+
+    override fun fillSupportsItems() {}
 }
 
 open class ListMultiHolderEmptyClass<I>(private val items: MutableList<I> = ArrayList()) :

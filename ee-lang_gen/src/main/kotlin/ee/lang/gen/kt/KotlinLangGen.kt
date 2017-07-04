@@ -84,13 +84,22 @@ fun <T : CompositeI> T.toKotlinDslBuilder(c: GenerationContext,
                                           derived: String = DerivedNames.IMPL.name,
                                           api: String = DerivedNames.API.name): String {
     val props = items().filterIsInstance(AttributeI::class.java)
+    val multiProps = props.filter { it.multi() }
     val target = c.n(this, derived)
     return """
 open class ${c.n(this, derived)} : ${c.n(derivedFrom(), derived)}${(derived != api).then(
             { ", ${c.n(this, DerivedNames.API.name)}" })} {
 
     constructor(value: ${c.n(this, derived)}.() -> Unit = {}) : super(value as ${c.n(derivedFrom(), derived)}.() -> Unit)${
-    props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}
+    props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}${
+    multiProps.isNotEmpty().then {
+        """
+
+    override fun fillSupportsItems() {${
+        multiProps.joinSurroundIfNotEmptyToString(nL, prefix = nL) { "        ${it.name()}()" }}
+        super.fillSupportsItems()
+    }"""
+    }}
 
     companion object {
         val EMPTY = ${specialEmptyObjects.contains(target).ifElse({ "${target}Empty" }, { "$target({ name(ItemEmpty.name()) })" })}${

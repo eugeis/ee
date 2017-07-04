@@ -109,6 +109,14 @@ open class CompilationUnit : Type, CompilationUnitI {
     override fun virtual(): Boolean = attr(VIRTUAL, { false })
     override fun virtual(value: Boolean): CompilationUnitI = apply { attr(VIRTUAL, value) }
 
+    override fun fillSupportsItems() {
+        constructors()
+        operations()
+        props()
+        superUnitFor()
+        super.fillSupportsItems()
+    }
+
     companion object {
         val EMPTY = CompilationUnitEmpty
         val BASE = "_base"
@@ -145,6 +153,11 @@ open class EnumType : CompilationUnit, EnumTypeI {
     override fun literals(vararg value: LiteralI): EnumTypeI = apply { literals().addItems(value.asList()) }
     override fun lit(value: LiteralI): LiteralI = applyAndReturn { literals().addItem(value); value }
     override fun lit(value: LiteralI.() -> Unit): LiteralI = lit(Literal(value))
+
+    override fun fillSupportsItems() {
+        literals()
+        super.fillSupportsItems()
+    }
 
     companion object {
         val EMPTY = EnumType({ name(ItemEmpty.name()) })
@@ -214,6 +227,11 @@ open class LogicUnit : TextComposite, LogicUnitI {
     override fun virtual(): Boolean = attr(VIRTUAL, { false })
     override fun virtual(value: Boolean): LogicUnitI = apply { attr(VIRTUAL, value) }
 
+    override fun fillSupportsItems() {
+        params()
+        super.fillSupportsItems()
+    }
+
     companion object {
         val EMPTY = LogicUnitEmpty
         val PARAMS = "_params"
@@ -249,6 +267,11 @@ open class Operation : LogicUnit, OperationI {
     override fun ret(value: AttributeI): OperationI = apply { attr(RET, value) }
     override fun r(value: AttributeI): AttributeI = applyAndReturn { ret().addItem(value) }
     override fun r(value: AttributeI.() -> Unit): AttributeI = r(Attribute(value))
+
+    override fun fillSupportsItems() {
+        generics()
+        super.fillSupportsItems()
+    }
 
     companion object {
         val EMPTY = Operation({ name(ItemEmpty.name()) })
@@ -305,6 +328,11 @@ open class Type : Composite, TypeI {
 
     override fun multi(): Boolean = attr(MULTI, { false })
     override fun multi(value: Boolean): TypeI = apply { attr(MULTI, value) }
+
+    override fun fillSupportsItems() {
+        generics()
+        super.fillSupportsItems()
+    }
 
     companion object {
         val EMPTY = Type({ name(ItemEmpty.name()) })

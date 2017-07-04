@@ -186,14 +186,14 @@ fun <T : StructureUnitI> T.extendModel(): T {
     return ret
 }
 
-fun <T : StructureUnitI> T.initObjectTrees(searchForTargetComposite: Boolean = false): T {
+fun <T : StructureUnitI> T.initObjectTrees(): T {
     n.initObjectTree()
     l.initObjectTree()
-    return initObjectTree(searchForTargetComposite)
+    return initObjectTree()
 }
 
-fun <T : StructureUnitI> T.initObjectTree(searchForTargetComposite: Boolean = false): T {
-    (this as MultiHolder<*>).initObjectTree(searchForTargetComposite, {
+fun <T : StructureUnitI> T.initObjectTree(): T {
+    (this as MultiHolder<ItemI>).initObjectTree {
         if (this is StructureUnitI) {
             val parent = findParent(StructureUnitI::class.java) ?: parent()
             if (parent.namespace().isBlank() || this !is StructureUnitI) parent.namespace()
@@ -201,7 +201,7 @@ fun <T : StructureUnitI> T.initObjectTree(searchForTargetComposite: Boolean = fa
         } else {
             parent().namespace()
         }
-    })
+    }
     initBlackNames()
     initFullNameArtifacts()
     return this

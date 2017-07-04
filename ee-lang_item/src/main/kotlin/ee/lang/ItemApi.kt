@@ -154,12 +154,6 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
 
     override fun <T> supportsItem(item: T): Boolean = _type.isInstance(item)
 
-    override fun <T> findSupportsItem(item: T, childrenFirst: Boolean): MultiHolderI<T> =
-            (if (childrenFirst) items().filterIsInstance(MultiHolderI::class.java).find {
-                //multi holder for general types (like 'superUnitFor') must not be used as target for dynamic DSL objects, like "object commands : Command... {..}"
-                !it.name().startsWith("__") && it.supportsItem(item)
-            } ?: this else this) as MultiHolderI<T>
-
     fun itemType(): Class<I> = _type
 
     protected fun fillParent(item: I) {
@@ -170,6 +164,23 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
                 log.debug("Can't set ${this}(${this.name()}) as parent to $item(${
                 item.name()}), because current parent is ${item.parent()}(${item.parent().name()})")
             }
+        }
+    }
+
+    override fun <T> fillSupportsItem(item: T): Boolean {
+        if (supportsItem(item) && !containsItem(item as I)) {
+            addItem(item)
+            return true
+        }
+        return false
+    }
+
+    override fun fillSupportsItems() {
+        val items = items().filterIsInstance<ItemI>()
+        val plainItems = items.filter { !it.name().startsWith("_") }
+        val containers = items.filterIsInstance<MultiHolderI<*>>().filter { it.name().startsWith("_") && !it.name().startsWith("__") }
+        plainItems.forEach { plainItem ->
+            containers.forEach { container -> container.fillSupportsItem(plainItem) }
         }
     }
 

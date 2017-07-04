@@ -107,8 +107,7 @@ fun <T> ItemI.findAcross(select: ItemI.() -> T?, destination: MutableList<T> = A
 }
 
 
-fun <T : MultiHolderI<*>> T.initObjectTree(searchForTargetComposite: Boolean = false,
-                                           deriveNamespace: ItemI.() -> String = { parent().namespace() }): T {
+fun <T : MultiHolderI<I>, I> T.initObjectTree(deriveNamespace: ItemI.() -> String = { parent().namespace() }): T {
     if (!isInitialized()) init()
     if (name().isBlank()) {
         name(buildLabel().name)
@@ -122,9 +121,8 @@ fun <T : MultiHolderI<*>> T.initObjectTree(searchForTargetComposite: Boolean = f
                     if (!child.isInitialized()) child.init()
                     if (child.name().isBlank()) child.name(f.name)
                     if (child.parent().isEMPTY()) {
-                        val targetComposite = findSupportsItem(child, searchForTargetComposite)
-                        if (!targetComposite.containsItem(child)) {
-                            targetComposite.addItem(child)
+                        if (!containsItem(child as I)) {
+                            addItem(child)
                         }
                     }
                     if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
@@ -143,16 +141,16 @@ fun <T : MultiHolderI<*>> T.initObjectTree(searchForTargetComposite: Boolean = f
 
             //initObjectTree recursively if the parent is not set
             if (child.parent().isEMPTY()) {
-                val targetMultiHolder = findSupportsItem(child, searchForTargetComposite)
-                if (!targetMultiHolder.containsItem(child)) {
-                    targetMultiHolder.addItem(child)
+                if (!containsItem(child as I)) {
+                    addItem(child)
                     if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
-                    if (child is MultiHolderI<*>) child.initObjectTree(searchForTargetComposite, deriveNamespace)
+                    if (child is MultiHolderI<*>) child.initObjectTree<T, I>(deriveNamespace)
                 }
             }
             if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
         }
     }
+    fillSupportsItems()
     return this
 }
 
