@@ -2,6 +2,11 @@ package ee.design
 
 import ee.lang.*
 
+fun DataTypeOperationI.nameExternal(): String = storage.getOrPut(this, "nameExternal", {
+    val parent = findParentMust(CompilationUnitI::class.java)
+    name().replaceFirst("(\\B[A-Z])".toRegex(), "${parent.name().capitalize()}$1")
+})
+
 fun QueryController.findBy(vararg params: AttributeI) = findBy { params(*params) }
 fun QueryController.existBy(vararg params: AttributeI) = existBy { params(*params) }
 
@@ -17,23 +22,27 @@ fun CommandControllerI.deleteBy(vararg params: AttributeI) = deleteBy { params(*
 fun CommandControllerI.composite(vararg commands: CommandI) = composite { operations(*commands) }
 
 
-fun StructureUnitI.defineNamesForDataTypeControllers() {
+fun StructureUnitI.defineNamesForControllers() {
+    findDownByType(ControllerI::class.java).forEach {
+        val parent = it.findParentMust(CompilationUnitI::class.java)
+        it.name("${parent.name().capitalize()}${it.name().capitalize()}")
+    }
 }
 
 fun <T : CommandControllerI> T.createByCommand(): CommandI {
-    val parent = findParentMust(EntityI::class.java)
+    val parent = findParentMust(CompilationUnitI::class.java)
     val commandProps = parent.propsAll().filter { !it.meta() }
     return createBy {
-        name("register${parent.name().capitalize()}")
+        name("register")
         params(*commandProps.toTypedArray())
     }
 }
 
 fun <T : CommandControllerI> T.updateByCommand(): CommandI {
-    val parent = findParentMust(EntityI::class.java)
+    val parent = findParentMust(CompilationUnitI::class.java)
     val commandProps = parent.propsAll().filter { !it.meta() }
     return updateBy {
-        name("change${parent.name().capitalize()}")
+        name("change")
         params(*commandProps.toTypedArray())
     }
 }
@@ -41,7 +50,7 @@ fun <T : CommandControllerI> T.updateByCommand(): CommandI {
 fun <T : CommandControllerI> T.deleteByCommand(): CommandI {
     val parent = findParentMust(EntityI::class.java)
     return deleteBy {
-        name("delete${parent.name().capitalize()}")
+        name("delete")
         params(parent.id())
     }
 }

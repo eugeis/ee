@@ -1,8 +1,8 @@
 package ee.design.gen.go
 
-import ee.design.addDefaultCommandsForEntities
-import ee.design.defineNamesForDataTypeControllers
+import ee.design.*
 import ee.lang.StructureUnitI
+import ee.lang.findDownByType
 import ee.lang.gen.go.prepareForGoGeneration
 import java.nio.file.Path
 
@@ -15,6 +15,10 @@ open class DesignGoGenerator {
 
     fun generate(target: Path) {
         model.extendForGoGeneration()
+
+        model.findDownByType(DataTypeOperationI::class.java).forEach {
+            println(it.nameExternal())
+        }
 
         /*
         val generatorFactory = DesignGeneratorFactory()
@@ -29,8 +33,8 @@ open class DesignGoGenerator {
     protected fun StructureUnitI.extendForGoGeneration() {
         prepareForGoGeneration()
 
-        addDefaultCommandsForEntities()
+        //addDefaultCommandsForEntities()
 
-        defineNamesForDataTypeControllers()
+        defineNamesForControllers()
     }
 }
