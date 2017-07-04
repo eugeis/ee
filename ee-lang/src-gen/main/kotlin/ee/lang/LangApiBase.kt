@@ -123,8 +123,8 @@ open class CompilationUnit : Type, CompilationUnitI {
         val OPEN = "_open"
         val OPERATIONS = "_operations"
         val PROPS = "_props"
-        val SUPER_UNIT = "_superUnit"
-        val SUPER_UNIT_FOR = "_superUnitFor"
+        val SUPER_UNIT = "__superUnit"
+        val SUPER_UNIT_FOR = "__superUnitFor"
         val VIRTUAL = "_virtual"
     }
 }
@@ -232,7 +232,7 @@ open class LogicUnit : TextComposite, LogicUnitI {
     companion object {
         val EMPTY = LogicUnitEmpty
         val PARAMS = "_params"
-        val SUPER_UNIT = "_superUnit"
+        val SUPER_UNIT = "__superUnit"
         val VIRTUAL = "_virtual"
     }
 }

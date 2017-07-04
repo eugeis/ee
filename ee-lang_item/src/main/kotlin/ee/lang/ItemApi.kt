@@ -155,9 +155,9 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
     override fun <T> supportsItem(item: T): Boolean = _type.isInstance(item)
 
     override fun <T> findSupportsItem(item: T, childrenFirst: Boolean): MultiHolderI<T> =
-            //TODO we need checkinf of specific type and then a generic
-            (if (childrenFirst && item !is ItemI) items().filterIsInstance(MultiHolderI::class.java).find {
-                it.supportsItem(item)
+            (if (childrenFirst) items().filterIsInstance(MultiHolderI::class.java).find {
+                //multi holder for general types (like 'superUnitFor') must not be used as target for dynamic DSL objects, like "object commands : Command... {..}"
+                !it.name().startsWith("__") && it.supportsItem(item)
             } ?: this else this) as MultiHolderI<T>
 
     fun itemType(): Class<I> = _type
@@ -323,7 +323,7 @@ open class Composite : MapMultiHolder<ItemI>, CompositeI {
         return attr
     }
 
-    override fun attributes(): MapMultiHolder<Any> = itemAsMap("_attributes", Any::class.java, true)
+    override fun attributes(): MapMultiHolder<Any> = itemAsMap("__attributes", Any::class.java, true)
 }
 
 open class Comment : ListMultiHolder<String>, CommentI {

@@ -80,9 +80,11 @@ fun <T : CompositeI> T.toKotlinDslBuilderSuperInit(c: GenerationContext,
 
 
 val specialEmptyObjects = setOf("CompilationUnit", "LogicUnit")
+//multi holder for general types (like 'superUnitFor') must not be used as target for dynamic DSL objects, like "object commands : Command... {..}"
+val generalTypes = setOf("Item", "Composite", "CompilationUnit", "LogicUnit")
 
 fun <T : AttributeI> T.toKotlinCompanionObjectName(c: GenerationContext): String {
-    return """        val ${name().toUnderscoredUpperCase()} = "_${name()}""""
+    return """        val ${name().toUnderscoredUpperCase()} = "${generalTypes.contains(type().name()).then("_")}_${name()}""""
 }
 
 fun <T : CompositeI> T.toKotlinDslBuilderI(c: GenerationContext, api: String = DerivedNames.API.name): String {
