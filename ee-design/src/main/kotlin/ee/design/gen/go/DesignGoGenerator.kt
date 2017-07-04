@@ -33,7 +33,7 @@ open class DesignGoGenerator {
     protected fun StructureUnitI.extendForGoGeneration() {
         prepareForGoGeneration()
 
-        //addDefaultCommandsForEntities()
+        addDefaultCommandsForEntities()
 
         defineNamesForControllers()
     }

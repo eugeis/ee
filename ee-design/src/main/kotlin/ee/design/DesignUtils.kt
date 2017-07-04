@@ -63,11 +63,13 @@ fun <T : CommandControllerI> T.deleteByCommand(): CommandI {
 
 fun StructureUnitI.addDefaultCommandsForEntities() {
     findDownByType(EntityI::class.java).filter { it.commands().isEmpty() }.extend {
-        commands(CommandController() {
+        val item = CommandController {
             createByCommand().init()
             updateByCommand().init()
             deleteByCommand().init()
-        })
+        }
+        commands(item)
+        item.init()
     }
 }
 
