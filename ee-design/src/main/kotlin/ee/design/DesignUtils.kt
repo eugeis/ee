@@ -3,8 +3,14 @@ package ee.design
 import ee.lang.*
 
 fun DataTypeOperationI.nameExternal(): String = storage.getOrPut(this, "nameExternal", {
-    val parent = findParentMust(CompilationUnitI::class.java)
-    name().replaceFirst("(\\B[A-Z])".toRegex(), "${parent.name().capitalize()}$1")
+    val parent = findParent(EntityI::class.java)
+    if (parent != null) {
+        val regexp = "(\\B[A-Z])".toRegex()
+        if (regexp.containsMatchIn(name())) name().replaceFirst(regexp, "${parent.name().capitalize()}$1") else
+            "${name()}${parent.name().capitalize()}"
+    } else {
+        name()
+    }
 })
 
 fun QueryController.findBy(vararg params: AttributeI) = findBy { params(*params) }
