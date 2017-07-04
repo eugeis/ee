@@ -10,20 +10,49 @@ fun CompilationUnitI.op(vararg params: AttributeI, body: OperationI.() -> Unit =
     body()
 }
 
-fun CommandController.command(vararg params: AttributeI) = command { params(*params) }
-fun CommandController.createBy(vararg params: AttributeI) = createBy { params(*params) }
-fun CommandController.updateBy(vararg params: AttributeI) = updateBy { params(*params) }
-fun CommandController.deleteBy(vararg params: AttributeI) = deleteBy { params(*params) }
-fun CommandController.composite(vararg commands: CommandI) = composite { operations(*commands) }
+fun CommandControllerI.command(vararg params: AttributeI) = command { params(*params) }
+fun CommandControllerI.createBy(vararg params: AttributeI) = createBy { params(*params) }
+fun CommandControllerI.updateBy(vararg params: AttributeI) = updateBy { params(*params) }
+fun CommandControllerI.deleteBy(vararg params: AttributeI) = deleteBy { params(*params) }
+fun CommandControllerI.composite(vararg commands: CommandI) = composite { operations(*commands) }
 
 
 fun StructureUnitI.defineNamesForDataTypeControllers() {
 }
 
-fun StructureUnitI.addDefaultCommandsForEntities() {
-    findDownByType(EntityI::class.java).filter { it.commands().isEmpty() }.forEach {
-        println("Add commands to $it")
+fun <T : CommandControllerI> T.createByCommand(): CommandI {
+    val parent = findParentMust(EntityI::class.java)
+    val commandProps = parent.propsAll().filter { !it.meta() }
+    return createBy {
+        name("register${parent.name().capitalize()}")
+        params(*commandProps.toTypedArray())
+    }
+}
 
+fun <T : CommandControllerI> T.updateByCommand(): CommandI {
+    val parent = findParentMust(EntityI::class.java)
+    val commandProps = parent.propsAll().filter { !it.meta() }
+    return updateBy {
+        name("change${parent.name().capitalize()}")
+        params(*commandProps.toTypedArray())
+    }
+}
+
+fun <T : CommandControllerI> T.deleteByCommand(): CommandI {
+    val parent = findParentMust(EntityI::class.java)
+    return deleteBy {
+        name("delete${parent.name().capitalize()}")
+        params(parent.id())
+    }
+}
+
+fun StructureUnitI.addDefaultCommandsForEntities() {
+    findDownByType(EntityI::class.java).filter { it.commands().isEmpty() }.extend {
+        commands(CommandController() {
+            createByCommand().init()
+            updateByCommand().init()
+            deleteByCommand().init()
+        })
     }
 }
 
