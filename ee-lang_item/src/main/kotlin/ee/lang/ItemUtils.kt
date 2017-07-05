@@ -20,6 +20,7 @@ fun ItemI.isOrDerived(item: ItemI) = this == item || derivedFrom() == item
 fun <T : ItemI> List<T>.extend(code: T.() -> Unit = {}) {
     forEach {
         it.code()
+        it.init()
         if (it is MultiHolderI<*>) {
             it.fillSupportsItems()
         }

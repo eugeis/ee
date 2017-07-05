@@ -1,6 +1,9 @@
 package ee.design
 
 import ee.lang.*
+import org.slf4j.LoggerFactory
+
+private val log = LoggerFactory.getLogger("DesignUtils")
 
 fun DataTypeOperationI.nameExternal(): String = storage.getOrPut(this, "nameExternal", {
     val parent = findParent(EntityI::class.java)
@@ -41,6 +44,7 @@ fun <T : CommandControllerI> T.createByCommand(): CommandI {
     return createBy {
         name("register")
         params(*commandProps.toTypedArray())
+        parent(parent)
     }
 }
 
@@ -50,6 +54,7 @@ fun <T : CommandControllerI> T.updateByCommand(): CommandI {
     return updateBy {
         name("change")
         params(*commandProps.toTypedArray())
+        parent(parent)
     }
 }
 
@@ -58,18 +63,19 @@ fun <T : CommandControllerI> T.deleteByCommand(): CommandI {
     return deleteBy {
         name("delete")
         params(parent.id())
+        parent(parent)
     }
 }
 
 fun StructureUnitI.addDefaultCommandsForEntities() {
     findDownByType(EntityI::class.java).filter { it.commands().isEmpty() }.extend {
-        val item = CommandController {
-            createByCommand().init()
-            updateByCommand().init()
-            deleteByCommand().init()
-        }
-        commands(item)
-        item.init()
+        log.debug("Add default commands to ${name()}")
+        commands(CommandController {
+            name("commands")
+            createByCommand()
+            updateByCommand()
+            deleteByCommand()
+        })
     }
 }
 

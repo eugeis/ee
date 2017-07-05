@@ -158,7 +158,6 @@ fun CompositeCommandI?.isNotEMPTY(): Boolean = !isEMPTY()
 
 open class Controller : CompilationUnit, ControllerI {
     constructor(value: Controller.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
-
     companion object {
         val EMPTY = Controller()
     }

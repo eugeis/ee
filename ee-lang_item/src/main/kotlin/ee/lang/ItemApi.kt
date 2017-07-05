@@ -130,7 +130,13 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
 
     override fun init() {
         super.init()
-        items().filterIsInstance<ItemI>().forEach { if (!it.isInitialized()) it.init() }
+        items().filterIsInstance<ItemI>().forEach {
+            if (!it.isInitialized()) {
+                it.init()
+            } else if (it is MultiHolderI<*> && it.parent() == this) {
+                it.init()
+            }
+        }
     }
 
     override fun <T : ItemI> createType(type: Class<*>): T? {
@@ -251,10 +257,10 @@ open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Uni
         MultiHolder<I>(_type, adapt as MultiHolder<*>.() -> Unit), MapMultiHolderI<I> {
 
     override fun <T : I> addItem(item: T, attachParent: Boolean): T {
-        if (attachParent) fillParent(item)
         if (item is ItemI) {
             addItem(item.name(), item)
         } else {
+            if (attachParent) fillParent(item)
             _items.put(item.toString(), item)
         }
         return item
