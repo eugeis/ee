@@ -8,10 +8,8 @@ import ee.lang.gen.kt.LangKotlinContextFactory
 import ee.lang.gen.kt.LangKotlinTemplates
 
 open class LangGeneratorFactory {
-    val kotlinTemplates = buildKotlinTemplates()
-    val goTemplates = buildGoTemplates()
-
     open fun dslKt(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
+        val kotlinTemplates = buildKotlinTemplates()
         val contextBuilder = buildKotlinContextFactory().buildForDslBuilder()
         val composites: StructureUnitI.() -> List<CompilationUnitI> = { items().filterIsInstance(CompilationUnitI::class.java) }
 
@@ -31,6 +29,7 @@ open class LangGeneratorFactory {
     }
 
     open fun pojoKt(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
+        val kotlinTemplates = buildKotlinTemplates()
         val contextBuilder = buildKotlinContextFactory().buildForImplOnly()
         val enums: StructureUnitI.() -> List<EnumTypeI> = { findDownByType(EnumTypeI::class.java) }
         val compilationUnits: StructureUnitI.() -> List<CompilationUnitI> = {
@@ -53,6 +52,7 @@ open class LangGeneratorFactory {
     }
 
     open fun pojoGo(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
+        val goTemplates = buildGoTemplates()
         val contextBuilder = buildGoContextFactory().buildForImplOnly()
         val enums: StructureUnitI.() -> List<EnumTypeI> = { findDownByType(EnumTypeI::class.java) }
         val compilationUnits: StructureUnitI.() -> List<CompilationUnitI> = {
@@ -67,6 +67,8 @@ open class LangGeneratorFactory {
                             listOf(
                                     ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
                                             fragments = { listOf(goTemplates.enum()) }),
+                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = compilationUnits,
+                                            fragments = { listOf(goTemplates.pojo()) }),
                                     ItemsFragment<StructureUnitI, CompilationUnitI>(items = compilationUnits,
                                             fragments = { listOf(goTemplates.pojo()) }))
                         })

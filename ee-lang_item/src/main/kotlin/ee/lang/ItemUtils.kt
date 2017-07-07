@@ -113,7 +113,9 @@ fun <T> ItemI.findAcross(select: ItemI.() -> T?, destination: MutableList<T> = A
 }
 
 
-fun <T : MultiHolderI<I>, I> T.initObjectTree(deriveNamespace: ItemI.() -> String = { parent().namespace() }): T {
+fun <T : MultiHolderI<I>, I> T.initObjectTree(deriveNamespace: ItemI.() -> String = {
+    parent().namespace()
+}): T {
     if (!isInitialized()) init()
     if (name().isBlank()) {
         name(buildLabel().name)

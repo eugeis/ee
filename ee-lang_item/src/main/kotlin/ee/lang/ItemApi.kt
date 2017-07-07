@@ -167,8 +167,8 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
             if (item.parent().isEMPTY()) {
                 item.parent(this)
             } else {
-                log.debug("Can't set ${this}(${this.name()}) as parent to $item(${
-                item.name()}), because current parent is ${item.parent()}(${item.parent().name()})")
+                log.trace("Can't set as parent '${this}(${this.name()})' to '$item(${
+                item.name()})', because current parent is ${item.parent()}(${item.parent().name()})")
             }
         }
     }
@@ -258,7 +258,7 @@ open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Uni
 
     override fun <T : I> addItem(item: T, attachParent: Boolean): T {
         if (item is ItemI) {
-            addItem(item.name(), item)
+            addItem(item.name(), item, attachParent)
         } else {
             if (attachParent) fillParent(item)
             _items.put(item.toString(), item)

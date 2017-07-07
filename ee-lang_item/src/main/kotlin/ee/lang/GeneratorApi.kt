@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import ee.common.ext.*
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.*
 
 val tab = "    "
 val nL = "\n"
-val nL2 = "\n\n"
+
+private val log = LoggerFactory.getLogger("GeneratorApi")
 
 interface GeneratorI<M> {
     fun generate(target: Path, model: M)
@@ -25,10 +27,12 @@ open class GeneratorGroup<M> : GeneratorI<M> {
     }
 
     override fun delete(target: Path, model: M) {
+        log.debug("delete in $target for $model")
         generators.forEach { it.delete(target, model) }
     }
 
     override fun generate(target: Path, model: M) {
+        log.debug("generate in $target for $model")
         generators.forEach { it.generate(target, model) }
     }
 }
