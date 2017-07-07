@@ -68,8 +68,6 @@ open class LangGeneratorFactory {
                                     ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
                                             fragments = { listOf(goTemplates.enum()) }),
                                     ItemsFragment<StructureUnitI, CompilationUnitI>(items = compilationUnits,
-                                            fragments = { listOf(goTemplates.pojo()) }),
-                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = compilationUnits,
                                             fragments = { listOf(goTemplates.pojo()) }))
                         })
                 )

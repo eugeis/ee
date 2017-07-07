@@ -20,7 +20,8 @@ open class DesignGoGenerator {
         val generatorFactory = DesignGeneratorFactory()
         val generator = generatorFactory.eventDrivenGo()
         generator.delete(target, model)
-        model.findDownByType(ModuleI::class.java).forEach { module ->
+        val modules = model.findDownByType(ModuleI::class.java)
+        modules.forEach { module ->
             generator.generate(target, module)
         }
     }
