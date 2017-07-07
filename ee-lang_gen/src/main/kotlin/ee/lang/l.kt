@@ -86,8 +86,10 @@ object l : Composite({ namespace("ee.lang") }) {
     object EnumType : Composite({ derivedFrom(CompilationUnit) }) {
         val literals = AttributeI({ type(Literal).multi(true).nonFluent("lit") })
     }
-
     object Literal : Composite({ derivedFrom(LogicUnit) })
+
+    object DataType : Composite({ derivedFrom(CompilationUnit) })
+    object DataTypeOperation : Composite({ derivedFrom(Operation) })
 }
 
 

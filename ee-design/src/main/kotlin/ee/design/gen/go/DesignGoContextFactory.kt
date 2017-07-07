@@ -1,9 +1,9 @@
 package ee.design.gen.go
 
+import ee.design.CommandI
 import ee.design.CompI
-import ee.lang.DerivedController
-import ee.lang.StructureUnitI
-import ee.lang.findThisOrParent
+import ee.design.EventI
+import ee.lang.*
 import ee.lang.gen.go.GoContext
 import ee.lang.gen.go.LangGoContextFactory
 
@@ -16,6 +16,16 @@ open class DesignGoContextFactory : LangGoContextFactory() {
                     namespace = structureUnit.namespace().toLowerCase(),
                     derivedController = controller
             )
+        }
+    }
+
+    override fun ItemI.buildName(): String {
+        return if (this is CommandI) {
+            "${nameExternal().capitalize()}Command"
+        } else if (this is EventI) {
+            "${nameExternal().capitalize()}Event"
+        } else {
+            "${name()}"
         }
     }
 }

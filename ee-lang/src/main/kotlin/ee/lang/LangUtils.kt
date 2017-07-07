@@ -2,8 +2,18 @@ package ee.lang
 
 import ee.common.ext.ifElse
 
-fun <T : LogicUnitI> T.findGeneric(name: String): GenericI? = findParent(TypeI::class.java)?.findGeneric(name)
+fun ItemI.nameExternal(): String = storage.getOrPut(this, "nameExternal", {
+    val parent = findParent(DataType::class.java)
+    if (parent != null) {
+        val regexp = "(\\B[A-Z])".toRegex()
+        if (regexp.containsMatchIn(name())) name().replaceFirst(regexp, "${parent.name().capitalize()}$1") else
+            "${name()}${parent.name().capitalize()}"
+    } else {
+        name()
+    }
+})
 
+fun <T : LogicUnitI> T.findGeneric(name: String): GenericI? = findParent(TypeI::class.java)?.findGeneric(name)
 
 fun <T : LogicUnitI> T.paramsWithOut(superUnit: LogicUnitI)
         = params().filter { param -> superUnit.params().firstOrNull { it.name() == param.name() } == null }

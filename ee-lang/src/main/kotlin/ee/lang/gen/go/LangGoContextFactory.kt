@@ -5,16 +5,17 @@ import ee.lang.gen.java.j
 import ee.lang.gen.kt.k
 
 open class LangGoContextFactory {
-    private val isNotPartOfNativeTypes: ItemI.() -> Boolean = { n != parent() && j != parent() && k != parent() }
+    val isNotPartOfNativeTypes: ItemI.() -> Boolean = { n != parent() && j != parent() && k != parent() }
+
 
     open fun buildForImplOnly(): StructureUnitI.() -> GoContext {
         val controller = DerivedController()
 
         controller.registerKinds(listOf(DerivedNames.API.name, DerivedNames.IMPL.name),
-                isNotPartOfNativeTypes, { "${name()}" })
+                isNotPartOfNativeTypes, { buildName() })
         controller.registerKinds(listOf(DerivedNames.API_BASE.name, DerivedNames.IMPL_BASE.name),
-                isNotPartOfNativeTypes, { "${name()}Base" })
-        controller.registerKind(DerivedNames.COMPOSITE.name, isNotPartOfNativeTypes, { "${name()}s" })
+                isNotPartOfNativeTypes, { "${buildName()}Base" })
+        controller.registerKind(DerivedNames.COMPOSITE.name, isNotPartOfNativeTypes, { "${buildName()}s" })
 
         return contextBuilder(controller)
     }
@@ -22,10 +23,10 @@ open class LangGoContextFactory {
     open fun buildForApiAndImpl(): StructureUnitI.() -> GoContext {
         val controller = DerivedController()
 
-        controller.registerKind(DerivedNames.API.name, isNotPartOfNativeTypes, { "${name()}" })
-        controller.registerKind(DerivedNames.API_BASE.name, isNotPartOfNativeTypes, { "${name()}Base" })
-        controller.registerKind(DerivedNames.IMPL.name, isNotPartOfNativeTypes, { "${name()}Impl" })
-        controller.registerKind(DerivedNames.IMPL_BASE.name, isNotPartOfNativeTypes, { "${name()}ImplBase" })
+        controller.registerKind(DerivedNames.API.name, isNotPartOfNativeTypes, { buildName() })
+        controller.registerKind(DerivedNames.API_BASE.name, isNotPartOfNativeTypes, { "${buildName()}Base" })
+        controller.registerKind(DerivedNames.IMPL.name, isNotPartOfNativeTypes, { "${buildName()}Impl" })
+        controller.registerKind(DerivedNames.IMPL_BASE.name, isNotPartOfNativeTypes, { "${buildName()}ImplBase" })
 
         return contextBuilder(controller)
     }
@@ -39,4 +40,6 @@ open class LangGoContextFactory {
             )
         }
     }
+
+    protected open fun ItemI.buildName(): String = name()
 }

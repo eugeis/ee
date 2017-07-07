@@ -91,6 +91,14 @@ interface ConstructorI : LogicUnitI {
 }
 
 
+interface DataTypeI : CompilationUnitI {
+}
+
+
+interface DataTypeOperationI : OperationI {
+}
+
+
 interface EnumTypeI : CompilationUnitI {
     fun literals(): ListMultiHolder<LiteralI>
     fun literals(vararg value: LiteralI): EnumTypeI

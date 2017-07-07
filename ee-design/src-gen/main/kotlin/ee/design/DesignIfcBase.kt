@@ -2,6 +2,8 @@ package ee.design
 
 import ee.lang.AttributeI
 import ee.lang.CompilationUnitI
+import ee.lang.DataTypeI
+import ee.lang.DataTypeOperationI
 import ee.lang.EnumTypeI
 import ee.lang.ExternalTypeI
 import ee.lang.ListMultiHolderI
@@ -9,7 +11,7 @@ import ee.lang.OperationI
 import ee.lang.StructureUnitI
 
 
-interface BasicI : CompilationUnitI {
+interface BasicI : DataTypeI {
 }
 
 
@@ -19,15 +21,19 @@ interface BundleI : StructureUnitI {
 }
 
 
+interface BussinesCommandI : CommandI {
+}
+
+
 interface CommandI : DataTypeOperationI {
 }
 
 
 interface CommandControllerI : ControllerI {
-    fun commands(): ListMultiHolderI<CommandI>
-    fun commands(vararg value: CommandI): CommandControllerI
-    fun command(value: CommandI): CommandI
-    fun command(value: CommandI.() -> Unit = {}) : CommandI
+    fun commands(): ListMultiHolderI<BussinesCommandI>
+    fun commands(vararg value: BussinesCommandI): CommandControllerI
+    fun command(value: BussinesCommandI): BussinesCommandI
+    fun command(value: BussinesCommandI.() -> Unit = {}) : BussinesCommandI
 
     fun composites(): ListMultiHolderI<CompositeCommandI>
     fun composites(vararg value: CompositeCommandI): CommandControllerI
@@ -75,15 +81,11 @@ interface CreateByI : CommandI {
 }
 
 
-interface DataTypeOperationI : OperationI {
-}
-
-
 interface DeleteByI : CommandI {
 }
 
 
-interface EntityI : CompilationUnitI {
+interface EntityI : DataTypeI {
     fun id(): AttributeI
     fun id(value: AttributeI): EntityI
 
@@ -187,7 +189,7 @@ interface UpdateByI : CommandI {
 }
 
 
-interface ValuesI : CompilationUnitI {
+interface ValuesI : DataTypeI {
 }
 
 

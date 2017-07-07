@@ -20,9 +20,6 @@ open class LangKotlinTemplates {
     open fun dslBuilder(nameBuilder: TemplateI<CompilationUnitI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
             = Template<CompilationUnitI>("Builder", nameBuilder) { item, c -> item.toKotlinDslBuilder(c) }
 
-    open fun isEmptyExt(nameBuilder: TemplateI<CompilationUnitI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
-            = Template<CompilationUnitI>("IsEmptyExt", nameBuilder) { item, c -> item.toKotlinIsEmptyExt(c) }
-
     open fun enum(nameBuilder: TemplateI<EnumTypeI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
             = Template<EnumTypeI>("Enum", nameBuilder) { item, c -> item.toKotlinEnum(c) }
 

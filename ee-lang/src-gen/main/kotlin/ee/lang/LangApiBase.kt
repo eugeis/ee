@@ -145,6 +145,26 @@ open class Constructor : LogicUnit, ConstructorI {
 }
 
 
+open class DataType : CompilationUnit, DataTypeI {
+
+    constructor(value: DataType.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
+
+    companion object {
+        val EMPTY = DataType({ name(ItemEmpty.name()) })
+    }
+}
+
+
+open class DataTypeOperation : Operation, DataTypeOperationI {
+
+    constructor(value: DataTypeOperation.() -> Unit = {}) : super(value as Operation.() -> Unit)
+
+    companion object {
+        val EMPTY = DataTypeOperation({ name(ItemEmpty.name()) })
+    }
+}
+
+
 open class EnumType : CompilationUnit, EnumTypeI {
 
     constructor(value: EnumType.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)

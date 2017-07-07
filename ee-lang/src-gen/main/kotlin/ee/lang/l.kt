@@ -7,6 +7,8 @@ object l : StructureUnit({ namespace("ee.lang") }) {
     val CompilationUnit = CompilationUnit({ derivedFrom(Type) })
     val Composite = CompilationUnit({ derivedFrom(MapMultiHolder) })
     val Constructor = CompilationUnit({ derivedFrom(LogicUnit) })
+    val DataType = CompilationUnit({ derivedFrom(CompilationUnit) })
+    val DataTypeOperation = CompilationUnit({ derivedFrom(Operation) })
     val EnumType = CompilationUnit({ derivedFrom(CompilationUnit) })
     val ExternalType = CompilationUnit({ derivedFrom(Type) })
     val Generic = CompilationUnit({ derivedFrom(Type) })

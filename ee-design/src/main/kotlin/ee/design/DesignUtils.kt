@@ -5,17 +5,6 @@ import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("DesignUtils")
 
-fun DataTypeOperationI.nameExternal(): String = storage.getOrPut(this, "nameExternal", {
-    val parent = findParent(EntityI::class.java)
-    if (parent != null) {
-        val regexp = "(\\B[A-Z])".toRegex()
-        if (regexp.containsMatchIn(name())) name().replaceFirst(regexp, "${parent.name().capitalize()}$1") else
-            "${name()}${parent.name().capitalize()}"
-    } else {
-        name()
-    }
-})
-
 fun QueryController.findBy(vararg params: AttributeI) = findBy { params(*params) }
 fun QueryController.existBy(vararg params: AttributeI) = existBy { params(*params) }
 

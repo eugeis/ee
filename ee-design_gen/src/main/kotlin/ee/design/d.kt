@@ -50,46 +50,45 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val existBys = prop(ExistBy).multi(true).nonFluent("existBy")
     }
 
-    object Command : CompilationUnit({ superUnit(DataTypeOperation) })
+    object Command : CompilationUnit({ superUnit(l.DataTypeOperation) })
+    object BussinesCommand : CompilationUnit({ superUnit(Command) })
 
-    object DataTypeOperation : CompilationUnit({ superUnit(l.Operation) })
-
-    object CompositeCommand : CompilationUnit({ superUnit(DataTypeOperation) }) {
+    object CompositeCommand : CompilationUnit({ superUnit(l.DataTypeOperation) }) {
         val operations = prop(l.Operation).multi(true)
     }
 
     object CommandController : CompilationUnit({ superUnit(Controller) }) {
-        val commands = prop(Command).multi(true).nonFluent("command")
+        val commands = prop(BussinesCommand).multi(true).nonFluent("command")
         val composites = prop(CompositeCommand).multi(true).nonFluent("composite")
         val createBys = prop(CreateBy).multi(true).nonFluent("createBy")
         val updateBys = prop(UpdateBy).multi(true).nonFluent("updateBy")
         val deleteBys = prop(DeleteBy).multi(true).nonFluent("deleteBy")
     }
 
-    object FindBy : CompilationUnit({ superUnit(DataTypeOperation) })
+    object FindBy : CompilationUnit({ superUnit(l.DataTypeOperation) })
 
-    object CountBy : CompilationUnit({ superUnit(DataTypeOperation) })
+    object CountBy : CompilationUnit({ superUnit(l.DataTypeOperation) })
 
-    object ExistBy : CompilationUnit({ superUnit(DataTypeOperation) })
+    object ExistBy : CompilationUnit({ superUnit(l.DataTypeOperation) })
 
     object CreateBy : CompilationUnit({ superUnit(Command) })
 
     object DeleteBy : CompilationUnit({ superUnit(Command) })
 
     object UpdateBy : CompilationUnit({ superUnit(Command) }) {
-        
+
     }
 
-    object Entity : CompilationUnit({ superUnit(l.CompilationUnit) }) {
+    object Entity : CompilationUnit({ superUnit(l.DataType) }) {
         val id = prop(l.Attribute)
         val controllers = prop(Controller).multi(true)
         val commands = prop(CommandController).multi(true)
         val queries = prop(QueryController).multi(true)
     }
 
-    object Basic : CompilationUnit({ superUnit(l.CompilationUnit) })
+    object Basic : CompilationUnit({ superUnit(l.DataType) })
 
-    object Values : CompilationUnit({ superUnit(l.CompilationUnit) })
+    object Values : CompilationUnit({ superUnit(l.DataType) })
 
     object Widget : CompilationUnit({ superUnit(l.CompilationUnit) })
 }
