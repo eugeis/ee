@@ -93,8 +93,6 @@ fun lambda(vararg params: AttributeI, body: OperationI.() -> Unit = {}): LambdaI
     }))
 })
 
-fun stringId(): AttributeI = Attribute { key(true).name("id") }
-
 interface TypedAttributeI<T : TypeI> : AttributeI {
     fun sub(subType: T.() -> AttributeI): AttributeI {
         //TODO create new structure with parent and sub type

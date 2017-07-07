@@ -80,7 +80,6 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
     }
 
     object Entity : CompilationUnit({ superUnit(l.DataType) }) {
-        val id = prop(l.Attribute)
         val controllers = prop(Controller).multi(true)
         val commands = prop(CommandController).multi(true)
         val queries = prop(QueryController).multi(true)

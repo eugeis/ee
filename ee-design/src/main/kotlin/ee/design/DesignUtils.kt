@@ -29,7 +29,7 @@ fun StructureUnitI.defineNamesForControllers() {
 
 fun <T : CommandControllerI> T.createByCommand(): CommandI {
     val parent = findParentMust(CompilationUnitI::class.java)
-    val commandProps = parent.propsAll().filter { !it.meta() }
+    val commandProps = parent.props().filter { !it.meta() && !it.key() }
     return createBy {
         name("register")
         params(*commandProps.toTypedArray())
@@ -39,7 +39,7 @@ fun <T : CommandControllerI> T.createByCommand(): CommandI {
 
 fun <T : CommandControllerI> T.updateByCommand(): CommandI {
     val parent = findParentMust(CompilationUnitI::class.java)
-    val commandProps = parent.propsAll().filter { !it.meta() }
+    val commandProps = parent.props().filter { !it.meta() && !it.key() }
     return updateBy {
         name("change")
         params(*commandProps.toTypedArray())
@@ -97,3 +97,16 @@ fun <T : CompilationUnitI> T.propagateItemToSubtypes(item: CompilationUnitI) {
         superUnitChild.propagateItemToSubtypes(derivedItem)
     }
 }
+
+fun EntityI.buildId(): AttributeI = Attribute { key(true).name("id") }
+
+fun EntityI.id(): AttributeI = storage.getOrPut(this, "id", {
+    var ret = props().find { it.key() }
+    if (ret == null && superUnit() is EntityI) {
+        ret = (superUnit() as EntityI).id()
+    } else if (ret == null) {
+        log.warn("Id can't be found for '$this', return EMPTY")
+        ret = Attribute.EMPTY
+    }
+    ret
+})

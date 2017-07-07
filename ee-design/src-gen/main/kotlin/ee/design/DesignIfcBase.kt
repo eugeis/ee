@@ -1,6 +1,5 @@
 package ee.design
 
-import ee.lang.AttributeI
 import ee.lang.CompilationUnitI
 import ee.lang.DataTypeI
 import ee.lang.DataTypeOperationI
@@ -86,9 +85,6 @@ interface DeleteByI : CommandI {
 
 
 interface EntityI : DataTypeI {
-    fun id(): AttributeI
-    fun id(value: AttributeI): EntityI
-
     fun controllers(): ListMultiHolderI<ControllerI>
     fun controllers(vararg value: ControllerI): EntityI
 

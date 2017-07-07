@@ -1,7 +1,5 @@
 package ee.design
 
-import ee.lang.Attribute
-import ee.lang.AttributeI
 import ee.lang.CompilationUnit
 import ee.lang.DataType
 import ee.lang.DataTypeOperation
@@ -181,9 +179,6 @@ open class DeleteBy : Command, DeleteByI {
 open class Entity : DataType, EntityI {
     constructor(value: Entity.() -> Unit = {}) : super(value as DataType.() -> Unit)
 
-    override fun id(): AttributeI = attr(ID, { Attribute.EMPTY })
-    override fun id(value: AttributeI): EntityI = apply { attr(ID, value) }
-
     override fun controllers(): ListMultiHolderI<ControllerI> = itemAsList(CONTROLLERS, ControllerI::class.java)
     override fun controllers(vararg value: ControllerI): EntityI = apply { controllers().addItems(value.asList()) }
 
@@ -202,7 +197,6 @@ open class Entity : DataType, EntityI {
 
     companion object {
         val EMPTY = Entity()
-        val ID = "_id"
         val CONTROLLERS = "_controllers"
         val COMMANDS = "_commands"
         val QUERIES = "_queries"
