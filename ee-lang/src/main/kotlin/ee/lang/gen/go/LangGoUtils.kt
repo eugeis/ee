@@ -59,8 +59,9 @@ fun <T : StructureUnitI> T.prepareForGoGeneration(): T {
 
     prepareAttributesOfEnums()
 
-    //define constructor with all parameters.
-    defineConstructorAllForNonConstructors()
+    defineSuperUnitsAsAnonymousProps()
+
+    defineConstructorMyOnlyForNonConstructors()
     return this
 }
 

@@ -8,6 +8,9 @@ open class Attribute : Composite, AttributeI {
     override fun accessible(): Boolean = attr(ACCESSIBLE, { true })
     override fun accessible(value: Boolean): AttributeI = apply { attr(ACCESSIBLE, value) }
 
+    override fun anonymous(): Boolean = attr(ANONYMOUS, { false })
+    override fun anonymous(value: Boolean): AttributeI = apply { attr(ANONYMOUS, value) }
+
     override fun hidden(): Boolean = attr(HIDDEN, { false })
     override fun hidden(value: Boolean): AttributeI = apply { attr(HIDDEN, value) }
 
@@ -56,6 +59,7 @@ open class Attribute : Composite, AttributeI {
     companion object {
         val EMPTY = Attribute({ name(ItemEmpty.name()) })
         val ACCESSIBLE = "_accessible"
+        val ANONYMOUS = "_anonymous"
         val HIDDEN = "_hidden"
         val INHERITED = "_inherited"
         val INIT_BY_DEFAULT_TYPE_VALUE = "_initByDefaultTypeValue"

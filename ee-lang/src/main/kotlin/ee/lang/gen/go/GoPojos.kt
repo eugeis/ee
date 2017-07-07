@@ -2,6 +2,7 @@ package ee.lang.gen.go
 
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.joinWithIndexToString
+import ee.common.ext.then
 import ee.lang.*
 
 fun LiteralI.toGo(): String = "${name().capitalize()}"

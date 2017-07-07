@@ -129,7 +129,7 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
         Item(value as Item.() -> Unit), MultiHolderI<I> {
 
     override fun init() {
-        super.init()
+        if(!isInitialized()) super.init()
         items().filterIsInstance<ItemI>().forEach {
             if (!it.isInitialized()) {
                 it.init()

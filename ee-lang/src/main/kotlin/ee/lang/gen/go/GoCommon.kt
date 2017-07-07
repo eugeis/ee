@@ -133,7 +133,7 @@ fun <T : AttributeI> T.toGoSignature(c: GenerationContext, derived: String, api:
 }
 
 fun <T : AttributeI> T.toGoMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String {
-    return "    ${nameForMember()} ${toGoTypeDef(c, api)}"
+    return anonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameForMember()} ${toGoTypeDef(c, api)}" })
 }
 
 fun List<AttributeI>.toGoSignature(c: GenerationContext, derived: String, api: String): String {
@@ -148,14 +148,14 @@ fun <T : ConstructorI> T.toGo(c: GenerationContext, derived: String, api: String
     val name = c.n(parent(), derived)
     return if (isNotEMPTY()) """
 func New$name(${params().joinWrappedToString(", ", "                ") { it.toGoSignature(c, derived, api) }
-    }) (ret $name, err error) {
+    }) (ret *$name, err error) {
     ${superUnit().isNotEMPTY().ifElse({
         """ret = ${superUnit().toGoCall(c)}
         ${paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("$nL    ", prefix = "$nL    ") {
             it.toGoAssign(c, "ret")
         }}"""
     }, {
-        "ret = $name${params().joinSurroundIfNotEmptyToString(",$nL        ", "{$nL        ", ",$nL    }") {
+        "ret = &$name${params().joinSurroundIfNotEmptyToString(",$nL        ", "{$nL        ", ",$nL    }") {
             it.toGoInitCall()
         }}"
     })}

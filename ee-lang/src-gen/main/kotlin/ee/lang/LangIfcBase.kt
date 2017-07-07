@@ -5,6 +5,9 @@ interface AttributeI : CompositeI {
     fun accessible(): Boolean
     fun accessible(value: Boolean): AttributeI
 
+    fun anonymous(): Boolean
+    fun anonymous(value: Boolean): AttributeI
+
     fun hidden(): Boolean
     fun hidden(value: Boolean): AttributeI
 

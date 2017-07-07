@@ -40,6 +40,9 @@ fun CompilationUnitI.propsExceptPrimaryConstructor(): List<AttributeI> = storage
     } else props()
 })
 
+fun CompilationUnitI.propsSuperUnit(): List<AttributeI> = storage.getOrPut(this, "propsSuperUnit", {
+    propsAll().filter { !it.inherited() }
+})
 
 fun CompilationUnitI.propsAll(): List<AttributeI> = storage.getOrPut(this, "propsAll", {
     if (superUnit().isNotEMPTY()) {
@@ -90,6 +93,8 @@ fun lambda(vararg params: AttributeI, body: OperationI.() -> Unit = {}): LambdaI
     }))
 })
 
+fun stringId(): AttributeI = Attribute { key(true).name("id") }
+
 interface TypedAttributeI<T : TypeI> : AttributeI {
     fun sub(subType: T.() -> AttributeI): AttributeI {
         //TODO create new structure with parent and sub type
@@ -116,7 +121,20 @@ fun AttributeI.accessibleAndMutable(): Boolean = storage.getOrPut(this, "accessi
 
 fun <T : CompositeI> T.defineConstructorAllForNonConstructors() {
     findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
-            .extend { constructorAll().init() }
+            .extend { constructorAll() }
+}
+
+fun <T : CompositeI> T.defineConstructorMyOnlyForNonConstructors() {
+    findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
+            .extend { constructorMyOnly() }
+}
+
+fun <T : CompositeI> T.defineSuperUnitsAsAnonymousProps() {
+    findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.superUnit().isNotEMPTY() }
+            .extend {
+                val item = this
+                prop({ type(item.superUnit()).anonymous(true).name(item.superUnit().name()) })
+            }
 }
 
 fun <T : CompositeI> T.declareAsBaseWithNonImplementedOperation() {
@@ -134,6 +152,16 @@ fun <T : CompilationUnitI> T.constructorAll(): ConstructorI {
         parent(this@constructorAll)
         primary(primary).params(*constrProps.toTypedArray()).name("constructorAll")
         superUnit(this@constructorAll.superUnit().primaryConstructor())
+    } else Constructor.EMPTY
+}
+
+fun <T : CompilationUnitI> T.constructorMyOnly(): ConstructorI {
+    val constrProps = props().filter { !it.meta() }.map { p(it) }
+    val primary = this is EnumTypeI
+    return if (constrProps.isNotEmpty()) constr {
+        parent(this@constructorMyOnly)
+        primary(primary).params(*constrProps.toTypedArray()).name("constructorMyOnly")
+        superUnit(this@constructorMyOnly.superUnit().primaryConstructor())
     } else Constructor.EMPTY
 }
 

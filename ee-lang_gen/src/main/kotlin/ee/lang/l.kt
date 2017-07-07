@@ -38,6 +38,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val value = AttributeI({ type(n.Any).nullable(true) })
         val initByDefaultTypeValue = AttributeI({ type(n.Boolean).value(true) })
         val nullable = AttributeI({ type(n.Boolean).value(false) })
+        val anonymous  = AttributeI({ type(n.Boolean).value(false) })
         val accessible = AttributeI({ type(n.Boolean).value(true) })
         val replaceable = AttributeI({ type(n.Boolean).value(false) })
         val meta = AttributeI({ type(n.Boolean).value(false) })
