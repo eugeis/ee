@@ -179,6 +179,12 @@ open class DeleteBy : Command, DeleteByI {
 open class Entity : DataType, EntityI {
     constructor(value: Entity.() -> Unit = {}) : super(value as DataType.() -> Unit)
 
+    override fun belongsToAggregate(): EntityI = attr(BELONGS_TO_AGGREGATE, { Entity.EMPTY })
+    override fun belongsToAggregate(value: EntityI): EntityI = apply { attr(BELONGS_TO_AGGREGATE, value) }
+
+    override fun aggregateFor(): ListMultiHolderI<EntityI> = itemAsList(AGGREGATE_FOR, EntityI::class.java)
+    override fun aggregateFor(vararg value: EntityI): EntityI = apply { aggregateFor().addItems(value.asList()) }
+
     override fun controllers(): ListMultiHolderI<ControllerI> = itemAsList(CONTROLLERS, ControllerI::class.java)
     override fun controllers(vararg value: ControllerI): EntityI = apply { controllers().addItems(value.asList()) }
 
@@ -189,6 +195,7 @@ open class Entity : DataType, EntityI {
     override fun queries(vararg value: QueryControllerI): EntityI = apply { queries().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
+        aggregateFor()
         controllers()
         commands()
         queries()
@@ -197,6 +204,8 @@ open class Entity : DataType, EntityI {
 
     companion object {
         val EMPTY = Entity()
+        val BELONGS_TO_AGGREGATE = "_belongsToAggregate"
+        val AGGREGATE_FOR = "_aggregateFor"
         val CONTROLLERS = "_controllers"
         val COMMANDS = "_commands"
         val QUERIES = "_queries"

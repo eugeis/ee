@@ -20,12 +20,10 @@ open class DesignGoContextFactory : LangGoContextFactory() {
     }
 
     override fun ItemI.buildName(): String {
-        return if (this is CommandI) {
-            "${nameExternal().capitalize()}Command"
-        } else if (this is EventI) {
-            "${nameExternal().capitalize()}Event"
+        return if (this is CommandI || this is EventI) {
+            nameExternal().capitalize()
         } else {
-            "${name()}"
+            name()
         }
     }
 }

@@ -68,6 +68,21 @@ fun StructureUnitI.addDefaultCommandsForEntities() {
     }
 }
 
+fun StructureUnitI.addCommandEnumsForEntities() {
+    findDownByType(CommandI::class.java).groupBy { it.findParentMust(EntityI::class.java) }.forEach { entity, commands ->
+        val parent = entity.findParentMust(ModuleI::class.java)
+        parent.extend {
+            enums(EnumType {
+                name("${entity.name()}Commands")
+                commands.forEach {
+                    lit({ name(it.nameExternal()) })
+                }
+            })
+        }
+    }
+}
+
+
 fun StructureUnitI.declareAsBaseWithNonImplementedOperation() {
     findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEMPTY() && !it.base() }.forEach { it.base(true) }
 

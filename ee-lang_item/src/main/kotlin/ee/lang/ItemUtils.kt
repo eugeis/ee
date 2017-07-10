@@ -18,12 +18,14 @@ fun ItemI.findDerivedOrThis() = if (derivedFrom().isEMPTY()) this else derivedFr
 fun ItemI.isOrDerived(item: ItemI) = this == item || derivedFrom() == item
 
 fun <T : ItemI> List<T>.extend(code: T.() -> Unit = {}) {
-    forEach {
-        it.code()
-        it.init()
-        if (it is MultiHolderI<*>) {
-            it.fillSupportsItems()
-        }
+    forEach { it.extend(code) }
+}
+
+fun <T : ItemI> T.extend(code: T.() -> Unit = {}) {
+    code()
+    init()
+    if (this is MultiHolderI<*>) {
+        fillSupportsItems()
     }
 }
 

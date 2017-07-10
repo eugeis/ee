@@ -85,6 +85,12 @@ interface DeleteByI : CommandI {
 
 
 interface EntityI : DataTypeI {
+    fun belongsToAggregate(): EntityI
+    fun belongsToAggregate(value: EntityI): EntityI
+
+    fun aggregateFor(): ListMultiHolderI<EntityI>
+    fun aggregateFor(vararg value: EntityI): EntityI
+
     fun controllers(): ListMultiHolderI<ControllerI>
     fun controllers(vararg value: ControllerI): EntityI
 
