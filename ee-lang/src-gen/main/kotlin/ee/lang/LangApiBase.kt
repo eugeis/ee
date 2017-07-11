@@ -86,7 +86,7 @@ open class CompilationUnit : Type, CompilationUnitI {
     override fun base(): Boolean = attr(BASE, { false })
     override fun base(value: Boolean): CompilationUnitI = apply { attr(BASE, value) }
 
-    override fun constructors(): ListMultiHolder<ConstructorI> = itemAsList(CONSTRUCTORS, ConstructorI::class.java)
+    override fun constructors(): ListMultiHolder<ConstructorI> = itemAsList(CONSTRUCTORS, ConstructorI::class.java, true, true)
     override fun constructors(vararg value: ConstructorI): CompilationUnitI = apply { constructors().addItems(value.asList()) }
     override fun constr(value: ConstructorI): ConstructorI = applyAndReturn { constructors().addItem(value); value }
     override fun constr(value: ConstructorI.() -> Unit): ConstructorI = constr(Constructor(value))
@@ -94,12 +94,12 @@ open class CompilationUnit : Type, CompilationUnitI {
     override fun open(): Boolean = attr(OPEN, { true })
     override fun open(value: Boolean): CompilationUnitI = apply { attr(OPEN, value) }
 
-    override fun operations(): ListMultiHolder<OperationI> = itemAsList(OPERATIONS, OperationI::class.java)
+    override fun operations(): ListMultiHolder<OperationI> = itemAsList(OPERATIONS, OperationI::class.java, true, true)
     override fun operations(vararg value: OperationI): CompilationUnitI = apply { operations().addItems(value.asList()) }
     override fun op(value: OperationI): OperationI = applyAndReturn { operations().addItem(value); value }
     override fun op(value: OperationI.() -> Unit): OperationI = op(Operation(value))
 
-    override fun props(): ListMultiHolder<AttributeI> = itemAsList(PROPS, AttributeI::class.java)
+    override fun props(): ListMultiHolder<AttributeI> = itemAsList(PROPS, AttributeI::class.java, true, true)
     override fun props(vararg value: AttributeI): CompilationUnitI = apply { props().addItems(value.asList()) }
     override fun prop(value: AttributeI): AttributeI = applyAndReturn { props().addItem(value); value }
     override fun prop(value: AttributeI.() -> Unit): AttributeI = prop(Attribute(value))
@@ -107,7 +107,7 @@ open class CompilationUnit : Type, CompilationUnitI {
     override fun superUnit(): CompilationUnitI = attr(SUPER_UNIT, { CompilationUnit.EMPTY })
     override fun superUnit(value: CompilationUnitI): CompilationUnitI = apply { attr(SUPER_UNIT, value) }
 
-    override fun superUnitFor(): ListMultiHolder<CompilationUnitI> = itemAsList(SUPER_UNIT_FOR, CompilationUnitI::class.java)
+    override fun superUnitFor(): ListMultiHolder<CompilationUnitI> = itemAsList(SUPER_UNIT_FOR, CompilationUnitI::class.java, true, true)
     override fun superUnitFor(vararg value: CompilationUnitI): CompilationUnitI = apply { superUnitFor().addItems(value.asList()) }
 
     override fun virtual(): Boolean = attr(VIRTUAL, { false })
@@ -173,7 +173,7 @@ open class EnumType : CompilationUnit, EnumTypeI {
 
     constructor(value: EnumType.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
 
-    override fun literals(): ListMultiHolder<LiteralI> = itemAsList(LITERALS, LiteralI::class.java)
+    override fun literals(): ListMultiHolder<LiteralI> = itemAsList(LITERALS, LiteralI::class.java, true, true)
     override fun literals(vararg value: LiteralI): EnumTypeI = apply { literals().addItems(value.asList()) }
     override fun lit(value: LiteralI): LiteralI = applyAndReturn { literals().addItem(value); value }
     override fun lit(value: LiteralI.() -> Unit): LiteralI = lit(Literal(value))
@@ -242,7 +242,7 @@ open class LogicUnit : TextComposite, LogicUnitI {
 
     constructor(value: LogicUnit.() -> Unit = {}) : super(value as TextComposite.() -> Unit)
 
-    override fun params(): ListMultiHolder<AttributeI> = itemAsList(PARAMS, AttributeI::class.java)
+    override fun params(): ListMultiHolder<AttributeI> = itemAsList(PARAMS, AttributeI::class.java, true, true)
     override fun params(vararg value: AttributeI): LogicUnitI = apply { params().addItems(value.asList()) }
 
     override fun superUnit(): LogicUnitI = attr(SUPER_UNIT, { LogicUnit.EMPTY })
@@ -279,7 +279,7 @@ open class Operation : LogicUnit, OperationI {
 
     constructor(value: Operation.() -> Unit = {}) : super(value as LogicUnit.() -> Unit)
 
-    override fun generics(): ListMultiHolder<GenericI> = itemAsList(GENERICS, GenericI::class.java)
+    override fun generics(): ListMultiHolder<GenericI> = itemAsList(GENERICS, GenericI::class.java, true, true)
     override fun generics(vararg value: GenericI): OperationI = apply { generics().addItems(value.asList()) }
     override fun G(value: GenericI): GenericI = applyAndReturn { generics().addItem(value); value }
     override fun G(value: GenericI.() -> Unit): GenericI = G(Generic(value))
@@ -345,7 +345,7 @@ open class Type : Composite, TypeI {
     override fun defaultValue(): Any? = attr(DEFAULT_VALUE)
     override fun defaultValue(value: Any?): TypeI = apply { attr(DEFAULT_VALUE, value) }
 
-    override fun generics(): ListMultiHolder<GenericI> = itemAsList(GENERICS, GenericI::class.java)
+    override fun generics(): ListMultiHolder<GenericI> = itemAsList(GENERICS, GenericI::class.java, true, true)
     override fun generics(vararg value: GenericI): TypeI = apply { generics().addItems(value.asList()) }
     override fun G(value: GenericI): GenericI = applyAndReturn { generics().addItem(value); value }
     override fun G(value: GenericI.() -> Unit): GenericI = G(Generic(value))

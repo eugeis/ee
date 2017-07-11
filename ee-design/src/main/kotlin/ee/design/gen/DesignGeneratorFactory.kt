@@ -1,5 +1,6 @@
 package ee.design.gen
 
+import ee.design.CommandControllerI
 import ee.design.CommandI
 import ee.design.gen.go.DesignGoContextFactory
 import ee.design.gen.go.DesignGoTemplates
@@ -22,16 +23,22 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         val goTemplates = buildGoTemplates()
 
         val contextBuilder = buildGoContextFactory().buildForImplOnly()
+        val enums: StructureUnitI.() -> List<EnumTypeI> = {
+            findDownByType(EnumTypeI::class.java).filter { it.parent() is CommandControllerI }
+        }
         val commands: StructureUnitI.() -> List<CommandI> = {
             findDownByType(CommandI::class.java)
         }
 
-        return GeneratorGroup<StructureUnitI>(listOf(pojoGo(fileNamePrefix),
+        return GeneratorGroup<StructureUnitI>(listOf(
+                pojoGo(fileNamePrefix),
                 GeneratorSimple<StructureUnitI>(
                         contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
                         name = "${fileNamePrefix}CommandsBase", nameBuilder = itemAndTemplateNameAsGoFileName,
                         fragments = {
                             listOf(
+                                    ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
+                                            fragments = { listOf(goTemplates.enum()) }),
                                     ItemsFragment<StructureUnitI, CommandI>(items = commands,
                                             fragments = { listOf(goTemplates.command()) }))
                         })

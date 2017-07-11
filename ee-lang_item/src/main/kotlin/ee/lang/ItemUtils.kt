@@ -61,6 +61,17 @@ fun <T : ItemI> ItemI.findParentMust(clazz: Class<T>): T {
     }
 }
 
+fun <T : ItemI> ItemI.findParentNonInternal(): T? {
+    val parent = parent()
+    if (parent.isEMPTY()) {
+        return null
+    } else if (!parent.internal()) {
+        return parent as T
+    } else {
+        return parent.findParentNonInternal()
+    }
+}
+
 fun <T> MultiHolderI<*>.findAllByType(type: Class<T>): List<T> {
     return items().filterIsInstance(type)
 }

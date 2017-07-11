@@ -69,6 +69,8 @@ interface CompositeCommandI : DataTypeOperationI {
 
 
 interface ControllerI : CompilationUnitI {
+    fun enums(): ListMultiHolderI<EnumTypeI>
+    fun enums(vararg value: EnumTypeI): ControllerI
 }
 
 

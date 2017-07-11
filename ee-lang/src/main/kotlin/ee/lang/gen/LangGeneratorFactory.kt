@@ -54,7 +54,7 @@ open class LangGeneratorFactory {
     open fun pojoGo(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
         val goTemplates = buildGoTemplates()
         val contextBuilder = buildGoContextFactory().buildForImplOnly()
-        val enums: StructureUnitI.() -> List<EnumTypeI> = { findDownByType(EnumTypeI::class.java) }
+        val enums: StructureUnitI.() -> List<EnumTypeI> = { findDownByType(EnumTypeI::class.java).filter { it.parent() is StructureUnitI } }
         val compilationUnits: StructureUnitI.() -> List<CompilationUnitI> = {
             findDownByType(CompilationUnitI::class.java).filter { it !is EnumTypeI }
         }

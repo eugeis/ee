@@ -15,6 +15,10 @@ interface ItemI {
     fun parent(): ItemI
     fun parent(value: ItemI): ItemI
 
+    /** The instance is internal an not real part of model,
+     * it must not be a parent of real model item */
+    fun internal(): Boolean
+
     fun derivedItems(): List<ItemI>
     fun onDerived(derived: ItemI)
 

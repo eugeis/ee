@@ -42,7 +42,9 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val externalTypes = prop(l.ExternalType).multi(true)
     }
 
-    object Controller : CompilationUnit({ superUnit(l.CompilationUnit) })
+    object Controller : CompilationUnit({ superUnit(l.CompilationUnit) }) {
+        val enums = prop(l.EnumType).multi(true).doc("Enums used special for controller needs, like CommandTypeEnums")
+    }
 
     object QueryController : CompilationUnit({ superUnit(Controller) }) {
         val findBys = prop(FindBy).multi(true).nonFluent("findBy")

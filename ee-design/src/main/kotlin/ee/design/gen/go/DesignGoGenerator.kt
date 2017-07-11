@@ -31,7 +31,7 @@ open class DesignGoGenerator {
 
         addDefaultCommandsForEntities()
 
-        addCommandEnumsForEntities()
+        addCommandEnumsForAggregate()
 
         defineNamesForControllers()
     }

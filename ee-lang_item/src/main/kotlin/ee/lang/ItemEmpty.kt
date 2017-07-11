@@ -24,6 +24,7 @@ open class ItemEmptyClass : ItemI {
     override fun render(builder: StringBuilder, indent: String) {}
     override fun render(): String = ""
     override fun isInitialized(): Boolean = true
+    override fun internal(): Boolean = true
     override fun init() {}
     override fun <T : ItemI> copy(): T = this as T
 }

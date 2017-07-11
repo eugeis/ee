@@ -57,7 +57,7 @@ fun <T : CommandControllerI> T.deleteByCommand(): CommandI {
 }
 
 fun StructureUnitI.addDefaultCommandsForEntities() {
-    findDownByType(EntityI::class.java).filter { it.commands().isEmpty() }.extend {
+    findDownByType(EntityI::class.java).filter { !it.virtual() && it.commands().isEmpty() }.extend {
         log.debug("Add default commands to ${name()}")
         commands(CommandController {
             name("commands")
@@ -68,16 +68,18 @@ fun StructureUnitI.addDefaultCommandsForEntities() {
     }
 }
 
-fun StructureUnitI.addCommandEnumsForEntities() {
+fun StructureUnitI.addCommandEnumsForAggregate() {
     findDownByType(CommandI::class.java).groupBy { it.findParentMust(EntityI::class.java) }.forEach { entity, commands ->
-        val parent = entity.findParentMust(ModuleI::class.java)
-        parent.extend {
-            enums(EnumType {
-                name("${entity.name()}Commands")
-                commands.forEach {
-                    lit({ name(it.nameExternal()) })
-                }
-            })
+        if (!entity.virtual()) {
+            val parent = entity.commands().first()
+            parent.extend {
+                enums(EnumType {
+                    name("${entity.name()}CommandType")
+                    commands.forEach {
+                        lit({ name(it.nameExternal()) })
+                    }
+                })
+            }
         }
     }
 }
