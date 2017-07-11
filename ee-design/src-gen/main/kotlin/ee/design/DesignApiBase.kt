@@ -47,6 +47,15 @@ open class BussinesCommand : Command, BussinesCommandI {
 }
 
 
+open class BussinesEvent : Event, BussinesEventI {
+    constructor(value: BussinesEvent.() -> Unit = {}) : super(value as Event.() -> Unit)
+
+    companion object {
+        val EMPTY = BussinesEvent()
+    }
+}
+
+
 open class Command : DataTypeOperation, CommandI {
     constructor(value: Command.() -> Unit = {}) : super(value as DataTypeOperation.() -> Unit)
 
@@ -176,11 +185,29 @@ open class CreateBy : Command, CreateByI {
 }
 
 
+open class Created : Event, CreatedI {
+    constructor(value: Created.() -> Unit = {}) : super(value as Event.() -> Unit)
+
+    companion object {
+        val EMPTY = Created()
+    }
+}
+
+
 open class DeleteBy : Command, DeleteByI {
     constructor(value: DeleteBy.() -> Unit = {}) : super(value as Command.() -> Unit)
 
     companion object {
         val EMPTY = DeleteBy()
+    }
+}
+
+
+open class Deleted : Event, DeletedI {
+    constructor(value: Deleted.() -> Unit = {}) : super(value as Event.() -> Unit)
+
+    companion object {
+        val EMPTY = Deleted()
     }
 }
 
@@ -239,17 +266,40 @@ open class Event : CompilationUnit, EventI {
 open class Events : Controller, EventsI {
     constructor(value: Events.() -> Unit = {}) : super(value as Controller.() -> Unit)
 
-    override fun events(): ListMultiHolderI<EventI> = itemAsList(EVENTS, EventI::class.java, true, true)
-    override fun events(vararg value: EventI): EventsI = apply { events().addItems(value.asList()) }
+    override fun events(): ListMultiHolderI<BussinesEventI> = itemAsList(EVENTS, BussinesEventI::class.java, true, true)
+    override fun events(vararg value: BussinesEventI): EventsI = apply { events().addItems(value.asList()) }
+    override fun event(value: BussinesEventI): BussinesEventI = applyAndReturn { events().add(value); value }
+    override fun event(value: BussinesEventI.() -> Unit) : BussinesEventI = event(BussinesEvent(value))
+
+    override fun created(): ListMultiHolderI<CreatedI> = itemAsList(CREATED, CreatedI::class.java, true, true)
+    override fun created(vararg value: CreatedI): EventsI = apply { created().addItems(value.asList()) }
+    override fun created(value: CreatedI): CreatedI = applyAndReturn { created().add(value); value }
+    override fun created(value: CreatedI.() -> Unit) : CreatedI = created(Created(value))
+
+    override fun updated(): ListMultiHolderI<UpdatedI> = itemAsList(UPDATED, UpdatedI::class.java, true, true)
+    override fun updated(vararg value: UpdatedI): EventsI = apply { updated().addItems(value.asList()) }
+    override fun updated(value: UpdatedI): UpdatedI = applyAndReturn { updated().add(value); value }
+    override fun updated(value: UpdatedI.() -> Unit) : UpdatedI = updated(Updated(value))
+
+    override fun deleted(): ListMultiHolderI<DeletedI> = itemAsList(DELETED, DeletedI::class.java, true, true)
+    override fun deleted(vararg value: DeletedI): EventsI = apply { deleted().addItems(value.asList()) }
+    override fun deleted(value: DeletedI): DeletedI = applyAndReturn { deleted().add(value); value }
+    override fun deleted(value: DeletedI.() -> Unit) : DeletedI = deleted(Deleted(value))
 
     override fun fillSupportsItems() {
         events()
+        created()
+        updated()
+        deleted()
         super.fillSupportsItems()
     }
 
     companion object {
         val EMPTY = Events()
         val EVENTS = "_events"
+        val CREATED = "_created"
+        val UPDATED = "_updated"
+        val DELETED = "_deleted"
     }
 }
 
@@ -426,6 +476,15 @@ open class UpdateBy : Command, UpdateByI {
 
     companion object {
         val EMPTY = UpdateBy()
+    }
+}
+
+
+open class Updated : Event, UpdatedI {
+    constructor(value: Updated.() -> Unit = {}) : super(value as Event.() -> Unit)
+
+    companion object {
+        val EMPTY = Updated()
     }
 }
 

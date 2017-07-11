@@ -29,7 +29,7 @@ open class DesignGoGenerator {
     protected fun StructureUnitI.extendForGoGeneration() {
         prepareForGoGeneration()
 
-        addDefaultCommandsForEntities()
+        addDefaultCommandsAndEventsForEntities()
 
         addCommandEnumsForAggregate()
 

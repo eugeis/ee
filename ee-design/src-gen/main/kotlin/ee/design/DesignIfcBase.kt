@@ -24,6 +24,10 @@ interface BussinesCommandI : CommandI {
 }
 
 
+interface BussinesEventI : EventI {
+}
+
+
 interface CommandI : DataTypeOperationI {
 }
 
@@ -82,7 +86,15 @@ interface CreateByI : CommandI {
 }
 
 
+interface CreatedI : EventI {
+}
+
+
 interface DeleteByI : CommandI {
+}
+
+
+interface DeletedI : EventI {
 }
 
 
@@ -112,8 +124,25 @@ interface EventI : CompilationUnitI {
 
 
 interface EventsI : ControllerI {
-    fun events(): ListMultiHolderI<EventI>
-    fun events(vararg value: EventI): EventsI
+    fun events(): ListMultiHolderI<BussinesEventI>
+    fun events(vararg value: BussinesEventI): EventsI
+    fun event(value: BussinesEventI): BussinesEventI
+    fun event(value: BussinesEventI.() -> Unit = {}) : BussinesEventI
+
+    fun created(): ListMultiHolderI<CreatedI>
+    fun created(vararg value: CreatedI): EventsI
+    fun created(value: CreatedI): CreatedI
+    fun created(value: CreatedI.() -> Unit = {}) : CreatedI
+
+    fun updated(): ListMultiHolderI<UpdatedI>
+    fun updated(vararg value: UpdatedI): EventsI
+    fun updated(value: UpdatedI): UpdatedI
+    fun updated(value: UpdatedI.() -> Unit = {}) : UpdatedI
+
+    fun deleted(): ListMultiHolderI<DeletedI>
+    fun deleted(vararg value: DeletedI): EventsI
+    fun deleted(value: DeletedI): DeletedI
+    fun deleted(value: DeletedI.() -> Unit = {}) : DeletedI
 }
 
 
@@ -193,6 +222,10 @@ interface QueriesI : ControllerI {
 
 
 interface UpdateByI : CommandI {
+}
+
+
+interface UpdatedI : EventI {
 }
 
 

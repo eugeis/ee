@@ -27,44 +27,58 @@ fun StructureUnitI.defineNamesForControllers() {
     }
 }
 
-fun <T : Commands> T.createByCommand(): CommandI {
-    val parent = findParentMust(CompilationUnitI::class.java)
-    val commandProps = parent.props().filter { !it.meta() && !it.key() }
-    return createBy {
-        name("register")
-        params(*commandProps.toTypedArray())
-        parent(parent)
-    }
-}
-
-fun <T : Commands> T.updateByCommand(): CommandI {
-    val parent = findParentMust(CompilationUnitI::class.java)
-    val commandProps = parent.props().filter { !it.meta() && !it.key() }
-    return updateBy {
-        name("change")
-        params(*commandProps.toTypedArray())
-        parent(parent)
-    }
-}
-
-fun <T : Commands> T.deleteByCommand(): CommandI {
-    val parent = findParentMust(EntityI::class.java)
-    return deleteBy {
-        name("delete")
-        params(parent.id())
-        parent(parent)
-    }
-}
-
-fun StructureUnitI.addDefaultCommandsForEntities() {
+fun StructureUnitI.addDefaultCommandsAndEventsForEntities() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.commands().isEmpty() }.extend {
         log.debug("Add default commands to ${name()}")
+        val dataTypeProps = props().filter { !it.meta() && !it.key() }
+
+        val entity = this
+
         commands(Commands {
             name("commands")
-            createByCommand()
-            updateByCommand()
-            deleteByCommand()
+
+            createBy {
+                name("register")
+                params(*dataTypeProps.toTypedArray())
+                parent(entity)
+            }
+
+            updateBy {
+                name("change")
+                params(*dataTypeProps.toTypedArray())
+                parent(entity)
+            }
+
+            deleteBy {
+                name("delete")
+                params(id())
+                parent(entity)
+            }
         })
+
+        if (events().isEmpty()) {
+            events(Events {
+                name("events")
+
+                created {
+                    name("register")
+                    props(*dataTypeProps.toTypedArray())
+                    parent(entity)
+                }
+
+                updated {
+                    name("change")
+                    props(*dataTypeProps.toTypedArray())
+                    parent(entity)
+                }
+
+                deleted {
+                    name("delete")
+                    props(id())
+                    parent(entity)
+                }
+            })
+        }
     }
 }
 
