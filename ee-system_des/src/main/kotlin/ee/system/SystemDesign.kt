@@ -38,11 +38,11 @@ object System : Comp({ artifact("ee-system").namespace("ee.system") }) {
             val dependsOn = prop(n.List.GT(Service))
             val dependsOnMe = prop(n.List.GT(Service))
 
-            object queries : QueryController() {
+            object queries : Queries() {
                 val findByCategory = findBy(category)
             }
 
-            object commands : CommandController() {
+            object commands : Commands() {
                 val start = command()
                 val stop = command()
                 val ping = command()
@@ -125,7 +125,7 @@ object System : Comp({ artifact("ee-system").namespace("ee.system") }) {
 
             val paths = prop(PackagePaths)
 
-            object commands : CommandController() {
+            object commands : Commands() {
                 val prepare = command(p("params", n.Map))
                 val configure = command(p("params", n.Map))
                 val install = command(p("params", n.Map))
@@ -214,7 +214,7 @@ object System : Comp({ artifact("ee-system").namespace("ee.system") }) {
         object Artifact : Entity() {
             val id = prop()
 
-            object commands : CommandController() {
+            object commands : Commands() {
                 val artifactCommand = command(id)
 
                 //build

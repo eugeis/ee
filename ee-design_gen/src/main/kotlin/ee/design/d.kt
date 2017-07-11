@@ -16,8 +16,6 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
     object Module : CompilationUnit({ superUnit(l.StructureUnit) }) {
         val parentNamespace = prop(n.Boolean).value(false)
         val dependencies = prop(Module).multi(true)
-        val events = prop(Event).multi(true)
-        val commands = prop(Command).multi(true)
         val entities = prop(Entity).multi(true)
         val enums = prop(l.EnumType).multi(true)
         val values = prop(Values).multi(true)
@@ -46,10 +44,14 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val enums = prop(l.EnumType).multi(true).doc("Enums used special for controller needs, like CommandTypeEnums")
     }
 
-    object QueryController : CompilationUnit({ superUnit(Controller) }) {
+    object Queries : CompilationUnit({ superUnit(Controller) }) {
         val findBys = prop(FindBy).multi(true).nonFluent("findBy")
         val countBys = prop(CountBy).multi(true).nonFluent("countBy")
         val existBys = prop(ExistBy).multi(true).nonFluent("existBy")
+    }
+
+    object Events : CompilationUnit({ superUnit(Controller) }) {
+        val events = prop(Event).multi(true)
     }
 
     object Command : CompilationUnit({ superUnit(l.DataTypeOperation) })
@@ -59,7 +61,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val operations = prop(l.Operation).multi(true)
     }
 
-    object CommandController : CompilationUnit({ superUnit(Controller) }) {
+    object Commands : CompilationUnit({ superUnit(Controller) }) {
         val commands = prop(BussinesCommand).multi(true).nonFluent("command")
         val composites = prop(CompositeCommand).multi(true).nonFluent("composite")
         val createBys = prop(CreateBy).multi(true).nonFluent("createBy")
@@ -85,8 +87,9 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val belongsToAggregate = prop(Entity)
         val aggregateFor = prop(Entity).multi(true)
         val controllers = prop(Controller).multi(true)
-        val commands = prop(CommandController).multi(true)
-        val queries = prop(QueryController).multi(true)
+        val commands = prop(Commands).multi(true)
+        val queries = prop(Queries).multi(true)
+        val events = prop(Events).multi(true)
     }
 
     object Basic : CompilationUnit({ superUnit(l.DataType) })

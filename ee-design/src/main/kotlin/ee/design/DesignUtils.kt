@@ -5,19 +5,19 @@ import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("DesignUtils")
 
-fun QueryController.findBy(vararg params: AttributeI) = findBy { params(*params) }
-fun QueryController.existBy(vararg params: AttributeI) = existBy { params(*params) }
+fun Queries.findBy(vararg params: AttributeI) = findBy { params(*params) }
+fun Queries.existBy(vararg params: AttributeI) = existBy { params(*params) }
 
 fun CompilationUnitI.op(vararg params: AttributeI, body: OperationI.() -> Unit = {}) = op {
     params(*params)
     body()
 }
 
-fun CommandControllerI.command(vararg params: AttributeI) = command { params(*params) }
-fun CommandControllerI.createBy(vararg params: AttributeI) = createBy { params(*params) }
-fun CommandControllerI.updateBy(vararg params: AttributeI) = updateBy { params(*params) }
-fun CommandControllerI.deleteBy(vararg params: AttributeI) = deleteBy { params(*params) }
-fun CommandControllerI.composite(vararg commands: CommandI) = composite { operations(*commands) }
+fun Commands.command(vararg params: AttributeI) = command { params(*params) }
+fun Commands.createBy(vararg params: AttributeI) = createBy { params(*params) }
+fun Commands.updateBy(vararg params: AttributeI) = updateBy { params(*params) }
+fun Commands.deleteBy(vararg params: AttributeI) = deleteBy { params(*params) }
+fun Commands.composite(vararg commands: CommandI) = composite { operations(*commands) }
 
 
 fun StructureUnitI.defineNamesForControllers() {
@@ -27,7 +27,7 @@ fun StructureUnitI.defineNamesForControllers() {
     }
 }
 
-fun <T : CommandControllerI> T.createByCommand(): CommandI {
+fun <T : Commands> T.createByCommand(): CommandI {
     val parent = findParentMust(CompilationUnitI::class.java)
     val commandProps = parent.props().filter { !it.meta() && !it.key() }
     return createBy {
@@ -37,7 +37,7 @@ fun <T : CommandControllerI> T.createByCommand(): CommandI {
     }
 }
 
-fun <T : CommandControllerI> T.updateByCommand(): CommandI {
+fun <T : Commands> T.updateByCommand(): CommandI {
     val parent = findParentMust(CompilationUnitI::class.java)
     val commandProps = parent.props().filter { !it.meta() && !it.key() }
     return updateBy {
@@ -47,7 +47,7 @@ fun <T : CommandControllerI> T.updateByCommand(): CommandI {
     }
 }
 
-fun <T : CommandControllerI> T.deleteByCommand(): CommandI {
+fun <T : Commands> T.deleteByCommand(): CommandI {
     val parent = findParentMust(EntityI::class.java)
     return deleteBy {
         name("delete")
@@ -59,7 +59,7 @@ fun <T : CommandControllerI> T.deleteByCommand(): CommandI {
 fun StructureUnitI.addDefaultCommandsForEntities() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.commands().isEmpty() }.extend {
         log.debug("Add default commands to ${name()}")
-        commands(CommandController {
+        commands(Commands {
             name("commands")
             createByCommand()
             updateByCommand()
@@ -84,7 +84,6 @@ fun StructureUnitI.addCommandEnumsForAggregate() {
     }
 }
 
-
 fun StructureUnitI.declareAsBaseWithNonImplementedOperation() {
     findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEMPTY() && !it.base() }.forEach { it.base(true) }
 
@@ -94,7 +93,7 @@ fun StructureUnitI.declareAsBaseWithNonImplementedOperation() {
         dataItem.propagateItemToSubtypes(it)
 
         val T = it.G { type(dataItem).name("T") }
-        if (it !is QueryControllerI) {
+        if (it !is Queries) {
             it.prop { type(T).name("addItem") }
         }
     }

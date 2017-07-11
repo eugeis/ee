@@ -1,6 +1,6 @@
 package ee.design.gen
 
-import ee.design.CommandControllerI
+import ee.design.Commands
 import ee.design.CommandI
 import ee.design.gen.go.DesignGoContextFactory
 import ee.design.gen.go.DesignGoTemplates
@@ -24,7 +24,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
 
         val contextBuilder = buildGoContextFactory().buildForImplOnly()
         val enums: StructureUnitI.() -> List<EnumTypeI> = {
-            findDownByType(EnumTypeI::class.java).filter { it.parent() is CommandControllerI }
+            findDownByType(EnumTypeI::class.java).filter { it.parent() is Commands }
         }
         val commands: StructureUnitI.() -> List<CommandI> = {
             findDownByType(CommandI::class.java)
@@ -41,6 +41,13 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                                             fragments = { listOf(goTemplates.enum()) }),
                                     ItemsFragment<StructureUnitI, CommandI>(items = commands,
                                             fragments = { listOf(goTemplates.command()) }))
+                        })
+                ),
+                GeneratorSimple<StructureUnitI>(
+                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
+                        name = "${fileNamePrefix}CommandsEventhorizonBase", nameBuilder = itemAndTemplateNameAsGoFileName,
+                        fragments = {
+                            listOf()
                         })
                 )
         ))

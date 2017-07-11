@@ -56,31 +56,31 @@ open class Command : DataTypeOperation, CommandI {
 }
 
 
-open class CommandController : Controller, CommandControllerI {
-    constructor(value: CommandController.() -> Unit = {}) : super(value as Controller.() -> Unit)
+open class Commands : Controller, CommandsI {
+    constructor(value: Commands.() -> Unit = {}) : super(value as Controller.() -> Unit)
 
     override fun commands(): ListMultiHolderI<BussinesCommandI> = itemAsList(COMMANDS, BussinesCommandI::class.java, true, true)
-    override fun commands(vararg value: BussinesCommandI): CommandControllerI = apply { commands().addItems(value.asList()) }
+    override fun commands(vararg value: BussinesCommandI): CommandsI = apply { commands().addItems(value.asList()) }
     override fun command(value: BussinesCommandI): BussinesCommandI = applyAndReturn { commands().add(value); value }
     override fun command(value: BussinesCommandI.() -> Unit) : BussinesCommandI = command(BussinesCommand(value))
 
     override fun composites(): ListMultiHolderI<CompositeCommandI> = itemAsList(COMPOSITES, CompositeCommandI::class.java, true, true)
-    override fun composites(vararg value: CompositeCommandI): CommandControllerI = apply { composites().addItems(value.asList()) }
+    override fun composites(vararg value: CompositeCommandI): CommandsI = apply { composites().addItems(value.asList()) }
     override fun composite(value: CompositeCommandI): CompositeCommandI = applyAndReturn { composites().add(value); value }
     override fun composite(value: CompositeCommandI.() -> Unit) : CompositeCommandI = composite(CompositeCommand(value))
 
     override fun createBys(): ListMultiHolderI<CreateByI> = itemAsList(CREATE_BYS, CreateByI::class.java, true, true)
-    override fun createBys(vararg value: CreateByI): CommandControllerI = apply { createBys().addItems(value.asList()) }
+    override fun createBys(vararg value: CreateByI): CommandsI = apply { createBys().addItems(value.asList()) }
     override fun createBy(value: CreateByI): CreateByI = applyAndReturn { createBys().add(value); value }
     override fun createBy(value: CreateByI.() -> Unit) : CreateByI = createBy(CreateBy(value))
 
     override fun updateBys(): ListMultiHolderI<UpdateByI> = itemAsList(UPDATE_BYS, UpdateByI::class.java, true, true)
-    override fun updateBys(vararg value: UpdateByI): CommandControllerI = apply { updateBys().addItems(value.asList()) }
+    override fun updateBys(vararg value: UpdateByI): CommandsI = apply { updateBys().addItems(value.asList()) }
     override fun updateBy(value: UpdateByI): UpdateByI = applyAndReturn { updateBys().add(value); value }
     override fun updateBy(value: UpdateByI.() -> Unit) : UpdateByI = updateBy(UpdateBy(value))
 
     override fun deleteBys(): ListMultiHolderI<DeleteByI> = itemAsList(DELETE_BYS, DeleteByI::class.java, true, true)
-    override fun deleteBys(vararg value: DeleteByI): CommandControllerI = apply { deleteBys().addItems(value.asList()) }
+    override fun deleteBys(vararg value: DeleteByI): CommandsI = apply { deleteBys().addItems(value.asList()) }
     override fun deleteBy(value: DeleteByI): DeleteByI = applyAndReturn { deleteBys().add(value); value }
     override fun deleteBy(value: DeleteByI.() -> Unit) : DeleteByI = deleteBy(DeleteBy(value))
 
@@ -94,7 +94,7 @@ open class CommandController : Controller, CommandControllerI {
     }
 
     companion object {
-        val EMPTY = CommandController()
+        val EMPTY = Commands()
         val COMMANDS = "_commands"
         val COMPOSITES = "_composites"
         val CREATE_BYS = "_createBys"
@@ -197,17 +197,21 @@ open class Entity : DataType, EntityI {
     override fun controllers(): ListMultiHolderI<ControllerI> = itemAsList(CONTROLLERS, ControllerI::class.java, true, true)
     override fun controllers(vararg value: ControllerI): EntityI = apply { controllers().addItems(value.asList()) }
 
-    override fun commands(): ListMultiHolderI<CommandControllerI> = itemAsList(COMMANDS, CommandControllerI::class.java, true, true)
-    override fun commands(vararg value: CommandControllerI): EntityI = apply { commands().addItems(value.asList()) }
+    override fun commands(): ListMultiHolderI<CommandsI> = itemAsList(COMMANDS, CommandsI::class.java, true, true)
+    override fun commands(vararg value: CommandsI): EntityI = apply { commands().addItems(value.asList()) }
 
-    override fun queries(): ListMultiHolderI<QueryControllerI> = itemAsList(QUERIES, QueryControllerI::class.java, true, true)
-    override fun queries(vararg value: QueryControllerI): EntityI = apply { queries().addItems(value.asList()) }
+    override fun queries(): ListMultiHolderI<QueriesI> = itemAsList(QUERIES, QueriesI::class.java, true, true)
+    override fun queries(vararg value: QueriesI): EntityI = apply { queries().addItems(value.asList()) }
+
+    override fun events(): ListMultiHolderI<EventsI> = itemAsList(EVENTS, EventsI::class.java, true, true)
+    override fun events(vararg value: EventsI): EntityI = apply { events().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
         aggregateFor()
         controllers()
         commands()
         queries()
+        events()
         super.fillSupportsItems()
     }
 
@@ -218,6 +222,7 @@ open class Entity : DataType, EntityI {
         val CONTROLLERS = "_controllers"
         val COMMANDS = "_commands"
         val QUERIES = "_queries"
+        val EVENTS = "_events"
     }
 }
 
@@ -227,6 +232,24 @@ open class Event : CompilationUnit, EventI {
 
     companion object {
         val EMPTY = Event()
+    }
+}
+
+
+open class Events : Controller, EventsI {
+    constructor(value: Events.() -> Unit = {}) : super(value as Controller.() -> Unit)
+
+    override fun events(): ListMultiHolderI<EventI> = itemAsList(EVENTS, EventI::class.java, true, true)
+    override fun events(vararg value: EventI): EventsI = apply { events().addItems(value.asList()) }
+
+    override fun fillSupportsItems() {
+        events()
+        super.fillSupportsItems()
+    }
+
+    companion object {
+        val EMPTY = Events()
+        val EVENTS = "_events"
     }
 }
 
@@ -308,12 +331,6 @@ open class Module : StructureUnit, ModuleI {
     override fun dependencies(): ListMultiHolderI<ModuleI> = itemAsList(DEPENDENCIES, ModuleI::class.java, true, true)
     override fun dependencies(vararg value: ModuleI): ModuleI = apply { dependencies().addItems(value.asList()) }
 
-    override fun events(): ListMultiHolderI<EventI> = itemAsList(EVENTS, EventI::class.java, true, true)
-    override fun events(vararg value: EventI): ModuleI = apply { events().addItems(value.asList()) }
-
-    override fun commands(): ListMultiHolderI<CommandI> = itemAsList(COMMANDS, CommandI::class.java, true, true)
-    override fun commands(vararg value: CommandI): ModuleI = apply { commands().addItems(value.asList()) }
-
     override fun entities(): ListMultiHolderI<EntityI> = itemAsList(ENTITIES, EntityI::class.java, true, true)
     override fun entities(vararg value: EntityI): ModuleI = apply { entities().addItems(value.asList()) }
 
@@ -331,8 +348,6 @@ open class Module : StructureUnit, ModuleI {
 
     override fun fillSupportsItems() {
         dependencies()
-        events()
-        commands()
         entities()
         enums()
         values()
@@ -345,8 +360,6 @@ open class Module : StructureUnit, ModuleI {
         val EMPTY = Module()
         val PARENT_NAMESPACE = "_parentNamespace"
         val DEPENDENCIES = "_dependencies"
-        val EVENTS = "_events"
-        val COMMANDS = "_commands"
         val ENTITIES = "_entities"
         val ENUMS = "_enums"
         val VALUES = "_values"
@@ -374,21 +387,21 @@ open class ModuleGroup : StructureUnit, ModuleGroupI {
 }
 
 
-open class QueryController : Controller, QueryControllerI {
-    constructor(value: QueryController.() -> Unit = {}) : super(value as Controller.() -> Unit)
+open class Queries : Controller, QueriesI {
+    constructor(value: Queries.() -> Unit = {}) : super(value as Controller.() -> Unit)
 
     override fun findBys(): ListMultiHolderI<FindByI> = itemAsList(FIND_BYS, FindByI::class.java, true, true)
-    override fun findBys(vararg value: FindByI): QueryControllerI = apply { findBys().addItems(value.asList()) }
+    override fun findBys(vararg value: FindByI): QueriesI = apply { findBys().addItems(value.asList()) }
     override fun findBy(value: FindByI): FindByI = applyAndReturn { findBys().add(value); value }
     override fun findBy(value: FindByI.() -> Unit) : FindByI = findBy(FindBy(value))
 
     override fun countBys(): ListMultiHolderI<CountByI> = itemAsList(COUNT_BYS, CountByI::class.java, true, true)
-    override fun countBys(vararg value: CountByI): QueryControllerI = apply { countBys().addItems(value.asList()) }
+    override fun countBys(vararg value: CountByI): QueriesI = apply { countBys().addItems(value.asList()) }
     override fun countBy(value: CountByI): CountByI = applyAndReturn { countBys().add(value); value }
     override fun countBy(value: CountByI.() -> Unit) : CountByI = countBy(CountBy(value))
 
     override fun existBys(): ListMultiHolderI<ExistByI> = itemAsList(EXIST_BYS, ExistByI::class.java, true, true)
-    override fun existBys(vararg value: ExistByI): QueryControllerI = apply { existBys().addItems(value.asList()) }
+    override fun existBys(vararg value: ExistByI): QueriesI = apply { existBys().addItems(value.asList()) }
     override fun existBy(value: ExistByI): ExistByI = applyAndReturn { existBys().add(value); value }
     override fun existBy(value: ExistByI.() -> Unit) : ExistByI = existBy(ExistBy(value))
 
@@ -400,7 +413,7 @@ open class QueryController : Controller, QueryControllerI {
     }
 
     companion object {
-        val EMPTY = QueryController()
+        val EMPTY = Queries()
         val FIND_BYS = "_findBys"
         val COUNT_BYS = "_countBys"
         val EXIST_BYS = "_existBys"
