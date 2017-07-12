@@ -4,7 +4,7 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.joinWithIndexToString
 import ee.lang.*
 
-fun LiteralI.toGo(): String = "${name().capitalize()}"
+fun LiteralI.toGo(): String = name().capitalize()
 fun EnumTypeI.toGoAccess(): String = "${name().capitalize()}s"
 fun EnumTypeI.toGoLiterals(): String = toGoAccess().decapitalize()
 
@@ -16,16 +16,16 @@ func (o *$o) Is${name().capitalize()}() bool {
 }
 
 fun AttributeI.toGoGetMethod(o: String, c: GenerationContext,
-                             derived: String = LangDerivedKind.API): String {
+                             api: String = LangDerivedKind.API): String {
     return """
-func (o *$o) ${name().capitalize()}() ${toGoType(c, derived)} {
+func (o *$o) ${name().capitalize()}() ${toGoType(c, api)} {
     return o.${name()}
 }"""
 }
 
 fun AttributeI.toGoAddMethod(o: String, c: GenerationContext,
-                             derived: String = LangDerivedKind.API): String {
-    val type = type().generics()[0].toGo(c, derived)
+                             api: String = LangDerivedKind.API): String {
+    val type = type().generics()[0].toGo(c, api)
     return """
 func (o *$o) AddTo${name().capitalize()}(item $type) $type {
     o.${nameForMember()} = append(o.${nameForMember()}, item)
@@ -50,17 +50,15 @@ fun LiteralI.toGoInit(index: Int): String {
     this.params().joinSurroundIfNotEmptyToString(", ", ", ") { it.toGoInit() }}}"""
 }
 
-fun <T : EnumTypeI> T.toGoEnum(c: GenerationContext,
-                               derived: String = LangDerivedKind.API,
-                               api: String = LangDerivedKind.API): String {
-    val name = c.n(this, derived)
+fun <T : EnumTypeI> T.toGoEnum(c: GenerationContext, api: String = LangDerivedKind.API): String {
+    val name = c.n(this, api)
     val enums = toGoAccess()
     val literals = toGoLiterals()
     return """
 type $name struct {
 	name  string
 	ordinal int${
-    props().joinSurroundIfNotEmptyToString("", nL) { it.toGoMember(c, derived, api) }}
+    props().joinSurroundIfNotEmptyToString("", nL) { it.toGoMember(c, api) }}
 }
 
 func (o *$name) Name() string {
@@ -70,9 +68,9 @@ func (o *$name) Name() string {
 func (o *$name) Ordinal() int {
     return o.ordinal
 }${
-    props().joinSurroundIfNotEmptyToString("", nL) { it.toGoGetMethod(name, c, derived) }}
+    props().joinSurroundIfNotEmptyToString("", nL) { it.toGoGetMethod(name, c, api) }}
 ${literals().joinSurroundIfNotEmptyToString(nL) { item -> item.toGoIsMethod(name, literals) }}${
-    operations().joinToString(nL) { it.toGoImpl(name, c, derived, api) }}
+    operations().joinToString(nL) { it.toGoImpl(name, c, api) }}
 
 type $literals struct {
 	values []*$name
@@ -104,7 +102,7 @@ fun <T : CompilationUnitI> T.toGoImpl(c: GenerationContext,
     val name = c.n(this, derived)
     return """
 type $name struct {${
-    props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toGoMember(c, derived, api, false) }}
+    props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toGoMember(c, api) }}
 }${
     constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGo(c, derived, api)
@@ -115,6 +113,6 @@ type $name struct {${
     props().filter { it.type().isOrDerived(n.List) }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGoAddMethod(name, c, derived)
     }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-        it.toGoImpl(name, c, derived, api)
+        it.toGoImpl(name, c, api)
     }}"""
 }

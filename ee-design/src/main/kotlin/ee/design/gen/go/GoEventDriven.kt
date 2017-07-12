@@ -31,11 +31,9 @@ object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("e
     }
 }
 
-fun <T : EntityI> T.toGoEventhorizonAggregate(c: GenerationContext,
-                                              derived: String = LangDerivedKind.IMPL,
-                                              api: String = LangDerivedKind.API): String {
-    val name = c.n(this, derived)
+fun <T : EntityI> T.toGoEventhorizonAggregate(c: GenerationContext, api: String = LangDerivedKind.API): String {
+    val name = c.n(this, api)
     return """
 
-const ${name}Type ${c.n(eh.AggregateType, derived)} = "$name""""
+const ${name}Type ${c.n(eh.AggregateType, api)} = "$name""""
 }
