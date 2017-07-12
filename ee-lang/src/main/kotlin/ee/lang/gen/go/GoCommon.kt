@@ -103,8 +103,7 @@ fun <T : OperationI> T.toGoLamnda(c: GenerationContext, derived: String): String
 
 fun <T : OperationI> T.toGoImpl(o: String, c: GenerationContext, api: String): String {
     return """
-func (o *$o) ${name()}(${
-    params().toGoSignature(c, api)})${ret().toGoTypeDef(c, api)} {
-        throw IllegalAccessException("Not implemented yet.")
-    }"""
+func (o *$o) ${name()}(${params().toGoSignature(c, api)}) ${ret().toGoTypeDef(c, api)} {
+    panic("Not implemented yet.")
+}"""
 }

@@ -101,11 +101,13 @@ fun StructureUnitI.addCommandEnumsForAggregate() {
         if (!entity.virtual()) {
             val parent = entity.commands().first()
             parent.extend {
+                log.debug("Add CommandType to ${entity.name()}")
                 enumType {
                     name("${entity.name()}CommandType")
                     items.forEach {
                         lit({ name(it.nameAndParentName()) })
                     }
+                    parent(parent)
                 }
             }
         }
@@ -117,12 +119,14 @@ fun StructureUnitI.addEventEnumsForAggregate() {
         if (!entity.virtual()) {
             val parent = entity.events().first()
             parent.extend {
+                log.debug("Add EventType to ${entity.name()}")
                 enumType {
                     name("${entity.name()}EventType")
                     items.forEach {
                         lit({ name(it.parentNameAndName()) })
                     }
                 }
+                parent(parent)
             }
         }
     }

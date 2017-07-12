@@ -1,5 +1,6 @@
 package ee.design.gen.go
 
+import ee.design.CommandI
 import ee.design.DesignDerivedType
 import ee.design.EntityI
 import ee.design.ModuleI
@@ -8,10 +9,13 @@ import ee.lang.*
 
 object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("eh") }) {
 
+    object AggregateBase : ExternalType() {
+    }
+
     object AggregateType : ExternalType() {
     }
 
-    object AggregateBase : ExternalType() {
+    object AggregateCommandHandler : ExternalType() {
     }
 
     object EventStore : ExternalType() {
@@ -44,11 +48,31 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
             items.forEach { item ->
                 entity {
                     name("${item.name()}${DesignDerivedType.AGGREGATE}").derivedAsType(DesignDerivedType.AGGREGATE)
-                    prop({ type(eh.AggregateBase).anonymous(true).name("AggregateBase") })
-                    prop({ type(item).anonymous(true).name("Entity") })
+                    val AggregateBase = prop({ type(eh.AggregateBase).anonymous(true).name("AggregateBase") })
+                    val Entity = prop({ type(item).anonymous(true).name("Entity") })
                     derivedFrom(item)
                     parent(module)
                 }
+
+                controller {
+                    name("${item.name().capitalize()}AggregateInitializer").derivedAsType(DesignDerivedType.AGGREGATE)
+                    val store = prop { type(eh.EventStore).name("store") }
+                    val notifier = prop { type(eh.EventBus).name("notifier") }
+                    val publisher = prop { type(eh.EventPublisher).name("publisher") }
+                    val executor = prop { type(eh.CommandBus).name("executor") }
+
+                    parent(module)
+
+                    op { name("setup") }
+
+                    val registerCommands = op {
+                        name("registerCommands")
+                        val commandController = p { type(eh.AggregateCommandHandler).name("commandController") }
+                        item.commands().first().findDownByType(CommandI::class.java).forEach {
+                        }
+                    }
+                }
+
             }
 
             enumType {
@@ -67,6 +91,11 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                 prop { type(eh.CommandBus).name("commandBus") }
 
                 parent(module)
+
+                op { name("setup") }
+
+                op { name("registerCommands") }
+
             }
         }
     }

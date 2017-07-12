@@ -244,12 +244,17 @@ open class LogicUnit : TextComposite, LogicUnitI {
 
     override fun params(): ListMultiHolder<AttributeI> = itemAsList(PARAMS, AttributeI::class.java, true, true)
     override fun params(vararg value: AttributeI): LogicUnitI = apply { params().addItems(value.asList()) }
+    override fun p(value: AttributeI): AttributeI = applyAndReturn { params().addItem(value); value }
+    override fun p(value: AttributeI.() -> Unit): AttributeI = p(Attribute(value))
 
     override fun superUnit(): LogicUnitI = attr(SUPER_UNIT, { LogicUnit.EMPTY })
     override fun superUnit(value: LogicUnitI): LogicUnitI = apply { attr(SUPER_UNIT, value) }
 
     override fun virtual(): Boolean = attr(VIRTUAL, { false })
     override fun virtual(value: Boolean): LogicUnitI = apply { attr(VIRTUAL, value) }
+
+    override fun visible(): Boolean = attr(VISIBLE, { true })
+    override fun visible(value: Boolean): LogicUnitI = apply { attr(VISIBLE, value) }
 
     override fun fillSupportsItems() {
         params()
@@ -261,6 +266,7 @@ open class LogicUnit : TextComposite, LogicUnitI {
         val PARAMS = "_params"
         val SUPER_UNIT = "__superUnit"
         val VIRTUAL = "_virtual"
+        val VISIBLE = "_visible"
     }
 }
 

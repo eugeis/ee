@@ -54,7 +54,8 @@ object l : Composite({ namespace("ee.lang") }) {
     object LogicUnit : Composite({ derivedFrom(TextComposite) }) {
         val virtual = AttributeI({ type(n.Boolean).value(false) })
         val superUnit = AttributeI({ type(LogicUnit) })
-        val params = AttributeI({ type(Attribute).multi(true) })
+        val params = AttributeI({ type(Attribute).multi(true).nonFluent("p") })
+        val visible = AttributeI({ type(n.Boolean).value(true) })
     }
 
     object Operation : Composite({ derivedFrom(LogicUnit) }) {
