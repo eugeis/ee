@@ -12,7 +12,7 @@ open class LangGoTemplates {
     open fun enum(nameBuilder: TemplateI<EnumTypeI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
             = Template<EnumTypeI>("Enum", nameBuilder) { item, c -> item.toGoEnum(c) }
 
-    open fun pojo(nameBuilder: TemplateI<CompilationUnitI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
-            = Template<CompilationUnitI>("Pojo", nameBuilder) { item, c -> item.toGoImpl(c, DerivedNames.API.name) }
+    open fun <T : CompilationUnitI> pojo(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder)
+            = Template<T>("Pojo", nameBuilder) { item, c -> item.toGoImpl(c, DerivedNames.API.name) }
 
 }

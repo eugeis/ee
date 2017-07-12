@@ -2,12 +2,23 @@ package ee.lang
 
 import ee.common.ext.ifElse
 
-fun ItemI.nameExternal(): String = storage.getOrPut(this, "nameExternal", {
+fun ItemI.parentNameAndName(): String = storage.getOrPut(this, "parentNameAndName", {
     val parent = findParent(DataType::class.java)
     if (parent != null) {
         val regexp = "(\\B[A-Z])".toRegex()
         if (regexp.containsMatchIn(name())) name().replaceFirst(regexp, "${parent.name().capitalize()}$1") else
             "${name()}${parent.name().capitalize()}"
+    } else {
+        name()
+    }
+})
+
+fun ItemI.nameAndParentName(): String = storage.getOrPut(this, "nameAndParentName", {
+    val parent = findParent(DataType::class.java)
+    if (parent != null) {
+        val regexp = "(\\B[A-Z])".toRegex()
+        if (regexp.containsMatchIn(name())) name().replaceFirst(regexp, "$1${parent.name().capitalize()}") else
+            "${parent.name()}${name().capitalize()}"
     } else {
         name()
     }

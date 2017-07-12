@@ -6,7 +6,6 @@ import ee.lang.DataTypeOperation
 import ee.lang.EnumTypeI
 import ee.lang.ExternalTypeI
 import ee.lang.ListMultiHolderI
-import ee.lang.OperationI
 import ee.lang.StructureUnit
 import ee.lang.StructureUnitI
 
@@ -56,8 +55,8 @@ open class BussinesEvent : Event, BussinesEventI {
 }
 
 
-open class Command : DataTypeOperation, CommandI {
-    constructor(value: Command.() -> Unit = {}) : super(value as DataTypeOperation.() -> Unit)
+open class Command : CompilationUnit, CommandI {
+    constructor(value: Command.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
 
     companion object {
         val EMPTY = Command()
@@ -131,20 +130,20 @@ open class Comp : ModuleGroup, CompI {
 }
 
 
-open class CompositeCommand : DataTypeOperation, CompositeCommandI {
-    constructor(value: CompositeCommand.() -> Unit = {}) : super(value as DataTypeOperation.() -> Unit)
+open class CompositeCommand : CompilationUnit, CompositeCommandI {
+    constructor(value: CompositeCommand.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
 
-    override fun operations(): ListMultiHolderI<OperationI> = itemAsList(OPERATIONS, OperationI::class.java, true, true)
-    override fun operations(vararg value: OperationI): CompositeCommandI = apply { operations().addItems(value.asList()) }
+    override fun commands(): ListMultiHolderI<CommandI> = itemAsList(COMMANDS, CommandI::class.java, true, true)
+    override fun commands(vararg value: CommandI): CompositeCommandI = apply { commands().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
-        operations()
+        commands()
         super.fillSupportsItems()
     }
 
     companion object {
         val EMPTY = CompositeCommand()
-        val OPERATIONS = "_operations"
+        val COMMANDS = "_commands"
     }
 }
 

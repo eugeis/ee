@@ -33,6 +33,8 @@ open class DesignGoGenerator {
 
         addCommandEnumsForAggregate()
 
+        addEventEnumsForAggregate()
+
         defineNamesForControllers()
     }
 }

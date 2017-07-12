@@ -13,11 +13,11 @@ fun CompilationUnitI.op(vararg params: AttributeI, body: OperationI.() -> Unit =
     body()
 }
 
-fun Commands.command(vararg params: AttributeI) = command { params(*params) }
-fun Commands.createBy(vararg params: AttributeI) = createBy { params(*params) }
-fun Commands.updateBy(vararg params: AttributeI) = updateBy { params(*params) }
-fun Commands.deleteBy(vararg params: AttributeI) = deleteBy { params(*params) }
-fun Commands.composite(vararg commands: CommandI) = composite { operations(*commands) }
+fun Commands.command(vararg params: AttributeI) = command { props(*params) }
+fun Commands.createBy(vararg params: AttributeI) = createBy { props(*params) }
+fun Commands.updateBy(vararg params: AttributeI) = updateBy { props(*params) }
+fun Commands.deleteBy(vararg params: AttributeI) = deleteBy { props(*params) }
+fun Commands.composite(vararg commands: CommandI) = composite { commands(*commands) }
 
 
 fun StructureUnitI.defineNamesForControllers() {
@@ -38,20 +38,20 @@ fun StructureUnitI.addDefaultCommandsAndEventsForEntities() {
             name("commands")
 
             createBy {
-                name("register")
-                params(*dataTypeProps.toTypedArray())
+                name("create")
+                props(*dataTypeProps.toTypedArray())
                 parent(entity)
             }
 
             updateBy {
-                name("change")
-                params(*dataTypeProps.toTypedArray())
+                name("update")
+                props(*dataTypeProps.toTypedArray())
                 parent(entity)
             }
 
             deleteBy {
                 name("delete")
-                params(id())
+                props(id())
                 parent(entity)
             }
         })
@@ -61,19 +61,19 @@ fun StructureUnitI.addDefaultCommandsAndEventsForEntities() {
                 name("events")
 
                 created {
-                    name("register")
+                    name("created")
                     props(*dataTypeProps.toTypedArray())
                     parent(entity)
                 }
 
                 updated {
-                    name("change")
+                    name("updated")
                     props(*dataTypeProps.toTypedArray())
                     parent(entity)
                 }
 
                 deleted {
-                    name("delete")
+                    name("deleted")
                     props(id())
                     parent(entity)
                 }
@@ -83,14 +83,30 @@ fun StructureUnitI.addDefaultCommandsAndEventsForEntities() {
 }
 
 fun StructureUnitI.addCommandEnumsForAggregate() {
-    findDownByType(CommandI::class.java).groupBy { it.findParentMust(EntityI::class.java) }.forEach { entity, commands ->
+    findDownByType(CommandI::class.java).groupBy { it.findParentMust(EntityI::class.java) }.forEach { entity, items ->
         if (!entity.virtual()) {
             val parent = entity.commands().first()
             parent.extend {
                 enums(EnumType {
                     name("${entity.name()}CommandType")
-                    commands.forEach {
-                        lit({ name(it.nameExternal()) })
+                    items.forEach {
+                        lit({ name(it.nameAndParentName()) })
+                    }
+                })
+            }
+        }
+    }
+}
+
+fun StructureUnitI.addEventEnumsForAggregate() {
+    findDownByType(EventI::class.java).groupBy { it.findParentMust(EntityI::class.java) }.forEach { entity, items ->
+        if (!entity.virtual()) {
+            val parent = entity.events().first()
+            parent.extend {
+                enums(EnumType {
+                    name("${entity.name()}EventType")
+                    items.forEach {
+                        lit({ name(it.parentNameAndName()) })
                     }
                 })
             }

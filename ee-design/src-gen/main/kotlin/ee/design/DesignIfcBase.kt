@@ -6,7 +6,6 @@ import ee.lang.DataTypeOperationI
 import ee.lang.EnumTypeI
 import ee.lang.ExternalTypeI
 import ee.lang.ListMultiHolderI
-import ee.lang.OperationI
 import ee.lang.StructureUnitI
 
 
@@ -28,7 +27,7 @@ interface BussinesEventI : EventI {
 }
 
 
-interface CommandI : DataTypeOperationI {
+interface CommandI : CompilationUnitI {
 }
 
 
@@ -66,9 +65,9 @@ interface CompI : ModuleGroupI {
 }
 
 
-interface CompositeCommandI : DataTypeOperationI {
-    fun operations(): ListMultiHolderI<OperationI>
-    fun operations(vararg value: OperationI): CompositeCommandI
+interface CompositeCommandI : CompilationUnitI {
+    fun commands(): ListMultiHolderI<CommandI>
+    fun commands(vararg value: CommandI): CompositeCommandI
 }
 
 
