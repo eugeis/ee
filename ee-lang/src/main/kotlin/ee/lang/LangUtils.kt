@@ -3,16 +3,11 @@ package ee.lang
 import ee.common.ext.ifElse
 
 open class LangDerivedKindNames {
-    val API = "API"
-    val IMPL = "IMPL"
-}
-
-open class LangDerivedTypeNames {
-    val COMPOSITE = "COMPOSITE"
+    val API = "Api"
+    val IMPL = "Impl"
 }
 
 object LangDerivedKind : LangDerivedKindNames()
-object LangDerivedType : LangDerivedTypeNames()
 
 fun ItemI.parentNameAndName(): String = storage.getOrPut(this, "parentNameAndName", {
     val parent = findParent(DataType::class.java)

@@ -1,39 +1,16 @@
 package ee.design.gen.go
 
+import ee.design.DesignDerivedKind
 import ee.design.EntityI
 import ee.lang.*
+import ee.lang.gen.go.toGoImpl
 
 
-object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("eh") }) {
-
-    object AggregateType : ExternalType() {
-    }
-
-    object EventStore : ExternalType() {
-        object Save : Operation() {
-            val ctx = p()
-        }
-    }
-
-    object EventBus : ExternalType() {
-    }
-
-    object EventPublisher : ExternalType() {
-    }
-
-    object CommandBus : ExternalType() {
-    }
-
-    object Event : ExternalType() {
-    }
-
-    object UUID : ExternalType() {
-    }
-}
-
-fun <T : EntityI> T.toGoEventhorizonAggregate(c: GenerationContext, api: String = LangDerivedKind.API): String {
+fun <T : EntityI> T.toGoEventhorizonAggregate(c: GenerationContext,
+                                              derived: String = DesignDerivedKind.IMPL,
+                                              api: String = DesignDerivedKind.API): String {
     val name = c.n(this, api)
     return """
-
-const ${name}Type ${c.n(eh.AggregateType, api)} = "$name""""
+const ${name}Type ${c.n(eh.AggregateType, LangDerivedKind.API)} = "$name"
+${toGoImpl(c, derived, api)}"""
 }

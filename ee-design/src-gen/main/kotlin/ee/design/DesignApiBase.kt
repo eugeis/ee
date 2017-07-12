@@ -3,6 +3,7 @@ package ee.design
 import ee.lang.CompilationUnit
 import ee.lang.DataType
 import ee.lang.DataTypeOperation
+import ee.lang.EnumType
 import ee.lang.EnumTypeI
 import ee.lang.ExternalTypeI
 import ee.lang.ListMultiHolderI
@@ -153,15 +154,31 @@ open class Controller : CompilationUnit, ControllerI {
 
     override fun enums(): ListMultiHolderI<EnumTypeI> = itemAsList(ENUMS, EnumTypeI::class.java, true, true)
     override fun enums(vararg value: EnumTypeI): ControllerI = apply { enums().addItems(value.asList()) }
+    override fun enumType(value: EnumTypeI): EnumTypeI = applyAndReturn { enums().add(value); value }
+    override fun enumType(value: EnumTypeI.() -> Unit) : EnumTypeI = enumType(EnumType(value))
+
+    override fun values(): ListMultiHolderI<ValuesI> = itemAsList(VALUES, ValuesI::class.java, true, true)
+    override fun values(vararg value: ValuesI): ControllerI = apply { values().addItems(value.asList()) }
+    override fun valueType(value: ValuesI): ValuesI = applyAndReturn { values().add(value); value }
+    override fun valueType(value: ValuesI.() -> Unit) : ValuesI = valueType(Values(value))
+
+    override fun basics(): ListMultiHolderI<BasicI> = itemAsList(BASICS, BasicI::class.java, true, true)
+    override fun basics(vararg value: BasicI): ControllerI = apply { basics().addItems(value.asList()) }
+    override fun basic(value: BasicI): BasicI = applyAndReturn { basics().add(value); value }
+    override fun basic(value: BasicI.() -> Unit) : BasicI = basic(Basic(value))
 
     override fun fillSupportsItems() {
         enums()
+        values()
+        basics()
         super.fillSupportsItems()
     }
 
     companion object {
         val EMPTY = Controller()
         val ENUMS = "_enums"
+        val VALUES = "_values"
+        val BASICS = "_basics"
     }
 }
 
@@ -222,15 +239,23 @@ open class Entity : DataType, EntityI {
 
     override fun controllers(): ListMultiHolderI<ControllerI> = itemAsList(CONTROLLERS, ControllerI::class.java, true, true)
     override fun controllers(vararg value: ControllerI): EntityI = apply { controllers().addItems(value.asList()) }
+    override fun controller(value: ControllerI): ControllerI = applyAndReturn { controllers().add(value); value }
+    override fun controller(value: ControllerI.() -> Unit) : ControllerI = controller(Controller(value))
 
     override fun commands(): ListMultiHolderI<CommandsI> = itemAsList(COMMANDS, CommandsI::class.java, true, true)
     override fun commands(vararg value: CommandsI): EntityI = apply { commands().addItems(value.asList()) }
+    override fun command(value: CommandsI): CommandsI = applyAndReturn { commands().add(value); value }
+    override fun command(value: CommandsI.() -> Unit) : CommandsI = command(Commands(value))
 
     override fun queries(): ListMultiHolderI<QueriesI> = itemAsList(QUERIES, QueriesI::class.java, true, true)
     override fun queries(vararg value: QueriesI): EntityI = apply { queries().addItems(value.asList()) }
+    override fun query(value: QueriesI): QueriesI = applyAndReturn { queries().add(value); value }
+    override fun query(value: QueriesI.() -> Unit) : QueriesI = query(Queries(value))
 
     override fun events(): ListMultiHolderI<EventsI> = itemAsList(EVENTS, EventsI::class.java, true, true)
     override fun events(vararg value: EventsI): EntityI = apply { events().addItems(value.asList()) }
+    override fun event(value: EventsI): EventsI = applyAndReturn { events().add(value); value }
+    override fun event(value: EventsI.() -> Unit) : EventsI = event(Events(value))
 
     override fun fillSupportsItems() {
         aggregateFor()
@@ -382,18 +407,28 @@ open class Module : StructureUnit, ModuleI {
 
     override fun entities(): ListMultiHolderI<EntityI> = itemAsList(ENTITIES, EntityI::class.java, true, true)
     override fun entities(vararg value: EntityI): ModuleI = apply { entities().addItems(value.asList()) }
+    override fun entity(value: EntityI): EntityI = applyAndReturn { entities().add(value); value }
+    override fun entity(value: EntityI.() -> Unit) : EntityI = entity(Entity(value))
 
     override fun enums(): ListMultiHolderI<EnumTypeI> = itemAsList(ENUMS, EnumTypeI::class.java, true, true)
     override fun enums(vararg value: EnumTypeI): ModuleI = apply { enums().addItems(value.asList()) }
+    override fun enumType(value: EnumTypeI): EnumTypeI = applyAndReturn { enums().add(value); value }
+    override fun enumType(value: EnumTypeI.() -> Unit) : EnumTypeI = enumType(EnumType(value))
 
     override fun values(): ListMultiHolderI<ValuesI> = itemAsList(VALUES, ValuesI::class.java, true, true)
     override fun values(vararg value: ValuesI): ModuleI = apply { values().addItems(value.asList()) }
+    override fun valueType(value: ValuesI): ValuesI = applyAndReturn { values().add(value); value }
+    override fun valueType(value: ValuesI.() -> Unit) : ValuesI = valueType(Values(value))
 
     override fun basics(): ListMultiHolderI<BasicI> = itemAsList(BASICS, BasicI::class.java, true, true)
     override fun basics(vararg value: BasicI): ModuleI = apply { basics().addItems(value.asList()) }
+    override fun basic(value: BasicI): BasicI = applyAndReturn { basics().add(value); value }
+    override fun basic(value: BasicI.() -> Unit) : BasicI = basic(Basic(value))
 
     override fun controllers(): ListMultiHolderI<ControllerI> = itemAsList(CONTROLLERS, ControllerI::class.java, true, true)
     override fun controllers(vararg value: ControllerI): ModuleI = apply { controllers().addItems(value.asList()) }
+    override fun controller(value: ControllerI): ControllerI = applyAndReturn { controllers().add(value); value }
+    override fun controller(value: ControllerI.() -> Unit) : ControllerI = controller(Controller(value))
 
     override fun fillSupportsItems() {
         dependencies()

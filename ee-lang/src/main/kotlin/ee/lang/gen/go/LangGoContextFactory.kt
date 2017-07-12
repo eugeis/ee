@@ -28,5 +28,5 @@ open class LangGoContextFactory {
         }
     }
 
-    protected open fun ItemI.buildName(): String = "${name()}${derivedAsType()}"
+    protected open fun ItemI.buildName(): String = name()
 }

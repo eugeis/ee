@@ -74,6 +74,18 @@ interface CompositeCommandI : CompilationUnitI {
 interface ControllerI : CompilationUnitI {
     fun enums(): ListMultiHolderI<EnumTypeI>
     fun enums(vararg value: EnumTypeI): ControllerI
+    fun enumType(value: EnumTypeI): EnumTypeI
+    fun enumType(value: EnumTypeI.() -> Unit = {}) : EnumTypeI
+
+    fun values(): ListMultiHolderI<ValuesI>
+    fun values(vararg value: ValuesI): ControllerI
+    fun valueType(value: ValuesI): ValuesI
+    fun valueType(value: ValuesI.() -> Unit = {}) : ValuesI
+
+    fun basics(): ListMultiHolderI<BasicI>
+    fun basics(vararg value: BasicI): ControllerI
+    fun basic(value: BasicI): BasicI
+    fun basic(value: BasicI.() -> Unit = {}) : BasicI
 }
 
 
@@ -106,15 +118,23 @@ interface EntityI : DataTypeI {
 
     fun controllers(): ListMultiHolderI<ControllerI>
     fun controllers(vararg value: ControllerI): EntityI
+    fun controller(value: ControllerI): ControllerI
+    fun controller(value: ControllerI.() -> Unit = {}) : ControllerI
 
     fun commands(): ListMultiHolderI<CommandsI>
     fun commands(vararg value: CommandsI): EntityI
+    fun command(value: CommandsI): CommandsI
+    fun command(value: CommandsI.() -> Unit = {}) : CommandsI
 
     fun queries(): ListMultiHolderI<QueriesI>
     fun queries(vararg value: QueriesI): EntityI
+    fun query(value: QueriesI): QueriesI
+    fun query(value: QueriesI.() -> Unit = {}) : QueriesI
 
     fun events(): ListMultiHolderI<EventsI>
     fun events(vararg value: EventsI): EntityI
+    fun event(value: EventsI): EventsI
+    fun event(value: EventsI.() -> Unit = {}) : EventsI
 }
 
 
@@ -181,18 +201,28 @@ interface ModuleI : StructureUnitI {
 
     fun entities(): ListMultiHolderI<EntityI>
     fun entities(vararg value: EntityI): ModuleI
+    fun entity(value: EntityI): EntityI
+    fun entity(value: EntityI.() -> Unit = {}) : EntityI
 
     fun enums(): ListMultiHolderI<EnumTypeI>
     fun enums(vararg value: EnumTypeI): ModuleI
+    fun enumType(value: EnumTypeI): EnumTypeI
+    fun enumType(value: EnumTypeI.() -> Unit = {}) : EnumTypeI
 
     fun values(): ListMultiHolderI<ValuesI>
     fun values(vararg value: ValuesI): ModuleI
+    fun valueType(value: ValuesI): ValuesI
+    fun valueType(value: ValuesI.() -> Unit = {}) : ValuesI
 
     fun basics(): ListMultiHolderI<BasicI>
     fun basics(vararg value: BasicI): ModuleI
+    fun basic(value: BasicI): BasicI
+    fun basic(value: BasicI.() -> Unit = {}) : BasicI
 
     fun controllers(): ListMultiHolderI<ControllerI>
     fun controllers(vararg value: ControllerI): ModuleI
+    fun controller(value: ControllerI): ControllerI
+    fun controller(value: ControllerI.() -> Unit = {}) : ControllerI
 }
 
 

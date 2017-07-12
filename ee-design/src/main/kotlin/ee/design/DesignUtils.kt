@@ -3,11 +3,17 @@ package ee.design
 import ee.lang.*
 import org.slf4j.LoggerFactory
 
-open class DesignDerivedTypeNames : LangDerivedTypeNames() {
-    val AGGREGATE = "AGGREGATE"
+open class DesignDerivedKindNames : LangDerivedKindNames() {
+}
+
+object DesignDerivedKind : DesignDerivedKindNames()
+
+open class DesignDerivedTypeNames {
+    val AGGREGATE = "Aggregate"
 }
 
 object DesignDerivedType : DesignDerivedTypeNames()
+
 
 private val log = LoggerFactory.getLogger("DesignUtils")
 
@@ -26,10 +32,12 @@ fun Commands.deleteBy(vararg params: AttributeI) = deleteBy { props(*params) }
 fun Commands.composite(vararg commands: CommandI) = composite { commands(*commands) }
 
 
-fun StructureUnitI.defineNamesForControllers() {
+fun StructureUnitI.defineNamesForTypeControllers() {
     findDownByType(ControllerI::class.java).forEach {
-        val parent = it.findParentMust(CompilationUnitI::class.java)
-        it.name("${parent.name().capitalize()}${it.name().capitalize()}")
+        val parent = it.findParent(CompilationUnitI::class.java)
+        if (parent != null) {
+            it.name("${parent.name().capitalize()}${it.name().capitalize()}")
+        }
     }
 }
 
@@ -93,12 +101,12 @@ fun StructureUnitI.addCommandEnumsForAggregate() {
         if (!entity.virtual()) {
             val parent = entity.commands().first()
             parent.extend {
-                enums(EnumType {
+                enumType {
                     name("${entity.name()}CommandType")
                     items.forEach {
                         lit({ name(it.nameAndParentName()) })
                     }
-                })
+                }
             }
         }
     }
@@ -109,12 +117,12 @@ fun StructureUnitI.addEventEnumsForAggregate() {
         if (!entity.virtual()) {
             val parent = entity.events().first()
             parent.extend {
-                enums(EnumType {
+                enumType {
                     name("${entity.name()}EventType")
                     items.forEach {
                         lit({ name(it.parentNameAndName()) })
                     }
-                })
+                }
             }
         }
     }
