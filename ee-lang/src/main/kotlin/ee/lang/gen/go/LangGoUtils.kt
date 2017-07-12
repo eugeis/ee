@@ -8,6 +8,10 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         val Time = Type()
         val Now = Operation()
     }
+
+    object context : StructureUnit({ namespace("context") }) {
+        val Context = Type()
+    }
 }
 
 open class GoContext : GenerationContext {
@@ -34,7 +38,7 @@ open class GoContext : GenerationContext {
             outsideTypes.isNotEmpty().then {
                 "${outsideTypes.map { "$indent${it.namespace()}" }.toSortedSet().
                         joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
-                            """    "${it.toLowerCase().toDotsAsPath()}""""
+                            """    "${it.toLowerCase().toDotsAsPath().replace("github/com", "github.com")}""""
                         }}"
             }
         }
@@ -61,7 +65,7 @@ fun <T : StructureUnitI> T.prepareForGoGeneration(): T {
 
     defineSuperUnitsAsAnonymousProps()
 
-    defineConstructorMyOnlyForNonConstructors()
+    defineConstructorOwnPropsOnlyForNonConstructors()
     return this
 }
 

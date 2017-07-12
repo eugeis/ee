@@ -7,7 +7,7 @@ fun <T : AttributeI> T.toKotlinObjectTreeProp(c: GenerationContext, derived: Str
     val ${name()} = ${c.n(type(), derived)}()"""
 }
 
-fun <T : CompilationUnitI> T.toKotlinObjectTree(c: GenerationContext, derived: String = DerivedNames.IMPL.name): String {
+fun <T : CompilationUnitI> T.toKotlinObjectTree(c: GenerationContext, derived: String = LangDerivedKind.IMPL): String {
     return """
 object ${c.n(this)} : ${c.n(derivedFrom())}() {${
     props().joinToString(nL) { it.toKotlinObjectTreeProp(c, derived) }}

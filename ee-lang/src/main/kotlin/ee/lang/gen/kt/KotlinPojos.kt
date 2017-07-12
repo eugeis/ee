@@ -13,8 +13,8 @@ fun LiteralI.toKotlinIsMethod(): String {
 }
 
 fun <T : EnumTypeI> T.toKotlinEnum(c: GenerationContext,
-                                   derived: String = DerivedNames.API.name,
-                                   api: String = DerivedNames.API.name): String {
+                                   derived: String = LangDerivedKind.API,
+                                   api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
     return """
 enum class $name${primaryConstructor().toKotlinPrimary(c, derived, api)} {
@@ -26,7 +26,7 @@ enum class $name${primaryConstructor().toKotlinPrimary(c, derived, api)} {
 }
 
 fun <T : EnumTypeI> T.toKotlinEnumParseMethod(c: GenerationContext,
-                                              derived: String = DerivedNames.API.name): String {
+                                              derived: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
     return """
 fun String?.to$name(): $name {
@@ -35,8 +35,8 @@ fun String?.to$name(): $name {
 }
 
 fun <T : CompilationUnitI> T.toKotlinImpl(c: GenerationContext,
-                                          derived: String = DerivedNames.IMPL.name,
-                                          api: String = DerivedNames.API.name): String {
+                                          derived: String = LangDerivedKind.IMPL,
+                                          api: String = LangDerivedKind.API): String {
     return """
 ${open().then("open ")}class ${c.n(this, derived)}${toKotlinExtends(c, derived, api)}${
     primaryConstructor().toKotlinPrimary(c, derived, api)} {${

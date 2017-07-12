@@ -34,6 +34,6 @@ fun <T : StructureUnitI> T.prepareForKotlinGeneration(): T {
     prepareAttributesOfEnums()
 
     //define constructor with all parameters.
-    defineConstructorAllForNonConstructors()
+    defineConstructorAllPropsForNonConstructors()
     return this
 }

@@ -3,6 +3,12 @@ package ee.design
 import ee.lang.*
 import org.slf4j.LoggerFactory
 
+open class DesignDerivedTypeNames : LangDerivedTypeNames() {
+    val AGGREGATE = "AGGREGATE"
+}
+
+object DesignDerivedType : DesignDerivedTypeNames()
+
 private val log = LoggerFactory.getLogger("DesignUtils")
 
 fun Queries.findBy(vararg params: AttributeI) = findBy { params(*params) }
@@ -27,7 +33,7 @@ fun StructureUnitI.defineNamesForControllers() {
     }
 }
 
-fun StructureUnitI.addDefaultCommandsAndEventsForEntities() {
+fun StructureUnitI.addDefaultCommandsAndEventsForAggregates() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.commands().isEmpty() }.extend {
         log.debug("Add default commands to ${name()}")
         val dataTypeProps = props().filter { !it.meta() && !it.key() }

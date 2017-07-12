@@ -2,7 +2,6 @@ package ee.lang.gen.go
 
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.joinWithIndexToString
-import ee.common.ext.then
 import ee.lang.*
 
 fun LiteralI.toGo(): String = "${name().capitalize()}"
@@ -17,7 +16,7 @@ func (o *$o) Is${name().capitalize()}() bool {
 }
 
 fun AttributeI.toGoGetMethod(o: String, c: GenerationContext,
-                             derived: String = DerivedNames.API.name): String {
+                             derived: String = LangDerivedKind.API): String {
     return """
 func (o *$o) ${name().capitalize()}() ${toGoType(c, derived)} {
     return o.${name()}
@@ -25,7 +24,7 @@ func (o *$o) ${name().capitalize()}() ${toGoType(c, derived)} {
 }
 
 fun AttributeI.toGoAddMethod(o: String, c: GenerationContext,
-                             derived: String = DerivedNames.API.name): String {
+                             derived: String = LangDerivedKind.API): String {
     val type = type().generics()[0].toGo(c, derived)
     return """
 func (o *$o) AddTo${name().capitalize()}(item $type) $type {
@@ -47,12 +46,13 @@ fun LiteralI.toGoCase(): String {
 }
 
 fun LiteralI.toGoInit(index: Int): String {
-    return """{name: "${this.name()}", ordinal: $index${this.params().joinSurroundIfNotEmptyToString(", ", ", ") { it.toGoInit() }}}"""
+    return """{name: "${this.name()}", ordinal: $index${
+    this.params().joinSurroundIfNotEmptyToString(", ", ", ") { it.toGoInit() }}}"""
 }
 
 fun <T : EnumTypeI> T.toGoEnum(c: GenerationContext,
-                               derived: String = DerivedNames.API.name,
-                               api: String = DerivedNames.API.name): String {
+                               derived: String = LangDerivedKind.API,
+                               api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
     val enums = toGoAccess()
     val literals = toGoLiterals()
@@ -99,8 +99,8 @@ func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {${
 }
 
 fun <T : CompilationUnitI> T.toGoImpl(c: GenerationContext,
-                                      derived: String = DerivedNames.IMPL.name,
-                                      api: String = DerivedNames.API.name): String {
+                                      derived: String = LangDerivedKind.IMPL,
+                                      api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
     return """
 type $name struct {${

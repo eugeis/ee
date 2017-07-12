@@ -14,6 +14,7 @@ open class Item : ItemI {
     private var _internal: Boolean = false
     private var _derivedFrom: ItemI = EMPTY
     private var _derivedItems: MutableList<ItemI> = arrayListOf()
+    private var _derivedAsType: String = ""
     private var _initialized: Boolean = false
     protected var _init: Item.() -> Unit
 
@@ -51,6 +52,9 @@ open class Item : ItemI {
         _derivedFrom = value
         value.onDerived(this)
     }
+
+    override fun derivedAsType(): String = _derivedAsType
+    override fun derivedAsType(value: String): ItemI = apply { _derivedAsType = value }
 
     override fun <T : ItemI> derive(adapt: T.() -> Unit): T {
         init()

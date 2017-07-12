@@ -1,9 +1,6 @@
 package ee.design.gen
 
-import ee.design.Commands
-import ee.design.CommandI
-import ee.design.EventI
-import ee.design.Events
+import ee.design.*
 import ee.design.gen.go.DesignGoContextFactory
 import ee.design.gen.go.DesignGoTemplates
 import ee.design.gen.kt.DesignKotlinContextFactory
@@ -35,6 +32,8 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         }
         val events: StructureUnitI.() -> List<EventI> = { findDownByType(EventI::class.java) }
 
+        val entities: StructureUnitI.() -> List<EntityI> = { findDownByType(EntityI::class.java) }
+
         return GeneratorGroup<StructureUnitI>(listOf(
                 pojoGo(fileNamePrefix),
                 GeneratorSimple<StructureUnitI>(
@@ -63,7 +62,8 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                         contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
                         name = "${fileNamePrefix}EventhorizonBase", nameBuilder = itemAndTemplateNameAsGoFileName,
                         fragments = {
-                            listOf()
+                            listOf(ItemsFragment<StructureUnitI, EntityI>(items = entities,
+                                    fragments = { listOf(goTemplates.aggregate()) }))
                         })
                 )
         ))

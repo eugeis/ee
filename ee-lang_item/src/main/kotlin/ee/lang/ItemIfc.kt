@@ -1,7 +1,5 @@
 package ee.lang
 
-import java.io.Serializable
-
 interface ItemI {
     fun namespace(): String
     fun namespace(value: String): ItemI
@@ -21,6 +19,15 @@ interface ItemI {
 
     fun derivedItems(): List<ItemI>
     fun onDerived(derived: ItemI)
+
+    /**
+     * Derived as new free given type, e.g. Aggregate from Entity,
+     * in order to have filter criteria and not catch derived Entity for generation and
+     * provide special names
+     */
+    fun derivedAsType(): String
+
+    fun derivedAsType(value: String): ItemI
 
     fun derivedFrom(): ItemI
     fun derivedFrom(value: ItemI): ItemI

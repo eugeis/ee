@@ -230,8 +230,8 @@ fun <T : OperationI> T.toKotlinImpl(c: GenerationContext, derived: String, api: 
 }
 
 fun <T : CompositeI> T.toKotlinIsEmptyExt(c: GenerationContext,
-                                          derived: String = DerivedNames.IMPL.name,
-                                          api: String = DerivedNames.API.name): String {
+                                          derived: String = LangDerivedKind.IMPL,
+                                          api: String = LangDerivedKind.API): String {
     return """
 fun ${c.n(this, api)}?.isEMPTY(): Boolean = (this == null || this == ${c.n(this, derived)}.EMPTY)
 fun ${c.n(this, api)}?.isNotEMPTY(): Boolean = !isEMPTY()"""

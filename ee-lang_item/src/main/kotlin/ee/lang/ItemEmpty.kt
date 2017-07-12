@@ -17,6 +17,8 @@ open class ItemEmptyClass : ItemI {
     override fun derivedItems(): List<ItemI> = emptyList()
     override fun derivedFrom(): ItemI = ItemEmpty
     override fun derivedFrom(value: ItemI): ItemI = this
+    override fun derivedAsType(): String = ""
+    override fun derivedAsType(value: String): ItemI = this
     override fun <T : ItemI> derive(init: T.() -> Unit): T = this as T
     override fun <T : ItemI> apply(code: T.() -> Unit): T = this as T
     override fun <R> applyAndReturn(code: () -> R): R = code()

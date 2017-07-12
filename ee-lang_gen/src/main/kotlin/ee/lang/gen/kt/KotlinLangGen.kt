@@ -5,6 +5,7 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
+import ee.lang.gen.DerivedNames
 
 
 fun <T : ItemI> T.toKotlinEmpty(c: GenerationContext, derived: String): String {
@@ -72,7 +73,7 @@ fun <T : AttributeI> T.toKotlinCompanionObjectName(c: GenerationContext): String
     return """        val ${name().toUnderscoredUpperCase()} = "${generalTypes.contains(type().name()).then("_")}_${name()}""""
 }
 
-fun <T : CompositeI> T.toKotlinDslBuilderI(c: GenerationContext, api: String = DerivedNames.API.name): String {
+fun <T : CompositeI> T.toKotlinDslBuilderI(c: GenerationContext, api: String = DerivedNames.API): String {
     val props = items().filterIsInstance(AttributeI::class.java)
     return """
 interface ${c.n(this, api)} : ${c.n(derivedFrom(), api)} {${
@@ -81,14 +82,14 @@ interface ${c.n(this, api)} : ${c.n(derivedFrom(), api)} {${
 }
 
 fun <T : CompositeI> T.toKotlinDslBuilder(c: GenerationContext,
-                                          derived: String = DerivedNames.IMPL.name,
-                                          api: String = DerivedNames.API.name): String {
+                                          derived: String = DerivedNames.IMPL,
+                                          api: String = DerivedNames.API): String {
     val props = items().filterIsInstance(AttributeI::class.java)
     val multiProps = props.filter { it.multi() }
     val target = c.n(this, derived)
     return """
 open class ${c.n(this, derived)} : ${c.n(derivedFrom(), derived)}${(derived != api).then(
-            { ", ${c.n(this, DerivedNames.API.name)}" })} {
+            { ", ${c.n(this, DerivedNames.API)}" })} {
 
     constructor(value: ${c.n(this, derived)}.() -> Unit = {}) : super(value as ${c.n(derivedFrom(), derived)}.() -> Unit)${
     props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}${
@@ -108,13 +109,13 @@ open class ${c.n(this, derived)} : ${c.n(derivedFrom(), derived)}${(derived != a
 }"""
 }
 
-fun <T : ItemI> T.toKotlinObjectTreeCompilationUnit(c: GenerationContext, derived: String = DerivedNames.DSL_TYPE.name): String {
+fun <T : ItemI> T.toKotlinObjectTreeCompilationUnit(c: GenerationContext, derived: String = DerivedNames.DSL_TYPE): String {
     return """    val ${c.n(this, derived)} = ${c.n(l.CompilationUnit, derived)}(${derivedFrom().isNotEMPTY().then {
         "{ derivedFrom(${c.n(derivedFrom(), derived)}) }"
     }})"""
 }
 
-fun <T : CompositeI> T.toKotlinDslObjectTree(c: GenerationContext, derived: String = DerivedNames.DSL_TYPE.name): String {
+fun <T : CompositeI> T.toKotlinDslObjectTree(c: GenerationContext, derived: String = DerivedNames.DSL_TYPE): String {
     return """
 object ${c.n(this)} : ${c.n(l.StructureUnit)}({ namespace("${namespace()}") }) {
 ${items().filter { !it.name().equals("MultiHolder") }.joinSurroundIfNotEmptyToString(nL) { it.toKotlinObjectTreeCompilationUnit(c, derived) }}

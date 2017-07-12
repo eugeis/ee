@@ -2,6 +2,18 @@ package ee.lang
 
 import ee.common.ext.ifElse
 
+open class LangDerivedKindNames {
+    val API = "API"
+    val IMPL = "IMPL"
+}
+
+open class LangDerivedTypeNames {
+    val COMPOSITE = "COMPOSITE"
+}
+
+object LangDerivedKind : LangDerivedKindNames()
+object LangDerivedType : LangDerivedTypeNames()
+
 fun ItemI.parentNameAndName(): String = storage.getOrPut(this, "parentNameAndName", {
     val parent = findParent(DataType::class.java)
     if (parent != null) {
@@ -128,14 +140,14 @@ fun AttributeI.accessibleAndMutable(): Boolean = storage.getOrPut(this, "accessi
     accessible() && mutable()
 })
 
-fun <T : CompositeI> T.defineConstructorAllForNonConstructors() {
+fun <T : CompositeI> T.defineConstructorAllPropsForNonConstructors() {
     findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
-            .extend { constructorAll() }
+            .extend { constructorAllProps() }
 }
 
-fun <T : CompositeI> T.defineConstructorMyOnlyForNonConstructors() {
+fun <T : CompositeI> T.defineConstructorOwnPropsOnlyForNonConstructors() {
     findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
-            .extend { constructorMyOnly() }
+            .extend { constructorOwnPropsOnly() }
 }
 
 fun <T : CompositeI> T.defineSuperUnitsAsAnonymousProps() {
@@ -154,23 +166,23 @@ fun <T : CompositeI> T.prepareAttributesOfEnums() {
     findDownByType(EnumTypeI::class.java).forEach { it.props().forEach { it.replaceable(false).initByDefaultTypeValue(false) } }
 }
 
-fun <T : CompilationUnitI> T.constructorAll(): ConstructorI {
+fun <T : CompilationUnitI> T.constructorAllProps(): ConstructorI {
     val constrProps = propsAll().filter { !it.meta() }.map { p(it) }
     val primary = this is EnumTypeI
     return if (constrProps.isNotEmpty()) constr {
-        parent(this@constructorAll)
-        primary(primary).params(*constrProps.toTypedArray()).name("constructorAll")
-        superUnit(this@constructorAll.superUnit().primaryConstructor())
+        parent(this@constructorAllProps)
+        primary(primary).params(*constrProps.toTypedArray()).name("constructorAllProps")
+        superUnit(this@constructorAllProps.superUnit().primaryConstructor())
     } else Constructor.EMPTY
 }
 
-fun <T : CompilationUnitI> T.constructorMyOnly(): ConstructorI {
+fun <T : CompilationUnitI> T.constructorOwnPropsOnly(): ConstructorI {
     val constrProps = props().filter { !it.meta() }.map { p(it) }
     val primary = this is EnumTypeI
     return if (constrProps.isNotEmpty()) constr {
-        parent(this@constructorMyOnly)
-        primary(primary).params(*constrProps.toTypedArray()).name("constructorMyOnly")
-        superUnit(this@constructorMyOnly.superUnit().primaryConstructor())
+        parent(this@constructorOwnPropsOnly)
+        primary(primary).params(*constrProps.toTypedArray()).name("constructorOwnPropsOnly")
+        superUnit(this@constructorOwnPropsOnly.superUnit().primaryConstructor())
     } else Constructor.EMPTY
 }
 

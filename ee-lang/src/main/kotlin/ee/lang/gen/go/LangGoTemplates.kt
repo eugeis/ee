@@ -13,6 +13,6 @@ open class LangGoTemplates {
             = Template<EnumTypeI>("Enum", nameBuilder) { item, c -> item.toGoEnum(c) }
 
     open fun <T : CompilationUnitI> pojo(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder)
-            = Template<T>("Pojo", nameBuilder) { item, c -> item.toGoImpl(c, DerivedNames.API.name) }
+            = Template<T>("Pojo", nameBuilder) { item, c -> item.toGoImpl(c) }
 
 }

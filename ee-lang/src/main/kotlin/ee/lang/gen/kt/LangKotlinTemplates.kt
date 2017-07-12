@@ -2,7 +2,6 @@ package ee.lang.gen.kt
 
 import ee.lang.*
 import ee.lang.gen.itemNameAsKotlinFileName
-import ee.lang.gen.kt.*
 
 open class LangKotlinTemplates {
     val defaultNameBuilder: TemplateI<*>.(CompilationUnitI) -> NamesI
@@ -27,6 +26,6 @@ open class LangKotlinTemplates {
             = Template<EnumTypeI>("EnumParseMethod", nameBuilder) { item, c -> item.toKotlinEnumParseMethod(c) }
 
     open fun pojo(nameBuilder: TemplateI<CompilationUnitI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
-            = Template<CompilationUnitI>("Pojo", nameBuilder) { item, c -> item.toKotlinImpl(c, DerivedNames.API.name) }
+            = Template<CompilationUnitI>("Pojo", nameBuilder) { item, c -> item.toKotlinImpl(c, LangDerivedKind.API) }
 
 }
