@@ -120,10 +120,19 @@ interface TypedAttributeI<T : TypeI> : AttributeI {
         //TODO create new structure with parent and sub type
         return (type() as T).subType()
     }
+
+    override fun type(): T
+    fun typeT(value: T): TypedAttributeI<T>
 }
 
 open class TypedAttribute<T : TypeI> : Attribute, TypedAttributeI<T> {
-    constructor(value: Attribute.() -> Unit = {}) : super(value as Composite.() -> Unit)
+    constructor(value: TypedAttribute<T>.() -> Unit = {}) : super(value as Composite.() -> Unit)
+
+    override fun type(): T {
+        return super.type() as T
+    }
+
+    override fun typeT(value: T): TypedAttributeI<T> = apply { type(value) }
 }
 
 fun p(init: AttributeI.() -> Unit = {}): AttributeI = Attribute(init)
@@ -134,6 +143,27 @@ fun p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): A
 })
 
 fun p(name: AttributeI, init: AttributeI.() -> Unit = {}): AttributeI = name.derive(init)
+
+
+fun <T : TypeI> CompilationUnitI.prop(type: T): TypedAttributeI<T> {
+    val ret = TypedAttribute<T>({ type(type) })
+    props(ret)
+    return ret
+}
+
+/*
+fun <T : TypeI> LogicUnitI.param(init: TypedAttributeI<T>.() -> Unit = {}): TypedAttributeI<T> {
+    val ret = TypedAttribute<T>(init)
+    params(ret)
+    return ret
+}
+
+fun <T : TypeI> LogicUnitI.paramT(type: T): TypedAttributeI<T> {
+    val ret = TypedAttribute<T>({ type(type) })
+    params(ret)
+    return ret
+}
+*/
 
 fun AttributeI.accessibleAndMutable(): Boolean = storage.getOrPut(this, "accessibleAndMutable", {
     accessible() && mutable()
@@ -220,11 +250,6 @@ fun <T : TypeI> T.GT(vararg types: TypeI): T {
 }
 
 fun TypeI.G(type: TypeI): GenericI = G { type(type) }
-fun <T : TypeI> CompilationUnitI.prop(type: T): TypedAttributeI<T> {
-    val ret = TypedAttribute<T>({ type(type) })
-    props(ret)
-    return ret
-}
 
 fun OperationI.ret(type: TypeI): OperationI = ret(Attribute({ type(type) }))
 fun LogicUnitI.p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): LogicUnitI = params(
