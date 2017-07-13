@@ -180,7 +180,7 @@ fun <T : CompilationUnitI> T.propagateItemToSubtypes(item: CompilationUnitI) {
     }
 }
 
-fun EntityI.buildId(): AttributeI = Attribute { key(true).name("id") }
+fun EntityI.buildId(): AttributeI = Attribute { key(true).type(n.String).name("id") }
 
 fun EntityI.id(): AttributeI = storage.getOrPut(this, "id", {
     var ret = props().find { it.key() }

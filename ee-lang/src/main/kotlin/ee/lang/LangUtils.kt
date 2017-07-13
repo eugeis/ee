@@ -144,6 +144,37 @@ fun p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): A
 
 fun p(name: AttributeI, init: AttributeI.() -> Unit = {}): AttributeI = name.derive(init)
 
+fun CompilationUnit.propS(value: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+    type(n.String)
+    value
+}))
+
+fun CompilationUnit.propB(value: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+    type(n.Boolean)
+    value
+}))
+
+fun CompilationUnit.propI(value: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+    type(n.Int)
+    value
+}))
+
+
+fun CompilationUnit.propL(value: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+    type(n.Long)
+    value
+}))
+
+fun CompilationUnit.propF(value: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+    type(n.Float)
+    value
+}))
+
+
+fun CompilationUnit.propDT(value: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+    type(n.Date)
+    value
+}))
 
 fun <T : TypeI> CompilationUnitI.prop(type: T): TypedAttributeI<T> {
     val ret = TypedAttribute<T>({ type(type) })
