@@ -47,7 +47,7 @@ open class Attribute : Composite, AttributeI {
     override fun replaceable(): Boolean = attr(REPLACEABLE, { false })
     override fun replaceable(value: Boolean): AttributeI = apply { attr(REPLACEABLE, value) }
 
-    override fun type(): TypeI = attr(TYPE, { n.String as TypeI })
+    override fun type(): TypeI = attr(TYPE, { n.Void })
     override fun type(value: TypeI): AttributeI = apply { attr(TYPE, value) }
 
     override fun unique(): Boolean = attr(UNIQUE, { false })
@@ -336,8 +336,12 @@ open class TextComposite : Composite, TextCompositeI {
 
     constructor(value: TextComposite.() -> Unit = {}) : super(value as Composite.() -> Unit)
 
+    override fun macro(): String = attr(MACRO, { "" })
+    override fun macro(value: String): TextCompositeI = apply { attr(MACRO, value) }
+
     companion object {
         val EMPTY = TextComposite({ name(ItemEmpty.name()) })
+        val MACRO = "_macro"
     }
 }
 

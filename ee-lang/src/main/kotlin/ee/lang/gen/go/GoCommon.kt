@@ -101,9 +101,13 @@ fun List<AttributeI>.toGoTypes(c: GenerationContext, derived: String): String {
 fun <T : OperationI> T.toGoLamnda(c: GenerationContext, derived: String): String =
         """(${params().toGoTypes(c, derived)}) -> ${ret().toGoType(c, derived)}"""
 
+fun <T : LogicUnitI> T.toGoName(): String = visible().ifElse({ name().capitalize() }, { name().decapitalize() })
+
 fun <T : OperationI> T.toGoImpl(o: String, c: GenerationContext, api: String): String {
-    return """
-func (o *$o) ${name()}(${params().toGoSignature(c, api)}) ${ret().toGoTypeDef(c, api)} {
-    panic("Not implemented yet.")
+    return macro().isNotEmpty().then {
+        """
+func (o *$o) ${toGoName()}(${params().toGoSignature(c, api)}) ${ret().toGoTypeDef(c, api)} {
+    ${c.body(macro(), this, api, api)}
 }"""
+    }
 }

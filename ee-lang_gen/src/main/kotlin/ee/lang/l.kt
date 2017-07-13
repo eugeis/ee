@@ -11,7 +11,9 @@ object l : Composite({ namespace("ee.lang") }) {
     val Comment = ItemDsl({ derivedFrom(Composite) })
 
     //lang types
-    object TextComposite : Composite({ derivedFrom(Composite) })
+    object TextComposite : Composite({ derivedFrom(Composite) }) {
+        val macro = AttributeI({ type(n.String) })
+    }
 
     object Type : Composite({ derivedFrom(Composite) }) {
         val generics = AttributeI({ type(Generic).multi(true).nonFluent("G") })
@@ -32,13 +34,13 @@ object l : Composite({ namespace("ee.lang") }) {
     object ExternalType : Composite({ derivedFrom(Type) })
 
     object Attribute : Composite({ derivedFrom(Composite) }) {
-        val type = AttributeI({ type(Type).value("n.String as TypeI") })
+        val type = AttributeI({ type(Type).value("n.Void") })
         val key = AttributeI({ type(n.Boolean).value(false) })
         val unique = AttributeI({ type(n.Boolean).value(false) })
         val value = AttributeI({ type(n.Any).nullable(true) })
         val initByDefaultTypeValue = AttributeI({ type(n.Boolean).value(true) })
         val nullable = AttributeI({ type(n.Boolean).value(false) })
-        val anonymous  = AttributeI({ type(n.Boolean).value(false) })
+        val anonymous = AttributeI({ type(n.Boolean).value(false) })
         val accessible = AttributeI({ type(n.Boolean).value(true) })
         val replaceable = AttributeI({ type(n.Boolean).value(false) })
         val meta = AttributeI({ type(n.Boolean).value(false) })
@@ -88,6 +90,7 @@ object l : Composite({ namespace("ee.lang") }) {
     object EnumType : Composite({ derivedFrom(CompilationUnit) }) {
         val literals = AttributeI({ type(Literal).multi(true).nonFluent("lit") })
     }
+
     object Literal : Composite({ derivedFrom(LogicUnit) })
 
     object DataType : Composite({ derivedFrom(CompilationUnit) })

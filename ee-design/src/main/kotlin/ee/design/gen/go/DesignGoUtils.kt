@@ -15,6 +15,9 @@ object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("e
     object AggregateType : ExternalType() {
     }
 
+    object CommandType : ExternalType() {
+    }
+
     object AggregateCommandHandler : ExternalType() {
         object SetAggregate : Operation() {
             val aggregateType = p()
@@ -56,37 +59,30 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                     val AggregateBase = prop({ type(eh.AggregateBase).anonymous(true).name("AggregateBase") })
                     val Entity = prop({ type(item).anonymous(true).name("Entity") })
                     derivedFrom(item)
+
                     parent(module)
                 }
 
-                controller {
-                    name("${item.name().capitalize()}AggregateInitializer").derivedAsType(DesignDerivedType.AGGREGATE)
-                    val store = prop { type(eh.EventStore).name("store") }
-                    val notifier = prop { type(eh.EventBus).name("notifier") }
-                    val publisher = prop { type(eh.EventPublisher).name("publisher") }
-                    val executor = prop { type(eh.CommandBus).name("executor") }
+                item.extend {
+                    controller {
+                        name("${item.name().capitalize()}AggregateInitializer").derivedAsType(DesignDerivedType.AGGREGATE)
+                        val store = prop { type(eh.EventStore).name("store") }
+                        val notifier = prop { type(eh.EventBus).name("notifier") }
+                        val publisher = prop { type(eh.EventPublisher).name("publisher") }
+                        val executor = prop { type(eh.CommandBus).name("executor") }
 
-                    parent(module)
+                        op { name("Setup") }
 
-                    op { name("setup") }
-
-                    val registerCommands = op {
-                        name("registerCommands")
-                        val commandController = p { type(eh.AggregateCommandHandler).name("commandController") }
-                        item.commands().first().findDownByType(CommandI::class.java).forEach {
-                            eh.AggregateCommandHandler.SetAggregate
+                        op {
+                            name("RegisterCommands")
+                            params(p { type(eh.AggregateCommandHandler).name("handler") })
+                            macro(OperationI::toGoAggregateInitializerRegisterCommands.name)
                         }
+
+                        parent(item)
                     }
                 }
 
-            }
-
-            enumType {
-                name("${module.name().capitalize()}AggregateType").derivedAsType(DesignDerivedType.AGGREGATE)
-                items.forEach {
-                    lit({ name(it.nameAndParentName()) })
-                }
-                parent(module)
             }
 
             controller {
@@ -95,8 +91,6 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                 prop { type(eh.EventBus).name("eventBus") }
                 prop { type(eh.EventPublisher).name("publisher") }
                 prop { type(eh.CommandBus).name("commandBus") }
-
-                parent(module)
 
                 op { name("setup") }
 

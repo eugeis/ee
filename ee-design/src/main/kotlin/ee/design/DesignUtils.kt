@@ -132,6 +132,24 @@ fun StructureUnitI.addEventEnumsForAggregate() {
     }
 }
 
+
+fun StructureUnitI.addAggregateType() {
+    findDownByType(EntityI::class.java).filter { !it.virtual() && it.derivedAsType().isEmpty() }.groupBy {
+        it.findParentMust(ModuleI::class.java)
+    }.forEach { module, items ->
+        module.extend {
+
+            enumType {
+                name("${module.name().capitalize()}AggregateType").derivedAsType(DesignDerivedType.AGGREGATE)
+                items.forEach {
+                    lit({ name(it.nameAndParentName()) })
+                }
+            }
+        }
+    }
+}
+
+
 fun StructureUnitI.declareAsBaseWithNonImplementedOperation() {
     findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEMPTY() && !it.base() }.forEach { it.base(true) }
 

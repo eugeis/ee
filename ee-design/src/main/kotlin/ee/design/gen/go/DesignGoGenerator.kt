@@ -37,6 +37,8 @@ open class DesignGoGenerator {
 
         addEventEnumsForAggregate()
 
+        addAggregateType()
+
         addEventhorizonArtifactsForAggregate()
 
         defineNamesForTypeControllers()

@@ -231,7 +231,7 @@ open class Deleted : Event, DeletedI {
 open class Entity : DataType, EntityI {
     constructor(value: Entity.() -> Unit = {}) : super(value as DataType.() -> Unit)
 
-    override fun belongsToAggregate(): EntityI = attr(BELONGS_TO_AGGREGATE, { Entity.EMPTY })
+    override fun belongsToAggregate(): EntityI = attr(BELONGS_TO_AGGREGATE, { Entity() })
     override fun belongsToAggregate(value: EntityI): EntityI = apply { attr(BELONGS_TO_AGGREGATE, value) }
 
     override fun aggregateFor(): ListMultiHolderI<EntityI> = itemAsList(AGGREGATE_FOR, EntityI::class.java, true, true)

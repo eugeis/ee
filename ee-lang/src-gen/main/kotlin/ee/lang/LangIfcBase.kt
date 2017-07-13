@@ -178,6 +178,8 @@ interface StructureUnitI : CompositeI {
 
 
 interface TextCompositeI : CompositeI {
+    fun macro(): String
+    fun macro(value: String): TextCompositeI
 }
 
 

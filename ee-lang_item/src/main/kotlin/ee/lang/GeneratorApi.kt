@@ -226,17 +226,20 @@ open class GenerationContext : Cloneable {
     var footer: String = ""
 
     var derivedController: DerivedController
+    var macroController: MacroController
 
     val types: MutableSet<ItemI> = hashSetOf()
 
     constructor(namespace: String = "",
                 moduleFolder: String = "", genFolder: String = "", genFolderDeletable: Boolean = false,
-                derivedController: DerivedController = DerivedController(DerivedStorage<ItemI>())) {
+                derivedController: DerivedController = DerivedController(DerivedStorage<ItemI>()),
+                macroController: MacroController = MacroController()) {
         this.namespace = namespace
         this.moduleFolder = moduleFolder
         this.genFolder = genFolder
         this.genFolderDeletable = genFolderDeletable
         this.derivedController = derivedController
+        this.macroController = macroController
     }
 
     open fun toHeader(indent: String = ""): String {
@@ -263,6 +266,41 @@ open class GenerationContext : Cloneable {
 
     open fun n(item: ItemI, derivedKind: String = ""): String {
         return "${types.addReturn(derivedController.derive(item, derivedKind)).name()}"
+    }
+
+    open fun <T : ItemI> body(macro: String, item: T, derivedKind: String = "", apiKind: String = ""): String {
+        return macroController.find<T>(macro).code.invoke(item, this, derivedKind, apiKind)
+    }
+}
+
+open class Macro<T : ItemI> {
+    val name: String
+    val code: T.(c: GenerationContext, derivedKind: String, api: String) -> String
+
+    constructor(name: String, template: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
+        this.name = name
+        this.code = template
+    }
+
+    companion object {
+        val EMPTY = Macro<ItemI>("EMPTY", { c, d, a -> "" })
+    }
+}
+
+open class MacroController {
+    val nameToMacro = hashMapOf<String, Macro<*>>()
+
+    open fun <T : ItemI> registerMacro(name: String, template: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
+        nameToMacro.put(name, Macro<T>(name = name, template = template))
+    }
+
+    open fun <T : ItemI> find(name: String): Macro<T> {
+        var ret = nameToMacro.get(name)
+        if (ret == null) {
+            log.warn("No macro '$name' found, return EMPTY.")
+            ret = Macro.EMPTY
+        }
+        return ret as Macro<T>
     }
 }
 

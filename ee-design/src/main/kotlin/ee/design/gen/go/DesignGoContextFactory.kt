@@ -8,20 +8,20 @@ import ee.lang.gen.go.GoContext
 import ee.lang.gen.go.LangGoContextFactory
 
 open class DesignGoContextFactory : LangGoContextFactory() {
-    override fun contextBuilder(controller: DerivedController): StructureUnitI.() -> GoContext {
+    override fun contextBuilder(derived: DerivedController): StructureUnitI.() -> GoContext {
         return {
             val structureUnit = this
             val compOrStructureUnit = this.findThisOrParent(CompI::class.java) ?: structureUnit
             GoContext(moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}",
                     namespace = structureUnit.namespace().toLowerCase(),
-                    derivedController = controller
+                    derivedController = derived,
+                    macroController = macroController
             )
         }
     }
 
-    override fun registerForImplOnly(derived: DerivedController): DerivedController {
+    override fun registerForImplOnly(derived: DerivedController) {
         super.registerForImplOnly(derived)
-        return derived
     }
 
     override fun ItemI.buildName(): String {

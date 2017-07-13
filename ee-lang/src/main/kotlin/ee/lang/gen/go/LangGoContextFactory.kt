@@ -6,24 +6,26 @@ import ee.lang.gen.kt.k
 
 open class LangGoContextFactory {
     val isNotPartOfNativeTypes: ItemI.() -> Boolean = { n != parent() && j != parent() && k != parent() }
-
+    val macroController = MacroController()
 
     open fun buildForImplOnly(): StructureUnitI.() -> GoContext {
-        return contextBuilder(registerForImplOnly(DerivedController()))
+        val derivedController = DerivedController()
+        registerForImplOnly(derivedController)
+        return contextBuilder(derivedController)
     }
 
-    protected open fun registerForImplOnly(derived: DerivedController): DerivedController {
+    protected open fun registerForImplOnly(derived: DerivedController) {
         derived.registerKinds(listOf(LangDerivedKind.API, LangDerivedKind.IMPL), isNotPartOfNativeTypes, { buildName() })
-        return derived
     }
 
 
-    protected open fun contextBuilder(controller: DerivedController): StructureUnitI.() -> GoContext {
+    protected open fun contextBuilder(derived: DerivedController): StructureUnitI.() -> GoContext {
         return {
             val structureUnit = this
             GoContext(moduleFolder = structureUnit.artifact(),
                     namespace = structureUnit.namespace().toLowerCase(),
-                    derivedController = controller
+                    derivedController = derived,
+                    macroController = macroController
             )
         }
     }
