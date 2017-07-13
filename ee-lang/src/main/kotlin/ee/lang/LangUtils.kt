@@ -43,6 +43,10 @@ fun CompilationUnitI.primaryConstructor(): ConstructorI = storage.getOrPut(this,
     constructors().filter { it.primary() }.firstOrNull() ?: Constructor.EMPTY
 })
 
+fun CompilationUnitI.primaryOrFirstConstructor(): ConstructorI = storage.getOrPut(this, "primaryOrFirstConstructor", {
+    constructors().filter { it.primary() }.firstOrNull() ?: constructors().firstOrNull() ?: Constructor.EMPTY
+})
+
 fun CompilationUnitI.otherConstructors(): List<ConstructorI> = storage.getOrPut(this, "otherConstructors", {
     constructors().filterNot { it.primary() }
 })
@@ -167,7 +171,7 @@ fun <T : CompilationUnitI> T.constructorAllProps(): ConstructorI {
     return if (constrProps.isNotEmpty()) constr {
         parent(this@constructorAllProps)
         primary(primary).params(*constrProps.toTypedArray()).name("constructorAllProps")
-        superUnit(this@constructorAllProps.superUnit().primaryConstructor())
+        superUnit(this@constructorAllProps.superUnit().primaryOrFirstConstructor())
     } else Constructor.EMPTY
 }
 
@@ -177,7 +181,7 @@ fun <T : CompilationUnitI> T.constructorOwnPropsOnly(): ConstructorI {
     return if (constrProps.isNotEmpty()) constr {
         parent(this@constructorOwnPropsOnly)
         primary(primary).params(*constrProps.toTypedArray()).name("constructorOwnPropsOnly")
-        superUnit(this@constructorOwnPropsOnly.superUnit().primaryConstructor())
+        superUnit(this@constructorOwnPropsOnly.superUnit().primaryOrFirstConstructor())
     } else Constructor.EMPTY
 }
 
@@ -251,7 +255,7 @@ fun <T : StructureUnitI> T.initObjectTree(): T {
         if (this is StructureUnitI) {
             val parent = findParent(StructureUnitI::class.java) ?: parent()
             if (parent.namespace().isBlank() || this !is StructureUnitI) parent.namespace()
-            else parent.deriveNamespace(name())
+            else parent.deriveNamespace(name().toLowerCase())
         } else {
             parent().namespace()
         }

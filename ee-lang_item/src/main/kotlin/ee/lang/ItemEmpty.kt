@@ -38,9 +38,9 @@ open class MultiHolderEmptyClass<I> : ItemEmptyClass(), MultiHolderI<I> {
 
     override fun containsItem(item: I): Boolean = false
 
-    override fun <T : I> addItem(item: T, attachParent: Boolean): T = item
+    override fun <T : I> addItem(item: T): T = item
 
-    override fun <T : I> addItems(items: Collection<T>, attachParent: Boolean): MultiHolderI<I> = this
+    override fun <T : I> addItems(items: Collection<T>): MultiHolderI<I> = this
 
     override fun <T> supportsItem(item: T): Boolean = false
 

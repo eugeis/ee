@@ -33,8 +33,6 @@ object LogicUnitEmpty : TextComposite(), LogicUnitI {
     override fun superUnit(value: LogicUnitI): LogicUnitI = this
     override fun params(vararg value: AttributeI): LogicUnitI = this
     override fun params(): ListMultiHolder<AttributeI> = ListMultiHolder.empty()
-    override fun p(value: AttributeI): AttributeI = Attribute.EMPTY
-    override fun p(value: AttributeI.() -> Unit): AttributeI = Attribute.EMPTY
     override fun visible(): Boolean = false
     override fun visible(value: Boolean): LogicUnitI = this
 }

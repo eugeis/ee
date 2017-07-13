@@ -16,6 +16,11 @@ object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("e
     }
 
     object AggregateCommandHandler : ExternalType() {
+        object SetAggregate : Operation() {
+            val aggregateType = p()
+            val cmdType = p()
+            val ret = ret()
+        }
     }
 
     object EventStore : ExternalType() {
@@ -69,6 +74,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                         name("registerCommands")
                         val commandController = p { type(eh.AggregateCommandHandler).name("commandController") }
                         item.commands().first().findDownByType(CommandI::class.java).forEach {
+                            eh.AggregateCommandHandler.SetAggregate
                         }
                     }
                 }

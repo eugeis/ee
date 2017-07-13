@@ -77,7 +77,7 @@ fun <T> MultiHolderI<*>.findAllByType(type: Class<T>): List<T> {
 }
 
 fun <T> ItemI.findUpByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                           alreadyHandled: MutableSet<ItemI> = HashSet(),
+                           alreadyHandled: MutableSet<ItemI> = hashSetOf(),
                            stopSteppingUpIfFound: Boolean = true): List<T> =
         findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound) { listOf(parent()) }
 
@@ -90,7 +90,7 @@ fun <T> ItemI.findAcrossByType(type: Class<T>, destination: MutableList<T> = Arr
         }, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
 
 fun <T> MultiHolderI<*>.findDownByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                       alreadyHandled: MutableSet<ItemI> = HashSet(),
+                                       alreadyHandled: MutableSet<ItemI> = hashSetOf(),
                                        stopSteppingDownIfFound: Boolean = true): List<T> =
         findAcrossByType(type, destination, alreadyHandled, stopSteppingDownIfFound, {
             if (this is MultiHolderI<*> && this.supportsItemType(ItemI::class.java))
@@ -141,10 +141,10 @@ fun <T : MultiHolderI<I>, I> T.initObjectTree(deriveNamespace: ItemI.() -> Strin
                 if (child is ItemI) {
                     if (!child.isInitialized()) child.init()
                     if (child.name().isBlank()) child.name(f.name)
-                    if (child.parent().isEMPTY()) {
-                        if (!containsItem(child as I)) {
-                            addItem(child)
-                        }
+                    //set the parent, parent shall be the DSL model parent and not some internal object or reference object
+                    child.parent(this)
+                    if (!containsItem(child as I)) {
+                        addItem(child)
                     }
                     if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
                 }
@@ -161,12 +161,12 @@ fun <T : MultiHolderI<I>, I> T.initObjectTree(deriveNamespace: ItemI.() -> Strin
             if (child.name().isBlank()) child.name(child.buildLabel().name)
 
             //initObjectTree recursively if the parent is not set
-            if (child.parent().isEMPTY()) {
-                if (!containsItem(child as I)) {
-                    addItem(child)
-                    if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
-                    if (child is MultiHolderI<*>) child.initObjectTree<T, I>(deriveNamespace)
-                }
+            //set the parent, parent shall be the DSL model parent and not some internal object or reference object
+            child.parent(this)
+            if (!containsItem(child as I)) {
+                addItem(child)
+                if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
+                if (child is MultiHolderI<*>) child.initObjectTree<T, I>(deriveNamespace)
             }
             if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
         }

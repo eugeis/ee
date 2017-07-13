@@ -133,8 +133,6 @@ interface LiteralI : LogicUnitI {
 interface LogicUnitI : TextCompositeI {
     fun params(): ListMultiHolder<AttributeI>
     fun params(vararg value: AttributeI): LogicUnitI
-    fun p(value: AttributeI): AttributeI
-    fun p(value: AttributeI.() -> Unit = {}): AttributeI
 
     fun superUnit(): LogicUnitI
     fun superUnit(value: LogicUnitI): LogicUnitI

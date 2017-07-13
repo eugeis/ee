@@ -24,6 +24,10 @@ fun <T : TypeI> T.toKotlinEmpty(c: GenerationContext, derived: String, attr: Att
         else -> {
             if (baseType is Literal) {
                 "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI).toKotlin(c, derived, attr)}.${baseType.toKotlin()}"
+            } else if (baseType is EnumTypeI) {
+                "${c.n(this, derived)}.${baseType.literals().first().toKotlin()}"
+            } else if (baseType is CompilationUnitI) {
+                "${c.n(this, derived)}()"
             } else {
                 (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
             }
@@ -144,7 +148,7 @@ fun <T : AttributeI> T.toKotlinValue(c: GenerationContext, derived: String): Str
     }
 }
 
-fun <T : AttributeI> T.toKotlinInit(c: GenerationContext, derived: String, api: String): String {
+fun <T : AttributeI> T.toKotlinInit(c: GenerationContext, derived: String): String {
     if (value() != null) {
         return " = ${toKotlinValue(c, derived)}"
     } else if (nullable()) {
@@ -156,8 +160,10 @@ fun <T : AttributeI> T.toKotlinInit(c: GenerationContext, derived: String, api: 
     }
 }
 
+fun <T : AttributeI> T.toKotlinInitMember(c: GenerationContext, derived: String): String = "this.${name()}${toKotlinInit(c, derived)}"
+
 fun <T : AttributeI> T.toKotlinSignature(c: GenerationContext, derived: String, api: String, init: Boolean = true): String {
-    return "${name()}: ${toKotlinTypeDef(c, api)}${init.then { toKotlinInit(c, derived, api) }}"
+    return "${name()}: ${toKotlinTypeDef(c, api)}${init.then { toKotlinInit(c, derived) }}"
 }
 
 fun <T : AttributeI> T.toKotlinConstructorMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String {
@@ -185,9 +191,11 @@ fun <T : ConstructorI> T.toKotlinPrimary(c: GenerationContext, derived: String, 
 fun <T : ConstructorI> T.toKotlin(c: GenerationContext, derived: String, api: String): String {
     return if (isNotEMPTY()) """
     constructor(${params().joinWrappedToString(", ", "                ") { it.toKotlinSignature(c, derived, api) }
-    })${(superUnit() as ConstructorI).toKotlinCall(c, "${(parent() != superUnit().parent()).ifElse("super", "this")}")} ${
+    })${superUnit().isNotEMPTY().then { (superUnit() as ConstructorI).toKotlinCall(c, "${(parent() != superUnit().parent()).ifElse("super", "this")}") }} ${
     paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("$nL        ", prefix = "{$nL        ") {
         it.toKotlinAssign(c)
+    }}${(parent() as CompilationUnitI).props().filter { it.meta() }.joinSurroundIfNotEmptyToString("$nL        ", prefix = "$nL        ") {
+        it.toKotlinInitMember(c, derived)
     }}
     }""" else ""
 }

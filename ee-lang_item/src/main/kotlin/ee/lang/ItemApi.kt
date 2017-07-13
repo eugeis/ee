@@ -160,7 +160,7 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
         return null
     }
 
-    override fun <T : I> addItems(items: Collection<T>, attachParent: Boolean): MultiHolderI<I> = apply { items.forEach { addItem(it, attachParent) } }
+    override fun <T : I> addItems(items: Collection<T>): MultiHolderI<I> = apply { items.forEach { addItem(it) } }
 
     override fun containsItem(item: I): Boolean = items().contains(item)
 
@@ -224,8 +224,8 @@ open class ListMultiHolder<I>(_type: Class<I>, value: ListMultiHolder<I>.() -> U
                               private val _items: MutableList<I> = arrayListOf()) :
         MultiHolder<I>(_type, value as MultiHolder<*>.() -> Unit), ListMultiHolderI<I>, MutableList<I> by _items {
 
-    override fun <T : I> addItem(item: T, attachParent: Boolean): T {
-        if (attachParent) fillThisOrNonInternalAsParent(item)
+    override fun <T : I> addItem(item: T): T {
+        fillThisOrNonInternalAsParent(item)
         _items.add(item)
         return item
     }
@@ -253,7 +253,7 @@ open class ListMultiHolder<I>(_type: Class<I>, value: ListMultiHolder<I>.() -> U
                 if (it is ItemI && it.parent() == this) {
                     itemToFill.addItem(it.copy<ItemI>() as I)
                 } else {
-                    itemToFill.addItem(it, false)
+                    itemToFill.addItem(it)
                 }
             }
         }
@@ -268,11 +268,11 @@ open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Uni
                              private val _items: MutableMap<String, I> = TreeMap()) :
         MultiHolder<I>(_type, adapt as MultiHolder<*>.() -> Unit), MapMultiHolderI<I> {
 
-    override fun <T : I> addItem(item: T, attachParent: Boolean): T {
+    override fun <T : I> addItem(item: T): T {
         if (item is ItemI) {
-            addItem(item.name(), item, attachParent)
+            addItem(item.name(), item)
         } else {
-            if (attachParent) fillThisOrNonInternalAsParent(item)
+            fillThisOrNonInternalAsParent(item)
             _items.put(item.toString(), item)
         }
         return item

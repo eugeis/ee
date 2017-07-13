@@ -51,8 +51,8 @@ interface ItemI {
 interface MultiHolderI<I> : ItemI {
     fun items(): Collection<I>
 
-    fun <T : I> addItem(item: T, attachParent: Boolean = true): T
-    fun <T : I> addItems(items: Collection<T>, attachParent: Boolean = true): MultiHolderI<I>
+    fun <T : I> addItem(item: T): T
+    fun <T : I> addItems(items: Collection<T>): MultiHolderI<I>
     fun containsItem(item: I): Boolean
 
     fun <T> supportsItem(item: T): Boolean

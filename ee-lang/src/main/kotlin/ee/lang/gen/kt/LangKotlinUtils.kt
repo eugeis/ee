@@ -1,6 +1,7 @@
 package ee.lang.gen.kt
 
 import ee.lang.*
+import ee.lang.gen.java.j
 
 object k : StructureUnit({ name("Kotlin") }) {
     object core : StructureUnit() {
@@ -25,7 +26,9 @@ object k : StructureUnit({ name("Kotlin") }) {
 }
 
 fun <T : StructureUnitI> T.prepareForKotlinGeneration(): T {
+    j.initObjectTree()
     k.initObjectTree()
+
     initObjectTrees()
 
     //declare as 'base' all compilation units with non implemented operations.

@@ -10,7 +10,7 @@ open class LangKotlinContextFactory {
     open fun buildForImplOnly(): StructureUnitI.() -> KotlinContext {
         val controller = DerivedController()
 
-        controller.registerKinds(listOf(LangDerivedKind.API, LangDerivedKind.IMPL), isNotPartOfNativeTypes, { "${name()}" })
+        controller.registerKinds(listOf(LangDerivedKind.API, LangDerivedKind.IMPL), isNotPartOfNativeTypes, { name() })
 
         return contextBuilder(controller)
     }

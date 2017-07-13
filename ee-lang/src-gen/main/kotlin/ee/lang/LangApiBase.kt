@@ -244,8 +244,6 @@ open class LogicUnit : TextComposite, LogicUnitI {
 
     override fun params(): ListMultiHolder<AttributeI> = itemAsList(PARAMS, AttributeI::class.java, true, true)
     override fun params(vararg value: AttributeI): LogicUnitI = apply { params().addItems(value.asList()) }
-    override fun p(value: AttributeI): AttributeI = applyAndReturn { params().addItem(value); value }
-    override fun p(value: AttributeI.() -> Unit): AttributeI = p(Attribute(value))
 
     override fun superUnit(): LogicUnitI = attr(SUPER_UNIT, { LogicUnit.EMPTY })
     override fun superUnit(value: LogicUnitI): LogicUnitI = apply { attr(SUPER_UNIT, value) }
