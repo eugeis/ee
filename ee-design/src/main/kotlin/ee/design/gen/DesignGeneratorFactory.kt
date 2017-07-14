@@ -24,16 +24,16 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
 
         val contextFactory = buildGoContextFactory()
         val contextBuilder = contextFactory.buildForImplOnly()
+
+        val commands: StructureUnitI.() -> List<CommandI> = { findDownByType(CommandI::class.java) }
         val commandEnums: StructureUnitI.() -> List<EnumTypeI> = {
             findDownByType(EnumTypeI::class.java).filter { it.parent() is Commands }
         }
-        val commands: StructureUnitI.() -> List<CommandI> = { findDownByType(CommandI::class.java) }
 
+        val events: StructureUnitI.() -> List<EventI> = { findDownByType(EventI::class.java) }
         val eventEnums: StructureUnitI.() -> List<EnumTypeI> = {
             findDownByType(EnumTypeI::class.java).filter { it.parent() is Events }
         }
-        val events: StructureUnitI.() -> List<EventI> = { findDownByType(EventI::class.java) }
-
 
         val ehEnums: StructureUnitI.() -> List<EnumTypeI> = {
             findDownByType(EnumTypeI::class.java).filter {

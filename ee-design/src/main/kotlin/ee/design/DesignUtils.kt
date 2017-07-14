@@ -54,19 +54,16 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
             createBy {
                 name("create")
                 props(*dataTypeProps.toTypedArray())
-                parent(entity)
             }
 
             updateBy {
                 name("update")
                 props(*dataTypeProps.toTypedArray())
-                parent(entity)
             }
 
             deleteBy {
                 name("delete")
                 props(id())
-                parent(entity)
             }
         })
 
@@ -77,19 +74,16 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
                 created {
                     name("created")
                     props(*dataTypeProps.toTypedArray())
-                    parent(entity)
                 }
 
                 updated {
                     name("updated")
                     props(*dataTypeProps.toTypedArray())
-                    parent(entity)
                 }
 
                 deleted {
                     name("deleted")
                     props(id())
-                    parent(entity)
                 }
             })
         }
@@ -107,7 +101,6 @@ fun StructureUnitI.addCommandEnumsForAggregate() {
                     items.forEach {
                         lit({ name(it.nameAndParentName()) })
                     }
-                    parent(parent)
                 }
             }
         }
@@ -126,7 +119,6 @@ fun StructureUnitI.addEventEnumsForAggregate() {
                         lit({ name(it.parentNameAndName()) })
                     }
                 }
-                parent(parent)
             }
         }
     }

@@ -59,8 +59,6 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                     val AggregateBase = prop({ type(eh.AggregateBase).anonymous(true).name("AggregateBase") })
                     val Entity = prop({ type(item).anonymous(true).name("Entity") })
                     derivedFrom(item)
-
-                    parent(module)
                 }
 
                 item.extend {
@@ -78,8 +76,6 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             params(p { type(eh.AggregateCommandHandler).name("handler") })
                             macro(OperationI::toGoAggregateInitializerRegisterCommands.name)
                         }
-
-                        parent(item)
                     }
                 }
 
