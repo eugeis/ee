@@ -41,7 +41,7 @@ func (o *$literals) ${name().capitalize()}() *$enum {
 }
 
 fun LiteralI.toGoCase(): String {
-    return """  case "${this.toGo()}":
+    return """  case o.${this.toGo()}().Name():
         ret = o.${this.toGo()}()"""
 }
 
