@@ -41,7 +41,7 @@ fun StructureUnitI.defineNamesForTypeControllers() {
     }
 }
 
-fun StructureUnitI.addDefaultCommandsAndEventsForAggregates() {
+fun StructureUnitI.addCommandsAndEventsForAggregates() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.commands().isEmpty() }.extend {
         log.debug("Add default commands to ${name()}")
         val dataTypeProps = props().filter { !it.meta() && !it.key() }

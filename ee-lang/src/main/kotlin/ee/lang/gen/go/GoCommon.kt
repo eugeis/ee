@@ -69,16 +69,9 @@ fun <T : ConstructorI> T.toGo(c: GenerationContext, derived: String, api: String
     return if (isNotEMPTY()) """
 func New$name(${params().joinWrappedToString(", ", "                ") { it.toGoSignature(c, api) }
     }) (ret *$name, err error) {
-    ${superUnit().isNotEMPTY().ifElse({
-        """ret = ${superUnit().toGoCall()}
-        ${paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("$nL    ", prefix = "$nL    ") {
-            it.toGoAssign("ret")
-        }}"""
-    }, {
-        "ret = &$name${params().joinSurroundIfNotEmptyToString(",$nL        ", "{$nL        ", ",$nL    }") {
-            it.toGoInitCall()
-        }}"
-    })}
+    ret = &$name${params().joinSurroundIfNotEmptyToString(",$nL        ", "{$nL        ", ",$nL    }") {
+        it.toGoInitCall()
+    }}
     return
 }""" else ""
 }
@@ -90,6 +83,13 @@ fun <T : AttributeI> T.toGoAssign(o: String): String {
 
 fun <T : LogicUnitI> T.toGoCall(): String {
     return isNotEMPTY().then { "(${params().joinWrappedToString(", ") { it.name() }})" }
+}
+
+fun <T : ConstructorI> T.toGoCall(c: GenerationContext, derived: String, api: String): String {
+    val name = c.n(parent(), derived)
+    return if (isNotEMPTY()) """New$name(${params().joinWrappedToString(", ", "                ") {
+        it.name()
+    }})""" else ""
 }
 
 fun <T : AttributeI> T.toGoType(c: GenerationContext, derived: String): String = type().toGo(c, derived)

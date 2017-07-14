@@ -31,7 +31,7 @@ open class DesignGoGenerator {
         prepareForGoGeneration()
         eh.initObjectTree()
 
-        addDefaultCommandsAndEventsForAggregates()
+        addCommandsAndEventsForAggregates()
 
         addCommandEnumsForAggregate()
 
