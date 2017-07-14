@@ -62,7 +62,7 @@ object l : Composite({ namespace("ee.lang") }) {
 
     object Operation : Composite({ derivedFrom(LogicUnit) }) {
         val generics = AttributeI({ type(Generic).multi(true).nonFluent("G") })
-        val ret = AttributeI({ type(Attribute).nonFluent("r") })
+        val ret = AttributeI({ type(Attribute) })
         val open = AttributeI({ type(n.Boolean).value(true) })
     }
 

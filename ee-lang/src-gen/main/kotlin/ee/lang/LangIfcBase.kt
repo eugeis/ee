@@ -160,8 +160,6 @@ interface OperationI : LogicUnitI {
 
     fun ret(): AttributeI
     fun ret(value: AttributeI): OperationI
-    fun r(value: AttributeI): AttributeI
-    fun r(value: AttributeI.() -> Unit = {}): AttributeI
 }
 
 

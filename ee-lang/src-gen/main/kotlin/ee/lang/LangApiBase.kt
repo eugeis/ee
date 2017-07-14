@@ -293,8 +293,6 @@ open class Operation : LogicUnit, OperationI {
 
     override fun ret(): AttributeI = attr(RET, { Attribute.EMPTY })
     override fun ret(value: AttributeI): OperationI = apply { attr(RET, value) }
-    override fun r(value: AttributeI): AttributeI = applyAndReturn { ret().addItem(value) }
-    override fun r(value: AttributeI.() -> Unit): AttributeI = r(Attribute(value))
 
     override fun fillSupportsItems() {
         generics()

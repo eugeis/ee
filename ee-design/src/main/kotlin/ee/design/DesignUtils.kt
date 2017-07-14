@@ -133,6 +133,8 @@ fun StructureUnitI.addAggregateType() {
 
             enumType {
                 name("${module.name().capitalize()}AggregateType").derivedAsType(DesignDerivedType.AGGREGATE)
+                prop({ type(n.String).name("commands") })
+                prop({ type(n.String).name("events") })
                 items.forEach {
                     lit({ name(it.nameAndParentName()) })
                 }

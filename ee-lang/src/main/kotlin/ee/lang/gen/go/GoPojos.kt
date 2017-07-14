@@ -58,7 +58,7 @@ fun <T : EnumTypeI> T.toGoEnum(c: GenerationContext, api: String = LangDerivedKi
 type $name struct {
 	name  string
 	ordinal int${
-    props().joinSurroundIfNotEmptyToString("", nL) { it.toGoMember(c, api) }}
+    props().joinSurroundIfNotEmptyToString(nL, nL) { it.toGoEnumMember(c, api) }}
 }
 
 func (o *$name) Name() string {

@@ -83,6 +83,10 @@ fun AttributeI.nameForMember(): String = storage.getOrPut(this, "nameForMember",
     "${accessibleAndMutable().ifElse({ "${name().capitalize()} " }, { "${name().decapitalize()}" })}"
 })
 
+fun AttributeI.nameForEnum(): String = storage.getOrPut(this, "nameForEnum", {
+    name().decapitalize()
+})
+
 val itemAndTemplateNameAsGoFileName: TemplateI<*>.(CompositeI) -> Names = {
     Names("${it.name().capitalize()}${name.capitalize()}.go")
 }

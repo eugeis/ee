@@ -76,6 +76,8 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             params(p { type(eh.AggregateCommandHandler).name("handler") })
                             macro(OperationI::toGoAggregateInitializerRegisterCommands.name)
                         }
+
+                        op { ret().name("AggregateType") }
                     }
                 }
 

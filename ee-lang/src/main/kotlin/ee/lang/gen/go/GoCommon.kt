@@ -64,6 +64,10 @@ fun <T : AttributeI> T.toGoMember(c: GenerationContext, api: String): String {
     return anonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameForMember()} ${toGoTypeDef(c, api)}" })
 }
 
+fun <T : AttributeI> T.toGoEnumMember(c: GenerationContext, api: String): String {
+    return anonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameForEnum()} ${toGoTypeDef(c, api)}" })
+}
+
 fun List<AttributeI>.toGoSignature(c: GenerationContext, api: String): String {
     return joinWrappedToString(", ") { it.toGoSignature(c, api) }
 }
