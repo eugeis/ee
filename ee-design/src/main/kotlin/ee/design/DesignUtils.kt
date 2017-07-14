@@ -46,8 +46,6 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
         log.debug("Add default commands to ${name()}")
         val dataTypeProps = props().filter { !it.meta() && !it.key() }
 
-        val entity = this
-
         commands(Commands {
             name("commands")
 
@@ -118,25 +116,6 @@ fun StructureUnitI.addEventEnumsForAggregate() {
                     items.forEach {
                         lit({ name(it.parentNameAndName()) })
                     }
-                }
-            }
-        }
-    }
-}
-
-
-fun StructureUnitI.addAggregateType() {
-    findDownByType(EntityI::class.java).filter { !it.virtual() && it.derivedAsType().isEmpty() }.groupBy {
-        it.findParentMust(ModuleI::class.java)
-    }.forEach { module, items ->
-        module.extend {
-
-            enumType {
-                name("${module.name().capitalize()}AggregateType").derivedAsType(DesignDerivedType.AGGREGATE)
-                prop({ type(n.String).name("commands") })
-                prop({ type(n.String).name("events") })
-                items.forEach {
-                    lit({ name(it.nameAndParentName()) })
                 }
             }
         }

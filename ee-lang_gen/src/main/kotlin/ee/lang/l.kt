@@ -11,11 +11,11 @@ object l : Composite({ namespace("ee.lang") }) {
     val Comment = ItemDsl({ derivedFrom(Composite) })
 
     //lang types
-    object TextComposite : Composite({ derivedFrom(Composite) }) {
-        val macro = AttributeI({ type(n.String) })
+    object MacroComposite : Composite({ derivedFrom(Composite) }) {
+        val macros = AttributeI({ type(n.String).multi(true) })
     }
 
-    object Type : Composite({ derivedFrom(Composite) }) {
+    object Type : Composite({ derivedFrom(MacroComposite) }) {
         val generics = AttributeI({ type(Generic).multi(true).nonFluent("G") })
         val multi = AttributeI({ type(n.Boolean).value(false) })
         val defaultValue = AttributeI({ type(n.Any).nullable(true) })
@@ -33,7 +33,7 @@ object l : Composite({ namespace("ee.lang") }) {
 
     object ExternalType : Composite({ derivedFrom(Type) })
 
-    object Attribute : Composite({ derivedFrom(Composite) }) {
+    object Attribute : Composite({ derivedFrom(MacroComposite) }) {
         val type = AttributeI({ type(Type).value("n.Void") })
         val key = AttributeI({ type(n.Boolean).value(false) })
         val unique = AttributeI({ type(n.Boolean).value(false) })
@@ -53,7 +53,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val nonFluent = AttributeI({ type(n.String) })
     }
 
-    object LogicUnit : Composite({ derivedFrom(TextComposite) }) {
+    object LogicUnit : Composite({ derivedFrom(MacroComposite) }) {
         val virtual = AttributeI({ type(n.Boolean).value(false) })
         val superUnit = AttributeI({ type(LogicUnit) })
         val params = AttributeI({ type(Attribute).multi(true) })
@@ -77,7 +77,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val constructors = AttributeI({ type(Constructor).multi(true).nonFluent("constr") })
     }
 
-    object StructureUnit : Composite({ derivedFrom(Composite) }) {
+    object StructureUnit : Composite({ derivedFrom(MacroComposite) }) {
         val key = AttributeI({ type(n.String).value("") })
         val fullName = AttributeI({ type(n.String).value("") })
         val artifact = AttributeI({ type(n.String).value("") })

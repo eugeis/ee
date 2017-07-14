@@ -1,6 +1,5 @@
 package ee.design.gen.go
 
-import ee.design.CommandI
 import ee.design.DesignDerivedType
 import ee.design.EntityI
 import ee.design.ModuleI
@@ -54,13 +53,6 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
     }.forEach { module, items ->
         module.extend {
             items.forEach { item ->
-                entity {
-                    name("${item.name()}${DesignDerivedType.AGGREGATE}").derivedAsType(DesignDerivedType.AGGREGATE)
-                    val AggregateBase = prop({ type(eh.AggregateBase).anonymous(true).name("AggregateBase") })
-                    val Entity = prop({ type(item).anonymous(true).name("Entity") })
-                    derivedFrom(item)
-                }
-
                 item.extend {
                     controller {
                         name("${item.name().capitalize()}AggregateInitializer").derivedAsType(DesignDerivedType.AGGREGATE)
@@ -74,10 +66,17 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                         op {
                             name("RegisterCommands")
                             params(p { type(eh.AggregateCommandHandler).name("handler") })
-                            macro(OperationI::toGoAggregateInitializerRegisterCommands.name)
+                            macros(OperationI::toGoAggregateInitializerRegisterCommands.name)
                         }
 
                         op { ret().name("AggregateType") }
+                    }
+
+                    controller {
+                        name("${item.name()}${DesignDerivedType.AGGREGATE}").derivedAsType(DesignDerivedType.AGGREGATE)
+                        val AggregateBase = prop({ type(eh.AggregateBase).anonymous(true).name("AggregateBase") })
+                        val Entity = prop({ type(item).anonymous(true).name("Entity") })
+                        macros(CompilationUnitI::toGoAggregateType.name)
                     }
                 }
 

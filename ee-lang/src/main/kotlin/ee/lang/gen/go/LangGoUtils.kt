@@ -12,6 +12,17 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     object context : StructureUnit({ namespace("context") }) {
         val Context = Type()
     }
+
+    //common libs
+    object gee : StructureUnit({ namespace("github.com/eugeis/gee") }) {
+        object enum : StructureUnit() {
+            val Literal = Type()
+        }
+
+        object eh : StructureUnit() {
+            val RegisterCommands = Operation()
+        }
+    }
 }
 
 open class GoContext : GenerationContext {
@@ -37,10 +48,10 @@ open class GoContext : GenerationContext {
         return types.isNotEmpty().then {
             val outsideTypes = types.filter { it.namespace().isNotEmpty() && !it.namespace().equals(namespace, true) }
             outsideTypes.isNotEmpty().then {
-                "${outsideTypes.map { "$indent${it.namespace()}" }.toSortedSet().
+                outsideTypes.map { "$indent${it.namespace()}" }.toSortedSet().
                         joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
                             """    "${it.toLowerCase().toDotsAsPath().replace("github/com", "github.com")}""""
-                        }}"
+                        }
             }
         }
     }
@@ -80,7 +91,7 @@ fun <T : StructureUnitI> T.extendForGoGenerationLang(): T {
 }
 
 fun AttributeI.nameForMember(): String = storage.getOrPut(this, "nameForMember", {
-    "${accessibleAndMutable().ifElse({ "${name().capitalize()} " }, { "${name().decapitalize()}" })}"
+    accessibleAndMutable().ifElse({ "${name().capitalize()} " }, { name().decapitalize() })
 })
 
 fun AttributeI.nameForEnum(): String = storage.getOrPut(this, "nameForEnum", {

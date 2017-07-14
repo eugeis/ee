@@ -111,11 +111,16 @@ fun <T : OperationI> T.toGoLamnda(c: GenerationContext, derived: String): String
 
 fun <T : LogicUnitI> T.toGoName(): String = visible().ifElse({ name().capitalize() }, { name().decapitalize() })
 
+fun <T : MacroCompositeI> T.toGoMacros(c: GenerationContext, derived: String, api: String): String {
+    return macros().joinToString("$nL        ") { c.body(it, this, derived, api) }
+}
+
+
 fun <T : OperationI> T.toGoImpl(o: String, c: GenerationContext, api: String): String {
-    return macro().isNotEmpty().then {
+    return macros().isNotEmpty().then {
         """
 func (o *$o) ${toGoName()}(${params().toGoSignature(c, api)}) ${ret().toGoTypeDef(c, api)} {
-    ${c.body(macro(), this, api, api)}
+    ${toGoMacros(c, api, api)}
 }"""
     }
 }

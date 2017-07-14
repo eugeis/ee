@@ -26,7 +26,7 @@ object CompilationUnitEmpty : Type(), CompilationUnitI {
     override fun superUnitFor(): ListMultiHolder<CompilationUnitI> = ListMultiHolder.empty()
 }
 
-object LogicUnitEmpty : TextComposite(), LogicUnitI {
+object LogicUnitEmpty : MacroComposite(), LogicUnitI {
     override fun virtual(): Boolean = false
     override fun virtual(value: Boolean): LogicUnitI = this
     override fun superUnit(): LogicUnitI = this

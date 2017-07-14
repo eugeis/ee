@@ -74,6 +74,7 @@ ${literals().joinSurroundIfNotEmptyToString(nL) { item -> item.toGoIsMethod(name
 
 type $literals struct {
 	values []*$name
+    literals []${c.n(g.gee.enum.Literal)}
 }
 
 var _$literals = &$literals{values: []*$name${literals().joinWithIndexToString(",$nL    ", "{$nL    ", "},") { i, item ->
@@ -88,11 +89,23 @@ func $enums() *$literals {
 func (o *$literals) Values() []*$name {
 	return o.values
 }
+
+func (o *$literals) Literals() []${c.n(g.gee.enum.Literal)} {
+	if o.literals == nil {
+		o.literals = make([]${c.n(g.gee.enum.Literal)}, len(o.values))
+		for i, item := range o.values {
+			o.literals[i] = item
+		}
+	}
+	return o.literals
+}
 ${literals().joinWithIndexToString(nL) { i, item -> item.toGoLitMethod(i, name, literals) }}
 
-func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {${
-    literals().joinToString("$nL    ", "$nL    switch name {$nL    ", "$nL    }") { it.toGoCase() }}
-    return
+func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {
+	if item, ok := enum.Parse(name, o.literals); ok {
+		return item.(*$name), ok
+	}
+	return
 }"""
 }
 
@@ -101,6 +114,7 @@ fun <T : CompilationUnitI> T.toGoImpl(c: GenerationContext,
                                       api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
     return """
+${toGoMacros(c, api, api)}
 type $name struct {${
     props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toGoMember(c, api) }}
 }${

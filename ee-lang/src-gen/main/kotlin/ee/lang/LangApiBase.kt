@@ -1,9 +1,9 @@
 package ee.lang
 
 
-open class Attribute : Composite, AttributeI {
+open class Attribute : MacroComposite, AttributeI {
 
-    constructor(value: Attribute.() -> Unit = {}) : super(value as Composite.() -> Unit)
+    constructor(value: Attribute.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
 
     override fun accessible(): Boolean = attr(ACCESSIBLE, { true })
     override fun accessible(value: Boolean): AttributeI = apply { attr(ACCESSIBLE, value) }
@@ -238,9 +238,9 @@ open class Literal : LogicUnit, LiteralI {
 }
 
 
-open class LogicUnit : TextComposite, LogicUnitI {
+open class LogicUnit : MacroComposite, LogicUnitI {
 
-    constructor(value: LogicUnit.() -> Unit = {}) : super(value as TextComposite.() -> Unit)
+    constructor(value: LogicUnit.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
 
     override fun params(): ListMultiHolder<AttributeI> = itemAsList(PARAMS, AttributeI::class.java, true, true)
     override fun params(vararg value: AttributeI): LogicUnitI = apply { params().addItems(value.asList()) }
@@ -265,6 +265,25 @@ open class LogicUnit : TextComposite, LogicUnitI {
         val SUPER_UNIT = "__superUnit"
         val VIRTUAL = "_virtual"
         val VISIBLE = "_visible"
+    }
+}
+
+
+open class MacroComposite : Composite, MacroCompositeI {
+
+    constructor(value: MacroComposite.() -> Unit = {}) : super(value as Composite.() -> Unit)
+
+    override fun macros(): ListMultiHolder<String> = itemAsList(MACROS, String::class.java, true, true)
+    override fun macros(vararg value: String): MacroCompositeI = apply { macros().addItems(value.asList()) }
+
+    override fun fillSupportsItems() {
+        macros()
+        super.fillSupportsItems()
+    }
+
+    companion object {
+        val EMPTY = MacroComposite({ name(ItemEmpty.name()) })
+        val MACROS = "_macros"
     }
 }
 
@@ -308,9 +327,9 @@ open class Operation : LogicUnit, OperationI {
 }
 
 
-open class StructureUnit : Composite, StructureUnitI {
+open class StructureUnit : MacroComposite, StructureUnitI {
 
-    constructor(value: StructureUnit.() -> Unit = {}) : super(value as Composite.() -> Unit)
+    constructor(value: StructureUnit.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
 
     override fun artifact(): String = attr(ARTIFACT, { "" })
     override fun artifact(value: String): StructureUnitI = apply { attr(ARTIFACT, value) }
@@ -330,23 +349,9 @@ open class StructureUnit : Composite, StructureUnitI {
 }
 
 
-open class TextComposite : Composite, TextCompositeI {
+open class Type : MacroComposite, TypeI {
 
-    constructor(value: TextComposite.() -> Unit = {}) : super(value as Composite.() -> Unit)
-
-    override fun macro(): String = attr(MACRO, { "" })
-    override fun macro(value: String): TextCompositeI = apply { attr(MACRO, value) }
-
-    companion object {
-        val EMPTY = TextComposite({ name(ItemEmpty.name()) })
-        val MACRO = "_macro"
-    }
-}
-
-
-open class Type : Composite, TypeI {
-
-    constructor(value: Type.() -> Unit = {}) : super(value as Composite.() -> Unit)
+    constructor(value: Type.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
 
     override fun defaultValue(): Any? = attr(DEFAULT_VALUE)
     override fun defaultValue(value: Any?): TypeI = apply { attr(DEFAULT_VALUE, value) }

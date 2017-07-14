@@ -1,7 +1,7 @@
 package ee.lang
 
 
-interface AttributeI : CompositeI {
+interface AttributeI : MacroCompositeI {
     fun accessible(): Boolean
     fun accessible(value: Boolean): AttributeI
 
@@ -130,7 +130,7 @@ interface LiteralI : LogicUnitI {
 }
 
 
-interface LogicUnitI : TextCompositeI {
+interface LogicUnitI : MacroCompositeI {
     fun params(): ListMultiHolder<AttributeI>
     fun params(vararg value: AttributeI): LogicUnitI
 
@@ -142,6 +142,12 @@ interface LogicUnitI : TextCompositeI {
 
     fun visible(): Boolean
     fun visible(value: Boolean): LogicUnitI
+}
+
+
+interface MacroCompositeI : CompositeI {
+    fun macros(): ListMultiHolder<String>
+    fun macros(vararg value: String): MacroCompositeI
 }
 
 
@@ -163,7 +169,7 @@ interface OperationI : LogicUnitI {
 }
 
 
-interface StructureUnitI : CompositeI {
+interface StructureUnitI : MacroCompositeI {
     fun artifact(): String
     fun artifact(value: String): StructureUnitI
 
@@ -175,13 +181,7 @@ interface StructureUnitI : CompositeI {
 }
 
 
-interface TextCompositeI : CompositeI {
-    fun macro(): String
-    fun macro(value: String): TextCompositeI
-}
-
-
-interface TypeI : CompositeI {
+interface TypeI : MacroCompositeI {
     fun defaultValue(): Any?
     fun defaultValue(value: Any?): TypeI
 

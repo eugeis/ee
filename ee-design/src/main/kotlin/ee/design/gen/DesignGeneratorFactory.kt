@@ -4,6 +4,7 @@ import ee.design.*
 import ee.design.gen.go.DesignGoContextFactory
 import ee.design.gen.go.DesignGoTemplates
 import ee.design.gen.go.toGoAggregateInitializerRegisterCommands
+import ee.design.gen.go.toGoAggregateType
 import ee.design.gen.kt.DesignKotlinContextFactory
 import ee.design.gen.kt.DesignKotlinTemplates
 import ee.lang.*
@@ -85,6 +86,8 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
 
         contextFactory.macroController.registerMacro(OperationI::toGoAggregateInitializerRegisterCommands.name,
                 OperationI::toGoAggregateInitializerRegisterCommands)
+        contextFactory.macroController.registerMacro(CompilationUnitI::toGoAggregateType.name,
+                CompilationUnitI::toGoAggregateType)
 
 
         return GeneratorGroup<StructureUnitI>(listOf(
@@ -132,8 +135,6 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                         name = "${fileNamePrefix}EventhorizonBase", nameBuilder = itemAndTemplateNameAsGoFileName,
                         fragments = {
                             listOf(
-                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = ehEntities,
-                                            fragments = { listOf(goTemplates.pojo()) }),
                                     ItemsFragment<StructureUnitI, ControllerI>(items = ehController,
                                             fragments = { listOf(goTemplates.pojo()) }),
                                     ItemsFragment<StructureUnitI, CompilationUnitI>(items = ehValues,
