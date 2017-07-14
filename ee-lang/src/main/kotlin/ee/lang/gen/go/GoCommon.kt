@@ -11,8 +11,12 @@ fun AttributeI.toGoInit(): String {
     return """${this.name()}: ${this.value()}"""
 }
 
-fun AttributeI.toGoInitCall(): String {
-    return "${nameForMember()}: ${name()}"
+fun TypeI.toGoCall(c: GenerationContext, api: String): String {
+    return c.n(this, api).substringAfterLast(".")
+}
+
+fun AttributeI.toGoInitCall(c: GenerationContext, api: String): String {
+    return "${anonymous().ifElse({ type().toGoCall(c, api) }, { nameForMember() })}: ${name()}"
 }
 
 fun <T : AttributeI> T.toGoTypeDef(c: GenerationContext, api: String): String {
@@ -70,7 +74,7 @@ fun <T : ConstructorI> T.toGo(c: GenerationContext, derived: String, api: String
 func New$name(${params().joinWrappedToString(", ", "                ") { it.toGoSignature(c, api) }
     }) (ret *$name, err error) {
     ret = &$name${params().joinSurroundIfNotEmptyToString(",$nL        ", "{$nL        ", ",$nL    }") {
-        it.toGoInitCall()
+        it.toGoInitCall(c, api)
     }}
     return
 }""" else ""

@@ -4,7 +4,8 @@ import ee.design.*
 import ee.design.gen.DesignGeneratorFactory
 import ee.lang.StructureUnitI
 import ee.lang.findDownByType
-import ee.lang.gen.go.prepareForGoGeneration
+import ee.lang.gen.go.extendForGoGenerationLang
+import ee.lang.gen.go.initsForGoGeneration
 import ee.lang.initObjectTree
 import java.nio.file.Path
 
@@ -28,7 +29,7 @@ open class DesignGoGenerator {
     }
 
     protected fun StructureUnitI.extendForGoGeneration() {
-        prepareForGoGeneration()
+        initsForGoGeneration()
         eh.initObjectTree()
 
         addCommandsAndEventsForAggregates()
@@ -42,5 +43,7 @@ open class DesignGoGenerator {
         addEventhorizonArtifactsForAggregate()
 
         defineNamesForTypeControllers()
+
+        extendForGoGenerationLang()
     }
 }

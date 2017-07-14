@@ -56,9 +56,18 @@ open class GoContext : GenerationContext {
 }
 
 fun <T : StructureUnitI> T.prepareForGoGeneration(): T {
+    initsForGoGeneration()
+    extendForGoGenerationLang()
+    return this
+}
+
+fun <T : StructureUnitI> T.initsForGoGeneration(): T {
     g.initObjectTree()
     initObjectTrees()
+    return this
+}
 
+fun <T : StructureUnitI> T.extendForGoGenerationLang(): T {
     //declare as 'base' all compilation units with non implemented operations.
     declareAsBaseWithNonImplementedOperation()
 
