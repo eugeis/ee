@@ -55,7 +55,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
             items.forEach { item ->
                 item.extend {
                     controller {
-                        name("${item.name().capitalize()}AggregateInitializer").derivedAsType(DesignDerivedType.AGGREGATE)
+                        name("AggregateInitializer").derivedAsType(DesignDerivedType.AGGREGATE)
                         val store = prop { type(eh.EventStore).name("store") }
                         val notifier = prop { type(eh.EventBus).name("notifier") }
                         val publisher = prop { type(eh.EventPublisher).name("publisher") }
@@ -73,7 +73,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                     }
 
                     controller {
-                        name("${item.name()}${DesignDerivedType.AGGREGATE}").derivedAsType(DesignDerivedType.AGGREGATE)
+                        name("${DesignDerivedType.AGGREGATE}").derivedAsType(DesignDerivedType.AGGREGATE)
                         val AggregateBase = prop({ type(eh.AggregateBase).anonymous(true).name("AggregateBase") })
                         val Entity = prop({ type(item).anonymous(true).name("Entity") })
                         macros(CompilationUnitI::toGoAggregateType.name)
