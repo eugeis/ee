@@ -16,6 +16,7 @@ object l : Composite({ namespace("ee.lang") }) {
     }
 
     object Type : Composite({ derivedFrom(MacroComposite) }) {
+        val ifc = AttributeI({ type(n.Boolean).value(false) })
         val generics = AttributeI({ type(Generic).multi(true).nonFluent("G") })
         val multi = AttributeI({ type(n.Boolean).value(false) })
         val defaultValue = AttributeI({ type(n.Any).nullable(true) })

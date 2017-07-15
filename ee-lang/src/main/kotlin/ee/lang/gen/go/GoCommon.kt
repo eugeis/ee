@@ -24,7 +24,7 @@ fun <T : AttributeI> T.toGoTypeDef(c: GenerationContext, api: String): String {
     return type().toGo(c, api)
 }
 
-fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String, pointer: Boolean = true): String? {
+fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String): String? {
     val baseType = findDerivedOrThis()
     return when (baseType) {
         n.String -> "string"
@@ -32,8 +32,8 @@ fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String, pointer: B
         n.Int -> "int"
         n.Long -> "int"
         n.Float -> "float64"
-        n.Date -> g.time.Time.toGo(c, derived, pointer = pointer)
-        n.TimeUnit -> g.time.Time.toGo(c, derived, pointer = pointer)
+        n.Date -> g.time.Time.toGo(c, derived)
+        n.TimeUnit -> g.time.Time.toGo(c, derived)
         n.Path -> "string"
         n.Text -> "string"
         n.Blob -> "[]byte"
@@ -53,8 +53,8 @@ fun GenericI.toGo(c: GenerationContext, derived: String): String {
     return type().toGo(c, derived)
 }
 
-fun <T : TypeI> T.toGo(c: GenerationContext, derived: String, pointer: Boolean = true): String {
-    return toGoIfNative(c, derived, pointer) ?: "${pointer.then("*")}${c.n(this, derived)}"
+fun <T : TypeI> T.toGo(c: GenerationContext, derived: String): String {
+    return toGoIfNative(c, derived) ?: "${ifc().not().then("*")}${c.n(this, derived)}"
 }
 
 fun <T : AttributeI> T.toGoSignature(c: GenerationContext, api: String): String {

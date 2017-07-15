@@ -171,6 +171,9 @@ interface TypeI : MacroCompositeI {
     fun G(value: GenericI): GenericI
     fun G(value: GenericI.() -> Unit = {}): GenericI
 
+    fun ifc(): Boolean
+    fun ifc(value: Boolean): TypeI
+
     fun multi(): Boolean
     fun multi(value: Boolean): TypeI
 

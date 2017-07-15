@@ -23,8 +23,8 @@ fun <T : CompilationUnitI> T.toGoAggregateInitializer(c: GenerationContext,
     val events = entity.events().first().findDownByType(EventI::class.java)
     return """
 func New${name}(
-	eventStore *${c.n(eh.EventStore)}, eventBus *${c.n(eh.EventBus, api)}, eventPublisher *${c.n(eh.EventPublisher)},
-	commandBus *${c.n(eh.CommandBus)}) (ret *${name}) {
+	eventStore ${c.n(eh.EventStore)}, eventBus ${c.n(eh.EventBus, api)}, eventPublisher ${c.n(eh.EventPublisher)},
+	commandBus ${c.n(eh.CommandBus)}) (ret *${name}) {
 	ret = &$name{AggregateInitializer: ${c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer, api)}(${entity.name()}AggregateType,
         ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(), eventStore, eventBus, eventPublisher, commandBus),
     }
@@ -47,8 +47,8 @@ fun <T : CompilationUnitI> T.toGoEventhorizonInitializer(c: GenerationContext,
     val entities = module.entities().filter { it.belongsToAggregate().isNotEMPTY() }
     return """
 func New${name}(
-	eventStore *${c.n(eh.EventStore)}, eventBus *${c.n(eh.EventBus, api)}, eventPublisher *${c.n(eh.EventPublisher)},
-	commandBus *${c.n(eh.CommandBus)}) (ret *${name}) {
+	eventStore ${c.n(eh.EventStore)}, eventBus ${c.n(eh.EventBus, api)}, eventPublisher ${c.n(eh.EventPublisher)},
+	commandBus ${c.n(eh.CommandBus)}) (ret *${name}) {
 	ret = &$name{eventStore: eventStore, eventBus: eventBus, eventPublisher: eventPublisher,
             commandBus: commandBus, ${entities.joinSurroundIfNotEmptyToString(",$nL    ", "$nL    ") {
         """${it.name().decapitalize()}${DesignDerivedType.AggregateInitializer}: New${

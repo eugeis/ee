@@ -328,6 +328,9 @@ open class Type : MacroComposite, TypeI {
     override fun G(value: GenericI): GenericI = applyAndReturn { generics().addItem(value); value }
     override fun G(value: GenericI.() -> Unit): GenericI = G(Generic(value))
 
+    override fun ifc(): Boolean = attr(IFC, { false })
+    override fun ifc(value: Boolean): TypeI = apply { attr(IFC, value) }
+
     override fun multi(): Boolean = attr(MULTI, { false })
     override fun multi(value: Boolean): TypeI = apply { attr(MULTI, value) }
 
@@ -367,6 +370,7 @@ open class Type : MacroComposite, TypeI {
         val CONSTRUCTORS = "_constructors"
         val DEFAULT_VALUE = "_defaultValue"
         val GENERICS = "_generics"
+        val IFC = "_ifc"
         val MULTI = "_multi"
         val OPEN = "_open"
         val OPERATIONS = "_operations"

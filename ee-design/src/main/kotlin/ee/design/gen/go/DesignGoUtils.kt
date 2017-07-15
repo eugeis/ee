@@ -19,7 +19,7 @@ object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("e
     object CommandType : ExternalType() {
     }
 
-    object AggregateCommandHandler : ExternalType() {
+    object AggregateCommandHandler : ExternalType({ ifc(true) }) {
         object SetAggregate : Operation() {
             val aggregateType = p()
             val cmdType = p()
@@ -27,22 +27,22 @@ object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("e
         }
     }
 
-    object EventStore : ExternalType() {
+    object EventStore : ExternalType({ ifc(true) }) {
         object Save : Operation() {
             val ctx = p()
         }
     }
 
-    object EventBus : ExternalType() {
+    object EventBus : ExternalType({ ifc(true) }) {
     }
 
-    object EventPublisher : ExternalType() {
+    object EventPublisher : ExternalType({ ifc(true) }) {
     }
 
-    object EventHandler : ExternalType() {
+    object EventHandler : ExternalType({ ifc(true) }) {
     }
 
-    object CommandBus : ExternalType() {
+    object CommandBus : ExternalType({ ifc(true) }) {
     }
 
     object Event : ExternalType() {
