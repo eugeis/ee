@@ -48,7 +48,7 @@ fun StructureUnitI.defineNamesForTypeControllers() {
 fun StructureUnitI.addCommandsAndEventsForAggregates() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.commands().isEmpty() }.extend {
         log.debug("Add default commands to ${name()}")
-        val dataTypeProps = props().filter { !it.meta() }
+        val dataTypeProps = propsAll().filter { !it.meta() }
 
         commands(Commands {
             name("commands")
@@ -56,16 +56,19 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
             createBy {
                 name("create")
                 props(*dataTypeProps.toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             }
 
             updateBy {
                 name("update")
                 props(*dataTypeProps.toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             }
 
             deleteBy {
                 name("delete")
                 props(id())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             }
         })
 
@@ -76,16 +79,19 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
                 created {
                     name("created")
                     props(*dataTypeProps.toTypedArray())
+                    constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                 }
 
                 updated {
                     name("updated")
                     props(*dataTypeProps.toTypedArray())
+                    constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                 }
 
                 deleted {
                     name("deleted")
                     props(id())
+                    constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                 }
             })
         }
@@ -105,6 +111,50 @@ fun StructureUnitI.defineCommandAndEventPropsAsReplaceable() {
         }
     }
 }
+
+fun StructureUnitI.declareAsBaseWithNonImplementedOperation() {
+    findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEMPTY() && !it.base() }.forEach { it.base(true) }
+
+    //derive controllers from super units
+    findDownByType(ControllerI::class.java).filter { it.parent() is CompilationUnitI }.forEach {
+        val dataItem = it.parent() as CompilationUnitI
+        dataItem.propagateItemToSubtypes(it)
+
+        val T = it.G { type(dataItem).name("T") }
+        if (it !is Queries) {
+            it.prop { type(T).name("addItem") }
+        }
+    }
+}
+
+fun <T : CompilationUnitI> T.propagateItemToSubtypes(item: CompilationUnitI) {
+    superUnitFor().filter { superUnitChild ->
+        superUnitChild.items().filterIsInstance<CompilationUnitI>().find {
+            (it.name() == item.name() || it.superUnit() == superUnitChild)
+        } == null
+    }.forEach { superUnitChild ->
+        val derivedItem = item.deriveSubType<ControllerI> {
+            namespace(superUnitChild.namespace())
+            G { type(superUnitChild).name("T") }
+        }
+        superUnitChild.addItem(derivedItem)
+        superUnitChild.propagateItemToSubtypes(derivedItem)
+    }
+}
+
+fun EntityI.buildId(): AttributeI = Attribute { key(true).type(n.UUID).name("id") }
+
+fun EntityI.id(): AttributeI = storage.getOrPut(this, "id", {
+    var ret = props().find { it.key() }
+    if (ret == null && superUnit() is EntityI) {
+        ret = (superUnit() as EntityI).id()
+    } else if (ret == null) {
+        log.warn("Id can't be found for '$this', return EMPTY")
+        ret = Attribute.EMPTY
+    }
+    ret
+})
+
 
 fun StructureUnitI.addCommandEnumsForAggregate() {
     findDownByType(CommandI::class.java).groupBy { it.findParentMust(EntityI::class.java) }.forEach { entity, items ->
@@ -139,47 +189,3 @@ fun StructureUnitI.addEventEnumsForAggregate() {
         }
     }
 }
-
-
-fun StructureUnitI.declareAsBaseWithNonImplementedOperation() {
-    findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEMPTY() && !it.base() }.forEach { it.base(true) }
-
-    //derive controllers from super units
-    findDownByType(ControllerI::class.java).filter { it.parent() is CompilationUnitI }.forEach {
-        val dataItem = it.parent() as CompilationUnitI
-        dataItem.propagateItemToSubtypes(it)
-
-        val T = it.G { type(dataItem).name("T") }
-        if (it !is Queries) {
-            it.prop { type(T).name("addItem") }
-        }
-    }
-}
-
-fun <T : CompilationUnitI> T.propagateItemToSubtypes(item: CompilationUnitI) {
-    superUnitFor().filter { superUnitChild ->
-        superUnitChild.items().filterIsInstance<CompilationUnitI>().find {
-            (it.name() == item.name() || it.superUnit() == superUnitChild)
-        } == null
-    }.forEach { superUnitChild ->
-        val derivedItem = item.deriveSubType<ControllerI> {
-            namespace(superUnitChild.namespace())
-            G { type(superUnitChild).name("T") }
-        }
-        superUnitChild.addItem(derivedItem)
-        superUnitChild.propagateItemToSubtypes(derivedItem)
-    }
-}
-
-fun EntityI.buildId(): AttributeI = Attribute { key(true).type(n.String).name("id") }
-
-fun EntityI.id(): AttributeI = storage.getOrPut(this, "id", {
-    var ret = props().find { it.key() }
-    if (ret == null && superUnit() is EntityI) {
-        ret = (superUnit() as EntityI).id()
-    } else if (ret == null) {
-        log.warn("Id can't be found for '$this', return EMPTY")
-        ret = Attribute.EMPTY
-    }
-    ret
-})

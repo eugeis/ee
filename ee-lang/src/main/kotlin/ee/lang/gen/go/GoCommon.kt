@@ -41,6 +41,7 @@ fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String): String? {
         n.Error -> "error"
         n.Void -> ""
         n.Url -> c.n(j.net.URL)
+        n.UUID -> c.n(g.eh.UUID)
         n.List -> "[]${generics()[0].toGo(c, derived)}"
         n.Map -> "map(${generics()[0].toGo(c, derived)})${generics()[1].toGo(c, derived)}"
         else -> {
@@ -78,7 +79,7 @@ fun <T : ConstructorI> T.toGo(c: GenerationContext, derived: String, api: String
     val nonDefaultParams = params().filter { !it.default() && it.derivedAsType().isEmpty() }
     return if (isNotEMPTY()) """
 func New$name(${nonDefaultParams.joinWrappedToString(", ", "                ") { it.toGoSignature(c, api) }
-    }) (ret *$name, err error) {
+    }) (ret *$name) {
     ret = &$name${params().joinSurroundIfNotEmptyToString(",$nL        ", "{$nL        ", ",$nL    }") {
         it.toGoInitCall(c, api)
     }}

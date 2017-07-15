@@ -27,6 +27,61 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             }
         }
     }
+
+    object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("eh") }) {
+
+        object Aggregate : ExternalType() {
+        }
+
+        object AggregateBase : ExternalType() {
+        }
+
+        object NewAggregateBase : Operation() {
+        }
+
+
+        object AggregateType : ExternalType() {
+        }
+
+        object Command: ExternalType() {
+        }
+
+        object CommandType : ExternalType() {
+        }
+
+        object AggregateCommandHandler : ExternalType({ ifc(true) }) {
+            object SetAggregate : Operation() {
+                val aggregateType = p()
+                val cmdType = p()
+                val ret = ret()
+            }
+        }
+
+        object EventStore : ExternalType({ ifc(true) }) {
+            object Save : Operation() {
+                val ctx = p()
+            }
+        }
+
+        object EventBus : ExternalType({ ifc(true) }) {
+        }
+
+        object EventPublisher : ExternalType({ ifc(true) }) {
+        }
+
+        object EventHandler : ExternalType({ ifc(true) }) {
+        }
+
+        object CommandBus : ExternalType({ ifc(true) }) {
+        }
+
+        object Event : ExternalType() {
+        }
+
+        object UUID : ExternalType() {
+        }
+    }
+
 }
 
 open class GoContext : GenerationContext {

@@ -13,9 +13,9 @@ object LangDerivedKind : LangDerivedKindNames()
 fun ItemI.parentNameAndName(): String = storage.getOrPut(this, "parentNameAndName", {
     val parent = findParent(DataType::class.java)
     if (parent != null) {
-        val regexp = "(\\B[A-Z])".toRegex()
-        if (regexp.containsMatchIn(name())) name().replaceFirst(regexp, "${parent.name().capitalize()}$1") else
-            "${name()}${parent.name().capitalize()}"
+        val regexp = "(\\B[A-Z][a-z]*)".toRegex()
+        if (regexp.containsMatchIn(name())) name().replaceFirst(regexp, "$1${parent.name().capitalize()}") else
+            "${parent.name()}${name().capitalize()}"
     } else {
         name()
     }
@@ -24,9 +24,9 @@ fun ItemI.parentNameAndName(): String = storage.getOrPut(this, "parentNameAndNam
 fun ItemI.nameAndParentName(): String = storage.getOrPut(this, "nameAndParentName", {
     val parent = findParent(DataType::class.java)
     if (parent != null) {
-        val regexp = "(\\B[A-Z])".toRegex()
-        if (regexp.containsMatchIn(name())) name().replaceFirst(regexp, "$1${parent.name().capitalize()}") else
-            "${parent.name()}${name().capitalize()}"
+        val regexp = "(\\B[A-Z][a-z]*)".toRegex()
+        if (regexp.containsMatchIn(name())) name().replaceFirst(regexp, "${parent.name().capitalize()}\$1") else
+            "${name()}${parent.name().capitalize()}"
     } else {
         name()
     }

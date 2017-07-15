@@ -16,6 +16,7 @@ object n : StructureUnit({ name("native") }) {
     val Exception = NativeType()
     val Error = NativeType()
     val Url = NativeType()
+    val UUID = NativeType()
 
     object TimeUnit : EnumType() {
         val Milliseconds = lit()

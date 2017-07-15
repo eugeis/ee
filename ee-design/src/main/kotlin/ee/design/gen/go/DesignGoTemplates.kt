@@ -11,7 +11,7 @@ open class DesignGoTemplates : LangGoTemplates {
     constructor(defaultNameBuilder: TemplateI<*>.(CompositeI) -> NamesI) : super(defaultNameBuilder)
 
     open fun command(nameBuilder: TemplateI<CommandI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
-            = Template<CommandI>("Enum", nameBuilder) { item, c -> item.toGoCommandImpl(c) }
+            = Template<CommandI>("Command", nameBuilder) { item, c -> item.toGoCommandImpl(c) }
 
     open fun commandTypes(nameBuilder: TemplateI<EntityI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
             = Template<EntityI>("CommandTypes", nameBuilder) { item, c -> item.toGoCommandTypes(c) }

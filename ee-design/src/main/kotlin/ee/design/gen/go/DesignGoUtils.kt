@@ -1,56 +1,12 @@
 package ee.design.gen.go
 
-import ee.design.ControllerI
-import ee.design.DesignDerivedType
-import ee.design.EntityI
-import ee.design.ModuleI
+import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
+import org.slf4j.LoggerFactory
 
 
-object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("eh") }) {
-
-    object AggregateBase : ExternalType() {
-    }
-
-    object AggregateType : ExternalType() {
-    }
-
-    object CommandType : ExternalType() {
-    }
-
-    object AggregateCommandHandler : ExternalType({ ifc(true) }) {
-        object SetAggregate : Operation() {
-            val aggregateType = p()
-            val cmdType = p()
-            val ret = ret()
-        }
-    }
-
-    object EventStore : ExternalType({ ifc(true) }) {
-        object Save : Operation() {
-            val ctx = p()
-        }
-    }
-
-    object EventBus : ExternalType({ ifc(true) }) {
-    }
-
-    object EventPublisher : ExternalType({ ifc(true) }) {
-    }
-
-    object EventHandler : ExternalType({ ifc(true) }) {
-    }
-
-    object CommandBus : ExternalType({ ifc(true) }) {
-    }
-
-    object Event : ExternalType() {
-    }
-
-    object UUID : ExternalType() {
-    }
-}
+private val log = LoggerFactory.getLogger("DesignGoUtils")
 
 fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.derivedAsType().isEmpty() }.groupBy {
@@ -64,8 +20,9 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                     aggregates.add(
                             controller {
                                 name(DesignDerivedType.Aggregate).derivedAsType(DesignDerivedType.Aggregate)
-                                prop({ type(eh.AggregateBase).anonymous(true).name("AggregateBase") })
+                                prop({ type(g.eh.AggregateBase).anonymous(true).name("AggregateBase") })
                                 prop({ type(item).anonymous(true).name("Entity") })
+                                constructorOwnPropsOnly { derivedAsType(LangDerivedKind.MANUAL) }
                                 macros(CompilationUnitI::toGoAggregate.name)
                             })
                     initializer.add(
@@ -81,10 +38,10 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
             controller {
                 name("${module.name().capitalize()}${DesignDerivedType.EventhorizonInitializer}").derivedAsType(DesignDerivedType.Aggregate)
-                prop { type(eh.EventStore).replaceable(false).name("eventStore") }
-                prop { type(eh.EventBus).replaceable(false).name("eventBus") }
-                prop { type(eh.EventPublisher).replaceable(false).name("eventPublisher") }
-                prop { type(eh.CommandBus).replaceable(false).name("commandBus") }
+                prop { type(g.eh.EventStore).replaceable(false).name("eventStore") }
+                prop { type(g.eh.EventBus).replaceable(false).name("eventBus") }
+                prop { type(g.eh.EventPublisher).replaceable(false).name("eventPublisher") }
+                prop { type(g.eh.CommandBus).replaceable(false).name("commandBus") }
                 initializer.forEach { item ->
                     prop { type(item).default(true).name("${item.parent().name().capitalize()}${item.name().capitalize()}") }
                 }

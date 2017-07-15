@@ -30,7 +30,6 @@ open class DesignGoGenerator {
 
     protected fun StructureUnitI.extendForGoGeneration() {
         initsForGoGeneration()
-        eh.initObjectTree()
 
         addCommandsAndEventsForAggregates()
 

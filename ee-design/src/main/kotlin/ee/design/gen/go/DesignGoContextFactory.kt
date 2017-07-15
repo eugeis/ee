@@ -26,9 +26,9 @@ open class DesignGoContextFactory : LangGoContextFactory() {
 
     override fun ItemI.buildName(): String {
         return if (this is CommandI) {
-            parentNameAndName().capitalize()
-        } else if (this is EventI) {
             nameAndParentName().capitalize()
+        } else if (this is EventI) {
+            parentNameAndName().capitalize()
         } else {
             name()
         }
