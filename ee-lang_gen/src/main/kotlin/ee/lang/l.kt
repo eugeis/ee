@@ -19,6 +19,13 @@ object l : Composite({ namespace("ee.lang") }) {
         val generics = AttributeI({ type(Generic).multi(true).nonFluent("G") })
         val multi = AttributeI({ type(n.Boolean).value(false) })
         val defaultValue = AttributeI({ type(n.Any).nullable(true) })
+        val open = AttributeI({ type(n.Boolean).value(true) })
+        val virtual = AttributeI({ type(n.Boolean).value(false) })
+        val superUnitFor = AttributeI({ type(CompilationUnit).multi(true) })
+        val superUnit = AttributeI({ type(CompilationUnit) })
+        val props = AttributeI({ type(Attribute).multi(true).nonFluent("prop") })
+        val operations = AttributeI({ type(Operation).multi(true).nonFluent("op") })
+        val constructors = AttributeI({ type(Constructor).multi(true).nonFluent("constr") })
     }
 
     object Generic : Composite({ derivedFrom(Type) }) {
@@ -44,6 +51,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val accessible = AttributeI({ type(n.Boolean).value(true) })
         val replaceable = AttributeI({ type(n.Boolean).value(false) })
         val meta = AttributeI({ type(n.Boolean).value(false) })
+        val default = AttributeI({ type(n.Boolean).value(false) })
         val multi = AttributeI({ type(n.Boolean).value(false) })
         val hidden = AttributeI({ type(n.Boolean).value(false) })
         val mutable = AttributeI({ type(n.Boolean).value(true) })
@@ -68,13 +76,6 @@ object l : Composite({ namespace("ee.lang") }) {
 
     object CompilationUnit : Composite({ derivedFrom(Type) }) {
         val base = AttributeI({ type(n.Boolean).value(false) })
-        val open = AttributeI({ type(n.Boolean).value(true) })
-        val virtual = AttributeI({ type(n.Boolean).value(false) })
-        val superUnitFor = AttributeI({ type(CompilationUnit).multi(true) })
-        val superUnit = AttributeI({ type(CompilationUnit) })
-        val props = AttributeI({ type(Attribute).multi(true).nonFluent("prop") })
-        val operations = AttributeI({ type(Operation).multi(true).nonFluent("op") })
-        val constructors = AttributeI({ type(Constructor).multi(true).nonFluent("constr") })
     }
 
     object StructureUnit : Composite({ derivedFrom(MacroComposite) }) {

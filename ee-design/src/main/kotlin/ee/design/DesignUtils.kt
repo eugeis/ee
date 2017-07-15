@@ -9,7 +9,9 @@ open class DesignDerivedKindNames : LangDerivedKindNames() {
 object DesignDerivedKind : DesignDerivedKindNames()
 
 open class DesignDerivedTypeNames {
-    val AGGREGATE = "Aggregate"
+    val Aggregate = "Aggregate"
+    val AggregateInitializer = "AggregateInitializer"
+    val EventhorizonInitializer = "EventhorizonInitializer"
 }
 
 object DesignDerivedType : DesignDerivedTypeNames()
@@ -95,7 +97,7 @@ fun StructureUnitI.addCommandEnumsForAggregate() {
             parent.extend {
                 log.debug("Add CommandType to ${entity.name()}")
                 enumType {
-                    name("${entity.name()}AggregateCommandType")
+                    name("${entity.name()}CommandType")
                     items.forEach {
                         lit({ name(it.nameAndParentName()) })
                     }
@@ -112,7 +114,7 @@ fun StructureUnitI.addEventEnumsForAggregate() {
             parent.extend {
                 log.debug("Add EventType to ${entity.name()}")
                 enumType {
-                    name("${entity.name()}AggregateEventType")
+                    name("${entity.name()}EventType")
                     items.forEach {
                         lit({ name(it.parentNameAndName()) })
                     }

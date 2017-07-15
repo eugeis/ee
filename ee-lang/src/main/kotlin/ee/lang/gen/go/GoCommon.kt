@@ -16,7 +16,8 @@ fun TypeI.toGoCall(c: GenerationContext, api: String): String {
 }
 
 fun AttributeI.toGoInitCall(c: GenerationContext, api: String): String {
-    return "${anonymous().ifElse({ type().toGoCall(c, api) }, { nameForMember() })}: ${name()}"
+    return "${anonymous().ifElse({ type().toGoCall(c, api) }, { nameForMember() })}: ${
+    default().ifElse({ type().constructors().first().toGoCallNew(c, api, api) }, { name() })}"
 }
 
 fun <T : AttributeI> T.toGoTypeDef(c: GenerationContext, api: String): String {
@@ -74,12 +75,14 @@ fun List<AttributeI>.toGoSignature(c: GenerationContext, api: String): String {
 
 fun <T : ConstructorI> T.toGo(c: GenerationContext, derived: String, api: String): String {
     val name = c.n(parent(), derived)
+    val nonDefaultParams = params().filter { !it.default() && it.derivedAsType().isEmpty() }
     return if (isNotEMPTY()) """
-func New$name(${params().joinWrappedToString(", ", "                ") { it.toGoSignature(c, api) }
+func New$name(${nonDefaultParams.joinWrappedToString(", ", "                ") { it.toGoSignature(c, api) }
     }) (ret *$name, err error) {
     ret = &$name${params().joinSurroundIfNotEmptyToString(",$nL        ", "{$nL        ", ",$nL    }") {
         it.toGoInitCall(c, api)
     }}
+    ${toGoMacros(c, api, api)}
     return
 }""" else ""
 }
@@ -93,7 +96,7 @@ fun <T : LogicUnitI> T.toGoCall(): String {
     return isNotEMPTY().then { "(${params().joinWrappedToString(", ") { it.name() }})" }
 }
 
-fun <T : ConstructorI> T.toGoCall(c: GenerationContext, derived: String, api: String): String {
+fun <T : LogicUnitI> T.toGoCallNew(c: GenerationContext, derived: String, api: String): String {
     val name = c.n(parent(), derived)
     return if (isNotEMPTY()) """New$name(${params().joinWrappedToString(", ", "                ") {
         it.name()

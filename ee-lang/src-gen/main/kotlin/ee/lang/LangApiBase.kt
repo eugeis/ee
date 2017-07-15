@@ -11,6 +11,9 @@ open class Attribute : MacroComposite, AttributeI {
     override fun anonymous(): Boolean = attr(ANONYMOUS, { false })
     override fun anonymous(value: Boolean): AttributeI = apply { attr(ANONYMOUS, value) }
 
+    override fun default(): Boolean = attr(DEFAULT, { false })
+    override fun default(value: Boolean): AttributeI = apply { attr(DEFAULT, value) }
+
     override fun hidden(): Boolean = attr(HIDDEN, { false })
     override fun hidden(value: Boolean): AttributeI = apply { attr(HIDDEN, value) }
 
@@ -60,6 +63,7 @@ open class Attribute : MacroComposite, AttributeI {
         val EMPTY = Attribute({ name(ItemEmpty.name()) })
         val ACCESSIBLE = "_accessible"
         val ANONYMOUS = "_anonymous"
+        val DEFAULT = "_default"
         val HIDDEN = "_hidden"
         val INHERITED = "_inherited"
         val INIT_BY_DEFAULT_TYPE_VALUE = "_initByDefaultTypeValue"
@@ -86,51 +90,9 @@ open class CompilationUnit : Type, CompilationUnitI {
     override fun base(): Boolean = attr(BASE, { false })
     override fun base(value: Boolean): CompilationUnitI = apply { attr(BASE, value) }
 
-    override fun constructors(): ListMultiHolder<ConstructorI> = itemAsList(CONSTRUCTORS, ConstructorI::class.java, true, true)
-    override fun constructors(vararg value: ConstructorI): CompilationUnitI = apply { constructors().addItems(value.asList()) }
-    override fun constr(value: ConstructorI): ConstructorI = applyAndReturn { constructors().addItem(value); value }
-    override fun constr(value: ConstructorI.() -> Unit): ConstructorI = constr(Constructor(value))
-
-    override fun open(): Boolean = attr(OPEN, { true })
-    override fun open(value: Boolean): CompilationUnitI = apply { attr(OPEN, value) }
-
-    override fun operations(): ListMultiHolder<OperationI> = itemAsList(OPERATIONS, OperationI::class.java, true, true)
-    override fun operations(vararg value: OperationI): CompilationUnitI = apply { operations().addItems(value.asList()) }
-    override fun op(value: OperationI): OperationI = applyAndReturn { operations().addItem(value); value }
-    override fun op(value: OperationI.() -> Unit): OperationI = op(Operation(value))
-
-    override fun props(): ListMultiHolder<AttributeI> = itemAsList(PROPS, AttributeI::class.java, true, true)
-    override fun props(vararg value: AttributeI): CompilationUnitI = apply { props().addItems(value.asList()) }
-    override fun prop(value: AttributeI): AttributeI = applyAndReturn { props().addItem(value); value }
-    override fun prop(value: AttributeI.() -> Unit): AttributeI = prop(Attribute(value))
-
-    override fun superUnit(): CompilationUnitI = attr(SUPER_UNIT, { CompilationUnit.EMPTY })
-    override fun superUnit(value: CompilationUnitI): CompilationUnitI = apply { attr(SUPER_UNIT, value) }
-
-    override fun superUnitFor(): ListMultiHolder<CompilationUnitI> = itemAsList(SUPER_UNIT_FOR, CompilationUnitI::class.java, true, true)
-    override fun superUnitFor(vararg value: CompilationUnitI): CompilationUnitI = apply { superUnitFor().addItems(value.asList()) }
-
-    override fun virtual(): Boolean = attr(VIRTUAL, { false })
-    override fun virtual(value: Boolean): CompilationUnitI = apply { attr(VIRTUAL, value) }
-
-    override fun fillSupportsItems() {
-        constructors()
-        operations()
-        props()
-        superUnitFor()
-        super.fillSupportsItems()
-    }
-
     companion object {
         val EMPTY = CompilationUnitEmpty
         val BASE = "_base"
-        val CONSTRUCTORS = "_constructors"
-        val OPEN = "_open"
-        val OPERATIONS = "_operations"
-        val PROPS = "_props"
-        val SUPER_UNIT = "__superUnit"
-        val SUPER_UNIT_FOR = "__superUnitFor"
-        val VIRTUAL = "_virtual"
     }
 }
 
@@ -353,6 +315,11 @@ open class Type : MacroComposite, TypeI {
 
     constructor(value: Type.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
 
+    override fun constructors(): ListMultiHolder<ConstructorI> = itemAsList(CONSTRUCTORS, ConstructorI::class.java, true, true)
+    override fun constructors(vararg value: ConstructorI): TypeI = apply { constructors().addItems(value.asList()) }
+    override fun constr(value: ConstructorI): ConstructorI = applyAndReturn { constructors().addItem(value); value }
+    override fun constr(value: ConstructorI.() -> Unit): ConstructorI = constr(Constructor(value))
+
     override fun defaultValue(): Any? = attr(DEFAULT_VALUE)
     override fun defaultValue(value: Any?): TypeI = apply { attr(DEFAULT_VALUE, value) }
 
@@ -364,16 +331,49 @@ open class Type : MacroComposite, TypeI {
     override fun multi(): Boolean = attr(MULTI, { false })
     override fun multi(value: Boolean): TypeI = apply { attr(MULTI, value) }
 
+    override fun open(): Boolean = attr(OPEN, { true })
+    override fun open(value: Boolean): TypeI = apply { attr(OPEN, value) }
+
+    override fun operations(): ListMultiHolder<OperationI> = itemAsList(OPERATIONS, OperationI::class.java, true, true)
+    override fun operations(vararg value: OperationI): TypeI = apply { operations().addItems(value.asList()) }
+    override fun op(value: OperationI): OperationI = applyAndReturn { operations().addItem(value); value }
+    override fun op(value: OperationI.() -> Unit): OperationI = op(Operation(value))
+
+    override fun props(): ListMultiHolder<AttributeI> = itemAsList(PROPS, AttributeI::class.java, true, true)
+    override fun props(vararg value: AttributeI): TypeI = apply { props().addItems(value.asList()) }
+    override fun prop(value: AttributeI): AttributeI = applyAndReturn { props().addItem(value); value }
+    override fun prop(value: AttributeI.() -> Unit): AttributeI = prop(Attribute(value))
+
+    override fun superUnit(): CompilationUnitI = attr(SUPER_UNIT, { CompilationUnit.EMPTY })
+    override fun superUnit(value: CompilationUnitI): TypeI = apply { attr(SUPER_UNIT, value) }
+
+    override fun superUnitFor(): ListMultiHolder<CompilationUnitI> = itemAsList(SUPER_UNIT_FOR, CompilationUnitI::class.java, true, true)
+    override fun superUnitFor(vararg value: CompilationUnitI): TypeI = apply { superUnitFor().addItems(value.asList()) }
+
+    override fun virtual(): Boolean = attr(VIRTUAL, { false })
+    override fun virtual(value: Boolean): TypeI = apply { attr(VIRTUAL, value) }
+
     override fun fillSupportsItems() {
+        constructors()
         generics()
+        operations()
+        props()
+        superUnitFor()
         super.fillSupportsItems()
     }
 
     companion object {
         val EMPTY = Type({ name(ItemEmpty.name()) })
+        val CONSTRUCTORS = "_constructors"
         val DEFAULT_VALUE = "_defaultValue"
         val GENERICS = "_generics"
         val MULTI = "_multi"
+        val OPEN = "_open"
+        val OPERATIONS = "_operations"
+        val PROPS = "_props"
+        val SUPER_UNIT = "__superUnit"
+        val SUPER_UNIT_FOR = "__superUnitFor"
+        val VIRTUAL = "_virtual"
     }
 }
 

@@ -118,7 +118,7 @@ ${toGoMacros(c, api, api)}
 type $name struct {${
     props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toGoMember(c, api) }}
 }${
-    constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+    constructors().filter { it.derivedAsType().isEmpty() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGo(c, derived, api)
     }}${
     props().filter { it.accessible() && !it.mutable() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {

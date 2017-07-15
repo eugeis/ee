@@ -1,9 +1,11 @@
 package ee.design.gen.go
 
+import ee.design.ControllerI
 import ee.design.DesignDerivedType
 import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
+import ee.lang.gen.go.g
 
 
 object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("eh") }) {
@@ -55,30 +57,39 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
         it.findParentMust(ModuleI::class.java)
     }.forEach { module, items ->
         module.extend {
+            val initializer = arrayListOf<ControllerI>()
+            val aggregates = arrayListOf<ControllerI>()
             items.forEach { item ->
                 item.extend {
-
-                    controller {
-                        name("${DesignDerivedType.AGGREGATE}").derivedAsType(DesignDerivedType.AGGREGATE)
-                        val AggregateBase = prop({ type(eh.AggregateBase).anonymous(true).name("AggregateBase") })
-                        val Entity = prop({ type(item).anonymous(true).name("Entity") })
-                        macros(CompilationUnitI::toGoAggregateInitializer.name)
-                    }
+                    aggregates.add(
+                            controller {
+                                name(DesignDerivedType.Aggregate).derivedAsType(DesignDerivedType.Aggregate)
+                                prop({ type(eh.AggregateBase).anonymous(true).name("AggregateBase") })
+                                prop({ type(item).anonymous(true).name("Entity") })
+                                macros(CompilationUnitI::toGoAggregate.name)
+                            })
+                    initializer.add(
+                            controller {
+                                name(DesignDerivedType.AggregateInitializer).derivedAsType(DesignDerivedType.Aggregate)
+                                prop({ type(g.gee.eh.AggregateInitializer).anonymous(true).name("AggregateInitializer") })
+                                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+                                macros(CompilationUnitI::toGoAggregateInitializer.name)
+                            })
                 }
 
             }
 
             controller {
-                name("${module.name().capitalize()}EventhorizonInitializer").derivedAsType(DesignDerivedType.AGGREGATE)
-                prop { type(eh.EventStore).name("store") }
-                prop { type(eh.EventBus).name("eventBus") }
-                prop { type(eh.EventPublisher).name("publisher") }
-                prop { type(eh.CommandBus).name("commandBus") }
-
-                op { name("setup") }
-
-                op { name("registerCommands") }
-
+                name("${module.name().capitalize()}${DesignDerivedType.EventhorizonInitializer}").derivedAsType(DesignDerivedType.Aggregate)
+                prop { type(eh.EventStore).replaceable(false).name("eventStore") }
+                prop { type(eh.EventBus).replaceable(false).name("eventBus") }
+                prop { type(eh.EventPublisher).replaceable(false).name("eventPublisher") }
+                prop { type(eh.CommandBus).replaceable(false).name("commandBus") }
+                initializer.forEach { item ->
+                    prop { type(item).default(true).name("${item.parent().name().capitalize()}${item.name().capitalize()}") }
+                }
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+                macros(CompilationUnitI::toGoEventhorizonInitializer.name)
             }
         }
     }

@@ -95,7 +95,7 @@ fun <T : StructureUnitI> T.extendForGoGenerationLang(): T {
 }
 
 fun AttributeI.nameForMember(): String = storage.getOrPut(this, "nameForMember", {
-    accessibleAndMutable().ifElse({ "${name().capitalize()} " }, { name().decapitalize() })
+    replaceable().ifElse({ "${name().capitalize()} " }, { name().decapitalize() })
 })
 
 fun AttributeI.nameForEnum(): String = storage.getOrPut(this, "nameForEnum", {

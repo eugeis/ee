@@ -1,10 +1,7 @@
 package ee.design.gen
 
 import ee.design.*
-import ee.design.gen.go.DesignGoContextFactory
-import ee.design.gen.go.DesignGoTemplates
-import ee.design.gen.go.toGoAggregateInitializerRegisterCommands
-import ee.design.gen.go.toGoAggregateInitializer
+import ee.design.gen.go.*
 import ee.design.gen.kt.DesignKotlinContextFactory
 import ee.design.gen.kt.DesignKotlinTemplates
 import ee.lang.*
@@ -38,27 +35,27 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
 
         val ehEnums: StructureUnitI.() -> List<EnumTypeI> = {
             findDownByType(EnumTypeI::class.java).filter {
-                it.derivedAsType().equals(DesignDerivedType.AGGREGATE, true)
+                it.derivedAsType().equals(DesignDerivedType.Aggregate, true)
             }.sortedBy { it.name() }
         }
 
         val ehValues: StructureUnitI.() -> List<ValuesI> = {
-            findDownByType(ValuesI::class.java).filter { it.derivedAsType().equals(DesignDerivedType.AGGREGATE, true) }.
+            findDownByType(ValuesI::class.java).filter { it.derivedAsType().equals(DesignDerivedType.Aggregate, true) }.
                     sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
         val ehBasics: StructureUnitI.() -> List<BasicI> = {
-            findDownByType(BasicI::class.java).filter { it.derivedAsType().equals(DesignDerivedType.AGGREGATE, true) }.
+            findDownByType(BasicI::class.java).filter { it.derivedAsType().equals(DesignDerivedType.Aggregate, true) }.
                     sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
         val ehEntities: StructureUnitI.() -> List<EntityI> = {
-            findDownByType(EntityI::class.java).filter { it.derivedAsType().equals(DesignDerivedType.AGGREGATE, true) }.
+            findDownByType(EntityI::class.java).filter { it.derivedAsType().equals(DesignDerivedType.Aggregate, true) }.
                     sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
         val ehController: StructureUnitI.() -> List<ControllerI> = {
-            findDownByType(ControllerI::class.java).filter { it.derivedAsType().equals(DesignDerivedType.AGGREGATE, true) }.
+            findDownByType(ControllerI::class.java).filter { it.derivedAsType().equals(DesignDerivedType.Aggregate, true) }.
                     sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
@@ -86,9 +83,12 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
 
         contextFactory.macroController.registerMacro(OperationI::toGoAggregateInitializerRegisterCommands.name,
                 OperationI::toGoAggregateInitializerRegisterCommands)
+        contextFactory.macroController.registerMacro(CompilationUnitI::toGoAggregate.name,
+                CompilationUnitI::toGoAggregate)
         contextFactory.macroController.registerMacro(CompilationUnitI::toGoAggregateInitializer.name,
                 CompilationUnitI::toGoAggregateInitializer)
-
+        contextFactory.macroController.registerMacro(CompilationUnitI::toGoEventhorizonInitializer.name,
+                CompilationUnitI::toGoEventhorizonInitializer)
 
         return GeneratorGroup<StructureUnitI>(listOf(
                 GeneratorSimple<StructureUnitI>(

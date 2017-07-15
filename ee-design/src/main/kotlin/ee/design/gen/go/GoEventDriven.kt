@@ -1,41 +1,69 @@
 package ee.design.gen.go
 
 import ee.common.ext.joinSurroundIfNotEmptyToString
-import ee.design.DesignDerivedKind
-import ee.design.EntityI
-import ee.design.EventI
-import ee.design.ModuleI
+import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
-import ee.lang.gen.go.toGoImpl
 
+
+fun <T : CompilationUnitI> T.toGoAggregate(c: GenerationContext,
+                                           derived: String = DesignDerivedKind.IMPL,
+                                           api: String = DesignDerivedKind.API): String {
+    val name = c.n(this, api)
+    return """
+const ${name}Type ${c.n(eh.AggregateType, LangDerivedKind.API)} = "$name"
+"""
+}
 
 fun <T : CompilationUnitI> T.toGoAggregateInitializer(c: GenerationContext,
                                                       derived: String = DesignDerivedKind.IMPL,
                                                       api: String = DesignDerivedKind.API): String {
     val name = c.n(this, api)
-    val events = findParentMust(EntityI::class.java).events().first().findDownByType(EventI::class.java)
-
+    val entity = findParentMust(EntityI::class.java)
+    val events = entity.events().first().findDownByType(EventI::class.java)
     return """
-const ${name}Type ${c.n(eh.AggregateType, LangDerivedKind.API)} = "$name"
-
-type ${name}Initializer struct {
-    *${c.n(g.gee.eh.AggregateInitializer, api)}
-}${events.joinSurroundIfNotEmptyToString(nL, nL) {
-        """
-func (o *${name}Initializer) RegisterFor${it.name().capitalize()}(handler ${c.n(eh.EventHandler)}){
-    o.RegisterForEvent(handler, ${name()}EventTypes().${it.parentNameAndName().capitalize()}())
-}"""
-    }}
-
-func New${name}Initializer(
-	store *${c.n(eh.EventStore)}, eventBus *${c.n(eh.EventBus, api)}, publisher *${c.n(eh.EventPublisher)},
-	commandBus *${c.n(eh.CommandBus)}) (ret *${name}Initializer) {
-	ret = &${name}Initializer{
-        AggregateInitializer: ${c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer, api)}(${name}Type, ${name}CommandTypes().Literals(),
-		${name()}EventTypes().Literals(), store, eventBus, publisher, commandBus),
+func New${name}(
+	eventStore *${c.n(eh.EventStore)}, eventBus *${c.n(eh.EventBus, api)}, eventPublisher *${c.n(eh.EventPublisher)},
+	commandBus *${c.n(eh.CommandBus)}) (ret *${name}) {
+	ret = &$name{AggregateInitializer: ${c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer, api)}(${entity.name()}AggregateType,
+        ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(), eventStore, eventBus, eventPublisher, commandBus),
     }
 	return
+}
+${events.joinSurroundIfNotEmptyToString(nL, nL) {
+        """
+func (o *${name}) RegisterFor${it.name().capitalize()}(handler ${c.n(eh.EventHandler)}){
+    o.RegisterForEvent(handler, ${entity.name()}EventTypes().${it.parentNameAndName().capitalize()}())
+}"""
+    }}
+"""
+}
+
+fun <T : CompilationUnitI> T.toGoEventhorizonInitializer(c: GenerationContext,
+                                                         derived: String = DesignDerivedKind.IMPL,
+                                                         api: String = DesignDerivedKind.API): String {
+    val name = c.n(this, api)
+    val module = findParentMust(ModuleI::class.java)
+    val entities = module.entities().filter { it.belongsToAggregate().isNotEMPTY() }
+    return """
+func New${name}(
+	eventStore *${c.n(eh.EventStore)}, eventBus *${c.n(eh.EventBus, api)}, eventPublisher *${c.n(eh.EventPublisher)},
+	commandBus *${c.n(eh.CommandBus)}) (ret *${name}) {
+	ret = &$name{eventStore: eventStore, eventBus: eventBus, eventPublisher: eventPublisher,
+            commandBus: commandBus, ${entities.joinSurroundIfNotEmptyToString(",$nL    ", "$nL    ") {
+        """${it.name().decapitalize()}${DesignDerivedType.AggregateInitializer}: New${
+        it.name().capitalize()}${DesignDerivedType.AggregateInitializer}(eventStore, eventBus, eventPublisher, commandBus)"""
+    }}}
+	return
+}
+
+func (o *$name) Setup() (err error) {${entities.joinSurroundIfNotEmptyToString("$nL    ", "$nL    ") {
+        """
+    if err = o.${it.name().decapitalize()}${DesignDerivedType.AggregateInitializer}.Setup(); err != nil {
+        return
+    }"""
+    }}
+    return
 }
 """
 }
@@ -45,5 +73,5 @@ fun <T : OperationI> T.toGoAggregateInitializerRegisterCommands(c: GenerationCon
                                                                 api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     //TODO find a way to get correct name for xxxAggregateType
-    return """${c.n(g.gee.eh.AggregateInitializer.RegisterForAllEvents)}(handler, ${c.n(entity, api)}AggregateType, ${entity.name()}CommandTypes().Literals())"""
+    return """${c.n(g.gee.eh.AggregateInitializer.RegisterForAllEvents)}(handler, $ { c.n(entity, api) } AggregateType, ${entity.name()} CommandTypes ().Literals())"""
 }

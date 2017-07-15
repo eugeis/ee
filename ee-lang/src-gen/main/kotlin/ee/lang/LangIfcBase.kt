@@ -8,6 +8,9 @@ interface AttributeI : MacroCompositeI {
     fun anonymous(): Boolean
     fun anonymous(value: Boolean): AttributeI
 
+    fun default(): Boolean
+    fun default(value: Boolean): AttributeI
+
     fun hidden(): Boolean
     fun hidden(value: Boolean): AttributeI
 
@@ -58,33 +61,6 @@ interface AttributeI : MacroCompositeI {
 interface CompilationUnitI : TypeI {
     fun base(): Boolean
     fun base(value: Boolean): CompilationUnitI
-
-    fun constructors(): ListMultiHolder<ConstructorI>
-    fun constructors(vararg value: ConstructorI): CompilationUnitI
-    fun constr(value: ConstructorI): ConstructorI
-    fun constr(value: ConstructorI.() -> Unit = {}): ConstructorI
-
-    fun open(): Boolean
-    fun open(value: Boolean): CompilationUnitI
-
-    fun operations(): ListMultiHolder<OperationI>
-    fun operations(vararg value: OperationI): CompilationUnitI
-    fun op(value: OperationI): OperationI
-    fun op(value: OperationI.() -> Unit = {}): OperationI
-
-    fun props(): ListMultiHolder<AttributeI>
-    fun props(vararg value: AttributeI): CompilationUnitI
-    fun prop(value: AttributeI): AttributeI
-    fun prop(value: AttributeI.() -> Unit = {}): AttributeI
-
-    fun superUnit(): CompilationUnitI
-    fun superUnit(value: CompilationUnitI): CompilationUnitI
-
-    fun superUnitFor(): ListMultiHolder<CompilationUnitI>
-    fun superUnitFor(vararg value: CompilationUnitI): CompilationUnitI
-
-    fun virtual(): Boolean
-    fun virtual(value: Boolean): CompilationUnitI
 }
 
 
@@ -182,6 +158,11 @@ interface StructureUnitI : MacroCompositeI {
 
 
 interface TypeI : MacroCompositeI {
+    fun constructors(): ListMultiHolder<ConstructorI>
+    fun constructors(vararg value: ConstructorI): TypeI
+    fun constr(value: ConstructorI): ConstructorI
+    fun constr(value: ConstructorI.() -> Unit = {}): ConstructorI
+
     fun defaultValue(): Any?
     fun defaultValue(value: Any?): TypeI
 
@@ -192,5 +173,27 @@ interface TypeI : MacroCompositeI {
 
     fun multi(): Boolean
     fun multi(value: Boolean): TypeI
+
+    fun open(): Boolean
+    fun open(value: Boolean): TypeI
+
+    fun operations(): ListMultiHolder<OperationI>
+    fun operations(vararg value: OperationI): TypeI
+    fun op(value: OperationI): OperationI
+    fun op(value: OperationI.() -> Unit = {}): OperationI
+
+    fun props(): ListMultiHolder<AttributeI>
+    fun props(vararg value: AttributeI): TypeI
+    fun prop(value: AttributeI): AttributeI
+    fun prop(value: AttributeI.() -> Unit = {}): AttributeI
+
+    fun superUnit(): CompilationUnitI
+    fun superUnit(value: CompilationUnitI): TypeI
+
+    fun superUnitFor(): ListMultiHolder<CompilationUnitI>
+    fun superUnitFor(vararg value: CompilationUnitI): TypeI
+
+    fun virtual(): Boolean
+    fun virtual(value: Boolean): TypeI
 }
 

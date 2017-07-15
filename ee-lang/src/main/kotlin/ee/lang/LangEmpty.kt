@@ -9,11 +9,6 @@ object CompilationUnitEmpty : Type(), CompilationUnitI {
     override fun virtual(): Boolean = false
     override fun virtual(value: Boolean): CompilationUnitI = this
     override fun superUnitFor(vararg value: CompilationUnitI): CompilationUnitI = this
-    override fun superUnit(): CompilationUnitI = this
-    override fun superUnit(value: CompilationUnitI): CompilationUnitI = this
-    override fun props(vararg value: AttributeI): CompilationUnitI = this
-    override fun prop(value: AttributeI): AttributeI = Attribute.EMPTY
-    override fun prop(value: AttributeI.() -> Unit): AttributeI = Attribute.EMPTY
     override fun operations(vararg value: OperationI): CompilationUnitI = this
     override fun op(value: OperationI): OperationI = Operation.EMPTY
     override fun op(value: OperationI.() -> Unit): OperationI = Operation.EMPTY
@@ -22,7 +17,6 @@ object CompilationUnitEmpty : Type(), CompilationUnitI {
     override fun constr(value: ConstructorI.() -> Unit): ConstructorI = Constructor.EMPTY
     override fun constructors(): ListMultiHolder<ConstructorI> = ListMultiHolder.empty()
     override fun operations(): ListMultiHolder<OperationI> = ListMultiHolder.empty()
-    override fun props(): ListMultiHolder<AttributeI> = ListMultiHolder.empty()
     override fun superUnitFor(): ListMultiHolder<CompilationUnitI> = ListMultiHolder.empty()
 }
 

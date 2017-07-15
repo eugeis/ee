@@ -5,6 +5,7 @@ import ee.common.ext.ifElse
 open class LangDerivedKindNames {
     val API = "Api"
     val IMPL = "Impl"
+    val MANUAL = "MANUAL"
 }
 
 object LangDerivedKind : LangDerivedKindNames()
@@ -226,23 +227,25 @@ fun <T : CompositeI> T.prepareAttributesOfEnums() {
     findDownByType(EnumTypeI::class.java).forEach { it.props().forEach { it.replaceable(false).initByDefaultTypeValue(false) } }
 }
 
-fun <T : CompilationUnitI> T.constructorAllProps(): ConstructorI {
+fun <T : CompilationUnitI> T.constructorAllProps(adapt: ConstructorI.() -> Unit = {}): ConstructorI {
     val constrProps = propsAll().filter { !it.meta() }.map { p(it) }
     val primary = this is EnumTypeI
     return if (constrProps.isNotEmpty()) constr {
         parent(this@constructorAllProps)
         primary(primary).params(*constrProps.toTypedArray()).name("constructorAllProps")
         superUnit(this@constructorAllProps.superUnit().primaryOrFirstConstructor())
+        adapt()
     } else Constructor.EMPTY
 }
 
-fun <T : CompilationUnitI> T.constructorOwnPropsOnly(): ConstructorI {
+fun <T : CompilationUnitI> T.constructorOwnPropsOnly(adapt: ConstructorI.() -> Unit = {}): ConstructorI {
     val constrProps = props().filter { !it.meta() }.map { p(it) }
     val primary = this is EnumTypeI
     return if (constrProps.isNotEmpty()) constr {
         parent(this@constructorOwnPropsOnly)
         primary(primary).params(*constrProps.toTypedArray()).name("constructorOwnPropsOnly")
         superUnit(this@constructorOwnPropsOnly.superUnit().primaryOrFirstConstructor())
+        adapt()
     } else Constructor.EMPTY
 }
 
