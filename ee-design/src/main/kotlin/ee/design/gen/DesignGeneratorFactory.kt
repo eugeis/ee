@@ -112,8 +112,10 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                         name = "${fileNamePrefix}CommandsBase", nameBuilder = itemAndTemplateNameAsGoFileName,
                         fragments = {
                             listOf(
+                                    ItemsFragment<StructureUnitI, EntityI>(items = entities,
+                                            fragments = { listOf(goTemplates.commandTypes()) }),
                                     ItemsFragment<StructureUnitI, CommandI>(items = commands,
-                                            fragments = { listOf(goTemplates.pojo()) }),
+                                            fragments = { listOf(goTemplates.command()) }),
                                     ItemsFragment<StructureUnitI, EnumTypeI>(items = commandEnums,
                                             fragments = { listOf(goTemplates.enum()) }))
                         })

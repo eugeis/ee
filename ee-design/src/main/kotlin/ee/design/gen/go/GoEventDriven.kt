@@ -4,7 +4,17 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
+import ee.lang.gen.go.nameForMember
+import ee.lang.gen.go.toGoImpl
 
+fun <T : EntityI> T.toGoCommandTypes(c: GenerationContext,
+                                     derived: String = DesignDerivedKind.IMPL,
+                                     api: String = DesignDerivedKind.API): String {
+    val commands = findDownByType(CommandI::class.java)
+    return commands.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
+        """     ${it.parentNameAndName().capitalize()}${DesignDerivedType.Command} ${c.n(eh.CommandType)} = "${it.parentNameAndName().capitalize()}""""
+    }
+}
 
 fun <T : CompilationUnitI> T.toGoAggregate(c: GenerationContext,
                                            derived: String = DesignDerivedKind.IMPL,
@@ -65,6 +75,20 @@ func (o *$name) Setup() (err error) {${entities.joinSurroundIfNotEmptyToString("
     }}
     return
 }
+"""
+}
+
+
+fun <T : CommandI> T.toGoCommandImpl(c: GenerationContext,
+                                     derived: String = DesignDerivedKind.IMPL,
+                                     api: String = DesignDerivedKind.API): String {
+    val entity = findParentMust(EntityI::class.java)
+    val name = c.n(this, derived)
+    return """
+        ${toGoImpl(c, derived, api)}
+func (o *${name}) AggregateID() ${c.n(eh.UUID)}            { return o.${entity.id().nameForMember()} }
+func (o *${name}) AggregateType() ${c.n(eh.AggregateType)}  { return ${entity.name()}${DesignDerivedType.AggregateType} }
+func (o *${name}) CommandType() ${c.n(eh.CommandType)}      { return ${parentNameAndName().capitalize()}${DesignDerivedType.Command} }
 """
 }
 

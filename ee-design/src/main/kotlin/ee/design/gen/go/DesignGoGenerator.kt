@@ -34,6 +34,8 @@ open class DesignGoGenerator {
 
         addCommandsAndEventsForAggregates()
 
+        defineCommandAndEventPropsAsReplaceable()
+
         addCommandEnumsForAggregate()
 
         addEventEnumsForAggregate()

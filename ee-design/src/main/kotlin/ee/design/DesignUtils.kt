@@ -10,6 +10,8 @@ object DesignDerivedKind : DesignDerivedKindNames()
 
 open class DesignDerivedTypeNames {
     val Aggregate = "Aggregate"
+    val AggregateType = "AggregateType"
+    val Command = "Command"
     val AggregateInitializer = "AggregateInitializer"
     val EventhorizonInitializer = "EventhorizonInitializer"
 }
@@ -46,7 +48,7 @@ fun StructureUnitI.defineNamesForTypeControllers() {
 fun StructureUnitI.addCommandsAndEventsForAggregates() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.commands().isEmpty() }.extend {
         log.debug("Add default commands to ${name()}")
-        val dataTypeProps = props().filter { !it.meta() && !it.key() }
+        val dataTypeProps = props().filter { !it.meta() }
 
         commands(Commands {
             name("commands")
@@ -86,6 +88,20 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
                     props(id())
                 }
             })
+        }
+    }
+}
+
+fun StructureUnitI.defineCommandAndEventPropsAsReplaceable() {
+    findDownByType(CommandI::class.java).forEach { command ->
+        command.props().forEach {
+            it.replaceable(true)
+        }
+    }
+
+    findDownByType(EventI::class.java).forEach { command ->
+        command.props().forEach {
+            it.replaceable(true)
         }
     }
 }
