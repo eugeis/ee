@@ -1,5 +1,6 @@
 package ee.design
 
+import ee.design.gen.go.toGoPropOptionalTag
 import ee.lang.*
 import org.slf4j.LoggerFactory
 
@@ -48,7 +49,7 @@ fun StructureUnitI.defineNamesForTypeControllers() {
 fun StructureUnitI.addCommandsAndEventsForAggregates() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.commands().isEmpty() }.extend {
         log.debug("Add default commands to ${name()}")
-        val dataTypeProps = propsAll().filter { !it.meta() }
+        val dataTypeProps = propsAll().filter { !it.meta() }.map { p(it).setOptionalTag() }
 
         commands(Commands {
             name("commands")
@@ -96,6 +97,11 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
             })
         }
     }
+}
+
+fun AttributeI.setOptionalTag(): AttributeI {
+    macros(AttributeI::toGoPropOptionalTag.name)
+    return this
 }
 
 fun StructureUnitI.defineCommandAndEventPropsAsReplaceable() {
@@ -165,7 +171,7 @@ fun StructureUnitI.addCommandEnumsForAggregate() {
                 enumType {
                     name("${entity.name()}CommandType")
                     items.forEach {
-                        lit({ name(it.nameAndParentName()) })
+                        lit({ name(it.nameAndParentName().capitalize()) })
                     }
                 }
             }
@@ -182,7 +188,7 @@ fun StructureUnitI.addEventEnumsForAggregate() {
                 enumType {
                     name("${entity.name()}EventType")
                     items.forEach {
-                        lit({ name(it.parentNameAndName()) })
+                        lit({ name(it.parentNameAndName().capitalize()) })
                     }
                 }
             }

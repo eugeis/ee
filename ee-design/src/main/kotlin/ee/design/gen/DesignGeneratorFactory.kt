@@ -89,6 +89,9 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                 CompilationUnitI::toGoAggregateInitializer)
         contextFactory.macroController.registerMacro(CompilationUnitI::toGoEventhorizonInitializer.name,
                 CompilationUnitI::toGoEventhorizonInitializer)
+        contextFactory.macroController.registerMacro(AttributeI::toGoPropOptionalTag.name,
+                AttributeI::toGoPropOptionalTag)
+
 
         return GeneratorGroup<StructureUnitI>(listOf(
                 GeneratorSimple<StructureUnitI>(

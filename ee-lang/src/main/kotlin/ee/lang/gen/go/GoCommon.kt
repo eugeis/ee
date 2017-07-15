@@ -21,7 +21,7 @@ fun AttributeI.toGoInitCall(c: GenerationContext, api: String): String {
 }
 
 fun <T : AttributeI> T.toGoTypeDef(c: GenerationContext, api: String): String {
-    return type().toGo(c, api)
+    return "${type().toGo(c, api)}${toGoMacros(c, api, api)}"
 }
 
 fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String): String? {

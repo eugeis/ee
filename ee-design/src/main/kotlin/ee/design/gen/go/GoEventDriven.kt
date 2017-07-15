@@ -116,3 +116,9 @@ fun <T : OperationI> T.toGoAggregateInitializerRegisterCommands(c: GenerationCon
     //TODO find a way to get correct name for xxxAggregateType
     return """${c.n(g.gee.eh.AggregateInitializer.RegisterForAllEvents)}(handler, $ { c.n(entity, api) } AggregateType, ${entity.name()} CommandTypes ().Literals())"""
 }
+
+fun <T : AttributeI> T.toGoPropOptionalTag(c: GenerationContext,
+                                           derived: String = DesignDerivedKind.IMPL,
+                                           api: String = DesignDerivedKind.API): String {
+    return """`eh:"optional"`"""
+}
