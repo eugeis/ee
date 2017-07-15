@@ -33,7 +33,7 @@ func New${name}Initializer(
 	commandBus *${c.n(eh.CommandBus)}) (ret *${name}Initializer) {
 	ret = &${name}Initializer{
         AggregateInitializer: ${c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer, api)}(${name}Type, ${name}CommandTypes().Literals(),
-		ChurchAggregateEventTypes().Literals(), store, eventBus, publisher, commandBus),
+		${name()}EventTypes().Literals(), store, eventBus, publisher, commandBus),
     }
 	return
 }
