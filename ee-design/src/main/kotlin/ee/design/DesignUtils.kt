@@ -95,7 +95,7 @@ fun StructureUnitI.addCommandEnumsForAggregate() {
             parent.extend {
                 log.debug("Add CommandType to ${entity.name()}")
                 enumType {
-                    name("${entity.name()}CommandType")
+                    name("${entity.name()}AggregateCommandType")
                     items.forEach {
                         lit({ name(it.nameAndParentName()) })
                     }
@@ -112,7 +112,7 @@ fun StructureUnitI.addEventEnumsForAggregate() {
             parent.extend {
                 log.debug("Add EventType to ${entity.name()}")
                 enumType {
-                    name("${entity.name()}EventType")
+                    name("${entity.name()}AggregateEventType")
                     items.forEach {
                         lit({ name(it.parentNameAndName()) })
                     }

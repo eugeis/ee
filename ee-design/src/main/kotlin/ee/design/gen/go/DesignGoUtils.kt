@@ -37,6 +37,9 @@ object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("e
     object EventPublisher : ExternalType() {
     }
 
+    object EventHandler : ExternalType() {
+    }
+
     object CommandBus : ExternalType() {
     }
 
@@ -54,29 +57,12 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
         module.extend {
             items.forEach { item ->
                 item.extend {
-                    controller {
-                        name("AggregateInitializer").derivedAsType(DesignDerivedType.AGGREGATE)
-                        val store = prop { type(eh.EventStore).name("store") }
-                        val notifier = prop { type(eh.EventBus).name("notifier") }
-                        val publisher = prop { type(eh.EventPublisher).name("publisher") }
-                        val executor = prop { type(eh.CommandBus).name("executor") }
-
-                        op { name("Setup") }
-
-                        op {
-                            name("RegisterCommands")
-                            params(p { type(eh.AggregateCommandHandler).name("handler") })
-                            macros(OperationI::toGoAggregateInitializerRegisterCommands.name)
-                        }
-
-                        op { ret().name("AggregateType") }
-                    }
 
                     controller {
                         name("${DesignDerivedType.AGGREGATE}").derivedAsType(DesignDerivedType.AGGREGATE)
                         val AggregateBase = prop({ type(eh.AggregateBase).anonymous(true).name("AggregateBase") })
                         val Entity = prop({ type(item).anonymous(true).name("Entity") })
-                        macros(CompilationUnitI::toGoAggregateType.name)
+                        macros(CompilationUnitI::toGoAggregateInitializer.name)
                     }
                 }
 

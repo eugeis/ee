@@ -20,7 +20,11 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         }
 
         object eh : StructureUnit() {
-            val RegisterCommands = Operation()
+            object AggregateInitializer : Type() {
+                val RegisterForAllEvents = Operation()
+                val RegisterForEvent = Operation()
+                val NewAggregateInitializer = Operation()
+            }
         }
     }
 }

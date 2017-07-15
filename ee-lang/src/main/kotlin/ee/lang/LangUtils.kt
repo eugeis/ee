@@ -14,7 +14,7 @@ fun ItemI.parentNameAndName(): String = storage.getOrPut(this, "parentNameAndNam
     if (parent != null) {
         val regexp = "(\\B[A-Z])".toRegex()
         if (regexp.containsMatchIn(name())) name().replaceFirst(regexp, "${parent.name().capitalize()}$1") else
-            "${name()}${parent.name().capitalize()}"
+            "${parent.name()}${name().capitalize()}"
     } else {
         name()
     }
@@ -25,7 +25,7 @@ fun ItemI.nameAndParentName(): String = storage.getOrPut(this, "nameAndParentNam
     if (parent != null) {
         val regexp = "(\\B[A-Z])".toRegex()
         if (regexp.containsMatchIn(name())) name().replaceFirst(regexp, "$1${parent.name().capitalize()}") else
-            "${parent.name()}${name().capitalize()}"
+            "${name()}${parent.name().capitalize()}"
     } else {
         name()
     }

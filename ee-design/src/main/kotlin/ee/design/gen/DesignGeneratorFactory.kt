@@ -4,7 +4,7 @@ import ee.design.*
 import ee.design.gen.go.DesignGoContextFactory
 import ee.design.gen.go.DesignGoTemplates
 import ee.design.gen.go.toGoAggregateInitializerRegisterCommands
-import ee.design.gen.go.toGoAggregateType
+import ee.design.gen.go.toGoAggregateInitializer
 import ee.design.gen.kt.DesignKotlinContextFactory
 import ee.design.gen.kt.DesignKotlinTemplates
 import ee.lang.*
@@ -86,8 +86,8 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
 
         contextFactory.macroController.registerMacro(OperationI::toGoAggregateInitializerRegisterCommands.name,
                 OperationI::toGoAggregateInitializerRegisterCommands)
-        contextFactory.macroController.registerMacro(CompilationUnitI::toGoAggregateType.name,
-                CompilationUnitI::toGoAggregateType)
+        contextFactory.macroController.registerMacro(CompilationUnitI::toGoAggregateInitializer.name,
+                CompilationUnitI::toGoAggregateInitializer)
 
 
         return GeneratorGroup<StructureUnitI>(listOf(
