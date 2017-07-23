@@ -128,6 +128,8 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                         name = "${fileNamePrefix}EventsBase", nameBuilder = itemAndTemplateNameAsGoFileName,
                         fragments = {
                             listOf(
+                                    ItemsFragment<StructureUnitI, EntityI>(items = entities,
+                                            fragments = { listOf(goTemplates.eventTypes()) }),
                                     ItemsFragment<StructureUnitI, EventI>(items = events,
                                             fragments = { listOf(goTemplates.pojo()) }),
                                     ItemsFragment<StructureUnitI, EnumTypeI>(items = eventEnums,

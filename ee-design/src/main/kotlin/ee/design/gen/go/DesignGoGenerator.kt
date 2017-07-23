@@ -6,7 +6,6 @@ import ee.lang.StructureUnitI
 import ee.lang.findDownByType
 import ee.lang.gen.go.extendForGoGenerationLang
 import ee.lang.gen.go.initsForGoGeneration
-import ee.lang.initObjectTree
 import java.nio.file.Path
 
 open class DesignGoGenerator {

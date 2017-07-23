@@ -11,9 +11,10 @@ object DesignDerivedKind : DesignDerivedKindNames()
 
 open class DesignDerivedTypeNames {
     val Aggregate = "Aggregate"
+    val AggregateInitializer = "AggregateInitializer"
     val AggregateType = "AggregateType"
     val Command = "Command"
-    val AggregateInitializer = "AggregateInitializer"
+    val Event = "Event"
     val EventhorizonInitializer = "EventhorizonInitializer"
 }
 

@@ -7,12 +7,17 @@ import ee.lang.gen.go.g
 import ee.lang.gen.go.nameForMember
 import ee.lang.gen.go.toGoImpl
 
-fun <T : EntityI> T.toGoCommandTypes(c: GenerationContext,
-                                     derived: String = DesignDerivedKind.IMPL,
-                                     api: String = DesignDerivedKind.API): String {
+fun <T : EntityI> T.toGoCommandTypes(c: GenerationContext): String {
     val commands = findDownByType(CommandI::class.java)
     return commands.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
         """     ${it.nameAndParentName().capitalize()}${DesignDerivedType.Command} ${c.n(g.eh.CommandType)} = "${it.nameAndParentName().capitalize()}""""
+    }
+}
+
+fun <T : EntityI> T.toGoEventTypes(c: GenerationContext): String {
+    val commands = findDownByType(EventI::class.java)
+    return commands.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
+        """     ${it.parentNameAndName().capitalize()}${DesignDerivedType.Event} ${c.n(g.eh.EventType)} = "${it.parentNameAndName().capitalize()}""""
     }
 }
 
@@ -30,12 +35,12 @@ func New$name(id ${c.n(g.eh.UUID, api)}) *$name {
 }
 
 func (o *$name) HandleCommand(ctx ${c.n(g.context.Context)}, cmd ${c.n(g.eh.Command)}) error {
-    println("HandleCommand %v - %v", ctx, cmd)
+    println("HandleCommand", cmd.CommandType())
     return nil
 }
 
 func (o *$name) ApplyEvent(ctx context.Context, event ${c.n(g.eh.Event)}) error {
-    println("ApplyEvent %v - %v", ctx, event)
+    println("ApplyEvent", event.EventType())
     return nil
 }
 """

@@ -78,6 +78,9 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         object Event : ExternalType() {
         }
 
+        object EventType : ExternalType() {
+        }
+
         object UUID : ExternalType() {
         }
     }

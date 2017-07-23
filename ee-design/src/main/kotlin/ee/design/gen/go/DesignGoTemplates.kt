@@ -15,4 +15,7 @@ open class DesignGoTemplates : LangGoTemplates {
 
     open fun commandTypes(nameBuilder: TemplateI<EntityI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
             = Template<EntityI>("CommandTypes", nameBuilder) { item, c -> item.toGoCommandTypes(c) }
+
+    open fun eventTypes(nameBuilder: TemplateI<EntityI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
+            = Template<EntityI>("EventTypes", nameBuilder) { item, c -> item.toGoEventTypes(c) }
 }
