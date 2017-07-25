@@ -83,18 +83,20 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
 
         contextFactory.macroController.registerMacro(OperationI::toGoAggregateInitializerRegisterCommands.name,
                 OperationI::toGoAggregateInitializerRegisterCommands)
-        contextFactory.macroController.registerMacro(CompilationUnitI::toGoAggregate.name,
-                CompilationUnitI::toGoAggregate)
         contextFactory.macroController.registerMacro(CompilationUnitI::toGoAggregateInitializer.name,
                 CompilationUnitI::toGoAggregateInitializer)
         contextFactory.macroController.registerMacro(CompilationUnitI::toGoEventhorizonInitializer.name,
                 CompilationUnitI::toGoEventhorizonInitializer)
         contextFactory.macroController.registerMacro(AttributeI::toGoPropOptionalTag.name,
                 AttributeI::toGoPropOptionalTag)
-        contextFactory.macroController.registerMacro(OperationI::toGoExecuteCommand.name,
-                OperationI::toGoExecuteCommand)
-        contextFactory.macroController.registerMacro(OperationI::toGoApplyEvent.name,
-                OperationI::toGoApplyEvent)
+        contextFactory.macroController.registerMacro(OperationI::toGoCommandHandlerExecuteCommand.name,
+                OperationI::toGoCommandHandlerExecuteCommand)
+        contextFactory.macroController.registerMacro(OperationI::toGoCommandHandlerSetup.name,
+                OperationI::toGoCommandHandlerSetup)
+        contextFactory.macroController.registerMacro(OperationI::toGoEventHandlerApplyEvent.name,
+                OperationI::toGoEventHandlerApplyEvent)
+        contextFactory.macroController.registerMacro(OperationI::toGoEventHandlerSetup.name,
+                OperationI::toGoEventHandlerSetup)
 
 
         return GeneratorGroup<StructureUnitI>(listOf(

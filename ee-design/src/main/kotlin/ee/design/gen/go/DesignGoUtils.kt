@@ -30,14 +30,22 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 }).replaceable(true).name("${command.name()}${DesignDerivedType.Handler}")
                             })
                         }
+
                         op {
                             name("Execute")
                             p("cmd", g.eh.Command)
                             p("entity", n.Any)
                             p("store", g.gee.eh.AggregateStoreEvent)
                             ret(g.error)
-                            macros(OperationI::toGoExecuteCommand.name)
+                            macros(OperationI::toGoCommandHandlerExecuteCommand.name)
                         }
+
+                        op {
+                            name("SetupCommandHandler")
+                            ret(g.error)
+                            macros(OperationI::toGoCommandHandlerSetup.name)
+                        }
+
                         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                     }
 
@@ -54,22 +62,22 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 }).replaceable(true).name("${event.name()}${DesignDerivedType.Handler}")
                             })
                         }
+
                         op {
                             name("Apply")
                             p("event", g.eh.Event)
                             p("entity", n.Any)
                             ret(g.error)
-                            macros(OperationI::toGoApplyEvent.name)
+                            macros(OperationI::toGoEventHandlerApplyEvent.name)
                         }
-                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                    }
 
-                    //aggregate
-                    controller {
-                        name(DesignDerivedType.Aggregate).derivedAsType(DesignDerivedType.Aggregate)
-                        prop({ type(g.gee.eh.AggregateBase).anonymous(true).name("AggregateBase") })
-                        constructorOwnPropsOnly { derivedAsType(LangDerivedKind.MANUAL) }
-                        macros(CompilationUnitI::toGoAggregate.name)
+                        op {
+                            name("SetupEventHandler")
+                            ret(g.error)
+                            macros(OperationI::toGoEventHandlerSetup.name)
+                        }
+
+                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                     }
 
                     initializer.add(
