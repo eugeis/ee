@@ -28,20 +28,45 @@ fun <T : CompilationUnitI> T.toGoAggregate(c: GenerationContext,
     return """
 const ${name}Type ${c.n(g.eh.AggregateType)} = "$name"
 
-func New$name(id ${c.n(g.eh.UUID, api)}) *$name {
-	return &$name{
+func New$name(id ${c.n(g.eh.UUID, api)}) (ret *$name) {
+    ret = &$name{
 		AggregateBase: ${c.n(g.eh.NewAggregateBase)}(${name}Type, id),
-	}
+    }
+	ret.CommandHandler = New$name${DesignDerivedType.CommandHandler}(ret)
+    return
 }
 
-func (o *$name) HandleCommand(ctx ${c.n(g.context.Context)}, cmd ${c.n(g.eh.Command)}) error {
-    println("HandleCommand", cmd.CommandType())
-    return nil
-}
-
-func (o *$name) ApplyEvent(ctx context.Context, event ${c.n(g.eh.Event)}) error {
+func (o *$name) ApplyEvent(ctx ${c.n(g.context.Context)}, event ${c.n(g.eh.Event)}) error {
     println("ApplyEvent", event.EventType())
     return nil
+}
+
+
+func New$name${DesignDerivedType.CommandHandler}(aggregate *$name) *$name${DesignDerivedType.CommandHandler} {
+	return &$name${DesignDerivedType.CommandHandler}{
+		aggregate: aggregate,
+        handlers: make(map[eventhorizon.CommandType]func(cmd eventhorizon.Command, aggregate *$name) error),
+    }
+}
+
+type $name${DesignDerivedType.CommandHandler} struct {
+	aggregate *$name
+	handlers  map[eventhorizon.CommandType]func(cmd eventhorizon.Command, aggregate *$name) error
+}
+
+func (o *$name${DesignDerivedType.CommandHandler}) AddHandler(commandType eventhorizon.CommandType,
+	handler func(cmd eventhorizon.Command, aggregate *$name) error) {
+	o.handlers[commandType] = handler
+}
+
+func (o *$name${DesignDerivedType.CommandHandler}) HandleCommand(ctx context.Context, cmd eventhorizon.Command) (err error) {
+	if handler, ok := o.handlers[cmd.CommandType()]; ok {
+		err = handler(cmd, o.aggregate)
+	} else {
+		err = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("There is no handlers for command %v registered in the aggregate %v",
+			cmd.CommandType(), cmd.AggregateType()))
+	}
+	return
 }
 """
 }
@@ -83,7 +108,7 @@ func New${name}(
 	commandBus ${c.n(g.eh.CommandBus)}) (ret *${name}) {
 	ret = &$name{eventStore: eventStore, eventBus: eventBus, eventPublisher: eventPublisher,
             commandBus: commandBus, ${entities.joinSurroundIfNotEmptyToString(",$nL    ", "$nL    ") {
-        """${it.name().decapitalize()}${DesignDerivedType.AggregateInitializer}: New${
+        """${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}: New${
         it.name().capitalize()}${DesignDerivedType.AggregateInitializer}(eventStore, eventBus, eventPublisher, commandBus)"""
     }}}
 	return
@@ -91,7 +116,7 @@ func New${name}(
 
 func (o *$name) Setup() (err error) {${entities.joinSurroundIfNotEmptyToString("$nL    ", "$nL    ") {
         """
-    if err = o.${it.name().decapitalize()}${DesignDerivedType.AggregateInitializer}.Setup(); err != nil {
+    if err = o.${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}.Setup(); err != nil {
         return
     }"""
     }}

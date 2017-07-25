@@ -14,6 +14,7 @@ open class DesignDerivedTypeNames {
     val AggregateInitializer = "AggregateInitializer"
     val AggregateType = "AggregateType"
     val Command = "Command"
+    val CommandHandler = "CommandHandler"
     val Event = "Event"
     val EventhorizonInitializer = "EventhorizonInitializer"
 }

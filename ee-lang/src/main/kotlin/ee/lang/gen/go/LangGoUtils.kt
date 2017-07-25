@@ -4,23 +4,31 @@ import ee.common.ext.*
 import ee.lang.*
 
 object g : StructureUnit({ namespace("").name("Go") }) {
+    object fmt : StructureUnit({ namespace("fmt") }) {
+        val Sprintf = Operation()
+    }
+
+    object errors : StructureUnit({ namespace("errors") }) {
+        val New = Operation()
+    }
+
     object time : StructureUnit({ namespace("time") }) {
-        val Time = Type()
+        val Time = ExternalType()
         val Now = Operation()
     }
 
     object context : StructureUnit({ namespace("context") }) {
-        val Context = Type()
+        val Context = ExternalType()
     }
 
     //common libs
     object gee : StructureUnit({ namespace("github.com/eugeis/gee") }) {
         object enum : StructureUnit() {
-            val Literal = Type()
+            val Literal = ExternalType()
         }
 
         object eh : StructureUnit() {
-            object AggregateInitializer : Type() {
+            object AggregateInitializer : ExternalType() {
                 val RegisterForAllEvents = Operation()
                 val RegisterForEvent = Operation()
                 val NewAggregateInitializer = Operation()
@@ -43,7 +51,10 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         object AggregateType : ExternalType() {
         }
 
-        object Command: ExternalType() {
+        object Command : ExternalType() {
+        }
+
+        object CommandHandler : ExternalType({ ifc(true) }) {
         }
 
         object CommandType : ExternalType() {
@@ -82,6 +93,15 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         }
 
         object UUID : ExternalType() {
+        }
+    }
+
+
+    object mapset : StructureUnit({ namespace("github.com.deckarep.golang-set.mapset").name("mapset") }) {
+        val NewSet = Operation()
+
+        object Set : Type() {
+            val Add = Operation()
         }
     }
 

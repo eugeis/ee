@@ -14,17 +14,16 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
     }.forEach { module, items ->
         module.extend {
             val initializer = arrayListOf<ControllerI>()
-            val aggregates = arrayListOf<ControllerI>()
             items.forEach { item ->
                 item.extend {
-                    aggregates.add(
-                            controller {
-                                name(DesignDerivedType.Aggregate).derivedAsType(DesignDerivedType.Aggregate)
-                                prop({ type(g.eh.AggregateBase).anonymous(true).name("AggregateBase") })
-                                prop({ type(item).anonymous(true).name("Entity") })
-                                constructorOwnPropsOnly { derivedAsType(LangDerivedKind.MANUAL) }
-                                macros(CompilationUnitI::toGoAggregate.name)
-                            })
+                    controller {
+                        name(DesignDerivedType.Aggregate).derivedAsType(DesignDerivedType.Aggregate)
+                        prop({ type(g.eh.AggregateBase).anonymous(true).name("AggregateBase") })
+                        prop({ type(item).anonymous(true).name("Entity") })
+                        prop({ type(g.eh.CommandHandler).anonymous(true).name("CommandHandler") })
+                        constructorOwnPropsOnly { derivedAsType(LangDerivedKind.MANUAL) }
+                        macros(CompilationUnitI::toGoAggregate.name)
+                    }
                     initializer.add(
                             controller {
                                 name(DesignDerivedType.AggregateInitializer).derivedAsType(DesignDerivedType.Aggregate)
@@ -43,7 +42,10 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                 prop { type(g.eh.EventPublisher).replaceable(false).name("eventPublisher") }
                 prop { type(g.eh.CommandBus).replaceable(false).name("commandBus") }
                 initializer.forEach { item ->
-                    prop { type(item).default(true).name("${item.parent().name().capitalize()}${item.name().capitalize()}") }
+                    prop {
+                        type(item).replaceable(true).default(true).
+                                name("${item.parent().name()}${item.name().capitalize()}")
+                    }
                 }
                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                 macros(CompilationUnitI::toGoEventhorizonInitializer.name)
