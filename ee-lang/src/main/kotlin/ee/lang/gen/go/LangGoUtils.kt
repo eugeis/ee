@@ -4,12 +4,14 @@ import ee.common.ext.*
 import ee.lang.*
 
 object g : StructureUnit({ namespace("").name("Go") }) {
+    val error = ExternalType({ ifc(true) })
+
     object fmt : StructureUnit({ namespace("fmt") }) {
         val Sprintf = Operation()
     }
 
     object errors : StructureUnit({ namespace("errors") }) {
-        val New = Operation()
+        val New = Operation({ ret(error) })
     }
 
     object time : StructureUnit({ namespace("time") }) {
@@ -51,7 +53,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         object AggregateType : ExternalType() {
         }
 
-        object Command : ExternalType() {
+        object Command : ExternalType({ ifc(true) }) {
         }
 
         object CommandHandler : ExternalType({ ifc(true) }) {

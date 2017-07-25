@@ -109,10 +109,10 @@ fun ret(type: TypeI = n.String, body: AttributeI.() -> Unit = {}): AttributeI = 
 }
 */
 
-fun lambda(vararg params: AttributeI, body: OperationI.() -> Unit = {}): LambdaI = Lambda({
+fun lambda(vararg params: AttributeI, adapt: OperationI.() -> Unit = {}): LambdaI = Lambda({
     operation(Operation({
         params(*params)
-        body()
+        adapt()
     }))
 })
 
@@ -286,10 +286,10 @@ fun <T : TypeI> T.GT(vararg types: TypeI): T {
 fun TypeI.G(type: TypeI): GenericI = G { type(type) }
 
 fun OperationI.ret(type: TypeI): OperationI = ret(Attribute({ type(type) }))
-fun LogicUnitI.p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): LogicUnitI = params(
+fun LogicUnitI.p(name: String, type: TypeI = n.String, adapt: AttributeI.() -> Unit = {}): LogicUnitI = params(
         Attribute({
             type(type).name(name)
-            body()
+            adapt()
         }))
 
 fun ItemI.deriveNamespace(name: String) = (namespace().endsWith(name) || "shared".equals(name, true)).

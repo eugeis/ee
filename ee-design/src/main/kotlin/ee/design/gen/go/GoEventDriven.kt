@@ -5,6 +5,7 @@ import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
 import ee.lang.gen.go.nameForMember
+import ee.lang.gen.go.toGo
 import ee.lang.gen.go.toGoImpl
 
 fun <T : EntityI> T.toGoCommandTypes(c: GenerationContext): String {
@@ -32,7 +33,7 @@ func New$name(id ${c.n(g.eh.UUID, api)}) (ret *$name) {
     ret = &$name{
 		AggregateBase: ${c.n(g.eh.NewAggregateBase)}(${name}Type, id),
     }
-	ret.CommandHandler = New$name${DesignDerivedType.CommandHandler}(ret)
+	//ret.CommandHandler = New$name${DesignDerivedType.CommandHandler}(ret)
     return
 }
 
@@ -40,36 +41,28 @@ func (o *$name) ApplyEvent(ctx ${c.n(g.context.Context)}, event ${c.n(g.eh.Event
     println("ApplyEvent", event.EventType())
     return nil
 }
-
-
-func New$name${DesignDerivedType.CommandHandler}(aggregate *$name) *$name${DesignDerivedType.CommandHandler} {
-	return &$name${DesignDerivedType.CommandHandler}{
-		aggregate: aggregate,
-        handlers: make(map[eventhorizon.CommandType]func(cmd eventhorizon.Command, aggregate *$name) error),
-    }
-}
-
-type $name${DesignDerivedType.CommandHandler} struct {
-	aggregate *$name
-	handlers  map[eventhorizon.CommandType]func(cmd eventhorizon.Command, aggregate *$name) error
-}
-
-func (o *$name${DesignDerivedType.CommandHandler}) AddHandler(commandType eventhorizon.CommandType,
-	handler func(cmd eventhorizon.Command, aggregate *$name) error) {
-	o.handlers[commandType] = handler
-}
-
-func (o *$name${DesignDerivedType.CommandHandler}) HandleCommand(ctx context.Context, cmd eventhorizon.Command) (err error) {
-	if handler, ok := o.handlers[cmd.CommandType()]; ok {
-		err = handler(cmd, o.aggregate)
-	} else {
-		err = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("There is no handlers for command %v registered in the aggregate %v",
-			cmd.CommandType(), cmd.AggregateType()))
-	}
-	return
-}
 """
 }
+
+
+fun <T : OperationI> T.toGoHandleCommand(c: GenerationContext,
+                                         derived: String = DesignDerivedKind.IMPL,
+                                         api: String = DesignDerivedKind.API): String {
+    val commands = findParentMust(EntityI::class.java).findDownByType(CommandI::class.java)
+    return """
+    var ret error
+    ${commands.joinSurroundIfNotEmptyToString("", "switch cmd.CommandType() {") {
+        """
+    case ${it.nameAndParentName().capitalize()}Command:
+        ret = o.${it.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${it.toGo(c, api)}), aggregate)"""
+    }}
+    default:
+		ret = ${c.n(g.errors.New,api)}(${c.n(g.fmt.Sprintf,api)}("Wrong comand type '%v' for aggregate '%v", cmd.CommandType(), aggregate))
+	}
+    return ret
+    """
+}
+
 
 fun <T : CompilationUnitI> T.toGoAggregateInitializer(c: GenerationContext,
                                                       derived: String = DesignDerivedKind.IMPL,
@@ -133,9 +126,9 @@ fun <T : CommandI> T.toGoCommandImpl(c: GenerationContext,
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api)}
-func (o *${name}) AggregateID() ${c.n(g.eh.UUID)}            { return o.${entity.id().nameForMember()} }
-func (o *${name}) AggregateType() ${c.n(g.eh.AggregateType)}  { return ${entity.name()}${DesignDerivedType.AggregateType} }
-func (o *${name}) CommandType() ${c.n(g.eh.CommandType)}      { return ${nameAndParentName().capitalize()}${DesignDerivedType.Command} }
+func (o *$name) AggregateID() ${c.n(g.eh.UUID)}            { return o.${entity.id().nameForMember()} }
+func (o *$name) AggregateType() ${c.n(g.eh.AggregateType)}  { return ${entity.name()}${DesignDerivedType.AggregateType} }
+func (o *$name) CommandType() ${c.n(g.eh.CommandType)}      { return ${nameAndParentName().capitalize()}${DesignDerivedType.Command} }
 """
 }
 

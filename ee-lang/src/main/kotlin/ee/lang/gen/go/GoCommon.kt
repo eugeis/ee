@@ -111,7 +111,7 @@ fun List<AttributeI>.toGoTypes(c: GenerationContext, derived: String): String {
 }
 
 fun <T : OperationI> T.toGoLamnda(c: GenerationContext, derived: String): String =
-        """(${params().toGoTypes(c, derived)}) -> ${ret().toGoType(c, derived)}"""
+        """func (${params().toGoTypes(c, derived)}) ${ret().toGoType(c, derived)}"""
 
 fun <T : LogicUnitI> T.toGoName(): String = visible().ifElse({ name().capitalize() }, { name().decapitalize() })
 
