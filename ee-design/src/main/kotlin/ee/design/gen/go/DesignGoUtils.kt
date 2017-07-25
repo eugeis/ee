@@ -16,39 +16,60 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
             val initializer = arrayListOf<ControllerI>()
             items.forEach { item ->
                 item.extend {
-                    //aggregate
-                    val aggregate = controller {
-                        name(DesignDerivedType.Aggregate).derivedAsType(DesignDerivedType.Aggregate)
-                        prop({ type(g.eh.AggregateBase).anonymous(true).name("AggregateBase") })
-                        prop({ type(item).anonymous(true).name("Entity") })
-                        prop({ type(g.eh.CommandHandler).anonymous(true).name("CommandHandler") })
-                        constructorOwnPropsOnly { derivedAsType(LangDerivedKind.MANUAL) }
-                        macros(CompilationUnitI::toGoAggregate.name)
-                    }
-
                     //command handler
                     val commands = item.findDownByType(CommandI::class.java)
-                    val handler = controller {
+                    val commandHandler = controller {
                         name(DesignDerivedType.CommandHandler).derivedAsType(DesignDerivedType.Aggregate)
                         commands.forEach { command ->
                             prop({
                                 type(lambda {
                                     p(command.name(), command)
-                                    p("aggregate", aggregate)
+                                    p("entity", item)
+                                    p("store", g.gee.eh.AggregateStoreEvent)
                                     ret(g.error)
                                 }).replaceable(true).name("${command.name()}${DesignDerivedType.Handler}")
                             })
                         }
                         op {
-                            name("HandleCommand")
-                            p("ctx", g.context.Context)
+                            name("Execute")
                             p("cmd", g.eh.Command)
-                            p("aggregate", aggregate)
+                            p("entity", n.Any)
+                            p("store", g.gee.eh.AggregateStoreEvent)
                             ret(g.error)
-                            macros(OperationI::toGoHandleCommand.name)
+                            macros(OperationI::toGoExecuteCommand.name)
                         }
                         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                        //macros(CompilationUnitI::toGoAggregateInitializer.name)
+                    }
+
+                    //event handler
+                    val events = item.findDownByType(EventI::class.java)
+                    val eventHandler = controller {
+                        name(DesignDerivedType.EventHandler).derivedAsType(DesignDerivedType.Aggregate)
+                        events.forEach { event ->
+                            prop({
+                                type(lambda {
+                                    p(event.name(), event)
+                                    p("entity", item)
+                                    ret(g.error)
+                                }).replaceable(true).name("${event.name()}${DesignDerivedType.Handler}")
+                            })
+                        }
+                        op {
+                            name("Apply")
+                            p("event", g.eh.Event)
+                            p("entity", n.Any)
+                            ret(g.error)
+                            macros(OperationI::toGoApplyEvent.name)
+                        }
+                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+                    }
+
+                    //aggregate
+                    controller {
+                        name(DesignDerivedType.Aggregate).derivedAsType(DesignDerivedType.Aggregate)
+                        prop({ type(g.gee.eh.AggregateBase).anonymous(true).name("AggregateBase") })
+                        constructorOwnPropsOnly { derivedAsType(LangDerivedKind.MANUAL) }
+                        macros(CompilationUnitI::toGoAggregate.name)
                     }
 
                     initializer.add(
@@ -56,7 +77,8 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             controller {
                                 name(DesignDerivedType.AggregateInitializer).derivedAsType(DesignDerivedType.Aggregate)
                                 prop({ type(g.gee.eh.AggregateInitializer).anonymous(true).name("AggregateInitializer") })
-                                prop({ type(handler).anonymous(true).name("SingleCommandHandlers") })
+                                prop({ type(commandHandler).anonymous(true).name("CommandHandler") })
+                                prop({ type(eventHandler).anonymous(true).name("EventHandler") })
                                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                                 macros(CompilationUnitI::toGoAggregateInitializer.name)
                             })

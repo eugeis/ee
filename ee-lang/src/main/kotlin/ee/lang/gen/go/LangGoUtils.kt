@@ -20,7 +20,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     }
 
     object context : StructureUnit({ namespace("context") }) {
-        val Context = ExternalType()
+        val Context = ExternalType({ ifc(true) })
     }
 
     //common libs
@@ -35,6 +35,16 @@ object g : StructureUnit({ namespace("").name("Go") }) {
                 val RegisterForEvent = Operation()
                 val NewAggregateInitializer = Operation()
             }
+
+            object DelegateCommandHandler : ExternalType({ ifc(true) })
+
+            object DelegateEventHandler : ExternalType({ ifc(true) })
+
+            object AggregateStoreEvent : ExternalType({ ifc(true) })
+
+            object AggregateBase : ExternalType()
+
+            object NewAggregateBase : Operation()
         }
     }
 
@@ -88,7 +98,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         object CommandBus : ExternalType({ ifc(true) }) {
         }
 
-        object Event : ExternalType() {
+        object Event : ExternalType({ ifc(true) }) {
         }
 
         object EventType : ExternalType() {

@@ -91,8 +91,10 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                 CompilationUnitI::toGoEventhorizonInitializer)
         contextFactory.macroController.registerMacro(AttributeI::toGoPropOptionalTag.name,
                 AttributeI::toGoPropOptionalTag)
-        contextFactory.macroController.registerMacro(OperationI::toGoHandleCommand.name,
-                OperationI::toGoHandleCommand)
+        contextFactory.macroController.registerMacro(OperationI::toGoExecuteCommand.name,
+                OperationI::toGoExecuteCommand)
+        contextFactory.macroController.registerMacro(OperationI::toGoApplyEvent.name,
+                OperationI::toGoApplyEvent)
 
 
         return GeneratorGroup<StructureUnitI>(listOf(

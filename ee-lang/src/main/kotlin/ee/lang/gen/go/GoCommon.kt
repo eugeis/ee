@@ -40,6 +40,7 @@ fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String): String? {
         n.Exception -> "error"
         n.Error -> "error"
         n.Void -> ""
+        n.Any -> "interface{}"
         n.Url -> c.n(j.net.URL)
         n.UUID -> c.n(g.eh.UUID)
         n.List -> "[]${generics()[0].toGo(c, derived)}"

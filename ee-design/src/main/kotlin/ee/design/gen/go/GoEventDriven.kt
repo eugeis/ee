@@ -26,38 +26,55 @@ fun <T : CompilationUnitI> T.toGoAggregate(c: GenerationContext,
                                            derived: String = DesignDerivedKind.IMPL,
                                            api: String = DesignDerivedKind.API): String {
     val name = c.n(this, api)
+    val entity = findParentMust(EntityI::class.java)
     return """
 const ${name}Type ${c.n(g.eh.AggregateType)} = "$name"
 
-func New$name(id ${c.n(g.eh.UUID, api)}) (ret *$name) {
+func New$name(id ${c.n(g.eh.UUID, api)},
+    commandHandler ${c.n(g.gee.eh.DelegateCommandHandler, api)},
+    eventHandler ${c.n(g.gee.eh.DelegateEventHandler, api)}) (ret *$name) {
     ret = &$name{
-		AggregateBase: ${c.n(g.eh.NewAggregateBase)}(${name}Type, id),
+		AggregateBase: ${c.n(g.gee.eh.NewAggregateBase)}(${name}Type, id, commandHandler, eventHandler, &${c.n(entity, derived)}{}),
     }
-	//ret.CommandHandler = New$name${DesignDerivedType.CommandHandler}(ret)
     return
-}
-
-func (o *$name) ApplyEvent(ctx ${c.n(g.context.Context)}, event ${c.n(g.eh.Event)}) error {
-    println("ApplyEvent", event.EventType())
-    return nil
 }
 """
 }
 
 
-fun <T : OperationI> T.toGoHandleCommand(c: GenerationContext,
-                                         derived: String = DesignDerivedKind.IMPL,
-                                         api: String = DesignDerivedKind.API): String {
-    val commands = findParentMust(EntityI::class.java).findDownByType(CommandI::class.java)
+fun <T : OperationI> T.toGoExecuteCommand(c: GenerationContext,
+                                          derived: String = DesignDerivedKind.IMPL,
+                                          api: String = DesignDerivedKind.API): String {
+    val entity = findParentMust(EntityI::class.java)
+    val commands = entity.findDownByType(CommandI::class.java)
     return """
     var ret error
     ${commands.joinSurroundIfNotEmptyToString("", "switch cmd.CommandType() {") {
         """
     case ${it.nameAndParentName().capitalize()}Command:
-        ret = o.${it.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${it.toGo(c, api)}), aggregate)"""
+        ret = o.${it.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${it.toGo(c, api)}), entity.(${entity.toGo(c, api)}), store)"""
     }}
     default:
-		ret = ${c.n(g.errors.New,api)}(${c.n(g.fmt.Sprintf,api)}("Wrong comand type '%v' for aggregate '%v", cmd.CommandType(), aggregate))
+		ret = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("Not supported command type '%v' for entity '%v", cmd.CommandType(), entity))
+	}
+    return ret
+    """
+}
+
+fun <T : OperationI> T.toGoApplyEvent(c: GenerationContext,
+                                      derived: String = DesignDerivedKind.IMPL,
+                                      api: String = DesignDerivedKind.API): String {
+    val entity = findParentMust(EntityI::class.java)
+    val events = entity.findDownByType(EventI::class.java)
+    return """
+    var ret error
+    ${events.joinSurroundIfNotEmptyToString("", "switch event.EventType() {") {
+        """
+    case ${it.parentNameAndName().capitalize()}Event:
+        ret = o.${it.name().capitalize()}${DesignDerivedType.Handler}(event.Data().(${it.toGo(c, api)}), entity.(${entity.toGo(c, api)}))"""
+    }}
+    default:
+		ret = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("Not supported event type '%v' for entity '%v", event.EventType(), entity))
 	}
     return ret
     """
@@ -74,9 +91,13 @@ fun <T : CompilationUnitI> T.toGoAggregateInitializer(c: GenerationContext,
 func New${name}(
 	eventStore ${c.n(g.eh.EventStore)}, eventBus ${c.n(g.eh.EventBus, api)}, eventPublisher ${c.n(g.eh.EventPublisher)},
 	commandBus ${c.n(g.eh.CommandBus)}) (ret *${name}) {
+    commandHandler := &${entity.name()}${DesignDerivedType.CommandHandler}{}
+    eventHandler := &${entity.name()}${DesignDerivedType.EventHandler}{}
 	ret = &$name{AggregateInitializer: ${c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer, api)}(${entity.name()}AggregateType,
-        func(id ${c.n(g.eh.UUID)}) ${c.n(g.eh.Aggregate)} { return New${entity.name()}Aggregate(id) },
+        func(id ${c.n(g.eh.UUID)}) ${c.n(g.eh.Aggregate)} { return New${entity.name()}Aggregate(id, commandHandler, eventHandler) },
         ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(), eventStore, eventBus, eventPublisher, commandBus),
+        ${entity.name()}${DesignDerivedType.CommandHandler}: commandHandler,
+        ${entity.name()}${DesignDerivedType.EventHandler}: eventHandler,
     }
 	return
 }

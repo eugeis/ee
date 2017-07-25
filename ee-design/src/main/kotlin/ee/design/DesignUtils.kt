@@ -16,6 +16,7 @@ open class DesignDerivedTypeNames {
     val Command = "Command"
     val CommandHandler = "CommandHandler"
     val Event = "Event"
+    val EventHandler = "EventHandler"
     val EventhorizonInitializer = "EventhorizonInitializer"
     val Handler = "Handler"
 }
