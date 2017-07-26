@@ -101,7 +101,8 @@ func New${name}(
         func(id ${c.n(g.eh.UUID)}) ${c.n(g.eh.Aggregate)} {
             return ${c.n(g.gee.eh.NewAggregateBase)}(${entity.name()}${DesignDerivedType.AggregateType}, id, commandHandler, eventHandler, &${c.n(entity, derived)}{})
         },
-        ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(), nil,
+        ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(),
+        []func() error{commandHandler.SetupCommandHandler, eventHandler.SetupEventHandler},
         eventStore, eventBus, eventPublisher, commandBus),
         ${entity.name()}${DesignDerivedType.CommandHandler}: commandHandler,
         ${entity.name()}${DesignDerivedType.EventHandler}: eventHandler,
