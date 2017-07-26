@@ -28,7 +28,6 @@ fun <T : OperationI> T.toGoCommandHandlerExecuteCommand(c: GenerationContext,
     val entity = findParentMust(EntityI::class.java)
     val commands = entity.findDownByType(CommandI::class.java)
     return """
-    var ret error
     ${commands.joinSurroundIfNotEmptyToString("", "switch cmd.CommandType() {") {
         """
     case ${it.nameAndParentName().capitalize()}Command:
@@ -37,7 +36,7 @@ fun <T : OperationI> T.toGoCommandHandlerExecuteCommand(c: GenerationContext,
     default:
 		ret = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("Not supported command type '%v' for entity '%v", cmd.CommandType(), entity))
 	}
-    return ret
+    return
     """
 }
 
@@ -46,9 +45,18 @@ fun <T : OperationI> T.toGoCommandHandlerSetup(c: GenerationContext,
                                                api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val commands = entity.findDownByType(CommandI::class.java)
-    return """
-    var ret error
-    return ret
+    return """${commands.joinSurroundIfNotEmptyToString("") {
+        val handler = "${it.name().capitalize()}${DesignDerivedType.Handler}"
+        """
+    if o.$handler == nil {
+        o.$handler = func(command ${it.toGo(c, api)}, entity ${entity.toGo(c, api)},
+            store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (ret error) {
+            return
+        }
+    }
+    """
+    }}
+    return
     """
 }
 
@@ -59,7 +67,6 @@ fun <T : OperationI> T.toGoEventHandlerApplyEvent(c: GenerationContext,
     val entity = findParentMust(EntityI::class.java)
     val events = entity.findDownByType(EventI::class.java)
     return """
-    var ret error
     ${events.joinSurroundIfNotEmptyToString("", "switch event.EventType() {") {
         """
     case ${it.parentNameAndName().capitalize()}Event:
@@ -68,7 +75,7 @@ fun <T : OperationI> T.toGoEventHandlerApplyEvent(c: GenerationContext,
     default:
 		ret = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("Not supported event type '%v' for entity '%v", event.EventType(), entity))
 	}
-    return ret
+    return
     """
 }
 
@@ -77,9 +84,17 @@ fun <T : OperationI> T.toGoEventHandlerSetup(c: GenerationContext,
                                              api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val events = entity.findDownByType(EventI::class.java)
-    return """
-    var ret error
-    return ret
+    return """${events.joinSurroundIfNotEmptyToString("") {
+        val handler = "${it.name().capitalize()}${DesignDerivedType.Handler}"
+        """
+    if o.$handler == nil {
+        o.$handler = func(event ${it.toGo(c, api)}, entity ${entity.toGo(c, api)}) (ret error) {
+            return
+        }
+    }
+    """
+    }}
+    return
     """
 }
 
