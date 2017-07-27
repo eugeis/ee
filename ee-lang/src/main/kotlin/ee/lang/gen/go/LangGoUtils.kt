@@ -45,6 +45,10 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             object AggregateBase : ExternalType()
 
             object NewAggregateBase : Operation()
+
+            object EventHandlerNotImplemented : Operation()
+
+            object CommandHandlerNotImplemented : Operation()
         }
     }
 

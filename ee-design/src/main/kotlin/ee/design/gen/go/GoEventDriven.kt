@@ -3,10 +3,7 @@ package ee.design.gen.go
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.design.*
 import ee.lang.*
-import ee.lang.gen.go.g
-import ee.lang.gen.go.nameForMember
-import ee.lang.gen.go.toGo
-import ee.lang.gen.go.toGoImpl
+import ee.lang.gen.go.*
 
 fun <T : EntityI> T.toGoCommandTypes(c: GenerationContext): String {
     val commands = findDownByType(CommandI::class.java)
@@ -49,8 +46,14 @@ fun <T : OperationI> T.toGoCommandHandlerSetup(c: GenerationContext,
         val handler = "${it.name().capitalize()}${DesignDerivedType.Handler}"
         """
     if o.$handler == nil {
-        o.$handler = func(command ${it.toGo(c, api)}, entity ${entity.toGo(c, api)},
-            store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (ret error) {
+        o.$handler = func(command ${it.toGo(c, api)}, entity ${entity.toGo(c, api)}, store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (ret error) {
+            ${if (it is Created || it is Updated) {
+            "ret = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(it, api)}${DesignDerivedType.Command})"
+        } else if (it is Deleted) {
+            "ret = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(it, api)}${DesignDerivedType.Command})"
+        } else {
+            "ret = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(it, api)}${DesignDerivedType.Command})"
+        }}
             return
         }
     }
@@ -89,6 +92,13 @@ fun <T : OperationI> T.toGoEventHandlerSetup(c: GenerationContext,
         """
     if o.$handler == nil {
         o.$handler = func(event ${it.toGo(c, api)}, entity ${entity.toGo(c, api)}) (ret error) {
+        ${if (it is Created || it is Updated) {
+            "    ret = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(it, api)}${DesignDerivedType.Event})"
+        } else if (it is Deleted) {
+            "    ret = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(it, api)}${DesignDerivedType.Event})"
+        } else {
+            "    ret = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(it, api)}${DesignDerivedType.Event})"
+        }}
             return
         }
     }
