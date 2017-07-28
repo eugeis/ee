@@ -40,4 +40,7 @@ object n : StructureUnit({ name("native") }) {
         val K = G({ type(String) })
         val V = G({ type(String) })
     }
+
+    object ItemEmpty : ExternalType({namespace("ee.lang")}) {
+    }
 }

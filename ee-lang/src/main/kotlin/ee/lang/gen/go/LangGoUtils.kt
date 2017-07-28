@@ -49,6 +49,12 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             object EventHandlerNotImplemented : Operation()
 
             object CommandHandlerNotImplemented : Operation()
+
+            object EntityAlreadyExists : Operation()
+
+            object EntityNotExists : Operation()
+
+            object IdsDismatch : Operation()
         }
     }
 
@@ -184,12 +190,12 @@ fun <T : StructureUnitI> T.extendForGoGenerationLang(): T {
 
     defineSuperUnitsAsAnonymousProps()
 
-    defineConstructorOwnPropsOnlyForNonConstructors()
+    defineConstructorEmpty()
     return this
 }
 
 fun AttributeI.nameForMember(): String = storage.getOrPut(this, "nameForMember", {
-    replaceable().ifElse({ "${name().capitalize()} " }, { name().decapitalize() })
+    replaceable().notSetOrTrue().ifElse({ "${name().capitalize()} " }, { name().decapitalize() })
 })
 
 fun AttributeI.nameForEnum(): String = storage.getOrPut(this, "nameForEnum", {

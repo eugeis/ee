@@ -28,6 +28,8 @@ interface BussinesEventI : EventI {
 
 
 interface CommandI : CompilationUnitI {
+    fun event(): EventI
+    fun event(value: EventI): CommandI
 }
 
 

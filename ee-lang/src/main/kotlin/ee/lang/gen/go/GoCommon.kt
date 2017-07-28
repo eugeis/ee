@@ -1,9 +1,6 @@
 package ee.lang.gen.go
 
-import ee.common.ext.ifElse
-import ee.common.ext.joinSurroundIfNotEmptyToString
-import ee.common.ext.joinWrappedToString
-import ee.common.ext.then
+import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
 
@@ -17,7 +14,7 @@ fun TypeI.toGoCall(c: GenerationContext, api: String): String {
 
 fun AttributeI.toGoInitCall(c: GenerationContext, api: String): String {
     return "${anonymous().ifElse({ type().toGoCall(c, api) }, { nameForMember() })}: ${
-    default().ifElse({ type().constructors().first().toGoCallNew(c, api, api) }, { name() })}"
+    (default() || anonymous()).ifElse({ type().primaryOrFirstConstructor().toGoCall(c, api, api) }, { name() })}"
 }
 
 fun <T : AttributeI> T.toGoTypeDef(c: GenerationContext, api: String): String {
@@ -60,7 +57,9 @@ fun <T : TypeI> T.toGo(c: GenerationContext, derived: String): String {
 }
 
 fun <T : AttributeI> T.toGoSignature(c: GenerationContext, api: String): String {
-    return "${name()} ${toGoTypeDef(c, api)}"
+    return anonymous().ifElse({ type().props().filter { !it.meta() }.toGoSignature(c, api) }, {
+        "${name()} ${toGoTypeDef(c, api)}"
+    })
 }
 
 fun <T : AttributeI> T.toGoMember(c: GenerationContext, api: String): String {
@@ -79,30 +78,25 @@ fun <T : ConstructorI> T.toGo(c: GenerationContext, derived: String, api: String
     val name = c.n(parent(), derived)
     val nonDefaultParams = params().filter { !it.default() && it.derivedAsType().isEmpty() }
     return if (isNotEMPTY()) """
-func New$name(${nonDefaultParams.joinWrappedToString(", ", "                ") { it.toGoSignature(c, api) }
+func ${c.n(this, derived)}(${nonDefaultParams.joinWrappedToString(", ", "                ") {
+        it.toGoSignature(c, api)
+    }
     }) (ret *$name) {
-    ret = &$name${params().joinSurroundIfNotEmptyToString(",$nL        ", "{$nL        ", ",$nL    }") {
-        it.toGoInitCall(c, api)
-    }}
-    ${toGoMacros(c, api, api)}
+    ret = &$name{${params().joinSurroundIfNotEmptyToString(
+            ",$nL        ", "$nL        ", ",$nL    ") { it.toGoInitCall(c, api) }}}${
+    toGoMacros(c, api, api)}
     return
 }""" else ""
 }
 
 fun <T : AttributeI> T.toGoAssign(o: String): String {
-    return "$o.${mutable().ifElse({ name().capitalize() },
+    return "$o.${mutable().setAndTrue().ifElse({ name().capitalize() },
             { name().decapitalize() })} = ${name()}"
 }
 
-fun <T : LogicUnitI> T.toGoCall(): String {
-    return isNotEMPTY().then { "(${params().joinWrappedToString(", ") { it.name() }})" }
-}
-
-fun <T : LogicUnitI> T.toGoCallNew(c: GenerationContext, derived: String, api: String): String {
-    val name = c.n(parent(), derived)
-    return if (isNotEMPTY()) """New$name(${params().joinWrappedToString(", ", "                ") {
-        it.name()
-    }})""" else ""
+fun <T : LogicUnitI> T.toGoCall(c: GenerationContext, derived: String, api: String): String {
+    return if (isNotEMPTY()) """${c.n(this, derived)}(${params().filter { !it.default() }.joinWrappedToString(
+            ", ", "                ") { it.name() }})""" else ""
 }
 
 fun <T : AttributeI> T.toGoType(c: GenerationContext, derived: String): String = type().toGo(c, derived)

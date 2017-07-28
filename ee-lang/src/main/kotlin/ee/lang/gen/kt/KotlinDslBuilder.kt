@@ -78,7 +78,7 @@ open class ${c.n(this, derived)} : ${c.n(superUnit(), derived)}${(derived != api
     }}
 
     companion object {
-        val EMPTY = ${c.n(this, derived)}()${
+        val EMPTY = ${c.n(this, derived)}({ name(${c.n(n.ItemEmpty, api)}.name()) })${
     props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinCompanionObjectName(c) }}
     }
 }"""

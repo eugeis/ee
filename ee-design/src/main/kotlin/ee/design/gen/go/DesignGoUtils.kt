@@ -27,7 +27,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                     p("entity", item)
                                     p("store", g.gee.eh.AggregateStoreEvent)
                                     ret(g.error)
-                                }).replaceable(true).name("${command.name()}${DesignDerivedType.Handler}")
+                                }).name("${command.name()}${DesignDerivedType.Handler}")
                             })
                         }
 
@@ -59,7 +59,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                     p(event.name(), event)
                                     p("entity", item)
                                     ret(g.error)
-                                }).replaceable(true).name("${event.name()}${DesignDerivedType.Handler}")
+                                }).name("${event.name()}${DesignDerivedType.Handler}")
                             })
                         }
 

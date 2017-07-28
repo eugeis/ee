@@ -61,7 +61,10 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val deleted = prop(Deleted).multi(true).nonFluent("deleted")
     }
 
-    object Command : CompilationUnit({ superUnit(l.CompilationUnit) })
+    object Command : CompilationUnit({ superUnit(l.CompilationUnit) }) {
+        val event = prop(Event).doc("Corresponding event")
+    }
+
     object BussinesCommand : CompilationUnit({ superUnit(Command) })
 
     object CompositeCommand : CompilationUnit({ superUnit(l.CompilationUnit) }) {

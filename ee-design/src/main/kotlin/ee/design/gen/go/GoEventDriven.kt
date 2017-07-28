@@ -37,22 +37,46 @@ fun <T : OperationI> T.toGoCommandHandlerExecuteCommand(c: GenerationContext,
     """
 }
 
+fun <T : CommandI> T.toGoStoreEvent(c: GenerationContext,
+                                    derived: String = DesignDerivedKind.IMPL,
+                                    api: String = DesignDerivedKind.API): String {
+    return """store.StoreEvent(${event().parentNameAndName()}${DesignDerivedType.Event}, &${c.n(event(), api)}{${
+    props().joinSurroundIfNotEmptyToString("") { prop ->
+        """
+                    ${prop.name().capitalize()}: command.${prop.name().capitalize()},"""
+    }}})"""
+}
+
 fun <T : OperationI> T.toGoCommandHandlerSetup(c: GenerationContext,
                                                derived: String = DesignDerivedKind.IMPL,
                                                api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val commands = entity.findDownByType(CommandI::class.java)
-    return """${commands.joinSurroundIfNotEmptyToString("") {
-        val handler = "${it.name().capitalize()}${DesignDerivedType.Handler}"
+    return """${commands.joinSurroundIfNotEmptyToString("") { item ->
+        val handler = "${item.name().capitalize()}${DesignDerivedType.Handler}"
         """
     if o.$handler == nil {
-        o.$handler = func(command ${it.toGo(c, api)}, entity ${entity.toGo(c, api)}, store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (ret error) {
-            ${if (it is Created || it is Updated) {
-            "ret = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(it, api)}${DesignDerivedType.Command})"
-        } else if (it is Deleted) {
-            "ret = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(it, api)}${DesignDerivedType.Command})"
+        o.$handler = func(command ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}, store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (ret error) {${
+        if (item is CreateByI && item.event().isNotEMPTY()) {
+            """
+            if len(entity.${entity.id().name().capitalize()}) > 0 {
+                ret = ${c.n(g.gee.eh.EntityAlreadyExists, api)}(entity.${entity.id().name().capitalize()}, ${c.n(entity, api)}${DesignDerivedType.AggregateType})
+            } else {
+                ${item.toGoStoreEvent(c, derived, api)}
+            }"""
+        } else if (item is UpdateByI && item.event().isNotEMPTY()) {
+            """
+            if len(entity.${entity.id().name().capitalize()}) == 0 {
+                ret = ${c.n(g.gee.eh.EntityNotExists, api)}(entity.${entity.id().name().capitalize()}, ${c.n(entity, api)}${DesignDerivedType.AggregateType})
+            } else if entity.${entity.id().name().capitalize()} != command.${entity.id().name().capitalize()} {
+                ret = ${c.n(g.gee.eh.IdsDismatch, api)}(entity.${entity.id().name().capitalize()}, command.${entity.id().name().capitalize()}, ${c.n(entity, api)}${DesignDerivedType.AggregateType})
+            } else {
+                ${item.toGoStoreEvent(c, derived, api)}
+            }"""
+        } else if (item is DeleteByI && item.event().isNotEMPTY()) {
+            "ret = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Command})"
         } else {
-            "ret = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(it, api)}${DesignDerivedType.Command})"
+            "ret = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Command})"
         }}
             return
         }
@@ -87,17 +111,20 @@ fun <T : OperationI> T.toGoEventHandlerSetup(c: GenerationContext,
                                              api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val events = entity.findDownByType(EventI::class.java)
-    return """${events.joinSurroundIfNotEmptyToString("") {
-        val handler = "${it.name().capitalize()}${DesignDerivedType.Handler}"
+    return """${events.joinSurroundIfNotEmptyToString("") { item ->
+        val handler = "${item.name().capitalize()}${DesignDerivedType.Handler}"
         """
     if o.$handler == nil {
-        o.$handler = func(event ${it.toGo(c, api)}, entity ${entity.toGo(c, api)}) (ret error) {
-        ${if (it is Created || it is Updated) {
-            "    ret = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(it, api)}${DesignDerivedType.Event})"
-        } else if (it is Deleted) {
-            "    ret = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(it, api)}${DesignDerivedType.Event})"
+        o.$handler = func(event ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}) (ret error) {${
+        if (item is CreatedI || item is UpdatedI) {
+            item.props().joinSurroundIfNotEmptyToString("") { prop ->
+                """
+            entity.${prop.name().capitalize()} = event.${prop.name().capitalize()}"""
+            }
+        } else if (item is DeletedI) {
+            "    ret = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"
         } else {
-            "    ret = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(it, api)}${DesignDerivedType.Event})"
+            "    ret = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"
         }}
             return
         }

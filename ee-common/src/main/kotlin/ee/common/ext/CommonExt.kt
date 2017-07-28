@@ -374,4 +374,6 @@ fun <T> MutableCollection<T>.addReturn(item: T): T {
     return item
 }
 
+fun Boolean?.setAndTrue(): Boolean = this != null && this
+fun Boolean?.notSetOrTrue(): Boolean = this == null || this
 

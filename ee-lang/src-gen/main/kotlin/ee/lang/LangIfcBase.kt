@@ -2,8 +2,8 @@ package ee.lang
 
 
 interface AttributeI : MacroCompositeI {
-    fun accessible(): Boolean
-    fun accessible(value: Boolean): AttributeI
+    fun accessible(): Boolean?
+    fun accessible(value: Boolean?): AttributeI
 
     fun anonymous(): Boolean
     fun anonymous(value: Boolean): AttributeI
@@ -32,8 +32,8 @@ interface AttributeI : MacroCompositeI {
     fun multi(): Boolean
     fun multi(value: Boolean): AttributeI
 
-    fun mutable(): Boolean
-    fun mutable(value: Boolean): AttributeI
+    fun mutable(): Boolean?
+    fun mutable(value: Boolean?): AttributeI
 
     fun nonFluent(): String
     fun nonFluent(value: String): AttributeI
@@ -44,8 +44,8 @@ interface AttributeI : MacroCompositeI {
     fun open(): Boolean
     fun open(value: Boolean): AttributeI
 
-    fun replaceable(): Boolean
-    fun replaceable(value: Boolean): AttributeI
+    fun replaceable(): Boolean?
+    fun replaceable(value: Boolean?): AttributeI
 
     fun type(): TypeI
     fun type(value: TypeI): AttributeI

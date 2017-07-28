@@ -2,6 +2,7 @@ package ee.lang.gen.go
 
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.joinWithIndexToString
+import ee.common.ext.setAndTrue
 import ee.lang.*
 
 fun LiteralI.toGo(): String = name().capitalize()
@@ -121,7 +122,7 @@ type $name struct {${
     constructors().filter { it.derivedAsType().isEmpty() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGo(c, derived, api)
     }}${
-    props().filter { it.accessible() && !it.mutable() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+    props().filter { it.accessible().setAndTrue() && !it.mutable().setAndTrue() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGoGetMethod(name, c, derived)
     }}${
     props().filter { it.type().isOrDerived(n.List) }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {

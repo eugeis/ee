@@ -55,47 +55,55 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
         log.debug("Add default commands to ${name()}")
         val dataTypeProps = propsAll().filter { !it.meta() }.map { p(it).setOptionalTag() }
 
-        commands(Commands {
-            name("commands")
+        var created: CreatedI = Created.EMPTY
+        var updated: UpdatedI = Updated.EMPTY
+        var deleted: DeletedI = Deleted.EMPTY
 
-            createBy {
-                name("create")
+        if (events().isEmpty()) {
+            val events = Events { name("events") }
+            events(events)
+
+            created = events.created {
+                name("created")
                 props(*dataTypeProps.toTypedArray())
                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             }
 
-            updateBy {
-                name("update")
+            updated = events.updated {
+                name("updated")
                 props(*dataTypeProps.toTypedArray())
                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             }
 
-            deleteBy {
-                name("delete")
+            deleted = events.deleted {
+                name("deleted")
                 props(id())
                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             }
-        })
+        }
 
-        if (events().isEmpty()) {
-            events(Events {
-                name("events")
+        if (commands().isEmpty()) {
+            commands(Commands {
+                name("commands")
 
-                created {
-                    name("created")
+                createBy {
+                    name("create")
                     props(*dataTypeProps.toTypedArray())
+                    event(created)
                     constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                 }
 
-                updated {
-                    name("updated")
+                updateBy {
+                    name("update")
                     props(*dataTypeProps.toTypedArray())
+                    event(updated)
                     constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                 }
 
-                deleted {
-                    name("deleted")
+                deleteBy {
+                    name("delete")
                     props(id())
+                    event(deleted)
                     constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                 }
             })

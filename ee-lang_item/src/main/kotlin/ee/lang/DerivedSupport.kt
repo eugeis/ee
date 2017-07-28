@@ -14,6 +14,10 @@ class DerivedStorage<I>(val itemToStorage: MutableMap<I, MutableMap<String, Any>
         val itemStorage = itemToStorage.getOrPut(item, { HashMap<String, Any>() })
         itemStorage.put(key, derived as Any)
     }
+
+    fun reset(item: I) {
+        itemToStorage.remove(item)
+    }
 }
 
 

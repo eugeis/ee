@@ -5,8 +5,8 @@ open class Attribute : MacroComposite, AttributeI {
 
     constructor(value: Attribute.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
 
-    override fun accessible(): Boolean = attr(ACCESSIBLE, { true })
-    override fun accessible(value: Boolean): AttributeI = apply { attr(ACCESSIBLE, value) }
+    override fun accessible(): Boolean? = attr(ACCESSIBLE)
+    override fun accessible(value: Boolean?): AttributeI = apply { attr(ACCESSIBLE, value) }
 
     override fun anonymous(): Boolean = attr(ANONYMOUS, { false })
     override fun anonymous(value: Boolean): AttributeI = apply { attr(ANONYMOUS, value) }
@@ -35,8 +35,8 @@ open class Attribute : MacroComposite, AttributeI {
     override fun multi(): Boolean = attr(MULTI, { false })
     override fun multi(value: Boolean): AttributeI = apply { attr(MULTI, value) }
 
-    override fun mutable(): Boolean = attr(MUTABLE, { true })
-    override fun mutable(value: Boolean): AttributeI = apply { attr(MUTABLE, value) }
+    override fun mutable(): Boolean? = attr(MUTABLE)
+    override fun mutable(value: Boolean?): AttributeI = apply { attr(MUTABLE, value) }
 
     override fun nonFluent(): String = attr(NON_FLUENT, { "" })
     override fun nonFluent(value: String): AttributeI = apply { attr(NON_FLUENT, value) }
@@ -47,8 +47,8 @@ open class Attribute : MacroComposite, AttributeI {
     override fun open(): Boolean = attr(OPEN, { false })
     override fun open(value: Boolean): AttributeI = apply { attr(OPEN, value) }
 
-    override fun replaceable(): Boolean = attr(REPLACEABLE, { false })
-    override fun replaceable(value: Boolean): AttributeI = apply { attr(REPLACEABLE, value) }
+    override fun replaceable(): Boolean? = attr(REPLACEABLE)
+    override fun replaceable(value: Boolean?): AttributeI = apply { attr(REPLACEABLE, value) }
 
     override fun type(): TypeI = attr(TYPE, { n.Void })
     override fun type(value: TypeI): AttributeI = apply { attr(TYPE, value) }

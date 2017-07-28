@@ -19,8 +19,8 @@ fun <T : TypeI> T.toKotlinEmpty(c: GenerationContext, derived: String, attr: Att
         n.Error -> "Throwable()"
         n.Exception -> "Exception()"
         n.Url -> "${c.n(j.net.URL)}(\"\")"
-        n.Map -> (attr.isNotEMPTY() && attr.mutable()).ifElse("hashMapOf()", "emptyMap()")
-        n.List -> (attr.isNotEMPTY() && attr.mutable()).ifElse("arrayListOf()", "arrayListOf()")
+        n.Map -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
+        n.List -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("arrayListOf()", "arrayListOf()")
         else -> {
             if (baseType is Literal) {
                 "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI).toKotlin(c, derived, attr)}.${baseType.toKotlin()}"
@@ -89,8 +89,8 @@ fun <T : TypeI> T.toKotlinIfNative(c: GenerationContext, derived: String, attr: 
         n.Error -> "Throwable"
         n.Void -> "Unit"
         n.Url -> c.n(j.net.URL)
-        n.List -> "${c.n((attr.isNotEMPTY() && attr.mutable()).ifElse(k.core.MutableList, k.core.List), derived)}${toKotlinGenericTypes(c, derived, attr)}"
-        n.Map -> "${c.n((attr.isNotEMPTY() && attr.mutable()).ifElse(k.core.MutableMap, k.core.Map), derived)}${toKotlinGenericTypes(c, derived, attr)}"
+        n.List -> "${c.n((attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse(k.core.MutableList, k.core.List), derived)}${toKotlinGenericTypes(c, derived, attr)}"
+        n.Map -> "${c.n((attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse(k.core.MutableMap, k.core.Map), derived)}${toKotlinGenericTypes(c, derived, attr)}"
         else -> {
             if (this is Lambda) operation().toKotlinLamnda(c, derived) else null
         }
@@ -167,11 +167,11 @@ fun <T : AttributeI> T.toKotlinSignature(c: GenerationContext, derived: String, 
 }
 
 fun <T : AttributeI> T.toKotlinConstructorMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String {
-    return "${replaceable().ifElse("var ", "val ")}${toKotlinSignature(c, derived, api, init)}"
+    return "${replaceable().setAndTrue().ifElse("var ", "val ")}${toKotlinSignature(c, derived, api, init)}"
 }
 
 fun <T : AttributeI> T.toKotlinMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String {
-    return "    ${replaceable().ifElse("var ", "val ")}${toKotlinSignature(c, derived, api, init)}"
+    return "    ${replaceable().setAndTrue().ifElse("var ", "val ")}${toKotlinSignature(c, derived, api, init)}"
 }
 
 fun List<AttributeI>.toKotlinSignature(c: GenerationContext, derived: String, api: String): String {
