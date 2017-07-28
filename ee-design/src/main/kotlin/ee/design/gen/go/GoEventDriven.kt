@@ -69,7 +69,8 @@ fun <T : OperationI> T.toGoCommandHandlerSetup(c: GenerationContext,
             if len(entity.${entity.id().name().capitalize()}) == 0 {
                 ret = ${c.n(g.gee.eh.EntityNotExists, api)}(entity.${entity.id().name().capitalize()}, ${c.n(entity, api)}${DesignDerivedType.AggregateType})
             } else if entity.${entity.id().name().capitalize()} != command.${entity.id().name().capitalize()} {
-                ret = ${c.n(g.gee.eh.IdsDismatch, api)}(entity.${entity.id().name().capitalize()}, command.${entity.id().name().capitalize()}, ${c.n(entity, api)}${DesignDerivedType.AggregateType})
+                ret = ${c.n(g.gee.eh.IdsDismatch, api)}(entity.${entity.id().name().capitalize()}, command.${entity.id().name().capitalize()}, ${
+            c.n(entity, api)}${DesignDerivedType.AggregateType})
             } else {
                 ${item.toGoStoreEvent(c, derived, api)}
             }"""
@@ -151,7 +152,8 @@ func New${name}(
     eventHandler := &${entity.name()}${DesignDerivedType.EventHandler}{}
 	ret = &$name{AggregateInitializer: ${c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer, api)}(${entity.name()}${DesignDerivedType.AggregateType},
         func(id ${c.n(g.eh.UUID)}) ${c.n(g.eh.Aggregate)} {
-            return ${c.n(g.gee.eh.NewAggregateBase)}(${entity.name()}${DesignDerivedType.AggregateType}, id, commandHandler, eventHandler, &${c.n(entity, derived)}{})
+            return ${c.n(g.gee.eh.NewAggregateBase)}(${entity.name()}${DesignDerivedType.AggregateType}, id, commandHandler, eventHandler, ${
+    entity.primaryOrFirstConstructor().toGoCall(c, derived, api)})
         },
         ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(),
         []func() error{commandHandler.SetupCommandHandler, eventHandler.SetupEventHandler},

@@ -213,7 +213,8 @@ fun <T : CompositeI> T.defineConstructorOwnPropsOnlyForNonConstructors() {
 }
 
 fun <T : CompositeI> T.defineConstructorEmpty() {
-    findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).extend { constructorEmpty() }
+    findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
+            .extend { constructorEmpty() }
 }
 
 fun <T : CompositeI> T.defineSuperUnitsAsAnonymousProps() {
