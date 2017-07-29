@@ -149,7 +149,7 @@ fun <T : OperationI> T.toGoEventHandlerSetup(c: GenerationContext,
             c.n(entity, api)}${DesignDerivedType.AggregateType})
             } else {${item.props().joinSurroundIfNotEmptyToString("") { prop ->
                 """
-                entity.${prop.name().capitalize()} = """""
+                entity.${prop.name().capitalize()} = ${prop.type().toGoNilOrEmpty(c)}"""
             }}
             }"""
         } else {
@@ -193,7 +193,7 @@ func New${name}(
 }
 ${events.joinSurroundIfNotEmptyToString(nL, nL) {
         """
-func (o *${name}) RegisterFor${it.name().capitalize()}(handler ${c.n(g.eh.EventHandler)}){
+func (o *$name) RegisterFor${it.name().capitalize()}(handler ${c.n(g.eh.EventHandler)}){
     o.RegisterForEvent(handler, ${entity.name()}EventTypes().${it.parentNameAndName().capitalize()}())
 }"""
     }}

@@ -24,18 +24,14 @@ fun <T : AttributeI> T.toGoTypeDef(c: GenerationContext, api: String): String {
 fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String): String? {
     val baseType = findDerivedOrThis()
     return when (baseType) {
-        n.String -> "string"
+        n.String, n.Path, n.Text -> "string"
         n.Boolean -> "bool"
-        n.Int -> "int"
-        n.Long -> "int"
+        n.Int, n.Long -> "int"
         n.Float -> "float64"
         n.Date -> g.time.Time.toGo(c, derived)
         n.TimeUnit -> g.time.Time.toGo(c, derived)
-        n.Path -> "string"
-        n.Text -> "string"
         n.Blob -> "[]byte"
-        n.Exception -> "error"
-        n.Error -> "error"
+        n.Exception, n.Error -> "error"
         n.Void -> ""
         n.Any -> "interface{}"
         n.Url -> c.n(j.net.URL)
@@ -44,6 +40,16 @@ fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String): String? {
         n.Map -> "map(${generics()[0].toGo(c, derived)})${generics()[1].toGo(c, derived)}"
         else -> {
             if (this is Lambda) operation().toGoLamnda(c, derived) else null
+        }
+    }
+}
+
+fun <T : TypeI> T.toGoNilOrEmpty(c: GenerationContext): String? {
+    val baseType = findDerivedOrThis()
+    return when (baseType) {
+        n.String, n.UUID -> "\"\""
+        else -> {
+            "nil"
         }
     }
 }
