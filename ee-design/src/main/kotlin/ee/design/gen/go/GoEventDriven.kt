@@ -47,6 +47,13 @@ fun <T : CommandI> T.toGoStoreEvent(c: GenerationContext,
     }}})"""
 }
 
+fun <T : EventI> T.toGoApplyEvent(c: GenerationContext): String {
+    return """${props().joinSurroundIfNotEmptyToString("") { prop ->
+        """
+                entity.${prop.name().capitalize()} = event.${prop.name().capitalize()}"""
+    }}"""
+}
+
 fun <T : OperationI> T.toGoCommandHandlerSetup(c: GenerationContext,
                                                derived: String = DesignDerivedKind.IMPL,
                                                api: String = DesignDerivedKind.API): String {
@@ -64,7 +71,7 @@ fun <T : OperationI> T.toGoCommandHandlerSetup(c: GenerationContext,
             } else {
                 ${item.toGoStoreEvent(c, derived, api)}
             }"""
-        } else if (item is UpdateByI && item.event().isNotEMPTY()) {
+        } else if ((item is UpdateByI || item is DeleteByI) && item.event().isNotEMPTY()) {
             """
             if len(entity.${entity.id().name().capitalize()}) == 0 {
                 ret = ${c.n(g.gee.eh.EntityNotExists, api)}(entity.${entity.id().name().capitalize()}, ${c.n(entity, api)}${DesignDerivedType.AggregateType})
@@ -74,8 +81,6 @@ fun <T : OperationI> T.toGoCommandHandlerSetup(c: GenerationContext,
             } else {
                 ${item.toGoStoreEvent(c, derived, api)}
             }"""
-        } else if (item is DeleteByI && item.event().isNotEMPTY()) {
-            "ret = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Command})"
         } else {
             "ret = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Command})"
         }}
@@ -117,13 +122,36 @@ fun <T : OperationI> T.toGoEventHandlerSetup(c: GenerationContext,
         """
     if o.$handler == nil {
         o.$handler = func(event ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}) (ret error) {${
-        if (item is CreatedI || item is UpdatedI) {
-            item.props().joinSurroundIfNotEmptyToString("") { prop ->
-                """
-            entity.${prop.name().capitalize()} = event.${prop.name().capitalize()}"""
-            }
+        if (item is CreatedI) {
+            """
+            if len(entity.${entity.id().name().capitalize()}) > 0 {
+                ret = ${c.n(g.gee.eh.EntityAlreadyExists, api)}(entity.${entity.id().name().capitalize()}, ${
+            c.n(entity, api)}${DesignDerivedType.AggregateType})
+            } else {${item.toGoApplyEvent(c)}
+            }"""
+        } else if (item is UpdatedI) {
+            """
+            if len(entity.${entity.id().name().capitalize()}) > 0 {
+                ret = ${c.n(g.gee.eh.EntityNotExists, api)}(entity.${entity.id().name().capitalize()}, ${
+            c.n(entity, api)}${DesignDerivedType.AggregateType})
+            } else if entity.${entity.id().name().capitalize()} != event.${entity.id().name().capitalize()} {
+                ret = ${c.n(g.gee.eh.IdsDismatch, api)}(entity.${entity.id().name().capitalize()}, event.${entity.id().name().capitalize()}, ${
+            c.n(entity, api)}${DesignDerivedType.AggregateType})
+            } else {${item.toGoApplyEvent(c)}
+            }"""
         } else if (item is DeletedI) {
-            "    ret = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"
+            """
+            if len(entity.${entity.id().name().capitalize()}) > 0 {
+                ret = ${c.n(g.gee.eh.EntityNotExists, api)}(entity.${entity.id().name().capitalize()}, ${
+            c.n(entity, api)}${DesignDerivedType.AggregateType})
+            } else if entity.${entity.id().name().capitalize()} != event.${entity.id().name().capitalize()} {
+                ret = ${c.n(g.gee.eh.IdsDismatch, api)}(entity.${entity.id().name().capitalize()}, event.${entity.id().name().capitalize()}, ${
+            c.n(entity, api)}${DesignDerivedType.AggregateType})
+            } else {${item.props().joinSurroundIfNotEmptyToString("") { prop ->
+                """
+                entity.${prop.name().capitalize()} = """""
+            }}
+            }"""
         } else {
             "    ret = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"
         }}
