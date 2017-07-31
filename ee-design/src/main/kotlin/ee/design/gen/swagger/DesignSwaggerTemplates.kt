@@ -6,7 +6,6 @@ import ee.lang.NamesI
 import ee.lang.Template
 import ee.lang.TemplateI
 import ee.lang.gen.swagger.itemNameAsSwaggerFileName
-import toSwagger
 
 open class DesignSwaggerTemplates {
     val defaultNameBuilder: TemplateI<*>.(CompositeI) -> NamesI

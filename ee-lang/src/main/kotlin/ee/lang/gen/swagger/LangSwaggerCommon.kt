@@ -70,6 +70,7 @@ fun <T : AttributeI> T.toSwaggerSignature(c: GenerationContext, api: String): St
         "${name()} ${toSwaggerTypeDef(c, api)}"
     })
 }
+
 /*
 query:
             type: string
@@ -134,14 +135,19 @@ func (o *$o) ${toSwaggerName()}(${params().toSwaggerSignature(c, api)}) (ret ${r
     }
 }
 
-fun <T : CompilationUnitI> T.toSwagger(c: GenerationContext,
-                                      derived: String = LangDerivedKind.IMPL,
-                                      api: String = LangDerivedKind.API): String {
+fun <T : CompilationUnitI> T.toSwaggerPath(c: GenerationContext,
+                                           derived: String = LangDerivedKind.IMPL,
+                                           api: String = LangDerivedKind.API): String {
+    return """/${c.n(this, derived)}"""
+}
+
+fun <T : CompilationUnitI> T.toSwaggerDefinition(c: GenerationContext,
+                                                 derived: String = LangDerivedKind.IMPL,
+                                                 api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
     return """
-${toSwaggerMacros(c, api, api)}
 $name:
     type: object
     properties:${
-    props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toSwaggerMember(c, api) }}}}"""
+    props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toSwaggerMember(c, api) }}"""
 }

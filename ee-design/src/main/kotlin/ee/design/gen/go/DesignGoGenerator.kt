@@ -21,10 +21,13 @@ open class DesignGoGenerator {
         val generatorFactory = DesignGeneratorFactory()
         val generator = generatorFactory.eventDrivenGo()
         generator.delete(target, model)
+        /*
         val modules = model.findDownByType(ModuleI::class.java)
         modules.forEach { module ->
             generator.generate(target, module)
         }
+        */
+        generator.generate(target, model)
     }
 
     protected fun StructureUnitI.extendForGoGeneration() {

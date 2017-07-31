@@ -30,7 +30,8 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         val contextFactory = buildGoContextFactory()
         val contextBuilder = contextFactory.buildForImplOnly()
 
-        val components: StructureUnitI.() -> List<CompI> = { findDownByType(CompI::class.java) }
+        val components: StructureUnitI.() -> List<CompI> = { if(this is CompI) listOf(this) else findDownByType(CompI::class.java) }
+        val modules: StructureUnitI.() -> List<ModuleI> = { if(this is ModuleI) listOf(this) else findDownByType(ModuleI::class.java) }
 
         val commands: StructureUnitI.() -> List<CommandI> = { findDownByType(CommandI::class.java) }
         val commandEnums: StructureUnitI.() -> List<EnumTypeI> = {

@@ -37,6 +37,31 @@ open class GeneratorGroup<M> : GeneratorI<M> {
     }
 }
 
+open class GeneratorGroupItems<M, I> : GeneratorI<M> {
+    val generators: Collection<GeneratorI<M>>
+    val items: M.() -> Collection<I>
+
+    constructor(generators: Collection<GeneratorI<M>>, items: M.() -> Collection<I>)  {
+        this.generators = generators
+        this.items = items
+    }
+
+    override fun delete(target: Path, model: M) {
+        log.debug("delete in $target for $model")
+        model.items().forEach { item ->
+            generators.forEach { it.delete(target, model) }
+        }
+    }
+
+    override fun generate(target: Path, model: M) {
+        log.debug("generate in $target for $model")
+
+        model.items().forEach { item ->
+            generators.forEach { it.generate(target, model) }
+        }
+    }
+}
+
 abstract class GeneratorBase<M> : GeneratorI<M> {
     val contextBuilder: M.() -> GenerationContext
 
