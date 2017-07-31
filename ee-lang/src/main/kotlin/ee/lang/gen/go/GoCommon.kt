@@ -3,6 +3,7 @@ package ee.lang.gen.go
 import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
+import ee.lang.gen.swagger.*
 
 fun AttributeI.toGoInit(): String {
     return """${this.name()}: ${this.value()}"""

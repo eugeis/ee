@@ -4,6 +4,7 @@ import ee.design.*
 import ee.design.gen.go.*
 import ee.design.gen.kt.DesignKotlinContextFactory
 import ee.design.gen.kt.DesignKotlinTemplates
+import ee.design.gen.swagger.DesignSwaggerTemplates
 import ee.lang.*
 import ee.lang.gen.LangGeneratorFactory
 import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
@@ -17,11 +18,19 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
     override fun buildGoContextFactory() = DesignGoContextFactory()
     override fun buildGoTemplates() = DesignGoTemplates({ Names("${it.name()}.go") })
 
+    fun buildSwaggerTemplates() = DesignSwaggerTemplates({ Names("${it.name()}.yaml") })
+
     open fun eventDrivenGo(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
         val goTemplates = buildGoTemplates()
 
+        val swaggerTemplates = buildSwaggerTemplates()
+        val swaggerContextFactory = buildSwaggerContextFactory()
+        val swaggerContextBuilder = swaggerContextFactory.build()
+
         val contextFactory = buildGoContextFactory()
         val contextBuilder = contextFactory.buildForImplOnly()
+
+        val components: StructureUnitI.() -> List<CompI> = { findDownByType(CompI::class.java) }
 
         val commands: StructureUnitI.() -> List<CommandI> = { findDownByType(CommandI::class.java) }
         val commandEnums: StructureUnitI.() -> List<EnumTypeI> = {
@@ -157,6 +166,10 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                                     ItemsFragment<StructureUnitI, EnumTypeI>(items = ehEnums,
                                             fragments = { listOf(goTemplates.enum()) }))
                         })
+                ),
+                Generator<StructureUnitI, CompI>(
+                        contextBuilder = swaggerContextBuilder, items = components,
+                        templates = { listOf(swaggerTemplates.model()) }
                 )
         ))
     }

@@ -89,8 +89,8 @@ open class Generator<M, I> : GeneratorBase<M> {
     val items: M.() -> Collection<I>
     val templates: I.() -> Collection<Template<I>>
 
-    constructor(genFolderDeletable: Boolean = false, context: M.() -> GenerationContext, items: M.() -> Collection<I>,
-                templates: I.() -> Collection<Template<I>>) : super(context) {
+    constructor(contextBuilder: M.() -> GenerationContext, items: M.() -> Collection<I>,
+                templates: I.() -> Collection<Template<I>>) : super(contextBuilder) {
         this.items = items
         this.templates = templates
     }
