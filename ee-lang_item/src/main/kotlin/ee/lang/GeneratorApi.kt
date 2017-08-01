@@ -38,10 +38,10 @@ open class GeneratorGroup<M> : GeneratorI<M> {
 }
 
 open class GeneratorGroupItems<M, I> : GeneratorI<M> {
-    val generators: Collection<GeneratorI<M>>
+    val generators: Collection<GeneratorI<I>>
     val items: M.() -> Collection<I>
 
-    constructor(generators: Collection<GeneratorI<M>>, items: M.() -> Collection<I>)  {
+    constructor(generators: Collection<GeneratorI<I>>, items: M.() -> Collection<I>)  {
         this.generators = generators
         this.items = items
     }
@@ -49,7 +49,7 @@ open class GeneratorGroupItems<M, I> : GeneratorI<M> {
     override fun delete(target: Path, model: M) {
         log.debug("delete in $target for $model")
         model.items().forEach { item ->
-            generators.forEach { it.delete(target, model) }
+            generators.forEach { it.delete(target, item) }
         }
     }
 
@@ -57,7 +57,7 @@ open class GeneratorGroupItems<M, I> : GeneratorI<M> {
         log.debug("generate in $target for $model")
 
         model.items().forEach { item ->
-            generators.forEach { it.generate(target, model) }
+            generators.forEach { it.generate(target, item) }
         }
     }
 }
@@ -78,9 +78,11 @@ abstract class GeneratorBase<M> : GeneratorI<M> {
 
     override fun delete(target: Path, model: M) {
         val c = model.contextBuilder()
-        val module = target.resolve(c.moduleFolder)
-        val folder = module.resolve(c.genFolder)
-        if (c.genFolderDeletable) folder.deleteRecursively()
+        if (c.genFolderDeletable) {
+            val module = target.resolve(c.moduleFolder)
+            val folder = module.resolve(c.genFolder)
+            folder.deleteRecursively()
+        }
     }
 }
 

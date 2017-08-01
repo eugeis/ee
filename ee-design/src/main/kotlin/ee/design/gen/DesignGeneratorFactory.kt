@@ -108,66 +108,71 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         contextFactory.macroController.registerMacro(OperationI::toGoEventHandlerSetup.name,
                 OperationI::toGoEventHandlerSetup)
 
-
         return GeneratorGroup<StructureUnitI>(listOf(
-                GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
-                        name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsGoFileName,
-                        fragments = {
-                            listOf(
-                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = entities,
-                                            fragments = { listOf(goTemplates.pojo()) }),
-                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = values,
-                                            fragments = { listOf(goTemplates.pojo()) }),
-                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = basics,
-                                            fragments = { listOf(goTemplates.pojo()) }),
-                                    ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
-                                            fragments = { listOf(goTemplates.enum()) })
-                            )
-                        })
-                ),
-                GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
-                        name = "${fileNamePrefix}CommandsBase", nameBuilder = itemAndTemplateNameAsGoFileName,
-                        fragments = {
-                            listOf(
-                                    ItemsFragment<StructureUnitI, EntityI>(items = entities,
-                                            fragments = { listOf(goTemplates.commandTypes()) }),
-                                    ItemsFragment<StructureUnitI, CommandI>(items = commands,
-                                            fragments = { listOf(goTemplates.command()) }),
-                                    ItemsFragment<StructureUnitI, EnumTypeI>(items = commandEnums,
-                                            fragments = { listOf(goTemplates.enum()) }))
-                        })
-                ),
-                GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
-                        name = "${fileNamePrefix}EventsBase", nameBuilder = itemAndTemplateNameAsGoFileName,
-                        fragments = {
-                            listOf(
-                                    ItemsFragment<StructureUnitI, EntityI>(items = entities,
-                                            fragments = { listOf(goTemplates.eventTypes()) }),
-                                    ItemsFragment<StructureUnitI, EventI>(items = events,
-                                            fragments = { listOf(goTemplates.pojo()) }),
-                                    ItemsFragment<StructureUnitI, EnumTypeI>(items = eventEnums,
-                                            fragments = { listOf(goTemplates.enum()) })
-                            )
-                        })
-                ),
-                GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
-                        name = "${fileNamePrefix}EventhorizonBase", nameBuilder = itemAndTemplateNameAsGoFileName,
-                        fragments = {
-                            listOf(
-                                    ItemsFragment<StructureUnitI, ControllerI>(items = ehController,
-                                            fragments = { listOf(goTemplates.pojo()) }),
-                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = ehValues,
-                                            fragments = { listOf(goTemplates.pojo()) }),
-                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = ehBasics,
-                                            fragments = { listOf(goTemplates.pojo()) }),
-                                    ItemsFragment<StructureUnitI, EnumTypeI>(items = ehEnums,
-                                            fragments = { listOf(goTemplates.enum()) }))
-                        })
-                ),
+                GeneratorGroupItems<StructureUnitI, StructureUnitI>(items = modules, generators = listOf(
+                        GeneratorSimple<StructureUnitI>(
+                                contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
+                                name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsGoFileName,
+                                fragments = {
+                                    listOf(
+                                            ItemsFragment<StructureUnitI, CompilationUnitI>(items = entities,
+                                                    fragments = { listOf(goTemplates.pojo()) }),
+                                            ItemsFragment<StructureUnitI, CompilationUnitI>(items = values,
+                                                    fragments = { listOf(goTemplates.pojo()) }),
+                                            ItemsFragment<StructureUnitI, CompilationUnitI>(items = basics,
+                                                    fragments = { listOf(goTemplates.pojo()) }),
+                                            ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
+                                                    fragments = { listOf(goTemplates.enum()) })
+                                    )
+                                })
+                        ),
+                        GeneratorSimple<StructureUnitI>(
+                                contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
+                                name = "${fileNamePrefix}CommandsBase", nameBuilder = itemAndTemplateNameAsGoFileName,
+                                fragments = {
+                                    listOf(
+                                            ItemsFragment<StructureUnitI, EntityI>(items = entities,
+                                                    fragments = { listOf(goTemplates.commandTypes()) }),
+                                            ItemsFragment<StructureUnitI, CommandI>(items = commands,
+                                                    fragments = { listOf(goTemplates.command()) }),
+                                            ItemsFragment<StructureUnitI, EnumTypeI>(items = commandEnums,
+                                                    fragments = { listOf(goTemplates.enum()) }))
+                                })
+                        ),
+                        GeneratorSimple<StructureUnitI>(
+                                contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
+                                name = "${fileNamePrefix}EventsBase", nameBuilder = itemAndTemplateNameAsGoFileName,
+                                fragments = {
+                                    listOf(
+                                            ItemsFragment<StructureUnitI, EntityI>(items = entities,
+                                                    fragments = { listOf(goTemplates.eventTypes()) }),
+                                            ItemsFragment<StructureUnitI, EventI>(items = events,
+                                                    fragments = { listOf(goTemplates.pojo()) }),
+                                            ItemsFragment<StructureUnitI, EnumTypeI>(items = eventEnums,
+                                                    fragments = { listOf(goTemplates.enum()) })
+                                    )
+                                })
+                        ),
+                        GeneratorSimple<StructureUnitI>(
+                                contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
+                                name = "${fileNamePrefix}EventhorizonBase", nameBuilder = itemAndTemplateNameAsGoFileName,
+                                fragments = {
+                                    listOf(
+                                            ItemsFragment<StructureUnitI, ControllerI>(items = ehController,
+                                                    fragments = { listOf(goTemplates.pojo()) }),
+                                            ItemsFragment<StructureUnitI, CompilationUnitI>(items = ehValues,
+                                                    fragments = { listOf(goTemplates.pojo()) }),
+                                            ItemsFragment<StructureUnitI, CompilationUnitI>(items = ehBasics,
+                                                    fragments = { listOf(goTemplates.pojo()) }),
+                                            ItemsFragment<StructureUnitI, EnumTypeI>(items = ehEnums,
+                                                    fragments = { listOf(goTemplates.enum()) }))
+                                })
+                        ),
+                        Generator<StructureUnitI, CompI>(
+                                contextBuilder = swaggerContextBuilder, items = components,
+                                templates = { listOf(swaggerTemplates.model()) }
+                        )
+                )),
                 Generator<StructureUnitI, CompI>(
                         contextBuilder = swaggerContextBuilder, items = components,
                         templates = { listOf(swaggerTemplates.model()) }
