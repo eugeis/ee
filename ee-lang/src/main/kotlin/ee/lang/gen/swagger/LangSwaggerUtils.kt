@@ -5,5 +5,5 @@ import ee.lang.Names
 import ee.lang.TemplateI
 
 val itemNameAsSwaggerFileName: TemplateI<*>.(CompositeI) -> Names = {
-    Names("${it.name()}.yaml")
+    Names("${it.name()}.yml")
 }

@@ -40,7 +40,7 @@ fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String): String? {
         n.List -> "[]${generics()[0].toGo(c, derived)}"
         n.Map -> "map(${generics()[0].toGo(c, derived)})${generics()[1].toGo(c, derived)}"
         else -> {
-            if (this is Lambda) operation().toGoLamnda(c, derived) else null
+            if (this is Lambda) operation().toGoLambda(c, derived) else null
         }
     }
 }
@@ -112,7 +112,7 @@ fun List<AttributeI>.toGoTypes(c: GenerationContext, derived: String): String {
     return joinWrappedToString(", ") { it.toGoType(c, derived) }
 }
 
-fun <T : OperationI> T.toGoLamnda(c: GenerationContext, derived: String): String =
+fun <T : OperationI> T.toGoLambda(c: GenerationContext, derived: String): String =
         """func (${params().toGoTypes(c, derived)}) ${ret().toGoType(c, derived)}"""
 
 fun <T : LogicUnitI> T.toGoName(): String = visible().ifElse({ name().capitalize() }, { name().decapitalize() })

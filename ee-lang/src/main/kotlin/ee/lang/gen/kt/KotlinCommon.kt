@@ -92,7 +92,7 @@ fun <T : TypeI> T.toKotlinIfNative(c: GenerationContext, derived: String, attr: 
         n.List -> "${c.n((attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse(k.core.MutableList, k.core.List), derived)}${toKotlinGenericTypes(c, derived, attr)}"
         n.Map -> "${c.n((attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse(k.core.MutableMap, k.core.Map), derived)}${toKotlinGenericTypes(c, derived, attr)}"
         else -> {
-            if (this is Lambda) operation().toKotlinLamnda(c, derived) else null
+            if (this is Lambda) operation().toKotlinLambda(c, derived) else null
         }
     }
 }
@@ -226,7 +226,7 @@ fun List<AttributeI>.toKotlinTypes(c: GenerationContext, derived: String): Strin
     return "${joinWrappedToString(", ") { it.toKotlinType(c, derived) }}"
 }
 
-fun <T : OperationI> T.toKotlinLamnda(c: GenerationContext, derived: String): String =
+fun <T : OperationI> T.toKotlinLambda(c: GenerationContext, derived: String): String =
         """(${params().toKotlinTypes(c, derived)}) -> ${ret().toKotlinType(c, derived)}"""
 
 fun <T : OperationI> T.toKotlinImpl(c: GenerationContext, derived: String, api: String): String {

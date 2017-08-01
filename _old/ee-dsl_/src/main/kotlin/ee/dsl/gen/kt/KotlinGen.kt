@@ -97,7 +97,7 @@ fun <T : TypeIfc> T.toKotlin(context: KotlinContext, attr: Attribute? = findPare
                 }
             }
             if (this is LambdaD) {
-                this.op.toKotlinLamnda(context)
+                this.op.toKotlinLambda(context)
             } else {
                 when (position) {
                     SIGNATURE -> "${context.n(currentType)}${this.toKotlinGenericsStar(context, indent)}"
@@ -291,7 +291,7 @@ fun <T : Operation> T.toKotlinAbstract(context: KotlinContext, indent: String = 
 """
 }
 
-fun <T : Operation> T.toKotlinLamnda(context: KotlinContext, indent: String = ""): String {
+fun <T : Operation> T.toKotlinLambda(context: KotlinContext, indent: String = ""): String {
     return """(${params.toKotlinTypes(context, indent)}) -> ${ret.toKotlinType(context)}"""
 }
 
