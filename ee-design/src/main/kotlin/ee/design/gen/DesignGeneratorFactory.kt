@@ -8,17 +8,20 @@ import ee.design.gen.swagger.DesignSwaggerTemplates
 import ee.lang.*
 import ee.lang.gen.LangGeneratorFactory
 import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
+import ee.lang.gen.go.itemNameAsGoFileName
+import ee.lang.gen.itemNameAsKotlinFileName
+import ee.lang.gen.swagger.itemNameAsSwaggerFileName
 
 open class DesignGeneratorFactory : LangGeneratorFactory {
     constructor() : super()
 
     override fun buildKotlinContextFactory() = DesignKotlinContextFactory()
-    override fun buildKotlinTemplates() = DesignKotlinTemplates({ Names("${it.name()}.kt") })
+    override fun buildKotlinTemplates() = DesignKotlinTemplates(itemNameAsKotlinFileName)
 
     override fun buildGoContextFactory() = DesignGoContextFactory()
-    override fun buildGoTemplates() = DesignGoTemplates({ Names("${it.name()}.go") })
+    override fun buildGoTemplates() = DesignGoTemplates(itemNameAsGoFileName)
 
-    fun buildSwaggerTemplates() = DesignSwaggerTemplates({ Names("${it.name()}.yaml") })
+    fun buildSwaggerTemplates() = DesignSwaggerTemplates(itemNameAsSwaggerFileName)
 
     open fun eventDrivenGo(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
         val goTemplates = buildGoTemplates()

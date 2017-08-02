@@ -377,3 +377,33 @@ fun <T> MutableCollection<T>.addReturn(item: T): T {
 fun Boolean?.setAndTrue(): Boolean = this != null && this
 fun Boolean?.notSetOrTrue(): Boolean = this == null || this
 
+
+//map
+fun <K, T> Map<K, Collection<T>>.joinSurroundIfNotEmptyToString(separator: CharSequence = ", ",
+                                                    prefix: CharSequence = "", postfix: CharSequence = "",
+                                                    emptyString: String = "", transform: ((K, T) -> CharSequence)? = null): String {
+    return joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
+}
+
+fun <K, T, A : Appendable> Map<K, Collection<T>>.joinSurroundIfNotEmptyTo(buffer: A, separator: CharSequence = ", ",
+                                                              prefix: CharSequence = "", postfix: CharSequence = "",
+                                                              emptyString: String = "", transform: ((K, T) -> CharSequence)? = null): A {
+    if (size > 0) {
+        buffer.append(prefix)
+        var count = 0
+        for ((k, value) in this) {
+            for (element in value) {
+                if (++count > 1) {
+                    buffer.append(separator)
+                }
+                val str = if (transform != null) transform(k, element) else if (element == null) "" else element.toString()
+                buffer.append(str)
+            }
+        }
+        buffer.append(postfix)
+    } else if (emptyString.isNotEmpty()) {
+        buffer.append(emptyString)
+    }
+    return buffer
+}
+

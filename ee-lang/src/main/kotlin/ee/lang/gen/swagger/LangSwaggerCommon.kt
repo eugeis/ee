@@ -11,7 +11,7 @@ import ee.lang.gen.go.nameForMember
 import ee.lang.gen.java.j
 
 fun <T : AttributeI> T.toSwaggerTypeDef(c: GenerationContext, api: String): String {
-    return "${type().toSwagger(c, api)}"
+    return "        type: ${type().toSwagger(c, api)}"
 }
 
 fun <T : TypeI> T.toSwaggerIfNative(c: GenerationContext, derived: String): String? {
@@ -53,7 +53,7 @@ query:
             description: this string will be added to the url of the service
  */
 fun <T : AttributeI> T.toSwaggerMember(c: GenerationContext, api: String): String {
-    return "    ${nameForMember()}: ${toSwaggerTypeDef(c, api)}"
+    return "      ${nameForMember()}:$nL${toSwaggerTypeDef(c, api)}"
 }
 
 fun <T : AttributeI> T.toSwaggerEnumMember(c: GenerationContext, api: String): String {
@@ -97,7 +97,7 @@ fun <T : CompilationUnitI> T.toSwaggerDefinition(c: GenerationContext,
                                                  api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
     return """
-$name:
+  $name:
     type: object
     properties:${
     props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toSwaggerMember(c, api) }}"""

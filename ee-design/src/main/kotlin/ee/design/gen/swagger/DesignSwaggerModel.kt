@@ -1,5 +1,6 @@
 package ee.design.gen.swagger
 
+import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.design.CompI
 import ee.design.EntityI
 import ee.design.ModuleI
@@ -25,16 +26,13 @@ schemes:
   - https
 produces:
   - application/json
-paths:${moduleItems.forEach { module, items ->
-        items.forEach { item ->
-            "  /${c.n(module, derived)}${item.toSwaggerPath(c, derived)}"
-        }
+paths:${moduleItems.joinSurroundIfNotEmptyToString("") { module, item ->
+        """
+  /${c.n(module, derived)}${item.toSwaggerPath(c, derived)}"""
     }}
 parameters:
 responses:
-definitions:${moduleItems.forEach { module, items ->
-        items.forEach { item ->
-            item.toSwaggerDefinition(c, derived)
-        }
+definitions:${moduleItems.joinSurroundIfNotEmptyToString("") { module, item ->
+        item.toSwaggerDefinition(c, derived)
     }}"""
 }

@@ -25,5 +25,5 @@ open class LangSwaggerContextFactory {
         }
     }
 
-    protected open fun ItemI.buildName(): String = name()
+    protected open fun ItemI.buildName(): String = name().decapitalize()
 }
