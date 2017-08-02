@@ -184,6 +184,10 @@ fun String.toUnderscoredLowerCase(): String {
     return strToUnderscoredLower.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "_$1").toLowerCase() })
 }
 
+fun String.toHyphenLowerCase(): String {
+    return strToUnderscoredLower.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "-$1").toLowerCase() })
+}
+
 val sqlKeywords = mapOf("group" to "group_")
 val strToSql = WeakHashMap<String, String>()
 fun String.toSql(limit: Int = 64): String {

@@ -1,6 +1,7 @@
 package ee.design.gen.swagger
 
 import ee.common.ext.joinSurroundIfNotEmptyToString
+import ee.common.ext.toHyphenLowerCase
 import ee.design.CompI
 import ee.design.EntityI
 import ee.design.ModuleI
@@ -28,7 +29,7 @@ produces:
   - application/json
 paths:${moduleItems.joinSurroundIfNotEmptyToString("") { module, item ->
         """
-  /${c.n(module, derived)}${item.toSwaggerPath(c, derived)}"""
+  /${c.n(module, derived).toHyphenLowerCase()}${item.toSwaggerPath(c, derived)}:"""
     }}
 parameters:
 responses:

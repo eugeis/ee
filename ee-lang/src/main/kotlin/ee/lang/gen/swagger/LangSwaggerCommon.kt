@@ -1,9 +1,6 @@
 package ee.lang.gen.swagger
 
-import ee.common.ext.ifElse
-import ee.common.ext.joinSurroundIfNotEmptyToString
-import ee.common.ext.joinWrappedToString
-import ee.common.ext.then
+import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.go.g
 import ee.lang.gen.go.nameForEnum
@@ -89,7 +86,7 @@ func (o *$o) ${toSwaggerName()}(${params().toSwaggerSignature(c, api)}) (ret ${r
 fun <T : CompilationUnitI> T.toSwaggerPath(c: GenerationContext,
                                            derived: String = LangDerivedKind.IMPL,
                                            api: String = LangDerivedKind.API): String {
-    return """/${c.n(this, derived)}"""
+    return """/${c.n(this, derived).toHyphenLowerCase()}"""
 }
 
 fun <T : CompilationUnitI> T.toSwaggerDefinition(c: GenerationContext,
