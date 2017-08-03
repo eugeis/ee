@@ -1,12 +1,9 @@
 package ee.lang.gen.go
 
-import ee.lang.*
-import ee.lang.gen.java.j
-import ee.lang.gen.kt.k
+import ee.lang.DerivedController
+import ee.lang.StructureUnitI
 
-open class LangGoContextFactory {
-    val isNotPartOfNativeTypes: ItemI.() -> Boolean = { n != parent() && j != parent() && k != parent() }
-    val macroController = MacroController()
+open class LangGoContextFactory : LangCommonContextFactory() {
 
     open fun buildForImplOnly(): StructureUnitI.() -> GoContext {
         val derivedController = DerivedController()
@@ -14,12 +11,7 @@ open class LangGoContextFactory {
         return contextBuilder(derivedController)
     }
 
-    protected open fun registerForImplOnly(derived: DerivedController) {
-        derived.registerKinds(listOf(LangDerivedKind.API, LangDerivedKind.IMPL), isNotPartOfNativeTypes, { buildName() })
-    }
-
-
-    protected open fun contextBuilder(derived: DerivedController): StructureUnitI.() -> GoContext {
+    override fun contextBuilder(derived: DerivedController): StructureUnitI.() -> GoContext {
         return {
             val structureUnit = this
             GoContext(moduleFolder = structureUnit.artifact(),
@@ -29,6 +21,4 @@ open class LangGoContextFactory {
             )
         }
     }
-
-    protected open fun ItemI.buildName(): String = name()
 }

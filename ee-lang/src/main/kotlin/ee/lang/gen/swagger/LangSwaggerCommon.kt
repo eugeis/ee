@@ -35,7 +35,7 @@ fun <T : TypeI> T.toSwaggerIfNative(c: GenerationContext, derived: String): Stri
 }
 
 fun <T : TypeI> T.toSwagger(c: GenerationContext, derived: String): String {
-    return toSwaggerIfNative(c, derived) ?: "${ifc().not().then("*")}${c.n(this, derived)}"
+    return toSwaggerIfNative(c, derived) ?: "\$ref: \"#/definitions/${c.n(this, derived)}\""
 }
 
 fun <T : AttributeI> T.toSwaggerSignature(c: GenerationContext, api: String): String {
@@ -50,7 +50,7 @@ query:
             description: this string will be added to the url of the service
  */
 fun <T : AttributeI> T.toSwaggerMember(c: GenerationContext, api: String): String {
-    return "      ${nameForMember()}:$nL${toSwaggerTypeDef(c, api)}"
+    return "      ${nameForMember().decapitalize()}:$nL${toSwaggerTypeDef(c, api)}"
 }
 
 fun <T : AttributeI> T.toSwaggerEnumMember(c: GenerationContext, api: String): String {

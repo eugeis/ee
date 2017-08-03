@@ -4,6 +4,7 @@ import ee.design.*
 import ee.design.gen.go.*
 import ee.design.gen.kt.DesignKotlinContextFactory
 import ee.design.gen.kt.DesignKotlinTemplates
+import ee.design.gen.swagger.DesignSwaggerContextFactory
 import ee.design.gen.swagger.DesignSwaggerTemplates
 import ee.lang.*
 import ee.lang.gen.LangGeneratorFactory
@@ -21,6 +22,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
     override fun buildGoContextFactory() = DesignGoContextFactory()
     override fun buildGoTemplates() = DesignGoTemplates(itemNameAsGoFileName)
 
+    override fun buildSwaggerContextFactory() = DesignSwaggerContextFactory()
     fun buildSwaggerTemplates() = DesignSwaggerTemplates(itemNameAsSwaggerFileName)
 
     open fun eventDrivenGo(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {

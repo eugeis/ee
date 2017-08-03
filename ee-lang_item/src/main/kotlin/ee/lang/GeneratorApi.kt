@@ -105,7 +105,7 @@ open class GeneratorSimple<M> : GeneratorBase<M> {
             path.toFile().writeText(c.complete(template.generate(model, c)))
             metaData.track(relative, path.lastModified())
             c.clear()
-            metaData.store(target)
+            metaData.store(module)
         } else {
             println("File exists $path and was modified after generation, skip generation.")
         }
@@ -141,7 +141,7 @@ open class Generator<M, I> : GeneratorBase<M> {
                 }
             }
         }
-        metaData.store(target)
+        metaData.store(module)
     }
 }
 
