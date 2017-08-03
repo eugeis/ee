@@ -60,7 +60,7 @@ open class Attribute : MacroComposite, AttributeI {
     override fun value(aValue: Any?): AttributeI = apply { attr(VALUE, aValue) }
 
     companion object {
-        val EMPTY = Attribute({ name(ItemEmpty.name()) })
+        val EMPTY = Attribute { name(ItemEmpty.name()) }.apply<Attribute> { init() }
         val ACCESSIBLE = "_accessible"
         val ANONYMOUS = "_anonymous"
         val DEFAULT = "_default"
@@ -105,7 +105,7 @@ open class Constructor : LogicUnit, ConstructorI {
     override fun primary(value: Boolean): ConstructorI = apply { attr(PRIMARY, value) }
 
     companion object {
-        val EMPTY = Constructor({ name(ItemEmpty.name()) })
+        val EMPTY = Constructor { name(ItemEmpty.name()) }.apply<Constructor> { init() }
         val PRIMARY = "_primary"
     }
 }
@@ -116,7 +116,7 @@ open class DataType : CompilationUnit, DataTypeI {
     constructor(value: DataType.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
 
     companion object {
-        val EMPTY = DataType({ name(ItemEmpty.name()) })
+        val EMPTY = DataType { name(ItemEmpty.name()) }.apply<DataType> { init() }
     }
 }
 
@@ -126,7 +126,7 @@ open class DataTypeOperation : Operation, DataTypeOperationI {
     constructor(value: DataTypeOperation.() -> Unit = {}) : super(value as Operation.() -> Unit)
 
     companion object {
-        val EMPTY = DataTypeOperation({ name(ItemEmpty.name()) })
+        val EMPTY = DataTypeOperation { name(ItemEmpty.name()) }.apply<DataTypeOperation> { init() }
     }
 }
 
@@ -146,7 +146,7 @@ open class EnumType : CompilationUnit, EnumTypeI {
     }
 
     companion object {
-        val EMPTY = EnumType({ name(ItemEmpty.name()) })
+        val EMPTY = EnumType { name(ItemEmpty.name()) }.apply<EnumType> { init() }
         val LITERALS = "_literals"
     }
 }
@@ -157,7 +157,7 @@ open class ExternalType : Type, ExternalTypeI {
     constructor(value: ExternalType.() -> Unit = {}) : super(value as Type.() -> Unit)
 
     companion object {
-        val EMPTY = ExternalType({ name(ItemEmpty.name()) })
+        val EMPTY = ExternalType { name(ItemEmpty.name()) }.apply<ExternalType> { init() }
     }
 }
 
@@ -170,7 +170,7 @@ open class Generic : Type, GenericI {
     override fun type(value: TypeI): GenericI = apply { attr(TYPE, value) }
 
     companion object {
-        val EMPTY = Generic({ name(ItemEmpty.name()) })
+        val EMPTY = Generic { name(ItemEmpty.name()) }.apply<Generic> { init() }
         val TYPE = "_type"
     }
 }
@@ -184,7 +184,7 @@ open class Lambda : Type, LambdaI {
     override fun operation(value: OperationI): LambdaI = apply { attr(OPERATION, value) }
 
     companion object {
-        val EMPTY = Lambda({ name(ItemEmpty.name()) })
+        val EMPTY = Lambda { name(ItemEmpty.name()) }.apply<Lambda> { init() }
         val OPERATION = "_operation"
     }
 }
@@ -195,7 +195,7 @@ open class Literal : LogicUnit, LiteralI {
     constructor(value: Literal.() -> Unit = {}) : super(value as LogicUnit.() -> Unit)
 
     companion object {
-        val EMPTY = Literal({ name(ItemEmpty.name()) })
+        val EMPTY = Literal { name(ItemEmpty.name()) }.apply<Literal> { init() }
     }
 }
 
@@ -244,7 +244,7 @@ open class MacroComposite : Composite, MacroCompositeI {
     }
 
     companion object {
-        val EMPTY = MacroComposite({ name(ItemEmpty.name()) })
+        val EMPTY = MacroComposite { name(ItemEmpty.name()) }.apply<MacroComposite> { init() }
         val MACROS = "_macros"
     }
 }
@@ -255,7 +255,7 @@ open class NativeType : Type, NativeTypeI {
     constructor(value: NativeType.() -> Unit = {}) : super(value as Type.() -> Unit)
 
     companion object {
-        val EMPTY = NativeType({ name(ItemEmpty.name()) })
+        val EMPTY = NativeType { name(ItemEmpty.name()) }.apply<NativeType> { init() }
     }
 }
 
@@ -281,7 +281,7 @@ open class Operation : LogicUnit, OperationI {
     }
 
     companion object {
-        val EMPTY = Operation({ name(ItemEmpty.name()) })
+        val EMPTY = Operation { name(ItemEmpty.name()) }.apply<Operation> { init() }
         val GENERICS = "_generics"
         val OPEN = "_open"
         val RET = "_ret"
@@ -303,7 +303,7 @@ open class StructureUnit : MacroComposite, StructureUnitI {
     override fun key(value: String): StructureUnitI = apply { attr(KEY, value) }
 
     companion object {
-        val EMPTY = StructureUnit({ name(ItemEmpty.name()) })
+        val EMPTY = StructureUnit { name(ItemEmpty.name()) }.apply<StructureUnit> { init() }
         val ARTIFACT = "_artifact"
         val FULL_NAME = "_fullName"
         val KEY = "_key"
@@ -366,7 +366,7 @@ open class Type : MacroComposite, TypeI {
     }
 
     companion object {
-        val EMPTY = Type({ name(ItemEmpty.name()) })
+        val EMPTY = Type { name(ItemEmpty.name()) }.apply<Type> { init() }
         val CONSTRUCTORS = "_constructors"
         val DEFAULT_VALUE = "_defaultValue"
         val GENERICS = "_generics"

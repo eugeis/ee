@@ -16,7 +16,7 @@ open class Basic : DataType, BasicI {
     constructor(value: Basic.() -> Unit = {}) : super(value as DataType.() -> Unit)
 
     companion object {
-        val EMPTY = Basic({ name(ItemEmpty.name()) })
+        val EMPTY = Basic { name(ItemEmpty.name()) }.apply<Basic> { init() }
     }
 }
 
@@ -33,7 +33,7 @@ open class Bundle : StructureUnit, BundleI {
     }
 
     companion object {
-        val EMPTY = Bundle({ name(ItemEmpty.name()) })
+        val EMPTY = Bundle { name(ItemEmpty.name()) }.apply<Bundle> { init() }
         val UNITS = "_units"
     }
 }
@@ -43,7 +43,7 @@ open class BussinesCommand : Command, BussinesCommandI {
     constructor(value: BussinesCommand.() -> Unit = {}) : super(value as Command.() -> Unit)
 
     companion object {
-        val EMPTY = BussinesCommand({ name(ItemEmpty.name()) })
+        val EMPTY = BussinesCommand { name(ItemEmpty.name()) }.apply<BussinesCommand> { init() }
     }
 }
 
@@ -52,7 +52,7 @@ open class BussinesEvent : Event, BussinesEventI {
     constructor(value: BussinesEvent.() -> Unit = {}) : super(value as Event.() -> Unit)
 
     companion object {
-        val EMPTY = BussinesEvent({ name(ItemEmpty.name()) })
+        val EMPTY = BussinesEvent { name(ItemEmpty.name()) }.apply<BussinesEvent> { init() }
     }
 }
 
@@ -60,11 +60,11 @@ open class BussinesEvent : Event, BussinesEventI {
 open class Command : CompilationUnit, CommandI {
     constructor(value: Command.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
 
-    override fun event(): EventI = attr(EVENT, { Event() })
+    override fun event(): EventI = attr(EVENT, { Event.EMPTY })
     override fun event(value: EventI): CommandI = apply { attr(EVENT, value) }
 
     companion object {
-        val EMPTY = Command({ name(ItemEmpty.name()) })
+        val EMPTY = Command { name(ItemEmpty.name()) }.apply<Command> { init() }
         val EVENT = "_event"
     }
 }
@@ -108,7 +108,7 @@ open class Commands : Controller, CommandsI {
     }
 
     companion object {
-        val EMPTY = Commands({ name(ItemEmpty.name()) })
+        val EMPTY = Commands { name(ItemEmpty.name()) }.apply<Commands> { init() }
         val COMMANDS = "_commands"
         val COMPOSITES = "_composites"
         val CREATE_BYS = "_createBys"
@@ -130,7 +130,7 @@ open class Comp : ModuleGroup, CompI {
     }
 
     companion object {
-        val EMPTY = Comp({ name(ItemEmpty.name()) })
+        val EMPTY = Comp { name(ItemEmpty.name()) }.apply<Comp> { init() }
         val MODULE_GROUPS = "_moduleGroups"
     }
 }
@@ -148,7 +148,7 @@ open class CompositeCommand : CompilationUnit, CompositeCommandI {
     }
 
     companion object {
-        val EMPTY = CompositeCommand({ name(ItemEmpty.name()) })
+        val EMPTY = CompositeCommand { name(ItemEmpty.name()) }.apply<CompositeCommand> { init() }
         val COMMANDS = "_commands"
     }
 }
@@ -180,7 +180,7 @@ open class Controller : CompilationUnit, ControllerI {
     }
 
     companion object {
-        val EMPTY = Controller({ name(ItemEmpty.name()) })
+        val EMPTY = Controller { name(ItemEmpty.name()) }.apply<Controller> { init() }
         val ENUMS = "_enums"
         val VALUES = "_values"
         val BASICS = "_basics"
@@ -192,7 +192,7 @@ open class CountBy : DataTypeOperation, CountByI {
     constructor(value: CountBy.() -> Unit = {}) : super(value as DataTypeOperation.() -> Unit)
 
     companion object {
-        val EMPTY = CountBy({ name(ItemEmpty.name()) })
+        val EMPTY = CountBy { name(ItemEmpty.name()) }.apply<CountBy> { init() }
     }
 }
 
@@ -201,7 +201,7 @@ open class CreateBy : Command, CreateByI {
     constructor(value: CreateBy.() -> Unit = {}) : super(value as Command.() -> Unit)
 
     companion object {
-        val EMPTY = CreateBy({ name(ItemEmpty.name()) })
+        val EMPTY = CreateBy { name(ItemEmpty.name()) }.apply<CreateBy> { init() }
     }
 }
 
@@ -210,7 +210,7 @@ open class Created : Event, CreatedI {
     constructor(value: Created.() -> Unit = {}) : super(value as Event.() -> Unit)
 
     companion object {
-        val EMPTY = Created({ name(ItemEmpty.name()) })
+        val EMPTY = Created { name(ItemEmpty.name()) }.apply<Created> { init() }
     }
 }
 
@@ -219,7 +219,7 @@ open class DeleteBy : Command, DeleteByI {
     constructor(value: DeleteBy.() -> Unit = {}) : super(value as Command.() -> Unit)
 
     companion object {
-        val EMPTY = DeleteBy({ name(ItemEmpty.name()) })
+        val EMPTY = DeleteBy { name(ItemEmpty.name()) }.apply<DeleteBy> { init() }
     }
 }
 
@@ -228,7 +228,7 @@ open class Deleted : Event, DeletedI {
     constructor(value: Deleted.() -> Unit = {}) : super(value as Event.() -> Unit)
 
     companion object {
-        val EMPTY = Deleted({ name(ItemEmpty.name()) })
+        val EMPTY = Deleted { name(ItemEmpty.name()) }.apply<Deleted> { init() }
     }
 }
 
@@ -236,7 +236,7 @@ open class Deleted : Event, DeletedI {
 open class Entity : DataType, EntityI {
     constructor(value: Entity.() -> Unit = {}) : super(value as DataType.() -> Unit)
 
-    override fun belongsToAggregate(): EntityI = attr(BELONGS_TO_AGGREGATE, { Entity() })
+    override fun belongsToAggregate(): EntityI = attr(BELONGS_TO_AGGREGATE, { Entity.EMPTY })
     override fun belongsToAggregate(value: EntityI): EntityI = apply { attr(BELONGS_TO_AGGREGATE, value) }
 
     override fun aggregateFor(): ListMultiHolderI<EntityI> = itemAsList(AGGREGATE_FOR, EntityI::class.java, true, true)
@@ -272,7 +272,7 @@ open class Entity : DataType, EntityI {
     }
 
     companion object {
-        val EMPTY = Entity({ name(ItemEmpty.name()) })
+        val EMPTY = Entity { name(ItemEmpty.name()) }.apply<Entity> { init() }
         val BELONGS_TO_AGGREGATE = "_belongsToAggregate"
         val AGGREGATE_FOR = "_aggregateFor"
         val CONTROLLERS = "_controllers"
@@ -287,7 +287,7 @@ open class Event : CompilationUnit, EventI {
     constructor(value: Event.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
 
     companion object {
-        val EMPTY = Event({ name(ItemEmpty.name()) })
+        val EMPTY = Event { name(ItemEmpty.name()) }.apply<Event> { init() }
     }
 }
 
@@ -324,7 +324,7 @@ open class Events : Controller, EventsI {
     }
 
     companion object {
-        val EMPTY = Events({ name(ItemEmpty.name()) })
+        val EMPTY = Events { name(ItemEmpty.name()) }.apply<Events> { init() }
         val EVENTS = "_events"
         val CREATED = "_created"
         val UPDATED = "_updated"
@@ -337,7 +337,7 @@ open class ExistBy : DataTypeOperation, ExistByI {
     constructor(value: ExistBy.() -> Unit = {}) : super(value as DataTypeOperation.() -> Unit)
 
     companion object {
-        val EMPTY = ExistBy({ name(ItemEmpty.name()) })
+        val EMPTY = ExistBy { name(ItemEmpty.name()) }.apply<ExistBy> { init() }
     }
 }
 
@@ -354,7 +354,7 @@ open class ExternalModule : Module, ExternalModuleI {
     }
 
     companion object {
-        val EMPTY = ExternalModule({ name(ItemEmpty.name()) })
+        val EMPTY = ExternalModule { name(ItemEmpty.name()) }.apply<ExternalModule> { init() }
         val EXTERNAL_TYPES = "_externalTypes"
     }
 }
@@ -364,7 +364,7 @@ open class Facet : ModuleGroup, FacetI {
     constructor(value: Facet.() -> Unit = {}) : super(value as ModuleGroup.() -> Unit)
 
     companion object {
-        val EMPTY = Facet({ name(ItemEmpty.name()) })
+        val EMPTY = Facet { name(ItemEmpty.name()) }.apply<Facet> { init() }
     }
 }
 
@@ -373,7 +373,7 @@ open class FindBy : DataTypeOperation, FindByI {
     constructor(value: FindBy.() -> Unit = {}) : super(value as DataTypeOperation.() -> Unit)
 
     companion object {
-        val EMPTY = FindBy({ name(ItemEmpty.name()) })
+        val EMPTY = FindBy { name(ItemEmpty.name()) }.apply<FindBy> { init() }
     }
 }
 
@@ -394,7 +394,7 @@ open class Model : StructureUnit, ModelI {
     }
 
     companion object {
-        val EMPTY = Model({ name(ItemEmpty.name()) })
+        val EMPTY = Model { name(ItemEmpty.name()) }.apply<Model> { init() }
         val MODELS = "_models"
         val COMPS = "_comps"
     }
@@ -446,7 +446,7 @@ open class Module : StructureUnit, ModuleI {
     }
 
     companion object {
-        val EMPTY = Module({ name(ItemEmpty.name()) })
+        val EMPTY = Module { name(ItemEmpty.name()) }.apply<Module> { init() }
         val PARENT_NAMESPACE = "_parentNamespace"
         val DEPENDENCIES = "_dependencies"
         val ENTITIES = "_entities"
@@ -470,7 +470,7 @@ open class ModuleGroup : StructureUnit, ModuleGroupI {
     }
 
     companion object {
-        val EMPTY = ModuleGroup({ name(ItemEmpty.name()) })
+        val EMPTY = ModuleGroup { name(ItemEmpty.name()) }.apply<ModuleGroup> { init() }
         val MODULES = "_modules"
     }
 }
@@ -502,7 +502,7 @@ open class Queries : Controller, QueriesI {
     }
 
     companion object {
-        val EMPTY = Queries({ name(ItemEmpty.name()) })
+        val EMPTY = Queries { name(ItemEmpty.name()) }.apply<Queries> { init() }
         val FIND_BYS = "_findBys"
         val COUNT_BYS = "_countBys"
         val EXIST_BYS = "_existBys"
@@ -514,7 +514,7 @@ open class UpdateBy : Command, UpdateByI {
     constructor(value: UpdateBy.() -> Unit = {}) : super(value as Command.() -> Unit)
 
     companion object {
-        val EMPTY = UpdateBy({ name(ItemEmpty.name()) })
+        val EMPTY = UpdateBy { name(ItemEmpty.name()) }.apply<UpdateBy> { init() }
     }
 }
 
@@ -523,7 +523,7 @@ open class Updated : Event, UpdatedI {
     constructor(value: Updated.() -> Unit = {}) : super(value as Event.() -> Unit)
 
     companion object {
-        val EMPTY = Updated({ name(ItemEmpty.name()) })
+        val EMPTY = Updated { name(ItemEmpty.name()) }.apply<Updated> { init() }
     }
 }
 
@@ -532,7 +532,7 @@ open class Values : DataType, ValuesI {
     constructor(value: Values.() -> Unit = {}) : super(value as DataType.() -> Unit)
 
     companion object {
-        val EMPTY = Values({ name(ItemEmpty.name()) })
+        val EMPTY = Values { name(ItemEmpty.name()) }.apply<Values> { init() }
     }
 }
 
@@ -541,7 +541,7 @@ open class Widget : CompilationUnit, WidgetI {
     constructor(value: Widget.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
 
     companion object {
-        val EMPTY = Widget({ name(ItemEmpty.name()) })
+        val EMPTY = Widget { name(ItemEmpty.name()) }.apply<Widget> { init() }
     }
 }
 

@@ -37,27 +37,27 @@ interface CommandsI : ControllerI {
     fun commands(): ListMultiHolderI<BussinesCommandI>
     fun commands(vararg value: BussinesCommandI): CommandsI
     fun command(value: BussinesCommandI): BussinesCommandI
-    fun command(value: BussinesCommandI.() -> Unit = {}) : BussinesCommandI
+    fun command(value: BussinesCommandI.() -> Unit = {}): BussinesCommandI
 
     fun composites(): ListMultiHolderI<CompositeCommandI>
     fun composites(vararg value: CompositeCommandI): CommandsI
     fun composite(value: CompositeCommandI): CompositeCommandI
-    fun composite(value: CompositeCommandI.() -> Unit = {}) : CompositeCommandI
+    fun composite(value: CompositeCommandI.() -> Unit = {}): CompositeCommandI
 
     fun createBys(): ListMultiHolderI<CreateByI>
     fun createBys(vararg value: CreateByI): CommandsI
     fun createBy(value: CreateByI): CreateByI
-    fun createBy(value: CreateByI.() -> Unit = {}) : CreateByI
+    fun createBy(value: CreateByI.() -> Unit = {}): CreateByI
 
     fun updateBys(): ListMultiHolderI<UpdateByI>
     fun updateBys(vararg value: UpdateByI): CommandsI
     fun updateBy(value: UpdateByI): UpdateByI
-    fun updateBy(value: UpdateByI.() -> Unit = {}) : UpdateByI
+    fun updateBy(value: UpdateByI.() -> Unit = {}): UpdateByI
 
     fun deleteBys(): ListMultiHolderI<DeleteByI>
     fun deleteBys(vararg value: DeleteByI): CommandsI
     fun deleteBy(value: DeleteByI): DeleteByI
-    fun deleteBy(value: DeleteByI.() -> Unit = {}) : DeleteByI
+    fun deleteBy(value: DeleteByI.() -> Unit = {}): DeleteByI
 }
 
 
@@ -77,17 +77,17 @@ interface ControllerI : CompilationUnitI {
     fun enums(): ListMultiHolderI<EnumTypeI>
     fun enums(vararg value: EnumTypeI): ControllerI
     fun enumType(value: EnumTypeI): EnumTypeI
-    fun enumType(value: EnumTypeI.() -> Unit = {}) : EnumTypeI
+    fun enumType(value: EnumTypeI.() -> Unit = {}): EnumTypeI
 
     fun values(): ListMultiHolderI<ValuesI>
     fun values(vararg value: ValuesI): ControllerI
     fun valueType(value: ValuesI): ValuesI
-    fun valueType(value: ValuesI.() -> Unit = {}) : ValuesI
+    fun valueType(value: ValuesI.() -> Unit = {}): ValuesI
 
     fun basics(): ListMultiHolderI<BasicI>
     fun basics(vararg value: BasicI): ControllerI
     fun basic(value: BasicI): BasicI
-    fun basic(value: BasicI.() -> Unit = {}) : BasicI
+    fun basic(value: BasicI.() -> Unit = {}): BasicI
 }
 
 
@@ -121,22 +121,22 @@ interface EntityI : DataTypeI {
     fun controllers(): ListMultiHolderI<ControllerI>
     fun controllers(vararg value: ControllerI): EntityI
     fun controller(value: ControllerI): ControllerI
-    fun controller(value: ControllerI.() -> Unit = {}) : ControllerI
+    fun controller(value: ControllerI.() -> Unit = {}): ControllerI
 
     fun commands(): ListMultiHolderI<CommandsI>
     fun commands(vararg value: CommandsI): EntityI
     fun command(value: CommandsI): CommandsI
-    fun command(value: CommandsI.() -> Unit = {}) : CommandsI
+    fun command(value: CommandsI.() -> Unit = {}): CommandsI
 
     fun queries(): ListMultiHolderI<QueriesI>
     fun queries(vararg value: QueriesI): EntityI
     fun query(value: QueriesI): QueriesI
-    fun query(value: QueriesI.() -> Unit = {}) : QueriesI
+    fun query(value: QueriesI.() -> Unit = {}): QueriesI
 
     fun events(): ListMultiHolderI<EventsI>
     fun events(vararg value: EventsI): EntityI
     fun event(value: EventsI): EventsI
-    fun event(value: EventsI.() -> Unit = {}) : EventsI
+    fun event(value: EventsI.() -> Unit = {}): EventsI
 }
 
 
@@ -148,22 +148,22 @@ interface EventsI : ControllerI {
     fun events(): ListMultiHolderI<BussinesEventI>
     fun events(vararg value: BussinesEventI): EventsI
     fun event(value: BussinesEventI): BussinesEventI
-    fun event(value: BussinesEventI.() -> Unit = {}) : BussinesEventI
+    fun event(value: BussinesEventI.() -> Unit = {}): BussinesEventI
 
     fun created(): ListMultiHolderI<CreatedI>
     fun created(vararg value: CreatedI): EventsI
     fun created(value: CreatedI): CreatedI
-    fun created(value: CreatedI.() -> Unit = {}) : CreatedI
+    fun created(value: CreatedI.() -> Unit = {}): CreatedI
 
     fun updated(): ListMultiHolderI<UpdatedI>
     fun updated(vararg value: UpdatedI): EventsI
     fun updated(value: UpdatedI): UpdatedI
-    fun updated(value: UpdatedI.() -> Unit = {}) : UpdatedI
+    fun updated(value: UpdatedI.() -> Unit = {}): UpdatedI
 
     fun deleted(): ListMultiHolderI<DeletedI>
     fun deleted(vararg value: DeletedI): EventsI
     fun deleted(value: DeletedI): DeletedI
-    fun deleted(value: DeletedI.() -> Unit = {}) : DeletedI
+    fun deleted(value: DeletedI.() -> Unit = {}): DeletedI
 }
 
 
@@ -204,27 +204,27 @@ interface ModuleI : StructureUnitI {
     fun entities(): ListMultiHolderI<EntityI>
     fun entities(vararg value: EntityI): ModuleI
     fun entity(value: EntityI): EntityI
-    fun entity(value: EntityI.() -> Unit = {}) : EntityI
+    fun entity(value: EntityI.() -> Unit = {}): EntityI
 
     fun enums(): ListMultiHolderI<EnumTypeI>
     fun enums(vararg value: EnumTypeI): ModuleI
     fun enumType(value: EnumTypeI): EnumTypeI
-    fun enumType(value: EnumTypeI.() -> Unit = {}) : EnumTypeI
+    fun enumType(value: EnumTypeI.() -> Unit = {}): EnumTypeI
 
     fun values(): ListMultiHolderI<ValuesI>
     fun values(vararg value: ValuesI): ModuleI
     fun valueType(value: ValuesI): ValuesI
-    fun valueType(value: ValuesI.() -> Unit = {}) : ValuesI
+    fun valueType(value: ValuesI.() -> Unit = {}): ValuesI
 
     fun basics(): ListMultiHolderI<BasicI>
     fun basics(vararg value: BasicI): ModuleI
     fun basic(value: BasicI): BasicI
-    fun basic(value: BasicI.() -> Unit = {}) : BasicI
+    fun basic(value: BasicI.() -> Unit = {}): BasicI
 
     fun controllers(): ListMultiHolderI<ControllerI>
     fun controllers(vararg value: ControllerI): ModuleI
     fun controller(value: ControllerI): ControllerI
-    fun controller(value: ControllerI.() -> Unit = {}) : ControllerI
+    fun controller(value: ControllerI.() -> Unit = {}): ControllerI
 }
 
 
@@ -238,17 +238,17 @@ interface QueriesI : ControllerI {
     fun findBys(): ListMultiHolderI<FindByI>
     fun findBys(vararg value: FindByI): QueriesI
     fun findBy(value: FindByI): FindByI
-    fun findBy(value: FindByI.() -> Unit = {}) : FindByI
+    fun findBy(value: FindByI.() -> Unit = {}): FindByI
 
     fun countBys(): ListMultiHolderI<CountByI>
     fun countBys(vararg value: CountByI): QueriesI
     fun countBy(value: CountByI): CountByI
-    fun countBy(value: CountByI.() -> Unit = {}) : CountByI
+    fun countBy(value: CountByI.() -> Unit = {}): CountByI
 
     fun existBys(): ListMultiHolderI<ExistByI>
     fun existBys(vararg value: ExistByI): QueriesI
     fun existBy(value: ExistByI): ExistByI
-    fun existBy(value: ExistByI.() -> Unit = {}) : ExistByI
+    fun existBy(value: ExistByI.() -> Unit = {}): ExistByI
 }
 
 

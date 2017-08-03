@@ -8,7 +8,7 @@ import ee.lang.gen.go.nameForMember
 import ee.lang.gen.java.j
 
 fun <T : AttributeI> T.toSwaggerTypeDef(c: GenerationContext, api: String): String {
-    return "        type: ${type().toSwagger(c, api)}"
+    return "        type: ${type().toSwagger(c, api)}${type().toSwaggerFormatIfNative(c, api)}"
 }
 
 fun <T : TypeI> T.toSwaggerIfNative(c: GenerationContext, derived: String): String? {
@@ -17,25 +17,44 @@ fun <T : TypeI> T.toSwaggerIfNative(c: GenerationContext, derived: String): Stri
         n.String, n.Path, n.Text -> "string"
         n.Boolean -> "boolean"
         n.Int, n.Long -> "integer"
-        n.Float -> "float64"
-        n.Date -> g.time.Time.toSwagger(c, derived)
-        n.TimeUnit -> g.time.Time.toSwagger(c, derived)
-        n.Blob -> "[]byte"
+        n.Float -> "number"
+        n.Date -> "string"
+        n.TimeUnit -> "string"
+        n.Blob -> "string"
         n.Exception, n.Error -> "error"
         n.Void -> ""
-        n.Any -> "interface{}"
-        n.Url -> c.n(j.net.URL)
-        n.UUID -> c.n(g.eh.UUID)
+        n.Any -> "string"
+        n.Url -> "string"
+        n.UUID -> "string"
         n.List -> "[]${generics()[0].toSwagger(c, derived)}"
-        n.Map -> "map(${generics()[0].toSwagger(c, derived)})${generics()[1].toSwagger(c, derived)}"
+        n.Map -> "string"
         else -> {
             if (this is Lambda) operation().toSwaggerLambda(c, derived) else null
         }
     }
 }
 
+fun <T : TypeI> T.toSwaggerFormatIfNative(c: GenerationContext, derived: String): String? {
+    val baseType = findDerivedOrThis()
+    val prefix = "\n        format:"
+    return when (baseType) {
+        n.Int -> "$prefix int32"
+        n.Long -> "$prefix int64"
+        n.Float -> "$prefix float"
+        n.Date -> "$prefix date-time"
+        n.Blob -> "$prefix binary"
+        else -> {
+            ""
+        }
+    }
+}
+
 fun <T : TypeI> T.toSwagger(c: GenerationContext, derived: String): String {
     return toSwaggerIfNative(c, derived) ?: "\$ref: \"#/definitions/${c.n(this, derived)}\""
+}
+
+fun GenericI.toSwagger(c: GenerationContext, derived: String): String {
+    return type().toSwagger(c, derived)
 }
 
 fun <T : AttributeI> T.toSwaggerSignature(c: GenerationContext, api: String): String {

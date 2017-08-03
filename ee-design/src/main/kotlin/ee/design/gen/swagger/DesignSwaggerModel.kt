@@ -1,6 +1,7 @@
 package ee.design.gen.swagger
 
 import ee.common.ext.joinSurroundIfNotEmptyToString
+import ee.common.ext.then
 import ee.common.ext.toHyphenLowerCase
 import ee.design.CompI
 import ee.design.EntityI
@@ -13,21 +14,23 @@ import ee.lang.gen.swagger.toSwaggerPath
 fun <T : CompI> T.toSwagger(c: GenerationContext,
                             derived: String = LangDerivedKind.IMPL,
                             api: String = LangDerivedKind.API): String {
-    val moduleItems = findDownByType(EntityI::class.java).filter { !it.virtual() && it.derivedAsType().isEmpty() }.groupBy {
+    val moduleAggregates = findDownByType(EntityI::class.java).filter { !it.virtual() && it.belongsToAggregate().isEMPTY() && it.derivedAsType().isEmpty() }.groupBy {
         it.findParentMust(ModuleI::class.java)
     }
-    return """
-swagger: '2.0'
+    val moduleItems = findDownByType(EntityI::class.java).filter { it.derivedAsType().isEmpty() }.groupBy {
+        it.findParentMust(ModuleI::class.java)
+    }
+    return """swagger: '2.0'
 info:
-  title: ${fullName()}
-  description: ${doc()}
+  title: ${fullName()}${doc().isNotEMPTY().then{"""
+  description: ${doc().render()}"""}}
   version: "1.0.0"
 schemes:
   - http
   - https
 produces:
   - application/json
-paths:${moduleItems.joinSurroundIfNotEmptyToString("") { module, item ->
+paths:${moduleAggregates.joinSurroundIfNotEmptyToString("") { module, item ->
         """
   /${c.n(module, derived).toHyphenLowerCase()}${item.toSwaggerPath(c, derived)}:"""
     }}

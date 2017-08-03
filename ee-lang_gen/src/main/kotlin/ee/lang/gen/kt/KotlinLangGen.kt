@@ -8,17 +8,17 @@ import ee.lang.*
 import ee.lang.gen.DerivedNames
 
 
-fun <T : ItemI> T.toKotlinEmpty(c: GenerationContext, derived: String): String {
+fun <T : ItemI> T.toKotlinEMPTY(c: GenerationContext, derived: String): String {
     return (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
 }
 
-fun <T : AttributeI> T.toKotlinEmpty(c: GenerationContext, derived: String): String {
-    return type().toKotlinEmpty(c, derived)
+fun <T : AttributeI> T.toKotlinEMPTY(c: GenerationContext, derived: String): String {
+    return type().toKotlinEMPTY(c, derived)
 }
 
 
 fun <T : AttributeI> T.toKotlinTypeSingle(c: GenerationContext, api: String): String {
-    return """${c.n(type(), api)}"""
+    return c.n(type(), api)
 }
 
 fun <T : AttributeI> T.toKotlinDslTypeDef(c: GenerationContext, api: String): String {
@@ -27,7 +27,7 @@ fun <T : AttributeI> T.toKotlinDslTypeDef(c: GenerationContext, api: String): St
 
 fun <T : AttributeI> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: String,
                                                   parent: ItemI = parent()): String {
-    val value = name().equals("value").ifElse("aValue", "value")
+    val value = (name() == "value").ifElse("aValue", "value")
     return """
     fun ${name()}(): ${toKotlinDslTypeDef(c, api)}${multi().ifElse({
         """
@@ -43,7 +43,7 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: Str
 }
 
 fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: String, api: String, parent: ItemI = parent()): String {
-    val value = name().equals("value").ifElse("aValue", "value")
+    val value = (name() == "value").ifElse("aValue", "value")
     val override = (derived != api).ifElse("override ", "")
     return """${multi().ifElse({
         """
@@ -53,7 +53,7 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: 
     }, {
         """
     ${override}fun ${name()}(): ${toKotlinDslTypeDef(c, api)} = attr(${name().toUnderscoredUpperCase()}${
-        nullable().not().then { ", { ${(value() == null || value().toString().isEmpty()).ifElse(toKotlinEmpty(c, derived), value())} }" }})
+        nullable().not().then { ", { ${value().toString().isEmpty().ifElse(toKotlinEMPTY(c, derived), value())} }" }})
     ${override}fun ${name()}($value: ${toKotlinDslTypeDef(c, api)}): ${c.n(parent, api)} = apply { attr(${
         name().toUnderscoredUpperCase()}, $value) }"""
     })}${nonFluent().isNotBlank().then {
@@ -61,7 +61,8 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: 
     ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}): ${toKotlinTypeSingle(c, api)} = applyAndReturn { ${multi().ifElse({
             """${name()}().addItem($value); value"""
         }, { """${name()}().addItem($value)""" })} }
-    ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}.() -> Unit): ${toKotlinTypeSingle(c, api)} = ${nonFluent()}(${toKotlinTypeSingle(c, derived)}($value))"""
+    ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}.() -> Unit): ${
+        toKotlinTypeSingle(c, api)} = ${nonFluent()}(${toKotlinTypeSingle(c, derived)}($value))"""
     }}"""
 }
 
@@ -103,7 +104,9 @@ open class ${c.n(this, derived)} : ${c.n(derivedFrom(), derived)}${(derived != a
     }}
 
     companion object {
-        val EMPTY = ${specialEmptyObjects.contains(target).ifElse({ "${target}Empty" }, { "$target({ name(ItemEmpty.name()) })" })}${
+        val EMPTY = ${specialEmptyObjects.contains(target).ifElse({ "${target}Empty" }, {
+        "$target { name(ItemEmpty.name()) }.apply<$target> { init() }"
+    })}${
     props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinCompanionObjectName(c) }}
     }
 }"""
@@ -118,7 +121,9 @@ fun <T : ItemI> T.toKotlinObjectTreeCompilationUnit(c: GenerationContext, derive
 fun <T : CompositeI> T.toKotlinDslObjectTree(c: GenerationContext, derived: String = DerivedNames.DSL_TYPE): String {
     return """
 object ${c.n(this)} : ${c.n(l.StructureUnit)}({ namespace("${namespace()}") }) {
-${items().filter { !it.name().equals("MultiHolder") }.joinSurroundIfNotEmptyToString(nL) { it.toKotlinObjectTreeCompilationUnit(c, derived) }}
+${items().filter { !(it.name() == "MultiHolder") }.joinSurroundIfNotEmptyToString(nL) {
+        it.toKotlinObjectTreeCompilationUnit(c, derived)
+    }}
 
     object MultiHolder : CompilationUnit({ derivedFrom(Item) }) {
         val T = G({ type(Item) })

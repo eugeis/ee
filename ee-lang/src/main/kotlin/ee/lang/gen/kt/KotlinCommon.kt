@@ -4,7 +4,7 @@ import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
 
-fun <T : TypeI> T.toKotlinEmpty(c: GenerationContext, derived: String, attr: AttributeI): String {
+fun <T : TypeI> T.toKotlinDefault(c: GenerationContext, derived: String, attr: AttributeI): String {
     val baseType = findDerivedOrThis()
     return when (baseType) {
         n.String, n.Text -> "\"\""
@@ -36,10 +36,17 @@ fun <T : TypeI> T.toKotlinEmpty(c: GenerationContext, derived: String, attr: Att
 }
 
 
-fun <T : AttributeI> T.toKotlinEmpty(c: GenerationContext, derived: String): String {
-    return type().toKotlinEmpty(c, derived, this)
+fun <T : AttributeI> T.toKotlinDefault(c: GenerationContext, derived: String): String {
+    return type().toKotlinDefault(c, derived, this)
 }
 
+fun <T : ItemI> T.toKotlinEMPTY(c: GenerationContext, derived: String): String {
+    return (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
+}
+
+fun <T : AttributeI> T.toKotlinEMPTY(c: GenerationContext, derived: String): String {
+    return type().toKotlinEMPTY(c, derived)
+}
 
 fun <T : AttributeI> T.toKotlinTypeSingle(c: GenerationContext, api: String): String {
     return type().toKotlin(c, api, this)
@@ -144,7 +151,7 @@ fun <T : AttributeI> T.toKotlinValue(c: GenerationContext, derived: String): Str
             }
         }
     } else {
-        return toKotlinEmpty(c, derived)
+        return toKotlinDefault(c, derived)
     }
 }
 
