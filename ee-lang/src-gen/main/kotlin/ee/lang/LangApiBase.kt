@@ -131,9 +131,9 @@ open class DataTypeOperation : Operation, DataTypeOperationI {
 }
 
 
-open class EnumType : CompilationUnit, EnumTypeI {
+open class EnumType : DataType, EnumTypeI {
 
-    constructor(value: EnumType.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
+    constructor(value: EnumType.() -> Unit = {}) : super(value as DataType.() -> Unit)
 
     override fun literals(): ListMultiHolder<LiteralI> = itemAsList(LITERALS, LiteralI::class.java, true, true)
     override fun literals(vararg value: LiteralI): EnumTypeI = apply { literals().addItems(value.asList()) }

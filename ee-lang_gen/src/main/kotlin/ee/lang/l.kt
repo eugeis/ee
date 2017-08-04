@@ -89,7 +89,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val primary = AttributeI({ type(n.Boolean).value(false) })
     }
 
-    object EnumType : Composite({ derivedFrom(CompilationUnit) }) {
+    object EnumType : Composite({ derivedFrom(DataType) }) {
         val literals = AttributeI({ type(Literal).multi(true).nonFluent("lit") })
     }
 

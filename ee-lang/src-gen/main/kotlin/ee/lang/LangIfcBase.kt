@@ -78,7 +78,7 @@ interface DataTypeOperationI : OperationI {
 }
 
 
-interface EnumTypeI : CompilationUnitI {
+interface EnumTypeI : DataTypeI {
     fun literals(): ListMultiHolder<LiteralI>
     fun literals(vararg value: LiteralI): EnumTypeI
     fun lit(value: LiteralI): LiteralI
