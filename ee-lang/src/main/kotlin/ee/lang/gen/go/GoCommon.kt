@@ -125,8 +125,9 @@ fun <T : MacroCompositeI> T.toGoMacros(c: GenerationContext, derived: String, ap
 fun <T : OperationI> T.toGoImpl(o: String, c: GenerationContext, api: String): String {
     return macros().isNotEmpty().then {
         """
-func (o *$o) ${toGoName()}(${params().toGoSignature(c, api)}) (ret ${ret().toGoTypeDef(c, api)}) {
-    ${toGoMacros(c, api, api)}
+func (o *$o) ${toGoName()}(${params().toGoSignature(c, api)}) ${
+        ret().isNotEMPTY().then { "(ret ${ret().toGoTypeDef(c, api)})" }} {
+            ${toGoMacros(c, api, api)}
 }"""
     }
 }

@@ -1,5 +1,7 @@
 package ee.design.gen.go
 
+import ee.common.ext.toDotsAsPath
+import ee.common.ext.toPlural
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
@@ -16,6 +18,11 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
             val initializer = arrayListOf<ControllerI>()
             items.forEach { item ->
                 item.extend {
+
+                    val finders = findDownByType(FindBy::class.java)
+                    val counters = findDownByType(CountByI::class.java)
+                    val exists = findDownByType(ExistByI::class.java)
+
                     //command handler
                     val commands = item.findDownByType(CommandI::class.java)
                     val commandHandler = controller {
@@ -84,12 +91,56 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             //initializer
                             controller {
                                 name(DesignDerivedType.AggregateInitializer).derivedAsType(DesignDerivedType.Aggregate)
-                                prop({ type(g.gee.eh.AggregateInitializer).anonymous(true).name("AggregateInitializer") })
-                                prop({ type(commandHandler).anonymous(true).name("CommandHandler") })
-                                prop({ type(eventHandler).anonymous(true).name("EventHandler") })
+                                prop { type(g.gee.eh.AggregateInitializer).anonymous(true).name("AggregateInitializer") }
+                                prop { type(commandHandler).anonymous(true).name("CommandHandler") }
+                                prop { type(eventHandler).anonymous(true).name("EventHandler") }
                                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                                 macros(CompilationUnitI::toGoAggregateInitializer.name)
                             })
+
+
+                    val httpHandler = controller {
+                        name(DesignDerivedType.HttpHandler).derivedAsType(DesignDerivedType.Http)
+                        prop { type(g.mux.Router).name("Router") }
+                        propS { name("PathPrefix") }
+
+                        op {
+                            name("Setup")
+                            ret(g.error)
+                            macros(OperationI::toGoSetupHttpHandler.name)
+                        }
+
+                        op {
+                            name("${item.name().toPlural().capitalize()}${DesignDerivedKind.HttpGet}")
+                            p("w", g.net.http.ResponseWriter)
+                            p("r", g.net.http.Request)
+                            macros(OperationI::toGoHttpHandler.name)
+                        }
+
+                        op {
+                            name("${item.name().toPlural().toDotsAsPath().capitalize()}${DesignDerivedKind.HttpPost}")
+                            p("w", g.net.http.ResponseWriter)
+                            p("r", g.net.http.Request)
+                            macros(OperationI::toGoHttpHandler.name)
+                        }
+
+                        op {
+                            name("${item.name().toPlural().capitalize()}${DesignDerivedKind.HttpPut}")
+                            p("w", g.net.http.ResponseWriter)
+                            p("r", g.net.http.Request)
+                            macros(OperationI::toGoHttpHandler.name)
+                        }
+
+                        op {
+                            name("${item.name().toPlural().capitalize()}${DesignDerivedKind.HttpDelete}")
+                            p("w", g.net.http.ResponseWriter)
+                            p("r", g.net.http.Request)
+                            macros(OperationI::toGoHttpHandler.name)
+                        }
+
+                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+                    }
+
                 }
 
             }

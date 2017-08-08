@@ -5,6 +5,10 @@ import ee.lang.*
 import org.slf4j.LoggerFactory
 
 open class DesignDerivedKindNames : LangDerivedKindNames() {
+    val HttpGet = "Get"
+    val HttpPost = "Post"
+    val HttpPut = "Put"
+    val HttpDelete = "Delete"
 }
 
 object DesignDerivedKind : DesignDerivedKindNames()
@@ -15,6 +19,8 @@ open class DesignDerivedTypeNames {
     val AggregateType = "AggregateType"
     val Command = "Command"
     val CommandHandler = "CommandHandler"
+    val Http = "Http"
+    val HttpHandler = "HttpHandler"
     val Event = "Event"
     val EventHandler = "EventHandler"
     val EventhorizonInitializer = "EventhorizonInitializer"

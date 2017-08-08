@@ -37,6 +37,22 @@ fun <T : OperationI> T.toGoCommandHandlerExecuteCommand(c: GenerationContext,
     """
 }
 
+fun <T : OperationI> T.toGoHttpHandler(c: GenerationContext,
+                                                        derived: String = DesignDerivedKind.IMPL,
+                                                        api: String = DesignDerivedKind.API): String {
+    return """
+    return
+    """
+}
+
+fun <T : OperationI> T.toGoSetupHttpHandler(c: GenerationContext,
+                                       derived: String = DesignDerivedKind.IMPL,
+                                       api: String = DesignDerivedKind.API): String {
+    return """
+    return
+    """
+}
+
 fun <T : CommandI> T.toGoStoreEvent(c: GenerationContext,
                                     derived: String = DesignDerivedKind.IMPL,
                                     api: String = DesignDerivedKind.API): String {

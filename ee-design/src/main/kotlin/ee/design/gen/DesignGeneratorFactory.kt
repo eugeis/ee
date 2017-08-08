@@ -35,8 +35,8 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         val contextFactory = buildGoContextFactory()
         val contextBuilder = contextFactory.buildForImplOnly()
 
-        val components: StructureUnitI.() -> List<CompI> = { if(this is CompI) listOf(this) else findDownByType(CompI::class.java) }
-        val modules: StructureUnitI.() -> List<ModuleI> = { if(this is ModuleI) listOf(this) else findDownByType(ModuleI::class.java) }
+        val components: StructureUnitI.() -> List<CompI> = { if (this is CompI) listOf(this) else findDownByType(CompI::class.java) }
+        val modules: StructureUnitI.() -> List<ModuleI> = { if (this is ModuleI) listOf(this) else findDownByType(ModuleI::class.java) }
 
         val commands: StructureUnitI.() -> List<CommandI> = { findDownByType(CommandI::class.java) }
         val commandEnums: StructureUnitI.() -> List<EnumTypeI> = {
@@ -71,6 +71,12 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
 
         val ehController: StructureUnitI.() -> List<ControllerI> = {
             findDownByType(ControllerI::class.java).filter { it.derivedAsType().equals(DesignDerivedType.Aggregate, true) }.
+                    sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+
+
+        val httpController: StructureUnitI.() -> List<ControllerI> = {
+            findDownByType(ControllerI::class.java).filter { it.derivedAsType().equals(DesignDerivedType.Http, true) }.
                     sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
@@ -112,6 +118,11 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                 OperationI::toGoEventHandlerApplyEvent)
         contextFactory.macroController.registerMacro(OperationI::toGoEventHandlerSetup.name,
                 OperationI::toGoEventHandlerSetup)
+        contextFactory.macroController.registerMacro(OperationI::toGoHttpHandler.name,
+                OperationI::toGoHttpHandler)
+        contextFactory.macroController.registerMacro(OperationI::toGoSetupHttpHandler.name,
+                OperationI::toGoSetupHttpHandler)
+
 
         return GeneratorGroup<StructureUnitI>(listOf(
                 GeneratorGroupItems<StructureUnitI, StructureUnitI>(items = modules, generators = listOf(
@@ -171,6 +182,15 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                                                     fragments = { listOf(goTemplates.pojo()) }),
                                             ItemsFragment<StructureUnitI, EnumTypeI>(items = ehEnums,
                                                     fragments = { listOf(goTemplates.enum()) }))
+                                })
+                        ),
+                        GeneratorSimple<StructureUnitI>(
+                                contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
+                                name = "${fileNamePrefix}HttpBase", nameBuilder = itemAndTemplateNameAsGoFileName,
+                                fragments = {
+                                    listOf(
+                                            ItemsFragment<StructureUnitI, ControllerI>(items = httpController,
+                                                    fragments = { listOf(goTemplates.pojo()) }))
                                 })
                         ),
                         Generator<StructureUnitI, CompI>(

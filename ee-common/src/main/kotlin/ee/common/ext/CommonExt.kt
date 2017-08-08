@@ -157,6 +157,11 @@ fun String.toDotsAsPath(): String {
     return this.replace(".", "/")
 }
 
+fun String.toPlural(): String {
+    return "${this}s"
+}
+
+
 fun String.toConvertUmlauts(): String {
     return Umlauts.replaceUmlauts(this)
 }

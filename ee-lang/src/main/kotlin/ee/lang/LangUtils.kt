@@ -146,36 +146,36 @@ fun p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): A
 
 fun p(name: AttributeI, init: AttributeI.() -> Unit = {}): AttributeI = name.derive(init)
 
-fun CompilationUnit.propS(value: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+fun CompilationUnitI.propS(adapt: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
     type(n.String)
-    value()
+    adapt()
 }))
 
-fun CompilationUnit.propB(value: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+fun CompilationUnitI.propB(adapt: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
     type(n.Boolean)
-    value()
+    adapt()
 }))
 
-fun CompilationUnit.propI(value: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+fun CompilationUnitI.propI(adapt: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
     type(n.Int)
-    value()
+    adapt()
 }))
 
 
-fun CompilationUnit.propL(value: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+fun CompilationUnitI.propL(adapt: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
     type(n.Long)
-    value()
+    adapt()
 }))
 
-fun CompilationUnit.propF(value: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+fun CompilationUnitI.propF(adapt: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
     type(n.Float)
-    value()
+    adapt()
 }))
 
 
-fun CompilationUnit.propDT(value: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+fun CompilationUnitI.propDT(adapt: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
     type(n.Date)
-    value()
+    adapt()
 }))
 
 fun <T : TypeI> CompilationUnitI.prop(type: T): TypedAttributeI<T> {

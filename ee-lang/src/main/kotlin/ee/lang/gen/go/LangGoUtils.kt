@@ -23,8 +23,20 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         val Context = ExternalType({ ifc(true) })
     }
 
+    object net : StructureUnit({ namespace("net") }) {
+        object http : StructureUnit() {
+            val ResponseWriter = ExternalType({ ifc(true) })
+            val Request = ExternalType()
+        }
+    }
+
+    object mux : StructureUnit({ namespace("github.com.gorilla.mux") }) {
+        object Router : ExternalType() {
+        }
+    }
+
     //common libs
-    object gee : StructureUnit({ namespace("github.com/eugeis/gee") }) {
+    object gee : StructureUnit({ namespace("github.com.eugeis.gee") }) {
         object enum : StructureUnit() {
             val Literal = ExternalType()
         }
