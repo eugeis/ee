@@ -113,9 +113,9 @@ open class ${c.n(this, derived)} : ${c.n(derivedFrom(), derived)}${(derived != a
 }
 
 fun <T : ItemI> T.toKotlinObjectTreeCompilationUnit(c: GenerationContext, derived: String = DerivedNames.DSL_TYPE): String {
-    return """    val ${c.n(this, derived)} = ${c.n(l.CompilationUnit, derived)}(${derivedFrom().isNotEMPTY().then {
-        "{ derivedFrom(${c.n(derivedFrom(), derived)}) }"
-    }})"""
+    return """    val ${c.n(this, derived)} = ${c.n(l.CompilationUnit, derived)}${derivedFrom().isNotEMPTY().then {
+        " { derivedFrom(${c.n(derivedFrom(), derived)}) }"
+    }}"""
 }
 
 fun <T : CompositeI> T.toKotlinDslObjectTree(c: GenerationContext, derived: String = DerivedNames.DSL_TYPE): String {
@@ -126,7 +126,7 @@ ${items().filter { !(it.name() == "MultiHolder") }.joinSurroundIfNotEmptyToStrin
     }}
 
     object MultiHolder : CompilationUnit({ derivedFrom(Item) }) {
-        val T = G({ type(Item) })
+        val T = G { type(Item) }
     }
 }"""
 }
