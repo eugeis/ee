@@ -23,6 +23,12 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                     val counters = findDownByType(CountByI::class.java)
                     val exists = findDownByType(ExistByI::class.java)
 
+                    val creaters = findDownByType(CreateByI::class.java)
+                    val updaters = findDownByType(UpdateByI::class.java)
+                    val deleters = findDownByType(DeleteByI::class.java)
+
+                    val bussinesCommands = findDownByType(BussinesCommandI::class.java)
+
                     //command handler
                     val commands = item.findDownByType(CommandI::class.java)
                     val commandHandler = controller {
@@ -98,49 +104,97 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 macros(CompilationUnitI::toGoAggregateInitializer.name)
                             })
 
+                    val httpQueryHandler = controller {
+                        name(DesignDerivedType.HttpQueryHandler).derivedAsType(DesignDerivedType.Http)
 
-                    val httpHandler = controller {
-                        name(DesignDerivedType.HttpHandler).derivedAsType(DesignDerivedType.Http)
+                        //queries
+                        finders.forEach {
+                            op {
+                                name(it.name().capitalize())
+                                p("w", g.net.http.ResponseWriter)
+                                p("r", g.net.http.Request)
+                                macros(OperationI::toGoHttpHandler.name)
+                            }
+                        }
+
+                        counters.forEach {
+                            op {
+                                name(it.name().capitalize())
+                                p("w", g.net.http.ResponseWriter)
+                                p("r", g.net.http.Request)
+                                macros(OperationI::toGoHttpHandler.name)
+                            }
+                        }
+
+                        exists.forEach {
+                            op {
+                                name(it.name().capitalize())
+                                p("w", g.net.http.ResponseWriter)
+                                p("r", g.net.http.Request)
+                                macros(OperationI::toGoHttpHandler.name)
+                            }
+                        }
+
+                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+                    }
+
+                    val httpCommandHandler = controller {
+                        name(DesignDerivedType.HttpCommandHandler).derivedAsType(DesignDerivedType.Http)
+
+                        //commands
+                        creaters.forEach {
+                            op {
+                                name(it.name().capitalize())
+                                p("w", g.net.http.ResponseWriter)
+                                p("r", g.net.http.Request)
+                                macros(OperationI::toGoHttpHandler.name)
+                            }
+                        }
+
+                        updaters.forEach {
+                            op {
+                                name(it.name().capitalize())
+                                p("w", g.net.http.ResponseWriter)
+                                p("r", g.net.http.Request)
+                                macros(OperationI::toGoHttpHandler.name)
+                            }
+                        }
+
+                        deleters.forEach {
+                            op {
+                                name(it.name().capitalize())
+                                p("w", g.net.http.ResponseWriter)
+                                p("r", g.net.http.Request)
+                                macros(OperationI::toGoHttpHandler.name)
+                            }
+                        }
+
+                        bussinesCommands.forEach {
+                            op {
+                                name(it.name().capitalize())
+                                p("w", g.net.http.ResponseWriter)
+                                p("r", g.net.http.Request)
+                                macros(OperationI::toGoHttpHandler.name)
+                            }
+                        }
+
+                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+                    }
+
+                    val httpRouter = controller {
+                        name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
                         prop { type(g.mux.Router).name("Router") }
                         propS { name("PathPrefix") }
+                        prop { type(httpQueryHandler).name("QueryHandler") }
+                        prop { type(httpCommandHandler).name("CommandHandler") }
 
                         op {
                             name("Setup")
                             ret(g.error)
                             macros(OperationI::toGoSetupHttpHandler.name)
                         }
-
-                        op {
-                            name("${item.name().toPlural().capitalize()}${DesignDerivedKind.HttpGet}")
-                            p("w", g.net.http.ResponseWriter)
-                            p("r", g.net.http.Request)
-                            macros(OperationI::toGoHttpHandler.name)
-                        }
-
-                        op {
-                            name("${item.name().toPlural().toDotsAsPath().capitalize()}${DesignDerivedKind.HttpPost}")
-                            p("w", g.net.http.ResponseWriter)
-                            p("r", g.net.http.Request)
-                            macros(OperationI::toGoHttpHandler.name)
-                        }
-
-                        op {
-                            name("${item.name().toPlural().capitalize()}${DesignDerivedKind.HttpPut}")
-                            p("w", g.net.http.ResponseWriter)
-                            p("r", g.net.http.Request)
-                            macros(OperationI::toGoHttpHandler.name)
-                        }
-
-                        op {
-                            name("${item.name().toPlural().capitalize()}${DesignDerivedKind.HttpDelete}")
-                            p("w", g.net.http.ResponseWriter)
-                            p("r", g.net.http.Request)
-                            macros(OperationI::toGoHttpHandler.name)
-                        }
-
                         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                     }
-
                 }
 
             }

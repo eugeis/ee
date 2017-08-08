@@ -48,7 +48,15 @@ fun <T : OperationI> T.toGoHttpHandler(c: GenerationContext,
 fun <T : OperationI> T.toGoSetupHttpHandler(c: GenerationContext,
                                        derived: String = DesignDerivedKind.IMPL,
                                        api: String = DesignDerivedKind.API): String {
-    return """
+    val finders = findDownByType(FindBy::class.java)
+    val counters = findDownByType(CountByI::class.java)
+    val exists = findDownByType(ExistByI::class.java)
+
+    return """${finders.joinSurroundIfNotEmptyToString("") { """
+    o.Router.Methods("GET").Path(route.Pattern).
+			Name(route.Name).
+			Handler(handler)
+""" }}
     return
     """
 }
