@@ -48,10 +48,10 @@ fun <T : CommandI> T.toGoStoreEvent(c: GenerationContext,
 }
 
 fun <T : EventI> T.toGoApplyEvent(c: GenerationContext): String {
-    return """${props().joinSurroundIfNotEmptyToString("") { prop ->
+    return props().joinSurroundIfNotEmptyToString("") { prop ->
         """
                 entity.${prop.name().capitalize()} = event.${prop.name().capitalize()}"""
-    }}"""
+    }
 }
 
 fun <T : OperationI> T.toGoCommandHandlerSetup(c: GenerationContext,
@@ -205,7 +205,7 @@ fun <T : CompilationUnitI> T.toGoEventhorizonInitializer(c: GenerationContext,
                                                          api: String = DesignDerivedKind.API): String {
     val name = c.n(this, api)
     val module = findParentMust(ModuleI::class.java)
-    val entities = module.entities().filter { it.belongsToAggregate().isNotEMPTY() }
+    val entities = module.entities().filter { it.belongsToAggregate().isEMPTY() }
     return """
 func New${name}(
 	eventStore ${c.n(g.eh.EventStore)}, eventBus ${c.n(g.eh.EventBus, api)}, eventPublisher ${c.n(g.eh.EventPublisher)},
