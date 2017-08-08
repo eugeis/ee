@@ -133,10 +133,12 @@ open class GoContext : GenerationContext {
     val namespaceLastPart: String
 
     constructor(namespace: String = "", moduleFolder: String = "",
-                genFolder: String = "src-gen/main/go", genFolderDeletable: Boolean = true,
+                genFolder: String = "src/main/go",
+                genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.go".toRegex(),
                 derivedController: DerivedController = DerivedController(DerivedStorage<ItemI>()),
                 macroController: MacroController = MacroController())
-            : super(namespace, moduleFolder, genFolder, genFolderDeletable, derivedController, macroController) {
+            : super(namespace, moduleFolder, genFolder, genFolderDeletable, genFolderPatternDeletable,
+            derivedController, macroController) {
         namespaceLastPart = namespace.substringAfterLast(".")
     }
 

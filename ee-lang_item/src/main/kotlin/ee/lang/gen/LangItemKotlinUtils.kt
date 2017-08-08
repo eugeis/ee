@@ -6,9 +6,10 @@ import ee.lang.*
 open class KotlinContext : GenerationContext {
 
     constructor(namespace: String = "", moduleFolder: String = "",
-                genFolder: String = "src-gen/main/kotlin", genFolderDeletable: Boolean = true,
+                genFolder: String = "src-gen/main/kotlin",
+                genFolderDeletable: Boolean = true, genFolderDeletePattern: Regex? = null,
                 derivedController: DerivedController = DerivedController(DerivedStorage<ItemI>()))
-            : super(namespace, moduleFolder, genFolder, genFolderDeletable, derivedController)
+            : super(namespace, moduleFolder, genFolder, genFolderDeletable, genFolderDeletePattern, derivedController)
 
     override fun complete(content: String, indent: String): String {
         return "${toHeader(indent)}${toPackage(indent)}${toImports(indent)}$content${toFooter(indent)}"

@@ -41,7 +41,7 @@ open class GeneratorGroupItems<M, I> : GeneratorI<M> {
     val generators: Collection<GeneratorI<I>>
     val items: M.() -> Collection<I>
 
-    constructor(generators: Collection<GeneratorI<I>>, items: M.() -> Collection<I>)  {
+    constructor(generators: Collection<GeneratorI<I>>, items: M.() -> Collection<I>) {
         this.generators = generators
         this.items = items
     }
@@ -81,7 +81,11 @@ abstract class GeneratorBase<M> : GeneratorI<M> {
         if (c.genFolderDeletable) {
             val module = target.resolve(c.moduleFolder)
             val folder = module.resolve(c.genFolder)
-            folder.deleteRecursively()
+            folder.deleteFilesRecursively()
+        } else if(c.genFolderDeletePattern != null) {
+            val module = target.resolve(c.moduleFolder)
+            val folder = module.resolve(c.genFolder)
+            folder.deleteFilesRecursively(c.genFolderDeletePattern)
         }
     }
 }
@@ -243,28 +247,31 @@ open class ItemsTemplate<M, I> : ItemsFragment<M, I>, TemplateI<M> {
 
 
 open class GenerationContext : Cloneable {
-    var namespace: String
+    val namespace: String
 
-    var moduleFolder: String
-    var genFolder: String
-    var genFolderDeletable: Boolean
+    val moduleFolder: String
+    val genFolder: String
+    val genFolderDeletable: Boolean
+    val genFolderDeletePattern: Regex?
 
     var header: String = ""
     var footer: String = ""
 
-    var derivedController: DerivedController
-    var macroController: MacroController
+    val derivedController: DerivedController
+    val macroController: MacroController
 
     val types: MutableSet<ItemI> = hashSetOf()
 
     constructor(namespace: String = "",
-                moduleFolder: String = "", genFolder: String = "", genFolderDeletable: Boolean = false,
+                moduleFolder: String = "", genFolder: String = "",
+                genFolderDeletable: Boolean = false, genFolderDeletePattern: Regex? = null,
                 derivedController: DerivedController = DerivedController(DerivedStorage<ItemI>()),
                 macroController: MacroController = MacroController()) {
         this.namespace = namespace
         this.moduleFolder = moduleFolder
         this.genFolder = genFolder
         this.genFolderDeletable = genFolderDeletable
+        this.genFolderDeletePattern = genFolderDeletePattern
         this.derivedController = derivedController
         this.macroController = macroController
     }

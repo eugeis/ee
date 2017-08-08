@@ -1,7 +1,7 @@
 package ee.system
 
 import ee.common.ext.copyRecursively
-import ee.common.ext.deleteRecursively
+import ee.common.ext.deleteFilesRecursively
 import java.nio.file.Path
 
 open class ServiceController<T : Service> : ServiceControllerBase<T> {
@@ -36,11 +36,11 @@ open class ServiceController<T : Service> : ServiceControllerBase<T> {
     }
 
     override fun deleteLogs() {
-        collectLogs().forEach(Path::deleteRecursively)
+        collectLogs().forEach(Path::deleteFilesRecursively)
     }
 
     override fun deleteOpsData() {
-        collectOpsData().forEach(Path::deleteRecursively)
+        collectOpsData().forEach(Path::deleteFilesRecursively)
     }
 
     protected fun collectLogs(): List<Path> {

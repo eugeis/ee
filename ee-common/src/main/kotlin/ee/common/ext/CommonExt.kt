@@ -268,8 +268,14 @@ fun Path.deleteIfExists() {
     Files.deleteIfExists(this)
 }
 
-fun Path.deleteRecursively() {
+fun Path.deleteFilesRecursively() {
     toFile().deleteRecursively()
+}
+
+fun Path.deleteFilesRecursively(pattern: Regex) {
+    toFile().walkTopDown().filter {
+        !it.isDirectory && pattern.matches(it.name)
+    }.forEach { it.delete() }
 }
 
 fun Path.copyRecursively(target: Path) {
@@ -384,14 +390,14 @@ fun Boolean?.notSetOrTrue(): Boolean = this == null || this
 
 //map
 fun <K, T> Map<K, Collection<T>>.joinSurroundIfNotEmptyToString(separator: CharSequence = ", ",
-                                                    prefix: CharSequence = "", postfix: CharSequence = "",
-                                                    emptyString: String = "", transform: ((K, T) -> CharSequence)? = null): String {
+                                                                prefix: CharSequence = "", postfix: CharSequence = "",
+                                                                emptyString: String = "", transform: ((K, T) -> CharSequence)? = null): String {
     return joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
 }
 
 fun <K, T, A : Appendable> Map<K, Collection<T>>.joinSurroundIfNotEmptyTo(buffer: A, separator: CharSequence = ", ",
-                                                              prefix: CharSequence = "", postfix: CharSequence = "",
-                                                              emptyString: String = "", transform: ((K, T) -> CharSequence)? = null): A {
+                                                                          prefix: CharSequence = "", postfix: CharSequence = "",
+                                                                          emptyString: String = "", transform: ((K, T) -> CharSequence)? = null): A {
     if (size > 0) {
         buffer.append(prefix)
         var count = 0
