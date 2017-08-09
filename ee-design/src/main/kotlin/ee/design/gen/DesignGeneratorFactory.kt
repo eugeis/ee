@@ -120,9 +120,10 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                 OperationI::toGoEventHandlerSetup)
         contextFactory.macroController.registerMacro(OperationI::toGoHttpHandler.name,
                 OperationI::toGoHttpHandler)
-        contextFactory.macroController.registerMacro(OperationI::toGoSetupHttpHandler.name,
-                OperationI::toGoSetupHttpHandler)
-
+        contextFactory.macroController.registerMacro(OperationI::toGoSetupHttpRouter.name,
+                OperationI::toGoSetupHttpRouter)
+        contextFactory.macroController.registerMacro(OperationI::toGoSetupModuleHttpRouter.name,
+                OperationI::toGoSetupModuleHttpRouter)
 
         return GeneratorGroup<StructureUnitI>(listOf(
                 GeneratorGroupItems<StructureUnitI, StructureUnitI>(items = modules, generators = listOf(

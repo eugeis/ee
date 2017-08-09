@@ -1,6 +1,5 @@
 package ee.design.gen.go
 
-import ee.common.ext.toDotsAsPath
 import ee.common.ext.toPlural
 import ee.design.*
 import ee.lang.*
@@ -15,7 +14,8 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
         it.findParentMust(ModuleI::class.java)
     }.forEach { module, items ->
         module.extend {
-            val initializer = arrayListOf<ControllerI>()
+            val aggregateInitializer = arrayListOf<ControllerI>()
+            val httpRouters = arrayListOf<ControllerI>()
             items.forEach { item ->
                 item.extend {
 
@@ -93,8 +93,8 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                     }
 
-                    initializer.add(
-                            //initializer
+                    aggregateInitializer.add(
+                            //aggregateInitializer
                             controller {
                                 name(DesignDerivedType.AggregateInitializer).derivedAsType(DesignDerivedType.Aggregate)
                                 prop { type(g.gee.eh.AggregateInitializer).anonymous(true).name("AggregateInitializer") }
@@ -181,20 +181,26 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                     }
 
-                    val httpRouter = controller {
-                        name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
-                        prop { type(g.mux.Router).name("Router") }
-                        propS { name("PathPrefix") }
-                        prop { type(httpQueryHandler).name("QueryHandler") }
-                        prop { type(httpCommandHandler).name("CommandHandler") }
+                    httpRouters.add(
+                            controller {
+                                name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
+                                val pathPrefix = propS { name("PathPrefix") }
+                                val router = prop { type(g.mux.Router).name("Router") }
+                                val queryHandler = prop { type(httpQueryHandler).name("QueryHandler") }
+                                val commandHandler = prop { type(httpCommandHandler).name("CommandHandler") }
 
-                        op {
-                            name("Setup")
-                            ret(g.error)
-                            macros(OperationI::toGoSetupHttpHandler.name)
-                        }
-                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                    }
+                                op {
+                                    name("Setup")
+                                    ret(g.error)
+                                    macros(OperationI::toGoSetupHttpRouter.name)
+                                }
+                                constr {
+                                    name("New${item.name().capitalize()}${DesignDerivedType.HttpRouter}")
+                                    params(p(pathPrefix, { default(true).value("${item.name().toPlural()}") }), router,
+                                            p(queryHandler, { default(true) }), p(commandHandler, { default(true) }))
+                                }
+                            }
+                    )
                 }
 
             }
@@ -205,14 +211,30 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                 prop { type(g.eh.EventBus).replaceable(false).name("eventBus") }
                 prop { type(g.eh.EventPublisher).replaceable(false).name("eventPublisher") }
                 prop { type(g.eh.CommandBus).replaceable(false).name("commandBus") }
-                initializer.forEach { item ->
+                aggregateInitializer.forEach { item ->
                     prop {
-                        type(item).replaceable(true).default(true).
-                                name("${item.parent().name()}${item.name().capitalize()}")
+                        type(item).name("${item.parent().name()}${item.name().capitalize()}")
                     }
                 }
                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                 macros(CompilationUnitI::toGoEventhorizonInitializer.name)
+            }
+
+            controller {
+                name("${module.name().capitalize()}${DesignDerivedType.HttpRouter}").derivedAsType(DesignDerivedType.Http)
+                prop { type(g.mux.Router).name("Router") }
+                propS { name("PathPrefix") }
+                httpRouters.forEach { item ->
+                    prop {
+                        type(item).name("${item.parent().name()}${item.name().capitalize()}")
+                    }
+                }
+                op {
+                    name("Setup")
+                    ret(g.error)
+                    macros(OperationI::toGoSetupModuleHttpRouter.name)
+                }
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             }
         }
     }

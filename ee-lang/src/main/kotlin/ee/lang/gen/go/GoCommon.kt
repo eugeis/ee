@@ -3,7 +3,6 @@ package ee.lang.gen.go
 import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
-import ee.lang.gen.swagger.*
 
 fun AttributeI.toGoInit(): String {
     return """${this.name()}: ${this.value()}"""
@@ -13,13 +12,71 @@ fun TypeI.toGoCall(c: GenerationContext, api: String): String {
     return c.n(this, api).substringAfterLast(".")
 }
 
-fun AttributeI.toGoInitCall(c: GenerationContext, api: String): String {
-    return "${anonymous().ifElse({ type().toGoCall(c, api) }, { nameForMember() })}: ${
-    (default() || anonymous()).ifElse({ type().primaryOrFirstConstructor().toGoCall(c, api, api) }, { name() })}"
+fun <T : AttributeI> T.toGoDefault(c: GenerationContext, derived: String): String {
+    return nullable().ifElse({ "nil" }, { type().toGoDefault(c, derived, this) })
+}
+
+fun <T : AttributeI> T.toGoValue(c: GenerationContext, derived: String): String {
+    if (value() != null) {
+        return when (type()) {
+            n.String, n.Text -> "\"${value()}\""
+            n.Boolean, n.Int, n.Long, n.Float, n.Date, n.Path, n.Blob, n.Void -> "${value()}"
+            else -> {
+                if (value() is Literal) {
+                    val lit = value() as Literal
+                    "${(lit.parent() as EnumTypeI).toGo(c, derived)}.${lit.toGo()}"
+                } else {
+                    "${value()}"
+                }
+            }
+        }
+    } else {
+        return toGoDefault(c, derived)
+    }
+}
+
+fun AttributeI.toGoInitCall(c: GenerationContext, derived: String): String {
+    val name = "${anonymous().ifElse({ type().toGoCall(c, derived) }, { nameForMember() })}:"
+    return name + if (default() || value() != null || anonymous()) {
+        toGoValue(c, derived)
+    } else {
+        name()
+    }
 }
 
 fun <T : AttributeI> T.toGoTypeDef(c: GenerationContext, api: String): String {
     return "${type().toGo(c, api)}${toGoMacros(c, api, api)}"
+}
+
+fun <T : TypeI> T.toGoDefault(c: GenerationContext, derived: String, attr: AttributeI): String {
+    val baseType = findDerivedOrThis()
+    return when (baseType) {
+        n.String, n.Text -> "\"\""
+        n.Boolean -> "false"
+        n.Int -> "0"
+        n.Long -> "0L"
+        n.Float -> "0f"
+        n.Date -> "${c.n(j.util.Date)}()"
+        n.Path -> "${c.n(j.nio.file.Paths)}.get(\"\")"
+        n.Blob -> "ByteArray(0)"
+        n.Void -> ""
+        n.Error -> "Throwable()"
+        n.Exception -> "Exception()"
+        n.Url -> "${c.n(j.net.URL)}(\"\")"
+        n.Map -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
+        n.List -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("arrayListOf()", "arrayListOf()")
+        else -> {
+            if (baseType is Literal) {
+                "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI).toGo(c, derived)}.${baseType.toGo()}"
+            } else if (baseType is EnumTypeI) {
+                "${c.n(this, derived)}.${baseType.literals().first().toGo()}"
+            } else if (baseType is CompilationUnitI) {
+                primaryOrFirstConstructor().toGoCall(c, derived, derived)
+            } else {
+                (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
+            }
+        }
+    }
 }
 
 fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String): String? {
@@ -90,7 +147,7 @@ func ${c.n(this, derived)}(${nonDefaultParams.joinWrappedToString(", ", "       
     }
     }) (ret *$name) {
     ret = &$name{${params().joinSurroundIfNotEmptyToString(
-            ",$nL        ", "$nL        ", ",$nL    ") { it.toGoInitCall(c, api) }}}${
+            ",$nL        ", "$nL        ", ",$nL    ") { it.toGoInitCall(c, derived) }}}${
     toGoMacros(c, api, api)}
     return
 }""" else ""
