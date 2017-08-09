@@ -38,25 +38,49 @@ fun <T : OperationI> T.toGoCommandHandlerExecuteCommand(c: GenerationContext,
 }
 
 fun <T : OperationI> T.toGoHttpHandler(c: GenerationContext,
-                                                        derived: String = DesignDerivedKind.IMPL,
-                                                        api: String = DesignDerivedKind.API): String {
+                                       derived: String = DesignDerivedKind.IMPL,
+                                       api: String = DesignDerivedKind.API): String {
     return """
     return
     """
 }
 
 fun <T : OperationI> T.toGoSetupHttpHandler(c: GenerationContext,
-                                       derived: String = DesignDerivedKind.IMPL,
-                                       api: String = DesignDerivedKind.API): String {
-    val finders = findDownByType(FindBy::class.java)
-    val counters = findDownByType(CountByI::class.java)
-    val exists = findDownByType(ExistByI::class.java)
+                                            derived: String = DesignDerivedKind.IMPL,
+                                            api: String = DesignDerivedKind.API): String {
+    val entity = findParentMust(EntityI::class.java)
+    val finders = entity.findDownByType(FindBy::class.java)
+    val counters = entity.findDownByType(CountByI::class.java)
+    val exists = entity.findDownByType(ExistByI::class.java)
+    val creaters = entity.findDownByType(CreateByI::class.java)
+    val updaters = entity.findDownByType(UpdateByI::class.java)
+    val deleters = entity.findDownByType(DeleteByI::class.java)
 
-    return """${finders.joinSurroundIfNotEmptyToString("") { """
-    o.Router.Methods("GET").Path(route.Pattern).
-			Name(route.Name).
-			Handler(handler)
-""" }}
+    return """${finders.joinSurroundIfNotEmptyToString("") {
+        """
+    o.Router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix).Name("${
+        it.name().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()})"""
+    }}${counters.joinSurroundIfNotEmptyToString("") {
+        """
+    o.Router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix).Name("${
+        it.name().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()})"""
+    }}${exists.joinSurroundIfNotEmptyToString("") {
+        """
+    o.Router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix).Name("${
+        it.name().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()})"""
+    }}${creaters.joinSurroundIfNotEmptyToString("") {
+        """
+    o.Router.Methods(${c.n(g.gee.net.POST, api)}).PathPrefix(o.PathPrefix).Name("${
+        it.name().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
+    }}${updaters.joinSurroundIfNotEmptyToString("") {
+        """
+    o.Router.Methods(${c.n(g.gee.net.PUT, api)}).PathPrefix(o.PathPrefix).Name("${
+        it.name().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
+    }}${deleters.joinSurroundIfNotEmptyToString("") {
+        """
+    o.Router.Methods(${c.n(g.gee.net.DELETE, api)}).PathPrefix(o.PathPrefix).Name("${
+        it.name().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
+    }}
     return
     """
 }

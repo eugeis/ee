@@ -41,6 +41,13 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             val Literal = ExternalType()
         }
 
+        object net : StructureUnit() {
+            val GET = ExternalType()
+            val POST = ExternalType()
+            val PUT = ExternalType()
+            val DELETE = ExternalType()
+        }
+
         object eh : StructureUnit() {
             object AggregateInitializer : ExternalType() {
                 val RegisterForAllEvents = Operation()
