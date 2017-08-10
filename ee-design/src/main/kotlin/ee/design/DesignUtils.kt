@@ -120,7 +120,7 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
 }
 
 fun AttributeI.setOptionalTag(): AttributeI {
-    macros(AttributeI::toGoPropOptionalTag.name)
+    macrosAfter(AttributeI::toGoPropOptionalTag.name)
     return this
 }
 

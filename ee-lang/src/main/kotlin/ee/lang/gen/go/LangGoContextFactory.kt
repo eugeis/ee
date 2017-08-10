@@ -1,6 +1,8 @@
 package ee.lang.gen.go
 
+import ee.lang.ConstructorI
 import ee.lang.DerivedController
+import ee.lang.ItemI
 import ee.lang.StructureUnitI
 
 open class LangGoContextFactory : LangCommonContextFactory() {
@@ -21,4 +23,14 @@ open class LangGoContextFactory : LangCommonContextFactory() {
             )
         }
     }
+
+    override fun ItemI.buildName(): String {
+        return if (this is ConstructorI) {
+            buildName()
+        } else {
+            name()
+        }
+    }
+
+    override fun ConstructorI.buildNameForConstructor() = "New${parent().name().capitalize()}${name().capitalize()}"
 }

@@ -98,18 +98,6 @@ fun <T : OperationI> T.toSwaggerLambda(c: GenerationContext, derived: String, in
         """func (${params().toSwaggerTypes(c, derived, indent)}) ${ret().toSwaggerType(c, derived, indent)}"""
 
 fun <T : LogicUnitI> T.toSwaggerName(): String = visible().ifElse({ name().capitalize() }, { name().decapitalize() })
-fun <T : MacroCompositeI> T.toSwaggerMacros(c: GenerationContext, derived: String, api: String): String {
-    return macros().joinToString("${nL}        ") { c.body(it, this, derived, api) }
-}
-
-fun <T : OperationI> T.toSwaggerImpl(o: String, c: GenerationContext, api: String): String {
-    return macros().isNotEmpty().then {
-        """
-func (o *$o) ${toSwaggerName()}(${params().toSwaggerSignature(c, api)}) (ret ${ret().toSwaggerTypeDef(c, api)}) {
-    ${toSwaggerMacros(c, api, api)}
-}"""
-    }
-}
 
 fun <T : CompilationUnitI> T.toSwaggerPath(c: GenerationContext,
                                            derived: String = LangDerivedKind.IMPL,

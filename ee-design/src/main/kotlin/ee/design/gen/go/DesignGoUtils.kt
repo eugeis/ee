@@ -1,6 +1,5 @@
 package ee.design.gen.go
 
-import ee.common.ext.toPlural
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
@@ -50,13 +49,13 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             p("entity", n.Any)
                             p("store", g.gee.eh.AggregateStoreEvent)
                             ret(g.error)
-                            macros(OperationI::toGoCommandHandlerExecuteCommand.name)
+                            macrosBody(OperationI::toGoCommandHandlerExecuteCommand.name)
                         }
 
                         op {
                             name("SetupCommandHandler")
                             ret(g.error)
-                            macros(OperationI::toGoCommandHandlerSetup.name)
+                            macrosBody(OperationI::toGoCommandHandlerSetup.name)
                         }
 
                         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
@@ -81,13 +80,13 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             p("event", g.eh.Event)
                             p("entity", n.Any)
                             ret(g.error)
-                            macros(OperationI::toGoEventHandlerApplyEvent.name)
+                            macrosBody(OperationI::toGoEventHandlerApplyEvent.name)
                         }
 
                         op {
                             name("SetupEventHandler")
                             ret(g.error)
-                            macros(OperationI::toGoEventHandlerSetup.name)
+                            macrosBody(OperationI::toGoEventHandlerSetup.name)
                         }
 
                         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
@@ -98,10 +97,19 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             controller {
                                 name(DesignDerivedType.AggregateInitializer).derivedAsType(DesignDerivedType.Aggregate)
                                 prop { type(g.gee.eh.AggregateInitializer).anonymous(true).name("AggregateInitializer") }
-                                prop { type(commandHandler).anonymous(true).name("CommandHandler") }
-                                prop { type(eventHandler).anonymous(true).name("EventHandler") }
-                                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                                macros(CompilationUnitI::toGoAggregateInitializer.name)
+                                val commandHandler = prop { type(commandHandler).anonymous(true).name("CommandHandler") }
+                                val eventHandler = prop { type(eventHandler).anonymous(true).name("EventHandler") }
+
+                                macrosBefore(CompilationUnitI::toGoAggregateInitializerConst.name)
+                                macrosAfter(CompilationUnitI::toGoAggregateInitializerRegisterForEvents.name)
+
+                                constr {
+                                    params(p { type(g.eh.EventStore).replaceable(false).name("eventStore") },
+                                            p { type(g.eh.EventBus).replaceable(false).name("eventBus") },
+                                            p { type(g.eh.EventPublisher).replaceable(false).name("eventPublisher") },
+                                            p { type(g.eh.CommandBus).replaceable(false).name("commandBus") })
+                                    macrosBody(ConstructorI::toGoAggregateInitializerBody.name)
+                                }
                             })
 
                     val httpQueryHandler = controller {
@@ -113,7 +121,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
-                                macros(OperationI::toGoHttpHandler.name)
+                                macrosBody(OperationI::toGoHttpHandler.name)
                             }
                         }
 
@@ -122,7 +130,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
-                                macros(OperationI::toGoHttpHandler.name)
+                                macrosBody(OperationI::toGoHttpHandler.name)
                             }
                         }
 
@@ -131,7 +139,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
-                                macros(OperationI::toGoHttpHandler.name)
+                                macrosBody(OperationI::toGoHttpHandler.name)
                             }
                         }
 
@@ -147,7 +155,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
-                                macros(OperationI::toGoHttpHandler.name)
+                                macrosBody(OperationI::toGoHttpHandler.name)
                             }
                         }
 
@@ -156,7 +164,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
-                                macros(OperationI::toGoHttpHandler.name)
+                                macrosBody(OperationI::toGoHttpHandler.name)
                             }
                         }
 
@@ -165,7 +173,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
-                                macros(OperationI::toGoHttpHandler.name)
+                                macrosBody(OperationI::toGoHttpHandler.name)
                             }
                         }
 
@@ -174,7 +182,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
-                                macros(OperationI::toGoHttpHandler.name)
+                                macrosBody(OperationI::toGoHttpHandler.name)
                             }
                         }
 
@@ -192,12 +200,12 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 op {
                                     name("Setup")
                                     ret(g.error)
-                                    macros(OperationI::toGoSetupHttpRouter.name)
+                                    macrosBody(OperationI::toGoSetupHttpRouter.name)
                                 }
                                 constr {
-                                    name("New${item.name().capitalize()}${DesignDerivedType.HttpRouter}")
-                                    params(p(pathPrefix, { default(true).value("${item.name().toPlural()}") }), router,
+                                    params(pathPrefix, router,
                                             p(queryHandler, { default(true) }), p(commandHandler, { default(true) }))
+                                    derivedAsType(LangDerivedKind.MANUAL)
                                 }
                             }
                     )
@@ -207,17 +215,25 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
             controller {
                 name("${module.name().capitalize()}${DesignDerivedType.EventhorizonInitializer}").derivedAsType(DesignDerivedType.Aggregate)
-                prop { type(g.eh.EventStore).replaceable(false).name("eventStore") }
-                prop { type(g.eh.EventBus).replaceable(false).name("eventBus") }
-                prop { type(g.eh.EventPublisher).replaceable(false).name("eventPublisher") }
-                prop { type(g.eh.CommandBus).replaceable(false).name("commandBus") }
-                aggregateInitializer.forEach { item ->
+                val eventStore = prop { type(g.eh.EventStore).replaceable(false).name("eventStore") }
+                val eventBus = prop { type(g.eh.EventBus).replaceable(false).name("eventBus") }
+                val eventPublisher = prop { type(g.eh.EventPublisher).replaceable(false).name("eventPublisher") }
+                val commandBus = prop { type(g.eh.CommandBus).replaceable(false).name("commandBus") }
+
+                val aggregateInitializerProps = aggregateInitializer.map { item ->
                     prop {
                         type(item).name("${item.parent().name()}${item.name().capitalize()}")
                     }
                 }
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                macros(CompilationUnitI::toGoEventhorizonInitializer.name)
+                constr {
+                    params(eventStore, eventBus, eventPublisher, commandBus,
+                            *aggregateInitializerProps.map { p(it, { default(true) }) }.toTypedArray())
+                }
+                op {
+                    name("Setup")
+                    ret(g.error)
+                    macrosBody(OperationI::toGoEventhorizonInitializerSetupBody.name)
+                }
             }
 
             controller {
@@ -232,7 +248,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                 op {
                     name("Setup")
                     ret(g.error)
-                    macros(OperationI::toGoSetupModuleHttpRouter.name)
+                    macrosBody(OperationI::toGoSetupModuleHttpRouter.name)
                 }
                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             }

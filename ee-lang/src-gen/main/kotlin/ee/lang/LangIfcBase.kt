@@ -122,8 +122,14 @@ interface LogicUnitI : MacroCompositeI {
 
 
 interface MacroCompositeI : CompositeI {
-    fun macros(): ListMultiHolder<String>
-    fun macros(vararg value: String): MacroCompositeI
+    fun macrosAfter(): ListMultiHolder<String>
+    fun macrosAfter(vararg value: String): MacroCompositeI
+
+    fun macrosBefore(): ListMultiHolder<String>
+    fun macrosBefore(vararg value: String): MacroCompositeI
+
+    fun macrosBody(): ListMultiHolder<String>
+    fun macrosBody(vararg value: String): MacroCompositeI
 }
 
 

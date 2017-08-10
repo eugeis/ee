@@ -242,7 +242,6 @@ fun <T : TypeI> T.constructorAllProps(adapt: ConstructorI.() -> Unit = {}): Cons
         constr {
             parent(parent)
             primary(primary).params(*constrProps.toTypedArray())
-            name("New${parent.name().capitalize()}All")
             namespace(parent.namespace())
             superUnit(parent.superUnit().primaryOrFirstConstructor())
             adapt()
@@ -259,7 +258,6 @@ fun <T : TypeI> T.constructorOwnPropsOnly(adapt: ConstructorI.() -> Unit = {}): 
         constr {
             parent(parent)
             primary(primary).params(*constrProps.toTypedArray())
-            name("New${parent.name().capitalize()}Own")
             namespace(this@constructorOwnPropsOnly.namespace())
             superUnit(parent.superUnit().primaryOrFirstConstructor())
             adapt()
@@ -275,7 +273,6 @@ fun <T : TypeI> T.constructorEmpty(adapt: ConstructorI.() -> Unit = {}): Constru
         constr {
             parent(parent)
             primary(true).params(*constrProps.toTypedArray())
-            name("New${parent.name().capitalize()}")
             namespace(parent.namespace())
             superUnit(parent.superUnit().primaryOrFirstConstructor())
             adapt()
@@ -382,3 +379,6 @@ fun <T : StructureUnitI> T.initFullNameArtifacts() {
         }
     }
 }
+
+fun <T : MacroCompositeI> T.hasMacros() = macrosBefore().isNotEmpty() ||
+        macrosBody().isNotEmpty() || macrosAfter().isNotEmpty()

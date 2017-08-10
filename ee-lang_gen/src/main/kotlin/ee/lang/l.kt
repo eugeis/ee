@@ -12,7 +12,9 @@ object l : Composite({ namespace("ee.lang") }) {
 
     //lang types
     object MacroComposite : Composite({ derivedFrom(Composite) }) {
-        val macros = AttributeI({ type(n.String).multi(true) })
+        val macrosBefore = AttributeI({ type(n.String).multi(true) })
+        val macrosBody = AttributeI({ type(n.String).multi(true) })
+        val macrosAfter = AttributeI({ type(n.String).multi(true) })
     }
 
     object Type : Composite({ derivedFrom(MacroComposite) }) {

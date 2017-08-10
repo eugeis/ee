@@ -104,10 +104,16 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
 
         contextFactory.macroController.registerMacro(OperationI::toGoAggregateInitializerRegisterCommands.name,
                 OperationI::toGoAggregateInitializerRegisterCommands)
-        contextFactory.macroController.registerMacro(CompilationUnitI::toGoAggregateInitializer.name,
-                CompilationUnitI::toGoAggregateInitializer)
-        contextFactory.macroController.registerMacro(CompilationUnitI::toGoEventhorizonInitializer.name,
-                CompilationUnitI::toGoEventhorizonInitializer)
+        contextFactory.macroController.registerMacro(CompilationUnitI::toGoAggregateInitializerConst.name,
+                CompilationUnitI::toGoAggregateInitializerConst)
+        contextFactory.macroController.registerMacro(CompilationUnitI::toGoAggregateInitializerRegisterForEvents.name,
+                CompilationUnitI::toGoAggregateInitializerRegisterForEvents)
+        contextFactory.macroController.registerMacro(ConstructorI::toGoAggregateInitializerBody.name,
+                ConstructorI::toGoAggregateInitializerBody)
+        contextFactory.macroController.registerMacro(ConstructorI::toGoEventhorizonInitializerBody.name,
+                ConstructorI::toGoEventhorizonInitializerBody)
+        contextFactory.macroController.registerMacro(OperationI::toGoEventhorizonInitializerSetupBody.name,
+                OperationI::toGoEventhorizonInitializerSetupBody)
         contextFactory.macroController.registerMacro(AttributeI::toGoPropOptionalTag.name,
                 AttributeI::toGoPropOptionalTag)
         contextFactory.macroController.registerMacro(OperationI::toGoCommandHandlerExecuteCommand.name,

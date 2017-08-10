@@ -114,10 +114,10 @@ fun <T : CompilationUnitI> T.toGoImpl(c: GenerationContext,
                                       derived: String = LangDerivedKind.IMPL,
                                       api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
-    return """
-${toGoMacros(c, api, api)}
+    return """${toGoMacrosBefore(c, api, api)}
 type $name struct {${
-    props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toGoMember(c, api) }}
+    props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toGoMember(c, api) }}${
+    toGoMacrosBody(c, api, api)}
 }${
     constructors().filter { it.derivedAsType().isEmpty() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGo(c, derived, api)
@@ -129,5 +129,5 @@ type $name struct {${
         it.toGoAddMethod(name, c, derived)
     }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGoImpl(name, c, api)
-    }}"""
+    }}${toGoMacrosAfter(c, api, api)}"""
 }

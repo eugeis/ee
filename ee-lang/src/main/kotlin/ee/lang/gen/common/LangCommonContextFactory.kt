@@ -30,4 +30,5 @@ open class LangCommonContextFactory {
     }
 
     protected open fun ItemI.buildName(): String = name()
+    protected open fun ConstructorI.buildNameForConstructor() = name()
 }
