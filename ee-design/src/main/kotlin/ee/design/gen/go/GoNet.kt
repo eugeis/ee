@@ -20,9 +20,9 @@ func (o *$name) CommandType() ${c.n(g.eh.CommandType)}      { return ${nameAndPa
 """
 }
 
-fun <T : OperationI> T.toGoSetupHttpRouter(c: GenerationContext,
-                                           derived: String = DesignDerivedKind.IMPL,
-                                           api: String = DesignDerivedKind.API): String {
+fun <T : OperationI> T.toGoSetupHttpRouterBody(c: GenerationContext,
+                                               derived: String = DesignDerivedKind.IMPL,
+                                               api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val finders = entity.findDownByType(FindBy::class.java)
     val counters = entity.findDownByType(CountByI::class.java)
@@ -55,14 +55,12 @@ fun <T : OperationI> T.toGoSetupHttpRouter(c: GenerationContext,
         """
     o.Router.Methods(${c.n(g.gee.net.DELETE, api)}).PathPrefix(o.PathPrefix).Name("${
         it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
-    }}
-    return
-    """
+    }}"""
 }
 
 fun <T : OperationI> T.toGoSetupModuleHttpRouter(c: GenerationContext,
                                                  derived: String = DesignDerivedKind.IMPL,
                                                  api: String = DesignDerivedKind.API): String {
     return """
-    return"""
+    """
 }

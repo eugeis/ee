@@ -19,9 +19,9 @@ fun <T : EntityI> T.toGoEventTypes(c: GenerationContext): String {
     }
 }
 
-fun <T : OperationI> T.toGoCommandHandlerExecuteCommand(c: GenerationContext,
-                                                        derived: String = DesignDerivedKind.IMPL,
-                                                        api: String = DesignDerivedKind.API): String {
+fun <T : OperationI> T.toGoCommandHandlerExecuteCommandBody(c: GenerationContext,
+                                                            derived: String = DesignDerivedKind.IMPL,
+                                                            api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val commands = entity.findDownByType(CommandI::class.java)
     return """
@@ -32,17 +32,13 @@ fun <T : OperationI> T.toGoCommandHandlerExecuteCommand(c: GenerationContext,
     }}
     default:
 		ret = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("Not supported command type '%v' for entity '%v", cmd.CommandType(), entity))
-	}
-    return
-    """
+	}"""
 }
 
-fun <T : OperationI> T.toGoHttpHandler(c: GenerationContext,
-                                       derived: String = DesignDerivedKind.IMPL,
-                                       api: String = DesignDerivedKind.API): String {
-    return """
-    return
-    """
+fun <T : OperationI> T.toGoHttpHandlerBody(c: GenerationContext,
+                                           derived: String = DesignDerivedKind.IMPL,
+                                           api: String = DesignDerivedKind.API): String {
+    return """"""
 }
 
 fun <T : CommandI> T.toGoStoreEvent(c: GenerationContext,
@@ -62,12 +58,12 @@ fun <T : EventI> T.toGoApplyEvent(c: GenerationContext): String {
     }
 }
 
-fun <T : OperationI> T.toGoCommandHandlerSetup(c: GenerationContext,
-                                               derived: String = DesignDerivedKind.IMPL,
-                                               api: String = DesignDerivedKind.API): String {
+fun <T : OperationI> T.toGoCommandHandlerSetupBody(c: GenerationContext,
+                                                   derived: String = DesignDerivedKind.IMPL,
+                                                   api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val commands = entity.findDownByType(CommandI::class.java)
-    return """${commands.joinSurroundIfNotEmptyToString("") { item ->
+    return commands.joinSurroundIfNotEmptyToString("") { item ->
         val handler = "${item.name().capitalize()}${DesignDerivedType.Handler}"
         """
     if o.$handler == nil {
@@ -96,9 +92,7 @@ fun <T : OperationI> T.toGoCommandHandlerSetup(c: GenerationContext,
         }
     }
     """
-    }}
-    return
-    """
+    }
 }
 
 
@@ -115,17 +109,15 @@ fun <T : OperationI> T.toGoEventHandlerApplyEvent(c: GenerationContext,
     }}
     default:
 		ret = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("Not supported event type '%v' for entity '%v", event.EventType(), entity))
-	}
-    return
-    """
+	}"""
 }
 
-fun <T : OperationI> T.toGoEventHandlerSetup(c: GenerationContext,
-                                             derived: String = DesignDerivedKind.IMPL,
-                                             api: String = DesignDerivedKind.API): String {
+fun <T : OperationI> T.toGoEventHandlerSetupBody(c: GenerationContext,
+                                                 derived: String = DesignDerivedKind.IMPL,
+                                                 api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val events = entity.findDownByType(EventI::class.java)
-    return """${events.joinSurroundIfNotEmptyToString("") { item ->
+    return events.joinSurroundIfNotEmptyToString("") { item ->
         val handler = "${item.name().capitalize()}${DesignDerivedType.Handler}"
         """
     if o.$handler == nil {
@@ -167,9 +159,7 @@ fun <T : OperationI> T.toGoEventHandlerSetup(c: GenerationContext,
         }
     }
     """
-    }}
-    return
-    """
+    }
 }
 
 fun <T : CompilationUnitI> T.toGoAggregateInitializerConst(c: GenerationContext,

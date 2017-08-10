@@ -116,18 +116,18 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                 OperationI::toGoEventhorizonInitializerSetupBody)
         contextFactory.macroController.registerMacro(AttributeI::toGoPropOptionalTag.name,
                 AttributeI::toGoPropOptionalTag)
-        contextFactory.macroController.registerMacro(OperationI::toGoCommandHandlerExecuteCommand.name,
-                OperationI::toGoCommandHandlerExecuteCommand)
-        contextFactory.macroController.registerMacro(OperationI::toGoCommandHandlerSetup.name,
-                OperationI::toGoCommandHandlerSetup)
+        contextFactory.macroController.registerMacro(OperationI::toGoCommandHandlerExecuteCommandBody.name,
+                OperationI::toGoCommandHandlerExecuteCommandBody)
+        contextFactory.macroController.registerMacro(OperationI::toGoCommandHandlerSetupBody.name,
+                OperationI::toGoCommandHandlerSetupBody)
         contextFactory.macroController.registerMacro(OperationI::toGoEventHandlerApplyEvent.name,
                 OperationI::toGoEventHandlerApplyEvent)
-        contextFactory.macroController.registerMacro(OperationI::toGoEventHandlerSetup.name,
-                OperationI::toGoEventHandlerSetup)
-        contextFactory.macroController.registerMacro(OperationI::toGoHttpHandler.name,
-                OperationI::toGoHttpHandler)
-        contextFactory.macroController.registerMacro(OperationI::toGoSetupHttpRouter.name,
-                OperationI::toGoSetupHttpRouter)
+        contextFactory.macroController.registerMacro(OperationI::toGoEventHandlerSetupBody.name,
+                OperationI::toGoEventHandlerSetupBody)
+        contextFactory.macroController.registerMacro(OperationI::toGoHttpHandlerBody.name,
+                OperationI::toGoHttpHandlerBody)
+        contextFactory.macroController.registerMacro(OperationI::toGoSetupHttpRouterBody.name,
+                OperationI::toGoSetupHttpRouterBody)
         contextFactory.macroController.registerMacro(OperationI::toGoSetupModuleHttpRouter.name,
                 OperationI::toGoSetupModuleHttpRouter)
 

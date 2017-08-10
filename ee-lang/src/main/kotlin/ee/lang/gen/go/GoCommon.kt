@@ -196,8 +196,9 @@ fun <T : OperationI> T.toGoImpl(o: String, c: GenerationContext, api: String): S
         """
 func (o *$o) ${toGoName()}(${params().toGoSignature(c, api)}) ${
         ret().isNotEMPTY().then { "(ret ${ret().toGoTypeDef(c, api)})" }} {${
-        toGoMacrosAfter(c, api, api)}${toGoMacrosBody(c, api, api)}${toGoMacrosAfter(c, api, api)}
-    return
+        toGoMacrosAfter(c, api, api)}${toGoMacrosBody(c, api, api)}${toGoMacrosAfter(c, api, api)}${
+        ret().isNotEMPTY().then { """
+    return""" }}
 }"""
     }
 }
