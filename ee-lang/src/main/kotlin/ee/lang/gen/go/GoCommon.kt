@@ -4,6 +4,27 @@ import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
 
+
+fun <T : MacroCompositeI> T.toGoMacrosBefore(c: GenerationContext, derived: String, api: String): String {
+    return macrosBefore().joinToString("$nL        ") { c.body(it, this, derived, api) }
+}
+
+fun <T : MacroCompositeI> T.toGoMacrosBeforeBody(c: GenerationContext, derived: String, api: String): String {
+    return macrosBeforeBody().joinToString("$nL        ") { c.body(it, this, derived, api) }
+}
+
+fun <T : MacroCompositeI> T.toGoMacrosBody(c: GenerationContext, derived: String, api: String): String {
+    return macrosBody().joinToString("$nL        ") { c.body(it, this, derived, api) }
+}
+
+fun <T : MacroCompositeI> T.toGoMacrosAfterBody(c: GenerationContext, derived: String, api: String): String {
+    return macrosAfterBody().joinToString("$nL        ") { c.body(it, this, derived, api) }
+}
+
+fun <T : MacroCompositeI> T.toGoMacrosAfter(c: GenerationContext, derived: String, api: String): String {
+    return macrosAfter().joinToString("$nL        ") { c.body(it, this, derived, api) }
+}
+
 fun AttributeI.toGoInit(): String {
     return """${this.name()}: ${this.value()}"""
 }
@@ -45,7 +66,7 @@ fun AttributeI.toGoInitCall(c: GenerationContext, derived: String): String {
 }
 
 fun <T : AttributeI> T.toGoTypeDef(c: GenerationContext, api: String): String {
-    return "${type().toGo(c, api)}${toGoMacrosAfter(c, api, api)}"
+    return "${type().toGo(c, api)}${toGoMacrosAfterBody(c, api, api)}"
 }
 
 fun <T : TypeI> T.toGoDefault(c: GenerationContext, derived: String, attr: AttributeI): String {
@@ -145,16 +166,16 @@ fun <T : ConstructorI> T.toGo(c: GenerationContext, derived: String, api: String
 func ${c.n(this, derived)}(${nonDefaultParams.joinWrappedToString(", ", "                ") {
         it.toGoSignature(c, api)
     }
-    }) (ret *$name) {${toGoMacrosBefore(c, api, api)}${macrosBody().isNotEmpty().ifElse({
+    }) (ret *$name) {${toGoMacrosBeforeBody(c, derived, api)}${macrosBody().isNotEmpty().ifElse({
         """
     ${toGoMacrosBody(c, derived, api)}"""
     }, {
         """
     ret = &$name{${params().joinSurroundIfNotEmptyToString(
                 ",$nL        ", "$nL        ", ",$nL    ") { it.toGoInitCall(c, derived) }}}"""
-    })}${toGoMacrosAfter(c, derived, api)}
+    })}${toGoMacrosAfterBody(c, derived, api)}
     return
-}""" else ""
+}${toGoMacrosAfter(c, derived, api)}""" else ""
 }
 
 fun <T : AttributeI> T.toGoAssign(o: String): String {
@@ -178,27 +199,16 @@ fun <T : OperationI> T.toGoLambda(c: GenerationContext, derived: String): String
 
 fun <T : LogicUnitI> T.toGoName(): String = visible().ifElse({ name().capitalize() }, { name().decapitalize() })
 
-fun <T : MacroCompositeI> T.toGoMacrosBefore(c: GenerationContext, derived: String, api: String): String {
-    return macrosBefore().joinToString("$nL        ") { c.body(it, this, derived, api) }
-}
-
-fun <T : MacroCompositeI> T.toGoMacrosBody(c: GenerationContext, derived: String, api: String): String {
-    return macrosBody().joinToString("$nL        ") { c.body(it, this, derived, api) }
-}
-
-fun <T : MacroCompositeI> T.toGoMacrosAfter(c: GenerationContext, derived: String, api: String): String {
-    return macrosAfter().joinToString("$nL        ") { c.body(it, this, derived, api) }
-}
-
-
 fun <T : OperationI> T.toGoImpl(o: String, c: GenerationContext, api: String): String {
     return hasMacros().then {
-        """
+        """${toGoMacrosBefore(c, api, api)}
 func (o *$o) ${toGoName()}(${params().toGoSignature(c, api)}) ${
         ret().isNotEMPTY().then { "(ret ${ret().toGoTypeDef(c, api)})" }} {${
-        toGoMacrosAfter(c, api, api)}${toGoMacrosBody(c, api, api)}${toGoMacrosAfter(c, api, api)}${
-        ret().isNotEMPTY().then { """
-    return""" }}
-}"""
+        toGoMacrosBeforeBody(c, api, api)}${toGoMacrosBody(c, api, api)}${toGoMacrosAfterBody(c, api, api)}${
+        ret().isNotEMPTY().then {
+            """
+    return"""
+        }}
+}${toGoMacrosAfter(c, api, api)}"""
     }
 }

@@ -1,6 +1,6 @@
 package ee.design
 
-import ee.design.gen.go.toGoPropOptionalTag
+import ee.design.gen.go.toGoPropOptionalAfterBody
 import ee.lang.*
 import org.slf4j.LoggerFactory
 
@@ -58,6 +58,31 @@ fun StructureUnitI.defineNamesForTypeControllers() {
     }
 }
 
+fun StructureUnitI.addQueriesForAggregates() {
+    findDownByType(EntityI::class.java).filter { !it.virtual() && it.queries().isEmpty() }.extend {
+        log.debug("Add default queries to ${name()}")
+        queries(Queries {
+            name("queries")
+
+            findBy { name("findAll") }
+            findBy {
+                name("findById")
+                id()
+            }
+            countBy { name("countAll") }
+            findBy {
+                name("countById")
+                id()
+            }
+            existBy { name("existAll") }
+            existBy {
+                name("existById")
+                id()
+            }
+        })
+    }
+}
+
 fun StructureUnitI.addCommandsAndEventsForAggregates() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.commands().isEmpty() }.extend {
         log.debug("Add default commands to ${name()}")
@@ -88,6 +113,11 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
                 props(id())
                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             }
+        } else {
+            val events = events().first()
+            created = events.findDownByType(CreatedI::class.java).firstOrNull() ?: created
+            updated = events.findDownByType(UpdatedI::class.java).firstOrNull() ?: updated
+            deleted = events.findDownByType(DeletedI::class.java).firstOrNull() ?: deleted
         }
 
         if (commands().isEmpty()) {
@@ -120,22 +150,8 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
 }
 
 fun AttributeI.setOptionalTag(): AttributeI {
-    macrosAfter(AttributeI::toGoPropOptionalTag.name)
+    macrosAfterBody(AttributeI::toGoPropOptionalAfterBody.name)
     return this
-}
-
-fun StructureUnitI.defineCommandAndEventPropsAsReplaceable() {
-    findDownByType(CommandI::class.java).forEach { command ->
-        command.props().forEach {
-            it.replaceable(true)
-        }
-    }
-
-    findDownByType(EventI::class.java).forEach { command ->
-        command.props().forEach {
-            it.replaceable(true)
-        }
-    }
 }
 
 fun StructureUnitI.declareAsBaseWithNonImplementedOperation() {

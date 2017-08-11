@@ -1,6 +1,7 @@
 package ee.design.gen.go
 
 import ee.common.ext.joinSurroundIfNotEmptyToString
+import ee.common.ext.toPlural
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.*
@@ -262,8 +263,8 @@ fun <T : OperationI> T.toGoAggregateInitializerRegisterCommands(c: GenerationCon
     return """${c.n(g.gee.eh.AggregateInitializer.RegisterForAllEvents)}(handler, $ { c.n(entity, api) } AggregateType, ${entity.name()} CommandTypes ().Literals())"""
 }
 
-fun <T : AttributeI> T.toGoPropOptionalTag(c: GenerationContext,
-                                           derived: String = DesignDerivedKind.IMPL,
-                                           api: String = DesignDerivedKind.API): String {
+fun <T : AttributeI> T.toGoPropOptionalAfterBody(c: GenerationContext,
+                                                 derived: String = DesignDerivedKind.IMPL,
+                                                 api: String = DesignDerivedKind.API): String {
     return """`eh:"optional"`"""
 }

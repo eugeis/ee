@@ -158,7 +158,7 @@ fun String.toDotsAsPath(): String {
 }
 
 fun String.toPlural(): String {
-    return "${this}s"
+    return this.endsWith("rch").ifElse({ "${this}es" }, { "${this}s" })
 }
 
 

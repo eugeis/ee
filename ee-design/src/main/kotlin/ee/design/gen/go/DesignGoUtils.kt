@@ -193,19 +193,19 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             controller {
                                 name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
                                 val pathPrefix = propS { name("PathPrefix") }
-                                val router = prop { type(g.mux.Router).name("Router") }
                                 val queryHandler = prop { type(httpQueryHandler).name("QueryHandler") }
                                 val commandHandler = prop { type(httpCommandHandler).name("CommandHandler") }
 
                                 op {
                                     name("Setup")
+                                    params(prop { type(g.mux.Router).name("router") })
                                     ret(g.error)
                                     macrosBody(OperationI::toGoSetupHttpRouterBody.name)
                                 }
                                 constr {
-                                    params(pathPrefix, router,
+                                    params(pathPrefix,
                                             p(queryHandler, { default(true) }), p(commandHandler, { default(true) }))
-                                    derivedAsType(LangDerivedKind.MANUAL)
+                                    macrosBody(ConstructorI::toGoHttpRouterBody.name)
                                 }
                             }
                     )
@@ -238,19 +238,23 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
             controller {
                 name("${module.name().capitalize()}${DesignDerivedType.HttpRouter}").derivedAsType(DesignDerivedType.Http)
-                prop { type(g.mux.Router).name("Router") }
-                propS { name("PathPrefix") }
-                httpRouters.forEach { item ->
+                val pathPrefix = propS { name("PathPrefix") }
+                val httpRouterParams = httpRouters.map {
                     prop {
-                        type(item).name("${item.parent().name()}${item.name().capitalize()}")
+                        type(it).name("${it.parent().name()}${it.name().capitalize()}")
                     }
                 }
                 op {
                     name("Setup")
+                    params(prop { type(g.mux.Router).name("router") })
+
                     ret(g.error)
                     macrosBody(OperationI::toGoSetupModuleHttpRouter.name)
                 }
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+                constr {
+                    params(pathPrefix, *httpRouterParams.map { p(it, { default(true) }) }.toTypedArray())
+                    macrosBody(ConstructorI::toGoHttpModuleRouterBody.name)
+                }
             }
         }
     }

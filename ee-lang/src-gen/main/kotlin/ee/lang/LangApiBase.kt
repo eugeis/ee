@@ -238,15 +238,23 @@ open class MacroComposite : Composite, MacroCompositeI {
     override fun macrosAfter(): ListMultiHolder<String> = itemAsList(MACROS_AFTER, String::class.java, true, true)
     override fun macrosAfter(vararg value: String): MacroCompositeI = apply { macrosAfter().addItems(value.asList()) }
 
+    override fun macrosAfterBody(): ListMultiHolder<String> = itemAsList(MACROS_AFTER_BODY, String::class.java, true, true)
+    override fun macrosAfterBody(vararg value: String): MacroCompositeI = apply { macrosAfterBody().addItems(value.asList()) }
+
     override fun macrosBefore(): ListMultiHolder<String> = itemAsList(MACROS_BEFORE, String::class.java, true, true)
     override fun macrosBefore(vararg value: String): MacroCompositeI = apply { macrosBefore().addItems(value.asList()) }
+
+    override fun macrosBeforeBody(): ListMultiHolder<String> = itemAsList(MACROS_BEFORE_BODY, String::class.java, true, true)
+    override fun macrosBeforeBody(vararg value: String): MacroCompositeI = apply { macrosBeforeBody().addItems(value.asList()) }
 
     override fun macrosBody(): ListMultiHolder<String> = itemAsList(MACROS_BODY, String::class.java, true, true)
     override fun macrosBody(vararg value: String): MacroCompositeI = apply { macrosBody().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
         macrosAfter()
+        macrosAfterBody()
         macrosBefore()
+        macrosBeforeBody()
         macrosBody()
         super.fillSupportsItems()
     }
@@ -254,7 +262,9 @@ open class MacroComposite : Composite, MacroCompositeI {
     companion object {
         val EMPTY = MacroComposite { name(ItemEmpty.name()) }.apply<MacroComposite> { init() }
         val MACROS_AFTER = "_macrosAfter"
+        val MACROS_AFTER_BODY = "_macrosAfterBody"
         val MACROS_BEFORE = "_macrosBefore"
+        val MACROS_BEFORE_BODY = "_macrosBeforeBody"
         val MACROS_BODY = "_macrosBody"
     }
 }

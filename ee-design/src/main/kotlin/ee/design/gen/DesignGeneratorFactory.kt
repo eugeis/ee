@@ -114,8 +114,8 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                 ConstructorI::toGoEventhorizonInitializerBody)
         contextFactory.macroController.registerMacro(OperationI::toGoEventhorizonInitializerSetupBody.name,
                 OperationI::toGoEventhorizonInitializerSetupBody)
-        contextFactory.macroController.registerMacro(AttributeI::toGoPropOptionalTag.name,
-                AttributeI::toGoPropOptionalTag)
+        contextFactory.macroController.registerMacro(AttributeI::toGoPropOptionalAfterBody.name,
+                AttributeI::toGoPropOptionalAfterBody)
         contextFactory.macroController.registerMacro(OperationI::toGoCommandHandlerExecuteCommandBody.name,
                 OperationI::toGoCommandHandlerExecuteCommandBody)
         contextFactory.macroController.registerMacro(OperationI::toGoCommandHandlerSetupBody.name,
@@ -128,6 +128,10 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                 OperationI::toGoHttpHandlerBody)
         contextFactory.macroController.registerMacro(OperationI::toGoSetupHttpRouterBody.name,
                 OperationI::toGoSetupHttpRouterBody)
+        contextFactory.macroController.registerMacro(ConstructorI::toGoHttpRouterBody.name,
+                ConstructorI::toGoHttpRouterBody)
+        contextFactory.macroController.registerMacro(ConstructorI::toGoHttpModuleRouterBody.name,
+                ConstructorI::toGoHttpModuleRouterBody)
         contextFactory.macroController.registerMacro(OperationI::toGoSetupModuleHttpRouter.name,
                 OperationI::toGoSetupModuleHttpRouter)
 
