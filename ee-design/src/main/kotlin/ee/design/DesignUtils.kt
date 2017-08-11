@@ -67,17 +67,17 @@ fun StructureUnitI.addQueriesForAggregates() {
             findBy { name("findAll") }
             findBy {
                 name("findById")
-                id()
+                params(id())
             }
             countBy { name("countAll") }
-            findBy {
+            countBy {
                 name("countById")
-                id()
+                params(id())
             }
             existBy { name("existAll") }
             existBy {
                 name("existById")
-                id()
+                params(id())
             }
         })
     }

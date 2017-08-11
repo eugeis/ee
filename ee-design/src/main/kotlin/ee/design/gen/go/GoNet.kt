@@ -1,6 +1,7 @@
 package ee.design.gen.go
 
 import ee.common.ext.joinSurroundIfNotEmptyToString
+import ee.common.ext.then
 import ee.common.ext.toPlural
 import ee.design.*
 import ee.lang.*
@@ -25,27 +26,47 @@ fun <T : OperationI> T.toGoSetupHttpRouterBody(c: GenerationContext,
                                                derived: String = DesignDerivedKind.IMPL,
                                                api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
-    val finders = entity.findDownByType(FindBy::class.java)
-    val counters = entity.findDownByType(CountByI::class.java)
-    val exists = entity.findDownByType(ExistByI::class.java)
+
+    val finders = entity.findDownByType(FindBy::class.java).sortedByDescending { it.params().size }
+    val counters = entity.findDownByType(CountByI::class.java).sortedByDescending { it.params().size }
+    val exists = entity.findDownByType(ExistByI::class.java).sortedByDescending { it.params().size }
+
     val creaters = entity.findDownByType(CreateByI::class.java)
     val updaters = entity.findDownByType(UpdateByI::class.java)
     val deleters = entity.findDownByType(DeleteByI::class.java)
 
     return """${counters.joinSurroundIfNotEmptyToString("") {
+        val idParam = it.params().find { it.key() }
+        val paramsNoId = it.params().filter { !it.key() }
         """
-    router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix).Name("${
-        it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()}).
-        Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeCount, api)})"""
+    router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix)${
+        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
+        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()}).
+        Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeCount, api)}${
+        paramsNoId.joinSurroundIfNotEmptyToString(", ", ", ") {
+            """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
+        }})"""
     }}${exists.joinSurroundIfNotEmptyToString("") {
+        val idParam = it.params().find { it.key() }
+        val paramsNoId = it.params().filter { !it.key() }
         """
-    router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix).Name("${
-        it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()}).
-        Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeExist, api)})"""
+    router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix)${
+        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
+        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()}).
+        Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeExist, api)}${
+        paramsNoId.joinSurroundIfNotEmptyToString(", ", ", ") {
+            """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
+        }})"""
     }}${finders.joinSurroundIfNotEmptyToString("") {
+        val idParam = it.params().find { it.key() }
+        val paramsNoId = it.params().filter { !it.key() }
         """
-    router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix).Name("${
-        it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()})"""
+    router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix)${
+        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
+        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()})${
+        paramsNoId.joinSurroundIfNotEmptyToString(", ", ".$nL    Queries(", ")") {
+            """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
+        }}"""
     }}${creaters.joinSurroundIfNotEmptyToString("") {
         """
     router.Methods(${c.n(g.gee.net.POST, api)}).PathPrefix(o.PathPrefix).Name("${
