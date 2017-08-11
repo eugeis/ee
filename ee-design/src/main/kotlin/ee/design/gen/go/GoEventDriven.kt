@@ -39,7 +39,8 @@ fun <T : OperationI> T.toGoCommandHandlerExecuteCommandBody(c: GenerationContext
 fun <T : OperationI> T.toGoHttpHandlerBody(c: GenerationContext,
                                            derived: String = DesignDerivedKind.IMPL,
                                            api: String = DesignDerivedKind.API): String {
-    return """"""
+    return """
+    ${c.n(g.fmt.Fprintf, api)}(w, "Hello, %q from ${parentNameAndName()}", ${c.n(g.html.EscapeString, api)}(r.URL.Path))"""
 }
 
 fun <T : CommandI> T.toGoStoreEvent(c: GenerationContext,

@@ -96,9 +96,9 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             //aggregateInitializer
                             controller {
                                 name(DesignDerivedType.AggregateInitializer).derivedAsType(DesignDerivedType.Aggregate)
-                                prop { type(g.gee.eh.AggregateInitializer).anonymous(true).name("AggregateInitializer") }
-                                val commandHandler = prop { type(commandHandler).anonymous(true).name("CommandHandler") }
-                                val eventHandler = prop { type(eventHandler).anonymous(true).name("EventHandler") }
+                                prop { type(g.gee.eh.AggregateInitializer).anonymous(true).name("aggregateInitializer") }
+                                val commandHandler = prop { type(commandHandler).anonymous(true).name("commandHandler") }
+                                val eventHandler = prop { type(eventHandler).anonymous(true).name("eventHandler") }
 
                                 macrosBefore(CompilationUnitI::toGoAggregateInitializerConst.name)
                                 macrosAfter(CompilationUnitI::toGoAggregateInitializerRegisterForEvents.name)
@@ -192,9 +192,9 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                     httpRouters.add(
                             controller {
                                 name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
-                                val pathPrefix = propS { name("PathPrefix") }
-                                val queryHandler = prop { type(httpQueryHandler).name("QueryHandler") }
-                                val commandHandler = prop { type(httpCommandHandler).name("CommandHandler") }
+                                val pathPrefix = propS { name("pathPrefix") }
+                                val queryHandler = prop { type(httpQueryHandler).name("queryHandler") }
+                                val commandHandler = prop { type(httpCommandHandler).name("commandHandler") }
 
                                 op {
                                     name("Setup")
@@ -205,7 +205,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 constr {
                                     params(pathPrefix,
                                             p(queryHandler, { default(true) }), p(commandHandler, { default(true) }))
-                                    macrosBody(ConstructorI::toGoHttpRouterBody.name)
+                                    macrosBeforeBody(ConstructorI::toGoHttpRouterBeforeBody.name)
                                 }
                             }
                     )
@@ -238,7 +238,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
             controller {
                 name("${module.name().capitalize()}${DesignDerivedType.HttpRouter}").derivedAsType(DesignDerivedType.Http)
-                val pathPrefix = propS { name("PathPrefix") }
+                val pathPrefix = propS { name("pathPrefix") }
                 val httpRouterParams = httpRouters.map {
                     prop {
                         type(it).name("${it.parent().name()}${it.name().capitalize()}")
@@ -247,13 +247,12 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                 op {
                     name("Setup")
                     params(prop { type(g.mux.Router).name("router") })
-
                     ret(g.error)
                     macrosBody(OperationI::toGoSetupModuleHttpRouter.name)
                 }
                 constr {
                     params(pathPrefix, *httpRouterParams.map { p(it, { default(true) }) }.toTypedArray())
-                    macrosBody(ConstructorI::toGoHttpModuleRouterBody.name)
+                    macrosBeforeBody(ConstructorI::toGoHttpModuleRouterBeforeBody.name)
                 }
             }
         }

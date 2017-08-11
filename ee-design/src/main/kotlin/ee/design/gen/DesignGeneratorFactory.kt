@@ -128,10 +128,10 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                 OperationI::toGoHttpHandlerBody)
         contextFactory.macroController.registerMacro(OperationI::toGoSetupHttpRouterBody.name,
                 OperationI::toGoSetupHttpRouterBody)
-        contextFactory.macroController.registerMacro(ConstructorI::toGoHttpRouterBody.name,
-                ConstructorI::toGoHttpRouterBody)
-        contextFactory.macroController.registerMacro(ConstructorI::toGoHttpModuleRouterBody.name,
-                ConstructorI::toGoHttpModuleRouterBody)
+        contextFactory.macroController.registerMacro(ConstructorI::toGoHttpRouterBeforeBody.name,
+                ConstructorI::toGoHttpRouterBeforeBody)
+        contextFactory.macroController.registerMacro(ConstructorI::toGoHttpModuleRouterBeforeBody.name,
+                ConstructorI::toGoHttpModuleRouterBeforeBody)
         contextFactory.macroController.registerMacro(OperationI::toGoSetupModuleHttpRouter.name,
                 OperationI::toGoSetupModuleHttpRouter)
 

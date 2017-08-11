@@ -32,15 +32,17 @@ fun <T : OperationI> T.toGoSetupHttpRouterBody(c: GenerationContext,
     val updaters = entity.findDownByType(UpdateByI::class.java)
     val deleters = entity.findDownByType(DeleteByI::class.java)
 
-    return """${finders.joinSurroundIfNotEmptyToString("") {
+    return """${counters.joinSurroundIfNotEmptyToString("") {
         """
     router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix).Name("${
-        it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()})"""
-    }}${counters.joinSurroundIfNotEmptyToString("") {
-        """
-    router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix).Name("${
-        it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()})"""
+        it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()}).
+        Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeCount, api)})"""
     }}${exists.joinSurroundIfNotEmptyToString("") {
+        """
+    router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix).Name("${
+        it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()}).
+        Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeExist, api)})"""
+    }}${finders.joinSurroundIfNotEmptyToString("") {
         """
     router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix).Name("${
         it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()})"""
@@ -73,18 +75,18 @@ fun <T : OperationI> T.toGoSetupModuleHttpRouter(c: GenerationContext,
     }
 }
 
-fun <T : ConstructorI> T.toGoHttpRouterBody(c: GenerationContext,
-                                            derived: String = DesignDerivedKind.IMPL,
-                                            api: String = DesignDerivedKind.API): String {
-    val item = findParentMust(EntityI::class.java)
-    return """
-    ret.PathPrefix = ret.PathPrefix + "/" + "${item.name().toPlural().decapitalize()}""""
-}
-
-fun <T : ConstructorI> T.toGoHttpModuleRouterBody(c: GenerationContext,
+fun <T : ConstructorI> T.toGoHttpRouterBeforeBody(c: GenerationContext,
                                                   derived: String = DesignDerivedKind.IMPL,
                                                   api: String = DesignDerivedKind.API): String {
+    val item = findParentMust(EntityI::class.java)
+    return """
+    pathPrefix = pathPrefix + "/" + "${item.name().toPlural().decapitalize()}""""
+}
+
+fun <T : ConstructorI> T.toGoHttpModuleRouterBeforeBody(c: GenerationContext,
+                                                        derived: String = DesignDerivedKind.IMPL,
+                                                        api: String = DesignDerivedKind.API): String {
     val item = findParentMust(StructureUnitI::class.java)
     return """
-    ret.PathPrefix = ret.PathPrefix + "/" + "${item.name().decapitalize()}""""
+    pathPrefix = pathPrefix + "/" + "${item.name().decapitalize()}""""
 }

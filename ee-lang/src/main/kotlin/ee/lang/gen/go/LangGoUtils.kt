@@ -8,6 +8,11 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
     object fmt : StructureUnit({ namespace("fmt") }) {
         val Sprintf = Operation()
+        val Fprintf = Operation()
+    }
+
+    object html : StructureUnit({ namespace("html") }) {
+        val EscapeString = Operation()
     }
 
     object errors : StructureUnit({ namespace("errors") }) {
@@ -33,6 +38,9 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     object mux : StructureUnit({ namespace("github.com.gorilla.mux") }) {
         object Router : ExternalType() {
         }
+
+        object Vars : ExternalType() {
+        }
     }
 
     //common libs
@@ -46,6 +54,10 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             val POST = ExternalType()
             val PUT = ExternalType()
             val DELETE = ExternalType()
+            val QueryType = ExternalType()
+            val QueryTypeCount = ExternalType()
+            val QueryTypeExist = ExternalType()
+            val QueryTypeFind = ExternalType()
         }
 
         object eh : StructureUnit() {
