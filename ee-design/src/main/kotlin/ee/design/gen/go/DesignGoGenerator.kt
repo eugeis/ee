@@ -31,6 +31,8 @@ open class DesignGoGenerator {
 
         addQueriesForAggregates()
 
+        addIdPropToEventsAndCommands()
+
         addEventhorizonArtifactsForAggregate()
 
         defineNamesForTypeControllers()

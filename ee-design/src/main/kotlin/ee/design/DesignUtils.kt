@@ -155,6 +155,23 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
     }
 }
 
+
+fun StructureUnitI.addIdPropToEventsAndCommands() {
+    findDownByType(EntityI::class.java).filter { !it.virtual() }.extend {
+        created().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        updated().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        deleted().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+
+        events().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+
+        createBys().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        updateBys().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        deleteBys().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+
+        commands().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+    }
+}
+
 fun AttributeI.setOptionalTag(): AttributeI {
     macrosAfterBody(AttributeI::toGoPropOptionalAfterBody.name)
     return this
