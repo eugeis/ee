@@ -132,6 +132,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
+                                derivedFrom(it)
                                 macrosBody(OperationI::toGoHttpHandlerBody.name)
                             }
                         }
@@ -141,6 +142,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
+                                derivedFrom(it)
                                 macrosBody(OperationI::toGoHttpHandlerBody.name)
                             }
                         }
@@ -150,6 +152,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
+                                derivedFrom(it)
                                 macrosBody(OperationI::toGoHttpHandlerBody.name)
                             }
                         }
@@ -159,6 +162,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
                     val httpCommandHandler = controller {
                         name(DesignDerivedType.HttpCommandHandler).derivedAsType(DesignDerivedType.Http)
+                        prop { type(g.context.Context).replaceable(false).name("context") }
                         prop { type(g.eh.CommandBus).replaceable(false).name("commandBus") }
 
                         //commands
@@ -167,7 +171,8 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
-                                macrosBody(OperationI::toGoHttpHandlerBody.name)
+                                derivedFrom(it)
+                                macrosBody(OperationI::toGoHttpHandlerIdBasedBody.name)
                             }
                         }
 
@@ -176,7 +181,8 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
-                                macrosBody(OperationI::toGoHttpHandlerBody.name)
+                                derivedFrom(it)
+                                macrosBody(OperationI::toGoHttpHandlerIdBasedBody.name)
                             }
                         }
 
@@ -185,7 +191,8 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
-                                macrosBody(OperationI::toGoHttpHandlerBody.name)
+                                derivedFrom(it)
+                                macrosBody(OperationI::toGoHttpHandlerIdBasedBody.name)
                             }
                         }
 
@@ -194,7 +201,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
-                                macrosBody(OperationI::toGoHttpHandlerBody.name)
+                                macrosBody(OperationI::toGoHttpHandlerIdBasedBody.name)
                             }
                         }
 
@@ -215,7 +222,9 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                     macrosBody(OperationI::toGoSetupHttpRouterBody.name)
                                 }
                                 constr {
-                                    params(pathPrefix, p { type(g.eh.CommandBus).name("commandBus") },
+                                    params(pathPrefix,
+                                            p { type(g.context.Context).name("context") },
+                                            p { type(g.eh.CommandBus).name("commandBus") },
                                             p(queryHandler, { default(true) }), p(commandHandler, { default(true) }))
                                     macrosBeforeBody(ConstructorI::toGoHttpRouterBeforeBody.name)
                                 }
@@ -263,7 +272,9 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                     macrosBody(OperationI::toGoSetupModuleHttpRouter.name)
                 }
                 constr {
-                    params(pathPrefix, p { type(g.eh.CommandBus).name("commandBus") },
+                    params(pathPrefix,
+                            p { type(g.context.Context).name("context") },
+                            p { type(g.eh.CommandBus).name("commandBus") },
                             *httpRouterParams.map { p(it, { default(true) }) }.toTypedArray())
                     macrosBeforeBody(ConstructorI::toGoHttpModuleRouterBeforeBody.name)
                 }

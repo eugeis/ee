@@ -35,6 +35,13 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         }
     }
 
+    object encoding : StructureUnit({ namespace("encoding") }) {
+        object json : StructureUnit() {
+            val NewDecoder = Operation()
+            val Decoder = ExternalType()
+        }
+    }
+
     object mux : StructureUnit({ namespace("github.com.gorilla.mux") }) {
         object Router : ExternalType() {
         }

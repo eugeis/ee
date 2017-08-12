@@ -1,6 +1,7 @@
 package ee.design.gen.go
 
 import ee.common.ext.joinSurroundIfNotEmptyToString
+import ee.common.ext.then
 import ee.common.ext.toPlural
 import ee.design.*
 import ee.lang.*
@@ -41,6 +42,33 @@ fun <T : OperationI> T.toGoHttpHandlerBody(c: GenerationContext,
                                            api: String = DesignDerivedKind.API): String {
     return """
     ${c.n(g.fmt.Fprintf, api)}(w, "Hello, %q from ${parentNameAndName()}", ${c.n(g.html.EscapeString, api)}(r.URL.Path))"""
+}
+
+fun <T : OperationI> T.toGoHttpHandlerIdBasedBody(c: GenerationContext,
+                                                  derived: String = DesignDerivedKind.IMPL,
+                                                  api: String = DesignDerivedKind.API): String {
+    val entity = findParentMust(EntityI::class.java)
+    return """
+    vars := ${c.n(g.mux.Vars, api)}(r)
+    id := vars["${entity.id().name().decapitalize()}"]
+    ${(derivedFrom() is CommandI).then {
+        val command = derivedFrom() as CommandI
+        """
+    decoder := ${c.n(g.encoding.json.NewDecoder, derived)}(r.Body)
+    command := &${command.nameAndParentName().capitalize()}{}
+    if err := decoder.Decode(command); err != nil {
+        w.WriteHeader(http.StatusBadRequest)
+        fmt.Fprintf(w, "Can't decode body to command %v because of %v", command, err)
+    }
+    defer r.Body.Close()
+
+    if err := o.commandBus.HandleCommand(o.context, command); err != nil {
+		w.WriteHeader(http.StatusExpectationFailed)
+		fmt.Fprintf(w, "Can't execute command %v because of %v", command, err)
+		return
+	}"""
+    }}
+    ${c.n(g.fmt.Fprintf, api)}(w, "id=%v, %q from ${parentNameAndName()}", id, ${c.n(g.html.EscapeString, api)}(r.URL.Path))"""
 }
 
 fun <T : CommandI> T.toGoStoreEvent(c: GenerationContext,
