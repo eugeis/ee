@@ -50,7 +50,7 @@ fun <T : CommandI> T.toGoStoreEvent(c: GenerationContext,
     props().joinSurroundIfNotEmptyToString("") { prop ->
         """
                     ${prop.name().capitalize()}: command.${prop.name().capitalize()},"""
-    }}})"""
+    }}}, ${g.time.Now.toGoCall(c, derived, api)})"""
 }
 
 fun <T : EventI> T.toGoApplyEvent(c: GenerationContext): String {
