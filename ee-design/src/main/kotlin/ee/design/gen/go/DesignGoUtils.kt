@@ -115,10 +115,10 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 macrosAfter(CompilationUnitI::toGoAggregateInitializerRegisterForEvents.name)
 
                                 constr {
-                                    params(p { type(g.eh.EventStore).replaceable(false).name("eventStore") },
-                                            p { type(g.eh.EventBus).replaceable(false).name("eventBus") },
-                                            p { type(g.eh.EventPublisher).replaceable(false).name("eventPublisher") },
-                                            p { type(g.eh.CommandBus).replaceable(false).name("commandBus") })
+                                    params(p { type(g.eh.EventStore).name("eventStore") },
+                                            p { type(g.eh.EventBus).name("eventBus") },
+                                            p { type(g.eh.EventPublisher).name("eventPublisher") },
+                                            p { type(g.eh.CommandBus).name("commandBus") })
                                     macrosBody(ConstructorI::toGoAggregateInitializerBody.name)
                                 }
                             })
@@ -159,6 +159,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
                     val httpCommandHandler = controller {
                         name(DesignDerivedType.HttpCommandHandler).derivedAsType(DesignDerivedType.Http)
+                        prop { type(g.eh.CommandBus).replaceable(false).name("commandBus") }
 
                         //commands
                         creaters.forEach {
@@ -197,7 +198,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             }
                         }
 
-                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+                        constructorAllProps {}
                     }
 
                     httpRouters.add(
@@ -214,7 +215,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                     macrosBody(OperationI::toGoSetupHttpRouterBody.name)
                                 }
                                 constr {
-                                    params(pathPrefix,
+                                    params(pathPrefix, p { type(g.eh.CommandBus).name("commandBus") },
                                             p(queryHandler, { default(true) }), p(commandHandler, { default(true) }))
                                     macrosBeforeBody(ConstructorI::toGoHttpRouterBeforeBody.name)
                                 }
@@ -262,7 +263,8 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                     macrosBody(OperationI::toGoSetupModuleHttpRouter.name)
                 }
                 constr {
-                    params(pathPrefix, *httpRouterParams.map { p(it, { default(true) }) }.toTypedArray())
+                    params(pathPrefix, p { type(g.eh.CommandBus).name("commandBus") },
+                            *httpRouterParams.map { p(it, { default(true) }) }.toTypedArray())
                     macrosBeforeBody(ConstructorI::toGoHttpModuleRouterBeforeBody.name)
                 }
             }

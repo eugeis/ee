@@ -160,7 +160,8 @@ fun List<AttributeI>.toGoSignature(c: GenerationContext, api: String): String {
 }
 
 fun <T : ConstructorI> T.toGo(c: GenerationContext, derived: String, api: String): String {
-    val name = c.n(parent(), derived)
+    val type = findParentMust(CompilationUnitI::class.java)
+    val name = c.n(type, derived)
     val nonDefaultParams = params().filter { !it.default() && it.derivedAsType().isEmpty() }
     return if (isNotEMPTY()) """${toGoMacrosBefore(c, derived, api)}
 func ${c.n(this, derived)}(${nonDefaultParams.joinWrappedToString(", ", "                ") {
@@ -171,7 +172,7 @@ func ${c.n(this, derived)}(${nonDefaultParams.joinWrappedToString(", ", "       
     ${toGoMacrosBody(c, derived, api)}"""
     }, {
         """
-    ret = &$name{${params().joinSurroundIfNotEmptyToString(
+    ret = &$name{${paramsForType().joinSurroundIfNotEmptyToString(
                 ",$nL        ", "$nL        ", ",$nL    ") { it.toGoInitCall(c, derived) }}}"""
     })}${toGoMacrosAfterBody(c, derived, api)}
     return

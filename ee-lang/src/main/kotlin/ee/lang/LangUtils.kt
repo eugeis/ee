@@ -57,6 +57,11 @@ fun ConstructorI.props(): List<AttributeI> = storage.getOrPut(this, "props", {
     params().filter { it.derivedFrom().isNotEMPTY() }
 })
 
+fun ConstructorI.paramsForType(): List<AttributeI> = storage.getOrPut(this, "paramsForType", {
+    val type = findParentMust(TypeI::class.java)
+    params().filter { param -> type.props().find { it.name() == param.name() && it.type() == param.type() } != null }
+})
+
 fun TypeI.propsExceptPrimaryConstructor(): List<AttributeI> = storage.getOrPut(this,
         "propsExceptPrimaryConstructor", {
     if (primaryConstructor().isNotEMPTY()) props().filter { prop ->
