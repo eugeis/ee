@@ -23,8 +23,10 @@ open class Item : ItemI {
     }
 
     override fun init() {
-        _initialized = true
-        _init(this)
+        if (!isInitialized()) {
+            _initialized = true
+            _init(this)
+        }
     }
 
     override fun isInitialized(): Boolean = _initialized
@@ -137,11 +139,9 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
         Item(value as Item.() -> Unit), MultiHolderI<I> {
 
     override fun init() {
-        if (!isInitialized()) super.init()
+        if(!isInitialized()) super.init()
         items().filterIsInstance<ItemI>().forEach {
-            if (!it.isInitialized()) {
-                it.init()
-            } else if (it is MultiHolderI<*> && it.parent() == this) {
+            if (!it.isInitialized() || (it is MultiHolderI<*> && it.parent() == this)) {
                 it.init()
             }
         }
@@ -178,7 +178,7 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
                 } else {
                     item.parent(findParentNonInternal() ?: this)
                 }
-                if (isInitialized() && item.isInitialized()) item.init()
+                if (isInitialized() && !item.isInitialized()) item.init()
             } else {
                 log.trace("Can't set as parent '${this}(${this.name()})' to '$item(${
                 item.name()})', because current parent is ${item.parent()}(${item.parent().name()})")
@@ -283,8 +283,8 @@ open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Uni
         _items.remove(childName)
     }
 
-    override fun <T : I> addItem(name: String, item: T, attachParent: Boolean): T {
-        if (attachParent) fillThisOrNonInternalAsParentAndInit(item)
+    override fun <T : I> addItem(name: String, item: T): T {
+        fillThisOrNonInternalAsParentAndInit(item)
         _items.put(name, item)
         return item
     }
@@ -297,14 +297,14 @@ open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Uni
         return if (ret != null) ret as T else null
     }
 
-    open fun <T : I> item(name: String, attachParent: Boolean, internal: Boolean, factory: () -> T): T {
+    open fun <T : I> item(name: String, internal: Boolean, factory: () -> T): T {
         var ret = _items[name]
         return if (ret == null) {
             val item = factory()
-            if(item is Item) {
+            if (item is Item) {
                 item.internal(internal)
             }
-            addItem(name, item, attachParent)
+            addItem(name, item)
         } else ret as T
     }
 
@@ -330,7 +330,7 @@ open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Uni
                 if (value is ItemI && value.parent() == this) {
                     itemToFill.addItem(it.key, value.copy<ItemI>() as I)
                 } else {
-                    itemToFill.addItem(it.key, value, false)
+                    itemToFill.addItem(it.key, value)
                 }
             }
         }
@@ -341,20 +341,20 @@ open class Composite : MapMultiHolder<ItemI>, CompositeI {
     constructor(adapt: Composite.() -> Unit = {}) : super(ItemI::class.java, adapt as MapMultiHolder<ItemI>.() -> Unit)
 
     open fun <R> itemAsMap(name: String, type: Class<R>, attachParent: Boolean = false, internal: Boolean = false): MapMultiHolder<R> {
-        return item(name, attachParent, internal, { MapMultiHolder<R>(type, { name(name) }) })
+        return item(name, internal, { MapMultiHolder<R>(type, { name(name) }) })
     }
 
-    open fun <R> itemAsList(name: String, type: Class<R>, attachParent: Boolean = true, internal: Boolean = false): ListMultiHolder<R> {
-        return item(name, attachParent, internal, { ListMultiHolder<R>(type, { name(name) }) })
+    open fun <R> itemAsList(name: String, type: Class<R>, internal: Boolean = false): ListMultiHolder<R> {
+        return item(name, internal, { ListMultiHolder<R>(type, { name(name) }) })
     }
 
     open fun <T : Any> attr(name: String): T? = attributes().item(name)
     open fun <T : Any> attr(name: String, factory: () -> T, attachParent: Boolean = false): T =
-            attributes().item(name, attachParent, false, factory)
+            attributes().item(name, false, factory)
 
-    override fun <T : Any> attr(name: String, attr: T?, attachParent: Boolean): T? {
+    override fun <T : Any> attr(name: String, attr: T?): T? {
         if (attr != null) {
-            attributes().addItem(name, attr, attachParent)
+            attributes().addItem(name, attr)
         } else {
             attributes().removeItem(name)
         }

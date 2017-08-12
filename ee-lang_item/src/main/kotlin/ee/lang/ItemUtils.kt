@@ -139,7 +139,7 @@ fun <T : MultiHolderI<I>, I> T.initObjectTree(deriveNamespace: ItemI.() -> Strin
             if (getter != null) {
                 val child = getter.invoke(this)
                 if (child is ItemI) {
-                    if (!child.isInitialized()) child.init()
+                    child.initIfNotInitialized()
                     if (child.name().isBlank()) child.name(f.name)
                     //set the parent, parent shall be the DSL model parent and not some internal object or reference object
                     child.parent(this)

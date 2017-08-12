@@ -57,14 +57,14 @@ open class ListMultiHolderEmptyClass<I>(private val items: MutableList<I> = Arra
 
 open class MapMultiHolderEmptyClass<I> : MultiHolderEmptyClass<I>(), MapMultiHolderI<I> {
     override fun removeItem(childName: String) {}
-    override fun <T : I> addItem(childName: String, item: T, attachParent: Boolean): T = item
+    override fun <T : I> addItem(childName: String, item: T): T = item
     override fun itemsMap(): Map<String, I> = emptyMap()
 }
 
 val CompositeEmpty = CompositeEmptyClass()
 
 open class CompositeEmptyClass : MapMultiHolderEmptyClass<ItemI>(), CompositeI {
-    override fun <T : Any> attr(name: String, attr: T?, attachParent: Boolean) = attr
+    override fun <T : Any> attr(name: String, attr: T?) = attr
     override fun attributes(): MapMultiHolderI<*> = MultiMapHolderEmpty
 }
 

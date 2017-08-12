@@ -135,7 +135,7 @@ open class EnumType : DataType, EnumTypeI {
 
     constructor(value: EnumType.() -> Unit = {}) : super(value as DataType.() -> Unit)
 
-    override fun literals(): ListMultiHolder<LiteralI> = itemAsList(LITERALS, LiteralI::class.java, true, true)
+    override fun literals(): ListMultiHolder<LiteralI> = itemAsList(LITERALS, LiteralI::class.java, true)
     override fun literals(vararg value: LiteralI): EnumTypeI = apply { literals().addItems(value.asList()) }
     override fun lit(value: LiteralI): LiteralI = applyAndReturn { literals().addItem(value); value }
     override fun lit(value: LiteralI.() -> Unit): LiteralI = lit(Literal(value))
@@ -204,7 +204,7 @@ open class LogicUnit : MacroComposite, LogicUnitI {
 
     constructor(value: LogicUnit.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
 
-    override fun params(): ListMultiHolder<AttributeI> = itemAsList(PARAMS, AttributeI::class.java, true, true)
+    override fun params(): ListMultiHolder<AttributeI> = itemAsList(PARAMS, AttributeI::class.java, true)
     override fun params(vararg value: AttributeI): LogicUnitI = apply { params().addItems(value.asList()) }
 
     override fun superUnit(): LogicUnitI = attr(SUPER_UNIT, { LogicUnit.EMPTY })
@@ -235,19 +235,19 @@ open class MacroComposite : Composite, MacroCompositeI {
 
     constructor(value: MacroComposite.() -> Unit = {}) : super(value as Composite.() -> Unit)
 
-    override fun macrosAfter(): ListMultiHolder<String> = itemAsList(MACROS_AFTER, String::class.java, true, true)
+    override fun macrosAfter(): ListMultiHolder<String> = itemAsList(MACROS_AFTER, String::class.java, true)
     override fun macrosAfter(vararg value: String): MacroCompositeI = apply { macrosAfter().addItems(value.asList()) }
 
-    override fun macrosAfterBody(): ListMultiHolder<String> = itemAsList(MACROS_AFTER_BODY, String::class.java, true, true)
+    override fun macrosAfterBody(): ListMultiHolder<String> = itemAsList(MACROS_AFTER_BODY, String::class.java, true)
     override fun macrosAfterBody(vararg value: String): MacroCompositeI = apply { macrosAfterBody().addItems(value.asList()) }
 
-    override fun macrosBefore(): ListMultiHolder<String> = itemAsList(MACROS_BEFORE, String::class.java, true, true)
+    override fun macrosBefore(): ListMultiHolder<String> = itemAsList(MACROS_BEFORE, String::class.java, true)
     override fun macrosBefore(vararg value: String): MacroCompositeI = apply { macrosBefore().addItems(value.asList()) }
 
-    override fun macrosBeforeBody(): ListMultiHolder<String> = itemAsList(MACROS_BEFORE_BODY, String::class.java, true, true)
+    override fun macrosBeforeBody(): ListMultiHolder<String> = itemAsList(MACROS_BEFORE_BODY, String::class.java, true)
     override fun macrosBeforeBody(vararg value: String): MacroCompositeI = apply { macrosBeforeBody().addItems(value.asList()) }
 
-    override fun macrosBody(): ListMultiHolder<String> = itemAsList(MACROS_BODY, String::class.java, true, true)
+    override fun macrosBody(): ListMultiHolder<String> = itemAsList(MACROS_BODY, String::class.java, true)
     override fun macrosBody(vararg value: String): MacroCompositeI = apply { macrosBody().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
@@ -284,7 +284,7 @@ open class Operation : LogicUnit, OperationI {
 
     constructor(value: Operation.() -> Unit = {}) : super(value as LogicUnit.() -> Unit)
 
-    override fun generics(): ListMultiHolder<GenericI> = itemAsList(GENERICS, GenericI::class.java, true, true)
+    override fun generics(): ListMultiHolder<GenericI> = itemAsList(GENERICS, GenericI::class.java, true)
     override fun generics(vararg value: GenericI): OperationI = apply { generics().addItems(value.asList()) }
     override fun G(value: GenericI): GenericI = applyAndReturn { generics().addItem(value); value }
     override fun G(value: GenericI.() -> Unit): GenericI = G(Generic(value))
@@ -335,7 +335,7 @@ open class Type : MacroComposite, TypeI {
 
     constructor(value: Type.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
 
-    override fun constructors(): ListMultiHolder<ConstructorI> = itemAsList(CONSTRUCTORS, ConstructorI::class.java, true, true)
+    override fun constructors(): ListMultiHolder<ConstructorI> = itemAsList(CONSTRUCTORS, ConstructorI::class.java, true)
     override fun constructors(vararg value: ConstructorI): TypeI = apply { constructors().addItems(value.asList()) }
     override fun constr(value: ConstructorI): ConstructorI = applyAndReturn { constructors().addItem(value); value }
     override fun constr(value: ConstructorI.() -> Unit): ConstructorI = constr(Constructor(value))
@@ -343,7 +343,7 @@ open class Type : MacroComposite, TypeI {
     override fun defaultValue(): Any? = attr(DEFAULT_VALUE)
     override fun defaultValue(value: Any?): TypeI = apply { attr(DEFAULT_VALUE, value) }
 
-    override fun generics(): ListMultiHolder<GenericI> = itemAsList(GENERICS, GenericI::class.java, true, true)
+    override fun generics(): ListMultiHolder<GenericI> = itemAsList(GENERICS, GenericI::class.java, true)
     override fun generics(vararg value: GenericI): TypeI = apply { generics().addItems(value.asList()) }
     override fun G(value: GenericI): GenericI = applyAndReturn { generics().addItem(value); value }
     override fun G(value: GenericI.() -> Unit): GenericI = G(Generic(value))
@@ -357,12 +357,12 @@ open class Type : MacroComposite, TypeI {
     override fun open(): Boolean = attr(OPEN, { true })
     override fun open(value: Boolean): TypeI = apply { attr(OPEN, value) }
 
-    override fun operations(): ListMultiHolder<OperationI> = itemAsList(OPERATIONS, OperationI::class.java, true, true)
+    override fun operations(): ListMultiHolder<OperationI> = itemAsList(OPERATIONS, OperationI::class.java, true)
     override fun operations(vararg value: OperationI): TypeI = apply { operations().addItems(value.asList()) }
     override fun op(value: OperationI): OperationI = applyAndReturn { operations().addItem(value); value }
     override fun op(value: OperationI.() -> Unit): OperationI = op(Operation(value))
 
-    override fun props(): ListMultiHolder<AttributeI> = itemAsList(PROPS, AttributeI::class.java, true, true)
+    override fun props(): ListMultiHolder<AttributeI> = itemAsList(PROPS, AttributeI::class.java, true)
     override fun props(vararg value: AttributeI): TypeI = apply { props().addItems(value.asList()) }
     override fun prop(value: AttributeI): AttributeI = applyAndReturn { props().addItem(value); value }
     override fun prop(value: AttributeI.() -> Unit): AttributeI = prop(Attribute(value))
@@ -370,7 +370,7 @@ open class Type : MacroComposite, TypeI {
     override fun superUnit(): CompilationUnitI = attr(SUPER_UNIT, { CompilationUnit.EMPTY })
     override fun superUnit(value: CompilationUnitI): TypeI = apply { attr(SUPER_UNIT, value) }
 
-    override fun superUnitFor(): ListMultiHolder<CompilationUnitI> = itemAsList(SUPER_UNIT_FOR, CompilationUnitI::class.java, true, true)
+    override fun superUnitFor(): ListMultiHolder<CompilationUnitI> = itemAsList(SUPER_UNIT_FOR, CompilationUnitI::class.java, true)
     override fun superUnitFor(vararg value: CompilationUnitI): TypeI = apply { superUnitFor().addItems(value.asList()) }
 
     override fun virtual(): Boolean = attr(VIRTUAL, { false })

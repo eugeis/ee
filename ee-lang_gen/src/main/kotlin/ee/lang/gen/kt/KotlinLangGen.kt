@@ -48,7 +48,7 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: 
     return """${multi().ifElse({
         """
     ${override}fun ${name()}(): ${toKotlinDslTypeDef(c, api)} = itemAsList(${
-        name().toUnderscoredUpperCase()}, ${toKotlinTypeSingle(c, api)}::class.java, true, true)
+        name().toUnderscoredUpperCase()}, ${toKotlinTypeSingle(c, api)}::class.java, true)
     ${override}fun ${name()}(vararg $value: ${toKotlinTypeSingle(c, api)}): ${c.n(parent, api)} = apply { ${name()}().addItems(value.asList()) }"""
     }, {
         """
