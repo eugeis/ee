@@ -70,54 +70,6 @@ open class Command : CompilationUnit, CommandI {
 }
 
 
-open class Commands : Controller, CommandsI {
-    constructor(value: Commands.() -> Unit = {}) : super(value as Controller.() -> Unit)
-
-    override fun commands(): ListMultiHolderI<BussinesCommandI> = itemAsList(COMMANDS, BussinesCommandI::class.java, true, true)
-    override fun commands(vararg value: BussinesCommandI): CommandsI = apply { commands().addItems(value.asList()) }
-    override fun command(value: BussinesCommandI): BussinesCommandI = applyAndReturn { commands().addItem(value); value }
-    override fun command(value: BussinesCommandI.() -> Unit): BussinesCommandI = command(BussinesCommand(value))
-
-    override fun composites(): ListMultiHolderI<CompositeCommandI> = itemAsList(COMPOSITES, CompositeCommandI::class.java, true, true)
-    override fun composites(vararg value: CompositeCommandI): CommandsI = apply { composites().addItems(value.asList()) }
-    override fun composite(value: CompositeCommandI): CompositeCommandI = applyAndReturn { composites().addItem(value); value }
-    override fun composite(value: CompositeCommandI.() -> Unit): CompositeCommandI = composite(CompositeCommand(value))
-
-    override fun createBys(): ListMultiHolderI<CreateByI> = itemAsList(CREATE_BYS, CreateByI::class.java, true, true)
-    override fun createBys(vararg value: CreateByI): CommandsI = apply { createBys().addItems(value.asList()) }
-    override fun createBy(value: CreateByI): CreateByI = applyAndReturn { createBys().addItem(value); value }
-    override fun createBy(value: CreateByI.() -> Unit): CreateByI = createBy(CreateBy(value))
-
-    override fun updateBys(): ListMultiHolderI<UpdateByI> = itemAsList(UPDATE_BYS, UpdateByI::class.java, true, true)
-    override fun updateBys(vararg value: UpdateByI): CommandsI = apply { updateBys().addItems(value.asList()) }
-    override fun updateBy(value: UpdateByI): UpdateByI = applyAndReturn { updateBys().addItem(value); value }
-    override fun updateBy(value: UpdateByI.() -> Unit): UpdateByI = updateBy(UpdateBy(value))
-
-    override fun deleteBys(): ListMultiHolderI<DeleteByI> = itemAsList(DELETE_BYS, DeleteByI::class.java, true, true)
-    override fun deleteBys(vararg value: DeleteByI): CommandsI = apply { deleteBys().addItems(value.asList()) }
-    override fun deleteBy(value: DeleteByI): DeleteByI = applyAndReturn { deleteBys().addItem(value); value }
-    override fun deleteBy(value: DeleteByI.() -> Unit): DeleteByI = deleteBy(DeleteBy(value))
-
-    override fun fillSupportsItems() {
-        commands()
-        composites()
-        createBys()
-        updateBys()
-        deleteBys()
-        super.fillSupportsItems()
-    }
-
-    companion object {
-        val EMPTY = Commands { name(ItemEmpty.name()) }.apply<Commands> { init() }
-        val COMMANDS = "_commands"
-        val COMPOSITES = "_composites"
-        val CREATE_BYS = "_createBys"
-        val UPDATE_BYS = "_updateBys"
-        val DELETE_BYS = "_deleteBys"
-    }
-}
-
-
 open class Comp : ModuleGroup, CompI {
     constructor(value: Comp.() -> Unit = {}) : super(value as ModuleGroup.() -> Unit)
 
@@ -236,6 +188,15 @@ open class Deleted : Event, DeletedI {
 open class Entity : DataType, EntityI {
     constructor(value: Entity.() -> Unit = {}) : super(value as DataType.() -> Unit)
 
+    override fun defaultEvents(): Boolean = attr(DEFAULT_EVENTS, { true })
+    override fun defaultEvents(value: Boolean): EntityI = apply { attr(DEFAULT_EVENTS, value) }
+
+    override fun defaultQueries(): Boolean = attr(DEFAULT_QUERIES, { true })
+    override fun defaultQueries(value: Boolean): EntityI = apply { attr(DEFAULT_QUERIES, value) }
+
+    override fun defaultCommands(): Boolean = attr(DEFAULT_COMMANDS, { true })
+    override fun defaultCommands(value: Boolean): EntityI = apply { attr(DEFAULT_COMMANDS, value) }
+
     override fun belongsToAggregate(): EntityI = attr(BELONGS_TO_AGGREGATE, { Entity.EMPTY })
     override fun belongsToAggregate(value: EntityI): EntityI = apply { attr(BELONGS_TO_AGGREGATE, value) }
 
@@ -247,38 +208,104 @@ open class Entity : DataType, EntityI {
     override fun controller(value: ControllerI): ControllerI = applyAndReturn { controllers().addItem(value); value }
     override fun controller(value: ControllerI.() -> Unit): ControllerI = controller(Controller(value))
 
-    override fun commands(): ListMultiHolderI<CommandsI> = itemAsList(COMMANDS, CommandsI::class.java, true, true)
-    override fun commands(vararg value: CommandsI): EntityI = apply { commands().addItems(value.asList()) }
-    override fun command(value: CommandsI): CommandsI = applyAndReturn { commands().addItem(value); value }
-    override fun command(value: CommandsI.() -> Unit): CommandsI = command(Commands(value))
+    override fun findBys(): ListMultiHolderI<FindByI> = itemAsList(FIND_BYS, FindByI::class.java, true, true)
+    override fun findBys(vararg value: FindByI): EntityI = apply { findBys().addItems(value.asList()) }
+    override fun findBy(value: FindByI): FindByI = applyAndReturn { findBys().addItem(value); value }
+    override fun findBy(value: FindByI.() -> Unit): FindByI = findBy(FindBy(value))
 
-    override fun queries(): ListMultiHolderI<QueriesI> = itemAsList(QUERIES, QueriesI::class.java, true, true)
-    override fun queries(vararg value: QueriesI): EntityI = apply { queries().addItems(value.asList()) }
-    override fun query(value: QueriesI): QueriesI = applyAndReturn { queries().addItem(value); value }
-    override fun query(value: QueriesI.() -> Unit): QueriesI = query(Queries(value))
+    override fun countBys(): ListMultiHolderI<CountByI> = itemAsList(COUNT_BYS, CountByI::class.java, true, true)
+    override fun countBys(vararg value: CountByI): EntityI = apply { countBys().addItems(value.asList()) }
+    override fun countBy(value: CountByI): CountByI = applyAndReturn { countBys().addItem(value); value }
+    override fun countBy(value: CountByI.() -> Unit): CountByI = countBy(CountBy(value))
 
-    override fun events(): ListMultiHolderI<EventsI> = itemAsList(EVENTS, EventsI::class.java, true, true)
-    override fun events(vararg value: EventsI): EntityI = apply { events().addItems(value.asList()) }
-    override fun event(value: EventsI): EventsI = applyAndReturn { events().addItem(value); value }
-    override fun event(value: EventsI.() -> Unit): EventsI = event(Events(value))
+    override fun existBys(): ListMultiHolderI<ExistByI> = itemAsList(EXIST_BYS, ExistByI::class.java, true, true)
+    override fun existBys(vararg value: ExistByI): EntityI = apply { existBys().addItems(value.asList()) }
+    override fun existBy(value: ExistByI): ExistByI = applyAndReturn { existBys().addItem(value); value }
+    override fun existBy(value: ExistByI.() -> Unit): ExistByI = existBy(ExistBy(value))
+
+    override fun commands(): ListMultiHolderI<BussinesCommandI> = itemAsList(COMMANDS, BussinesCommandI::class.java, true, true)
+    override fun commands(vararg value: BussinesCommandI): EntityI = apply { commands().addItems(value.asList()) }
+    override fun command(value: BussinesCommandI): BussinesCommandI = applyAndReturn { commands().addItem(value); value }
+    override fun command(value: BussinesCommandI.() -> Unit): BussinesCommandI = command(BussinesCommand(value))
+
+    override fun composites(): ListMultiHolderI<CompositeCommandI> = itemAsList(COMPOSITES, CompositeCommandI::class.java, true, true)
+    override fun composites(vararg value: CompositeCommandI): EntityI = apply { composites().addItems(value.asList()) }
+    override fun composite(value: CompositeCommandI): CompositeCommandI = applyAndReturn { composites().addItem(value); value }
+    override fun composite(value: CompositeCommandI.() -> Unit): CompositeCommandI = composite(CompositeCommand(value))
+
+    override fun createBys(): ListMultiHolderI<CreateByI> = itemAsList(CREATE_BYS, CreateByI::class.java, true, true)
+    override fun createBys(vararg value: CreateByI): EntityI = apply { createBys().addItems(value.asList()) }
+    override fun createBy(value: CreateByI): CreateByI = applyAndReturn { createBys().addItem(value); value }
+    override fun createBy(value: CreateByI.() -> Unit): CreateByI = createBy(CreateBy(value))
+
+    override fun updateBys(): ListMultiHolderI<UpdateByI> = itemAsList(UPDATE_BYS, UpdateByI::class.java, true, true)
+    override fun updateBys(vararg value: UpdateByI): EntityI = apply { updateBys().addItems(value.asList()) }
+    override fun updateBy(value: UpdateByI): UpdateByI = applyAndReturn { updateBys().addItem(value); value }
+    override fun updateBy(value: UpdateByI.() -> Unit): UpdateByI = updateBy(UpdateBy(value))
+
+    override fun deleteBys(): ListMultiHolderI<DeleteByI> = itemAsList(DELETE_BYS, DeleteByI::class.java, true, true)
+    override fun deleteBys(vararg value: DeleteByI): EntityI = apply { deleteBys().addItems(value.asList()) }
+    override fun deleteBy(value: DeleteByI): DeleteByI = applyAndReturn { deleteBys().addItem(value); value }
+    override fun deleteBy(value: DeleteByI.() -> Unit): DeleteByI = deleteBy(DeleteBy(value))
+
+    override fun events(): ListMultiHolderI<BussinesEventI> = itemAsList(EVENTS, BussinesEventI::class.java, true, true)
+    override fun events(vararg value: BussinesEventI): EntityI = apply { events().addItems(value.asList()) }
+    override fun event(value: BussinesEventI): BussinesEventI = applyAndReturn { events().addItem(value); value }
+    override fun event(value: BussinesEventI.() -> Unit): BussinesEventI = event(BussinesEvent(value))
+
+    override fun created(): ListMultiHolderI<CreatedI> = itemAsList(CREATED, CreatedI::class.java, true, true)
+    override fun created(vararg value: CreatedI): EntityI = apply { created().addItems(value.asList()) }
+    override fun created(value: CreatedI): CreatedI = applyAndReturn { created().addItem(value); value }
+    override fun created(value: CreatedI.() -> Unit): CreatedI = created(Created(value))
+
+    override fun updated(): ListMultiHolderI<UpdatedI> = itemAsList(UPDATED, UpdatedI::class.java, true, true)
+    override fun updated(vararg value: UpdatedI): EntityI = apply { updated().addItems(value.asList()) }
+    override fun updated(value: UpdatedI): UpdatedI = applyAndReturn { updated().addItem(value); value }
+    override fun updated(value: UpdatedI.() -> Unit): UpdatedI = updated(Updated(value))
+
+    override fun deleted(): ListMultiHolderI<DeletedI> = itemAsList(DELETED, DeletedI::class.java, true, true)
+    override fun deleted(vararg value: DeletedI): EntityI = apply { deleted().addItems(value.asList()) }
+    override fun deleted(value: DeletedI): DeletedI = applyAndReturn { deleted().addItem(value); value }
+    override fun deleted(value: DeletedI.() -> Unit): DeletedI = deleted(Deleted(value))
 
     override fun fillSupportsItems() {
         aggregateFor()
         controllers()
+        findBys()
+        countBys()
+        existBys()
         commands()
-        queries()
+        composites()
+        createBys()
+        updateBys()
+        deleteBys()
         events()
+        created()
+        updated()
+        deleted()
         super.fillSupportsItems()
     }
 
     companion object {
         val EMPTY = Entity { name(ItemEmpty.name()) }.apply<Entity> { init() }
+        val DEFAULT_EVENTS = "_defaultEvents"
+        val DEFAULT_QUERIES = "_defaultQueries"
+        val DEFAULT_COMMANDS = "_defaultCommands"
         val BELONGS_TO_AGGREGATE = "_belongsToAggregate"
         val AGGREGATE_FOR = "_aggregateFor"
         val CONTROLLERS = "_controllers"
+        val FIND_BYS = "_findBys"
+        val COUNT_BYS = "_countBys"
+        val EXIST_BYS = "_existBys"
         val COMMANDS = "_commands"
-        val QUERIES = "_queries"
+        val COMPOSITES = "_composites"
+        val CREATE_BYS = "_createBys"
+        val UPDATE_BYS = "_updateBys"
+        val DELETE_BYS = "_deleteBys"
         val EVENTS = "_events"
+        val CREATED = "_created"
+        val UPDATED = "_updated"
+        val DELETED = "_deleted"
     }
 }
 
@@ -288,47 +315,6 @@ open class Event : CompilationUnit, EventI {
 
     companion object {
         val EMPTY = Event { name(ItemEmpty.name()) }.apply<Event> { init() }
-    }
-}
-
-
-open class Events : Controller, EventsI {
-    constructor(value: Events.() -> Unit = {}) : super(value as Controller.() -> Unit)
-
-    override fun events(): ListMultiHolderI<BussinesEventI> = itemAsList(EVENTS, BussinesEventI::class.java, true, true)
-    override fun events(vararg value: BussinesEventI): EventsI = apply { events().addItems(value.asList()) }
-    override fun event(value: BussinesEventI): BussinesEventI = applyAndReturn { events().addItem(value); value }
-    override fun event(value: BussinesEventI.() -> Unit): BussinesEventI = event(BussinesEvent(value))
-
-    override fun created(): ListMultiHolderI<CreatedI> = itemAsList(CREATED, CreatedI::class.java, true, true)
-    override fun created(vararg value: CreatedI): EventsI = apply { created().addItems(value.asList()) }
-    override fun created(value: CreatedI): CreatedI = applyAndReturn { created().addItem(value); value }
-    override fun created(value: CreatedI.() -> Unit): CreatedI = created(Created(value))
-
-    override fun updated(): ListMultiHolderI<UpdatedI> = itemAsList(UPDATED, UpdatedI::class.java, true, true)
-    override fun updated(vararg value: UpdatedI): EventsI = apply { updated().addItems(value.asList()) }
-    override fun updated(value: UpdatedI): UpdatedI = applyAndReturn { updated().addItem(value); value }
-    override fun updated(value: UpdatedI.() -> Unit): UpdatedI = updated(Updated(value))
-
-    override fun deleted(): ListMultiHolderI<DeletedI> = itemAsList(DELETED, DeletedI::class.java, true, true)
-    override fun deleted(vararg value: DeletedI): EventsI = apply { deleted().addItems(value.asList()) }
-    override fun deleted(value: DeletedI): DeletedI = applyAndReturn { deleted().addItem(value); value }
-    override fun deleted(value: DeletedI.() -> Unit): DeletedI = deleted(Deleted(value))
-
-    override fun fillSupportsItems() {
-        events()
-        created()
-        updated()
-        deleted()
-        super.fillSupportsItems()
-    }
-
-    companion object {
-        val EMPTY = Events { name(ItemEmpty.name()) }.apply<Events> { init() }
-        val EVENTS = "_events"
-        val CREATED = "_created"
-        val UPDATED = "_updated"
-        val DELETED = "_deleted"
     }
 }
 
@@ -472,40 +458,6 @@ open class ModuleGroup : StructureUnit, ModuleGroupI {
     companion object {
         val EMPTY = ModuleGroup { name(ItemEmpty.name()) }.apply<ModuleGroup> { init() }
         val MODULES = "_modules"
-    }
-}
-
-
-open class Queries : Controller, QueriesI {
-    constructor(value: Queries.() -> Unit = {}) : super(value as Controller.() -> Unit)
-
-    override fun findBys(): ListMultiHolderI<FindByI> = itemAsList(FIND_BYS, FindByI::class.java, true, true)
-    override fun findBys(vararg value: FindByI): QueriesI = apply { findBys().addItems(value.asList()) }
-    override fun findBy(value: FindByI): FindByI = applyAndReturn { findBys().addItem(value); value }
-    override fun findBy(value: FindByI.() -> Unit): FindByI = findBy(FindBy(value))
-
-    override fun countBys(): ListMultiHolderI<CountByI> = itemAsList(COUNT_BYS, CountByI::class.java, true, true)
-    override fun countBys(vararg value: CountByI): QueriesI = apply { countBys().addItems(value.asList()) }
-    override fun countBy(value: CountByI): CountByI = applyAndReturn { countBys().addItem(value); value }
-    override fun countBy(value: CountByI.() -> Unit): CountByI = countBy(CountBy(value))
-
-    override fun existBys(): ListMultiHolderI<ExistByI> = itemAsList(EXIST_BYS, ExistByI::class.java, true, true)
-    override fun existBys(vararg value: ExistByI): QueriesI = apply { existBys().addItems(value.asList()) }
-    override fun existBy(value: ExistByI): ExistByI = applyAndReturn { existBys().addItem(value); value }
-    override fun existBy(value: ExistByI.() -> Unit): ExistByI = existBy(ExistBy(value))
-
-    override fun fillSupportsItems() {
-        findBys()
-        countBys()
-        existBys()
-        super.fillSupportsItems()
-    }
-
-    companion object {
-        val EMPTY = Queries { name(ItemEmpty.name()) }.apply<Queries> { init() }
-        val FIND_BYS = "_findBys"
-        val COUNT_BYS = "_countBys"
-        val EXIST_BYS = "_existBys"
     }
 }
 

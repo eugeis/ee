@@ -204,3 +204,7 @@ fun ItemI.initBlackName() {
         }
     }
 }
+
+fun ItemI.initIfNotInitialized() {
+    if (!isInitialized()) init()
+}

@@ -29,10 +29,6 @@ open class DesignGoGenerator {
 
         addCommandsAndEventsForAggregates()
 
-        addCommandEnumsForAggregate()
-
-        addEventEnumsForAggregate()
-
         addQueriesForAggregates()
 
         addEventhorizonArtifactsForAggregate()

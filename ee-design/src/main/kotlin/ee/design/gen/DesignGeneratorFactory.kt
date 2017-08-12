@@ -40,12 +40,18 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
 
         val commands: StructureUnitI.() -> List<CommandI> = { findDownByType(CommandI::class.java) }
         val commandEnums: StructureUnitI.() -> List<EnumTypeI> = {
-            findDownByType(EnumTypeI::class.java).filter { it.parent() is Commands }
+            findDownByType(EnumTypeI::class.java).filter {
+                it.parent() is ControllerI &&
+                        it.name().endsWith("CommandType")
+            }
         }
 
         val events: StructureUnitI.() -> List<EventI> = { findDownByType(EventI::class.java) }
         val eventEnums: StructureUnitI.() -> List<EnumTypeI> = {
-            findDownByType(EnumTypeI::class.java).filter { it.parent() is Events }
+            findDownByType(EnumTypeI::class.java).filter {
+                it.parent() is ControllerI &&
+                        it.name().endsWith("EventType")
+            }
         }
 
         val ehEnums: StructureUnitI.() -> List<EnumTypeI> = {

@@ -68,17 +68,26 @@ fun <T : OperationI> T.toGoSetupHttpRouterBody(c: GenerationContext,
             """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
         }}"""
     }}${creaters.joinSurroundIfNotEmptyToString("") {
+        val idParam = it.props().find { it.key() }
+        val paramsNoId = it.props().filter { !it.key() }
         """
-    router.Methods(${c.n(g.gee.net.POST, api)}).PathPrefix(o.PathPrefix).Name("${
-        it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
+    router.Methods(${c.n(g.gee.net.POST, api)}).PathPrefix(o.PathPrefix)${
+        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
+        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
     }}${updaters.joinSurroundIfNotEmptyToString("") {
+        val idParam = it.props().find { it.key() }
+        val paramsNoId = it.props().filter { !it.key() }
         """
-    router.Methods(${c.n(g.gee.net.PUT, api)}).PathPrefix(o.PathPrefix).Name("${
-        it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
+    router.Methods(${c.n(g.gee.net.PUT, api)}).PathPrefix(o.PathPrefix)${
+        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
+        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
     }}${deleters.joinSurroundIfNotEmptyToString("") {
+        val idParam = it.props().find { it.key() }
+        val paramsNoId = it.props().filter { !it.key() }
         """
-    router.Methods(${c.n(g.gee.net.DELETE, api)}).PathPrefix(o.PathPrefix).Name("${
-        it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
+    router.Methods(${c.n(g.gee.net.DELETE, api)}).PathPrefix(o.PathPrefix)${
+        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
+        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
     }}"""
 }
 

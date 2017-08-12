@@ -119,6 +119,7 @@ fun lambda(vararg params: AttributeI, adapt: OperationI.() -> Unit = {}): Lambda
 
 interface TypedAttributeI<T : TypeI> : AttributeI {
     fun sub(subType: T.() -> AttributeI): AttributeI {
+        initIfNotInitialized()
         //TODO create new structure with parent and sub type
         return (type() as T).subType()
     }

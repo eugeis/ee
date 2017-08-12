@@ -48,19 +48,6 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val basics = prop(Basic).multi(true).nonFluent("basic").doc("Baics used special for controller needs")
     }
 
-    object Queries : CompilationUnit({ superUnit(Controller) }) {
-        val findBys = prop(FindBy).multi(true).nonFluent("findBy")
-        val countBys = prop(CountBy).multi(true).nonFluent("countBy")
-        val existBys = prop(ExistBy).multi(true).nonFluent("existBy")
-    }
-
-    object Events : CompilationUnit({ superUnit(Controller) }) {
-        val events = prop(BussinesEvent).multi(true).nonFluent("event")
-        val created = prop(Created).multi(true).nonFluent("created")
-        val updated = prop(Updated).multi(true).nonFluent("updated")
-        val deleted = prop(Deleted).multi(true).nonFluent("deleted")
-    }
-
     object Command : CompilationUnit({ superUnit(l.CompilationUnit) }) {
         val event = prop(Event).doc("Corresponding event")
     }
@@ -69,14 +56,6 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
 
     object CompositeCommand : CompilationUnit({ superUnit(l.CompilationUnit) }) {
         val commands = prop(Command).multi(true)
-    }
-
-    object Commands : CompilationUnit({ superUnit(Controller) }) {
-        val commands = prop(BussinesCommand).multi(true).nonFluent("command")
-        val composites = prop(CompositeCommand).multi(true).nonFluent("composite")
-        val createBys = prop(CreateBy).multi(true).nonFluent("createBy")
-        val updateBys = prop(UpdateBy).multi(true).nonFluent("updateBy")
-        val deleteBys = prop(DeleteBy).multi(true).nonFluent("deleteBy")
     }
 
     object FindBy : CompilationUnit({ superUnit(l.DataTypeOperation) })
@@ -92,12 +71,28 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
     object Updated : CompilationUnit({ superUnit(Event) })
 
     object Entity : CompilationUnit({ superUnit(l.DataType) }) {
+        val defaultEvents = propB().value(true)
+        val defaultQueries = propB().value(true)
+        val defaultCommands = propB().value(true)
+
         val belongsToAggregate = prop(Entity)
         val aggregateFor = prop(Entity).multi(true)
         val controllers = prop(Controller).multi(true).nonFluent("controller")
-        val commands = prop(Commands).multi(true).nonFluent("command")
-        val queries = prop(Queries).multi(true).nonFluent("query")
-        val events = prop(Events).multi(true).nonFluent("event")
+
+        val findBys = prop(FindBy).multi(true).nonFluent("findBy")
+        val countBys = prop(CountBy).multi(true).nonFluent("countBy")
+        val existBys = prop(ExistBy).multi(true).nonFluent("existBy")
+
+        val commands = prop(BussinesCommand).multi(true).nonFluent("command")
+        val composites = prop(CompositeCommand).multi(true).nonFluent("composite")
+        val createBys = prop(CreateBy).multi(true).nonFluent("createBy")
+        val updateBys = prop(UpdateBy).multi(true).nonFluent("updateBy")
+        val deleteBys = prop(DeleteBy).multi(true).nonFluent("deleteBy")
+
+        val events = prop(BussinesEvent).multi(true).nonFluent("event")
+        val created = prop(Created).multi(true).nonFluent("created")
+        val updated = prop(Updated).multi(true).nonFluent("updated")
+        val deleted = prop(Deleted).multi(true).nonFluent("deleted")
     }
 
     object Basic : CompilationUnit({ superUnit(l.DataType) })

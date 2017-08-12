@@ -33,34 +33,6 @@ interface CommandI : CompilationUnitI {
 }
 
 
-interface CommandsI : ControllerI {
-    fun commands(): ListMultiHolderI<BussinesCommandI>
-    fun commands(vararg value: BussinesCommandI): CommandsI
-    fun command(value: BussinesCommandI): BussinesCommandI
-    fun command(value: BussinesCommandI.() -> Unit = {}): BussinesCommandI
-
-    fun composites(): ListMultiHolderI<CompositeCommandI>
-    fun composites(vararg value: CompositeCommandI): CommandsI
-    fun composite(value: CompositeCommandI): CompositeCommandI
-    fun composite(value: CompositeCommandI.() -> Unit = {}): CompositeCommandI
-
-    fun createBys(): ListMultiHolderI<CreateByI>
-    fun createBys(vararg value: CreateByI): CommandsI
-    fun createBy(value: CreateByI): CreateByI
-    fun createBy(value: CreateByI.() -> Unit = {}): CreateByI
-
-    fun updateBys(): ListMultiHolderI<UpdateByI>
-    fun updateBys(vararg value: UpdateByI): CommandsI
-    fun updateBy(value: UpdateByI): UpdateByI
-    fun updateBy(value: UpdateByI.() -> Unit = {}): UpdateByI
-
-    fun deleteBys(): ListMultiHolderI<DeleteByI>
-    fun deleteBys(vararg value: DeleteByI): CommandsI
-    fun deleteBy(value: DeleteByI): DeleteByI
-    fun deleteBy(value: DeleteByI.() -> Unit = {}): DeleteByI
-}
-
-
 interface CompI : ModuleGroupI {
     fun moduleGroups(): ListMultiHolderI<ModuleGroupI>
     fun moduleGroups(vararg value: ModuleGroupI): CompI
@@ -112,6 +84,15 @@ interface DeletedI : EventI {
 
 
 interface EntityI : DataTypeI {
+    fun defaultEvents(): Boolean
+    fun defaultEvents(value: Boolean): EntityI
+
+    fun defaultQueries(): Boolean
+    fun defaultQueries(value: Boolean): EntityI
+
+    fun defaultCommands(): Boolean
+    fun defaultCommands(value: Boolean): EntityI
+
     fun belongsToAggregate(): EntityI
     fun belongsToAggregate(value: EntityI): EntityI
 
@@ -123,47 +104,69 @@ interface EntityI : DataTypeI {
     fun controller(value: ControllerI): ControllerI
     fun controller(value: ControllerI.() -> Unit = {}): ControllerI
 
-    fun commands(): ListMultiHolderI<CommandsI>
-    fun commands(vararg value: CommandsI): EntityI
-    fun command(value: CommandsI): CommandsI
-    fun command(value: CommandsI.() -> Unit = {}): CommandsI
+    fun findBys(): ListMultiHolderI<FindByI>
+    fun findBys(vararg value: FindByI): EntityI
+    fun findBy(value: FindByI): FindByI
+    fun findBy(value: FindByI.() -> Unit = {}): FindByI
 
-    fun queries(): ListMultiHolderI<QueriesI>
-    fun queries(vararg value: QueriesI): EntityI
-    fun query(value: QueriesI): QueriesI
-    fun query(value: QueriesI.() -> Unit = {}): QueriesI
+    fun countBys(): ListMultiHolderI<CountByI>
+    fun countBys(vararg value: CountByI): EntityI
+    fun countBy(value: CountByI): CountByI
+    fun countBy(value: CountByI.() -> Unit = {}): CountByI
 
-    fun events(): ListMultiHolderI<EventsI>
-    fun events(vararg value: EventsI): EntityI
-    fun event(value: EventsI): EventsI
-    fun event(value: EventsI.() -> Unit = {}): EventsI
-}
+    fun existBys(): ListMultiHolderI<ExistByI>
+    fun existBys(vararg value: ExistByI): EntityI
+    fun existBy(value: ExistByI): ExistByI
+    fun existBy(value: ExistByI.() -> Unit = {}): ExistByI
 
+    fun commands(): ListMultiHolderI<BussinesCommandI>
+    fun commands(vararg value: BussinesCommandI): EntityI
+    fun command(value: BussinesCommandI): BussinesCommandI
+    fun command(value: BussinesCommandI.() -> Unit = {}): BussinesCommandI
 
-interface EventI : CompilationUnitI {
-}
+    fun composites(): ListMultiHolderI<CompositeCommandI>
+    fun composites(vararg value: CompositeCommandI): EntityI
+    fun composite(value: CompositeCommandI): CompositeCommandI
+    fun composite(value: CompositeCommandI.() -> Unit = {}): CompositeCommandI
 
+    fun createBys(): ListMultiHolderI<CreateByI>
+    fun createBys(vararg value: CreateByI): EntityI
+    fun createBy(value: CreateByI): CreateByI
+    fun createBy(value: CreateByI.() -> Unit = {}): CreateByI
 
-interface EventsI : ControllerI {
+    fun updateBys(): ListMultiHolderI<UpdateByI>
+    fun updateBys(vararg value: UpdateByI): EntityI
+    fun updateBy(value: UpdateByI): UpdateByI
+    fun updateBy(value: UpdateByI.() -> Unit = {}): UpdateByI
+
+    fun deleteBys(): ListMultiHolderI<DeleteByI>
+    fun deleteBys(vararg value: DeleteByI): EntityI
+    fun deleteBy(value: DeleteByI): DeleteByI
+    fun deleteBy(value: DeleteByI.() -> Unit = {}): DeleteByI
+
     fun events(): ListMultiHolderI<BussinesEventI>
-    fun events(vararg value: BussinesEventI): EventsI
+    fun events(vararg value: BussinesEventI): EntityI
     fun event(value: BussinesEventI): BussinesEventI
     fun event(value: BussinesEventI.() -> Unit = {}): BussinesEventI
 
     fun created(): ListMultiHolderI<CreatedI>
-    fun created(vararg value: CreatedI): EventsI
+    fun created(vararg value: CreatedI): EntityI
     fun created(value: CreatedI): CreatedI
     fun created(value: CreatedI.() -> Unit = {}): CreatedI
 
     fun updated(): ListMultiHolderI<UpdatedI>
-    fun updated(vararg value: UpdatedI): EventsI
+    fun updated(vararg value: UpdatedI): EntityI
     fun updated(value: UpdatedI): UpdatedI
     fun updated(value: UpdatedI.() -> Unit = {}): UpdatedI
 
     fun deleted(): ListMultiHolderI<DeletedI>
-    fun deleted(vararg value: DeletedI): EventsI
+    fun deleted(vararg value: DeletedI): EntityI
     fun deleted(value: DeletedI): DeletedI
     fun deleted(value: DeletedI.() -> Unit = {}): DeletedI
+}
+
+
+interface EventI : CompilationUnitI {
 }
 
 
@@ -231,24 +234,6 @@ interface ModuleI : StructureUnitI {
 interface ModuleGroupI : StructureUnitI {
     fun modules(): ListMultiHolderI<ModuleI>
     fun modules(vararg value: ModuleI): ModuleGroupI
-}
-
-
-interface QueriesI : ControllerI {
-    fun findBys(): ListMultiHolderI<FindByI>
-    fun findBys(vararg value: FindByI): QueriesI
-    fun findBy(value: FindByI): FindByI
-    fun findBy(value: FindByI.() -> Unit = {}): FindByI
-
-    fun countBys(): ListMultiHolderI<CountByI>
-    fun countBys(vararg value: CountByI): QueriesI
-    fun countBy(value: CountByI): CountByI
-    fun countBy(value: CountByI.() -> Unit = {}): CountByI
-
-    fun existBys(): ListMultiHolderI<ExistByI>
-    fun existBys(vararg value: ExistByI): QueriesI
-    fun existBy(value: ExistByI): ExistByI
-    fun existBy(value: ExistByI.() -> Unit = {}): ExistByI
 }
 
 

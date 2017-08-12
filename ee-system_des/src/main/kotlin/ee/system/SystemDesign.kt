@@ -38,22 +38,18 @@ object System : Comp({ artifact("ee-system").namespace("ee.system") }) {
             val dependsOn = prop(n.List.GT(Service))
             val dependsOnMe = prop(n.List.GT(Service))
 
-            object queries : Queries() {
-                val findByCategory = findBy(category)
-            }
+            val findByCategory = findBy(category)
 
-            object commands : Commands() {
-                val start = command()
-                val stop = command()
-                val ping = command()
+            val start = command()
+            val stop = command()
+            val ping = command()
 
-                val copyLogs = command { p("target", n.Path) }
+            val copyLogs = command { p("target", n.Path) }
 
-                val copyConfigs = command { p("target", n.Path) }
+            val copyConfigs = command { p("target", n.Path) }
 
-                val deleteLogs = command()
-                val deleteOpsData = command()
-            }
+            val deleteLogs = command()
+            val deleteOpsData = command()
 
             object controller : Controller() {
                 val start = op()
@@ -125,12 +121,10 @@ object System : Comp({ artifact("ee-system").namespace("ee.system") }) {
 
             val paths = prop(PackagePaths)
 
-            object commands : Commands() {
-                val prepare = command(p("params", n.Map))
-                val configure = command(p("params", n.Map))
-                val install = command(p("params", n.Map))
-                val uninstall = command()
-            }
+            val prepare = command(p("params", n.Map))
+            val configure = command(p("params", n.Map))
+            val install = command(p("params", n.Map))
+            val uninstall = command()
 
             object controller : Controller() {
                 val prepare = op(p("params", n.Map))
@@ -214,20 +208,18 @@ object System : Comp({ artifact("ee-system").namespace("ee.system") }) {
         object Artifact : Entity() {
             val id = prop()
 
-            object commands : Commands() {
-                val artifactCommand = command(id)
+            val artifactCommand = command(id)
 
-                //build
-                val build = command { superUnit(artifactCommand) }
-                val clean = command { superUnit(artifactCommand) }
-                val cleanBuild = composite(clean, build)
-                val test = command { superUnit(artifactCommand) }
-                val buildTest = composite(build, test)
+            //build
+            val build = command { superUnit(artifactCommand) }
+            val clean = command { superUnit(artifactCommand) }
+            val cleanBuild = composite(clean, build)
+            val test = command { superUnit(artifactCommand) }
+            val buildTest = composite(build, test)
 
-                //eclipse
-                val eclipse = command { superUnit(artifactCommand) }
-                val cleanEclipse = command { superUnit(artifactCommand) }
-            }
+            //eclipse
+            val eclipse = command { superUnit(artifactCommand) }
+            val cleanEclipse = command { superUnit(artifactCommand) }
         }
 
 

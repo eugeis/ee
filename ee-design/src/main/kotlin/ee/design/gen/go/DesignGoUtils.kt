@@ -17,7 +17,6 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
             val httpRouters = arrayListOf<ControllerI>()
             items.forEach { item ->
                 item.extend {
-
                     val finders = findDownByType(FindBy::class.java)
                     val counters = findDownByType(CountByI::class.java)
                     val exists = findDownByType(ExistByI::class.java)
@@ -59,6 +58,12 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                         }
 
                         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+
+                        //add command type enum
+                        enumType {
+                            name("${item.name()}CommandType")
+                            commands.forEach { lit({ name(it.nameAndParentName().capitalize()) }) }
+                        }
                     }
 
                     //event handler
@@ -90,6 +95,12 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                         }
 
                         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+
+                        //add event type enum
+                        enumType {
+                            name("${item.name()}EventType")
+                            events.forEach { lit({ name(it.parentNameAndName().capitalize()) }) }
+                        }
                     }
 
                     aggregateInitializer.add(

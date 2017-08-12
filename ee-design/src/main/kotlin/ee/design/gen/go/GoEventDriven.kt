@@ -104,14 +104,14 @@ fun <T : OperationI> T.toGoEventHandlerApplyEvent(c: GenerationContext,
     val entity = findParentMust(EntityI::class.java)
     val events = entity.findDownByType(EventI::class.java)
     return """
-    ${events.joinSurroundIfNotEmptyToString("", "switch event.EventType() {") {
+    ${events.joinSurroundIfNotEmptyToString("", "switch event.EventType() {", """
+    default:
+		ret = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("Not supported event type '%v' for entity '%v", event.EventType(), entity))
+	}""") {
         """
     case ${it.parentNameAndName().capitalize()}Event:
         ret = o.${it.name().capitalize()}${DesignDerivedType.Handler}(event.Data().(${it.toGo(c, api)}), entity.(${entity.toGo(c, api)}))"""
-    }}
-    default:
-		ret = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("Not supported event type '%v' for entity '%v", event.EventType(), entity))
-	}"""
+    }}"""
 }
 
 fun <T : OperationI> T.toGoEventHandlerSetupBody(c: GenerationContext,
@@ -201,7 +201,7 @@ fun <T : CompilationUnitI> T.toGoAggregateInitializerRegisterForEvents(c: Genera
                                                                        api: String = DesignDerivedKind.API): String {
     val name = c.n(this, api)
     val entity = findParentMust(EntityI::class.java)
-    val events = entity.events().first().findDownByType(EventI::class.java)
+    val events = entity.events().findDownByType(EventI::class.java)
     return """
 ${events.joinSurroundIfNotEmptyToString(nL, nL) {
         """
