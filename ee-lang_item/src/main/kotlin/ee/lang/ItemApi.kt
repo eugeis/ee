@@ -170,7 +170,7 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
 
     fun itemType(): Class<I> = _type
 
-    protected fun fillThisOrNonInternalAsParent(item: I) {
+    protected fun fillThisOrNonInternalAsParentAndInit(item: I) {
         if (item is ItemI) {
             if (item.parent().isEMPTY()) {
                 if (item.internal() || !this.internal()) {
@@ -178,6 +178,7 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
                 } else {
                     item.parent(findParentNonInternal() ?: this)
                 }
+                if (isInitialized() && item.isInitialized()) item.init()
             } else {
                 log.trace("Can't set as parent '${this}(${this.name()})' to '$item(${
                 item.name()})', because current parent is ${item.parent()}(${item.parent().name()})")
@@ -225,7 +226,7 @@ open class ListMultiHolder<I>(_type: Class<I>, value: ListMultiHolder<I>.() -> U
         MultiHolder<I>(_type, value as MultiHolder<*>.() -> Unit), ListMultiHolderI<I>, MutableList<I> by _items {
 
     override fun <T : I> addItem(item: T): T {
-        fillThisOrNonInternalAsParent(item)
+        fillThisOrNonInternalAsParentAndInit(item)
         _items.add(item)
         return item
     }
@@ -272,7 +273,7 @@ open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Uni
         if (item is ItemI) {
             addItem(item.name(), item)
         } else {
-            fillThisOrNonInternalAsParent(item)
+            fillThisOrNonInternalAsParentAndInit(item)
             _items.put(item.toString(), item)
         }
         return item
@@ -283,7 +284,7 @@ open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Uni
     }
 
     override fun <T : I> addItem(name: String, item: T, attachParent: Boolean): T {
-        if (attachParent) fillThisOrNonInternalAsParent(item)
+        if (attachParent) fillThisOrNonInternalAsParentAndInit(item)
         _items.put(name, item)
         return item
     }
