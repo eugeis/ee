@@ -1,5 +1,6 @@
 package ee.lang.gen.go
 
+import ee.common.ext.ifElse
 import ee.lang.ConstructorI
 import ee.lang.DerivedController
 import ee.lang.ItemI
@@ -32,5 +33,7 @@ open class LangGoContextFactory : LangCommonContextFactory() {
         }
     }
 
-    override fun ConstructorI.buildNameForConstructor() = "New${parent().name().capitalize()}${name().capitalize()}"
+    override fun ConstructorI.buildNameForConstructor() = name().equals(parent().name()).ifElse(
+            { "New${name().capitalize()}" },
+            { "New${parent().name().capitalize()}${name().capitalize()}" })
 }

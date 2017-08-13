@@ -93,6 +93,13 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             object EntityNotExists : Operation()
 
             object IdsDismatch : Operation()
+
+            object HttpCommandHandler : ExternalType() {
+                val context = prop { type(g.context.Context) }
+                val commandBus = prop { type(g.eh.CommandBus) }
+
+                val ignore = constructorAllProps()
+            }
         }
     }
 

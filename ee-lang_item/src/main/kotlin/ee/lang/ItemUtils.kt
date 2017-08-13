@@ -6,6 +6,8 @@ import java.util.*
 
 private val log = LoggerFactory.getLogger("ItemUtils")
 
+val IGNORE = "ignore"
+
 data class InitChain<T>(val initFunctions: List<T.() -> Unit>) : Function1<T, Unit> {
     override fun invoke(p1: T): Unit {
         initFunctions.forEach { it.invoke(p1) }
@@ -140,7 +142,7 @@ fun <T : MultiHolderI<I>, I> T.initObjectTree(deriveNamespace: ItemI.() -> Strin
                 val child = getter.invoke(this)
                 if (child is ItemI) {
                     child.initIfNotInitialized()
-                    if (child.name().isBlank()) child.name(f.name)
+                    if (child.name().isBlank() && !f.name.equals(IGNORE)) child.name(f.name)
                     //set the parent, parent shall be the DSL model parent and not some internal object or reference object
                     child.parent(this)
                     if (!containsItem(child as I)) {

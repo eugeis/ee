@@ -44,6 +44,16 @@ fun <T : OperationI> T.toGoHttpHandlerBody(c: GenerationContext,
     ${c.n(g.fmt.Fprintf, api)}(w, "Hello, %q from ${parentNameAndName()}", ${c.n(g.html.EscapeString, api)}(r.URL.Path))"""
 }
 
+fun <T : OperationI> T.toGoHttpHandlerCommandBody(c: GenerationContext,
+                                                  derived: String = DesignDerivedKind.IMPL,
+                                                  api: String = DesignDerivedKind.API): String {
+    return (derivedFrom() is CommandI).then {
+        val command = derivedFrom() as CommandI
+        """
+    o.HandleCommand(&${command.nameAndParentName().capitalize()}{}, w, r)"""
+    }
+}
+
 fun <T : OperationI> T.toGoHttpHandlerIdBasedBody(c: GenerationContext,
                                                   derived: String = DesignDerivedKind.IMPL,
                                                   api: String = DesignDerivedKind.API): String {
@@ -54,19 +64,8 @@ fun <T : OperationI> T.toGoHttpHandlerIdBasedBody(c: GenerationContext,
     ${(derivedFrom() is CommandI).then {
         val command = derivedFrom() as CommandI
         """
-    decoder := ${c.n(g.encoding.json.NewDecoder, derived)}(r.Body)
-    command := &${command.nameAndParentName().capitalize()}{}
-    if err := decoder.Decode(command); err != nil {
-        w.WriteHeader(http.StatusBadRequest)
-        fmt.Fprintf(w, "Can't decode body to command %v because of %v", command, err)
-    }
-    defer r.Body.Close()
-
-    if err := o.commandBus.HandleCommand(o.context, command); err != nil {
-		w.WriteHeader(http.StatusExpectationFailed)
-		fmt.Fprintf(w, "Can't execute command %v because of %v", command, err)
-		return
-	}"""
+    o.HandleCommand(&${command.nameAndParentName().capitalize()}{}, w, r)
+    """
     }}
     ${c.n(g.fmt.Fprintf, api)}(w, "id=%v, %q from ${parentNameAndName()}", id, ${c.n(g.html.EscapeString, api)}(r.URL.Path))"""
 }

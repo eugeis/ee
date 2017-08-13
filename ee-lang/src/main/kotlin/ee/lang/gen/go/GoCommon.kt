@@ -58,8 +58,10 @@ fun <T : AttributeI> T.toGoValue(c: GenerationContext, derived: String): String 
 
 fun AttributeI.toGoInitCall(c: GenerationContext, derived: String): String {
     val name = "${anonymous().ifElse({ type().toGoCall(c, derived) }, { nameForMember() })}: "
-    return name + if (default() || value() != null || anonymous()) {
+    return name + if (default() || value() != null) {
         toGoValue(c, derived)
+    } else if (anonymous()) {
+        type().primaryOrFirstConstructor().toGoCall(c, derived, derived)
     } else {
         name()
     }
@@ -147,6 +149,12 @@ fun <T : AttributeI> T.toGoSignature(c: GenerationContext, api: String): String 
     })
 }
 
+fun <T : AttributeI> T.toGoCall(c: GenerationContext, api: String): String {
+    return anonymous().ifElse({ type().props().filter { !it.meta() }.toGoCall(c, api) }, {
+        "${name()}"
+    })
+}
+
 fun <T : AttributeI> T.toGoMember(c: GenerationContext, api: String): String {
     return anonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameForMember()} ${toGoTypeDef(c, api)}" })
 }
@@ -157,6 +165,10 @@ fun <T : AttributeI> T.toGoEnumMember(c: GenerationContext, api: String): String
 
 fun List<AttributeI>.toGoSignature(c: GenerationContext, api: String): String {
     return joinWrappedToString(", ") { it.toGoSignature(c, api) }
+}
+
+fun List<AttributeI>.toGoCall(c: GenerationContext, api: String): String {
+    return joinWrappedToString(", ") { it.toGoCall(c, api) }
 }
 
 fun <T : ConstructorI> T.toGo(c: GenerationContext, derived: String, api: String): String {
@@ -185,8 +197,7 @@ fun <T : AttributeI> T.toGoAssign(o: String): String {
 }
 
 fun <T : LogicUnitI> T.toGoCall(c: GenerationContext, derived: String, api: String): String {
-    return if (isNotEMPTY()) """${c.n(this, derived)}(${params().filter { !it.default() }.joinWrappedToString(
-            ", ", "                ") { it.name() }})""" else ""
+    return if (isNotEMPTY()) """${c.n(this, derived)}(${params().filter { !it.default() }.toGoCall(c, api)})""" else ""
 }
 
 fun <T : AttributeI> T.toGoType(c: GenerationContext, derived: String): String = type().toGo(c, derived)

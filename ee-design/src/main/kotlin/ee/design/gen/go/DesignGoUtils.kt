@@ -162,8 +162,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
                     val httpCommandHandler = controller {
                         name(DesignDerivedType.HttpCommandHandler).derivedAsType(DesignDerivedType.Http)
-                        prop { type(g.context.Context).replaceable(false).name("context") }
-                        prop { type(g.eh.CommandBus).replaceable(false).name("commandBus") }
+                        prop { type(g.gee.eh.HttpCommandHandler).anonymous(true).name("HttpCommandHandler") }
 
                         //commands
                         creaters.forEach {
@@ -172,7 +171,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
                                 derivedFrom(it)
-                                macrosBody(OperationI::toGoHttpHandlerIdBasedBody.name)
+                                macrosBody(OperationI::toGoHttpHandlerCommandBody.name)
                             }
                         }
 
