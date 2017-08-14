@@ -180,10 +180,8 @@ fun <T : OperationI> T.toGoEventHandlerSetupBody(c: GenerationContext,
             } else if entity.${entity.id().name().capitalize()} != event.${entity.id().name().capitalize()} {
                 ret = ${c.n(g.gee.eh.IdsDismatch, api)}(entity.${entity.id().name().capitalize()}, event.${entity.id().name().capitalize()}, ${
             c.n(entity, api)}${DesignDerivedType.AggregateType})
-            } else {${entity.props().joinSurroundIfNotEmptyToString("") { prop ->
-                """
-                entity.${prop.name().capitalize()} = ${prop.type().toGoNilOrEmpty(c)}"""
-            }}
+            } else {
+                *entity = *${entity.toGoInstance(c, derived, api)}
             }"""
         } else {
             "    ret = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"
@@ -216,7 +214,7 @@ fun <T : ConstructorI> T.toGoAggregateInitializerBody(c: GenerationContext,
 	ret = &$name{AggregateInitializer: ${c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer, api)}(${entity.name()}${DesignDerivedType.AggregateType},
         func(id ${c.n(g.eh.UUID)}) ${c.n(g.eh.Aggregate)} {
             return ${c.n(g.gee.eh.NewAggregateBase)}(${entity.name()}${DesignDerivedType.AggregateType}, id, commandHandler, eventHandler, ${
-    entity.primaryOrFirstConstructor().toGoCall(c, derived, api)})
+    entity.toGoInstance(c, derived, api)})
         },
         ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(),
         []func() error{commandHandler.SetupCommandHandler, eventHandler.SetupEventHandler},

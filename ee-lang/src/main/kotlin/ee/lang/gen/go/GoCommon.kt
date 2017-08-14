@@ -61,7 +61,7 @@ fun AttributeI.toGoInitCall(c: GenerationContext, derived: String): String {
     return name + if (default() || value() != null) {
         toGoValue(c, derived)
     } else if (anonymous()) {
-        type().primaryOrFirstConstructor().toGoCall(c, derived, derived)
+        type().toGoInstance(c, derived, derived)
     } else {
         name()
     }
@@ -93,8 +93,8 @@ fun <T : TypeI> T.toGoDefault(c: GenerationContext, derived: String, attr: Attri
                 "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI).toGo(c, derived)}.${baseType.toGo()}"
             } else if (baseType is EnumTypeI) {
                 "${c.n(this, derived)}.${baseType.literals().first().toGo()}"
-            } else if (baseType is CompilationUnitI) {
-                primaryOrFirstConstructor().toGoCall(c, derived, derived)
+            } else if (baseType is TypeI) {
+                toGoInstance(c, derived, derived)
             } else {
                 (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
             }
@@ -196,8 +196,16 @@ fun <T : AttributeI> T.toGoAssign(o: String): String {
             { name().decapitalize() })} = ${name()}"
 }
 
-fun <T : LogicUnitI> T.toGoCall(c: GenerationContext, derived: String, api: String): String {
-    return if (isNotEMPTY()) """${c.n(this, derived)}(${params().filter { !it.default() }.toGoCall(c, api)})""" else ""
+fun <T : LogicUnitI> T.toGoCall(c: GenerationContext, derived: String, api: String): String =
+        if (isNotEMPTY()) """${c.n(this, derived)}(${params().filter { !it.default() }.toGoCall(c, api)})""" else ""
+
+fun <T : TypeI> T.toGoInstance(c: GenerationContext, derived: String, api: String): String {
+    val constructor = primaryOrFirstConstructor()
+    return if (constructor != null) {
+        constructor.toGoCall(c, derived, api)
+    } else {
+        "&${c.n(this, derived)}{}"
+    }
 }
 
 fun <T : AttributeI> T.toGoType(c: GenerationContext, derived: String): String = type().toGo(c, derived)
