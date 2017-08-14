@@ -96,24 +96,23 @@ fun <T : OperationI> T.toGoCommandHandlerSetupBody(c: GenerationContext,
                                                    api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val commands = entity.findDownByType(CommandI::class.java)
+    val id = entity.id().name().capitalize()
     return commands.joinSurroundIfNotEmptyToString("") { item ->
-        val handler = "${item.name().capitalize()}${DesignDerivedType.Handler}"
+        val handler = c.n(item, DesignDerivedType.Handler).capitalize()
+        val aggregateType = c.n(entity, DesignDerivedType.AggregateType).capitalize()
         """
     if o.$handler == nil {
         o.$handler = func(command ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}, store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (ret error) {${
         if (item is CreateByI && item.event().isNotEMPTY()) {
             """
-            if len(entity.${entity.id().name().capitalize()}) > 0 {
-                ret = ${c.n(g.gee.eh.EntityAlreadyExists, api)}(entity.${entity.id().name().capitalize()}, ${c.n(entity, api)}${DesignDerivedType.AggregateType})
-            } else {
-                ${item.toGoStoreEvent(c, derived, api)}
+            if ret = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, command.$id, $aggregateType); ret == nil {${
+            item.toGoStoreEvent(c, derived, api)}
             }"""
         } else if ((item is UpdateByI || item is DeleteByI) && item.event().isNotEMPTY()) {
             """
-            if len(entity.${entity.id().name().capitalize()}) == 0 {
-                ret = ${c.n(g.gee.eh.EntityNotExists, api)}(entity.${entity.id().name().capitalize()}, ${c.n(entity, api)}${DesignDerivedType.AggregateType})
-            } else if entity.${entity.id().name().capitalize()} != command.${entity.id().name().capitalize()} {
-                ret = ${c.n(g.gee.eh.IdsDismatch, api)}(entity.${entity.id().name().capitalize()}, command.${entity.id().name().capitalize()}, ${
+            if ret = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, command.$id, $aggregateType); ret == nil {
+                ret = ${c.n(g.gee.eh.IdsDismatch, api)}(entity.${entity.id().name().capitalize()}, command.${
+            entity.id().name().capitalize()}, ${
             c.n(entity, api)}${DesignDerivedType.AggregateType})
             } else {
                 ${item.toGoStoreEvent(c, derived, api)}
@@ -123,8 +122,7 @@ fun <T : OperationI> T.toGoCommandHandlerSetupBody(c: GenerationContext,
         }}
             return
         }
-    }
-    """
+    }"""
     }
 }
 
@@ -150,37 +148,26 @@ fun <T : OperationI> T.toGoEventHandlerSetupBody(c: GenerationContext,
                                                  api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val events = entity.findDownByType(EventI::class.java)
+    val id = entity.id().name().capitalize()
     return events.joinSurroundIfNotEmptyToString("") { item ->
-        val handler = "${item.name().capitalize()}${DesignDerivedType.Handler}"
+        val handler = c.n(item, DesignDerivedType.Handler).capitalize()
+        val aggregateType = c.n(entity, DesignDerivedType.AggregateType).capitalize()
         """
     if o.$handler == nil {
         o.$handler = func(event ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}) (ret error) {${
         if (item is CreatedI) {
             """
-            if len(entity.${entity.id().name().capitalize()}) > 0 {
-                ret = ${c.n(g.gee.eh.EntityAlreadyExists, api)}(entity.${entity.id().name().capitalize()}, ${
-            c.n(entity, api)}${DesignDerivedType.AggregateType})
-            } else {${item.toGoApplyEvent(c)}
+            if ret = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, event.$id, $aggregateType); ret == nil {${
+            item.toGoApplyEvent(c)}
             }"""
         } else if (item is UpdatedI) {
             """
-            if len(entity.${entity.id().name().capitalize()}) == 0 {
-                ret = ${c.n(g.gee.eh.EntityNotExists, api)}(entity.${entity.id().name().capitalize()}, ${
-            c.n(entity, api)}${DesignDerivedType.AggregateType})
-            } else if entity.${entity.id().name().capitalize()} != event.${entity.id().name().capitalize()} {
-                ret = ${c.n(g.gee.eh.IdsDismatch, api)}(entity.${entity.id().name().capitalize()}, event.${entity.id().name().capitalize()}, ${
-            c.n(entity, api)}${DesignDerivedType.AggregateType})
-            } else {${item.toGoApplyEventWithoutKeys(c)}
+            if ret = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, event.$id, $aggregateType); ret == nil {${
+            item.toGoApplyEventWithoutKeys(c)}
             }"""
         } else if (item is DeletedI) {
             """
-            if len(entity.${entity.id().name().capitalize()}) == 0 {
-                ret = ${c.n(g.gee.eh.EntityNotExists, api)}(entity.${entity.id().name().capitalize()}, ${
-            c.n(entity, api)}${DesignDerivedType.AggregateType})
-            } else if entity.${entity.id().name().capitalize()} != event.${entity.id().name().capitalize()} {
-                ret = ${c.n(g.gee.eh.IdsDismatch, api)}(entity.${entity.id().name().capitalize()}, event.${entity.id().name().capitalize()}, ${
-            c.n(entity, api)}${DesignDerivedType.AggregateType})
-            } else {
+            if ret = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, event.$id, $aggregateType); ret == nil {
                 *entity = *${entity.toGoInstance(c, derived, api)}
             }"""
         } else {
@@ -188,8 +175,7 @@ fun <T : OperationI> T.toGoEventHandlerSetupBody(c: GenerationContext,
         }}
             return
         }
-    }
-    """
+    }"""
     }
 }
 

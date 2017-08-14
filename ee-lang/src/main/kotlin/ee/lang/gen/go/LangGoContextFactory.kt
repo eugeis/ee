@@ -5,6 +5,7 @@ import ee.lang.ConstructorI
 import ee.lang.DerivedController
 import ee.lang.ItemI
 import ee.lang.StructureUnitI
+import ee.lang.gen.common.LangCommonContextFactory
 
 open class LangGoContextFactory : LangCommonContextFactory() {
 
@@ -17,23 +18,21 @@ open class LangGoContextFactory : LangCommonContextFactory() {
     override fun contextBuilder(derived: DerivedController): StructureUnitI.() -> GoContext {
         return {
             val structureUnit = this
-            GoContext(moduleFolder = structureUnit.artifact(),
-                    namespace = structureUnit.namespace().toLowerCase(),
-                    derivedController = derived,
-                    macroController = macroController
+            GoContext(moduleFolder = structureUnit.artifact(), namespace = structureUnit.namespace().toLowerCase(),
+                    derivedController = derived, macroController = macroController
             )
         }
     }
 
-    override fun ItemI.buildName(): String {
-        return if (this is ConstructorI) {
-            buildName()
+    override fun buildName(item: ItemI, kind: String): String {
+        return if (item is ConstructorI) {
+            buildNameForConstructor(item, kind)
         } else {
-            name()
+            super.buildName(item, kind)
         }
     }
 
-    override fun ConstructorI.buildNameForConstructor() = name().equals(parent().name()).ifElse(
-            { "New${name().capitalize()}" },
-            { "New${parent().name().capitalize()}${name().capitalize()}" })
+    override fun buildNameForConstructor(item: ConstructorI, kind: String) = item.name().equals(item.parent().name()).ifElse(
+            { "New${buildNameCommon(item, kind).capitalize()}" },
+            { "New${buildNameCommon(item.parent(), kind).capitalize()}${buildNameCommon(item, kind).capitalize()}" })
 }

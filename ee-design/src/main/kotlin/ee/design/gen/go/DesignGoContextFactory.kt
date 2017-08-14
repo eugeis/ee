@@ -24,19 +24,16 @@ open class DesignGoContextFactory : LangGoContextFactory() {
         super.registerForImplOnly(derived)
     }
 
-    override fun ItemI.buildName(): String {
-        return if (this is CommandI) {
-            buildNameForCommand()
-        } else if (this is EventI) {
-            buildNameForEvent()
-        } else if (this is ConstructorI) {
-            buildNameForConstructor()
+    override fun buildName(item: ItemI, kind: String): String {
+        return if (item is CommandI) {
+            buildNameForCommand(item, kind)
+        } else if (item is EventI) {
+            buildNameForEvent(item, kind)
         } else {
-            name()
+            super.buildName(item, kind)
         }
     }
 
-    protected open fun CommandI.buildNameForCommand() = nameAndParentName().capitalize()
-
-    protected open fun EventI.buildNameForEvent() = parentNameAndName().capitalize()
+    protected open fun buildNameForCommand(item: CommandI, kind: String) = item.nameAndParentName().capitalize()
+    protected open fun buildNameForEvent(item: EventI, kind: String) = item.parentNameAndName().capitalize()
 }

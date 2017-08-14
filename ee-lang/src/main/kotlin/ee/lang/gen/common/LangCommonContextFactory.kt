@@ -1,4 +1,4 @@
-package ee.lang.gen.go
+package ee.lang.gen.common
 
 import ee.lang.*
 import ee.lang.gen.java.j
@@ -15,20 +15,23 @@ open class LangCommonContextFactory {
     }
 
     protected open fun registerForImplOnly(derived: DerivedController) {
-        derived.registerKinds(listOf(LangDerivedKind.API, LangDerivedKind.IMPL), isNotPartOfNativeTypes, { buildName() })
+        derived.registerKinds(listOf(LangDerivedKind.API, LangDerivedKind.IMPL), { buildName(this, it) }, isNotPartOfNativeTypes)
+        //derived.dynamicTransformer = DerivedByTransformer("DYNAMIC", { buildNameDynamic(this, it) }, isNotPartOfNativeTypes)
+
     }
 
     protected open fun contextBuilder(derived: DerivedController): StructureUnitI.() -> GenerationContext {
         return {
-            val structureUnit = this
-            GenerationContext(moduleFolder = structureUnit.artifact(),
-                    namespace = structureUnit.namespace().toLowerCase(),
-                    derivedController = derived,
-                    macroController = macroController
+            val su = this
+            GenerationContext(moduleFolder = su.artifact(), namespace = su.namespace().toLowerCase(),
+                    derivedController = derived, macroController = macroController
             )
         }
     }
 
-    protected open fun ItemI.buildName(): String = name()
-    protected open fun ConstructorI.buildNameForConstructor() = name()
+    protected open fun buildName(item: ItemI, kind: String): String = buildNameCommon(item, kind)
+
+    protected open fun buildNameCommon(item: ItemI, kind: String): String = item.name()
+    protected open fun buildNameDynamic(item: ItemI, kind: String): String = "${buildName(item, kind)}$kind"
+    protected open fun buildNameForConstructor(item: ConstructorI, kind: String) = buildName(item, kind)
 }

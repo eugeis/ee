@@ -94,6 +94,10 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
             object IdsDismatch : Operation()
 
+            object ValidateIdsMatch : Operation()
+
+            object ValidateNewId : Operation()
+
             object HttpCommandHandler : ExternalType() {
                 val context = prop { type(g.context.Context) }
                 val commandBus = prop { type(g.eh.CommandBus) }

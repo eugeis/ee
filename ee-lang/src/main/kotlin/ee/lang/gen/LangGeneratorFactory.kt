@@ -1,7 +1,7 @@
 package ee.lang.gen
 
 import ee.lang.*
-import ee.lang.gen.go.LangCommonContextFactory
+import ee.lang.gen.common.LangCommonContextFactory
 import ee.lang.gen.go.LangGoContextFactory
 import ee.lang.gen.go.LangGoTemplates
 import ee.lang.gen.go.itemAndTemplateNameAsGoFileName

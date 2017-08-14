@@ -5,7 +5,7 @@ import ee.lang.DerivedController
 import ee.lang.GenerationContext
 import ee.lang.StructureUnitI
 import ee.lang.findThisOrParent
-import ee.lang.gen.go.LangCommonContextFactory
+import ee.lang.gen.common.LangCommonContextFactory
 
 open class DesignSwaggerContextFactory : LangCommonContextFactory() {
     override fun contextBuilder(derived: DerivedController): StructureUnitI.() -> GenerationContext {

@@ -299,7 +299,7 @@ open class GenerationContext : Cloneable {
     }
 
     open fun n(item: ItemI, derivedKind: String = ""): String {
-        return "${types.addReturn(derivedController.derive(item, derivedKind)).name()}"
+        return types.addReturn(derivedController.derive(item, derivedKind)).name()
     }
 
     open fun <T : ItemI> body(macro: String, item: T, derivedKind: String = "", apiKind: String = ""): String {
