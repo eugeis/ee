@@ -181,7 +181,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
                                 derivedFrom(it)
-                                macrosBody(OperationI::toGoHttpHandlerIdBasedBody.name)
+                                macrosBody(OperationI::toGoHttpHandlerCommandBody.name)
                             }
                         }
 
@@ -191,7 +191,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
                                 derivedFrom(it)
-                                macrosBody(OperationI::toGoHttpHandlerIdBasedBody.name)
+                                macrosBody(OperationI::toGoHttpHandlerCommandBody.name)
                             }
                         }
 
@@ -200,7 +200,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
-                                macrosBody(OperationI::toGoHttpHandlerIdBasedBody.name)
+                                macrosBody(OperationI::toGoHttpHandlerCommandBody.name)
                             }
                         }
 

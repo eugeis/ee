@@ -48,9 +48,12 @@ fun <T : OperationI> T.toGoHttpHandlerCommandBody(c: GenerationContext,
                                                   derived: String = DesignDerivedKind.IMPL,
                                                   api: String = DesignDerivedKind.API): String {
     return (derivedFrom() is CommandI).then {
+        val entity = findParentMust(EntityI::class.java)
         val command = derivedFrom() as CommandI
         """
-    o.HandleCommand(&${command.nameAndParentName().capitalize()}{}, w, r)"""
+    vars := ${c.n(g.mux.Vars, api)}(r)
+    ${entity.id().name().decapitalize()} := ${c.n(g.eh.UUID, api)}(vars["${entity.id().name().decapitalize()}"])
+    o.HandleCommand(&${command.nameAndParentName().capitalize()}{${entity.id().name().capitalize()}: ${entity.id().name().decapitalize()}}, w, r)"""
     }
 }
 
@@ -61,12 +64,6 @@ fun <T : OperationI> T.toGoHttpHandlerIdBasedBody(c: GenerationContext,
     return """
     vars := ${c.n(g.mux.Vars, api)}(r)
     id := vars["${entity.id().name().decapitalize()}"]
-    ${(derivedFrom() is CommandI).then {
-        val command = derivedFrom() as CommandI
-        """
-    o.HandleCommand(&${command.nameAndParentName().capitalize()}{}, w, r)
-    """
-    }}
     ${c.n(g.fmt.Fprintf, api)}(w, "id=%v, %q from ${parentNameAndName()}", id, ${c.n(g.html.EscapeString, api)}(r.URL.Path))"""
 }
 
@@ -82,6 +79,13 @@ fun <T : CommandI> T.toGoStoreEvent(c: GenerationContext,
 
 fun <T : EventI> T.toGoApplyEvent(c: GenerationContext): String {
     return props().joinSurroundIfNotEmptyToString("") { prop ->
+        """
+                entity.${prop.name().capitalize()} = event.${prop.name().capitalize()}"""
+    }
+}
+
+fun <T : EventI> T.toGoApplyEventWithoutKeys(c: GenerationContext): String {
+    return props().filter { !it.key() }.joinSurroundIfNotEmptyToString("") { prop ->
         """
                 entity.${prop.name().capitalize()} = event.${prop.name().capitalize()}"""
     }
@@ -160,23 +164,23 @@ fun <T : OperationI> T.toGoEventHandlerSetupBody(c: GenerationContext,
             }"""
         } else if (item is UpdatedI) {
             """
-            if len(entity.${entity.id().name().capitalize()}) > 0 {
+            if len(entity.${entity.id().name().capitalize()}) == 0 {
                 ret = ${c.n(g.gee.eh.EntityNotExists, api)}(entity.${entity.id().name().capitalize()}, ${
             c.n(entity, api)}${DesignDerivedType.AggregateType})
             } else if entity.${entity.id().name().capitalize()} != event.${entity.id().name().capitalize()} {
                 ret = ${c.n(g.gee.eh.IdsDismatch, api)}(entity.${entity.id().name().capitalize()}, event.${entity.id().name().capitalize()}, ${
             c.n(entity, api)}${DesignDerivedType.AggregateType})
-            } else {${item.toGoApplyEvent(c)}
+            } else {${item.toGoApplyEventWithoutKeys(c)}
             }"""
         } else if (item is DeletedI) {
             """
-            if len(entity.${entity.id().name().capitalize()}) > 0 {
+            if len(entity.${entity.id().name().capitalize()}) == 0 {
                 ret = ${c.n(g.gee.eh.EntityNotExists, api)}(entity.${entity.id().name().capitalize()}, ${
             c.n(entity, api)}${DesignDerivedType.AggregateType})
             } else if entity.${entity.id().name().capitalize()} != event.${entity.id().name().capitalize()} {
                 ret = ${c.n(g.gee.eh.IdsDismatch, api)}(entity.${entity.id().name().capitalize()}, event.${entity.id().name().capitalize()}, ${
             c.n(entity, api)}${DesignDerivedType.AggregateType})
-            } else {${item.props().joinSurroundIfNotEmptyToString("") { prop ->
+            } else {${entity.props().joinSurroundIfNotEmptyToString("") { prop ->
                 """
                 entity.${prop.name().capitalize()} = ${prop.type().toGoNilOrEmpty(c)}"""
             }}
