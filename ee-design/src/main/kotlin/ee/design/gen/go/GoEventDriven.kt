@@ -111,10 +111,6 @@ fun <T : OperationI> T.toGoCommandHandlerSetupBody(c: GenerationContext,
         } else if ((item is UpdateByI || item is DeleteByI) && item.event().isNotEMPTY()) {
             """
             if ret = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, command.$id, $aggregateType); ret == nil {
-                ret = ${c.n(g.gee.eh.IdsDismatch, api)}(entity.${entity.id().name().capitalize()}, command.${
-            entity.id().name().capitalize()}, ${
-            c.n(entity, api)}${DesignDerivedType.AggregateType})
-            } else {
                 ${item.toGoStoreEvent(c, derived, api)}
             }"""
         } else {
