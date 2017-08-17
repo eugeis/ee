@@ -200,7 +200,7 @@ fun <T : ConstructorI> T.toGoAggregateInitializerBody(c: GenerationContext,
         },
         ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(),
         []func() error{commandHandler.SetupCommandHandler, eventHandler.SetupEventHandler},
-        eventStore, eventBus, eventPublisher, commandBus),
+        eventStore, eventBus, eventPublisher, commandBus, readRepos),
         ${entity.name()}${DesignDerivedType.CommandHandler}: commandHandler,
         ${entity.name()}${DesignDerivedType.EventHandler}: eventHandler,
     }

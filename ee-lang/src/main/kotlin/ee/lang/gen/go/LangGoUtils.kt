@@ -165,6 +165,18 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
         object UUID : ExternalType() {
         }
+
+        object ReadRepo : ExternalType({ ifc(true) }) {
+
+        }
+
+        object WriteRepo : ExternalType({ ifc(true) }) {
+
+        }
+
+        object ReadWriteRepo : ExternalType({ ifc(true) }) {
+
+        }
     }
 
 
