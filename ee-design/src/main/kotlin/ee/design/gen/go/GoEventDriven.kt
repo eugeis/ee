@@ -2,7 +2,6 @@ package ee.design.gen.go
 
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
-import ee.common.ext.toPlural
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.*
@@ -193,16 +192,18 @@ fun <T : ConstructorI> T.toGoAggregateInitializerBody(c: GenerationContext,
     return """
     commandHandler := &${entity.name()}${DesignDerivedType.CommandHandler}{}
     eventHandler := &${entity.name()}${DesignDerivedType.EventHandler}{}
+    projectorHandler := &${entity.name()}${DesignDerivedType.EventHandler}{}
 	ret = &$name{AggregateInitializer: ${c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer, api)}(${entity.name()}${DesignDerivedType.AggregateType},
         func(id ${c.n(g.eh.UUID)}) ${c.n(g.eh.Aggregate)} {
             return ${c.n(g.gee.eh.NewAggregateBase)}(${entity.name()}${DesignDerivedType.AggregateType}, id, commandHandler, eventHandler, ${
     entity.toGoInstance(c, derived, api)})
         },
-        ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(),
-        []func() error{commandHandler.SetupCommandHandler, eventHandler.SetupEventHandler},
+        ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(), projectorHandler,
+        []func() error{commandHandler.SetupCommandHandler, eventHandler.SetupEventHandler, projectorHandler.SetupEventHandler},
         eventStore, eventBus, eventPublisher, commandBus, readRepos),
         ${entity.name()}${DesignDerivedType.CommandHandler}: commandHandler,
         ${entity.name()}${DesignDerivedType.EventHandler}: eventHandler,
+        ProjectorHandler: projectorHandler,
     }
 """
 }

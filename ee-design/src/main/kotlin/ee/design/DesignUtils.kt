@@ -27,6 +27,8 @@ open class DesignDerivedTypeNames {
     val EventHandler = "EventHandler"
     val EventhorizonInitializer = "EventhorizonInitializer"
     val Handler = "Handler"
+    val Projector = "Projector"
+
 }
 
 object DesignDerivedType : DesignDerivedTypeNames()

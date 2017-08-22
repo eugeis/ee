@@ -109,7 +109,8 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(DesignDerivedType.AggregateInitializer).derivedAsType(DesignDerivedType.Aggregate)
                                 prop { type(g.gee.eh.AggregateInitializer).anonymous(true).name("aggregateInitializer") }
                                 val commandHandler = prop { type(commandHandler).anonymous(true).name("commandHandler") }
-                                val eventHandler = prop { type(eventHandler).anonymous(true).name("eventHandler") }
+                                prop { type(eventHandler).anonymous(true).name("eventHandler") }
+                                prop { type(eventHandler).name("projectorHandler") }
 
                                 macrosBefore(CompilationUnitI::toGoAggregateInitializerConst.name)
                                 macrosAfter(CompilationUnitI::toGoAggregateInitializerRegisterForEvents.name)

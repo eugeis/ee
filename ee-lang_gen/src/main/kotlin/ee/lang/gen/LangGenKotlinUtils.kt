@@ -21,14 +21,14 @@ open class KotlinContextFactory {
     fun buildForDslBuilder(namespace: String, moduleFolder: String): CompositeI.() -> KotlinContext {
         val controller = DerivedController(DerivedStorage<ItemI>())
 
-        controller.registerKind(DerivedNames.API, isNotPartOfNativeTypes, { "${name()}I" })
-        controller.registerKind(DerivedNames.API_BASE, isNotPartOfNativeTypes, { "${name()}IfcBase" })
-        controller.registerKind(DerivedNames.IMPL, isNotPartOfNativeTypes, { name() })
-        controller.registerKind(DerivedNames.IMPL_BASE, isNotPartOfNativeTypes, { "${name()}Base" })
-        controller.registerKind(DerivedNames.COMPOSITE, isNotPartOfNativeTypes, { "${name()}s" })
-        controller.registerKind(DerivedNames.EMPTY, isNotPartOfNativeTypes, { "${name()}Empty" })
-        controller.registerKind(DerivedNames.EMPTY_CLASS, isNotPartOfNativeTypes, { "${name()}EmptyClass" })
-        controller.registerKind(DerivedNames.DSL_TYPE, isNotPartOfNativeAndModelTypes, { "ItemTypes.${name()}" })
+        controller.registerKind(DerivedNames.API, { "${name()}I" }, isNotPartOfNativeTypes)
+        controller.registerKind(DerivedNames.API_BASE, { "${name()}IfcBase" }, isNotPartOfNativeTypes)
+        controller.registerKind(DerivedNames.IMPL, { name() }, isNotPartOfNativeTypes)
+        controller.registerKind(DerivedNames.IMPL_BASE, { "${name()}Base" }, isNotPartOfNativeTypes)
+        controller.registerKind(DerivedNames.COMPOSITE, { "${name()}s" }, isNotPartOfNativeTypes)
+        controller.registerKind(DerivedNames.EMPTY, { "${name()}Empty" }, isNotPartOfNativeTypes)
+        controller.registerKind(DerivedNames.EMPTY_CLASS, { "${name()}EmptyClass" }, isNotPartOfNativeTypes)
+        controller.registerKind(DerivedNames.DSL_TYPE, { "ItemTypes.${name()}" }, isNotPartOfNativeAndModelTypes)
 
         val ret = KotlinContext(namespace = namespace, moduleFolder = moduleFolder, genFolder = "src-gen/main/kotlin",
                 genFolderDeletable = true, derivedController = controller)

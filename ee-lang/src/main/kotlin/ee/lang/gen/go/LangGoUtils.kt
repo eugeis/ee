@@ -104,6 +104,13 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
                 val ignore = constructorAllProps()
             }
+
+            object Projector : ExternalType() {
+            }
+
+            object NewProjector : Operation() {
+            }
+
         }
     }
 
@@ -176,6 +183,9 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
         object ReadWriteRepo : ExternalType({ ifc(true) }) {
 
+        }
+
+        object Projector : ExternalType({ namespace("github.com.looplab.eventhorizon.eventhandler.projector") }) {
         }
     }
 
