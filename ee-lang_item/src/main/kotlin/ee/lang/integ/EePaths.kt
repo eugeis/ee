@@ -1,7 +1,7 @@
 package ee.lang.integ
 
-import ee.common.ext.isMac
+import ee.common.ext.isWindows
 import java.nio.file.Paths
 
-val dPath = Paths.get(if (isMac) "/Users/ee/d" else "D:\\TC_CACHE\\eed")
-val eePath = Paths.get(if (isMac) "$dPath/ee" else "$dPath\\ee")
+val dPath = Paths.get(if (isWindows) "D:\\TC_CACHE\\eed" else "/Users/ee/d")
+val eePath = Paths.get(if (isWindows) "$dPath\\ee" else "$dPath/ee")
