@@ -192,18 +192,16 @@ fun <T : ConstructorI> T.toGoAggregateInitializerBody(c: GenerationContext,
     return """
     commandHandler := &${entity.name()}${DesignDerivedType.CommandHandler}{}
     eventHandler := &${entity.name()}${DesignDerivedType.EventHandler}{}
-    projectorHandler := &${entity.name()}${DesignDerivedType.EventHandler}{}
-	ret = &$name{AggregateInitializer: ${c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer, api)}(${entity.name()}${DesignDerivedType.AggregateType},
+    modelFactory := func() interface{} { return ${entity.toGoInstance(c, derived, api)} }
+    ret = &$name{AggregateInitializer: ${c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer, api)}(${entity.name()}${DesignDerivedType.AggregateType},
         func(id ${c.n(g.eh.UUID)}) ${c.n(g.eh.Aggregate)} {
-            return ${c.n(g.gee.eh.NewAggregateBase)}(${entity.name()}${DesignDerivedType.AggregateType}, id, commandHandler, eventHandler, ${
-    entity.toGoInstance(c, derived, api)})
-        },
-        ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(), projectorHandler,
-        []func() error{commandHandler.SetupCommandHandler, eventHandler.SetupEventHandler, projectorHandler.SetupEventHandler},
-        eventStore, eventBus, eventPublisher, commandBus, readRepos),
-        ${entity.name()}${DesignDerivedType.CommandHandler}: commandHandler,
-        ${entity.name()}${DesignDerivedType.EventHandler}: eventHandler,
-        ProjectorHandler: projectorHandler,
+            return ${c.n(g.gee.eh.NewAggregateBase)}(${entity.name()}${DesignDerivedType.AggregateType}, id, commandHandler, eventHandler, modelFactory())
+        }, modelFactory,
+        ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(), eventHandler,
+        []func() error{commandHandler.SetupCommandHandler, eventHandler.SetupEventHandler},
+        eventStore, eventBus, eventPublisher, commandBus, readRepos), ${
+        entity.name()}${DesignDerivedType.CommandHandler}: commandHandler, ${
+        entity.name()}${DesignDerivedType.EventHandler}: eventHandler, ProjectorHandler: eventHandler,
     }
 """
 }
