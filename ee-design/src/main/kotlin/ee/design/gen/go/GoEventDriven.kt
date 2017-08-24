@@ -36,6 +36,27 @@ fun <T : OperationI> T.toGoCommandHandlerExecuteCommandBody(c: GenerationContext
 	}"""
 }
 
+fun <T : OperationI> T.toGoFindByBody(c: GenerationContext,
+                                           derived: String = DesignDerivedKind.IMPL,
+                                           api: String = DesignDerivedKind.API): String {
+    return """
+    """
+}
+
+fun <T : OperationI> T.toGoExistByBody(c: GenerationContext,
+                                      derived: String = DesignDerivedKind.IMPL,
+                                      api: String = DesignDerivedKind.API): String {
+    return """
+    """
+}
+
+fun <T : OperationI> T.toGoCountByBody(c: GenerationContext,
+                                       derived: String = DesignDerivedKind.IMPL,
+                                       api: String = DesignDerivedKind.API): String {
+    return """
+    """
+}
+
 fun <T : OperationI> T.toGoHttpHandlerBody(c: GenerationContext,
                                            derived: String = DesignDerivedKind.IMPL,
                                            api: String = DesignDerivedKind.API): String {

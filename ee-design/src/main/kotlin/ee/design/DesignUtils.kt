@@ -21,6 +21,7 @@ open class DesignDerivedTypeNames {
     val CommandHandler = "CommandHandler"
     val Http = "Http"
     val HttpRouter = "Router"
+    val QueryRepository = "QueryRepository"
     val HttpQueryHandler = "HttpQueryHandler"
     val HttpCommandHandler = "HttpCommandHandler"
     val Event = "Event"
@@ -28,6 +29,7 @@ open class DesignDerivedTypeNames {
     val EventhorizonInitializer = "EventhorizonInitializer"
     val Handler = "Handler"
     val Projector = "Projector"
+    val Query = "Query"
 
 }
 

@@ -103,6 +103,41 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                         }
                     }
 
+
+                    val queryRepository = controller {
+                        name(DesignDerivedType.QueryRepository).derivedAsType(DesignDerivedType.Query)
+
+                        //queries
+                        finders.forEach {
+                            op {
+                                name(it.name().capitalize())
+                                params(*it.params().toTypedArray())
+                                derivedFrom(it)
+                                macrosBody(OperationI::toGoFindByBody.name)
+                            }
+                        }
+
+                        counters.forEach {
+                            op {
+                                name(it.name().capitalize())
+                                params(*it.params().toTypedArray())
+                                derivedFrom(it)
+                                macrosBody(OperationI::toGoCountByBody.name)
+                            }
+                        }
+
+                        exists.forEach {
+                            op {
+                                name(it.name().capitalize())
+                                params(*it.params().toTypedArray())
+                                derivedFrom(it)
+                                macrosBody(OperationI::toGoExistByBody.name)
+                            }
+                        }
+                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+                    }
+
+
                     aggregateInitializer.add(
                             //aggregateInitializer
                             controller {
@@ -132,7 +167,10 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
                     val httpQueryHandler = controller {
                         name(DesignDerivedType.HttpQueryHandler).derivedAsType(DesignDerivedType.Http)
-
+                        prop {
+                            type(queryRepository).name("queryRepository" +
+                                    "")
+                        }
                         //queries
                         finders.forEach {
                             op {
@@ -163,8 +201,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 macrosBody(OperationI::toGoHttpHandlerBody.name)
                             }
                         }
-
-                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+                        constructorAllProps { }
                     }
 
                     val httpCommandHandler = controller {
@@ -231,6 +268,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                     params(pathPrefix,
                                             p { type(g.context.Context).name("context") },
                                             p { type(g.eh.CommandBus).name("commandBus") },
+                                            p { type(queryRepository).name("queryRepository") },
                                             p(queryHandler, { default(true) }), p(commandHandler, { default(true) }))
                                     macrosBeforeBody(ConstructorI::toGoHttpRouterBeforeBody.name)
                                 }

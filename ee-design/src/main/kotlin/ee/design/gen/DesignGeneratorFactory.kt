@@ -54,7 +54,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
             }
         }
 
-        val derivedTypes = arrayListOf<String>(DesignDerivedType.Aggregate, DesignDerivedType.Projector, DesignDerivedType.Http)
+        val derivedTypes = arrayListOf<String>(DesignDerivedType.Aggregate, DesignDerivedType.Query, DesignDerivedType.Http)
 
         val enums: StructureUnitI.() -> List<EnumTypeI> = {
             findDownByType(EnumTypeI::class.java).filter {
@@ -77,42 +77,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                     sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
-        contextFactory.macroController.registerMacro(OperationI::toGoAggregateInitializerRegisterCommands.name,
-                OperationI::toGoAggregateInitializerRegisterCommands)
-        contextFactory.macroController.registerMacro(CompilationUnitI::toGoAggregateInitializerConst.name,
-                CompilationUnitI::toGoAggregateInitializerConst)
-        contextFactory.macroController.registerMacro(CompilationUnitI::toGoAggregateInitializerRegisterForEvents.name,
-                CompilationUnitI::toGoAggregateInitializerRegisterForEvents)
-        contextFactory.macroController.registerMacro(ConstructorI::toGoAggregateInitializerBody.name,
-                ConstructorI::toGoAggregateInitializerBody)
-        contextFactory.macroController.registerMacro(ConstructorI::toGoEventhorizonInitializerBody.name,
-                ConstructorI::toGoEventhorizonInitializerBody)
-        contextFactory.macroController.registerMacro(OperationI::toGoEventhorizonInitializerSetupBody.name,
-                OperationI::toGoEventhorizonInitializerSetupBody)
-        contextFactory.macroController.registerMacro(AttributeI::toGoPropOptionalAfterBody.name,
-                AttributeI::toGoPropOptionalAfterBody)
-        contextFactory.macroController.registerMacro(OperationI::toGoCommandHandlerExecuteCommandBody.name,
-                OperationI::toGoCommandHandlerExecuteCommandBody)
-        contextFactory.macroController.registerMacro(OperationI::toGoCommandHandlerSetupBody.name,
-                OperationI::toGoCommandHandlerSetupBody)
-        contextFactory.macroController.registerMacro(OperationI::toGoEventHandlerApplyEvent.name,
-                OperationI::toGoEventHandlerApplyEvent)
-        contextFactory.macroController.registerMacro(OperationI::toGoEventHandlerSetupBody.name,
-                OperationI::toGoEventHandlerSetupBody)
-        contextFactory.macroController.registerMacro(OperationI::toGoHttpHandlerBody.name,
-                OperationI::toGoHttpHandlerBody)
-        contextFactory.macroController.registerMacro(OperationI::toGoHttpHandlerIdBasedBody.name,
-                OperationI::toGoHttpHandlerIdBasedBody)
-        contextFactory.macroController.registerMacro(OperationI::toGoHttpHandlerCommandBody.name,
-                OperationI::toGoHttpHandlerCommandBody)
-        contextFactory.macroController.registerMacro(OperationI::toGoSetupHttpRouterBody.name,
-                OperationI::toGoSetupHttpRouterBody)
-        contextFactory.macroController.registerMacro(ConstructorI::toGoHttpRouterBeforeBody.name,
-                ConstructorI::toGoHttpRouterBeforeBody)
-        contextFactory.macroController.registerMacro(ConstructorI::toGoHttpModuleRouterBeforeBody.name,
-                ConstructorI::toGoHttpModuleRouterBeforeBody)
-        contextFactory.macroController.registerMacro(OperationI::toGoSetupModuleHttpRouter.name,
-                OperationI::toGoSetupModuleHttpRouter)
+        registerMacros(contextFactory)
 
         val moduleGenerators = arrayListOf<GeneratorI<StructureUnitI>>()
         val ret = GeneratorGroup<StructureUnitI>(listOf(
@@ -201,5 +166,51 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         })
 
         return ret
+    }
+
+    protected fun registerMacros(contextFactory: DesignGoContextFactory) {
+        val macros = contextFactory.macroController
+        macros.registerMacro(OperationI::toGoAggregateInitializerRegisterCommands.name,
+                OperationI::toGoAggregateInitializerRegisterCommands)
+        macros.registerMacro(CompilationUnitI::toGoAggregateInitializerConst.name,
+                CompilationUnitI::toGoAggregateInitializerConst)
+        macros.registerMacro(CompilationUnitI::toGoAggregateInitializerRegisterForEvents.name,
+                CompilationUnitI::toGoAggregateInitializerRegisterForEvents)
+        macros.registerMacro(ConstructorI::toGoAggregateInitializerBody.name,
+                ConstructorI::toGoAggregateInitializerBody)
+        macros.registerMacro(ConstructorI::toGoEventhorizonInitializerBody.name,
+                ConstructorI::toGoEventhorizonInitializerBody)
+        macros.registerMacro(OperationI::toGoEventhorizonInitializerSetupBody.name,
+                OperationI::toGoEventhorizonInitializerSetupBody)
+        macros.registerMacro(AttributeI::toGoPropOptionalAfterBody.name,
+                AttributeI::toGoPropOptionalAfterBody)
+        macros.registerMacro(OperationI::toGoCommandHandlerExecuteCommandBody.name,
+                OperationI::toGoCommandHandlerExecuteCommandBody)
+        macros.registerMacro(OperationI::toGoCommandHandlerSetupBody.name,
+                OperationI::toGoCommandHandlerSetupBody)
+        macros.registerMacro(OperationI::toGoEventHandlerApplyEvent.name,
+                OperationI::toGoEventHandlerApplyEvent)
+        macros.registerMacro(OperationI::toGoEventHandlerSetupBody.name,
+                OperationI::toGoEventHandlerSetupBody)
+        macros.registerMacro(OperationI::toGoHttpHandlerBody.name,
+                OperationI::toGoHttpHandlerBody)
+        macros.registerMacro(OperationI::toGoHttpHandlerIdBasedBody.name,
+                OperationI::toGoHttpHandlerIdBasedBody)
+        macros.registerMacro(OperationI::toGoHttpHandlerCommandBody.name,
+                OperationI::toGoHttpHandlerCommandBody)
+        macros.registerMacro(OperationI::toGoSetupHttpRouterBody.name,
+                OperationI::toGoSetupHttpRouterBody)
+        macros.registerMacro(ConstructorI::toGoHttpRouterBeforeBody.name,
+                ConstructorI::toGoHttpRouterBeforeBody)
+        macros.registerMacro(ConstructorI::toGoHttpModuleRouterBeforeBody.name,
+                ConstructorI::toGoHttpModuleRouterBeforeBody)
+        macros.registerMacro(OperationI::toGoSetupModuleHttpRouter.name,
+                OperationI::toGoSetupModuleHttpRouter)
+        macros.registerMacro(OperationI::toGoFindByBody.name,
+                OperationI::toGoFindByBody)
+        macros.registerMacro(OperationI::toGoCountByBody.name,
+                OperationI::toGoCountByBody)
+        macros.registerMacro(OperationI::toGoExistByBody.name,
+                OperationI::toGoExistByBody)
     }
 }
