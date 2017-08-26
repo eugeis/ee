@@ -119,12 +119,12 @@ fun p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): A
     body()
 })
 
+*/
 
 fun ret(type: TypeI = n.String, body: AttributeI.() -> Unit = {}): AttributeI = p {
     type(type).name("ret")
     body()
 }
-*/
 
 fun lambda(vararg params: AttributeI, adapt: OperationI.() -> Unit = {}): LambdaI = Lambda({
     operation(Operation({

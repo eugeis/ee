@@ -109,30 +109,15 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
                         //queries
                         finders.forEach {
-                            op {
-                                name(it.name().capitalize())
-                                params(*it.params().toTypedArray())
-                                derivedFrom(it)
-                                macrosBody(OperationI::toGoFindByBody.name)
-                            }
+                            op(it).macrosBody(OperationI::toGoFindByBody.name)
                         }
 
                         counters.forEach {
-                            op {
-                                name(it.name().capitalize())
-                                params(*it.params().toTypedArray())
-                                derivedFrom(it)
-                                macrosBody(OperationI::toGoCountByBody.name)
-                            }
+                            op(it).macrosBody(OperationI::toGoCountByBody.name)
                         }
 
                         exists.forEach {
-                            op {
-                                name(it.name().capitalize())
-                                params(*it.params().toTypedArray())
-                                derivedFrom(it)
-                                macrosBody(OperationI::toGoExistByBody.name)
-                            }
+                            op(it).macrosBody(OperationI::toGoExistByBody.name)
                         }
 
                         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
@@ -168,10 +153,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
                     val httpQueryHandler = controller {
                         name(DesignDerivedType.HttpQueryHandler).derivedAsType(DesignDerivedType.Http)
-                        prop {
-                            type(queryRepository).name("queryRepository" +
-                                    "")
-                        }
+                        prop { type(queryRepository).name("queryRepository") }
                         //queries
                         finders.forEach {
                             op {

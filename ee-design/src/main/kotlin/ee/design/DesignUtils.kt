@@ -72,22 +72,35 @@ fun StructureUnitI.defineNamesForTypeControllers() {
 
 fun StructureUnitI.addQueriesForAggregates() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.defaultQueries() }.extend {
+        val item = this
         log.debug("Add default queries to ${name()}")
 
-        findBy { name("findAll") }
+        findBy {
+            name("findAll")
+            ret(n.List.GT(item))
+        }
         findBy {
             name("findById")
             params(id())
+            ret(item)
         }
-        countBy { name("countAll") }
+        countBy {
+            name("countAll")
+            ret(n.Long)
+        }
         countBy {
             name("countById")
             params(id())
+            ret(n.Long)
         }
-        existBy { name("existAll") }
+        existBy {
+            name("existAll")
+            ret(n.Boolean)
+        }
         existBy {
             name("existById")
             params(id())
+            ret(n.Boolean)
         }
     }
 }

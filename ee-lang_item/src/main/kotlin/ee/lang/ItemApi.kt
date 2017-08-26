@@ -62,6 +62,9 @@ open class Item : ItemI {
         init()
         val ret = copy<T>()
         ret.init()
+        if (ret is MultiHolderI<*>) {
+            ret.fillSupportsItems()
+        }
         ret.adapt()
         return ret
     }
@@ -139,7 +142,7 @@ abstract class MultiHolder<I>(private val _type: Class<I>, value: MultiHolder<I>
         Item(value as Item.() -> Unit), MultiHolderI<I> {
 
     override fun init() {
-        if(!isInitialized()) super.init()
+        if (!isInitialized()) super.init()
         items().filterIsInstance<ItemI>().forEach {
             if (!it.isInitialized() || (it is MultiHolderI<*> && it.parent() == this)) {
                 it.init()
@@ -253,6 +256,8 @@ open class ListMultiHolder<I>(_type: Class<I>, value: ListMultiHolder<I>.() -> U
             _items.forEach {
                 if (it is ItemI && it.parent() == this) {
                     itemToFill.addItem(it.copy<ItemI>() as I)
+                } else if (it is ItemI && it.parent() == this.parent()) {
+                    //don't need to copy, because it will be grouped by fillSupported
                 } else {
                     itemToFill.addItem(it)
                 }
