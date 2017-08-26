@@ -46,9 +46,11 @@ fun LiteralI.toGoCase(): String {
         ret = o.${this.toGo()}()"""
 }
 
-fun LiteralI.toGoInit(index: Int): String {
+fun LiteralI.toGoInitVariables(index: Int, c: GenerationContext, derived: String): String {
     return """{name: "${this.name()}", ordinal: $index${
-    this.params().joinSurroundIfNotEmptyToString(", ", ", ") { it.toGoInit() }}}"""
+    this.params().joinSurroundIfNotEmptyToString(", ", ", ") {
+        it.toGoInitForConstructor(c, derived)
+    }}}"""
 }
 
 fun <T : EnumTypeI> T.toGoEnum(c: GenerationContext, api: String = LangDerivedKind.API): String {
@@ -79,7 +81,7 @@ type $literals struct {
 }
 
 var _$literals = &$literals{values: []*$name${literals().joinWithIndexToString(",$nL    ", "{$nL    ", "},") { i, item ->
-        item.toGoInit(i)
+        item.toGoInitVariables(i, c, api)
     }}
 }
 

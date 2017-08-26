@@ -25,8 +25,15 @@ fun <T : MacroCompositeI> T.toGoMacrosAfter(c: GenerationContext, derived: Strin
     return macrosAfter().joinToString("$nL        ") { c.body(it, this, derived, api) }
 }
 
-fun AttributeI.toGoInit(): String {
-    return """${this.name()}: ${this.value()}"""
+fun AttributeI.toGoInitVariables(c: GenerationContext, derived: String): String {
+    val name = "${name()}:= "
+    return name + if (default() || value() != null) {
+        toGoValue(c, derived)
+    } else if (anonymous()) {
+        type().toGoInstance(c, derived, derived)
+    } else {
+        name()
+    }
 }
 
 fun TypeI.toGoCall(c: GenerationContext, api: String): String {
@@ -56,7 +63,7 @@ fun <T : AttributeI> T.toGoValue(c: GenerationContext, derived: String): String 
     }
 }
 
-fun AttributeI.toGoInitCall(c: GenerationContext, derived: String): String {
+fun AttributeI.toGoInitForConstructor(c: GenerationContext, derived: String): String {
     val name = "${anonymous().ifElse({ type().toGoCall(c, derived) }, { nameForMember() })}: "
     return name + if (default() || value() != null) {
         toGoValue(c, derived)
@@ -65,6 +72,10 @@ fun AttributeI.toGoInitCall(c: GenerationContext, derived: String): String {
     } else {
         name()
     }
+}
+
+fun AttributeI.toGoInitForConstructorFunc(c: GenerationContext, derived: String): String {
+    return "${anonymous().ifElse({ type().toGoCall(c, derived) }, { nameForMember() })}: ${name()}"
 }
 
 fun <T : AttributeI> T.toGoTypeDef(c: GenerationContext, api: String): String {
@@ -174,18 +185,22 @@ fun List<AttributeI>.toGoCall(c: GenerationContext, api: String): String {
 fun <T : ConstructorI> T.toGo(c: GenerationContext, derived: String, api: String): String {
     val type = findParentMust(CompilationUnitI::class.java)
     val name = c.n(type, derived)
-    val nonDefaultParams = params().filter { !it.default() && it.derivedAsType().isEmpty() }
     return if (isNotEMPTY()) """${toGoMacrosBefore(c, derived, api)}
-func ${c.n(this, derived)}(${nonDefaultParams.joinWrappedToString(", ", "                ") {
+func ${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().joinWrappedToString(", ", "                ") {
         it.toGoSignature(c, api)
     }
     }) (ret *$name) {${toGoMacrosBeforeBody(c, derived, api)}${macrosBody().isNotEmpty().ifElse({
         """
     ${toGoMacrosBody(c, derived, api)}"""
     }, {
-        """
+        """${params().defaultOrWithValueAndNonDerived().joinSurroundIfNotEmptyToString("") {
+            """
+    ${it.toGoInitVariables(c, derived)}"""
+        }}
     ret = &$name{${paramsForType().joinSurroundIfNotEmptyToString(
-                ",$nL        ", "$nL        ", ",$nL    ") { it.toGoInitCall(c, derived) }}}"""
+                ",$nL        ", "$nL        ", ",$nL    ") {
+            it.toGoInitForConstructorFunc(c, derived)
+        }}}"""
     })}${toGoMacrosAfterBody(c, derived, api)}
     return
 }${toGoMacrosAfter(c, derived, api)}""" else ""

@@ -41,6 +41,17 @@ fun <T : LogicUnitI> T.paramsWithOut(superUnit: LogicUnitI)
 fun <T : TypeI> T.findGeneric(name: String): GenericI? =
         generics().find { it.name() == name } ?: findParent(LogicUnitI::class.java)?.findGeneric(name)
 
+
+fun ListMultiHolderI<AttributeI>.nonDefaultAndWithoutValueAndNonDerived(): List<AttributeI> =
+        storage.getOrPut(this, "nonDefaultAndWithoutValueAndNonDerived", {
+            filter { !it.default() && it.derivedAsType().isEmpty() }
+        })
+
+fun ListMultiHolderI<AttributeI>.defaultOrWithValueAndNonDerived(): List<AttributeI> =
+        storage.getOrPut(this, "defaultOrWithValueAndNonDerived", {
+            filter { (it.default() || it.anonymous()) && it.derivedAsType().isEmpty() }
+        })
+
 fun TypeI.primaryConstructor(): ConstructorI = storage.getOrPut(this, "primaryConstructor", {
     constructors().filter { it.primary() }.firstOrNull() ?: Constructor.EMPTY
 })

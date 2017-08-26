@@ -57,13 +57,13 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             macrosBody(OperationI::toGoCommandHandlerSetupBody.name)
                         }
 
-                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-
                         //add command type enum
                         enumType {
                             name("${item.name()}CommandType")
                             commands.forEach { lit({ name(it.nameAndParentName().capitalize()) }) }
                         }
+
+                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                     }
 
                     //event handler
@@ -94,13 +94,13 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             macrosBody(OperationI::toGoEventHandlerSetupBody.name)
                         }
 
-                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-
                         //add event type enum
                         enumType {
                             name("${item.name()}EventType")
                             events.forEach { lit({ name(it.parentNameAndName().capitalize()) }) }
                         }
+
+                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                     }
 
 
@@ -134,6 +134,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 macrosBody(OperationI::toGoExistByBody.name)
                             }
                         }
+
                         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
                     }
 
@@ -201,6 +202,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 macrosBody(OperationI::toGoHttpHandlerBody.name)
                             }
                         }
+
                         constructorAllProps { }
                     }
 
@@ -268,8 +270,16 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                     params(pathPrefix,
                                             p { type(g.context.Context).name("context") },
                                             p { type(g.eh.CommandBus).name("commandBus") },
-                                            p { type(queryRepository).name("queryRepository") },
-                                            p(queryHandler, { default(true) }), p(commandHandler, { default(true) }))
+                                            p {
+                                                type(lambda {
+                                                    p("name")
+                                                    ret(g.eh.ReadWriteRepo)
+                                                }).name("readRepos")
+                                            },
+                                            p { type(queryRepository).default(true).name("queryRepository") },
+                                            p(queryHandler, { default(true) }),
+                                            p(commandHandler, { default(true) })
+                                    )
                                     macrosBeforeBody(ConstructorI::toGoHttpRouterBeforeBody.name)
                                 }
                             }
@@ -325,6 +335,12 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                     params(pathPrefix,
                             p { type(g.context.Context).name("context") },
                             p { type(g.eh.CommandBus).name("commandBus") },
+                            p {
+                                type(lambda {
+                                    p("name")
+                                    ret(g.eh.ReadWriteRepo)
+                                }).name("readRepos")
+                            },
                             *httpRouterParams.map { p(it, { default(true) }) }.toTypedArray())
                     macrosBeforeBody(ConstructorI::toGoHttpModuleRouterBeforeBody.name)
                 }
