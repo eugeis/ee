@@ -107,6 +107,9 @@ interface LiteralI : LogicUnitI {
 
 
 interface LogicUnitI : MacroCompositeI {
+    fun errorHandling(): Boolean
+    fun errorHandling(value: Boolean): LogicUnitI
+
     fun params(): ListMultiHolder<AttributeI>
     fun params(vararg value: AttributeI): LogicUnitI
 

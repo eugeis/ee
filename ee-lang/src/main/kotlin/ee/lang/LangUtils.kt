@@ -44,7 +44,7 @@ fun <T : TypeI> T.findGeneric(name: String): GenericI? =
 
 fun ListMultiHolderI<AttributeI>.nonDefaultAndWithoutValueAndNonDerived(): List<AttributeI> =
         storage.getOrPut(this, "nonDefaultAndWithoutValueAndNonDerived", {
-            filter { !it.default() && it.derivedAsType().isEmpty() }
+            filter { (!(it.default() || (it.anonymous() && it.type().props().isEmpty()))) && it.derivedAsType().isEmpty() }
         })
 
 fun ListMultiHolderI<AttributeI>.defaultOrWithValueAndNonDerived(): List<AttributeI> =
@@ -107,6 +107,28 @@ fun TypeI.propsAll(): List<AttributeI> = storage.getOrPut(this, "propsAll", {
         props()
     }
 })
+
+fun TypeI.propsAllWithoutMetaAndAnonymousWithoutProps(): List<AttributeI> =
+        storage.getOrPut(this, "propsAllWithoutMetaAndAnonymousWithoutProps", {
+            propsAll().filter { !it.meta() && !(it.anonymous() && !props().isEmpty()) }
+        })
+
+fun TypeI.propsWithoutMetaAndAnonymousWithoutProps(): List<AttributeI> =
+        storage.getOrPut(this, "propsWithoutMetaAndAnonymousWithoutProps", {
+            props().filter { !it.meta() && !(it.anonymous() && !props().isEmpty()) }
+        })
+
+fun TypeI.propsAllWithoutMeta(): List<AttributeI> =
+        storage.getOrPut(this, "propsAllWithoutMeta", {
+            propsAll().filter { !it.meta() }
+        })
+
+fun TypeI.propsWithoutMeta(): List<AttributeI> =
+        storage.getOrPut(this, "propsWithoutMeta", {
+            props().filter { !it.meta() }
+        })
+
+//props().filter { it.anonymous() }.map { p(it).default(true).anonymous(it.anonymous()) }
 
 //helper design functions
 /*
@@ -251,14 +273,13 @@ fun <T : CompositeI> T.prepareAttributesOfEnums() {
 }
 
 fun <T : TypeI> T.constructorAllProps(adapt: ConstructorI.() -> Unit = {}): ConstructorI {
-    val constrProps = propsAll().filter { !it.meta() }
     val primary = this is EnumTypeI
-    return if (constrProps.isNotEmpty()) {
+    return if (propsAllWithoutMeta().isNotEmpty()) {
         storage.reset(this)
         val parent = this
         constr {
             parent(parent)
-            primary(primary).params(*constrProps.toTypedArray())
+            primary(primary).params(*propsAllWithoutMeta().toTypedArray())
             namespace(parent.namespace())
             superUnit(parent.superUnit().primaryOrFirstConstructor())
             adapt()
@@ -267,14 +288,13 @@ fun <T : TypeI> T.constructorAllProps(adapt: ConstructorI.() -> Unit = {}): Cons
 }
 
 fun <T : TypeI> T.constructorOwnPropsOnly(adapt: ConstructorI.() -> Unit = {}): ConstructorI {
-    val constrProps = props().filter { !it.meta() }
     val primary = this is EnumTypeI
-    return if (constrProps.isNotEmpty()) {
+    return if (propsWithoutMeta().isNotEmpty()) {
         storage.reset(this)
         val parent = this
         constr {
             parent(parent)
-            primary(primary).params(*constrProps.toTypedArray())
+            primary(primary).params(*propsWithoutMeta().toTypedArray())
             namespace(this@constructorOwnPropsOnly.namespace())
             superUnit(parent.superUnit().primaryOrFirstConstructor())
             adapt()

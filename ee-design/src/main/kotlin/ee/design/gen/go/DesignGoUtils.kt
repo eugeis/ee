@@ -153,6 +153,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
                     val httpQueryHandler = controller {
                         name(DesignDerivedType.HttpQueryHandler).derivedAsType(DesignDerivedType.Http)
+                        prop { type(g.gee.eh.HttpQueryHandler).anonymous(true).name("HttpQueryHandler") }
                         prop { type(queryRepository).name("queryRepository") }
                         //queries
                         finders.forEach {

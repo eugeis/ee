@@ -105,6 +105,10 @@ object g : StructureUnit({ namespace("").name("Go") }) {
                 val ignore = constructorAllProps()
             }
 
+            object HttpQueryHandler : ExternalType() {
+
+            }
+
             object Projector : ExternalType() {
             }
 

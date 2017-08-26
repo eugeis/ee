@@ -26,7 +26,7 @@ fun <T : MacroCompositeI> T.toGoMacrosAfter(c: GenerationContext, derived: Strin
 }
 
 fun AttributeI.toGoInitVariables(c: GenerationContext, derived: String): String {
-    val name = "${name()}:= "
+    val name = "${name().decapitalize()} := "
     return name + if (default() || value() != null) {
         toGoValue(c, derived)
     } else if (anonymous()) {
@@ -75,7 +75,7 @@ fun AttributeI.toGoInitForConstructor(c: GenerationContext, derived: String): St
 }
 
 fun AttributeI.toGoInitForConstructorFunc(c: GenerationContext, derived: String): String {
-    return "${anonymous().ifElse({ type().toGoCall(c, derived) }, { nameForMember() })}: ${name()}"
+    return "${anonymous().ifElse({ type().toGoCall(c, derived) }, { nameForMember() })}: ${name().decapitalize()}"
 }
 
 fun <T : AttributeI> T.toGoTypeDef(c: GenerationContext, api: String): String {
@@ -162,7 +162,7 @@ fun <T : AttributeI> T.toGoSignature(c: GenerationContext, api: String): String 
 
 fun <T : AttributeI> T.toGoCall(c: GenerationContext, api: String): String {
     return anonymous().ifElse({ type().props().filter { !it.meta() }.toGoCall(c, api) }, {
-        "${name()}"
+        name()
     })
 }
 
@@ -212,11 +212,11 @@ fun <T : AttributeI> T.toGoAssign(o: String): String {
 }
 
 fun <T : LogicUnitI> T.toGoCall(c: GenerationContext, derived: String, api: String): String =
-        if (isNotEMPTY()) """${c.n(this, derived)}(${params().filter { !it.default() }.toGoCall(c, api)})""" else ""
+        if (isNotEMPTY()) """${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().toGoCall(c, api)})""" else ""
 
 fun <T : TypeI> T.toGoInstance(c: GenerationContext, derived: String, api: String): String {
     val constructor = primaryOrFirstConstructor()
-    return if (constructor != null) {
+    return if (constructor.isNotEMPTY()) {
         constructor.toGoCall(c, derived, api)
     } else {
         "&${c.n(this, derived)}{}"
@@ -238,7 +238,7 @@ fun <T : OperationI> T.toGoImpl(o: String, c: GenerationContext, api: String): S
     return hasMacros().then {
         """${toGoMacrosBefore(c, api, api)}
 func (o *$o) ${toGoName()}(${params().toGoSignature(c, api)}) ${
-        ret().isNotEMPTY().then { "(ret ${ret().toGoTypeDef(c, api)})" }} {${
+        ret().isNotEMPTY().then { "(ret ${ret().toGoTypeDef(c, api)}${errorHandling().then { ", err ${c.n(g.error, api)}" }})" }} {${
         toGoMacrosBeforeBody(c, api, api)}${toGoMacrosBody(c, api, api)}${toGoMacrosAfterBody(c, api, api)}${
         ret().isNotEMPTY().then {
             """

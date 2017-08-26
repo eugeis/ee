@@ -78,29 +78,35 @@ fun StructureUnitI.addQueriesForAggregates() {
         findBy {
             name("findAll")
             ret(n.List.GT(item))
+            errorHandling(true)
         }
         findBy {
             name("findById")
             params(id())
             ret(item)
+            errorHandling(true)
         }
         countBy {
             name("countAll")
             ret(n.Long)
+            errorHandling(true)
         }
         countBy {
             name("countById")
             params(id())
             ret(n.Long)
+            errorHandling(true)
         }
         existBy {
             name("existAll")
             ret(n.Boolean)
+            errorHandling(true)
         }
         existBy {
             name("existById")
             params(id())
             ret(n.Boolean)
+            errorHandling(true)
         }
     }
 }

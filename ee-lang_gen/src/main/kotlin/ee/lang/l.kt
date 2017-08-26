@@ -71,6 +71,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val superUnit = AttributeI({ type(LogicUnit) })
         val params = AttributeI({ type(Attribute).multi(true) })
         val visible = AttributeI({ type(n.Boolean).value(true) })
+        val errorHandling = AttributeI({ type(n.Boolean).value(false) })
     }
 
     object Operation : Composite({ derivedFrom(LogicUnit) }) {
