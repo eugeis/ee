@@ -34,4 +34,5 @@ open class LangCommonContextFactory {
     protected open fun buildNameCommon(item: ItemI, kind: String): String = item.name()
     protected open fun buildNameDynamic(item: ItemI, kind: String): String = "${buildName(item, kind)}$kind"
     protected open fun buildNameForConstructor(item: ConstructorI, kind: String) = buildName(item, kind)
+    protected open fun buildNameForOperation(item: OperationI, kind: String) = buildName(item, kind)
 }

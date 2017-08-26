@@ -1,5 +1,6 @@
 package ee.design.gen.go
 
+import ee.common.ext.ifElse
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.design.*
@@ -37,15 +38,15 @@ fun <T : OperationI> T.toGoCommandHandlerExecuteCommandBody(c: GenerationContext
 }
 
 fun <T : OperationI> T.toGoFindByBody(c: GenerationContext,
-                                           derived: String = DesignDerivedKind.IMPL,
-                                           api: String = DesignDerivedKind.API): String {
+                                      derived: String = DesignDerivedKind.IMPL,
+                                      api: String = DesignDerivedKind.API): String {
     return """
     """
 }
 
 fun <T : OperationI> T.toGoExistByBody(c: GenerationContext,
-                                      derived: String = DesignDerivedKind.IMPL,
-                                      api: String = DesignDerivedKind.API): String {
+                                       derived: String = DesignDerivedKind.IMPL,
+                                       api: String = DesignDerivedKind.API): String {
     return """
     """
 }
@@ -60,8 +61,15 @@ fun <T : OperationI> T.toGoCountByBody(c: GenerationContext,
 fun <T : OperationI> T.toGoHttpHandlerBody(c: GenerationContext,
                                            derived: String = DesignDerivedKind.IMPL,
                                            api: String = DesignDerivedKind.API): String {
-    return """
-    ${c.n(g.fmt.Fprintf, api)}(w, "Hello, %q from ${parentNameAndName()}", ${c.n(g.html.EscapeString, api)}(r.URL.Path))"""
+    val queryHandler = derivedFrom() as OperationI
+    return """${queryHandler.params().joinSurroundIfNotEmptyToString("", """
+    vars := ${c.n(g.mux.Vars, api)}(r)""") {
+        """
+    ${it.nameDecapitalize()} := ${it.key().ifElse({ """${c.n(g.eh.UUID, api)}(vars["${it.nameDecapitalize()}"])""" },
+                { """vars["${it.nameDecapitalize()}"]""" })}"""
+    }}
+    ret, err := o.QueryRepository.${queryHandler.toGoCall(c, api, api)}
+    o.HandleResult(ret, err, "${parentNameAndName()}", w, r)"""
 }
 
 fun <T : OperationI> T.toGoHttpHandlerCommandBody(c: GenerationContext,
@@ -221,8 +229,8 @@ fun <T : ConstructorI> T.toGoAggregateInitializerBody(c: GenerationContext,
         ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(), eventHandler,
         []func() error{commandHandler.SetupCommandHandler, eventHandler.SetupEventHandler},
         eventStore, eventBus, eventPublisher, commandBus, readRepos), ${
-        entity.name()}${DesignDerivedType.CommandHandler}: commandHandler, ${
-        entity.name()}${DesignDerivedType.EventHandler}: eventHandler, ProjectorHandler: eventHandler,
+    entity.name()}${DesignDerivedType.CommandHandler}: commandHandler, ${
+    entity.name()}${DesignDerivedType.EventHandler}: eventHandler, ProjectorHandler: eventHandler,
     }
 """
 }

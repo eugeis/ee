@@ -358,8 +358,12 @@ open class Facet : ModuleGroup, FacetI {
 open class FindBy : DataTypeOperation, FindByI {
     constructor(value: FindBy.() -> Unit = {}) : super(value as DataTypeOperation.() -> Unit)
 
+    override fun multiResult(): Boolean = attr(MULTI_RESULT, { true })
+    override fun multiResult(value: Boolean): FindByI = apply { attr(MULTI_RESULT, value) }
+
     companion object {
         val EMPTY = FindBy { name(ItemEmpty.name()) }.apply<FindBy> { init() }
+        val MULTI_RESULT = "_multiResult"
     }
 }
 

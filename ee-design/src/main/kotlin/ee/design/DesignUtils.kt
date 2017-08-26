@@ -38,8 +38,23 @@ object DesignDerivedType : DesignDerivedTypeNames()
 
 private val log = LoggerFactory.getLogger("DesignUtils")
 
-fun EntityI.findBy(vararg params: AttributeI) = findBy { params(*params) }
-fun EntityI.existBy(vararg params: AttributeI) = existBy { params(*params) }
+fun EntityI.findBy(vararg params: AttributeI) = findBy {
+    params(*params)
+    ret(this@findBy)
+    errorHandling(true)
+}
+
+fun EntityI.existBy(vararg params: AttributeI) = existBy {
+    params(*params)
+    ret(n.Boolean)
+    errorHandling(true)
+}
+
+fun EntityI.countBy(vararg params: AttributeI) = countBy {
+    params(*params)
+    ret(n.Int)
+    errorHandling(true)
+}
 
 fun CompilationUnitI.op(vararg params: AttributeI, body: OperationI.() -> Unit = {}) = op {
     params(*params)
@@ -76,38 +91,59 @@ fun StructureUnitI.addQueriesForAggregates() {
         log.debug("Add default queries to ${name()}")
 
         findBy {
-            name("findAll")
+            name("FindAll")
             ret(n.List.GT(item))
             errorHandling(true)
         }
         findBy {
-            name("findById")
+            name("FindById")
             params(id())
             ret(item)
             errorHandling(true)
         }
         countBy {
-            name("countAll")
+            name("CountAll")
             ret(n.Long)
             errorHandling(true)
         }
         countBy {
-            name("countById")
+            name("CountById")
             params(id())
             ret(n.Long)
             errorHandling(true)
         }
         existBy {
-            name("existAll")
+            name("ExistAll")
             ret(n.Boolean)
             errorHandling(true)
         }
         existBy {
-            name("existById")
+            name("ExistById")
             params(id())
             ret(n.Boolean)
             errorHandling(true)
         }
+    }
+}
+
+fun StructureUnitI.addDefaultReturnValuesForQueries() {
+    findDownByType(FindByI::class.java).filter { it.ret().isEMPTY() }.extend {
+        if (multiResult()) {
+            ret(Attribute { type(n.List.GT(findParentMust(TypeI::class.java))) })
+        } else {
+            ret(Attribute { type(findParentMust(TypeI::class.java)) })
+        }
+        errorHandling(true)
+    }
+
+    findDownByType(CountByI::class.java).filter { it.ret().isEMPTY() }.extend {
+        ret(Attribute { type(n.Long) })
+        errorHandling(true)
+    }
+
+    findDownByType(ExistByI::class.java).filter { it.ret().isEMPTY() }.extend {
+        ret(Attribute { type(n.Boolean) })
+        errorHandling(true)
     }
 }
 

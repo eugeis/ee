@@ -58,7 +58,10 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val commands = prop(Command).multi(true)
     }
 
-    object FindBy : CompilationUnit({ superUnit(l.DataTypeOperation) })
+    object FindBy : CompilationUnit({ superUnit(l.DataTypeOperation) }) {
+        val multiResult = prop(n.Boolean).value(true)
+    }
+
     object CountBy : CompilationUnit({ superUnit(l.DataTypeOperation) })
     object ExistBy : CompilationUnit({ superUnit(l.DataTypeOperation) })
 

@@ -271,6 +271,10 @@ fun <T : StructureUnitI> T.extendForGoGenerationLang(): T {
     return this
 }
 
+fun AttributeI.nameDecapitalize(): String = storage.getOrPut(this, "nameDecapitalize", {
+    name().decapitalize()
+})
+
 fun AttributeI.nameForMember(): String = storage.getOrPut(this, "nameForMember", {
     replaceable().notSetOrTrue().ifElse({ name().capitalize() }, { name().decapitalize() })
 })

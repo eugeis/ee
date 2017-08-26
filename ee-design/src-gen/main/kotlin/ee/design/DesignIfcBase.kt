@@ -185,6 +185,8 @@ interface FacetI : ModuleGroupI {
 
 
 interface FindByI : DataTypeOperationI {
+    fun multiResult(): Boolean
+    fun multiResult(value: Boolean): FindByI
 }
 
 
