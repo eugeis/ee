@@ -5,7 +5,7 @@ import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 
-fun LiteralI.toKotlin(): String = "${name().toUnderscoredUpperCase()}"
+fun LiteralI.toKotlin(): String = name().toUnderscoredUpperCase()
 
 fun LiteralI.toKotlinIsMethod(): String {
     return """

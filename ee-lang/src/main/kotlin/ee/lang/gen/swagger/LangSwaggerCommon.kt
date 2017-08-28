@@ -2,8 +2,7 @@ package ee.lang.gen.swagger
 
 import ee.common.ext.*
 import ee.lang.*
-import ee.lang.gen.go.nameForEnum
-import ee.lang.gen.go.nameForMember
+import ee.lang.gen.go.nameForGoMember
 
 fun <T : AttributeI> T.toSwaggerTypeDef(c: GenerationContext, api: String, indent: String = "        "): String {
     return "$indent${type().toSwagger(c, api, indent)}${type().toSwaggerFormatIfNative(indent)}"
@@ -78,11 +77,11 @@ query:
             description: this string will be added to the url of the service
  */
 fun <T : AttributeI> T.toSwaggerMember(c: GenerationContext, api: String, indent: String = "        "): String {
-    return "$indent${nameForMember().decapitalize()}:${toSwaggerTypeDef(c, api, "$indent  ")}"
+    return "$indent${nameForGoMember().decapitalize()}:${toSwaggerTypeDef(c, api, "$indent  ")}"
 }
 
 fun <T : AttributeI> T.toSwaggerEnumMember(c: GenerationContext, api: String): String {
-    return anonymous().ifElse({ "    ${toSwaggerTypeDef(c, api)}" }, { "    " + nameForEnum() + " " + toSwaggerTypeDef(c, api) })
+    return anonymous().ifElse({ "    ${toSwaggerTypeDef(c, api)}" }, { "    " + nameDecapitalize() + " " + toSwaggerTypeDef(c, api) })
 }
 
 fun List<AttributeI>.toSwaggerSignature(c: GenerationContext, api: String): String {

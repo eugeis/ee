@@ -29,7 +29,7 @@ fun AttributeI.toGoAddMethod(o: String, c: GenerationContext,
     val type = type().generics()[0].toGo(c, api)
     return """
 func (o *$o) AddTo${name().capitalize()}(item $type) $type {
-    o.${nameForMember()} = append(o.${nameForMember()}, item)
+    o.${nameForGoMember()} = append(o.${nameForGoMember()}, item)
     return item
 }"""
 }

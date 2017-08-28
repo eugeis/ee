@@ -6,7 +6,7 @@ import ee.common.ext.toPlural
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
-import ee.lang.gen.go.nameForMember
+import ee.lang.gen.go.nameForGoMember
 import ee.lang.gen.go.toGoImpl
 
 fun <T : CommandI> T.toGoHandler(c: GenerationContext,
@@ -16,7 +16,7 @@ fun <T : CommandI> T.toGoHandler(c: GenerationContext,
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api)}
-func (o *$name) AggregateID() ${c.n(g.eh.UUID)}            { return o.${entity.id().nameForMember()} }
+func (o *$name) AggregateID() ${c.n(g.eh.UUID)}            { return o.${entity.id().nameForGoMember()} }
 func (o *$name) AggregateType() ${c.n(g.eh.AggregateType)}  { return ${entity.name()}${DesignDerivedType.AggregateType} }
 func (o *$name) CommandType() ${c.n(g.eh.CommandType)}      { return ${nameAndParentName().capitalize()}${DesignDerivedType.Command} }
 """

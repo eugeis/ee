@@ -64,7 +64,7 @@ fun <T : AttributeI> T.toGoValue(c: GenerationContext, derived: String): String 
 }
 
 fun AttributeI.toGoInitForConstructor(c: GenerationContext, derived: String): String {
-    val name = "${anonymous().ifElse({ type().toGoCall(c, derived) }, { nameForMember() })}: "
+    val name = "${anonymous().ifElse({ type().toGoCall(c, derived) }, { nameForGoMember() })}: "
     return name + if (default() || value() != null) {
         toGoValue(c, derived)
     } else if (anonymous()) {
@@ -75,7 +75,7 @@ fun AttributeI.toGoInitForConstructor(c: GenerationContext, derived: String): St
 }
 
 fun AttributeI.toGoInitForConstructorFunc(c: GenerationContext, derived: String): String {
-    return "${anonymous().ifElse({ type().toGoCall(c, derived) }, { nameForMember() })}: ${name().decapitalize()}"
+    return "${anonymous().ifElse({ type().toGoCall(c, derived) }, { nameForGoMember() })}: ${name().decapitalize()}"
 }
 
 fun <T : AttributeI> T.toGoTypeDef(c: GenerationContext, api: String): String {
@@ -167,11 +167,11 @@ fun <T : AttributeI> T.toGoCall(c: GenerationContext, api: String): String {
 }
 
 fun <T : AttributeI> T.toGoMember(c: GenerationContext, api: String): String {
-    return anonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameForMember()} ${toGoTypeDef(c, api)}" })
+    return anonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameForGoMember()} ${toGoTypeDef(c, api)}" })
 }
 
 fun <T : AttributeI> T.toGoEnumMember(c: GenerationContext, api: String): String {
-    return anonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameForEnum()} ${toGoTypeDef(c, api)}" })
+    return anonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameDecapitalize()} ${toGoTypeDef(c, api)}" })
 }
 
 fun List<AttributeI>.toGoSignature(c: GenerationContext, api: String): String {

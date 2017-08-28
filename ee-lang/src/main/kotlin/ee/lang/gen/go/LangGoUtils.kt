@@ -273,16 +273,8 @@ fun <T : StructureUnitI> T.extendForGoGenerationLang(): T {
     return this
 }
 
-fun AttributeI.nameDecapitalize(): String = storage.getOrPut(this, "nameDecapitalize", {
-    name().decapitalize()
-})
-
-fun AttributeI.nameForMember(): String = storage.getOrPut(this, "nameForMember", {
+fun AttributeI.nameForGoMember(): String = storage.getOrPut(this, "nameForGoMember", {
     replaceable().notSetOrTrue().ifElse({ name().capitalize() }, { name().decapitalize() })
-})
-
-fun AttributeI.nameForEnum(): String = storage.getOrPut(this, "nameForEnum", {
-    name().decapitalize()
 })
 
 val itemAndTemplateNameAsGoFileName: TemplateI<*>.(CompositeI) -> Names = {

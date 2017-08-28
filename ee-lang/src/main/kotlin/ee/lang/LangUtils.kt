@@ -241,6 +241,10 @@ fun AttributeI.accessibleAndMutable(): Boolean = storage.getOrPut(this, "accessi
     accessible().setAndTrue() && mutable().setAndTrue()
 })
 
+fun AttributeI.nameDecapitalize(): String = storage.getOrPut(this, "nameDecapitalize", {
+    name().decapitalize()
+})
+
 fun <T : CompositeI> T.defineConstructorAllPropsForNonConstructors() {
     findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
             .extend { constructorAllProps() }
