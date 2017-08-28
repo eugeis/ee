@@ -6,12 +6,17 @@ import ee.design.gen.kt.DesignKotlinContextFactory
 import ee.design.gen.kt.DesignKotlinTemplates
 import ee.design.gen.swagger.DesignSwaggerContextFactory
 import ee.design.gen.swagger.DesignSwaggerTemplates
+import ee.design.gen.ts.DesignTsContextFactory
+import ee.design.gen.ts.DesignTsTemplates
 import ee.lang.*
 import ee.lang.gen.LangGeneratorFactory
+import ee.lang.gen.common.LangCommonContextFactory
 import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
 import ee.lang.gen.go.itemNameAsGoFileName
 import ee.lang.gen.itemNameAsKotlinFileName
 import ee.lang.gen.swagger.itemNameAsSwaggerFileName
+import ee.lang.gen.ts.itemAndTemplateNameAsTsFileName
+import ee.lang.gen.ts.itemNameAsTsFileName
 
 open class DesignGeneratorFactory : LangGeneratorFactory {
     constructor() : super()
@@ -22,21 +27,28 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
     override fun buildGoContextFactory() = DesignGoContextFactory()
     override fun buildGoTemplates() = DesignGoTemplates(itemNameAsGoFileName)
 
+    override fun buildTsContextFactory() = DesignTsContextFactory()
+    override fun buildTsTemplates() = DesignTsTemplates(itemNameAsTsFileName)
+
     override fun buildSwaggerContextFactory() = DesignSwaggerContextFactory()
     fun buildSwaggerTemplates() = DesignSwaggerTemplates(itemNameAsSwaggerFileName)
 
     open fun eventDrivenGo(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
-        val goTemplates = buildGoTemplates()
 
         val swaggerTemplates = buildSwaggerTemplates()
         val swaggerContextFactory = buildSwaggerContextFactory()
         val swaggerContextBuilder = swaggerContextFactory.build()
 
-        val contextFactory = buildGoContextFactory()
-        val contextBuilder = contextFactory.buildForImplOnly()
+        val goTemplates = buildGoTemplates()
+        val goContextFactory = buildGoContextFactory()
+        val goContextBuilder = goContextFactory.buildForImplOnly()
 
-        val components: StructureUnitI.() -> List<CompI> = { if (this is CompI) listOf(this) else findDownByType(CompI::class.java) }
-        val modules: StructureUnitI.() -> List<ModuleI> = { if (this is ModuleI) listOf(this) else findDownByType(ModuleI::class.java) }
+        val components: StructureUnitI.() -> List<CompI> = {
+            if (this is CompI) listOf(this) else findDownByType(CompI::class.java)
+        }
+        val modules: StructureUnitI.() -> List<ModuleI> = {
+            if (this is ModuleI) listOf(this) else findDownByType(ModuleI::class.java)
+        }
 
         val commands: StructureUnitI.() -> List<CommandI> = { findDownByType(CommandI::class.java) }
         val commandEnums: StructureUnitI.() -> List<EnumTypeI> = {
@@ -77,7 +89,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                     sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
-        registerMacros(contextFactory)
+        registerGoMacros(goContextFactory)
 
         val moduleGenerators = arrayListOf<GeneratorI<StructureUnitI>>()
         val ret = GeneratorGroup<StructureUnitI>(listOf(
@@ -90,7 +102,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
 
         moduleGenerators.addAll(listOf(
                 GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
+                        contextBuilder = goContextBuilder, template = FragmentsTemplate<StructureUnitI>(
                         name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsGoFileName,
                         fragments = {
                             listOf(
@@ -106,7 +118,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                         })
                 ),
                 GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
+                        contextBuilder = goContextBuilder, template = FragmentsTemplate<StructureUnitI>(
                         name = "${fileNamePrefix}CommandsBase", nameBuilder = itemAndTemplateNameAsGoFileName,
                         fragments = {
                             listOf(
@@ -119,7 +131,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                         })
                 ),
                 GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
+                        contextBuilder = goContextBuilder, template = FragmentsTemplate<StructureUnitI>(
                         name = "${fileNamePrefix}EventsBase", nameBuilder = itemAndTemplateNameAsGoFileName,
                         fragments = {
                             listOf(
@@ -137,8 +149,8 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
 
         moduleGenerators.addAll(derivedTypes.map { derivedType ->
             GeneratorSimple<StructureUnitI>(
-                    contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
-                    name = "${fileNamePrefix}${derivedType}Base", nameBuilder = itemAndTemplateNameAsGoFileName,
+                    contextBuilder = goContextBuilder, template = FragmentsTemplate<StructureUnitI>(
+                    name = "$fileNamePrefix${derivedType}Base", nameBuilder = itemAndTemplateNameAsGoFileName,
                     fragments = {
                         listOf(
                                 ItemsFragment<StructureUnitI, ControllerI>(items = {
@@ -164,11 +176,85 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                     })
             )
         })
-
         return ret
     }
 
-    protected fun registerMacros(contextFactory: DesignGoContextFactory) {
+    open fun angular(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
+        val tsTemplates = buildTsTemplates()
+        val tsContextFactory = buildTsContextFactory()
+        val tsContextBuilder = tsContextFactory.buildForImplOnly()
+
+        val components: StructureUnitI.() -> List<CompI> = {
+            if (this is CompI) listOf(this) else findDownByType(CompI::class.java)
+        }
+        val modules: StructureUnitI.() -> List<ModuleI> = {
+            if (this is ModuleI) listOf(this) else findDownByType(ModuleI::class.java)
+        }
+
+        val commands: StructureUnitI.() -> List<CommandI> = { findDownByType(CommandI::class.java) }
+        val commandEnums: StructureUnitI.() -> List<EnumTypeI> = {
+            findDownByType(EnumTypeI::class.java).filter {
+                it.parent() is ControllerI &&
+                        it.name().endsWith("CommandType")
+            }
+        }
+
+        val events: StructureUnitI.() -> List<EventI> = { findDownByType(EventI::class.java) }
+        val eventEnums: StructureUnitI.() -> List<EnumTypeI> = {
+            findDownByType(EnumTypeI::class.java).filter {
+                it.parent() is ControllerI &&
+                        it.name().endsWith("EventType")
+            }
+        }
+
+        val enums: StructureUnitI.() -> List<EnumTypeI> = {
+            findDownByType(EnumTypeI::class.java).filter {
+                it.parent() is StructureUnitI && it.derivedAsType().isEmpty()
+            }.sortedBy { it.name() }
+        }
+
+        val values: StructureUnitI.() -> List<ValuesI> = {
+            findDownByType(ValuesI::class.java).filter { it.derivedAsType().isEmpty() }.
+                    sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+
+        val basics: StructureUnitI.() -> List<BasicI> = {
+            findDownByType(BasicI::class.java).filter { it.derivedAsType().isEmpty() }.
+                    sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+
+        val entities: StructureUnitI.() -> List<EntityI> = {
+            findDownByType(EntityI::class.java).filter { it.derivedAsType().isEmpty() }.
+                    sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+
+        val moduleGenerators = arrayListOf<GeneratorI<StructureUnitI>>()
+        val ret = GeneratorGroup<StructureUnitI>(listOf(
+                GeneratorGroupItems<StructureUnitI, StructureUnitI>(items = modules, generators = moduleGenerators)
+        ))
+
+        moduleGenerators.addAll(listOf(
+                GeneratorSimple<StructureUnitI>(
+                        contextBuilder = tsContextBuilder, template = FragmentsTemplate<StructureUnitI>(
+                        name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsTsFileName,
+                        fragments = {
+                            listOf(
+                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = entities,
+                                            fragments = { listOf(tsTemplates.pojo()) }),
+                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = values,
+                                            fragments = { listOf(tsTemplates.pojo()) }),
+                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = basics,
+                                            fragments = { listOf(tsTemplates.pojo()) }),
+                                    ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
+                                            fragments = { listOf(tsTemplates.enum()) })
+                            )
+                        })
+                )
+        ))
+        return ret
+    }
+
+    protected fun registerGoMacros(contextFactory: LangCommonContextFactory) {
         val macros = contextFactory.macroController
         macros.registerMacro(OperationI::toGoAggregateInitializerRegisterCommands.name,
                 OperationI::toGoAggregateInitializerRegisterCommands)

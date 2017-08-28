@@ -25,27 +25,17 @@ open class TsContext : GenerationContext {
     }
 
     private fun toPackage(indent: String): String {
-        return namespaceLastPart.isNotEmpty().then { "${indent}package $namespaceLastPart${nL}${nL}" }
+        return ""//namespaceLastPart.isNotEmpty().then { "${indent}package $namespaceLastPart${nL}${nL}" }
     }
 
     private fun toImports(indent: String): String {
         return types.isNotEmpty().then {
-            val outsideTypes = types.filter { it.namespace().isNotEmpty() && !it.namespace().equals(namespace, true) }
+            val outsideTypes = types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }
             outsideTypes.isNotEmpty().then {
-                outsideTypes.map { "$indent${it.namespace()}" }.toSortedSet().
-                        joinSurroundIfNotEmptyToString(nL, "${indent}import (${nL}", "${nL})") {
-                            """    "${it.toLowerCase().toDotsAsPath().replace("github/com", "github.com")}""""
-                        }
+                "${outsideTypes.map {
+                    """${indent}import { ${it.name()} } from "./${it.namespace().toDotsAsPath()}""""
+                }.toHashSet().sorted().joinToString(nL)}$nL$nL"
             }
-        }
-    }
-
-    override fun n(item: ItemI, derivedKind: String): String {
-        val derived = types.addReturn(derivedController.derive(item, derivedKind))
-        if (derived.namespace().isEmpty() || derived.namespace().equals(namespace, true)) {
-            return derived.name()
-        } else {
-            return """${derived.namespace().substringAfterLast(".").toLowerCase()}.${derived.name()}"""
         }
     }
 }
@@ -74,7 +64,7 @@ fun <T : StructureUnitI> T.extendForTsGenerationLang(): T {
     return this
 }
 
-val itemAndTemplateNameAsGoFileName: TemplateI<*>.(CompositeI) -> Names = {
+val itemAndTemplateNameAsTsFileName: TemplateI<*>.(CompositeI) -> Names = {
     Names("${it.name().capitalize()}${name.capitalize()}.ts")
 }
 val templateNameAsTsFileName: TemplateI<*>.(CompositeI) -> Names = {

@@ -5,8 +5,11 @@ import ee.lang.gen.common.LangCommonContextFactory
 import ee.lang.gen.go.LangGoContextFactory
 import ee.lang.gen.go.LangGoTemplates
 import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
+import ee.lang.gen.go.itemNameAsGoFileName
 import ee.lang.gen.kt.LangKotlinContextFactory
 import ee.lang.gen.kt.LangKotlinTemplates
+import ee.lang.gen.ts.LangTsContextFactory
+import ee.lang.gen.ts.LangTsTemplates
 
 open class LangGeneratorFactory {
     open fun dslKt(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
@@ -80,12 +83,13 @@ open class LangGeneratorFactory {
     }
 
     protected open fun buildKotlinContextFactory() = LangKotlinContextFactory()
-
-    protected open fun buildKotlinTemplates() = LangKotlinTemplates({ Names("${it.name()}.kt") })
+    protected open fun buildKotlinTemplates() = LangKotlinTemplates(itemNameAsKotlinFileName)
 
     protected open fun buildGoContextFactory() = LangGoContextFactory()
+    protected open fun buildGoTemplates() = LangGoTemplates(itemNameAsGoFileName)
 
-    protected open fun buildGoTemplates() = LangGoTemplates({ Names("${it.name()}.go") })
+    protected open fun buildTsContextFactory() = LangTsContextFactory()
+    protected open fun buildTsTemplates() = LangTsTemplates()
 
     protected open fun buildSwaggerContextFactory() = LangCommonContextFactory()
 }
