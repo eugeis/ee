@@ -88,6 +88,8 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
             object CommandHandlerNotImplemented : Operation()
 
+            object QueryNotImplemented : Operation()
+
             object EntityAlreadyExists : Operation()
 
             object EntityNotExists : Operation()

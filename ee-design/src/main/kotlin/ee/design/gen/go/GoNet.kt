@@ -110,7 +110,8 @@ fun <T : ConstructorI> T.toGoHttpRouterBeforeBody(c: GenerationContext,
                                                   api: String = DesignDerivedKind.API): String {
     val item = findParentMust(EntityI::class.java)
     return """
-    pathPrefix = pathPrefix + "/" + "${item.name().toPlural().decapitalize()}""""
+    pathPrefix = pathPrefix + "/" + "${item.name().toPlural().decapitalize()}"
+    repo := readRepos(string(${item.name()}${DesignDerivedType.AggregateType}))"""
 }
 
 fun <T : ConstructorI> T.toGoHttpModuleRouterBeforeBody(c: GenerationContext,

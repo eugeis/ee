@@ -106,6 +106,8 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
                     val queryRepository = controller {
                         name(DesignDerivedType.QueryRepository).derivedAsType(DesignDerivedType.Query)
+                        prop(g.eh.ReadRepo).replaceable(false).name("repo")
+                        prop(g.context.Context).replaceable(false).name("context")
 
                         //queries
                         finders.forEach {
@@ -120,7 +122,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             op(it).macrosBody(OperationI::toGoExistByBody.name)
                         }
 
-                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+                        constructorAllProps {}
                     }
 
 

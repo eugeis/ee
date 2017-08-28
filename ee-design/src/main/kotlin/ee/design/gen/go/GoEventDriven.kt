@@ -40,22 +40,75 @@ fun <T : OperationI> T.toGoCommandHandlerExecuteCommandBody(c: GenerationContext
 fun <T : OperationI> T.toGoFindByBody(c: GenerationContext,
                                       derived: String = DesignDerivedKind.IMPL,
                                       api: String = DesignDerivedKind.API): String {
-    return """
-    """
+    val entity = findParentMust(EntityI::class.java)
+    return params().isEmpty().ifElse({
+        """
+    var result []interface{}
+	if result, err = o.repo.FindAll(o.context); err == nil {
+        ret = make(${ret().type().toGo(c, derived)}, len(result))
+		for i, e := range result {
+            ret[i] = e.(${entity.toGo(c, derived)})
+		}
+    }"""
+    }, {
+        (params().size == 1 && params().first().key()).ifElse({
+            """
+    var result interface{}
+	if result, err = o.repo.Find(o.context, ${params().first().name()}); err == nil {
+        ret = result.(${ret().type().toGo(c, derived)})
+    }"""
+        }, {
+            """
+    err = ${c.n(g.gee.eh.QueryNotImplemented, api)}("${nameAndParentName()}")"""
+        })
+    })
 }
 
 fun <T : OperationI> T.toGoExistByBody(c: GenerationContext,
                                        derived: String = DesignDerivedKind.IMPL,
                                        api: String = DesignDerivedKind.API): String {
-    return """
-    """
+    return params().isEmpty().ifElse({
+        """
+    var result int
+	if result, err = o.CountAll(); err == nil {
+        ret = result > 0
+    }"""
+    }, {
+        (params().size == 1 && params().first().key()).ifElse({
+            """
+    var result int
+	if result, err = o.CountById(${params().first().name()}); err == nil {
+        ret = result > 0
+    }"""
+        }, {
+            """
+    err = ${c.n(g.gee.eh.QueryNotImplemented, api)}("${nameAndParentName()}")"""
+        })
+    })
 }
 
 fun <T : OperationI> T.toGoCountByBody(c: GenerationContext,
                                        derived: String = DesignDerivedKind.IMPL,
                                        api: String = DesignDerivedKind.API): String {
-    return """
-    """
+    val entity = findParentMust(EntityI::class.java)
+    return params().isEmpty().ifElse({
+        """
+    var result []${entity.toGo(c, derived)}
+	if result, err = o.FindAll(); err == nil {
+        ret = len(result)
+    }"""
+    }, {
+        (params().size == 1 && params().first().key()).ifElse({
+            """
+    var result ${entity.toGo(c, derived)}
+	if result, err = o.FindById(${params().first().name()}); err == nil && result != nil {
+        ret = 1
+    }"""
+        }, {
+            """
+    err = ${c.n(g.gee.eh.QueryNotImplemented, api)}("${nameAndParentName()}")"""
+        })
+    })
 }
 
 fun <T : OperationI> T.toGoHttpHandlerBody(c: GenerationContext,
