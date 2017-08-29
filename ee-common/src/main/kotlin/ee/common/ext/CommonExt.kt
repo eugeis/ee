@@ -157,6 +157,10 @@ fun String.toDotsAsPath(): String {
     return this.replace(".", "/")
 }
 
+fun String.relativeTo(string: String): String {
+    return this.replace(".", "/")
+}
+
 fun String.toPlural(): String {
     return this.endsWith("rch").ifElse({ "${this}es" }, { "${this}s" })
 }

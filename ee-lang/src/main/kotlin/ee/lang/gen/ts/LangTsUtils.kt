@@ -30,10 +30,15 @@ open class TsContext : GenerationContext {
 
     private fun toImports(indent: String): String {
         return types.isNotEmpty().then {
-            val outsideTypes = types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }
+            val outsideTypes = types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }.
+                    groupBy { it.findParentMust(StructureUnitI::class.java) }
             outsideTypes.isNotEmpty().then {
-                "${outsideTypes.map {
-                    """${indent}import { ${it.name()} } from "./${it.namespace().toDotsAsPath()}""""
+                "${outsideTypes.map { (su, items) ->
+                    """${indent}import {${items.sortedBy { it.name() }.joinToString(", ") {
+                        it.name()
+                    }}} from "../${su.name().equals("shared", true).not().then {
+                        "${su.name().decapitalize()}/"
+                    }}${su.name().capitalize()}ApiBase""""
                 }.toHashSet().sorted().joinToString(nL)}$nL$nL"
             }
         }
