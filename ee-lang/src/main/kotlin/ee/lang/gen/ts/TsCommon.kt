@@ -15,10 +15,10 @@ fun <T : TypeI> T.toTypeScriptDefault(c: GenerationContext, derived: String, att
         n.Float -> "0f"
         n.Date -> "${c.n(j.util.Date)}()"
         n.Path -> "${c.n(j.nio.file.Paths)}.get(\"\")"
-        n.Blob -> "ByteArray(0)"
+        n.Blob -> "new ByteArray(0)"
         n.Void -> ""
-        n.Error -> "Throwable()"
-        n.Exception -> "Exception()"
+        n.Error -> "new Throwable()"
+        n.Exception -> "new Exception()"
         n.Url -> "${c.n(j.net.URL)}(\"\")"
         n.Map -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("new Map()", "new Map()")
         n.List -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("new Array()", "new Array()")
@@ -28,7 +28,7 @@ fun <T : TypeI> T.toTypeScriptDefault(c: GenerationContext, derived: String, att
             } else if (baseType is EnumTypeI) {
                 "${c.n(this, derived)}.${baseType.literals().first().toTypeScript()}"
             } else if (baseType is CompilationUnitI) {
-                "${c.n(this, derived)}()"
+                "new ${c.n(this, derived)}()"
             } else {
                 (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
             }
