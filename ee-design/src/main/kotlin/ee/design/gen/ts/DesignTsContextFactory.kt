@@ -12,7 +12,7 @@ open class DesignTsContextFactory : LangTsContextFactory() {
         return {
             val structureUnit = this
             val compOrStructureUnit = this.findThisOrParent(CompI::class.java) ?: structureUnit
-            TsContext(moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}",
+            TsContext(moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}_ng",
                     namespace = structureUnit.namespace().toLowerCase(),
                     derivedController = derived,
                     macroController = macroController

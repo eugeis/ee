@@ -8,16 +8,14 @@ object ts : StructureUnit({ namespace("").name("TypeScript") }) {
 }
 
 open class TsContext : GenerationContext {
-    val namespaceLastPart: String
 
     constructor(namespace: String = "", moduleFolder: String = "",
-                genFolder: String = "src/main/ts",
+                genFolder: String = "src/app/shared",
                 genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.ts".toRegex(),
                 derivedController: DerivedController = DerivedController(DerivedStorage<ItemI>()),
                 macroController: MacroController = MacroController())
             : super(namespace, moduleFolder, genFolder, genFolderDeletable, genFolderPatternDeletable,
             derivedController, macroController) {
-        namespaceLastPart = namespace.substringAfterLast(".")
     }
 
     override fun complete(content: String, indent: String): String {
