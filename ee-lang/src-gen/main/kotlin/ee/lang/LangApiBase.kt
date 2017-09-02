@@ -204,9 +204,6 @@ open class LogicUnit : MacroComposite, LogicUnitI {
 
     constructor(value: LogicUnit.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
 
-    override fun errorHandling(): Boolean = attr(ERROR_HANDLING, { false })
-    override fun errorHandling(value: Boolean): LogicUnitI = apply { attr(ERROR_HANDLING, value) }
-
     override fun params(): ListMultiHolder<AttributeI> = itemAsList(PARAMS, AttributeI::class.java, true)
     override fun params(vararg value: AttributeI): LogicUnitI = apply { params().addItems(value.asList()) }
 
@@ -226,7 +223,6 @@ open class LogicUnit : MacroComposite, LogicUnitI {
 
     companion object {
         val EMPTY = LogicUnitEmpty
-        val ERROR_HANDLING = "_errorHandling"
         val PARAMS = "_params"
         val SUPER_UNIT = "__superUnit"
         val VIRTUAL = "_virtual"
@@ -296,11 +292,14 @@ open class Operation : LogicUnit, OperationI {
     override fun open(): Boolean = attr(OPEN, { true })
     override fun open(value: Boolean): OperationI = apply { attr(OPEN, value) }
 
-    override fun ret(): AttributeI = attr(RET, { Attribute.EMPTY })
-    override fun ret(value: AttributeI): OperationI = apply { attr(RET, value) }
+    override fun returns(): ListMultiHolder<AttributeI> = itemAsList(RETURNS, AttributeI::class.java, true)
+    override fun returns(vararg value: AttributeI): OperationI = apply { returns().addItems(value.asList()) }
+    override fun ret(value: AttributeI): AttributeI = applyAndReturn { returns().addItem(value); value }
+    override fun ret(value: AttributeI.() -> Unit): AttributeI = ret(Attribute(value))
 
     override fun fillSupportsItems() {
         generics()
+        returns()
         super.fillSupportsItems()
     }
 
@@ -308,7 +307,7 @@ open class Operation : LogicUnit, OperationI {
         val EMPTY = Operation { name(ItemEmpty.name()) }.apply<Operation> { init() }
         val GENERICS = "_generics"
         val OPEN = "_open"
-        val RET = "_ret"
+        val RETURNS = "_returns"
     }
 }
 

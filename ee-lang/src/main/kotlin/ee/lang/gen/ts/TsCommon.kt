@@ -214,12 +214,12 @@ fun List<AttributeI>.toTypeScriptTypes(c: GenerationContext, derived: String): S
         joinWrappedToString(", ") { it.toTypeScriptType(c, derived) }
 
 fun <T : OperationI> T.toTypeScriptLambda(c: GenerationContext, derived: String): String =
-        """(${params().toTypeScriptTypes(c, derived)}) -> ${ret().toTypeScriptType(c, derived)}"""
+        """(${params().toTypeScriptTypes(c, derived)}) -> ${retFirst().toTypeScriptType(c, derived)}"""
 
 fun <T : OperationI> T.toTypeScriptImpl(c: GenerationContext, derived: String, api: String): String {
     return """
     ${toTypeScriptGenerics(c, derived)}${name()}(${
-    params().toTypeScriptSignature(c, derived, api)}) : ${ret().toTypeScriptTypeDef(c, api)} {
+    params().toTypeScriptSignature(c, derived, api)}) : ${retFirst().toTypeScriptTypeDef(c, api)} {
         throw new ReferenceError("Not implemented yet.");
     }"""
 }

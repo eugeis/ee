@@ -227,12 +227,12 @@ fun List<AttributeI>.toKotlinTypes(c: GenerationContext, derived: String): Strin
         joinWrappedToString(", ") { it.toKotlinType(c, derived) }
 
 fun <T : OperationI> T.toKotlinLambda(c: GenerationContext, derived: String): String =
-        """(${params().toKotlinTypes(c, derived)}) -> ${ret().toKotlinType(c, derived)}"""
+        """(${params().toKotlinTypes(c, derived)}) -> ${retFirst().toKotlinType(c, derived)}"""
 
 fun <T : OperationI> T.toKotlinImpl(c: GenerationContext, derived: String, api: String): String {
     return """
     ${open().then("open ")}fun ${toKotlinGenerics(c, derived)}${name()}(${
-    params().toKotlinSignature(c, derived, api)})${ret().toKotlinTypeDef(c, api)} {
+    params().toKotlinSignature(c, derived, api)})${retFirst().toKotlinTypeDef(c, api)} {
         throw IllegalAccessException("Not implemented yet.")
     }"""
 }

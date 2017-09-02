@@ -107,9 +107,6 @@ interface LiteralI : LogicUnitI {
 
 
 interface LogicUnitI : MacroCompositeI {
-    fun errorHandling(): Boolean
-    fun errorHandling(value: Boolean): LogicUnitI
-
     fun params(): ListMultiHolder<AttributeI>
     fun params(vararg value: AttributeI): LogicUnitI
 
@@ -155,8 +152,10 @@ interface OperationI : LogicUnitI {
     fun open(): Boolean
     fun open(value: Boolean): OperationI
 
-    fun ret(): AttributeI
-    fun ret(value: AttributeI): OperationI
+    fun returns(): ListMultiHolder<AttributeI>
+    fun returns(vararg value: AttributeI): OperationI
+    fun ret(value: AttributeI): AttributeI
+    fun ret(value: AttributeI.() -> Unit = {}): AttributeI
 }
 
 

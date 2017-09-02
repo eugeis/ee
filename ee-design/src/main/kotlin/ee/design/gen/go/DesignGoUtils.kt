@@ -3,12 +3,20 @@ package ee.design.gen.go
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
+import ee.lang.gen.go.retError
+import ee.lang.gen.go.retTypeAndError
 import org.slf4j.LoggerFactory
 
 
 private val log = LoggerFactory.getLogger("DesignGoUtils")
 
 fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
+
+    val reposFactory = lambda {
+        p("name")
+        retTypeAndError(g.eh.ReadWriteRepo)
+    }
+
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.derivedAsType().isEmpty() }.groupBy {
         it.findParentMust(ModuleI::class.java)
     }.forEach { module, items ->
@@ -37,7 +45,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                     p(command.name(), command)
                                     p("entity", item)
                                     p("store", g.gee.eh.AggregateStoreEvent)
-                                    ret(g.error)
+                                    retError()
                                 }).name("${command.name()}${DesignDerivedType.Handler}")
                             }
                         }
@@ -47,13 +55,13 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             p("cmd", g.eh.Command)
                             p("entity", n.Any)
                             p("store", g.gee.eh.AggregateStoreEvent)
-                            ret(g.error)
+                            retError()
                             macrosBody(OperationI::toGoCommandHandlerExecuteCommandBody.name)
                         }
 
                         op {
                             name("SetupCommandHandler")
-                            ret(g.error)
+                            retError()
                             macrosBody(OperationI::toGoCommandHandlerSetupBody.name)
                         }
 
@@ -75,7 +83,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 type(lambda {
                                     p(event.name(), event)
                                     p("entity", item)
-                                    ret(g.error)
+                                    retError()
                                 }).name("${event.name()}${DesignDerivedType.Handler}")
                             }
                         }
@@ -84,13 +92,13 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             name("Apply")
                             p("event", g.eh.Event)
                             p("entity", n.Any)
-                            ret(g.error)
+                            retError()
                             macrosBody(OperationI::toGoEventHandlerApplyEvent.name)
                         }
 
                         op {
                             name("SetupEventHandler")
-                            ret(g.error)
+                            retError()
                             macrosBody(OperationI::toGoEventHandlerSetupBody.name)
                         }
 
@@ -143,12 +151,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                             p { type(g.eh.EventBus).name("eventBus") },
                                             p { type(g.eh.EventPublisher).name("eventPublisher") },
                                             p { type(g.eh.CommandBus).name("commandBus") },
-                                            p {
-                                                type(lambda {
-                                                    p("name")
-                                                    ret(g.eh.ReadWriteRepo)
-                                                }).name("readRepos")
-                                            })
+                                            p { type(reposFactory).name("readRepos") })
                                     macrosBody(ConstructorI::toGoAggregateInitializerBody.name)
                                 }
                             })
@@ -248,19 +251,14 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 op {
                                     name("Setup")
                                     params(prop { type(g.mux.Router).name("router") })
-                                    ret(g.error)
+                                    retError()
                                     macrosBody(OperationI::toGoSetupHttpRouterBody.name)
                                 }
                                 constr {
                                     params(pathPrefix,
                                             p { type(g.context.Context).name("context") },
                                             p { type(g.eh.CommandBus).name("commandBus") },
-                                            p {
-                                                type(lambda {
-                                                    p("name")
-                                                    ret(g.eh.ReadWriteRepo)
-                                                }).name("readRepos")
-                                            },
+                                            p { type(reposFactory).name("readRepos") },
                                             p { type(queryRepository).default(true).name("queryRepository") },
                                             p(queryHandler, { default(true) }),
                                             p(commandHandler, { default(true) })
@@ -279,12 +277,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                 val eventBus = prop { type(g.eh.EventBus).replaceable(false).name("eventBus") }
                 val eventPublisher = prop { type(g.eh.EventPublisher).replaceable(false).name("eventPublisher") }
                 val commandBus = prop { type(g.eh.CommandBus).replaceable(false).name("commandBus") }
-                val readRepos = p {
-                    type(lambda {
-                        p("name")
-                        ret(g.eh.ReadWriteRepo)
-                    }).name("readRepos")
-                }
+                val readRepos = p { type(reposFactory).name("readRepos") }
 
                 val aggregateInitializerProps = aggregateInitializer.map { item ->
                     prop {
@@ -297,7 +290,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                 }
                 op {
                     name("Setup")
-                    ret(g.error)
+                    retError()
                     macrosBody(OperationI::toGoEventhorizonInitializerSetupBody.name)
                 }
             }
@@ -313,7 +306,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                 op {
                     name("Setup")
                     params(prop { type(g.mux.Router).name("router") })
-                    ret(g.error)
+                    retError()
                     macrosBody(OperationI::toGoSetupModuleHttpRouter.name)
                 }
                 constr {
@@ -321,10 +314,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                             p { type(g.context.Context).name("context") },
                             p { type(g.eh.CommandBus).name("commandBus") },
                             p {
-                                type(lambda {
-                                    p("name")
-                                    ret(g.eh.ReadWriteRepo)
-                                }).name("readRepos")
+                                type(reposFactory).name("readRepos")
                             },
                             *httpRouterParams.map { p(it, { default(true) }) }.toTypedArray())
                     macrosBeforeBody(ConstructorI::toGoHttpModuleRouterBeforeBody.name)

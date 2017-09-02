@@ -45,7 +45,7 @@ fun <T : OperationI> T.toGoFindByBody(c: GenerationContext,
         """
     var result []interface{}
 	if result, err = o.repo.FindAll(o.context); err == nil {
-        ret = make(${ret().type().toGo(c, derived)}, len(result))
+        ret = make(${retFirst().type().toGo(c, derived)}, len(result))
 		for i, e := range result {
             ret[i] = e.(${entity.toGo(c, derived)})
 		}
@@ -55,7 +55,7 @@ fun <T : OperationI> T.toGoFindByBody(c: GenerationContext,
             """
     var result interface{}
 	if result, err = o.repo.Find(o.context, ${params().first().name()}); err == nil {
-        ret = result.(${ret().type().toGo(c, derived)})
+        ret = result.(${retFirst().type().toGo(c, derived)})
     }"""
         }, {
             """

@@ -148,7 +148,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             object SetAggregate : Operation() {
                 val aggregateType = p()
                 val cmdType = p()
-                val ret = ret()
+                val ret = retError()
             }
         }
 
@@ -272,6 +272,11 @@ fun <T : StructureUnitI> T.extendForGoGenerationLang(): T {
     defineConstructorEmpty()
     return this
 }
+
+fun OperationI.retTypeAndError(retType: TypeI): OperationI = returns(Attribute { type(retType).name("ret") },
+        Attribute { type(g.error).name("err") })
+
+fun OperationI.retError(): OperationI = returns(Attribute { type(g.error).name("err") })
 
 fun AttributeI.nameForGoMember(): String = storage.getOrPut(this, "nameForGoMember", {
     replaceable().notSetOrTrue().ifElse({ name().capitalize() }, { name().decapitalize() })

@@ -2,6 +2,7 @@ package ee.design
 
 import ee.design.gen.go.toGoPropOptionalAfterBody
 import ee.lang.*
+import ee.lang.gen.go.retTypeAndError
 import org.slf4j.LoggerFactory
 
 open class DesignDerivedKindNames : LangDerivedKindNames() {
@@ -40,20 +41,17 @@ private val log = LoggerFactory.getLogger("DesignUtils")
 
 fun EntityI.findBy(vararg params: AttributeI) = findBy {
     params(*params)
-    ret(this@findBy)
-    errorHandling(true)
+    retTypeAndError(this@findBy)
 }
 
 fun EntityI.existBy(vararg params: AttributeI) = existBy {
     params(*params)
-    ret(n.Boolean)
-    errorHandling(true)
+    retTypeAndError(n.Boolean)
 }
 
 fun EntityI.countBy(vararg params: AttributeI) = countBy {
     params(*params)
-    ret(n.Int)
-    errorHandling(true)
+    retTypeAndError(n.Int)
 }
 
 fun CompilationUnitI.op(vararg params: AttributeI, body: OperationI.() -> Unit = {}) = op {
@@ -92,58 +90,49 @@ fun StructureUnitI.addQueriesForAggregates() {
 
         findBy {
             name("FindAll")
-            ret(n.List.GT(item))
-            errorHandling(true)
+            retTypeAndError(n.List.GT(item))
         }
         findBy {
             name("FindById")
             params(id())
-            ret(item)
-            errorHandling(true)
+            retTypeAndError(item)
         }
         countBy {
             name("CountAll")
-            ret(n.Long)
-            errorHandling(true)
+            retTypeAndError(n.Long)
         }
         countBy {
             name("CountById")
             params(id())
-            ret(n.Long)
-            errorHandling(true)
+            retTypeAndError(n.Long)
         }
         existBy {
             name("ExistAll")
-            ret(n.Boolean)
-            errorHandling(true)
+            retTypeAndError(n.Boolean)
         }
         existBy {
             name("ExistById")
             params(id())
-            ret(n.Boolean)
-            errorHandling(true)
+            retTypeAndError(n.Boolean)
         }
     }
 }
 
 fun StructureUnitI.addDefaultReturnValuesForQueries() {
-    findDownByType(FindByI::class.java).filter { it.ret().isEMPTY() }.extend {
+    findDownByType(FindByI::class.java).filter { it.returns().isEmpty() }.extend {
         if (multiResult()) {
-            ret(Attribute { type(n.List.GT(findParentMust(TypeI::class.java))) })
+            retTypeAndError(n.List.GT(findParentMust(TypeI::class.java)))
         } else {
-            ret(Attribute { type(findParentMust(TypeI::class.java)) })
+            retTypeAndError(findParentMust(TypeI::class.java))
         }
-        errorHandling(true)
     }
 
-    findDownByType(CountByI::class.java).filter { it.ret().isEMPTY() }.extend {
-        ret(Attribute { type(n.Long) })
-        errorHandling(true)
+    findDownByType(CountByI::class.java).filter { it.returns().isEmpty() }.extend {
+        retTypeAndError(n.Long)
     }
 
-    findDownByType(ExistByI::class.java).filter { it.ret().isEMPTY() }.extend {
-        ret(Attribute { type(n.Boolean) })
-        errorHandling(true)
+    findDownByType(ExistByI::class.java).filter { it.returns().isEmpty() }.extend {
+        retTypeAndError(n.Boolean)
     }
 }
 

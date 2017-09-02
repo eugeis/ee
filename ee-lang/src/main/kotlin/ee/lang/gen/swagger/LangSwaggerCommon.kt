@@ -94,7 +94,7 @@ fun List<AttributeI>.toSwaggerTypes(c: GenerationContext, derived: String, inden
 }
 
 fun <T : OperationI> T.toSwaggerLambda(c: GenerationContext, derived: String, indent: String): String =
-        """func (${params().toSwaggerTypes(c, derived, indent)}) ${ret().toSwaggerType(c, derived, indent)}"""
+        """func (${params().toSwaggerTypes(c, derived, indent)}) ${retFirst().toSwaggerType(c, derived, indent)}"""
 
 fun <T : LogicUnitI> T.toSwaggerName(): String = visible().ifElse({ name().capitalize() }, { name().decapitalize() })
 

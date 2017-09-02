@@ -357,7 +357,8 @@ fun <T : TypeI> T.GT(vararg types: TypeI): T {
 
 fun TypeI.G(type: TypeI): GenericI = G { type(type) }
 
-fun OperationI.ret(type: TypeI): OperationI = ret(Attribute { type(type) })
+fun OperationI.retFirst(): AttributeI = returns().firstOrNull() ?: Attribute.EMPTY
+fun OperationI.ret(type: TypeI): OperationI = returns(Attribute { type(type) })
 fun LogicUnitI.p(name: String, type: TypeI = n.String, adapt: AttributeI.() -> Unit = {}): LogicUnitI = params(
         Attribute({
             type(type).name(name)
@@ -385,7 +386,7 @@ fun <T : StructureUnitI> T.initObjectTree(): T {
     (this as MultiHolder<ItemI>).initObjectTree {
         if (this is StructureUnitI) {
             val parent = findParent(StructureUnitI::class.java) ?: parent()
-            if (parent.namespace().isBlank() || this !is StructureUnitI) parent.namespace()
+            if (parent.namespace().isBlank()) parent.namespace()
             else parent.deriveNamespace(name().toLowerCase())
         } else {
             parent().namespace()
@@ -407,7 +408,7 @@ fun <T : StructureUnitI> T.initFullNameArtifacts() {
     if (artifact().isBlank()) {
         if (parent == null || parent == Item.EMPTY) {
             artifact(name)
-        } else if (parent is StructureUnitI) {
+        } else {
             artifact(parent.deriveArtifact(name))
         }
     }
