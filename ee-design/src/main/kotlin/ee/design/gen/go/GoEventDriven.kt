@@ -195,7 +195,8 @@ fun <T : OperationI> T.toGoCommandHandlerSetupBody(c: GenerationContext,
                 ${item.toGoStoreEvent(c, derived, api)}
             }"""
         } else {
-            "ret = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Command})"
+            """
+            err = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Command})"""
         }}
             return
         }

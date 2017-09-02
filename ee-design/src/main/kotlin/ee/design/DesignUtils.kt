@@ -203,6 +203,12 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
     }
 }
 
+fun StructureUnitI.addIdPropToEntities() {
+    findDownByType(EntityI::class.java).filter { !it.virtual() && it.props().filter { it.key() }.isEmpty() }.extend {
+        val id = buildId()
+    }
+}
+
 
 fun StructureUnitI.addIdPropToEventsAndCommands() {
     findDownByType(EntityI::class.java).filter { !it.virtual() }.extend {
@@ -253,7 +259,7 @@ fun <T : CompilationUnitI> T.propagateItemToSubtypes(item: CompilationUnitI) {
     }
 }
 
-fun EntityI.buildId(): AttributeI = Attribute { key(true).type(n.UUID).name("id") }
+fun EntityI.buildId(): AttributeI = prop { key(true).type(n.UUID).name("id") }
 
 fun EntityI.id(): AttributeI = storage.getOrPut(this, "id", {
     initIfNotInitialized()

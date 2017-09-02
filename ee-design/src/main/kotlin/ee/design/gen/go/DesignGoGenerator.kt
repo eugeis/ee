@@ -27,6 +27,8 @@ open class DesignGoGenerator {
     protected fun StructureUnitI.extendForGoGeneration() {
         initsForGoGeneration()
 
+        addIdPropToEntities()
+
         addCommandsAndEventsForAggregates()
 
         addQueriesForAggregates()
