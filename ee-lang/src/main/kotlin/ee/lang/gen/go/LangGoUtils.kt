@@ -131,6 +131,11 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         object NewAggregateBase : Operation() {
         }
 
+        object RegisterEventData : Operation() {
+        }
+
+        object EventData : ExternalType({ ifc(true) }) {
+        }
 
         object AggregateType : ExternalType() {
         }

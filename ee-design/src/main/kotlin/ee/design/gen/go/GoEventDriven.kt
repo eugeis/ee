@@ -230,6 +230,10 @@ fun <T : OperationI> T.toGoEventHandlerSetupBody(c: GenerationContext,
         val handler = c.n(item, DesignDerivedType.Handler).capitalize()
         val aggregateType = c.n(entity, DesignDerivedType.AggregateType).capitalize()
         """
+	${c.n(g.eh.RegisterEventData, api)}(${c.n(item, api)}Event, func() ${c.n(g.eh.EventData, api)} {
+		return &${c.n(item, derived)}{}
+	})
+
     if o.$handler == nil {
         o.$handler = func(event ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}) (err error) {${
         if (item is CreatedI) {

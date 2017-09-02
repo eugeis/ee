@@ -8,6 +8,7 @@ import ee.lang.*
 import ee.lang.gen.go.g
 import ee.lang.gen.go.nameForGoMember
 import ee.lang.gen.go.toGoImpl
+import ee.lang.gen.go.toGoInstance
 
 fun <T : CommandI> T.toGoHandler(c: GenerationContext,
                                  derived: String = DesignDerivedKind.IMPL,
@@ -111,7 +112,8 @@ fun <T : ConstructorI> T.toGoHttpRouterBeforeBody(c: GenerationContext,
     val item = findParentMust(EntityI::class.java)
     return """
     pathPrefix = pathPrefix + "/" + "${item.name().toPlural().decapitalize()}"
-    repo := readRepos(string(${item.name()}${DesignDerivedType.AggregateType}))"""
+    modelFactory := func() interface{} { return ${item.toGoInstance(c, derived, api)} }
+    repo := readRepos(string(${item.name()}${DesignDerivedType.AggregateType}), modelFactory)"""
 }
 
 fun <T : ConstructorI> T.toGoHttpModuleRouterBeforeBody(c: GenerationContext,

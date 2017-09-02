@@ -14,6 +14,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
     val reposFactory = lambda {
         p("name")
+        p("factory", lambda { ret(n.Any) })
         ret(g.eh.ReadWriteRepo)
     }
 
