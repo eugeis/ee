@@ -99,7 +99,7 @@ fun <T : OperationI> T.toGoSetupModuleHttpRouter(c: GenerationContext,
     }
     return httpRouters.joinSurroundIfNotEmptyToString("") {
         """
-    if ret = o.${it.name()}.Setup(router); ret != nil {
+    if err = o.${it.name()}.Setup(router); err != nil {
         return
     }"""
     }

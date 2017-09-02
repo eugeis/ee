@@ -358,7 +358,7 @@ fun <T : TypeI> T.GT(vararg types: TypeI): T {
 fun TypeI.G(type: TypeI): GenericI = G { type(type) }
 
 fun OperationI.retFirst(): AttributeI = returns().firstOrNull() ?: Attribute.EMPTY
-fun OperationI.ret(type: TypeI): OperationI = returns(Attribute { type(type) })
+fun OperationI.ret(type: TypeI): OperationI = returns(Attribute { type(type).name("ret") })
 fun LogicUnitI.p(name: String, type: TypeI = n.String, adapt: AttributeI.() -> Unit = {}): LogicUnitI = params(
         Attribute({
             type(type).name(name)

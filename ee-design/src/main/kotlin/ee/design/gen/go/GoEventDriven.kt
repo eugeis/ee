@@ -30,10 +30,10 @@ fun <T : OperationI> T.toGoCommandHandlerExecuteCommandBody(c: GenerationContext
     ${commands.joinSurroundIfNotEmptyToString("", "switch cmd.CommandType() {") {
         """
     case ${it.nameAndParentName().capitalize()}Command:
-        ret = o.${it.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${it.toGo(c, api)}), entity.(${entity.toGo(c, api)}), store)"""
+        err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${it.toGo(c, api)}), entity.(${entity.toGo(c, api)}), store)"""
     }}
     default:
-		ret = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("Not supported command type '%v' for entity '%v", cmd.CommandType(), entity))
+		err = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("Not supported command type '%v' for entity '%v", cmd.CommandType(), entity))
 	}"""
 }
 
@@ -183,15 +183,15 @@ fun <T : OperationI> T.toGoCommandHandlerSetupBody(c: GenerationContext,
         val aggregateType = c.n(entity, DesignDerivedType.AggregateType).capitalize()
         """
     if o.$handler == nil {
-        o.$handler = func(command ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}, store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (ret error) {${
+        o.$handler = func(command ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}, store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (err error) {${
         if (item is CreateByI && item.event().isNotEMPTY()) {
             """
-            if ret = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, command.$id, $aggregateType); ret == nil {${
-            item.toGoStoreEvent(c, derived, api)}
+            if err = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, command.$id, $aggregateType); err == nil {
+                ${item.toGoStoreEvent(c, derived, api)}
             }"""
         } else if ((item is UpdateByI || item is DeleteByI) && item.event().isNotEMPTY()) {
             """
-            if ret = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, command.$id, $aggregateType); ret == nil {
+            if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, command.$id, $aggregateType); err == nil {
                 ${item.toGoStoreEvent(c, derived, api)}
             }"""
         } else {
@@ -212,11 +212,11 @@ fun <T : OperationI> T.toGoEventHandlerApplyEvent(c: GenerationContext,
     return """
     ${events.joinSurroundIfNotEmptyToString("", "switch event.EventType() {", """
     default:
-		ret = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("Not supported event type '%v' for entity '%v", event.EventType(), entity))
+		err = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf, api)}("Not supported event type '%v' for entity '%v", event.EventType(), entity))
 	}""") {
         """
     case ${it.parentNameAndName().capitalize()}Event:
-        ret = o.${it.name().capitalize()}${DesignDerivedType.Handler}(event.Data().(${it.toGo(c, api)}), entity.(${entity.toGo(c, api)}))"""
+        err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(event.Data().(${it.toGo(c, api)}), entity.(${entity.toGo(c, api)}))"""
     }}"""
 }
 
@@ -231,24 +231,24 @@ fun <T : OperationI> T.toGoEventHandlerSetupBody(c: GenerationContext,
         val aggregateType = c.n(entity, DesignDerivedType.AggregateType).capitalize()
         """
     if o.$handler == nil {
-        o.$handler = func(event ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}) (ret error) {${
+        o.$handler = func(event ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}) (err error) {${
         if (item is CreatedI) {
             """
-            if ret = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, event.$id, $aggregateType); ret == nil {${
+            if err = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, event.$id, $aggregateType); err == nil {${
             item.toGoApplyEvent(c)}
             }"""
         } else if (item is UpdatedI) {
             """
-            if ret = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, event.$id, $aggregateType); ret == nil {${
+            if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, event.$id, $aggregateType); err == nil {${
             item.toGoApplyEventWithoutKeys(c)}
             }"""
         } else if (item is DeletedI) {
             """
-            if ret = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, event.$id, $aggregateType); ret == nil {
+            if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, event.$id, $aggregateType); err == nil {
                 *entity = *${entity.toGoInstance(c, derived, api)}
             }"""
         } else {
-            "    ret = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"
+            "    err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"
         }}
             return
         }
@@ -327,7 +327,7 @@ fun <T : OperationI> T.toGoEventhorizonInitializerSetupBody(c: GenerationContext
     val entities = module.entities().filter { it.belongsToAggregate().isEMPTY() }
     return """${entities.joinSurroundIfNotEmptyToString("$nL    ", "$nL    ") {
         """
-    if ret = o.${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}.Setup(); ret != nil {
+    if err = o.${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}.Setup(); err != nil {
         return
     }"""
     }}

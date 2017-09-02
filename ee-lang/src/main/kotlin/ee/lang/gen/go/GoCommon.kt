@@ -164,6 +164,13 @@ fun <T : AttributeI> T.toGoEnumMember(c: GenerationContext, api: String): String
 fun List<AttributeI>.toGoSignature(c: GenerationContext, api: String): String =
         joinWrappedToString(", ") { it.toGoSignature(c, api) }
 
+fun OperationI.toGoReturns(c: GenerationContext, api: String): String =
+        returns().isNotEmpty().then {
+            returns().joinSurroundIfNotEmptyToString(", ", "(", ") ") {
+                it.toGoSignature(c, api)
+            }
+        }
+
 fun List<AttributeI>.toGoCall(c: GenerationContext, api: String): String =
         joinWrappedToString(", ") { it.toGoCall(c, api) }
 
@@ -171,9 +178,10 @@ fun <T : ConstructorI> T.toGo(c: GenerationContext, derived: String, api: String
     val type = findParentMust(CompilationUnitI::class.java)
     val name = c.n(type, derived)
     return if (isNotEMPTY()) """${toGoMacrosBefore(c, derived, api)}
-func ${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().joinWrappedToString(", ", "                ") {
-        it.toGoSignature(c, api)
-    }
+func ${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().
+            joinWrappedToString(", ", "                ") {
+                it.toGoSignature(c, api)
+            }
     }) (ret *$name) {${toGoMacrosBeforeBody(c, derived, api)}${macrosBody().isNotEmpty().ifElse({
         """
     ${toGoMacrosBody(c, derived, api)}"""
@@ -196,7 +204,8 @@ fun <T : AttributeI> T.toGoAssign(o: String): String =
                 { name().decapitalize() })} = ${name()}"
 
 fun <T : LogicUnitI> T.toGoCall(c: GenerationContext, derived: String, api: String): String =
-        if (isNotEMPTY()) """${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().toGoCall(c, api)})""" else ""
+        if (isNotEMPTY()) """${c.n(this, derived)}(${params().
+                nonDefaultAndWithoutValueAndNonDerived().toGoCall(c, api)})""" else ""
 
 fun <T : TypeI> T.toGoInstance(c: GenerationContext, derived: String, api: String): String {
     val constructor = primaryOrFirstConstructor()
@@ -213,15 +222,14 @@ fun List<AttributeI>.toGoTypes(c: GenerationContext, derived: String): String =
         joinWrappedToString(", ") { it.toGoType(c, derived) }
 
 fun <T : OperationI> T.toGoLambda(c: GenerationContext, derived: String): String =
-        """func (${params().toGoTypes(c, derived)}) ${returns().toGoSignature(c, derived)}"""
+        """func (${params().toGoTypes(c, derived)}) ${toGoReturns(c, derived)}"""
 
 fun <T : LogicUnitI> T.toGoName(): String = visible().ifElse({ name().capitalize() }, { name().decapitalize() })
 
 fun <T : OperationI> T.toGoImpl(o: String, c: GenerationContext, api: String): String {
     return hasMacros().then {
         """${toGoMacrosBefore(c, api, api)}
-func (o *$o) ${toGoName()}(${params().toGoSignature(c, api)}) ${
-        returns().isNotEmpty().then { "(${returns().toGoSignature(c, api)})" }} {${
+func (o *$o) ${toGoName()}(${params().toGoSignature(c, api)}) ${toGoReturns(c, api)}{${
         toGoMacrosBeforeBody(c, api, api)}${toGoMacrosBody(c, api, api)}${toGoMacrosAfterBody(c, api, api)}${
         returns().isNotEmpty().then {
             """

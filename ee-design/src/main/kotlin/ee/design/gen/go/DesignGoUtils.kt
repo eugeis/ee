@@ -14,7 +14,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
     val reposFactory = lambda {
         p("name")
-        retTypeAndError(g.eh.ReadWriteRepo)
+        ret(g.eh.ReadWriteRepo)
     }
 
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.derivedAsType().isEmpty() }.groupBy {
