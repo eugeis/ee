@@ -47,7 +47,9 @@ fun <T : CompilationUnitI> T.toTypeScriptImpl(c: GenerationContext,
                                               api: String = LangDerivedKind.API): String {
     return """
 ${open().then("export ")}class ${c.n(this, derived)}${toTypeScriptExtends(c, derived, api)} {${
-    props().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) { it.toTypeScriptMember(c, derived, api, false) }}${
+    props().filter { !it.meta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+        it.toTypeScriptMember(c, derived, api, false)
+    }}${
     constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toTypeScript(c, derived, api)
     }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {

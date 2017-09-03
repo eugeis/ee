@@ -3,7 +3,6 @@ package ee.lang.gen.ts
 import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
-import ee.lang.gen.kt.k
 
 fun <T : TypeI> T.toTypeScriptDefault(c: GenerationContext, derived: String, attr: AttributeI): String {
     val baseType = findDerivedOrThis()
@@ -36,29 +35,26 @@ fun <T : TypeI> T.toTypeScriptDefault(c: GenerationContext, derived: String, att
     }
 }
 
-fun <T : AttributeI> T.toTypeScriptDefault(c: GenerationContext, derived: String): String {
-    return type().toTypeScriptDefault(c, derived, this)
-}
+fun <T : AttributeI> T.toTypeScriptDefault(c: GenerationContext, derived: String): String =
+        type().toTypeScriptDefault(c, derived, this)
 
-fun <T : ItemI> T.toTypeScriptEMPTY(c: GenerationContext, derived: String): String {
-    return (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
-}
 
-fun <T : AttributeI> T.toTypeScriptEMPTY(c: GenerationContext, derived: String): String {
-    return type().toTypeScriptEMPTY(c, derived)
-}
+fun <T : ItemI> T.toTypeScriptEMPTY(c: GenerationContext, derived: String): String =
+        (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
 
-fun <T : AttributeI> T.toTypeScriptTypeSingle(c: GenerationContext, api: String): String {
-    return type().toTypeScript(c, api, this)
-}
 
-fun <T : AttributeI> T.toTypeScriptTypeDef(c: GenerationContext, api: String): String {
-    return """${type().toTypeScript(c, api, this)}${nullable().then("?")}"""
-}
+fun <T : AttributeI> T.toTypeScriptEMPTY(c: GenerationContext, derived: String): String =
+        type().toTypeScriptEMPTY(c, derived)
 
-fun <T : AttributeI> T.toTypeScriptCompanionObjectName(c: GenerationContext): String {
-    return """        val ${name().toUnderscoredUpperCase()} = "_${name()}""""
-}
+fun <T : AttributeI> T.toTypeScriptTypeSingle(c: GenerationContext, api: String): String =
+        type().toTypeScript(c, api, this)
+
+fun <T : AttributeI> T.toTypeScriptTypeDef(c: GenerationContext, api: String): String =
+        """${type().toTypeScript(c, api, this)}${nullable().then("?")}"""
+
+
+fun <T : AttributeI> T.toTypeScriptCompanionObjectName(c: GenerationContext): String =
+        """        val ${name().toUnderscoredUpperCase()} = "_${name()}""""
 
 fun <T : CompilationUnitI> T.toTypeScriptExtends(c: GenerationContext, derived: String, api: String): String {
     if (superUnit().isNotEMPTY() && derived != api) {
@@ -165,10 +161,12 @@ fun <T : AttributeI> T.toTypeScriptSignature(c: GenerationContext, derived: Stri
         "${name()}: ${toTypeScriptTypeDef(c, api)}${init.then { toTypeScriptInit(c, derived) }}"
 
 fun <T : AttributeI> T.toTypeScriptConstructorMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String =
-        "${replaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
+        //"${replaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
+        "${toTypeScriptSignature(c, derived, api, init)}"
 
 fun <T : AttributeI> T.toTypeScriptMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String =
-        "    ${replaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
+        //"    ${replaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
+        "    ${toTypeScriptSignature(c, derived, api, init)}"
 
 fun List<AttributeI>.toTypeScriptSignature(c: GenerationContext, derived: String, api: String): String =
         joinWrappedToString(", ") { it.toTypeScriptSignature(c, derived, api) }
