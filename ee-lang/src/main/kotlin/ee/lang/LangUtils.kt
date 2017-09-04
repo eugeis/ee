@@ -255,8 +255,8 @@ fun <T : CompositeI> T.defineConstructorOwnPropsOnlyForNonConstructors() {
             .extend { constructorOwnPropsOnly() }
 }
 
-fun <T : CompositeI> T.defineConstructorEmpty() {
-    findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
+fun <T : CompositeI> T.defineConstructorEmpty(filter: CompilationUnitI.() -> Boolean = { constructors().isEmpty() }) {
+    findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.filter() }
             .extend { constructorEmpty() }
 }
 
@@ -278,32 +278,28 @@ fun <T : CompositeI> T.prepareAttributesOfEnums() {
 
 fun <T : TypeI> T.constructorAllProps(adapt: ConstructorI.() -> Unit = {}): ConstructorI {
     val primary = this is EnumTypeI
-    return if (propsAllWithoutMeta().isNotEmpty()) {
-        storage.reset(this)
-        val parent = this
-        constr {
-            parent(parent)
-            primary(primary).params(*propsAllWithoutMeta().toTypedArray())
-            namespace(parent.namespace())
-            superUnit(parent.superUnit().primaryOrFirstConstructor())
-            adapt()
-        }
-    } else Constructor.EMPTY
+    storage.reset(this)
+    val parent = this
+    return constr {
+        parent(parent)
+        primary(primary).params(*propsAllWithoutMeta().toTypedArray())
+        namespace(parent.namespace())
+        superUnit(parent.superUnit().primaryOrFirstConstructor())
+        adapt()
+    }
 }
 
 fun <T : TypeI> T.constructorOwnPropsOnly(adapt: ConstructorI.() -> Unit = {}): ConstructorI {
     val primary = this is EnumTypeI
-    return if (propsWithoutMeta().isNotEmpty()) {
-        storage.reset(this)
-        val parent = this
-        constr {
-            parent(parent)
-            primary(primary).params(*propsWithoutMeta().toTypedArray())
-            namespace(this@constructorOwnPropsOnly.namespace())
-            superUnit(parent.superUnit().primaryOrFirstConstructor())
-            adapt()
-        }
-    } else Constructor.EMPTY
+    storage.reset(this)
+    val parent = this
+    return constr {
+        parent(parent)
+        primary(primary).params(*propsWithoutMeta().toTypedArray())
+        namespace(this@constructorOwnPropsOnly.namespace())
+        superUnit(parent.superUnit().primaryOrFirstConstructor())
+        adapt()
+    }
 }
 
 fun <T : TypeI> T.constructorEmpty(adapt: ConstructorI.() -> Unit = {}): ConstructorI {

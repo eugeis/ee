@@ -28,6 +28,9 @@ interface BussinesEventI : EventI {
 
 
 interface CommandI : CompilationUnitI {
+    fun affectMulti(): Boolean
+    fun affectMulti(value: Boolean): CommandI
+
     fun event(): EventI
     fun event(value: EventI): CommandI
 }

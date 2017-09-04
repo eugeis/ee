@@ -2,8 +2,7 @@ package ee.design.gen.go
 
 import ee.design.*
 import ee.design.gen.DesignGeneratorFactory
-import ee.lang.StructureUnitI
-import ee.lang.findDownByType
+import ee.lang.*
 import ee.lang.gen.go.extendForGoGenerationLang
 import ee.lang.gen.go.initsForGoGeneration
 import java.nio.file.Path
@@ -41,6 +40,13 @@ open class DesignGoGenerator {
 
         defineNamesForTypeControllers()
 
-        extendForGoGenerationLang()
+        //extendForGoGenerationLang()
+        declareAsBaseWithNonImplementedOperation()
+
+        prepareAttributesOfEnums()
+
+        defineSuperUnitsAsAnonymousProps()
+
+        defineConstructorEmpty { constructors().isEmpty() && this !is CommandI && this !is EventI }
     }
 }

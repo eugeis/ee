@@ -189,7 +189,7 @@ fun <T : OperationI> T.toGoCommandHandlerSetupBody(c: GenerationContext,
             if err = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, command.$id, $aggregateType); err == nil {
                 ${item.toGoStoreEvent(c, derived, api)}
             }"""
-        } else if ((item is UpdateByI || item is DeleteByI) && item.event().isNotEMPTY()) {
+        } else if ((item is UpdateByI || item is DeleteByI || !item.affectMulti()) && item.event().isNotEMPTY()) {
             """
             if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, command.$id, $aggregateType); err == nil {
                 ${item.toGoStoreEvent(c, derived, api)}
@@ -346,7 +346,7 @@ fun <T : CommandI> T.toGoCommandImpl(c: GenerationContext,
     val entity = findParentMust(EntityI::class.java)
     val name = c.n(this, derived)
     return """
-        ${toGoImpl(c, derived, api)}
+        ${toGoImpl(c, derived, api, true)}
 func (o *$name) AggregateID() ${c.n(g.eh.UUID)}            { return o.${entity.id().nameForGoMember()} }
 func (o *$name) AggregateType() ${c.n(g.eh.AggregateType)}  { return ${entity.name()}${DesignDerivedType.AggregateType} }
 func (o *$name) CommandType() ${c.n(g.eh.CommandType)}      { return ${nameAndParentName().capitalize()}${DesignDerivedType.Command} }

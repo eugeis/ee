@@ -49,6 +49,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
     }
 
     object Command : CompilationUnit({ superUnit(l.CompilationUnit) }) {
+        val affectMulti = prop(n.Boolean).value(false)
         val event = prop(Event).doc("Corresponding event")
     }
 

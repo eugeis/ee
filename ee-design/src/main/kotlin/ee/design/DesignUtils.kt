@@ -1,5 +1,6 @@
 package ee.design
 
+import ee.common.ext.ifElse
 import ee.design.gen.go.toGoPropOptionalAfterBody
 import ee.lang.*
 import ee.lang.gen.go.retTypeAndError
@@ -69,6 +70,10 @@ fun EntityI.event(vararg params: AttributeI) = event { props(*params) }
 fun EntityI.created(vararg params: AttributeI) = created { props(*params) }
 fun EntityI.updated(vararg params: AttributeI) = updated { props(*params) }
 fun EntityI.deleted(vararg params: AttributeI) = deleted { props(*params) }
+
+//TODO provide customizable solution for event name derivation from command
+fun CommandI.deriveEventName() = name().endsWith("gin").ifElse(
+        { name().replace("gin", "gged") }, { "${name()}d" })
 
 fun EntityI.hasNoQueries() = findBys().isEmpty() && countBys().isEmpty() && existBys().isEmpty()
 fun EntityI.hasNoEvents() = events().isEmpty() && created().isEmpty() && updated().isEmpty() && deleted().isEmpty()
@@ -195,10 +200,36 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
                 event(deleted)
                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             }
-        } else {
-            createBys().filter { it.event().isEMPTY() }.forEach { it.event(created) }
-            updateBys().filter { it.event().isEMPTY() }.forEach { it.event(updated) }
-            deleteBys().filter { it.event().isEMPTY() }.forEach { it.event(deleted) }
+        }
+
+        //create corresponding events for all commands without events
+        createBys().filter { it.event().isEMPTY() }.forEach {
+            it.event(created {
+                name(it.deriveEventName())
+                props(*it.props().toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            })
+        }
+        updateBys().filter { it.event().isEMPTY() }.forEach {
+            it.event(updated {
+                name(it.deriveEventName())
+                props(*it.props().toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            })
+        }
+        deleteBys().filter { it.event().isEMPTY() }.forEach {
+            it.event(deleted {
+                name(it.deriveEventName())
+                props(*it.props().toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            })
+        }
+        commands().filter { it.event().isEMPTY() }.forEach {
+            it.event(event {
+                name(it.deriveEventName())
+                props(*it.props().toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            })
         }
     }
 }

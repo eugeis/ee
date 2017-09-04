@@ -138,7 +138,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                                     ItemsFragment<StructureUnitI, EntityI>(items = entities,
                                             fragments = { listOf(goTemplates.eventTypes()) }),
                                     ItemsFragment<StructureUnitI, EventI>(items = events,
-                                            fragments = { listOf(goTemplates.pojo()) }),
+                                            fragments = { listOf(goTemplates.pojoExcludePropsWithValue()) }),
                                     ItemsFragment<StructureUnitI, EnumTypeI>(items = eventEnums,
                                             fragments = { listOf(goTemplates.enum()) })
                             )

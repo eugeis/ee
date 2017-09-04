@@ -1,5 +1,6 @@
 package ee.lang.gen.go
 
+import ee.common.ext.ifElse
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.joinWithIndexToString
 import ee.common.ext.setAndTrue
@@ -114,20 +115,21 @@ func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {
 
 fun <T : CompilationUnitI> T.toGoImpl(c: GenerationContext,
                                       derived: String = LangDerivedKind.IMPL,
-                                      api: String = LangDerivedKind.API): String {
+                                      api: String = LangDerivedKind.API, excludePropsWithValue: Boolean = false): String {
     val name = c.n(this, derived)
+    val currentProps = excludePropsWithValue.ifElse({ props().filter { it.value() == null } }, props())
     return """${toGoMacrosBefore(c, derived, api)}
 type $name struct {${toGoMacrosBeforeBody(c, derived, api)}${
-    props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toGoMember(c, api) }}${
+    currentProps.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toGoMember(c, api) }}${
     toGoMacrosAfterBody(c, derived, api)}
 }${toGoMacrosAfter(c, derived, api)}${
     constructors().filter { it.derivedAsType().isEmpty() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGo(c, derived, api)
     }}${
-    props().filter { it.accessible().setAndTrue() && !it.mutable().setAndTrue() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+    currentProps.filter { it.accessible().setAndTrue() && !it.mutable().setAndTrue() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGoGetMethod(name, c, derived)
     }}${
-    props().filter { it.type().isOrDerived(n.List) }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+    currentProps.filter { it.type().isOrDerived(n.List) }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGoAddMethod(name, c, derived)
     }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGoImpl(name, c, api)

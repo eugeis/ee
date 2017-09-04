@@ -60,11 +60,15 @@ open class BussinesEvent : Event, BussinesEventI {
 open class Command : CompilationUnit, CommandI {
     constructor(value: Command.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
 
+    override fun affectMulti(): Boolean = attr(AFFECT_MULTI, { false })
+    override fun affectMulti(value: Boolean): CommandI = apply { attr(AFFECT_MULTI, value) }
+
     override fun event(): EventI = attr(EVENT, { Event.EMPTY })
     override fun event(value: EventI): CommandI = apply { attr(EVENT, value) }
 
     companion object {
         val EMPTY = Command { name(ItemEmpty.name()) }.apply<Command> { init() }
+        val AFFECT_MULTI = "_affectMulti"
         val EVENT = "_event"
     }
 }
