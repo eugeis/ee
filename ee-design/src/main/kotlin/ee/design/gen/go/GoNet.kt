@@ -32,10 +32,10 @@ fun <T : OperationI> T.toGoSetupHttpRouterBody(c: GenerationContext,
     val counters = entity.countBys().sortedByDescending { it.params().size }
     val exists = entity.existBys().sortedByDescending { it.params().size }
 
-    val creaters = entity.createBys()
-    val updaters = entity.updateBys()
-    val deleters = entity.deleteBys()
     val commands = entity.commands()
+    val creaters = entity.createBys().sortedBy { it.primary() }
+    val updaters = entity.updateBys().sortedBy { it.primary() }
+    val deleters = entity.deleteBys().sortedBy { it.primary() }
 
     return """${counters.joinSurroundIfNotEmptyToString("") {
         val idParam = it.params().find { it.key() }
@@ -69,33 +69,39 @@ fun <T : OperationI> T.toGoSetupHttpRouterBody(c: GenerationContext,
         paramsNoId.joinSurroundIfNotEmptyToString(", ", ".$nL    Queries(", ")") {
             """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
         }}"""
-    }}${creaters.joinSurroundIfNotEmptyToString("") {
-        val idParam = it.props().find { it.key() }
-        """
-    router.Methods(${c.n(g.gee.net.POST, api)}).PathPrefix(o.PathPrefix)${
-        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then{"""
-        Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""}}
-        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
-    }}${updaters.joinSurroundIfNotEmptyToString("") {
-        val idParam = it.props().find { it.key() }
-        """
-    router.Methods(${c.n(g.gee.net.PUT, api)}).PathPrefix(o.PathPrefix)${
-        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then{"""
-        Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""}}
-        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
-    }}${deleters.joinSurroundIfNotEmptyToString("") {
-        val idParam = it.props().find { it.key() }
-        """
-    router.Methods(${c.n(g.gee.net.DELETE, api)}).PathPrefix(o.PathPrefix)${
-        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then{"""
-        Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""}}
-        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
     }}${commands.joinSurroundIfNotEmptyToString("") {
         val idParam = it.props().find { it.key() }
         """
     router.Methods(${c.n(g.gee.net.POST, api)}).PathPrefix(o.PathPrefix)${
         (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}").
+        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
+    }}${creaters.joinSurroundIfNotEmptyToString("") {
+        val idParam = it.props().find { it.key() }
+        """
+    router.Methods(${c.n(g.gee.net.POST, api)}).PathPrefix(o.PathPrefix)${
+        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
+            """
+        Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""
+        }}
+        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
+    }}${updaters.joinSurroundIfNotEmptyToString("") {
+        val idParam = it.props().find { it.key() }
+        """
+    router.Methods(${c.n(g.gee.net.PUT, api)}).PathPrefix(o.PathPrefix)${
+        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
+            """
+        Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""
+        }}
+        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
+    }}${deleters.joinSurroundIfNotEmptyToString("") {
+        val idParam = it.props().find { it.key() }
+        """
+    router.Methods(${c.n(g.gee.net.DELETE, api)}).PathPrefix(o.PathPrefix)${
+        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
+            """
+        Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""
+        }}
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
     }}"""
 }

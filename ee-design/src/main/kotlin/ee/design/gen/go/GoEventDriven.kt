@@ -154,7 +154,7 @@ fun <T : CommandI> T.toGoStoreEvent(c: GenerationContext,
     return """store.StoreEvent(${event().parentNameAndName()}${DesignDerivedType.Event}, &${c.n(event(), api)}{${
     propsNoMetaNoValue().joinSurroundIfNotEmptyToString("") { prop ->
         """
-                    ${prop.name().capitalize()}: command.${prop.name().capitalize()},"""
+                ${prop.name().capitalize()}: command.${prop.name().capitalize()},"""
     }}}, ${g.time.Now.toGoCall(c, derived, api)})"""
 }
 
@@ -166,7 +166,7 @@ fun <T : EventI> T.toGoApplyEventNoKeys(c: GenerationContext, derived: String): 
 
 fun <T : AttributeI> T.toGoApplyEventProp(c: GenerationContext, derived: String): String =
         """
-                entity.${name().capitalize()} = ${
+            entity.${name().capitalize()} = ${
         (value() != null).ifElse({ toGoValue(c, derived) }, { "event.${name().capitalize()}" })}"""
 
 
@@ -180,24 +180,22 @@ fun <T : OperationI> T.toGoCommandHandlerSetupBody(c: GenerationContext,
         val handler = c.n(item, DesignDerivedType.Handler).capitalize()
         val aggregateType = c.n(entity, DesignDerivedType.AggregateType).capitalize()
         """
-    if o.$handler == nil {
-        o.$handler = func(command ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}, store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (err error) {${
+    o.$handler = func(command ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}, store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (err error) {${
         if (item is CreateByI && item.event().isNotEMPTY()) {
             """
-            if err = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, command.$id, $aggregateType); err == nil {
-                ${item.toGoStoreEvent(c, derived, api)}
-            }"""
+        if err = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, command.$id, $aggregateType); err == nil {
+            ${item.toGoStoreEvent(c, derived, api)}
+        }"""
         } else if ((item is UpdateByI || item is DeleteByI || !item.affectMulti()) && item.event().isNotEMPTY()) {
             """
-            if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, command.$id, $aggregateType); err == nil {
-                ${item.toGoStoreEvent(c, derived, api)}
-            }"""
+        if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, command.$id, $aggregateType); err == nil {
+            ${item.toGoStoreEvent(c, derived, api)}
+        }"""
         } else {
             """
-            err = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Command})"""
+        err = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Command})"""
         }}
-            return
-        }
+        return
     }"""
     }
 }
@@ -236,29 +234,27 @@ fun <T : OperationI> T.toGoEventHandlerSetupBody(c: GenerationContext,
 	})
 
     //default handler implementation
-    if o.$handler == nil {
-        o.$handler = func(event ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}) (err error) {${
+    o.$handler = func(event ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}) (err error) {${
         if (item is CreatedI) {
             """
-            if err = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, event.$id, $aggregateType); err == nil {${
+        if err = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, event.$id, $aggregateType); err == nil {${
             item.toGoApplyEvent(c, derived)}
-            }"""
+        }"""
         } else if (item is UpdatedI) {
             """
-            if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, event.$id, $aggregateType); err == nil {${
+        if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, event.$id, $aggregateType); err == nil {${
             item.toGoApplyEventNoKeys(c, derived)}
-            }"""
+        }"""
         } else if (item is DeletedI) {
             """
-            if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, event.$id, $aggregateType); err == nil {
-                *entity = *${entity.toGoInstance(c, derived, api)}
-            }"""
+        if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, event.$id, $aggregateType); err == nil {
+            *entity = *${entity.toGoInstance(c, derived, api)}
+        }"""
         } else {
             """
-            err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"""
+        //err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"""
         }}
-            return
-        }
+        return
     }"""
     }
 }
