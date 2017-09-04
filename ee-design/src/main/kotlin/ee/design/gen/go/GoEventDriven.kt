@@ -152,25 +152,23 @@ fun <T : CommandI> T.toGoStoreEvent(c: GenerationContext,
                                     derived: String = DesignDerivedKind.IMPL,
                                     api: String = DesignDerivedKind.API): String {
     return """store.StoreEvent(${event().parentNameAndName()}${DesignDerivedType.Event}, &${c.n(event(), api)}{${
-    props().joinSurroundIfNotEmptyToString("") { prop ->
+    propsNoMetaNoValue().joinSurroundIfNotEmptyToString("") { prop ->
         """
                     ${prop.name().capitalize()}: command.${prop.name().capitalize()},"""
     }}}, ${g.time.Now.toGoCall(c, derived, api)})"""
 }
 
-fun <T : EventI> T.toGoApplyEvent(c: GenerationContext): String {
-    return props().joinSurroundIfNotEmptyToString("") { prop ->
-        """
-                entity.${prop.name().capitalize()} = event.${prop.name().capitalize()}"""
-    }
-}
+fun <T : EventI> T.toGoApplyEvent(c: GenerationContext, derived: String): String =
+        props().joinSurroundIfNotEmptyToString("") { it.toGoApplyEventProp(c, derived) }
 
-fun <T : EventI> T.toGoApplyEventWithoutKeys(c: GenerationContext): String {
-    return props().filter { !it.key() }.joinSurroundIfNotEmptyToString("") { prop ->
+fun <T : EventI> T.toGoApplyEventNoKeys(c: GenerationContext, derived: String): String =
+        propsNoMetaNoKey().joinSurroundIfNotEmptyToString("") { it.toGoApplyEventProp(c, derived) }
+
+fun <T : AttributeI> T.toGoApplyEventProp(c: GenerationContext, derived: String): String =
         """
-                entity.${prop.name().capitalize()} = event.${prop.name().capitalize()}"""
-    }
-}
+                entity.${name().capitalize()} = ${
+        (value() != null).ifElse({ toGoValue(c, derived) }, { "event.${name().capitalize()}" })}"""
+
 
 fun <T : OperationI> T.toGoCommandHandlerSetupBody(c: GenerationContext,
                                                    derived: String = DesignDerivedKind.IMPL,
@@ -231,21 +229,24 @@ fun <T : OperationI> T.toGoEventHandlerSetupBody(c: GenerationContext,
         val handler = c.n(item, DesignDerivedType.Handler).capitalize()
         val aggregateType = c.n(entity, DesignDerivedType.AggregateType).capitalize()
         """
-	${c.n(g.eh.RegisterEventData, api)}(${c.n(item, api)}Event, func() ${c.n(g.eh.EventData, api)} {
+
+    //register event object factory
+    ${c.n(g.eh.RegisterEventData, api)}(${c.n(item, api)}Event, func() ${c.n(g.eh.EventData, api)} {
 		return &${c.n(item, derived)}{}
 	})
 
+    //default handler implementation
     if o.$handler == nil {
         o.$handler = func(event ${item.toGo(c, api)}, entity ${entity.toGo(c, api)}) (err error) {${
         if (item is CreatedI) {
             """
             if err = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, event.$id, $aggregateType); err == nil {${
-            item.toGoApplyEvent(c)}
+            item.toGoApplyEvent(c, derived)}
             }"""
         } else if (item is UpdatedI) {
             """
             if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, event.$id, $aggregateType); err == nil {${
-            item.toGoApplyEventWithoutKeys(c)}
+            item.toGoApplyEventNoKeys(c, derived)}
             }"""
         } else if (item is DeletedI) {
             """
@@ -253,7 +254,8 @@ fun <T : OperationI> T.toGoEventHandlerSetupBody(c: GenerationContext,
                 *entity = *${entity.toGoInstance(c, derived, api)}
             }"""
         } else {
-            "    err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"
+            """
+            err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"""
         }}
             return
         }

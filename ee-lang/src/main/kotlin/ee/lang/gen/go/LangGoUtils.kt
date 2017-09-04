@@ -61,6 +61,9 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             val POST = ExternalType()
             val PUT = ExternalType()
             val DELETE = ExternalType()
+
+            val Command = ExternalType()
+
             val QueryType = ExternalType()
             val QueryTypeCount = ExternalType()
             val QueryTypeExist = ExternalType()

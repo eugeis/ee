@@ -118,14 +118,24 @@ fun TypeI.propsWithoutMetaAndAnonymousWithoutProps(): List<AttributeI> =
             props().filter { !it.meta() && !(it.anonymous() && !props().isEmpty()) }
         })
 
-fun TypeI.propsAllWithoutMeta(): List<AttributeI> =
-        storage.getOrPut(this, "propsAllWithoutMeta", {
+fun TypeI.propsAllNoMeta(): List<AttributeI> =
+        storage.getOrPut(this, "propsAllNoMeta", {
             propsAll().filter { !it.meta() }
         })
 
-fun TypeI.propsWithoutMeta(): List<AttributeI> =
-        storage.getOrPut(this, "propsWithoutMeta", {
+fun TypeI.propsNoMeta(): List<AttributeI> =
+        storage.getOrPut(this, "propsNoMeta", {
             props().filter { !it.meta() }
+        })
+
+fun TypeI.propsNoMetaNoKey(): List<AttributeI> =
+        storage.getOrPut(this, "propsNoMetaNoKey", {
+            props().filter { !it.meta() && !it.key() }
+        })
+
+fun TypeI.propsNoMetaNoValue(): List<AttributeI> =
+        storage.getOrPut(this, "propsNoMetaNoValue", {
+            props().filter { it.value() == null && !it.meta() }
         })
 
 //props().filter { it.anonymous() }.map { p(it).default(true).anonymous(it.anonymous()) }
@@ -282,7 +292,7 @@ fun <T : TypeI> T.constructorAllProps(adapt: ConstructorI.() -> Unit = {}): Cons
     val parent = this
     return constr {
         parent(parent)
-        primary(primary).params(*propsAllWithoutMeta().toTypedArray())
+        primary(primary).params(*propsAllNoMeta().toTypedArray())
         namespace(parent.namespace())
         superUnit(parent.superUnit().primaryOrFirstConstructor())
         adapt()
@@ -295,7 +305,7 @@ fun <T : TypeI> T.constructorOwnPropsOnly(adapt: ConstructorI.() -> Unit = {}): 
     val parent = this
     return constr {
         parent(parent)
-        primary(primary).params(*propsWithoutMeta().toTypedArray())
+        primary(primary).params(*propsNoMeta().toTypedArray())
         namespace(this@constructorOwnPropsOnly.namespace())
         superUnit(parent.superUnit().primaryOrFirstConstructor())
         adapt()

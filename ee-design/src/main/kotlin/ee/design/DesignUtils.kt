@@ -55,6 +55,15 @@ fun EntityI.countBy(vararg params: AttributeI) = countBy {
     retTypeAndError(n.Int)
 }
 
+fun CreateByI.primary() = findParentMust(EntityI::class.java).createBys().size == 1 ||
+        name().startsWith("create", true)
+
+fun UpdateByI.primary() = findParentMust(EntityI::class.java).updateBys().size == 1 ||
+        name().startsWith("update", true)
+
+fun DeleteByI.primary() = findParentMust(EntityI::class.java).countBys().size == 1 ||
+        name().startsWith("delete", true)
+
 fun CompilationUnitI.op(vararg params: AttributeI, body: OperationI.() -> Unit = {}) = op {
     params(*params)
     body()
@@ -262,6 +271,7 @@ fun AttributeI.setOptionalTag(): AttributeI {
     return this
 }
 
+/*
 fun StructureUnitI.declareAsBaseWithNonImplementedOperation() {
     findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEMPTY() && !it.base() }.forEach { it.base(true) }
 
@@ -274,6 +284,7 @@ fun StructureUnitI.declareAsBaseWithNonImplementedOperation() {
         it.prop { type(T).name("addItem") }
     }
 }
+*/
 
 fun <T : CompilationUnitI> T.propagateItemToSubtypes(item: CompilationUnitI) {
     superUnitFor().filter { superUnitChild ->
