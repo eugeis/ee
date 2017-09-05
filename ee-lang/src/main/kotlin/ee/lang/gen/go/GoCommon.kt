@@ -46,7 +46,7 @@ fun <T : AttributeI> T.toGoValue(c: GenerationContext, derived: String): String 
             else -> {
                 if (value() is Literal) {
                     val lit = value() as Literal
-                    "${(lit.parent() as EnumTypeI).toGo(c, derived)}.${lit.toGo()}"
+                    lit.toGoValue(c, derived)
                 } else {
                     "${value()}"
                 }
@@ -93,9 +93,9 @@ fun <T : TypeI> T.toGoDefault(c: GenerationContext, derived: String, attr: Attri
         n.List -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("arrayListOf()", "arrayListOf()")
         else -> {
             if (baseType is Literal) {
-                "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI).toGo(c, derived)}.${baseType.toGo()}"
+                baseType.toGoValue(c, derived)
             } else if (baseType is EnumTypeI) {
-                "${c.n(this, derived)}.${baseType.literals().first().toGo()}"
+                "${c.n(this, derived)}.${baseType.literals().first().toGoValue(c, derived)}"
             } else if (baseType is TypeI) {
                 toGoInstance(c, derived, derived)
             } else {
@@ -104,6 +104,10 @@ fun <T : TypeI> T.toGoDefault(c: GenerationContext, derived: String, attr: Attri
         }
     }
 }
+
+//"${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI).toGo(c, derived)}s().${baseType.toGo()}()"
+fun <T : LiteralI> T.toGoValue(c: GenerationContext, derived: String): String =
+        "${(findParentMust(EnumTypeI::class.java).toGoCall(c, derived))}s().${toGo()}()"
 
 fun <T : TypeI> T.toGoIfNative(c: GenerationContext, derived: String): String? {
     val baseType = findDerivedOrThis()
@@ -142,7 +146,7 @@ fun GenericI.toGo(c: GenerationContext, derived: String): String =
         type().toGo(c, derived)
 
 fun <T : TypeI> T.toGo(c: GenerationContext, derived: String): String =
-        toGoIfNative(c, derived) ?: "${ifc().not().then("*")}${c.n(this, derived)}"
+        toGoIfNative(c, derived) ?: "${(ifc()).not().then("*")}${c.n(this, derived)}"
 
 fun <T : AttributeI> T.toGoSignature(c: GenerationContext, api: String): String =
         anonymous().ifElse({ type().props().filter { !it.meta() }.toGoSignature(c, api) }, {

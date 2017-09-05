@@ -235,6 +235,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
+                                derivedFrom(it)
                                 macrosBody(OperationI::toGoHttpHandlerCommandBody.name)
                             }
                         }

@@ -1,6 +1,7 @@
 package ee.design
 
 import ee.common.ext.ifElse
+import ee.common.ext.then
 import ee.design.gen.go.toGoPropOptionalAfterBody
 import ee.lang.*
 import ee.lang.gen.go.retTypeAndError
@@ -81,8 +82,11 @@ fun EntityI.updated(vararg params: AttributeI) = updated { props(*params) }
 fun EntityI.deleted(vararg params: AttributeI) = deleted { props(*params) }
 
 //TODO provide customizable solution for event name derivation from command
+val consonants = ".*[wrtzpsdfghklxcvbnm]".toRegex()
+
 fun CommandI.deriveEventName() = name().endsWith("gin").ifElse(
-        { name().replace("gin", "gged") }, { "${name()}d" })
+        { name().capitalize().replace("gin", "gged") },
+        { "${name().capitalize()}${consonants.matches(name()).then("e")}d" })
 
 fun EntityI.hasNoQueries() = findBys().isEmpty() && countBys().isEmpty() && existBys().isEmpty()
 fun EntityI.hasNoEvents() = events().isEmpty() && created().isEmpty() && updated().isEmpty() && deleted().isEmpty()
@@ -155,7 +159,7 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
         !it.virtual() &&
                 (it.defaultCommands() || it.defaultEvents())
     }.extend {
-        val dataTypeProps = propsAll().filter { !it.meta() }.map { p(it).setOptionalTag() }
+        val dataTypeProps = propsAll().filter { !it.meta() }.map { p(it) }
 
         var created: CreatedI = Created.EMPTY
         var updated: UpdatedI = Updated.EMPTY
@@ -215,28 +219,28 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
         createBys().filter { it.event().isEMPTY() }.forEach {
             it.event(created {
                 name(it.deriveEventName())
-                props(*it.props().toTypedArray())
+                props(*it.props().map { p(it) }.toTypedArray())
                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             })
         }
         updateBys().filter { it.event().isEMPTY() }.forEach {
             it.event(updated {
                 name(it.deriveEventName())
-                props(*it.props().toTypedArray())
+                props(*it.props().map { p(it) }.toTypedArray())
                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             })
         }
         deleteBys().filter { it.event().isEMPTY() }.forEach {
             it.event(deleted {
                 name(it.deriveEventName())
-                props(*it.props().toTypedArray())
+                props(*it.props().map { p(it) }.toTypedArray())
                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             })
         }
         commands().filter { it.event().isEMPTY() }.forEach {
             it.event(event {
                 name(it.deriveEventName())
-                props(*it.props().toTypedArray())
+                props(*it.props().map { p(it) }.toTypedArray())
                 constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             })
         }
@@ -244,11 +248,10 @@ fun StructureUnitI.addCommandsAndEventsForAggregates() {
 }
 
 fun StructureUnitI.addIdPropToEntities() {
-    findDownByType(EntityI::class.java).filter { !it.virtual() && it.props().filter { it.key() }.isEmpty() }.extend {
+    findDownByType(EntityI::class.java).filter { !it.virtual() && it.props().find { it.key() } == null }.extend {
         val id = buildId()
     }
 }
-
 
 fun StructureUnitI.addIdPropToEventsAndCommands() {
     findDownByType(EntityI::class.java).filter { !it.virtual() }.extend {
@@ -263,6 +266,23 @@ fun StructureUnitI.addIdPropToEventsAndCommands() {
         deleteBys().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
 
         commands().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+    }
+}
+
+
+fun StructureUnitI.setOptionalTagToEventsAndCommandsProps() {
+    val allProps = hashSetOf<AttributeI>()
+
+    findDownByType(EventI::class.java).forEach {
+        allProps.addAll(it.props().filter { !it.key() })
+    }
+
+    findDownByType(CommandI::class.java).forEach {
+        allProps.addAll(it.props().filter { !it.key() })
+    }
+
+    allProps.forEach {
+        it.setOptionalTag()
     }
 }
 

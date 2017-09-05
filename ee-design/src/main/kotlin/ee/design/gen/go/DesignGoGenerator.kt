@@ -40,6 +40,8 @@ open class DesignGoGenerator {
 
         defineNamesForTypeControllers()
 
+        setOptionalTagToEventsAndCommandsProps()
+
         //extendForGoGenerationLang()
         declareAsBaseWithNonImplementedOperation()
 
