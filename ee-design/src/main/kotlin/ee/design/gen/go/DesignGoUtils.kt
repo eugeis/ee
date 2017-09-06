@@ -49,6 +49,17 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                     retError()
                                 }).name("${command.name()}${DesignDerivedType.Handler}")
                             }
+
+                            op {
+                                name("Add${command.name().capitalize()}Preparer")
+                                p("preparer", lambda {
+                                    p("cmd", command)
+                                    p("entity", item)
+                                    retError()
+                                })
+                                derivedFrom(command)
+                                macrosBody(OperationI::toGoCommandHandlerAddPreparerBody.name)
+                            }
                         }
 
                         op {

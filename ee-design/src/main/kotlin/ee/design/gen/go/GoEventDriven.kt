@@ -37,6 +37,22 @@ fun <T : OperationI> T.toGoCommandHandlerExecuteCommandBody(c: GenerationContext
 	}"""
 }
 
+fun <T : OperationI> T.toGoCommandHandlerAddPreparerBody(c: GenerationContext,
+                                                         derived: String = DesignDerivedKind.IMPL,
+                                                         api: String = DesignDerivedKind.API): String {
+    val entity = findParentMust(EntityI::class.java)
+    val command = derivedFrom()
+    val handlerName = c.n(command, DesignDerivedType.Handler).capitalize()
+    return """
+    prevHandler := o.$handlerName
+	o.$handlerName = func(command *${c.n(command, api)}, entity *${c.n(entity, api)}, store ${c.n(g.gee.eh.AggregateStoreEvent, api)}) (err error) {
+		if err = preparer(command, entity); err == nil {
+			err = prevHandler(command, entity, store)
+		}
+		return
+	}"""
+}
+
 fun <T : OperationI> T.toGoFindByBody(c: GenerationContext,
                                       derived: String = DesignDerivedKind.IMPL,
                                       api: String = DesignDerivedKind.API): String {

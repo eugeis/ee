@@ -298,5 +298,8 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                 OperationI::toGoCountByBody)
         macros.registerMacro(OperationI::toGoExistByBody.name,
                 OperationI::toGoExistByBody)
+        macros.registerMacro(OperationI::toGoCommandHandlerAddPreparerBody.name,
+                OperationI::toGoCommandHandlerAddPreparerBody)
+
     }
 }
