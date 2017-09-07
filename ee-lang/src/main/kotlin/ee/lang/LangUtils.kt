@@ -200,6 +200,11 @@ fun CompilationUnitI.propS(adapt: AttributeI.() -> Unit = {}): AttributeI = prop
     adapt()
 }))
 
+fun CompilationUnitI.propListT(type: TypeI, adapt: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+    type(n.List.GT(type))
+    adapt()
+}))
+
 fun CompilationUnitI.propB(adapt: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
     type(n.Boolean)
     adapt()
