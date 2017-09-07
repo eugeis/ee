@@ -32,6 +32,16 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         object http : StructureUnit() {
             val ResponseWriter = ExternalType({ ifc(true) })
             val Request = ExternalType()
+
+            val MethodGet = ExternalType()
+            val MethodHead = ExternalType()
+            val MethodPost = ExternalType()
+            val MethodPut = ExternalType()
+            val MethodPatch = ExternalType()
+            val MethodDelete = ExternalType()
+            val MethodConnect = ExternalType()
+            val MethodOptions = ExternalType()
+            val MethodTrace = ExternalType()
         }
     }
 
@@ -57,11 +67,6 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         }
 
         object net : StructureUnit() {
-            val GET = ExternalType()
-            val POST = ExternalType()
-            val PUT = ExternalType()
-            val DELETE = ExternalType()
-
             val Command = ExternalType()
 
             val QueryType = ExternalType()

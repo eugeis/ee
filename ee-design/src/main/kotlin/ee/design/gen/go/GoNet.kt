@@ -41,7 +41,7 @@ fun <T : OperationI> T.toGoSetupHttpRouterBody(c: GenerationContext,
         val idParam = it.params().find { it.key() }
         val paramsNoId = it.params().filter { !it.key() }
         """
-    router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix)${
+    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${
         (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()}).
         Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeCount, api)}${
@@ -52,7 +52,7 @@ fun <T : OperationI> T.toGoSetupHttpRouterBody(c: GenerationContext,
         val idParam = it.params().find { it.key() }
         val paramsNoId = it.params().filter { !it.key() }
         """
-    router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix)${
+    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${
         (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()}).
         Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeExist, api)}${
@@ -63,7 +63,7 @@ fun <T : OperationI> T.toGoSetupHttpRouterBody(c: GenerationContext,
         val idParam = it.params().find { it.key() }
         val paramsNoId = it.params().filter { !it.key() }
         """
-    router.Methods(${c.n(g.gee.net.GET, api)}).PathPrefix(o.PathPrefix)${
+    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${
         (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()})${
         paramsNoId.joinSurroundIfNotEmptyToString(", ", ".$nL    Queries(", ")") {
@@ -72,14 +72,14 @@ fun <T : OperationI> T.toGoSetupHttpRouterBody(c: GenerationContext,
     }}${commands.joinSurroundIfNotEmptyToString("") {
         val idParam = it.props().find { it.key() }
         """
-    router.Methods(${c.n(g.gee.net.POST, api)}).PathPrefix(o.PathPrefix)${
+    router.Methods(${c.n(g.net.http.MethodPost, api)}).PathPrefix(o.PathPrefix)${
         (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}").
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
     }}${creaters.joinSurroundIfNotEmptyToString("") {
         val idParam = it.props().find { it.key() }
         """
-    router.Methods(${c.n(g.gee.net.POST, api)}).PathPrefix(o.PathPrefix)${
+    router.Methods(${c.n(g.net.http.MethodPost, api)}).PathPrefix(o.PathPrefix)${
         (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
             """
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""
@@ -88,7 +88,7 @@ fun <T : OperationI> T.toGoSetupHttpRouterBody(c: GenerationContext,
     }}${updaters.joinSurroundIfNotEmptyToString("") {
         val idParam = it.props().find { it.key() }
         """
-    router.Methods(${c.n(g.gee.net.PUT, api)}).PathPrefix(o.PathPrefix)${
+    router.Methods(${c.n(g.net.http.MethodPut, api)}).PathPrefix(o.PathPrefix)${
         (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
             """
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""
@@ -97,7 +97,7 @@ fun <T : OperationI> T.toGoSetupHttpRouterBody(c: GenerationContext,
     }}${deleters.joinSurroundIfNotEmptyToString("") {
         val idParam = it.props().find { it.key() }
         """
-    router.Methods(${c.n(g.gee.net.DELETE, api)}).PathPrefix(o.PathPrefix)${
+    router.Methods(${c.n(g.net.http.MethodDelete, api)}).PathPrefix(o.PathPrefix)${
         (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
             """
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""
