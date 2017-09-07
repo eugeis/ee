@@ -377,6 +377,5 @@ fun <T : OperationI> T.toGoAggregateInitializerRegisterCommands(c: GenerationCon
 
 fun <T : AttributeI> T.toGoPropOptionalAfterBody(c: GenerationContext,
                                                  derived: String = DesignDerivedKind.IMPL,
-                                                 api: String = DesignDerivedKind.API): String {
-    return """`eh:"optional"`"""
-}
+                                                 api: String = DesignDerivedKind.API): String =
+        """`eh:"optional"`"""

@@ -161,6 +161,9 @@ fun <T : AttributeI> T.toGoCall(c: GenerationContext, api: String): String =
 fun <T : AttributeI> T.toGoMember(c: GenerationContext, api: String): String =
         anonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameForGoMember()} ${toGoTypeDef(c, api)}" })
 
+fun <T : AttributeI> T.toGoJsonTags(): String =
+        anonymous().ifElse({ "" }, { """ `json:"${name().decapitalize()}" eh:"optional"`""" })
+
 fun <T : AttributeI> T.toGoEnumMember(c: GenerationContext, api: String): String =
         anonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameDecapitalize()} ${toGoTypeDef(c, api)}" })
 

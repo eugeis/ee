@@ -136,6 +136,9 @@ interface MacroCompositeI : CompositeI {
 
     fun macrosBody(): ListMultiHolder<String>
     fun macrosBody(vararg value: String): MacroCompositeI
+
+    fun tags(): ListMultiHolder<String>
+    fun tags(vararg value: String): MacroCompositeI
 }
 
 

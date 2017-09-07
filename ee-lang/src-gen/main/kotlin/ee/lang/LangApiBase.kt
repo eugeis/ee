@@ -250,12 +250,16 @@ open class MacroComposite : Composite, MacroCompositeI {
     override fun macrosBody(): ListMultiHolder<String> = itemAsList(MACROS_BODY, String::class.java, true)
     override fun macrosBody(vararg value: String): MacroCompositeI = apply { macrosBody().addItems(value.asList()) }
 
+    override fun tags(): ListMultiHolder<String> = itemAsList(TAGS, String::class.java, true)
+    override fun tags(vararg value: String): MacroCompositeI = apply { tags().addItems(value.asList()) }
+
     override fun fillSupportsItems() {
         macrosAfter()
         macrosAfterBody()
         macrosBefore()
         macrosBeforeBody()
         macrosBody()
+        tags()
         super.fillSupportsItems()
     }
 
@@ -266,6 +270,7 @@ open class MacroComposite : Composite, MacroCompositeI {
         val MACROS_BEFORE = "_macrosBefore"
         val MACROS_BEFORE_BODY = "_macrosBeforeBody"
         val MACROS_BODY = "_macrosBody"
+        val TAGS = "_tags"
     }
 }
 

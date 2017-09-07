@@ -17,6 +17,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val macrosBody = AttributeI({ type(n.String).multi(true) })
         val macrosAfterBody = AttributeI({ type(n.String).multi(true) })
         val macrosAfter = AttributeI({ type(n.String).multi(true) })
+        val tags = AttributeI({ type(n.String).multi(true) })
     }
 
     object Type : Composite({ derivedFrom(MacroComposite) }) {
