@@ -9,6 +9,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     object fmt : StructureUnit({ namespace("fmt") }) {
         val Sprintf = Operation()
         val Fprintf = Operation()
+        val Errorf = Operation()
     }
 
     object html : StructureUnit({ namespace("html") }) {
@@ -33,15 +34,15 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             val ResponseWriter = ExternalType({ ifc(true) })
             val Request = ExternalType()
 
-            val MethodGet = ExternalType()
-            val MethodHead = ExternalType()
-            val MethodPost = ExternalType()
-            val MethodPut = ExternalType()
-            val MethodPatch = ExternalType()
-            val MethodDelete = ExternalType()
-            val MethodConnect = ExternalType()
-            val MethodOptions = ExternalType()
-            val MethodTrace = ExternalType()
+            val MethodGet = Operation()
+            val MethodHead = Operation()
+            val MethodPost = Operation()
+            val MethodPut = Operation()
+            val MethodPatch = Operation()
+            val MethodDelete = Operation()
+            val MethodConnect = Operation()
+            val MethodOptions = Operation()
+            val MethodTrace = Operation()
         }
     }
 
@@ -49,6 +50,8 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         object json : StructureUnit() {
             val NewDecoder = Operation()
             val Decoder = ExternalType()
+            val Marshal = Operation()
+            val Unmarshal = Operation()
         }
     }
 
@@ -64,6 +67,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     object gee : StructureUnit({ namespace("github.com.eugeis.gee") }) {
         object enum : StructureUnit() {
             val Literal = ExternalType()
+            val EnumBaseJson = ExternalType()
         }
 
         object net : StructureUnit() {

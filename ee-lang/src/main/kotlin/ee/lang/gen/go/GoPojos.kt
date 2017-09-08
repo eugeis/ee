@@ -71,6 +71,22 @@ func (o *$name) Name() string {
 
 func (o *$name) Ordinal() int {
     return o.ordinal
+}
+
+func (o *$name) MarshalJSON() (ret []byte, err error) {
+	return ${c.n(g.encoding.json.Marshal, api)}(&${c.n(g.gee.enum.EnumBaseJson, api)}{Name: o.name})
+}
+
+func (o *$name) UnmarshalJSON(data []byte) (err error) {
+	lit := ${c.n(g.gee.enum.EnumBaseJson, api)}{}
+	if err = ${c.n(g.encoding.json.Unmarshal, api)}(data, &lit); err == nil {
+		if v, ok := $enums().Parse$name(lit.Name); ok {
+            *o = *v
+        } else {
+            err = ${c.n(g.fmt.Errorf, api)}("invalid $name %q", lit.Name)
+        }
+	}
+	return
 }${
     props().joinSurroundIfNotEmptyToString("", nL) { it.toGoGetMethod(name, c, api) }}
 ${literals().joinSurroundIfNotEmptyToString(nL) { item -> item.toGoIsMethod(name, literals) }}${
@@ -106,7 +122,7 @@ func (o *$literals) Literals() []${c.n(g.gee.enum.Literal)} {
 ${literals().joinWithIndexToString(nL) { i, item -> item.toGoLitMethod(i, name, literals) }}
 
 func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {
-	if item, ok := enum.Parse(name, o.literals); ok {
+	if item, ok := enum.Parse(name, o.Literals()); ok {
 		return item.(*$name), ok
 	}
 	return

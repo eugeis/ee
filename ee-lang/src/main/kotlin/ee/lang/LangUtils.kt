@@ -376,7 +376,10 @@ fun LogicUnitI.p(name: String, type: TypeI = n.String, adapt: AttributeI.() -> U
             adapt()
         }))
 
-fun ItemI.deriveNamespace(name: String) = (namespace().endsWith(name) || "shared".equals(name, true)).
+fun ItemI.deriveNamespaceShared(name: String) = (namespace().endsWith(name) || "shared".equals(name, true)).
+        ifElse(namespace(), { "${namespace()}.$name" })
+
+fun ItemI.deriveNamespace(name: String) = (namespace().endsWith(name)).
         ifElse(namespace(), { "${namespace()}.$name" })
 
 fun StructureUnitI.deriveArtifact(name: String) = (artifact().endsWith(name)).
