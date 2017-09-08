@@ -63,6 +63,12 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         }
     }
 
+    object mgo2 : StructureUnit({ namespace("gopkg.in.mgo.v2.bson") }) {
+        object bson : StructureUnit() {
+            object Raw : ExternalType()
+        }
+    }
+
     //common libs
     object gee : StructureUnit({ namespace("github.com.eugeis.gee") }) {
         object enum : StructureUnit() {
@@ -250,7 +256,8 @@ open class GoContext : GenerationContext {
             outsideTypes.isNotEmpty().then {
                 outsideTypes.map { "$indent${it.namespace()}" }.toSortedSet().
                         joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
-                            """    "${it.toLowerCase().toDotsAsPath().replace("github/com", "github.com")}""""
+                            """    "${it.toLowerCase().toDotsAsPath().replace("github/com", "github.com").
+                                    replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
                         }
             }
         }

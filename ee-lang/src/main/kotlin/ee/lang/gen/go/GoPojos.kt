@@ -73,7 +73,7 @@ func (o *$name) Ordinal() int {
     return o.ordinal
 }
 
-func (o *$name) MarshalJSON() (ret []byte, err error) {
+func (o $name) MarshalJSON() (ret []byte, err error) {
 	return ${c.n(g.encoding.json.Marshal, api)}(&${c.n(g.gee.enum.EnumBaseJson, api)}{Name: o.name})
 }
 
@@ -87,6 +87,22 @@ func (o *$name) UnmarshalJSON(data []byte) (err error) {
         }
 	}
 	return
+}
+
+func (o $name) GetBSON() (ret interface{}, err error) {
+	return o.name, nil
+}
+
+func (o *$name) SetBSON(raw ${c.n(g.mgo2.bson.Raw, api)}) (err error) {
+	var lit string
+    if err = raw.Unmarshal(&lit); err == nil {
+		if v, ok := $enums().Parse$name(lit); ok {
+            *o = *v
+        } else {
+            err = ${c.n(g.fmt.Errorf, api)}("invalid $name %q", lit)
+        }
+    }
+    return
 }${
     props().joinSurroundIfNotEmptyToString("", nL) { it.toGoGetMethod(name, c, api) }}
 ${literals().joinSurroundIfNotEmptyToString(nL) { item -> item.toGoIsMethod(name, literals) }}${
