@@ -144,9 +144,9 @@ fun TypeI.propsNoMetaNoValue(): List<AttributeI> =
 /*
 fun lambda(init: LambdaI.() -> Unit): LambdaI = Lambda(init)
 
-fun p(init: AttributeI.() -> Unit = {}): AttributeI = Attribute(init)
+fun p(init: AttributeI.() -> Unit = {}): AttributeI = duration(init)
 
-fun p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): AttributeI = Attribute({
+fun p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): AttributeI = duration({
     type(type).name(name)
     body()
 })

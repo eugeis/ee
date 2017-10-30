@@ -1,11 +1,14 @@
 package ee.design
 
+import ee.lang.AttributeI
 import ee.lang.CompilationUnitI
 import ee.lang.DataTypeI
 import ee.lang.DataTypeOperationI
 import ee.lang.EnumTypeI
 import ee.lang.ExternalTypeI
 import ee.lang.ListMultiHolderI
+import ee.lang.LogicUnitI
+import ee.lang.MacroCompositeI
 import ee.lang.StructureUnitI
 
 
@@ -45,6 +48,12 @@ interface CompI : ModuleGroupI {
 interface CompositeCommandI : CompilationUnitI {
     fun commands(): ListMultiHolderI<CommandI>
     fun commands(vararg value: CommandI): CompositeCommandI
+}
+
+
+interface ConditionI : LogicUnitI {
+    fun cachedInContext(): Boolean
+    fun cachedInContext(value: Boolean): ConditionI
 }
 
 
@@ -166,6 +175,11 @@ interface EntityI : DataTypeI {
     fun deleted(vararg value: DeletedI): EntityI
     fun deleted(value: DeletedI): DeletedI
     fun deleted(value: DeletedI.() -> Unit = {}): DeletedI
+
+    fun states(): ListMultiHolderI<StateI>
+    fun states(vararg value: StateI): EntityI
+    fun to(value: StateI): StateI
+    fun to(value: StateI.() -> Unit = {}): StateI
 }
 
 
@@ -190,6 +204,28 @@ interface FacetI : ModuleGroupI {
 interface FindByI : DataTypeOperationI {
     fun multiResult(): Boolean
     fun multiResult(value: Boolean): FindByI
+}
+
+
+interface FsmI : ControllerI {
+    fun timeout(): Long
+    fun timeout(value: Long): FsmI
+
+    fun stateProp(): AttributeI
+    fun stateProp(value: AttributeI): FsmI
+
+    fun timeoutProp(): AttributeI
+    fun timeoutProp(value: AttributeI): FsmI
+
+    fun states(): ListMultiHolderI<StateI>
+    fun states(vararg value: StateI): FsmI
+    fun to(value: StateI): StateI
+    fun to(value: StateI.() -> Unit = {}): StateI
+
+    fun conditions(): ListMultiHolderI<ConditionI>
+    fun conditions(vararg value: ConditionI): FsmI
+    fun cond(value: ConditionI): ConditionI
+    fun cond(value: ConditionI.() -> Unit = {}): ConditionI
 }
 
 
@@ -239,6 +275,49 @@ interface ModuleI : StructureUnitI {
 interface ModuleGroupI : StructureUnitI {
     fun modules(): ListMultiHolderI<ModuleI>
     fun modules(vararg value: ModuleI): ModuleGroupI
+}
+
+
+interface StateI : CompilationUnitI {
+    fun timeout(): Long
+    fun timeout(value: Long): StateI
+
+    fun entryCommands(): ListMultiHolderI<CommandI>
+    fun entryCommands(vararg value: CommandI): StateI
+    fun entry(value: CommandI): CommandI
+    fun entry(value: CommandI.() -> Unit = {}): CommandI
+
+    fun exitCommands(): ListMultiHolderI<CommandI>
+    fun exitCommands(vararg value: CommandI): StateI
+    fun exit(value: CommandI): CommandI
+    fun exit(value: CommandI.() -> Unit = {}): CommandI
+
+    fun transitions(): ListMultiHolderI<TransitionI>
+    fun transitions(vararg value: TransitionI): StateI
+    fun on(value: TransitionI): TransitionI
+    fun on(value: TransitionI.() -> Unit = {}): TransitionI
+}
+
+
+interface TransitionI : MacroCompositeI {
+    fun event(): EventI
+    fun event(value: EventI): TransitionI
+
+    fun redirect(): EventI
+    fun redirect(value: EventI): TransitionI
+
+    fun to(): StateI
+    fun to(value: StateI): TransitionI
+
+    fun conditions(): ListMultiHolderI<ConditionI>
+    fun conditions(vararg value: ConditionI): TransitionI
+    fun if(value: ConditionI): ConditionI
+    fun if(value: ConditionI.() -> Unit = {}): ConditionI
+
+    fun notConditions(): ListMultiHolderI<ConditionI>
+    fun notConditions(vararg value: ConditionI): TransitionI
+    fun ifNot(value: ConditionI): ConditionI
+    fun ifNot(value: ConditionI.() -> Unit = {}): ConditionI
 }
 
 

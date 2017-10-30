@@ -53,6 +53,33 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val event = prop(Event).doc("Corresponding event")
     }
 
+    object Fsm : CompilationUnit({ superUnit(Controller) }) {
+        val timeout = propL()
+        val stateProp = prop { type(l.Attribute) }
+        val timeoutProp = prop { type(l.Attribute) }
+        val states = prop(State).multi(true).nonFluent("to")
+        val conditions = prop(Condition).multi(true).nonFluent("cond")
+    }
+
+    object State : CompilationUnit({ superUnit(l.CompilationUnit) }) {
+        val timeout = propL()
+        val entryCommands = prop(Command).multi(true).nonFluent("entry")
+        val exitCommands = prop(Command).multi(true).nonFluent("exit")
+        val transitions = prop(Transition).multi(true).nonFluent("on")
+    }
+
+    object Transition : CompilationUnit({ superUnit(l.MacroComposite) }) {
+        val event = prop(Event)
+        val redirect = prop(Event)
+        val to = prop(State)
+        val conditions = prop(Condition).multi(true).nonFluent("if")
+        val notConditions = prop(Condition).multi(true).nonFluent("ifNot")
+    }
+
+    object Condition : CompilationUnit({ superUnit(l.LogicUnit) }) {
+        val cachedInContext = propB()
+    }
+
     object BussinesCommand : CompilationUnit({ superUnit(Command) })
 
     object CompositeCommand : CompilationUnit({ superUnit(l.CompilationUnit) }) {
@@ -97,6 +124,8 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val created = prop(Created).multi(true).nonFluent("created")
         val updated = prop(Updated).multi(true).nonFluent("updated")
         val deleted = prop(Deleted).multi(true).nonFluent("deleted")
+
+        val states = prop(State).multi(true).nonFluent("to")
     }
 
     object Basic : CompilationUnit({ superUnit(l.DataType) })
