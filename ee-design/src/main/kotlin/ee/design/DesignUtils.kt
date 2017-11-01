@@ -155,10 +155,7 @@ fun StructureUnitI.addDefaultReturnValuesForQueries() {
 }
 
 fun StructureUnitI.addCommandsAndEventsForAggregates() {
-    findDownByType(EntityI::class.java).filter {
-        !it.virtual() &&
-                (it.defaultCommands() || it.defaultEvents())
-    }.extend {
+    findDownByType(EntityI::class.java).filter { !it.virtual() }.extend {
         val dataTypeProps = propsAll().filter { !it.meta() }.map { p(it) }
 
         var created: CreatedI = Created.EMPTY

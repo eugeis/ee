@@ -40,8 +40,9 @@ fun <T : AttributeI> T.toKotlinDefault(c: GenerationContext, derived: String): S
 }
 
 fun <T : AttributeI> T.toKotlinEMPTY(c: GenerationContext, derived: String): String {
-    return type().toKotlinDefault(c, derived, this)
+    return (type().parent() == n).ifElse({ type().toKotlinDefault(c, derived, this) }, { "${c.n(type(), derived)}.EMPTY" })
 }
+
 
 fun <T : AttributeI> T.toKotlinTypeSingle(c: GenerationContext, api: String): String {
     return type().toKotlin(c, api, this)

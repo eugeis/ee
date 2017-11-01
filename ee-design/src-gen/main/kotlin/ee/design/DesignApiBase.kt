@@ -80,7 +80,7 @@ open class Command : CompilationUnit, CommandI {
     override fun affectMulti(): Boolean = attr(AFFECT_MULTI, { false })
     override fun affectMulti(value: Boolean): CommandI = apply { attr(AFFECT_MULTI, value) }
 
-    override fun event(): EventI = attr(EVENT, { Event() })
+    override fun event(): EventI = attr(EVENT, { Event.EMPTY })
     override fun event(value: EventI): CommandI = apply { attr(EVENT, value) }
 
     companion object {
@@ -218,7 +218,7 @@ open class Entity : DataType, EntityI {
     override fun defaultCommands(): Boolean = attr(DEFAULT_COMMANDS, { true })
     override fun defaultCommands(value: Boolean): EntityI = apply { attr(DEFAULT_COMMANDS, value) }
 
-    override fun belongsToAggregate(): EntityI = attr(BELONGS_TO_AGGREGATE, { Entity() })
+    override fun belongsToAggregate(): EntityI = attr(BELONGS_TO_AGGREGATE, { Entity.EMPTY })
     override fun belongsToAggregate(value: EntityI): EntityI = apply { attr(BELONGS_TO_AGGREGATE, value) }
 
     override fun aggregateFor(): ListMultiHolderI<EntityI> = itemAsList(AGGREGATE_FOR, EntityI::class.java, true)
@@ -538,10 +538,10 @@ open class StateMachine : Controller, StateMachineI {
     override fun timeout(): Long = attr(TIMEOUT, { 0L })
     override fun timeout(value: Long): StateMachineI = apply { attr(TIMEOUT, value) }
 
-    override fun stateProp(): AttributeI = attr(STATE_PROP, { Attribute() })
+    override fun stateProp(): AttributeI = attr(STATE_PROP, { Attribute.EMPTY })
     override fun stateProp(value: AttributeI): StateMachineI = apply { attr(STATE_PROP, value) }
 
-    override fun timeoutProp(): AttributeI = attr(TIMEOUT_PROP, { Attribute() })
+    override fun timeoutProp(): AttributeI = attr(TIMEOUT_PROP, { Attribute.EMPTY })
     override fun timeoutProp(value: AttributeI): StateMachineI = apply { attr(TIMEOUT_PROP, value) }
 
     override fun states(): ListMultiHolderI<StateI> = itemAsList(STATES, StateI::class.java, true)
@@ -574,13 +574,13 @@ open class StateMachine : Controller, StateMachineI {
 open class Transition : MacroComposite, TransitionI {
     constructor(value: Transition.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
 
-    override fun event(): EventI = attr(EVENT, { Event() })
+    override fun event(): EventI = attr(EVENT, { Event.EMPTY })
     override fun event(value: EventI): TransitionI = apply { attr(EVENT, value) }
 
-    override fun redirect(): EventI = attr(REDIRECT, { Event() })
+    override fun redirect(): EventI = attr(REDIRECT, { Event.EMPTY })
     override fun redirect(value: EventI): TransitionI = apply { attr(REDIRECT, value) }
 
-    override fun to(): StateI = attr(TO, { State() })
+    override fun to(): StateI = attr(TO, { State.EMPTY })
     override fun to(value: StateI): TransitionI = apply { attr(TO, value) }
 
     override fun checks(): ListMultiHolderI<CheckI> = itemAsList(CHECKS, CheckI::class.java, true)
