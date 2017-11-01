@@ -30,6 +30,12 @@ interface BussinesEventI : EventI {
 }
 
 
+interface CheckI : LogicUnitI {
+    fun cachedInContext(): Boolean
+    fun cachedInContext(value: Boolean): CheckI
+}
+
+
 interface CommandI : CompilationUnitI {
     fun affectMulti(): Boolean
     fun affectMulti(value: Boolean): CommandI
@@ -48,12 +54,6 @@ interface CompI : ModuleGroupI {
 interface CompositeCommandI : CompilationUnitI {
     fun commands(): ListMultiHolderI<CommandI>
     fun commands(vararg value: CommandI): CompositeCommandI
-}
-
-
-interface ConditionI : LogicUnitI {
-    fun cachedInContext(): Boolean
-    fun cachedInContext(value: Boolean): ConditionI
 }
 
 
@@ -176,10 +176,10 @@ interface EntityI : DataTypeI {
     fun deleted(value: DeletedI): DeletedI
     fun deleted(value: DeletedI.() -> Unit = {}): DeletedI
 
-    fun states(): ListMultiHolderI<StateI>
-    fun states(vararg value: StateI): EntityI
-    fun to(value: StateI): StateI
-    fun to(value: StateI.() -> Unit = {}): StateI
+    fun stateMachines(): ListMultiHolderI<StateMachineI>
+    fun stateMachines(vararg value: StateMachineI): EntityI
+    fun stateMachine(value: StateMachineI): StateMachineI
+    fun stateMachine(value: StateMachineI.() -> Unit = {}): StateMachineI
 }
 
 
@@ -204,28 +204,6 @@ interface FacetI : ModuleGroupI {
 interface FindByI : DataTypeOperationI {
     fun multiResult(): Boolean
     fun multiResult(value: Boolean): FindByI
-}
-
-
-interface FsmI : ControllerI {
-    fun timeout(): Long
-    fun timeout(value: Long): FsmI
-
-    fun stateProp(): AttributeI
-    fun stateProp(value: AttributeI): FsmI
-
-    fun timeoutProp(): AttributeI
-    fun timeoutProp(value: AttributeI): FsmI
-
-    fun states(): ListMultiHolderI<StateI>
-    fun states(vararg value: StateI): FsmI
-    fun to(value: StateI): StateI
-    fun to(value: StateI.() -> Unit = {}): StateI
-
-    fun conditions(): ListMultiHolderI<ConditionI>
-    fun conditions(vararg value: ConditionI): FsmI
-    fun cond(value: ConditionI): ConditionI
-    fun cond(value: ConditionI.() -> Unit = {}): ConditionI
 }
 
 
@@ -278,7 +256,7 @@ interface ModuleGroupI : StructureUnitI {
 }
 
 
-interface StateI : CompilationUnitI {
+interface StateI : ControllerI {
     fun timeout(): Long
     fun timeout(value: Long): StateI
 
@@ -299,6 +277,28 @@ interface StateI : CompilationUnitI {
 }
 
 
+interface StateMachineI : ControllerI {
+    fun timeout(): Long
+    fun timeout(value: Long): StateMachineI
+
+    fun stateProp(): AttributeI
+    fun stateProp(value: AttributeI): StateMachineI
+
+    fun timeoutProp(): AttributeI
+    fun timeoutProp(value: AttributeI): StateMachineI
+
+    fun states(): ListMultiHolderI<StateI>
+    fun states(vararg value: StateI): StateMachineI
+    fun to(value: StateI): StateI
+    fun to(value: StateI.() -> Unit = {}): StateI
+
+    fun conditions(): ListMultiHolderI<CheckI>
+    fun conditions(vararg value: CheckI): StateMachineI
+    fun cond(value: CheckI): CheckI
+    fun cond(value: CheckI.() -> Unit = {}): CheckI
+}
+
+
 interface TransitionI : MacroCompositeI {
     fun event(): EventI
     fun event(value: EventI): TransitionI
@@ -309,15 +309,15 @@ interface TransitionI : MacroCompositeI {
     fun to(): StateI
     fun to(value: StateI): TransitionI
 
-    fun conditions(): ListMultiHolderI<ConditionI>
-    fun conditions(vararg value: ConditionI): TransitionI
-    fun if(value: ConditionI): ConditionI
-    fun if(value: ConditionI.() -> Unit = {}): ConditionI
+    fun checks(): ListMultiHolderI<CheckI>
+    fun checks(vararg value: CheckI): TransitionI
+    fun check(value: CheckI): CheckI
+    fun check(value: CheckI.() -> Unit = {}): CheckI
 
-    fun notConditions(): ListMultiHolderI<ConditionI>
-    fun notConditions(vararg value: ConditionI): TransitionI
-    fun ifNot(value: ConditionI): ConditionI
-    fun ifNot(value: ConditionI.() -> Unit = {}): ConditionI
+    fun notChecks(): ListMultiHolderI<CheckI>
+    fun notChecks(vararg value: CheckI): TransitionI
+    fun checkNot(value: CheckI): CheckI
+    fun checkNot(value: CheckI.() -> Unit = {}): CheckI
 }
 
 

@@ -120,7 +120,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
             object HttpCommandHandler : ExternalType() {
                 val context = prop { type(g.context.Context) }
-                val commandBus = prop { type(g.eh.CommandBus) }
+                val commandBus = prop { type(g.eh.CommandHandler) }
 
                 val ignore = constructorAllProps()
             }
@@ -161,7 +161,12 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         object Command : ExternalType({ ifc(true) }) {
         }
 
-        object CommandHandler : ExternalType({ ifc(true) }) {
+        object CommandHandler : ExternalType({ ifc(true) })
+
+        object CommandBus : ExternalType({
+            name("CommandHandler")
+            namespace("github.com.looplab.eventhorizon.commandhandler.bus")
+        }) {
         }
 
         object CommandType : ExternalType() {
@@ -173,6 +178,9 @@ object g : StructureUnit({ namespace("").name("Go") }) {
                 val cmdType = p()
                 val ret = retError()
             }
+        }
+
+        object Entity : ExternalType({ ifc(true) }) {
         }
 
         object EventStore : ExternalType({ ifc(true) }) {
@@ -188,9 +196,6 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         }
 
         object EventHandler : ExternalType({ ifc(true) }) {
-        }
-
-        object CommandBus : ExternalType({ ifc(true) }) {
         }
 
         object Event : ExternalType({ ifc(true) }) {

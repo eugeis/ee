@@ -16,6 +16,6 @@ open class LangGoTemplates {
             = Template<T>("Pojo", nameBuilder) { item, c -> item.toGoImpl(c) }
 
     open fun <T : CompilationUnitI> pojoExcludePropsWithValue(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder)
-            = Template<T>("Pojo", nameBuilder) { item, c -> item.toGoImpl(c = c, excludePropsWithValue = true) }
+            = Template<T>("pojoExcludePropsWithValue", nameBuilder) { item, c -> item.toGoImpl(c = c, excludePropsWithValue = true) }
 
 }

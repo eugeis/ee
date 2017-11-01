@@ -53,15 +53,15 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val event = prop(Event).doc("Corresponding event")
     }
 
-    object Fsm : CompilationUnit({ superUnit(Controller) }) {
+    object StateMachine : CompilationUnit({ superUnit(Controller) }) {
         val timeout = propL()
         val stateProp = prop { type(l.Attribute) }
         val timeoutProp = prop { type(l.Attribute) }
         val states = prop(State).multi(true).nonFluent("to")
-        val conditions = prop(Condition).multi(true).nonFluent("cond")
+        val conditions = prop(Check).multi(true).nonFluent("cond")
     }
 
-    object State : CompilationUnit({ superUnit(l.CompilationUnit) }) {
+    object State : CompilationUnit({ superUnit(Controller) }) {
         val timeout = propL()
         val entryCommands = prop(Command).multi(true).nonFluent("entry")
         val exitCommands = prop(Command).multi(true).nonFluent("exit")
@@ -72,11 +72,11 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val event = prop(Event)
         val redirect = prop(Event)
         val to = prop(State)
-        val conditions = prop(Condition).multi(true).nonFluent("if")
-        val notConditions = prop(Condition).multi(true).nonFluent("ifNot")
+        val checks = prop(Check).multi(true).nonFluent("check")
+        val notChecks = prop(Check).multi(true).nonFluent("checkNot")
     }
 
-    object Condition : CompilationUnit({ superUnit(l.LogicUnit) }) {
+    object Check : CompilationUnit({ superUnit(l.LogicUnit) }) {
         val cachedInContext = propB()
     }
 
@@ -125,7 +125,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val updated = prop(Updated).multi(true).nonFluent("updated")
         val deleted = prop(Deleted).multi(true).nonFluent("deleted")
 
-        val states = prop(State).multi(true).nonFluent("to")
+        val stateMachines = prop(StateMachine).multi(true).nonFluent("stateMachine")
     }
 
     object Basic : CompilationUnit({ superUnit(l.DataType) })

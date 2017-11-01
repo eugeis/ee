@@ -35,17 +35,12 @@ fun <T : TypeI> T.toKotlinDefault(c: GenerationContext, derived: String, attr: A
     }
 }
 
-
 fun <T : AttributeI> T.toKotlinDefault(c: GenerationContext, derived: String): String {
     return type().toKotlinDefault(c, derived, this)
 }
 
-fun <T : ItemI> T.toKotlinEMPTY(c: GenerationContext, derived: String): String {
-    return (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
-}
-
 fun <T : AttributeI> T.toKotlinEMPTY(c: GenerationContext, derived: String): String {
-    return type().toKotlinEMPTY(c, derived)
+    return type().toKotlinDefault(c, derived, this)
 }
 
 fun <T : AttributeI> T.toKotlinTypeSingle(c: GenerationContext, api: String): String {

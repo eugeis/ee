@@ -61,13 +61,26 @@ open class BussinesEvent : Event, BussinesEventI {
 }
 
 
+open class Check : LogicUnit, CheckI {
+    constructor(value: Check.() -> Unit = {}) : super(value as LogicUnit.() -> Unit)
+
+    override fun cachedInContext(): Boolean = attr(CACHED_IN_CONTEXT, { false })
+    override fun cachedInContext(value: Boolean): CheckI = apply { attr(CACHED_IN_CONTEXT, value) }
+
+    companion object {
+        val EMPTY = Check { name(ItemEmpty.name()) }.apply<Check> { init() }
+        val CACHED_IN_CONTEXT = "_cachedInContext"
+    }
+}
+
+
 open class Command : CompilationUnit, CommandI {
     constructor(value: Command.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
 
     override fun affectMulti(): Boolean = attr(AFFECT_MULTI, { false })
     override fun affectMulti(value: Boolean): CommandI = apply { attr(AFFECT_MULTI, value) }
 
-    override fun event(): EventI = attr(EVENT, { Event.EMPTY })
+    override fun event(): EventI = attr(EVENT, { Event() })
     override fun event(value: EventI): CommandI = apply { attr(EVENT, value) }
 
     companion object {
@@ -110,19 +123,6 @@ open class CompositeCommand : CompilationUnit, CompositeCommandI {
     companion object {
         val EMPTY = CompositeCommand { name(ItemEmpty.name()) }.apply<CompositeCommand> { init() }
         val COMMANDS = "_commands"
-    }
-}
-
-
-open class Condition : LogicUnit, ConditionI {
-    constructor(value: Condition.() -> Unit = {}) : super(value as LogicUnit.() -> Unit)
-
-    override fun cachedInContext(): Boolean = attr(CACHED_IN_CONTEXT, { "" })
-    override fun cachedInContext(value: Boolean): ConditionI = apply { attr(CACHED_IN_CONTEXT, value) }
-
-    companion object {
-        val EMPTY = Condition { name(ItemEmpty.name()) }.apply<Condition> { init() }
-        val CACHED_IN_CONTEXT = "_cachedInContext"
     }
 }
 
@@ -218,7 +218,7 @@ open class Entity : DataType, EntityI {
     override fun defaultCommands(): Boolean = attr(DEFAULT_COMMANDS, { true })
     override fun defaultCommands(value: Boolean): EntityI = apply { attr(DEFAULT_COMMANDS, value) }
 
-    override fun belongsToAggregate(): EntityI = attr(BELONGS_TO_AGGREGATE, { Entity.EMPTY })
+    override fun belongsToAggregate(): EntityI = attr(BELONGS_TO_AGGREGATE, { Entity() })
     override fun belongsToAggregate(value: EntityI): EntityI = apply { attr(BELONGS_TO_AGGREGATE, value) }
 
     override fun aggregateFor(): ListMultiHolderI<EntityI> = itemAsList(AGGREGATE_FOR, EntityI::class.java, true)
@@ -289,10 +289,10 @@ open class Entity : DataType, EntityI {
     override fun deleted(value: DeletedI): DeletedI = applyAndReturn { deleted().addItem(value); value }
     override fun deleted(value: DeletedI.() -> Unit): DeletedI = deleted(Deleted(value))
 
-    override fun states(): ListMultiHolderI<StateI> = itemAsList(STATES, StateI::class.java, true)
-    override fun states(vararg value: StateI): EntityI = apply { states().addItems(value.asList()) }
-    override fun to(value: StateI): StateI = applyAndReturn { states().addItem(value); value }
-    override fun to(value: StateI.() -> Unit): StateI = to(State(value))
+    override fun stateMachines(): ListMultiHolderI<StateMachineI> = itemAsList(STATE_MACHINES, StateMachineI::class.java, true)
+    override fun stateMachines(vararg value: StateMachineI): EntityI = apply { stateMachines().addItems(value.asList()) }
+    override fun stateMachine(value: StateMachineI): StateMachineI = applyAndReturn { stateMachines().addItem(value); value }
+    override fun stateMachine(value: StateMachineI.() -> Unit): StateMachineI = stateMachine(StateMachine(value))
 
     override fun fillSupportsItems() {
         aggregateFor()
@@ -309,7 +309,7 @@ open class Entity : DataType, EntityI {
         created()
         updated()
         deleted()
-        states()
+        stateMachines()
         super.fillSupportsItems()
     }
 
@@ -333,7 +333,7 @@ open class Entity : DataType, EntityI {
         val CREATED = "_created"
         val UPDATED = "_updated"
         val DELETED = "_deleted"
-        val STATES = "_states"
+        val STATE_MACHINES = "_stateMachines"
     }
 }
 
@@ -392,45 +392,6 @@ open class FindBy : DataTypeOperation, FindByI {
     companion object {
         val EMPTY = FindBy { name(ItemEmpty.name()) }.apply<FindBy> { init() }
         val MULTI_RESULT = "_multiResult"
-    }
-}
-
-
-open class Fsm : Controller, FsmI {
-    constructor(value: Fsm.() -> Unit = {}) : super(value as Controller.() -> Unit)
-
-    override fun timeout(): Long = attr(TIMEOUT, { "" })
-    override fun timeout(value: Long): FsmI = apply { attr(TIMEOUT, value) }
-
-    override fun stateProp(): AttributeI = attr(STATE_PROP, { Attribute.EMPTY })
-    override fun stateProp(value: AttributeI): FsmI = apply { attr(STATE_PROP, value) }
-
-    override fun timeoutProp(): AttributeI = attr(TIMEOUT_PROP, { Attribute.EMPTY })
-    override fun timeoutProp(value: AttributeI): FsmI = apply { attr(TIMEOUT_PROP, value) }
-
-    override fun states(): ListMultiHolderI<StateI> = itemAsList(STATES, StateI::class.java, true)
-    override fun states(vararg value: StateI): FsmI = apply { states().addItems(value.asList()) }
-    override fun to(value: StateI): StateI = applyAndReturn { states().addItem(value); value }
-    override fun to(value: StateI.() -> Unit): StateI = to(State(value))
-
-    override fun conditions(): ListMultiHolderI<ConditionI> = itemAsList(CONDITIONS, ConditionI::class.java, true)
-    override fun conditions(vararg value: ConditionI): FsmI = apply { conditions().addItems(value.asList()) }
-    override fun cond(value: ConditionI): ConditionI = applyAndReturn { conditions().addItem(value); value }
-    override fun cond(value: ConditionI.() -> Unit): ConditionI = cond(Condition(value))
-
-    override fun fillSupportsItems() {
-        states()
-        conditions()
-        super.fillSupportsItems()
-    }
-
-    companion object {
-        val EMPTY = Fsm { name(ItemEmpty.name()) }.apply<Fsm> { init() }
-        val TIMEOUT = "_timeout"
-        val STATE_PROP = "_stateProp"
-        val TIMEOUT_PROP = "_timeoutProp"
-        val STATES = "_states"
-        val CONDITIONS = "_conditions"
     }
 }
 
@@ -533,10 +494,10 @@ open class ModuleGroup : StructureUnit, ModuleGroupI {
 }
 
 
-open class State : CompilationUnit, StateI {
-    constructor(value: State.() -> Unit = {}) : super(value as CompilationUnit.() -> Unit)
+open class State : Controller, StateI {
+    constructor(value: State.() -> Unit = {}) : super(value as Controller.() -> Unit)
 
-    override fun timeout(): Long = attr(TIMEOUT, { "" })
+    override fun timeout(): Long = attr(TIMEOUT, { 0L })
     override fun timeout(value: Long): StateI = apply { attr(TIMEOUT, value) }
 
     override fun entryCommands(): ListMultiHolderI<CommandI> = itemAsList(ENTRY_COMMANDS, CommandI::class.java, true)
@@ -571,31 +532,70 @@ open class State : CompilationUnit, StateI {
 }
 
 
+open class StateMachine : Controller, StateMachineI {
+    constructor(value: StateMachine.() -> Unit = {}) : super(value as Controller.() -> Unit)
+
+    override fun timeout(): Long = attr(TIMEOUT, { 0L })
+    override fun timeout(value: Long): StateMachineI = apply { attr(TIMEOUT, value) }
+
+    override fun stateProp(): AttributeI = attr(STATE_PROP, { Attribute() })
+    override fun stateProp(value: AttributeI): StateMachineI = apply { attr(STATE_PROP, value) }
+
+    override fun timeoutProp(): AttributeI = attr(TIMEOUT_PROP, { Attribute() })
+    override fun timeoutProp(value: AttributeI): StateMachineI = apply { attr(TIMEOUT_PROP, value) }
+
+    override fun states(): ListMultiHolderI<StateI> = itemAsList(STATES, StateI::class.java, true)
+    override fun states(vararg value: StateI): StateMachineI = apply { states().addItems(value.asList()) }
+    override fun to(value: StateI): StateI = applyAndReturn { states().addItem(value); value }
+    override fun to(value: StateI.() -> Unit): StateI = to(State(value))
+
+    override fun conditions(): ListMultiHolderI<CheckI> = itemAsList(CONDITIONS, CheckI::class.java, true)
+    override fun conditions(vararg value: CheckI): StateMachineI = apply { conditions().addItems(value.asList()) }
+    override fun cond(value: CheckI): CheckI = applyAndReturn { conditions().addItem(value); value }
+    override fun cond(value: CheckI.() -> Unit): CheckI = cond(Check(value))
+
+    override fun fillSupportsItems() {
+        states()
+        conditions()
+        super.fillSupportsItems()
+    }
+
+    companion object {
+        val EMPTY = StateMachine { name(ItemEmpty.name()) }.apply<StateMachine> { init() }
+        val TIMEOUT = "_timeout"
+        val STATE_PROP = "_stateProp"
+        val TIMEOUT_PROP = "_timeoutProp"
+        val STATES = "_states"
+        val CONDITIONS = "_conditions"
+    }
+}
+
+
 open class Transition : MacroComposite, TransitionI {
     constructor(value: Transition.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
 
-    override fun event(): EventI = attr(EVENT, { Event.EMPTY })
+    override fun event(): EventI = attr(EVENT, { Event() })
     override fun event(value: EventI): TransitionI = apply { attr(EVENT, value) }
 
-    override fun redirect(): EventI = attr(REDIRECT, { Event.EMPTY })
+    override fun redirect(): EventI = attr(REDIRECT, { Event() })
     override fun redirect(value: EventI): TransitionI = apply { attr(REDIRECT, value) }
 
-    override fun to(): StateI = attr(TO, { State.EMPTY })
+    override fun to(): StateI = attr(TO, { State() })
     override fun to(value: StateI): TransitionI = apply { attr(TO, value) }
 
-    override fun conditions(): ListMultiHolderI<ConditionI> = itemAsList(CONDITIONS, ConditionI::class.java, true)
-    override fun conditions(vararg value: ConditionI): TransitionI = apply { conditions().addItems(value.asList()) }
-    override fun if(value: ConditionI): ConditionI = applyAndReturn { conditions().addItem(value); value }
-    override fun if(value: ConditionI.() -> Unit): ConditionI = if(Condition(value))
+    override fun checks(): ListMultiHolderI<CheckI> = itemAsList(CHECKS, CheckI::class.java, true)
+    override fun checks(vararg value: CheckI): TransitionI = apply { checks().addItems(value.asList()) }
+    override fun check(value: CheckI): CheckI = applyAndReturn { checks().addItem(value); value }
+    override fun check(value: CheckI.() -> Unit): CheckI = check(Check(value))
 
-    override fun notConditions(): ListMultiHolderI<ConditionI> = itemAsList(NOT_CONDITIONS, ConditionI::class.java, true)
-    override fun notConditions(vararg value: ConditionI): TransitionI = apply { notConditions().addItems(value.asList()) }
-    override fun ifNot(value: ConditionI): ConditionI = applyAndReturn { notConditions().addItem(value); value }
-    override fun ifNot(value: ConditionI.() -> Unit): ConditionI = ifNot(Condition(value))
+    override fun notChecks(): ListMultiHolderI<CheckI> = itemAsList(NOT_CHECKS, CheckI::class.java, true)
+    override fun notChecks(vararg value: CheckI): TransitionI = apply { notChecks().addItems(value.asList()) }
+    override fun checkNot(value: CheckI): CheckI = applyAndReturn { notChecks().addItem(value); value }
+    override fun checkNot(value: CheckI.() -> Unit): CheckI = checkNot(Check(value))
 
     override fun fillSupportsItems() {
-        conditions()
-        notConditions()
+        checks()
+        notChecks()
         super.fillSupportsItems()
     }
 
@@ -604,8 +604,8 @@ open class Transition : MacroComposite, TransitionI {
         val EVENT = "_event"
         val REDIRECT = "_redirect"
         val TO = "_to"
-        val CONDITIONS = "_conditions"
-        val NOT_CONDITIONS = "_notConditions"
+        val CHECKS = "_checks"
+        val NOT_CHECKS = "_notChecks"
     }
 }
 

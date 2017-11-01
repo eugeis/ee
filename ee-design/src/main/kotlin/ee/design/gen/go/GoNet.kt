@@ -126,8 +126,8 @@ fun <T : ConstructorI> T.toGoHttpRouterBeforeBody(c: GenerationContext,
     val item = findParentMust(EntityI::class.java)
     return """
     pathPrefix = pathPrefix + "/" + "${item.name().toPlural().decapitalize()}"
-    modelFactory := func() interface{} { return ${item.toGoInstance(c, derived, api)} }
-    repo := readRepos(string(${item.name()}${DesignDerivedType.AggregateType}), modelFactory)"""
+    entityFactory := func() ${c.n(g.eh.Entity)} { return ${item.toGoInstance(c, derived, api)} }
+    repo := readRepos(string(${item.name()}${DesignDerivedType.AggregateType}), entityFactory)"""
 }
 
 fun <T : ConstructorI> T.toGoHttpModuleRouterBeforeBody(c: GenerationContext,

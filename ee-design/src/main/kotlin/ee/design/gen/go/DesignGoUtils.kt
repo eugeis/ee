@@ -14,7 +14,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
 
     val reposFactory = lambda {
         p("name")
-        p("factory", lambda { ret(n.Any) })
+        p("factory", lambda { ret(g.eh.Entity) })
         ret(g.eh.ReadWriteRepo)
     }
 
@@ -65,7 +65,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                         op {
                             name("Execute")
                             p("cmd", g.eh.Command)
-                            p("entity", n.Any)
+                            p("entity", g.eh.Entity)
                             p("store", g.gee.eh.AggregateStoreEvent)
                             retError()
                             macrosBody(OperationI::toGoCommandHandlerExecuteCommandBody.name)
@@ -103,7 +103,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                         op {
                             name("Apply")
                             p("event", g.eh.Event)
-                            p("entity", n.Any)
+                            p("entity", g.eh.Entity)
                             retError()
                             macrosBody(OperationI::toGoEventHandlerApplyEvent.name)
                         }
@@ -270,7 +270,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                                 constr {
                                     params(pathPrefix,
                                             p { type(g.context.Context).name("context") },
-                                            p { type(g.eh.CommandBus).name("commandBus") },
+                                            p { type(g.eh.CommandHandler).name("commandBus") },
                                             p { type(reposFactory).name("readRepos") },
                                             p { type(queryRepository).default(true).name("queryRepository") },
                                             p(queryHandler, { default(true) }),

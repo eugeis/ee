@@ -18,4 +18,8 @@ open class DesignGoTemplates : LangGoTemplates {
 
     open fun eventTypes(nameBuilder: TemplateI<EntityI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
             = Template<EntityI>("EventTypes", nameBuilder) { item, c -> item.toGoEventTypes(c) }
+
+    open fun <T : EntityI> entity(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder)
+            = Template<T>("Entity", nameBuilder) { item, c -> item.toGoEntityImpl(c) }
+
 }

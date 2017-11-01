@@ -59,7 +59,7 @@ fun <T : OperationI> T.toGoFindByBody(c: GenerationContext,
     val entity = findParentMust(EntityI::class.java)
     return params().isEmpty().ifElse({
         """
-    var result []interface{}
+    var result []${c.n(g.eh.Entity)}
 	if result, err = o.repo.FindAll(o.context); err == nil {
         ret = make(${retFirst().type().toGo(c, derived)}, len(result))
 		for i, e := range result {
@@ -69,7 +69,7 @@ fun <T : OperationI> T.toGoFindByBody(c: GenerationContext,
     }, {
         (params().size == 1 && params().first().key()).ifElse({
             """
-    var result interface{}
+    var result ${c.n(g.eh.Entity)}
 	if result, err = o.repo.Find(o.context, ${params().first().name()}); err == nil {
         ret = result.(${retFirst().type().toGo(c, derived)})
     }"""
@@ -293,11 +293,11 @@ fun <T : ConstructorI> T.toGoAggregateInitializerBody(c: GenerationContext,
     return """
     commandHandler := &${entity.name()}${DesignDerivedType.CommandHandler}{}
     eventHandler := &${entity.name()}${DesignDerivedType.EventHandler}{}
-    modelFactory := func() interface{} { return ${entity.toGoInstance(c, derived, api)} }
+    entityFactory := func() ${c.n(g.eh.Entity)} { return ${entity.toGoInstance(c, derived, api)} }
     ret = &$name{AggregateInitializer: ${c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer, api)}(${entity.name()}${DesignDerivedType.AggregateType},
         func(id ${c.n(g.eh.UUID)}) ${c.n(g.eh.Aggregate)} {
-            return ${c.n(g.gee.eh.NewAggregateBase)}(${entity.name()}${DesignDerivedType.AggregateType}, id, commandHandler, eventHandler, modelFactory())
-        }, modelFactory,
+            return ${c.n(g.gee.eh.NewAggregateBase)}(${entity.name()}${DesignDerivedType.AggregateType}, id, commandHandler, eventHandler, entityFactory())
+        }, entityFactory,
         ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(), eventHandler,
         []func() error{commandHandler.SetupCommandHandler, eventHandler.SetupEventHandler},
         eventStore, eventBus, eventPublisher, commandBus, readRepos), ${
@@ -379,3 +379,14 @@ fun <T : AttributeI> T.toGoPropOptionalAfterBody(c: GenerationContext,
                                                  derived: String = DesignDerivedKind.IMPL,
                                                  api: String = DesignDerivedKind.API): String =
         """`eh:"optional"`"""
+
+
+fun <T : EntityI> T.toGoEntityImpl(c: GenerationContext,
+                                     derived: String = DesignDerivedKind.IMPL,
+                                     api: String = DesignDerivedKind.API): String {
+    val name = c.n(this, derived)
+    return """
+        ${toGoImpl(c, derived, api, true)}
+func (o *$name) EntityID() ${c.n(g.eh.UUID)} { return o.${id().nameForGoMember()} }
+"""
+}

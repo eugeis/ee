@@ -106,8 +106,8 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                         name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsGoFileName,
                         fragments = {
                             listOf(
-                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = entities,
-                                            fragments = { listOf(goTemplates.pojo()) }),
+                                    ItemsFragment<StructureUnitI, EntityI>(items = entities,
+                                            fragments = { listOf(goTemplates.entity()) }),
                                     ItemsFragment<StructureUnitI, CompilationUnitI>(items = values,
                                             fragments = { listOf(goTemplates.pojo()) }),
                                     ItemsFragment<StructureUnitI, CompilationUnitI>(items = basics,
