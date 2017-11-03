@@ -195,6 +195,11 @@ fun p(name: String, type: TypeI = n.String, body: AttributeI.() -> Unit = {}): A
 
 fun p(name: AttributeI, init: AttributeI.() -> Unit = {}): AttributeI = name.derive(init)
 
+fun CompilationUnitI.propE(adapt: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
+    type(l.EnumType)
+    adapt()
+}))
+
 fun CompilationUnitI.propS(adapt: AttributeI.() -> Unit = {}): AttributeI = prop(Attribute({
     type(n.String)
     adapt()

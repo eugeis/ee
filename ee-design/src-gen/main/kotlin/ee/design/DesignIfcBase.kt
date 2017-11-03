@@ -22,7 +22,7 @@ interface BundleI : StructureUnitI {
 }
 
 
-interface BussinesCommandI : CommandI {
+interface BusinessCommandI : CommandI {
 }
 
 
@@ -36,7 +36,7 @@ interface CheckI : LogicUnitI {
 }
 
 
-interface CommandI : CompilationUnitI {
+interface CommandI : EventI {
     fun affectMulti(): Boolean
     fun affectMulti(value: Boolean): CommandI
 
@@ -131,10 +131,10 @@ interface EntityI : DataTypeI {
     fun existBy(value: ExistByI): ExistByI
     fun existBy(value: ExistByI.() -> Unit = {}): ExistByI
 
-    fun commands(): ListMultiHolderI<BussinesCommandI>
-    fun commands(vararg value: BussinesCommandI): EntityI
-    fun command(value: BussinesCommandI): BussinesCommandI
-    fun command(value: BussinesCommandI.() -> Unit = {}): BussinesCommandI
+    fun commands(): ListMultiHolderI<BusinessCommandI>
+    fun commands(vararg value: BusinessCommandI): EntityI
+    fun command(value: BusinessCommandI): BusinessCommandI
+    fun command(value: BusinessCommandI.() -> Unit = {}): BusinessCommandI
 
     fun composites(): ListMultiHolderI<CompositeCommandI>
     fun composites(vararg value: CompositeCommandI): EntityI
@@ -176,10 +176,10 @@ interface EntityI : DataTypeI {
     fun deleted(value: DeletedI): DeletedI
     fun deleted(value: DeletedI.() -> Unit = {}): DeletedI
 
-    fun stateMachines(): ListMultiHolderI<StateMachineI>
-    fun stateMachines(vararg value: StateMachineI): EntityI
-    fun stateMachine(value: StateMachineI): StateMachineI
-    fun stateMachine(value: StateMachineI.() -> Unit = {}): StateMachineI
+    fun stateMachineBinders(): ListMultiHolderI<StateMachineBinderI>
+    fun stateMachineBinders(vararg value: StateMachineBinderI): EntityI
+    fun bindStateMachine(value: StateMachineBinderI): StateMachineBinderI
+    fun bindStateMachine(value: StateMachineBinderI.() -> Unit = {}): StateMachineBinderI
 }
 
 
@@ -247,6 +247,11 @@ interface ModuleI : StructureUnitI {
     fun controllers(vararg value: ControllerI): ModuleI
     fun controller(value: ControllerI): ControllerI
     fun controller(value: ControllerI.() -> Unit = {}): ControllerI
+
+    fun stateMachines(): ListMultiHolderI<StateMachineI>
+    fun stateMachines(vararg value: StateMachineI): ModuleI
+    fun stateMachine(value: StateMachineI): StateMachineI
+    fun stateMachine(value: StateMachineI.() -> Unit = {}): StateMachineI
 }
 
 
@@ -281,21 +286,27 @@ interface StateMachineI : ControllerI {
     fun timeout(): Long
     fun timeout(value: Long): StateMachineI
 
-    fun stateProp(): AttributeI
-    fun stateProp(value: AttributeI): StateMachineI
-
-    fun timeoutProp(): AttributeI
-    fun timeoutProp(value: AttributeI): StateMachineI
-
     fun states(): ListMultiHolderI<StateI>
     fun states(vararg value: StateI): StateMachineI
-    fun to(value: StateI): StateI
-    fun to(value: StateI.() -> Unit = {}): StateI
+    fun state(value: StateI): StateI
+    fun state(value: StateI.() -> Unit = {}): StateI
 
     fun conditions(): ListMultiHolderI<CheckI>
     fun conditions(vararg value: CheckI): StateMachineI
-    fun cond(value: CheckI): CheckI
-    fun cond(value: CheckI.() -> Unit = {}): CheckI
+    fun check(value: CheckI): CheckI
+    fun check(value: CheckI.() -> Unit = {}): CheckI
+}
+
+
+interface StateMachineBinderI : ControllerI {
+    fun stateMachine(): StateMachineI
+    fun stateMachine(value: StateMachineI): StateMachineBinderI
+
+    fun state(): AttributeI
+    fun state(value: AttributeI): StateMachineBinderI
+
+    fun timeout(): AttributeI
+    fun timeout(value: AttributeI): StateMachineBinderI
 }
 
 
@@ -318,6 +329,11 @@ interface TransitionI : MacroCompositeI {
     fun notChecks(vararg value: CheckI): TransitionI
     fun checkNot(value: CheckI): CheckI
     fun checkNot(value: CheckI.() -> Unit = {}): CheckI
+
+    fun actions(): ListMultiHolderI<CommandI>
+    fun actions(vararg value: CommandI): TransitionI
+    fun action(value: CommandI): CommandI
+    fun action(value: CommandI.() -> Unit = {}): CommandI
 }
 
 

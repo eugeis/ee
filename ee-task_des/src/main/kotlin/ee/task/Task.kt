@@ -91,7 +91,7 @@ object Task : Comp({ namespace("ee.task") }) {
             val filter = prop { type(n.Boolean).value(false) }
             val noConsole = prop { type(n.Boolean).value(false) }
             val wait = prop { type(n.Boolean).value(true) }
-            val timeout = prop { type(n.Long).value(30) }
+            val timeout = prop { type(n.Long).value(30.seconds) }
             val timeoutUnit = prop { type(n.TimeUnit).value(n.TimeUnit.Seconds) }
         }
     }

@@ -331,3 +331,9 @@ fun EntityI.id(): AttributeI = storage.getOrPut(this, "id", {
     }
     ret
 })
+
+
+fun StateI.on(event: EventI, value: TransitionI.() -> Unit = {}) = on {
+    event(event)
+    value()
+}

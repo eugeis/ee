@@ -21,7 +21,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val values = prop(Values).multi(true).nonFluent("valueType")
         val basics = prop(Basic).multi(true).nonFluent("basic")
         val controllers = prop(Controller).multi(true).nonFluent("controller")
-
+        val stateMachines = prop(StateMachine).multi(true).nonFluent("stateMachine")
     }
 
     object ModuleGroup : CompilationUnit({ superUnit(l.StructureUnit) }) {
@@ -48,17 +48,21 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val basics = prop(Basic).multi(true).nonFluent("basic").doc("Baics used special for controller needs")
     }
 
-    object Command : CompilationUnit({ superUnit(l.CompilationUnit) }) {
+    object Command : CompilationUnit({ superUnit(Event) }) {
         val affectMulti = prop(n.Boolean).value(false)
-        val event = prop(Event).doc("Corresponding event")
+        val event = prop(Event).doc("Corresponding target/to be produced event")
+    }
+
+    object StateMachineBinder : CompilationUnit({ superUnit(Controller) }) {
+        val stateMachine = prop(StateMachine)
+        val state = prop(l.Attribute)
+        val timeout = prop(l.Attribute)
     }
 
     object StateMachine : CompilationUnit({ superUnit(Controller) }) {
         val timeout = propL()
-        val stateProp = prop { type(l.Attribute) }
-        val timeoutProp = prop { type(l.Attribute) }
-        val states = prop(State).multi(true).nonFluent("to")
-        val conditions = prop(Check).multi(true).nonFluent("cond")
+        val states = prop(State).multi(true).nonFluent("state")
+        val conditions = prop(Check).multi(true).nonFluent("check")
     }
 
     object State : CompilationUnit({ superUnit(Controller) }) {
@@ -74,13 +78,14 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val to = prop(State)
         val checks = prop(Check).multi(true).nonFluent("check")
         val notChecks = prop(Check).multi(true).nonFluent("checkNot")
+        val actions = prop(Command).multi(true).nonFluent("action")
     }
 
     object Check : CompilationUnit({ superUnit(l.LogicUnit) }) {
         val cachedInContext = propB()
     }
 
-    object BussinesCommand : CompilationUnit({ superUnit(Command) })
+    object BusinessCommand : CompilationUnit({ superUnit(Command) })
 
     object CompositeCommand : CompilationUnit({ superUnit(l.CompilationUnit) }) {
         val commands = prop(Command).multi(true)
@@ -114,7 +119,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val countBys = prop(CountBy).multi(true).nonFluent("countBy")
         val existBys = prop(ExistBy).multi(true).nonFluent("existBy")
 
-        val commands = prop(BussinesCommand).multi(true).nonFluent("command")
+        val commands = prop(BusinessCommand).multi(true).nonFluent("command")
         val composites = prop(CompositeCommand).multi(true).nonFluent("composite")
         val createBys = prop(CreateBy).multi(true).nonFluent("createBy")
         val updateBys = prop(UpdateBy).multi(true).nonFluent("updateBy")
@@ -125,7 +130,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val updated = prop(Updated).multi(true).nonFluent("updated")
         val deleted = prop(Deleted).multi(true).nonFluent("deleted")
 
-        val stateMachines = prop(StateMachine).multi(true).nonFluent("stateMachine")
+        val stateMachineBinders = prop(StateMachineBinder).multi(true).nonFluent("bindStateMachine")
     }
 
     object Basic : CompilationUnit({ superUnit(l.DataType) })
