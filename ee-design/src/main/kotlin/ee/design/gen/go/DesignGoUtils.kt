@@ -34,7 +34,7 @@ fun StructureUnitI.addEventhorizonArtifactsForAggregate() {
                     val updaters = findDownByType(UpdateByI::class.java)
                     val deleters = findDownByType(DeleteByI::class.java)
 
-                    val bussinesCommands = findDownByType(BussinesCommandI::class.java)
+                    val bussinesCommands = findDownByType(BusinessCommandI::class.java)
 
                     //command handler
                     val commands = item.findDownByType(CommandI::class.java)

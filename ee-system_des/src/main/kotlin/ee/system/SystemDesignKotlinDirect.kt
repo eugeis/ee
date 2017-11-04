@@ -1,7 +1,9 @@
 package ee.system
 
 import java.util.*
-import kotlin.reflect.declaredFunctions
+import kotlin.reflect.full.functions
+import kotlin.reflect.jvm.reflect
+
 
 open class Prop {
 
@@ -10,11 +12,11 @@ open class Prop {
 open class SystemBase {
     companion object {
         fun findBy(vararg p: Any?) {
-            println(p.toList())
+            println("SystemBase.findBy: " + p.toList())
         }
 
         fun prop(vararg p: Any?): Prop {
-            println(p.toList())
+            println("SystemBase.prop: " + p.toList())
             return Prop()
         }
     }
@@ -26,7 +28,7 @@ class Service<T : String> : SystemBase() {
     val dependsOn: MutableList<Service<*>>? = null
     val dependsOnMe: MutableList<Service<*>>? = null
 
-    fun findByCategory() = findBy(category, dependsOn)
+    val findByCategory = findBy(category, dependsOn)
     class Finders {
         fun findByCategory() = findBy(arrayListOf(Service<*>::category), Service<*>::dependsOn, Interval::start)
     }
@@ -42,14 +44,18 @@ fun main(args: Array<String>) {
     val s2 = Service.Finders::findByCategory
     val s3 = DelegateService::findServiceByCategory
 
-    val df = Service::class.java.kotlin.declaredFunctions
+    val s3_reflect = s3.reflect()
+
+    val serviceFindersFunctions = Service.Finders::class.java.kotlin.functions
 
     val o1 = Service<String>()
-    o1.findByCategory()
+    //o1.findByCategory()
     val o2 = Service.Finders()
     o2.findByCategory()
-    println(s1)
-    println(s2)
-    println(s3)
+    println("serviceFindersFunctions: " + serviceFindersFunctions)
+    println("s1: " + s1)
+    println("s2: " + s2)
+    println("s3: " + s3)
+    println("s3_reflect: " + s3_reflect)
     println("")
 }

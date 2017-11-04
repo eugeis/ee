@@ -1,4 +1,4 @@
-include 'ee-common', 'ee-lang_item', 'ee-lang_fx',
+include 'ee-common_java', 'ee-common', 'ee-lang_item', 'ee-lang_fx',
         'ee-lang_gen', 'ee-lang',
         'ee-design_gen', 'ee-design', 'ee-design_task',
         'ee-asm',
