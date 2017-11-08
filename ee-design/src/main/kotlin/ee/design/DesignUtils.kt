@@ -332,8 +332,41 @@ fun EntityI.id(): AttributeI = storage.getOrPut(this, "id", {
     ret
 })
 
+fun EntityI.dataTypeProps(): List<AttributeI> = storage.getOrPut(this, "dataTypeProps", {
+    propsAll().filter { !it.meta() }.map { p(it) }
+})
 
-fun StateI.on(event: EventI, value: TransitionI.() -> Unit = {}) = on {
-    event(event)
+fun EntityI.createdEvent(): EventI = storage.getOrPut(this, "createdEvent", {
+    created {
+        name("created")
+        props(*dataTypeProps().toTypedArray())
+        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+    }
+})
+
+
+fun EntityI.updatedEvent(): EventI = storage.getOrPut(this, "updatedEvent", {
+    updated {
+        name("updated")
+        props(*dataTypeProps().toTypedArray())
+        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+    }
+})
+
+fun EntityI.deletedEvent(): EventI = storage.getOrPut(this, "deletedEvent", {
+    deleted {
+        name("deleted")
+        props(id())
+        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+    }
+})
+
+fun StateI.execute(command: CommandI, value: ExecutorI.() -> Unit = {}) = execute {
+    on(command)
+    value()
+}
+
+fun StateI.handle(event: EventI, value: HandlerI.() -> Unit = {}) = handle {
+    on(event)
     value()
 }

@@ -21,7 +21,8 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val values = prop(Values).multi(true).nonFluent("valueType")
         val basics = prop(Basic).multi(true).nonFluent("basic")
         val controllers = prop(Controller).multi(true).nonFluent("controller")
-        val stateMachines = prop(StateMachine).multi(true).nonFluent("stateMachine")
+        val processManagers = prop(ProcessManager).multi(true).nonFluent("processManager")
+        val projectors = prop(Projector).multi(true).nonFluent("projector")
     }
 
     object ModuleGroup : CompilationUnit({ superUnit(l.StructureUnit) }) {
@@ -32,7 +33,9 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val moduleGroups = prop(ModuleGroup).multi(true)
     }
 
-    object Event : CompilationUnit({ superUnit(l.CompilationUnit) })
+    object Event : CompilationUnit({ superUnit(l.CompilationUnit) }) {
+    }
+
     object BussinesEvent : CompilationUnit({ superUnit(Event) })
 
     object Facet : CompilationUnit({ superUnit(ModuleGroup) })
@@ -44,41 +47,66 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
     object Controller : CompilationUnit({ superUnit(l.CompilationUnit) }) {
         val enums = prop(l.EnumType).multi(true).nonFluent("enumType").doc(
                 "Enums used special for controller needs, like CommandTypeEnums")
-        val values = prop(Values).multi(true).nonFluent("valueType").doc("Values used special for controller needs")
-        val basics = prop(Basic).multi(true).nonFluent("basic").doc("Baics used special for controller needs")
+        val values = prop(Values).multi(true).nonFluent("valueType").doc(
+                "Values used special for controller needs")
+        val basics = prop(Basic).multi(true).nonFluent("basic").doc(
+                "Baics used special for controller needs")
     }
 
     object Command : CompilationUnit({ superUnit(Event) }) {
         val affectMulti = prop(n.Boolean).value(false)
-        val event = prop(Event).doc("Corresponding target/to be produced event")
-    }
-
-    object StateMachineBinder : CompilationUnit({ superUnit(Controller) }) {
-        val stateMachine = prop(StateMachine)
-        val state = prop(l.Attribute)
-        val timeout = prop(l.Attribute)
+        val event = prop(Event).doc("Default target/to be produced event")
     }
 
     object StateMachine : CompilationUnit({ superUnit(Controller) }) {
+        val stateProp = prop(l.Attribute)
+        val timeoutProp = prop(l.Attribute)
+
         val timeout = propL()
         val states = prop(State).multi(true).nonFluent("state")
-        val conditions = prop(Check).multi(true).nonFluent("check")
+        val checks = prop(Check).multi(true).nonFluent("check")
+    }
+
+    object ProcessManager : CompilationUnit({ superUnit(StateMachine) }) {
+    }
+
+    object Projector : CompilationUnit({ superUnit(StateMachine) }) {
+    }
+
+    object AggregateHandler : CompilationUnit({ superUnit(StateMachine) }) {
     }
 
     object State : CompilationUnit({ superUnit(Controller) }) {
         val timeout = propL()
-        val entryCommands = prop(Command).multi(true).nonFluent("entry")
-        val exitCommands = prop(Command).multi(true).nonFluent("exit")
-        val transitions = prop(Transition).multi(true).nonFluent("on")
+        val entryActions = prop(Action).multi(true).nonFluent("entry")
+        val exitActions = prop(Action).multi(true).nonFluent("exit")
+        val executors = prop(Executor).multi(true).nonFluent("execute")
+        val handlers = prop(Handler).multi(true).nonFluent("handle")
     }
 
-    object Transition : CompilationUnit({ superUnit(l.MacroComposite) }) {
-        val event = prop(Event)
-        val redirect = prop(Event)
+    object DynamicState : CompilationUnit({ superUnit(State) }) {
+        val checks = prop(Check).multi(true).nonFluent("yes")
+        val notChecks = prop(Check).multi(true).nonFluent("no")
+    }
+
+    object Executor : CompilationUnit({ superUnit(l.LogicUnit) }) {
+        val on = prop(Command)
+        val checks = prop(Check).multi(true).nonFluent("yes")
+        val notChecks = prop(Check).multi(true).nonFluent("no")
+        val actions = prop(Action).multi(true).nonFluent("action")
+        val output = prop(Event).multi(true).nonFluent("produce")
+    }
+
+    object Handler : CompilationUnit({ superUnit(l.LogicUnit) }) {
+        val on = prop(Event)
+        val checks = prop(Check).multi(true).nonFluent("yes")
+        val notChecks = prop(Check).multi(true).nonFluent("no")
         val to = prop(State)
-        val checks = prop(Check).multi(true).nonFluent("check")
-        val notChecks = prop(Check).multi(true).nonFluent("checkNot")
-        val actions = prop(Command).multi(true).nonFluent("action")
+        val actions = prop(Action).multi(true).nonFluent("action")
+        val output = prop(Command).multi(true).nonFluent("produce")
+    }
+
+    object Action : CompilationUnit({ superUnit(l.LogicUnit) }) {
     }
 
     object Check : CompilationUnit({ superUnit(l.LogicUnit) }) {
@@ -130,12 +158,12 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val updated = prop(Updated).multi(true).nonFluent("updated")
         val deleted = prop(Deleted).multi(true).nonFluent("deleted")
 
-        val stateMachineBinders = prop(StateMachineBinder).multi(true).nonFluent("bindStateMachine")
+        val handlers = prop(AggregateHandler).multi(true).nonFluent("handler")
+        val projectors = prop(Projector).multi(true).nonFluent("projector")
+        val processManager = prop(ProcessManager).multi(true).nonFluent("processManager")
     }
 
     object Basic : CompilationUnit({ superUnit(l.DataType) })
-
     object Values : CompilationUnit({ superUnit(l.DataType) })
-
     object Widget : CompilationUnit({ superUnit(l.CompilationUnit) })
 }
