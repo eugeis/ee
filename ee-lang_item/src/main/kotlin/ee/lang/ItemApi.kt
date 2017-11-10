@@ -12,6 +12,7 @@ open class Item : ItemI {
     private var _doc: CommentI = CommentEmpty
     private var _parent: ItemI = EMPTY
     private var _internal: Boolean = false
+    private var _noInheritance: Boolean = true
     private var _derivedFrom: ItemI = EMPTY
     private var _derivedItems: MutableList<ItemI> = arrayListOf()
     private var _derivedAsType: String = ""
@@ -47,6 +48,7 @@ open class Item : ItemI {
         _derivedItems.add(derived)
     }
 
+    override fun noInheritance(): Boolean = _noInheritance
     override fun derivedItems(): List<ItemI> = _derivedItems
 
     override fun derivedFrom(): ItemI = _derivedFrom

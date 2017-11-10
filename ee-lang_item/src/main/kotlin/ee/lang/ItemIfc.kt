@@ -20,6 +20,7 @@ interface ItemI {
     fun derivedItems(): List<ItemI>
     fun onDerived(derived: ItemI)
 
+    fun noInheritance(): Boolean
     /**
      * Derived as new free given type, e.g. Aggregate from Entity,
      * in order to have filter criteria and not catch derived Entity for generation and
