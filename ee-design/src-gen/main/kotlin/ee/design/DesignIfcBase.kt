@@ -19,6 +19,18 @@ interface AggregateHandlerI : StateMachineI {
 }
 
 
+interface ApplyActionI : ActionI {
+    fun target(): AttributeI
+    fun target(value: AttributeI): ApplyActionI
+
+    fun operator(): AttributeI
+    fun operator(value: AttributeI): ApplyActionI
+
+    fun value(): Any
+    fun value(aValue: Any): ApplyActionI
+}
+
+
 interface BasicI : DataTypeI {
 }
 

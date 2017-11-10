@@ -1,7 +1,7 @@
 package ee.lang
 
 
-interface AttributeI : MacroCompositeI {
+interface AttributeI : LiteralI {
     fun accessible(): Boolean?
     fun accessible(value: Boolean?): AttributeI
 
@@ -86,6 +86,10 @@ interface EnumTypeI : DataTypeI {
 }
 
 
+interface ExpressionI : MacroCompositeI {
+}
+
+
 interface ExternalTypeI : TypeI {
 }
 
@@ -106,7 +110,7 @@ interface LiteralI : LogicUnitI {
 }
 
 
-interface LogicUnitI : MacroCompositeI {
+interface LogicUnitI : ExpressionI {
     fun params(): ListMultiHolder<AttributeI>
     fun params(vararg value: AttributeI): LogicUnitI
 

@@ -1,9 +1,9 @@
 package ee.lang
 
 
-open class Attribute : MacroComposite, AttributeI {
+open class Attribute : Literal, AttributeI {
 
-    constructor(value: Attribute.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
+    constructor(value: Attribute.() -> Unit = {}) : super(value as Literal.() -> Unit)
 
     override fun accessible(): Boolean? = attr(ACCESSIBLE)
     override fun accessible(value: Boolean?): AttributeI = apply { attr(ACCESSIBLE, value) }
@@ -152,6 +152,16 @@ open class EnumType : DataType, EnumTypeI {
 }
 
 
+open class Expression : MacroComposite, ExpressionI {
+
+    constructor(value: Expression.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
+
+    companion object {
+        val EMPTY = Expression { name(ItemEmpty.name()) }.apply<Expression> { init() }
+    }
+}
+
+
 open class ExternalType : Type, ExternalTypeI {
 
     constructor(value: ExternalType.() -> Unit = {}) : super(value as Type.() -> Unit)
@@ -200,9 +210,9 @@ open class Literal : LogicUnit, LiteralI {
 }
 
 
-open class LogicUnit : MacroComposite, LogicUnitI {
+open class LogicUnit : Expression, LogicUnitI {
 
-    constructor(value: LogicUnit.() -> Unit = {}) : super(value as MacroComposite.() -> Unit)
+    constructor(value: LogicUnit.() -> Unit = {}) : super(value as Expression.() -> Unit)
 
     override fun params(): ListMultiHolder<AttributeI> = itemAsList(PARAMS, AttributeI::class.java, true)
     override fun params(vararg value: AttributeI): LogicUnitI = apply { params().addItems(value.asList()) }

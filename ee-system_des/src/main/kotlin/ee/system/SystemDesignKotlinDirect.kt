@@ -29,8 +29,11 @@ class Service<T : String> : SystemBase() {
     val dependsOnMe: MutableList<Service<*>>? = null
 
     val findByCategory = findBy(category, dependsOn)
+    val apply = category + ""
+
     class Finders {
         fun findByCategory() = findBy(arrayListOf(Service<*>::category), Service<*>::dependsOn, Interval::start)
+
     }
 
 }
@@ -45,6 +48,7 @@ fun main(args: Array<String>) {
     val s3 = DelegateService::findServiceByCategory
 
     val s3_reflect = s3.reflect()
+    val s4 = Service<*>::apply
 
     val serviceFindersFunctions = Service.Finders::class.java.kotlin.functions
 

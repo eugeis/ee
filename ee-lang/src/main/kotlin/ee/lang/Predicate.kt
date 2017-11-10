@@ -34,19 +34,19 @@ infix fun Predicate.or(predicate: Predicate): OrExpression {
  */
 class EqExpression(val left: Any?, val right: Any?) : Predicate()
 
-infix fun AttributeI.eq(column: AttributeI): EqExpression {
+infix fun LiteralI.eq(column: LiteralI): EqExpression {
     return EqExpression(this, column)
 }
 
-infix fun AttributeI.eq(str: String?): EqExpression {
+infix fun LiteralI.eq(str: String?): EqExpression {
     return EqExpression(this, str)
 }
 
-infix fun AttributeI.eq(num: Number): EqExpression {
+infix fun LiteralI.eq(num: Number): EqExpression {
     return EqExpression(this, num)
 }
 
-infix fun AttributeI.eq(flag: Boolean): EqExpression {
+infix fun LiteralI.eq(flag: Boolean): EqExpression {
     return EqExpression(this, flag)
 }
 
@@ -55,19 +55,19 @@ infix fun AttributeI.eq(flag: Boolean): EqExpression {
  */
 class NeExpression(val left: Any?, val right: Any?) : Predicate()
 
-infix fun AttributeI.ne(column: AttributeI): NeExpression {
+infix fun LiteralI.ne(column: LiteralI): NeExpression {
     return NeExpression(this, column)
 }
 
-infix fun AttributeI.ne(str: String?): NeExpression {
+infix fun LiteralI.ne(str: String?): NeExpression {
     return NeExpression(this, str)
 }
 
-infix fun AttributeI.ne(num: Number): NeExpression {
+infix fun LiteralI.ne(num: Number): NeExpression {
     return NeExpression(this, num)
 }
 
-infix fun AttributeI.ne(flag: Boolean): NeExpression {
+infix fun LiteralI.ne(flag: Boolean): NeExpression {
     return NeExpression(this, flag)
 }
 
@@ -76,15 +76,15 @@ infix fun AttributeI.ne(flag: Boolean): NeExpression {
  */
 class LtExpression(val left: Any?, val right: Any?) : Predicate()
 
-infix fun AttributeI.lt(column: AttributeI): LtExpression {
+infix fun LiteralI.lt(column: LiteralI): LtExpression {
     return LtExpression(this, column)
 }
 
-infix fun AttributeI.lt(str: String?): LtExpression {
+infix fun LiteralI.lt(str: String?): LtExpression {
     return LtExpression(this, str)
 }
 
-infix fun AttributeI.lt(num: Number): LtExpression {
+infix fun LiteralI.lt(num: Number): LtExpression {
     return LtExpression(this, num)
 }
 
@@ -93,15 +93,15 @@ infix fun AttributeI.lt(num: Number): LtExpression {
  */
 class LteExpression(val left: Any?, val right: Any?) : Predicate()
 
-infix fun AttributeI.lte(column: AttributeI): LteExpression {
+infix fun LiteralI.lte(column: LiteralI): LteExpression {
     return LteExpression(this, column)
 }
 
-infix fun AttributeI.lte(str: String?): LteExpression {
+infix fun LiteralI.lte(str: String?): LteExpression {
     return LteExpression(this, str)
 }
 
-infix fun AttributeI.lte(num: Number): LteExpression {
+infix fun LiteralI.lte(num: Number): LteExpression {
     return LteExpression(this, num)
 }
 
@@ -110,15 +110,15 @@ infix fun AttributeI.lte(num: Number): LteExpression {
  */
 class GtExpression(val left: Any?, val right: Any?) : Predicate()
 
-infix fun AttributeI.gt(column: AttributeI): GtExpression {
+infix fun LiteralI.gt(column: LiteralI): GtExpression {
     return GtExpression(this, column)
 }
 
-infix fun AttributeI.gt(str: String?): GtExpression {
+infix fun LiteralI.gt(str: String?): GtExpression {
     return GtExpression(this, str)
 }
 
-infix fun AttributeI.gt(num: Number): GtExpression {
+infix fun LiteralI.gt(num: Number): GtExpression {
     return GtExpression(this, num)
 }
 
@@ -127,14 +127,14 @@ infix fun AttributeI.gt(num: Number): GtExpression {
  */
 class GteExpression(val left: Any?, val right: Any?) : Predicate()
 
-infix fun AttributeI.gte(column: AttributeI): GteExpression {
+infix fun LiteralI.gte(column: LiteralI): GteExpression {
     return GteExpression(this, column)
 }
 
-infix fun AttributeI.gte(str: String?): GteExpression {
+infix fun LiteralI.gte(str: String?): GteExpression {
     return GteExpression(this, str)
 }
 
-infix fun AttributeI.gte(num: Number): GteExpression {
+infix fun LiteralI.gte(num: Number): GteExpression {
     return GteExpression(this, num)
 }

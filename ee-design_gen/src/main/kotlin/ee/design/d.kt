@@ -109,6 +109,12 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
     object Action : CompilationUnit({ superUnit(l.LogicUnit) }) {
     }
 
+    object ApplyAction : CompilationUnit({ superUnit(Action) }) {
+        val target = prop(l.Attribute)
+        val operator = prop(l.Attribute)
+        val value = prop(n.Any)
+    }
+
     object Check : CompilationUnit({ superUnit(l.LogicUnit) }) {
         val cachedInContext = propB()
     }

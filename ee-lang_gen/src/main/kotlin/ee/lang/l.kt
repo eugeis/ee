@@ -46,11 +46,18 @@ object l : Composite({ namespace("ee.lang") }) {
 
     object ExternalType : Composite({ derivedFrom(Type) })
 
-    object Attribute : Composite({ derivedFrom(MacroComposite) }) {
+    object Expression : Composite({ derivedFrom(MacroComposite) }) {
+    }
+
+    object Literal : Composite({ derivedFrom(LogicUnit) }) {
+    }
+
+    object Attribute : Composite({ derivedFrom(Literal) }) {
         val type = AttributeI({ type(Type).value("n.Void") })
+        val value = AttributeI({ type(n.Any).nullable(true) })
+
         val key = AttributeI({ type(n.Boolean).value(false) })
         val unique = AttributeI({ type(n.Boolean).value(false) })
-        val value = AttributeI({ type(n.Any).nullable(true) })
         val initByDefaultTypeValue = AttributeI({ type(n.Boolean).value(true) })
         val nullable = AttributeI({ type(n.Boolean).value(false) })
         val anonymous = AttributeI({ type(n.Boolean).value(false) })
@@ -67,7 +74,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val nonFluent = AttributeI({ type(n.String) })
     }
 
-    object LogicUnit : Composite({ derivedFrom(MacroComposite) }) {
+    object LogicUnit : Composite({ derivedFrom(Expression) }) {
         val virtual = AttributeI({ type(n.Boolean).value(false) })
         val superUnit = AttributeI({ type(LogicUnit) })
         val params = AttributeI({ type(Attribute).multi(true) })
@@ -98,10 +105,50 @@ object l : Composite({ namespace("ee.lang") }) {
         val literals = AttributeI({ type(Literal).multi(true).nonFluent("lit") })
     }
 
-    object Literal : Composite({ derivedFrom(LogicUnit) })
-
     object DataType : Composite({ derivedFrom(CompilationUnit) })
     object DataTypeOperation : Composite({ derivedFrom(Operation) })
+
+    //logic
+/*
+    object Predicate : Composite({ derivedFrom(Expression) }) {
+    }
+
+    object NotExpression : Composite({ derivedFrom(Predicate) }) {
+        val value = AttributeI({ type(Predicate) })
+    }
+
+    object LeftRightExpression : Composite({ derivedFrom(Predicate) }) {
+        val left = AttributeI({ type(Predicate) })
+        val right = AttributeI({ type(Predicate) })
+    }
+
+    object AndExpression : Composite({ derivedFrom(LeftRightExpression) }) {
+    }
+
+    object OrExpression : Composite({ derivedFrom(LeftRightExpression) }) {
+    }
+
+    object EqExpression : Composite({ derivedFrom(LeftRightExpression) }) {
+    }
+
+    /**
+     * Not equals expression
+     */
+    object NeExpression : Composite({ derivedFrom(LeftRightExpression) }) {
+    }
+
+    object LtExpression : Composite({ derivedFrom(LeftRightExpression) }) {
+    }
+
+    object LteExpression : Composite({ derivedFrom(LeftRightExpression) }) {
+    }
+
+    object GtExpression : Composite({ derivedFrom(LeftRightExpression) }) {
+    }
+
+    object GteExpression : Composite({ derivedFrom(LeftRightExpression) }) {
+    }
+    */
 }
 
 

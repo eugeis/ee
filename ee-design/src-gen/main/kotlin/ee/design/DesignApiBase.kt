@@ -33,6 +33,27 @@ open class AggregateHandler : StateMachine, AggregateHandlerI {
 }
 
 
+open class ApplyAction : Action, ApplyActionI {
+    constructor(value: ApplyAction.() -> Unit = {}) : super(value as Action.() -> Unit)
+
+    override fun target(): AttributeI = attr(TARGET, { Attribute.EMPTY })
+    override fun target(value: AttributeI): ApplyActionI = apply { attr(TARGET, value) }
+
+    override fun operator(): AttributeI = attr(OPERATOR, { Attribute.EMPTY })
+    override fun operator(value: AttributeI): ApplyActionI = apply { attr(OPERATOR, value) }
+
+    override fun value(): Any = attr(VALUE, { "" })
+    override fun value(aValue: Any): ApplyActionI = apply { attr(VALUE, aValue) }
+
+    companion object {
+        val EMPTY = ApplyAction { name(ItemEmpty.name()) }.apply<ApplyAction> { init() }
+        val TARGET = "_target"
+        val OPERATOR = "_operator"
+        val VALUE = "_value"
+    }
+}
+
+
 open class Basic : DataType, BasicI {
     constructor(value: Basic.() -> Unit = {}) : super(value as DataType.() -> Unit)
 
