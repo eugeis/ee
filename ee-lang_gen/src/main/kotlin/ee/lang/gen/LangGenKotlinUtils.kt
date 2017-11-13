@@ -15,11 +15,11 @@ object DerivedNames {
 }
 
 open class KotlinContextFactory {
-    private val isNotPartOfNativeTypes: ItemI.() -> Boolean = { n != this.parent() }
-    private val isNotPartOfNativeAndModelTypes: ItemI.() -> Boolean = { n != this.parent() && l != this.parent() }
+    private val isNotPartOfNativeTypes: ItemIB<*>.() -> Boolean = { n != this.parent() }
+    private val isNotPartOfNativeAndModelTypes: ItemIB<*>.() -> Boolean = { n != this.parent() && l != this.parent() }
 
-    fun buildForDslBuilder(namespace: String, moduleFolder: String): CompositeI.() -> KotlinContext {
-        val controller = DerivedController(DerivedStorage<ItemI>())
+    fun buildForDslBuilder(namespace: String, moduleFolder: String): CompositeIB<*>.() -> KotlinContext {
+        val controller = DerivedController(DerivedStorage<ItemIB<*>>())
 
         controller.registerKind(DerivedNames.API, { "${name()}I" }, isNotPartOfNativeTypes)
         controller.registerKind(DerivedNames.API_BASE, { "${name()}IfcBase" }, isNotPartOfNativeTypes)
@@ -36,8 +36,10 @@ open class KotlinContextFactory {
     }
 }
 
-fun <T : CompositeI> T.prepareForKotlinGeneration(): CompositeI {
+fun <T : Composite> T.prepareForKotlinGeneration(): Composite {
     n.initObjectTree()
     val ret = initObjectTree()
     return ret
 }
+
+fun ItemIB<*>.isNative(): Boolean = this.parent() == n

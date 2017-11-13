@@ -5,14 +5,14 @@ import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 
-fun LiteralI.toKotlin(): String = name().toUnderscoredUpperCase()
+fun LiteralIB<*>.toKotlin(): String = name().toUnderscoredUpperCase()
 
-fun LiteralI.toKotlinIsMethod(): String {
+fun LiteralIB<*>.toKotlinIsMethod(): String {
     return """
     fun is${name().capitalize()}() : Boolean = this == ${toKotlin()}"""
 }
 
-fun <T : EnumTypeI> T.toKotlinEnum(c: GenerationContext,
+fun <T : EnumTypeIB<*>> T.toKotlinEnum(c: GenerationContext,
                                    derived: String = LangDerivedKind.API,
                                    api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
@@ -25,7 +25,7 @@ enum class $name${primaryConstructor().toKotlinPrimary(c, derived, api)} {
 }"""
 }
 
-fun <T : EnumTypeI> T.toKotlinEnumParseMethod(c: GenerationContext,
+fun <T : EnumTypeIB<*>> T.toKotlinEnumParseMethod(c: GenerationContext,
                                               derived: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
     return """
@@ -34,7 +34,7 @@ fun String?.to$name(): $name {
 }"""
 }
 
-fun <T : CompilationUnitI> T.toKotlinImpl(c: GenerationContext,
+fun <T : CompilationUnitIB<*>> T.toKotlinImpl(c: GenerationContext,
                                           derived: String = LangDerivedKind.IMPL,
                                           api: String = LangDerivedKind.API): String {
     return """

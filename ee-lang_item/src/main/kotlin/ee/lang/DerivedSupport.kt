@@ -2,11 +2,11 @@ package ee.lang
 
 import java.util.*
 
-val storage = DerivedStorage<ItemI>()
+val storage = DerivedStorage<ItemIB<*>>()
 
 class DerivedStorage<I>(val itemToStorage: MutableMap<I, MutableMap<String, Any>> = HashMap<I, MutableMap<String, Any>>()) {
     fun <T, S : I> getOrPut(item: S, key: String, init: S.(String) -> T): T {
-        val itemStorage = itemToStorage.getOrPut(item, { HashMap<String, Any>() })
+        val itemStorage = itemToStorage.getOrPut(item, { HashMap() })
         return itemStorage.getOrPut(key, { item.init(key) as Any }) as T
     }
 
@@ -20,14 +20,7 @@ class DerivedStorage<I>(val itemToStorage: MutableMap<I, MutableMap<String, Any>
     }
 }
 
-
-open class DerivedItem<out T : ItemI>(val delegate: T, val name: String = delegate.name(),
-                                      val namespace: String = delegate.namespace()) : ItemI by delegate {
-    override fun name(): String = name
-    override fun namespace(): String = namespace
-}
-
-open class DerivedKind<T : ItemI> {
+open class DerivedKind<T : ItemIB<*>> {
     val name: String
     val init: T.(String) -> T
     var support: T.() -> Boolean
@@ -39,35 +32,35 @@ open class DerivedKind<T : ItemI> {
     }
 }
 
-open class DerivedByTransformer(name: String, transformer: ItemI.(String) -> String,
-                                support: ItemI.() -> Boolean = { true }) : DerivedKind<ItemI>(name, support,
-        { if (this.support()) DerivedItem<ItemI>(this, this.transformer(it)) else this })
+open class DerivedByTransformer(name: String, transformer: ItemIB<*>.(String) -> String,
+                                support: ItemIB<*>.() -> Boolean = { true }) : DerivedKind<ItemIB<*>>(name, support,
+        { if (this.support()) this.derive({ name(transformer(it)) }) else this })
 
 open class DerivedController {
     val nameToDerivedKind = HashMap<String, DerivedKind<*>>()
     var dynamicTransformer: DerivedByTransformer = DerivedByTransformer("DYNAMIC", { "${name()}$it" })
-    val storage: DerivedStorage<ItemI>
+    val storage: DerivedStorage<ItemIB<*>>
 
-    constructor(storage: DerivedStorage<ItemI> = DerivedStorage()) {
+    constructor(storage: DerivedStorage<ItemIB<*>> = DerivedStorage()) {
         this.storage = storage
     }
 
-    open fun registerKinds(kinds: Collection<String>, transformer: ItemI.(String) -> String, support: ItemI.() -> Boolean = { true }) {
+    open fun registerKinds(kinds: Collection<String>, transformer: ItemIB<*>.(String) -> String, support: ItemIB<*>.() -> Boolean = { true }) {
         kinds.forEach { register(DerivedByTransformer(it, transformer, support)) }
     }
 
-    open fun registerKind(kind: String, transformer: ItemI.(String) -> String, support: ItemI.() -> Boolean = { true }): DerivedKind<*> {
+    open fun registerKind(kind: String, transformer: ItemIB<*>.(String) -> String, support: ItemIB<*>.() -> Boolean = { true }): DerivedKind<*> {
         return register(DerivedByTransformer(kind, transformer, support))
     }
 
-    open fun <T : ItemI> register(kind: DerivedKind<T>): DerivedKind<T> {
+    open fun <T : ItemIB<*>> register(kind: DerivedKind<T>): DerivedKind<T> {
         nameToDerivedKind.put(kind.name, kind)
         return kind
     }
 
-    open fun <T : ItemI> derive(item: T, kind: DerivedKind<T>) = storage.getOrPut(item, kind.name, kind.init)
+    open fun <T : ItemIB<*>> derive(item: T, kind: DerivedKind<T>) = storage.getOrPut(item, kind.name, kind.init)
 
-    open fun <T : ItemI> derive(item: T, kindName: String): T {
+    open fun <T : ItemIB<*>> derive(item: T, kindName: String): T {
         if (kindName.isNotBlank()) {
             var kind = nameToDerivedKind[kindName]
             if (kind == null) {

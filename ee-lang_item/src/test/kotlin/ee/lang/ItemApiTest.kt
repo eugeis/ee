@@ -9,7 +9,7 @@ class ItemApiTest {
 
     @Test
     fun deriveTest_equals() {
-        val item: Item = Item({ name("ItemTest").namespace("ee.lang.test") })
+        val item = Item({ name("ItemTest").namespace("ee.lang.test") })
         val derived: Item = item.derive()
 
         assertThat(derived.name(), equalTo("ItemTest"))

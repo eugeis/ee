@@ -12,7 +12,7 @@ open class TsContext : GenerationContext {
     constructor(namespace: String = "", moduleFolder: String = "",
                 genFolder: String = "src/app/shared",
                 genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.ts".toRegex(),
-                derivedController: DerivedController = DerivedController(DerivedStorage<ItemI>()),
+                derivedController: DerivedController = DerivedController(DerivedStorage<ItemIB<*>>()),
                 macroController: MacroController = MacroController())
             : super(namespace, moduleFolder, genFolder, genFolderDeletable, genFolderPatternDeletable,
             derivedController, macroController) {
@@ -29,7 +29,7 @@ open class TsContext : GenerationContext {
     private fun toImports(indent: String): String {
         return types.isNotEmpty().then {
             val outsideTypes = types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }.
-                    groupBy { it.findParentMust(StructureUnitI::class.java) }
+                    groupBy { it.findParentMust(StructureUnitIB::class.java) }
             outsideTypes.isNotEmpty().then {
                 "${outsideTypes.map { (su, items) ->
                     """${indent}import {${items.sortedBy { it.name() }.joinToString(", ") {
@@ -43,19 +43,19 @@ open class TsContext : GenerationContext {
     }
 }
 
-fun <T : StructureUnitI> T.prepareForTsGeneration(): T {
+fun <T : StructureUnitIB<*>> T.prepareForTsGeneration(): T {
     initsForTsGeneration()
     extendForTsGenerationLang()
     return this
 }
 
-fun <T : StructureUnitI> T.initsForTsGeneration(): T {
+fun <T : StructureUnitIB<*>> T.initsForTsGeneration(): T {
     ts.initObjectTree()
     initObjectTrees()
     return this
 }
 
-fun <T : StructureUnitI> T.extendForTsGenerationLang(): T {
+fun <T : StructureUnitIB<*>> T.extendForTsGenerationLang(): T {
     //declare as 'base' all compilation units with non implemented operations.
     declareAsBaseWithNonImplementedOperation()
 
@@ -67,12 +67,12 @@ fun <T : StructureUnitI> T.extendForTsGenerationLang(): T {
     return this
 }
 
-val itemAndTemplateNameAsTsFileName: TemplateI<*>.(CompositeI) -> Names = {
+val itemAndTemplateNameAsTsFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
     Names("${it.name().capitalize()}${name.capitalize()}.ts")
 }
-val templateNameAsTsFileName: TemplateI<*>.(CompositeI) -> Names = {
+val templateNameAsTsFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
     Names("$name.ts")
 }
-val itemNameAsTsFileName: TemplateI<*>.(CompositeI) -> Names = {
+val itemNameAsTsFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
     Names("${it.name()}.ts")
 }

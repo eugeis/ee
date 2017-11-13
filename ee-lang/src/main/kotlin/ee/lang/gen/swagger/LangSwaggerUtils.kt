@@ -1,9 +1,9 @@
 package ee.lang.gen.swagger
 
-import ee.lang.CompositeI
+import ee.lang.CompositeIB
 import ee.lang.Names
 import ee.lang.TemplateI
 
-val itemNameAsSwaggerFileName: TemplateI<*>.(CompositeI) -> Names = {
+val itemNameAsSwaggerFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
     Names("${it.name()}.yml")
 }

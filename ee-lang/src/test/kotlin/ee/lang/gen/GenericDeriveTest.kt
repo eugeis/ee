@@ -26,9 +26,9 @@ class GenericDeriveTest {
         TestModel2.prepareForKotlinGeneration()
 
         val type = TestModel2.Pojo.prop1.type()
-        Assert.assertThat(type.generics()[0].type(), CoreMatchers.sameInstance(TestModel2.Type1 as TypeI))
+        Assert.assertThat(type.generics()[0].type(), CoreMatchers.sameInstance(TestModel2.Type1 as TypeIB<*>))
 
         val type2 = TestModel2.Pojo.prop2.type()
-        Assert.assertThat(type2.generics()[0].type(), CoreMatchers.sameInstance(TestModel2.Type2 as TypeI))
+        Assert.assertThat(type2.generics()[0].type(), CoreMatchers.sameInstance(TestModel2.Type2 as TypeIB<*>))
     }
 }

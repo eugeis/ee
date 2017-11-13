@@ -5,10 +5,10 @@ import ee.lang.gen.java.j
 import ee.lang.gen.kt.k
 
 open class LangCommonContextFactory {
-    val isNotPartOfNativeTypes: ItemI.() -> Boolean = { n != parent() && j != parent() && k != parent() }
+    val isNotPartOfNativeTypes: ItemIB<*>.() -> Boolean = { n != parent() && j != parent() && k != parent() }
     val macroController = MacroController()
 
-    open fun build(): StructureUnitI.() -> GenerationContext {
+    open fun build(): StructureUnitIB<*>.() -> GenerationContext {
         val derivedController = DerivedController()
         registerForImplOnly(derivedController)
         return contextBuilder(derivedController)
@@ -20,7 +20,7 @@ open class LangCommonContextFactory {
 
     }
 
-    protected open fun contextBuilder(derived: DerivedController): StructureUnitI.() -> GenerationContext {
+    protected open fun contextBuilder(derived: DerivedController): StructureUnitIB<*>.() -> GenerationContext {
         return {
             val su = this
             GenerationContext(moduleFolder = su.artifact(), namespace = su.namespace().toLowerCase(),
@@ -29,10 +29,10 @@ open class LangCommonContextFactory {
         }
     }
 
-    protected open fun buildName(item: ItemI, kind: String): String = buildNameCommon(item, kind)
+    protected open fun buildName(item: ItemIB<*>, kind: String): String = buildNameCommon(item, kind)
 
-    protected open fun buildNameCommon(item: ItemI, kind: String): String = item.name()
-    protected open fun buildNameDynamic(item: ItemI, kind: String): String = "${buildName(item, kind)}$kind"
-    protected open fun buildNameForConstructor(item: ConstructorI, kind: String) = buildName(item, kind)
-    protected open fun buildNameForOperation(item: OperationI, kind: String) = buildName(item, kind)
+    protected open fun buildNameCommon(item: ItemIB<*>, kind: String): String = item.name()
+    protected open fun buildNameDynamic(item: ItemIB<*>, kind: String): String = "${buildName(item, kind)}$kind"
+    protected open fun buildNameForConstructor(item: ConstructorIB<*>, kind: String) = buildName(item, kind)
+    protected open fun buildNameForOperation(item: OperationIB<*>, kind: String) = buildName(item, kind)
 }

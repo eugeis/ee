@@ -2,6 +2,7 @@ package ee.system
 
 import java.util.*
 import kotlin.reflect.full.functions
+import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.reflect
 
 
@@ -28,7 +29,7 @@ class Service<T : String> : SystemBase() {
     val dependsOn: MutableList<Service<*>>? = null
     val dependsOnMe: MutableList<Service<*>>? = null
 
-    val findByCategory = findBy(category, dependsOn)
+    fun findByCategory() = findBy(category, dependsOn)
     val apply = category + ""
 
     class Finders {

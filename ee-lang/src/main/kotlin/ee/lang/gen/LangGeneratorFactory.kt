@@ -12,70 +12,70 @@ import ee.lang.gen.ts.LangTsContextFactory
 import ee.lang.gen.ts.LangTsTemplates
 
 open class LangGeneratorFactory {
-    open fun dslKt(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
+    open fun dslKt(fileNamePrefix: String = ""): GeneratorI<StructureUnitIB<*>> {
         val kotlinTemplates = buildKotlinTemplates()
         val contextBuilder = buildKotlinContextFactory().buildForDslBuilder()
-        val composites: StructureUnitI.() -> List<CompilationUnitI> = { items().filterIsInstance(CompilationUnitI::class.java) }
+        val composites: StructureUnitIB<*>.() -> List<CompilationUnitIB<*>> = { items().filterIsInstance(CompilationUnitIB::class.java) }
 
-        return GeneratorGroup<StructureUnitI>(listOf(
+        return GeneratorGroup(listOf(
 
-                GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = ItemsTemplate<StructureUnitI, CompilationUnitI>(
+                GeneratorSimple(
+                        contextBuilder = contextBuilder, template = ItemsTemplate<StructureUnitIB<*>, CompilationUnitIB<*>>(
                         name = "${fileNamePrefix}IfcBase", nameBuilder = templateNameAsKotlinFileName,
                         items = composites, fragments = { listOf(kotlinTemplates.dslBuilderI()) })
                 ),
-                GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = ItemsTemplate<StructureUnitI, CompilationUnitI>(
+                GeneratorSimple(
+                        contextBuilder = contextBuilder, template = ItemsTemplate<StructureUnitIB<*>, CompilationUnitIB<*>>(
                         name = "${fileNamePrefix}ApiBase", nameBuilder = templateNameAsKotlinFileName,
                         items = composites, fragments = { listOf(kotlinTemplates.dslBuilder()) })
                 )
         ))
     }
 
-    open fun pojoKt(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
+    open fun pojoKt(fileNamePrefix: String = ""): GeneratorI<StructureUnitIB<*>> {
         val kotlinTemplates = buildKotlinTemplates()
         val contextBuilder = buildKotlinContextFactory().buildForImplOnly()
-        val enums: StructureUnitI.() -> List<EnumTypeI> = { findDownByType(EnumTypeI::class.java) }
-        val compilationUnits: StructureUnitI.() -> List<CompilationUnitI> = {
-            findDownByType(CompilationUnitI::class.java).filter { it !is EnumTypeI }
+        val enums: StructureUnitIB<*>.() -> List<EnumTypeIB<*>> = { findDownByType(EnumTypeIB::class.java) }
+        val compilationUnits: StructureUnitIB<*>.() -> List<CompilationUnitIB<*>> = {
+            findDownByType(CompilationUnitIB::class.java).filter { it !is EnumTypeIB<*> }
         }
 
-        return GeneratorGroup<StructureUnitI>(listOf(
-                GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
+        return GeneratorGroup(listOf(
+                GeneratorSimple(
+                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitIB<*>>(
                         name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsKotlinFileName,
                         fragments = {
                             listOf(
-                                    ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
+                                    ItemsFragment<StructureUnitIB<*>, EnumTypeIB<*>>(items = enums,
                                             fragments = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) }),
-                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = compilationUnits,
+                                    ItemsFragment<StructureUnitIB<*>, CompilationUnitIB<*>>(items = compilationUnits,
                                             fragments = { listOf(kotlinTemplates.pojo()) }))
                         })
                 )
         ))
     }
 
-    open fun pojoGo(fileNamePrefix: String = ""): GeneratorI<StructureUnitI> {
+    open fun pojoGo(fileNamePrefix: String = ""): GeneratorI<StructureUnitIB<*>> {
         val goTemplates = buildGoTemplates()
         val contextBuilder = buildGoContextFactory().buildForImplOnly()
-        val enums: StructureUnitI.() -> List<EnumTypeI> = {
-            findDownByType(EnumTypeI::class.java).filter {
-                it.parent() is StructureUnitI || it.derivedAsType().isNotEmpty()
+        val enums: StructureUnitIB<*>.() -> List<EnumTypeIB<*>> = {
+            findDownByType(EnumTypeIB::class.java).filter {
+                it.parent() is StructureUnitIB<*> || it.derivedAsType().isNotEmpty()
             }
         }
-        val compilationUnits: StructureUnitI.() -> List<CompilationUnitI> = {
-            findDownByType(CompilationUnitI::class.java).filter { it !is EnumTypeI }
+        val compilationUnits: StructureUnitIB<*>.() -> List<CompilationUnitIB<*>> = {
+            findDownByType(CompilationUnitIB::class.java).filter { it !is EnumTypeIB<*> }
         }
 
-        return GeneratorGroup<StructureUnitI>(listOf(
-                GeneratorSimple<StructureUnitI>(
-                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI>(
+        return GeneratorGroup<StructureUnitIB<*>>(listOf(
+                GeneratorSimple<StructureUnitIB<*>>(
+                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitIB<*>>(
                         name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsGoFileName,
                         fragments = {
                             listOf(
-                                    ItemsFragment<StructureUnitI, EnumTypeI>(items = enums,
+                                    ItemsFragment<StructureUnitIB<*>, EnumTypeIB<*>>(items = enums,
                                             fragments = { listOf(goTemplates.enum()) }),
-                                    ItemsFragment<StructureUnitI, CompilationUnitI>(items = compilationUnits,
+                                    ItemsFragment<StructureUnitIB<*>, CompilationUnitIB<*>>(items = compilationUnits,
                                             fragments = { listOf(goTemplates.pojo()) }))
                         })
                 )

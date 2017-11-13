@@ -4,21 +4,21 @@ import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.go.nameForGoMember
 
-fun <T : AttributeI> T.toSwaggerTypeDef(c: GenerationContext, api: String, indent: String = "        "): String {
+fun <T : AttributeIB<*>> T.toSwaggerTypeDef(c: GenerationContext, api: String, indent: String = "        "): String {
     return "$indent${type().toSwagger(c, api, indent)}${type().toSwaggerFormatIfNative(indent)}"
 }
 
-fun <T : ItemI> T.toSwaggerDescription(indent: String = "        "): String {
+fun <T : ItemIB<*>> T.toSwaggerDescription(indent: String = "        "): String {
     return doc().isNotEMPTY().then {
         "$nL${indent}description: ${doc().render()}"
     }
 }
 
-fun Collection<ItemI>.toSwaggerLiterals(indent: String = "        "): String {
+fun Collection<ItemIB<*>>.toSwaggerLiterals(indent: String = "        "): String {
     return joinSurroundIfNotEmptyToString("") { "$nL$indent- ${it.name()}" }
 }
 
-fun <T : TypeI> T.toSwaggerIfNative(c: GenerationContext, derived: String, indent: String): String? {
+fun <T : TypeIB<*>> T.toSwaggerIfNative(c: GenerationContext, derived: String, indent: String): String? {
     val baseType = findDerivedOrThis()
     return when (baseType) {
         n.String, n.Path, n.Text -> "string"
@@ -41,7 +41,7 @@ fun <T : TypeI> T.toSwaggerIfNative(c: GenerationContext, derived: String, inden
     }
 }
 
-fun <T : TypeI> T.toSwaggerFormatIfNative(indent: String = "        "): String {
+fun <T : TypeIB<*>> T.toSwaggerFormatIfNative(indent: String = "        "): String {
     val baseType = findDerivedOrThis()
     val prefix = "\n${indent}format:"
     return when (baseType) {
@@ -56,16 +56,16 @@ fun <T : TypeI> T.toSwaggerFormatIfNative(indent: String = "        "): String {
     }
 }
 
-fun <T : TypeI> T.toSwagger(c: GenerationContext, derived: String, indent: String): String {
+fun <T : TypeIB<*>> T.toSwagger(c: GenerationContext, derived: String, indent: String): String {
     val nativeType = toSwaggerIfNative(c, derived, indent)
     return """$nL$indent${(nativeType != null).ifElse({ "type: $nativeType" }, { "\$ref: \"#/components/schemas/${c.n(this, derived)}\"" })}"""
 }
 
-fun GenericI.toSwagger(c: GenerationContext, derived: String, indent: String): String {
+fun GenericIB<*>.toSwagger(c: GenerationContext, derived: String, indent: String): String {
     return type().toSwagger(c, derived, indent)
 }
 
-fun <T : AttributeI> T.toSwaggerSignature(c: GenerationContext, api: String): String {
+fun <T : AttributeIB<*>> T.toSwaggerSignature(c: GenerationContext, api: String): String {
     return anonymous().ifElse({ type().props().filter { !it.meta() }.toSwaggerSignature(c, api) }, {
         "${name()} ${toSwaggerTypeDef(c, api)}"
     })
@@ -76,35 +76,35 @@ query:
             type: string
             description: this string will be added to the url of the service
  */
-fun <T : AttributeI> T.toSwaggerMember(c: GenerationContext, api: String, indent: String = "        "): String {
+fun <T : AttributeIB<*>> T.toSwaggerMember(c: GenerationContext, api: String, indent: String = "        "): String {
     return "$indent${nameForGoMember().decapitalize()}:${toSwaggerTypeDef(c, api, "$indent  ")}"
 }
 
-fun <T : AttributeI> T.toSwaggerEnumMember(c: GenerationContext, api: String): String {
+fun <T : AttributeIB<*>> T.toSwaggerEnumMember(c: GenerationContext, api: String): String {
     return anonymous().ifElse({ "    ${toSwaggerTypeDef(c, api)}" }, { "    " + nameDecapitalize() + " " + toSwaggerTypeDef(c, api) })
 }
 
-fun List<AttributeI>.toSwaggerSignature(c: GenerationContext, api: String): String {
+fun List<AttributeIB<*>>.toSwaggerSignature(c: GenerationContext, api: String): String {
     return joinWrappedToString(", ") { it.toSwaggerSignature(c, api) }
 }
 
-fun <T : AttributeI> T.toSwaggerType(c: GenerationContext, derived: String, indent: String): String = type().toSwagger(c, derived, indent)
-fun List<AttributeI>.toSwaggerTypes(c: GenerationContext, derived: String, indent: String): String {
+fun <T : AttributeIB<*>> T.toSwaggerType(c: GenerationContext, derived: String, indent: String): String = type().toSwagger(c, derived, indent)
+fun List<AttributeIB<*>>.toSwaggerTypes(c: GenerationContext, derived: String, indent: String): String {
     return joinWrappedToString(", ") { it.toSwaggerType(c, derived, indent) }
 }
 
-fun <T : OperationI> T.toSwaggerLambda(c: GenerationContext, derived: String, indent: String): String =
+fun <T : OperationIB<*>> T.toSwaggerLambda(c: GenerationContext, derived: String, indent: String): String =
         """func (${params().toSwaggerTypes(c, derived, indent)}) ${retFirst().toSwaggerType(c, derived, indent)}"""
 
-fun <T : LogicUnitI> T.toSwaggerName(): String = visible().ifElse({ name().capitalize() }, { name().decapitalize() })
+fun <T : LogicUnitIB<*>> T.toSwaggerName(): String = visible().ifElse({ name().capitalize() }, { name().decapitalize() })
 
-fun <T : CompilationUnitI> T.toSwaggerPath(c: GenerationContext,
+fun <T : CompilationUnitIB<*>> T.toSwaggerPath(c: GenerationContext,
                                            derived: String = LangDerivedKind.IMPL,
                                            api: String = LangDerivedKind.API): String {
     return """/${c.n(this, derived).toHyphenLowerCase()}s"""
 }
 
-fun <T : CompilationUnitI> T.toSwaggerDefinition(c: GenerationContext,
+fun <T : CompilationUnitIB<*>> T.toSwaggerDefinition(c: GenerationContext,
                                                  derived: String = LangDerivedKind.IMPL,
                                                  api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
@@ -115,7 +115,7 @@ fun <T : CompilationUnitI> T.toSwaggerDefinition(c: GenerationContext,
     props().joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toSwaggerMember(c, api) }}"""
 }
 
-fun <T : EnumTypeI> T.toSwaggerEnum(c: GenerationContext,
+fun <T : EnumTypeIB<*>> T.toSwaggerEnum(c: GenerationContext,
                                     derived: String = LangDerivedKind.IMPL,
                                     api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)

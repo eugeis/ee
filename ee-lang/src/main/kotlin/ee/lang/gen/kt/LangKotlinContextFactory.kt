@@ -5,9 +5,9 @@ import ee.lang.gen.KotlinContext
 import ee.lang.gen.java.j
 
 open class LangKotlinContextFactory {
-    private val isNotPartOfNativeTypes: ItemI.() -> Boolean = { n != parent() && j != parent() && k != parent() }
+    private val isNotPartOfNativeTypes: ItemIB<*>.() -> Boolean = { n != parent() && j != parent() && k != parent() }
 
-    open fun buildForImplOnly(): StructureUnitI.() -> KotlinContext {
+    open fun buildForImplOnly(): StructureUnitIB<*>.() -> KotlinContext {
         val controller = DerivedController()
 
         controller.registerKinds(listOf(LangDerivedKind.API, LangDerivedKind.IMPL), { name() }, isNotPartOfNativeTypes)
@@ -15,7 +15,7 @@ open class LangKotlinContextFactory {
         return contextBuilder(controller)
     }
 
-    open fun buildForDslBuilder(): StructureUnitI.() -> KotlinContext {
+    open fun buildForDslBuilder(): StructureUnitIB<*>.() -> KotlinContext {
         val controller = DerivedController()
 
         controller.registerKind(LangDerivedKind.API, { "${name()}I" }, isNotPartOfNativeTypes)
@@ -24,7 +24,7 @@ open class LangKotlinContextFactory {
         return contextBuilder(controller)
     }
 
-    protected open fun contextBuilder(controller: DerivedController): StructureUnitI.() -> KotlinContext {
+    protected open fun contextBuilder(controller: DerivedController): StructureUnitIB<*>.() -> KotlinContext {
         return {
             val structureUnit = this
             KotlinContext(moduleFolder = structureUnit.artifact(),

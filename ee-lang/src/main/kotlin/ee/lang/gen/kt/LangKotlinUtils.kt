@@ -25,7 +25,7 @@ object k : StructureUnit({ name("Kotlin") }) {
     }
 }
 
-fun <T : StructureUnitI> T.prepareForKotlinGeneration(): T {
+fun <T : StructureUnitIB<*>> T.prepareForKotlinGeneration(): T {
     j.initObjectTree()
     k.initObjectTree()
 

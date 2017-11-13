@@ -240,7 +240,7 @@ open class GoContext : GenerationContext {
     constructor(namespace: String = "", moduleFolder: String = "",
                 genFolder: String = "src/main/go",
                 genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.go".toRegex(),
-                derivedController: DerivedController = DerivedController(DerivedStorage<ItemI>()),
+                derivedController: DerivedController = DerivedController(DerivedStorage<ItemIB<*>>()),
                 macroController: MacroController = MacroController())
             : super(namespace, moduleFolder, genFolder, genFolderDeletable, genFolderPatternDeletable,
             derivedController, macroController) {
@@ -268,7 +268,7 @@ open class GoContext : GenerationContext {
         }
     }
 
-    override fun n(item: ItemI, derivedKind: String): String {
+    override fun n(item: ItemIB<*>, derivedKind: String): String {
         val derived = types.addReturn(derivedController.derive(item, derivedKind))
         if (derived.namespace().isEmpty() || derived.namespace().equals(namespace, true)) {
             return derived.name()
@@ -278,19 +278,19 @@ open class GoContext : GenerationContext {
     }
 }
 
-fun <T : StructureUnitI> T.prepareForGoGeneration(): T {
+fun <T : StructureUnitIB<*>> T.prepareForGoGeneration(): T {
     initsForGoGeneration()
     extendForGoGenerationLang()
     return this
 }
 
-fun <T : StructureUnitI> T.initsForGoGeneration(): T {
+fun <T : StructureUnitIB<*>> T.initsForGoGeneration(): T {
     g.initObjectTree()
     initObjectTrees()
     return this
 }
 
-fun <T : StructureUnitI> T.extendForGoGenerationLang(): T {
+fun <T : StructureUnitIB<*>> T.extendForGoGenerationLang(): T {
     //declare as 'base' all compilation units with non implemented operations.
     declareAsBaseWithNonImplementedOperation()
 
@@ -302,23 +302,23 @@ fun <T : StructureUnitI> T.extendForGoGenerationLang(): T {
     return this
 }
 
-fun OperationI.retTypeAndError(retType: TypeI): OperationI = returns(Attribute { type(retType).name("ret") },
+fun OperationIB<*>.retTypeAndError(retType: TypeIB<*>): OperationIB<*> = returns(Attribute { type(retType).name("ret") },
         Attribute { type(g.error).name("err") })
 
-fun OperationI.retError(): OperationI = returns(Attribute { type(g.error).name("err") })
+fun OperationIB<*>.retError(): OperationIB<*> = returns(Attribute { type(g.error).name("err") })
 
-fun AttributeI.nameForGoMember(): String = storage.getOrPut(this, "nameForGoMember", {
+fun AttributeIB<*>.nameForGoMember(): String = storage.getOrPut(this, "nameForGoMember", {
     replaceable().notSetOrTrue().ifElse({ name().capitalize() }, { name().decapitalize() })
 })
 
-val itemAndTemplateNameAsGoFileName: TemplateI<*>.(CompositeI) -> Names = {
+val itemAndTemplateNameAsGoFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
     Names("${it.name().capitalize()}${name.capitalize()}.go")
 }
 
-val templateNameAsGoFileName: TemplateI<*>.(CompositeI) -> Names = {
+val templateNameAsGoFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
     Names("$name.go")
 }
 
-val itemNameAsGoFileName: TemplateI<*>.(CompositeI) -> Names = {
+val itemNameAsGoFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
     Names("${it.name()}.go")
 }

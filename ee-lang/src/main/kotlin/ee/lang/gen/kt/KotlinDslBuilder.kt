@@ -6,12 +6,12 @@ import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 
-fun <T : AttributeI> T.toKotlinDslTypeDef(c: GenerationContext, api: String): String {
+fun <T : AttributeIB<*>> T.toKotlinDslTypeDef(c: GenerationContext, api: String): String {
     return """${multi().ifElse({ "${c.n(l.ListMultiHolder, api)}<${c.n(type(), api)}>" }, { c.n(type(), api) })}${nullable().then("?")}"""
 }
 
-fun <T : AttributeI> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: String,
-                                                  parent: ItemI = findParent(CompilationUnitI::class.java) ?: parent()): String {
+fun <T : AttributeIB<*>> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: String,
+                                                  parent: ItemIB<*> = findParent(CompilationUnitIB::class.java) ?: parent()): String {
     val value = (name() == "value").ifElse("aValue", "value")
     return """
     fun ${name()}(): ${toKotlinDslTypeDef(c, api)}${multi().ifElse({
@@ -27,8 +27,8 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: Str
     }}"""
 }
 
-fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: String, api: String,
-                                                 parent: ItemI = findParent(CompilationUnitI::class.java) ?: parent()): String {
+fun <T : AttributeIB<*>> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: String, api: String,
+                                                 parent: ItemIB<*> = findParent(CompilationUnitIB::class.java) ?: parent()): String {
     val value = (name() == "value").ifElse("aValue", "value")
     val override = (derived != api).ifElse("override ", "")
     return """${multi().ifElse({
@@ -51,14 +51,14 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: 
     }}"""
 }
 
-fun <T : CompilationUnitI> T.toKotlinDslBuilderI(c: GenerationContext, derived: String = LangDerivedKind.API): String {
+fun <T : CompilationUnitIB<*>> T.toKotlinDslBuilderI(c: GenerationContext, derived: String = LangDerivedKind.API): String {
     return """
 interface ${c.n(this, derived)} : ${c.n(superUnit(), derived)} {${
     props().joinToString(nL) { it.toKotlinDslBuilderMethodsI(c, derived, this) }}
 }"""
 }
 
-fun <T : CompilationUnitI> T.toKotlinDslBuilder(c: GenerationContext,
+fun <T : CompilationUnitIB<*>> T.toKotlinDslBuilder(c: GenerationContext,
                                                 derived: String = LangDerivedKind.IMPL,
                                                 api: String = LangDerivedKind.API
 ): String {

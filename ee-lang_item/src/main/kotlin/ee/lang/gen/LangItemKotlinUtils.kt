@@ -4,11 +4,10 @@ import ee.common.ext.then
 import ee.lang.*
 
 open class KotlinContext : GenerationContext {
-
     constructor(namespace: String = "", moduleFolder: String = "",
                 genFolder: String = "src-gen/main/kotlin",
                 genFolderDeletable: Boolean = true, genFolderDeletePattern: Regex? = null,
-                derivedController: DerivedController = DerivedController(DerivedStorage<ItemI>()))
+                derivedController: DerivedController = DerivedController(DerivedStorage()))
             : super(namespace, moduleFolder, genFolder, genFolderDeletable, genFolderDeletePattern, derivedController)
 
     override fun complete(content: String, indent: String): String {
@@ -30,14 +29,14 @@ open class KotlinContext : GenerationContext {
     }
 }
 
-val itemAndTemplateNameAsKotlinFileName: TemplateI<*>.(CompositeI) -> Names = {
+val itemAndTemplateNameAsKotlinFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
     Names("${it.name().capitalize()}${name.capitalize()}.kt")
 }
 
-val templateNameAsKotlinFileName: TemplateI<*>.(CompositeI) -> Names = {
+val templateNameAsKotlinFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
     Names("$name.kt")
 }
 
-val itemNameAsKotlinFileName: TemplateI<*>.(CompositeI) -> Names = {
+val itemNameAsKotlinFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
     Names("${it.name()}.kt")
 }

@@ -1,223 +1,279 @@
 package ee.lang
 
 
-interface AttributeI : LiteralI {
+interface AttributeIB<B : AttributeIB<B>> : LiteralIB<B> {
+    fun accessible(value: Boolean?): B
+
+    fun anonymous(value: Boolean): B
+
+    fun default(value: Boolean): B
+
+    fun hidden(value: Boolean): B
+
+    fun inherited(value: Boolean): B
+
+    fun initByDefaultTypeValue(value: Boolean): B
+
+    fun key(value: Boolean): B
+
+    fun length(value: Int?): B
+
+    fun meta(value: Boolean): B
+
+    fun multi(value: Boolean): B
+
+    fun mutable(value: Boolean?): B
+
+    fun nonFluent(value: String): B
+
+    fun nullable(value: Boolean): B
+
+    fun open(value: Boolean): B
+
+    fun replaceable(value: Boolean?): B
+
+    fun type(value: TypeIB<*>): B
+
+    fun unique(value: Boolean): B
+
+    fun value(aValue: Any?): B
     fun accessible(): Boolean?
-    fun accessible(value: Boolean?): AttributeI
 
     fun anonymous(): Boolean
-    fun anonymous(value: Boolean): AttributeI
 
     fun default(): Boolean
-    fun default(value: Boolean): AttributeI
 
     fun hidden(): Boolean
-    fun hidden(value: Boolean): AttributeI
 
     fun inherited(): Boolean
-    fun inherited(value: Boolean): AttributeI
 
     fun initByDefaultTypeValue(): Boolean
-    fun initByDefaultTypeValue(value: Boolean): AttributeI
 
     fun key(): Boolean
-    fun key(value: Boolean): AttributeI
 
     fun length(): Int?
-    fun length(value: Int?): AttributeI
 
     fun meta(): Boolean
-    fun meta(value: Boolean): AttributeI
 
     fun multi(): Boolean
-    fun multi(value: Boolean): AttributeI
 
     fun mutable(): Boolean?
-    fun mutable(value: Boolean?): AttributeI
 
     fun nonFluent(): String
-    fun nonFluent(value: String): AttributeI
 
     fun nullable(): Boolean
-    fun nullable(value: Boolean): AttributeI
 
     fun open(): Boolean
-    fun open(value: Boolean): AttributeI
 
     fun replaceable(): Boolean?
-    fun replaceable(value: Boolean?): AttributeI
 
-    fun type(): TypeI
-    fun type(value: TypeI): AttributeI
+    fun type(): TypeIB<*>
 
     fun unique(): Boolean
-    fun unique(value: Boolean): AttributeI
 
     fun value(): Any?
-    fun value(aValue: Any?): AttributeI
 }
 
 
-interface CompilationUnitI : TypeI {
+
+interface CompilationUnitIB<B : CompilationUnitIB<B>> : TypeIB<B> {
+    fun base(value: Boolean): B
     fun base(): Boolean
-    fun base(value: Boolean): CompilationUnitI
 }
 
 
-interface ConstructorI : LogicUnitI {
+
+interface ConstructorIB<B : ConstructorIB<B>> : LogicUnitIB<B> {
+    fun primary(value: Boolean): B
     fun primary(): Boolean
-    fun primary(value: Boolean): ConstructorI
 }
 
 
-interface DataTypeI : CompilationUnitI {
+
+interface DataTypeIB<B : DataTypeIB<B>> : CompilationUnitIB<B> {
 }
 
 
-interface DataTypeOperationI : OperationI {
+
+interface DataTypeOperationIB<B : DataTypeOperationIB<B>> : OperationIB<B> {
 }
 
 
-interface EnumTypeI : DataTypeI {
-    fun literals(): ListMultiHolder<LiteralI>
-    fun literals(vararg value: LiteralI): EnumTypeI
-    fun lit(value: LiteralI): LiteralI
-    fun lit(value: LiteralI.() -> Unit = {}): LiteralI
+
+interface EnumTypeIB<B : EnumTypeIB<B>> : DataTypeIB<B> {
+    fun literals(vararg value: LiteralIB<*>): B
+    fun literals(): ListMultiHolder<LiteralIB<*>>
+    fun lit(value: LiteralIB<*>): LiteralIB<*>
+    fun lit(value: LiteralIB<*>.() -> Unit = {}): LiteralIB<*>
 }
 
 
-interface ExpressionI : MacroCompositeI {
+
+interface ExpressionIB<B : ExpressionIB<B>> : MacroCompositeIB<B> {
 }
 
 
-interface ExternalTypeI : TypeI {
+
+interface ExternalTypeIB<B : ExternalTypeIB<B>> : TypeIB<B> {
 }
 
 
-interface GenericI : TypeI {
-    fun type(): TypeI
-    fun type(value: TypeI): GenericI
+
+interface GenericIB<B : GenericIB<B>> : TypeIB<B> {
+    fun type(value: TypeIB<*>): B
+    fun type(): TypeIB<*>
 }
 
 
-interface LambdaI : TypeI {
-    fun operation(): OperationI
-    fun operation(value: OperationI): LambdaI
+
+interface LambdaIB<B : LambdaIB<B>> : TypeIB<B> {
+    fun operation(value: OperationIB<*>): B
+    fun operation(): OperationIB<*>
 }
 
 
-interface LiteralI : LogicUnitI {
+
+interface LiteralIB<B : LiteralIB<B>> : LogicUnitIB<B> {
 }
 
 
-interface LogicUnitI : ExpressionI {
-    fun params(): ListMultiHolder<AttributeI>
-    fun params(vararg value: AttributeI): LogicUnitI
 
-    fun superUnit(): LogicUnitI
-    fun superUnit(value: LogicUnitI): LogicUnitI
+interface LogicUnitIB<B : LogicUnitIB<B>> : ExpressionIB<B> {
+    fun params(vararg value: AttributeIB<*>): B
+
+    fun superUnit(value: LogicUnitIB<*>): B
+
+    fun virtual(value: Boolean): B
+
+    fun visible(value: Boolean): B
+    fun params(): ListMultiHolder<AttributeIB<*>>
+
+    fun superUnit(): LogicUnitIB<*>
 
     fun virtual(): Boolean
-    fun virtual(value: Boolean): LogicUnitI
 
     fun visible(): Boolean
-    fun visible(value: Boolean): LogicUnitI
 }
 
 
-interface MacroCompositeI : CompositeI {
+
+interface MacroCompositeIB<B : MacroCompositeIB<B>> : CompositeIB<B> {
+    fun macrosAfter(vararg value: String): B
+
+    fun macrosAfterBody(vararg value: String): B
+
+    fun macrosBefore(vararg value: String): B
+
+    fun macrosBeforeBody(vararg value: String): B
+
+    fun macrosBody(vararg value: String): B
+
+    fun tags(vararg value: String): B
     fun macrosAfter(): ListMultiHolder<String>
-    fun macrosAfter(vararg value: String): MacroCompositeI
 
     fun macrosAfterBody(): ListMultiHolder<String>
-    fun macrosAfterBody(vararg value: String): MacroCompositeI
 
     fun macrosBefore(): ListMultiHolder<String>
-    fun macrosBefore(vararg value: String): MacroCompositeI
 
     fun macrosBeforeBody(): ListMultiHolder<String>
-    fun macrosBeforeBody(vararg value: String): MacroCompositeI
 
     fun macrosBody(): ListMultiHolder<String>
-    fun macrosBody(vararg value: String): MacroCompositeI
 
     fun tags(): ListMultiHolder<String>
-    fun tags(vararg value: String): MacroCompositeI
 }
 
 
-interface NativeTypeI : TypeI {
+
+interface NativeTypeIB<B : NativeTypeIB<B>> : TypeIB<B> {
 }
 
 
-interface OperationI : LogicUnitI {
-    fun generics(): ListMultiHolder<GenericI>
-    fun generics(vararg value: GenericI): OperationI
-    fun G(value: GenericI): GenericI
-    fun G(value: GenericI.() -> Unit = {}): GenericI
+
+interface OperationIB<B : OperationIB<B>> : LogicUnitIB<B> {
+    fun generics(vararg value: GenericIB<*>): B
+
+    fun open(value: Boolean): B
+
+    fun returns(vararg value: AttributeIB<*>): B
+    fun generics(): ListMultiHolder<GenericIB<*>>
+    fun G(value: GenericIB<*>): GenericIB<*>
+    fun G(value: GenericIB<*>.() -> Unit = {}): GenericIB<*>
 
     fun open(): Boolean
-    fun open(value: Boolean): OperationI
 
-    fun returns(): ListMultiHolder<AttributeI>
-    fun returns(vararg value: AttributeI): OperationI
-    fun ret(value: AttributeI): AttributeI
-    fun ret(value: AttributeI.() -> Unit = {}): AttributeI
+    fun returns(): ListMultiHolder<AttributeIB<*>>
+    fun ret(value: AttributeIB<*>): AttributeIB<*>
+    fun ret(value: AttributeIB<*>.() -> Unit = {}): AttributeIB<*>
 }
 
 
-interface StructureUnitI : MacroCompositeI {
+
+interface StructureUnitIB<B : StructureUnitIB<B>> : MacroCompositeIB<B> {
+    fun artifact(value: String): B
+
+    fun fullName(value: String): B
+
+    fun key(value: String): B
     fun artifact(): String
-    fun artifact(value: String): StructureUnitI
 
     fun fullName(): String
-    fun fullName(value: String): StructureUnitI
 
     fun key(): String
-    fun key(value: String): StructureUnitI
 }
 
 
-interface TypeI : MacroCompositeI {
-    fun constructors(): ListMultiHolder<ConstructorI>
-    fun constructors(vararg value: ConstructorI): TypeI
-    fun constr(value: ConstructorI): ConstructorI
-    fun constr(value: ConstructorI.() -> Unit = {}): ConstructorI
+
+interface TypeIB<B : TypeIB<B>> : MacroCompositeIB<B> {
+    fun constructors(vararg value: ConstructorIB<*>): B
+
+    fun defaultValue(value: Any?): B
+
+    fun generics(vararg value: GenericIB<*>): B
+
+    fun ifc(value: Boolean): B
+
+    fun multi(value: Boolean): B
+
+    fun open(value: Boolean): B
+
+    fun operations(vararg value: OperationIB<*>): B
+
+    fun props(vararg value: AttributeIB<*>): B
+
+    fun superUnit(value: CompilationUnitIB<*>): B
+
+    fun superUnitFor(vararg value: CompilationUnitIB<*>): B
+
+    fun virtual(value: Boolean): B
+    fun constructors(): ListMultiHolder<ConstructorIB<*>>
+    fun constr(value: ConstructorIB<*>): ConstructorIB<*>
+    fun constr(value: ConstructorIB<*>.() -> Unit = {}): ConstructorIB<*>
 
     fun defaultValue(): Any?
-    fun defaultValue(value: Any?): TypeI
 
-    fun generics(): ListMultiHolder<GenericI>
-    fun generics(vararg value: GenericI): TypeI
-    fun G(value: GenericI): GenericI
-    fun G(value: GenericI.() -> Unit = {}): GenericI
+    fun generics(): ListMultiHolder<GenericIB<*>>
+    fun G(value: GenericIB<*>): GenericIB<*>
+    fun G(value: GenericIB<*>.() -> Unit = {}): GenericIB<*>
 
     fun ifc(): Boolean
-    fun ifc(value: Boolean): TypeI
 
     fun multi(): Boolean
-    fun multi(value: Boolean): TypeI
 
     fun open(): Boolean
-    fun open(value: Boolean): TypeI
 
-    fun operations(): ListMultiHolder<OperationI>
-    fun operations(vararg value: OperationI): TypeI
-    fun op(value: OperationI): OperationI
-    fun op(value: OperationI.() -> Unit = {}): OperationI
+    fun operations(): ListMultiHolder<OperationIB<*>>
+    fun op(value: OperationIB<*>): OperationIB<*>
+    fun op(value: OperationIB<*>.() -> Unit = {}): OperationIB<*>
 
-    fun props(): ListMultiHolder<AttributeI>
-    fun props(vararg value: AttributeI): TypeI
-    fun prop(value: AttributeI): AttributeI
-    fun prop(value: AttributeI.() -> Unit = {}): AttributeI
+    fun props(): ListMultiHolder<AttributeIB<*>>
+    fun prop(value: AttributeIB<*>): AttributeIB<*>
+    fun prop(value: AttributeIB<*>.() -> Unit = {}): AttributeIB<*>
 
-    fun superUnit(): CompilationUnitI
-    fun superUnit(value: CompilationUnitI): TypeI
+    fun superUnit(): CompilationUnitIB<*>
 
-    fun superUnitFor(): ListMultiHolder<CompilationUnitI>
-    fun superUnitFor(vararg value: CompilationUnitI): TypeI
+    fun superUnitFor(): ListMultiHolder<CompilationUnitIB<*>>
 
     fun virtual(): Boolean
-    fun virtual(value: Boolean): TypeI
 }
+
 
