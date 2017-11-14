@@ -1,25 +1,23 @@
 package ee.design.gen.go
 
-import ee.design.CommandI
-import ee.design.EntityI
+import ee.design.CommandIB
+import ee.design.EntityIB
 import ee.lang.*
 import ee.lang.gen.go.LangGoTemplates
-import ee.lang.gen.go.toGoEnum
-import ee.lang.gen.go.toGoImpl
 
 open class DesignGoTemplates : LangGoTemplates {
-    constructor(defaultNameBuilder: TemplateI<*>.(CompositeI) -> NamesI) : super(defaultNameBuilder)
+    constructor(defaultNameBuilder: TemplateI<*>.(CompositeIB<*>) -> NamesI) : super(defaultNameBuilder)
 
-    open fun command(nameBuilder: TemplateI<CommandI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
-            = Template<CommandI>("Command", nameBuilder) { item, c -> item.toGoCommandImpl(c) }
+    open fun command(nameBuilder: TemplateI<CommandIB<*>>.(CompilationUnitIB<*>) -> NamesI = defaultNameBuilder)
+            = Template("Command", nameBuilder) { item, c -> item.toGoCommandImpl(c) }
 
-    open fun commandTypes(nameBuilder: TemplateI<EntityI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
-            = Template<EntityI>("CommandTypes", nameBuilder) { item, c -> item.toGoCommandTypes(c) }
+    open fun commandTypes(nameBuilder: TemplateI<EntityIB<*>>.(CompilationUnitIB<*>) -> NamesI = defaultNameBuilder)
+            = Template("CommandTypes", nameBuilder) { item, c -> item.toGoCommandTypes(c) }
 
-    open fun eventTypes(nameBuilder: TemplateI<EntityI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
-            = Template<EntityI>("EventTypes", nameBuilder) { item, c -> item.toGoEventTypes(c) }
+    open fun eventTypes(nameBuilder: TemplateI<EntityIB<*>>.(CompilationUnitIB<*>) -> NamesI = defaultNameBuilder)
+            = Template("EventTypes", nameBuilder) { item, c -> item.toGoEventTypes(c) }
 
-    open fun <T : EntityI> entity(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder)
-            = Template<T>("Entity", nameBuilder) { item, c -> item.toGoEntityImpl(c) }
+    open fun <T : EntityIB<*>> entity(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder)
+            = Template("Entity", nameBuilder) { item, c -> item.toGoEntityImpl(c) }
 
 }

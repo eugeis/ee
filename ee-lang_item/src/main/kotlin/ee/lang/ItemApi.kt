@@ -95,7 +95,14 @@ open class ItemB<B : ItemIB<B>> : ItemIB<B> {
         }
     }
 
-    open protected fun createType(): B? = createType(javaClass) ?: createType(javaClass.superclass)
+    open protected fun createType(): B? {
+        var ret = createType(javaClass)
+        if (ret == null) {
+            log.trace("Can't create instance of '{}', try to use the superclass {}", javaClass, javaClass.superclass)
+            ret = createType(javaClass.superclass)
+        }
+        return ret
+    }
 
 
     open protected fun createType(type: Class<*>): B? {
@@ -110,11 +117,7 @@ open class ItemB<B : ItemIB<B>> : ItemIB<B> {
         item.name(_name)
         item.namespace(_namespace)
         val doc = _doc
-        if (doc is CommentIB<*>) {
-            item.doc(doc.copy())
-        } else {
-            log.warn("Can't copy doc, because source is not CommentIB but {}", doc)
-        }
+        item.doc(doc.copy())
         item.parent(ItemB.EMPTY)
         item.derivedFrom(this)
     }
@@ -257,6 +260,12 @@ open class ListMultiHolderB<I, B : ListMultiHolderIB<I, B>>(_type: Class<I>, val
         if (constructor != null) return constructor.newInstance(itemType(), _adapt, ArrayList<I>()) as B
 
         constructor = type.constructors.find {
+            it.toString().contains("(java.lang.Class,kotlin.jvm.functions.Function1)")
+        }
+        if (constructor != null) return constructor.newInstance(itemType(), _adapt) as B
+
+
+        constructor = type.constructors.find {
             it.toString().contains("(kotlin.jvm.functions.Function1)")
         }
         if (constructor != null) return constructor.newInstance(_adapt) as B
@@ -334,6 +343,11 @@ open class MapMultiHolderB<I, B : MapMultiHolderIB<I, B>>(_type: Class<I>, adapt
         if (constructor != null) return constructor.newInstance(itemType(), _adapt, TreeMap<String, I>()) as B
 
         constructor = type.constructors.find {
+            it.toString().contains("(java.lang.Class,kotlin.jvm.functions.Function1)")
+        }
+        if (constructor != null) return constructor.newInstance(itemType(), _adapt) as B
+
+        constructor = type.constructors.find {
             it.toString().contains("(kotlin.jvm.functions.Function1)")
         }
         if (constructor != null) return constructor.newInstance(_adapt) as B
@@ -358,7 +372,7 @@ open class Composite(adapt: Composite.() -> Unit = {}) : CompositeB<Composite>(a
 open class CompositeB<B : CompositeIB<B>> : MapMultiHolderB<ItemIB<*>, B>, CompositeIB<B> {
     constructor(adapt: B.() -> Unit = {}) : super(ItemIB::class.java, adapt)
 
-    open fun <R> itemAsMap(name: String, type: Class<R>, attachParent: Boolean = false, internal: Boolean = false): MapMultiHolder<R> {
+    open fun <R> itemAsMap(name: String, type: Class<R>, attachParent: Boolean = false, internal: Boolean = false): MapMultiHolderB<R, *> {
         return item(name, internal, { MapMultiHolder(type, { name(name) }) })
     }
 
@@ -379,7 +393,7 @@ open class CompositeB<B : CompositeIB<B>> : MapMultiHolderB<ItemIB<*>, B>, Compo
         return attr
     }
 
-    override fun attributes(): MapMultiHolder<Any> = itemAsMap("__attributes", Any::class.java, true, true)
+    override fun attributes(): MapMultiHolderB<Any, *> = itemAsMap("__attributes", Any::class.java, true, true)
 }
 
 open class Comment : ListMultiHolderB<String, Comment>, CommentIB<Comment> {

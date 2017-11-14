@@ -1,13 +1,12 @@
 package ee.design.gen.ts
 
-import ee.design.CommandI
-import ee.design.EntityI
-import ee.lang.*
-import ee.lang.gen.go.LangGoTemplates
+import ee.lang.CompositeIB
+import ee.lang.NamesI
+import ee.lang.TemplateI
 import ee.lang.gen.ts.LangTsTemplates
 
 open class DesignTsTemplates : LangTsTemplates {
-    constructor(defaultNameBuilder: TemplateI<*>.(CompositeI) -> NamesI) : super(defaultNameBuilder)
+    constructor(defaultNameBuilder: TemplateI<*>.(CompositeIB<*>) -> NamesI) : super(defaultNameBuilder)
 /*
     open fun command(nameBuilder: TemplateI<CommandI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
             = Template<CommandI>("Command", nameBuilder) { item, c -> item.toGoCommandImpl(c) }

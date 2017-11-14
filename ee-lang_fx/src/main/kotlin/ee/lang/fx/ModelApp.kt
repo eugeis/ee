@@ -1,11 +1,9 @@
 package ee.lang.fx
 
-import ee.lang.fx.view.ModelMainView
 import ee.lang.fx.view.ExplorerModel
+import ee.lang.fx.view.ModelMainView
 import ee.task.TaskRepository
-import tornadofx.App
-import tornadofx.DIContainer
-import tornadofx.FX
+import tornadofx.*
 import kotlin.reflect.KClass
 
 open class ModelApp(val model: ExplorerModel, val repo: TaskRepository) : App(ModelMainView::class, Styles::class) {

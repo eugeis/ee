@@ -2,16 +2,11 @@ package ee.system.task
 
 import ee.common.ext.exists
 import ee.common.ext.logger
-import ee.lang.*
-import ee.design.BundleI
-import ee.design.CompI
-import ee.design.ModelI
-import ee.design.ModuleI
+import ee.lang.StructureUnit
 import ee.system.dev.BuildRequest
 import ee.system.dev.BuildToolFactory
 import ee.task.PathResolver
 import java.nio.file.Path
-import java.nio.file.Paths
 
 open class DesignBuildTaskFactory : BuildTaskFactory {
     val log = logger()

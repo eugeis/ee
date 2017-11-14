@@ -1,7 +1,6 @@
 package ee.lang.gen.go
 
 import ee.common.ext.logger
-import ee.lang.gen.kt.LangKotlinContextFactory
 import ee.lang.gen.kt.TestModel
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert

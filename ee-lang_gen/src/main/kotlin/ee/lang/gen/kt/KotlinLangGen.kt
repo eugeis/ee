@@ -31,7 +31,7 @@ fun <T : AttributeI> T.toKotlinTypeSingleNoGeneric(c: GenerationContext, api: St
 }
 
 fun <T : AttributeI> T.toKotlinTypeSingleClass(c: GenerationContext, api: String): String {
-    return type().isNative().ifElse({ c.n(type(), api) }, { "${c.n(type(), api)}" })
+    return type().isNative().ifElse({ c.n(type(), api) }, { c.n(type(), api) })
 }
 
 fun <T : AttributeI> T.toKotlinDslTypeDefNoGeneric(c: GenerationContext, api: String): String {
@@ -99,8 +99,7 @@ fun <T : CompositeIB<*>> T.toKotlinDslBuilderI(c: GenerationContext, api: String
 interface ${c.n(this, api)}B<B : ${c.n(this, api)}B<B>> : ${c.n(derivedFrom(), api)}B<B> {${
     props.joinSurroundIfNotEmptyToString(nL) { it.toKotlinDslBuilderMethodsIB(c, api) }}${
     props.joinSurroundIfNotEmptyToString(nL) { it.toKotlinDslBuilderMethodsI(c, api) }}
-}
-"""
+}"""
 }
 
 fun <T : CompositeIB<*>> T.toKotlinDslBuilder(c: GenerationContext,

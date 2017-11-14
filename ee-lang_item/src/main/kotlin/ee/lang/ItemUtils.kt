@@ -31,10 +31,14 @@ fun <T : ItemIB<*>> T.extend(code: T.() -> Unit = {}) {
     }
 }
 
-fun <B : ItemIB<B>> B.doc(comment: String): B = apply { doc(Comment({ name(comment) })) }
+fun <B : ItemIB<*>> B.doc(comment: String): B = apply { doc(Comment({ name(comment) })) }
 
 fun <B : ItemIB<B>> List<B>.derive(adapt: B.() -> Unit = {}): List<B> {
     return map { it.derive(adapt) }
+}
+
+fun <T : ItemIB<*>> ItemIB<*>.findThisOrParentUnsafe(clazz: Class<*>): T? {
+    return if (clazz.isInstance(this)) this as T else findParentUnsafe(clazz)
 }
 
 fun <T : ItemIB<*>> ItemIB<*>.findThisOrParent(clazz: Class<T>): T? {
@@ -49,6 +53,17 @@ fun <T : ItemIB<*>> ItemIB<*>.findParent(clazz: Class<T>): T? {
         return parent as T
     } else {
         return parent.findParent(clazz)
+    }
+}
+
+fun <T : ItemIB<*>> ItemIB<*>.findParentUnsafe(clazz: Class<*>): T? {
+    val parent = parent()
+    if (parent.isEMPTY()) {
+        return null
+    } else if (clazz.isInstance(parent)) {
+        return parent as T
+    } else {
+        return parent.findParentUnsafe(clazz)
     }
 }
 

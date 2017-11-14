@@ -1,7 +1,6 @@
 package ee.lang
 
 import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.not
 import org.junit.Assert.assertThat
 import org.junit.Test
 

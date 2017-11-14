@@ -1,7 +1,5 @@
 package ee.task
 
-import ee.lang.ItemI
-
 open class TaskFactory<T : Task> : TaskFactoryBase<Task> {
     companion object {
         val EMPTY = TaskFactoryBase.EMPTY

@@ -240,7 +240,7 @@ open class GoContext : GenerationContext {
     constructor(namespace: String = "", moduleFolder: String = "",
                 genFolder: String = "src/main/go",
                 genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.go".toRegex(),
-                derivedController: DerivedController = DerivedController(DerivedStorage<ItemIB<*>>()),
+                derivedController: DerivedController = DerivedController(DerivedStorage()),
                 macroController: MacroController = MacroController())
             : super(namespace, moduleFolder, genFolder, genFolderDeletable, genFolderPatternDeletable,
             derivedController, macroController) {

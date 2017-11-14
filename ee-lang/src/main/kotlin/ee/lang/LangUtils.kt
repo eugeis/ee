@@ -375,6 +375,7 @@ fun <T : TypeIB<*>> T.GT(vararg types: TypeIB<*>): T {
 }
 
 fun TypeIB<*>.G(type: TypeIB<*>): GenericIB<*> = G { type(type) }
+fun TypeIB<*>.isNative(): Boolean = parent() == n
 
 fun OperationIB<*>.retFirst(): AttributeIB<*> = returns().firstOrNull() ?: Attribute.EMPTY
 fun OperationIB<*>.ret(type: TypeIB<*>): OperationIB<*> = returns(Attribute { type(type).name("ret") })

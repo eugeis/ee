@@ -1,9 +1,7 @@
 package ee.lang.fx.view
 
 import javafx.application.Platform
-import tornadofx.View
-import tornadofx.tab
-import tornadofx.tabpane
+import tornadofx.*
 
 
 open class OutputContainerView(name: String = "OutputContainerView") : View(name) {

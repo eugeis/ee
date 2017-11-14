@@ -1,7 +1,5 @@
 package ee.lang.fx.view
 
-import ee.lang.ItemI
-import ee.lang.MultiHolderI
 import javafx.scene.control.SelectionMode
 import javafx.scene.control.TreeItem
 import tornadofx.*

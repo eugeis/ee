@@ -1,8 +1,5 @@
 package ee.design.task
 
-import ee.lang.ItemI
-import ee.lang.StructureUnitI
-import ee.design.ModuleI
 import ee.task.PathResolver
 import java.nio.file.Path
 import java.nio.file.Paths

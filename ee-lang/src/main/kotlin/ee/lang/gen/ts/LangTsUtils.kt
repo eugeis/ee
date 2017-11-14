@@ -1,6 +1,6 @@
 package ee.lang.gen.ts
 
-import ee.common.ext.*
+import ee.common.ext.then
 import ee.lang.*
 
 

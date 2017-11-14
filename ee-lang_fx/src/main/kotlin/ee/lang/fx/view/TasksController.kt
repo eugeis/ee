@@ -1,11 +1,10 @@
 package ee.lang.fx.view
 
-import ee.lang.ItemI
 import ee.task.Result
 import ee.task.TaskFactory
 import ee.task.TaskRepository
 import ee.task.print
-import tornadofx.Controller
+import tornadofx.*
 
 class TasksController : Controller() {
     val tasksView: TasksView by inject()

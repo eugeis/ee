@@ -1,436 +1,428 @@
 package ee.design
 
-import ee.lang.AttributeI
-import ee.lang.CompilationUnitI
-import ee.lang.DataTypeI
-import ee.lang.DataTypeOperationI
-import ee.lang.EnumTypeI
-import ee.lang.ExternalTypeI
-import ee.lang.ListMultiHolderI
-import ee.lang.LogicUnitI
-import ee.lang.StructureUnitI
+import ee.lang.*
 
 
-interface ActionI : LogicUnitI {
+interface ActionIB<B : ActionIB<B>> : LogicUnitIB<B> {
 }
 
 
-interface AggregateHandlerI : StateMachineI {
+interface AggregateHandlerIB<B : AggregateHandlerIB<B>> : StateMachineIB<B> {
 }
 
 
-interface ApplyActionI : ActionI {
-    fun target(): AttributeI
-    fun target(value: AttributeI): ApplyActionI
+interface ApplyActionIB<B : ApplyActionIB<B>> : ActionIB<B> {
+    fun target(): AttributeIB<*>
+    fun target(value: AttributeIB<*>): B
 
-    fun operator(): AttributeI
-    fun operator(value: AttributeI): ApplyActionI
+    fun operator(): AttributeIB<*>
+    fun operator(value: AttributeIB<*>): B
 
     fun value(): Any
-    fun value(aValue: Any): ApplyActionI
+    fun value(aValue: Any): B
 }
 
 
-interface BasicI : DataTypeI {
+interface BasicIB<B : BasicIB<B>> : DataTypeIB<B> {
 }
 
 
-interface BundleI : StructureUnitI {
-    fun units(): ListMultiHolderI<StructureUnitI>
-    fun units(vararg value: StructureUnitI): BundleI
+interface BundleIB<B : BundleIB<B>> : StructureUnitIB<B> {
+    fun units(): ListMultiHolder<StructureUnitIB<*>>
+    fun units(vararg value: StructureUnitIB<*>): B
 }
 
 
-interface BusinessCommandI : CommandI {
+interface BusinessCommandIB<B : BusinessCommandIB<B>> : CommandIB<B> {
 }
 
 
-interface BussinesEventI : EventI {
+interface BussinesEventIB<B : BussinesEventIB<B>> : EventIB<B> {
 }
 
 
-interface CheckI : LogicUnitI {
+interface CheckIB<B : CheckIB<B>> : LogicUnitIB<B> {
     fun cachedInContext(): Boolean
-    fun cachedInContext(value: Boolean): CheckI
+    fun cachedInContext(value: Boolean): B
 }
 
 
-interface CommandI : EventI {
+interface CommandIB<B : CommandIB<B>> : EventIB<B> {
     fun affectMulti(): Boolean
-    fun affectMulti(value: Boolean): CommandI
+    fun affectMulti(value: Boolean): B
 
-    fun event(): EventI
-    fun event(value: EventI): CommandI
+    fun event(): EventIB<*>
+    fun event(value: EventIB<*>): B
 }
 
 
-interface CompI : ModuleGroupI {
-    fun moduleGroups(): ListMultiHolderI<ModuleGroupI>
-    fun moduleGroups(vararg value: ModuleGroupI): CompI
+interface CompIB<B : CompIB<B>> : ModuleGroupIB<B> {
+    fun moduleGroups(): ListMultiHolder<ModuleGroupIB<*>>
+    fun moduleGroups(vararg value: ModuleGroupIB<*>): B
 }
 
 
-interface CompositeCommandI : CompilationUnitI {
-    fun commands(): ListMultiHolderI<CommandI>
-    fun commands(vararg value: CommandI): CompositeCommandI
+interface CompositeCommandIB<B : CompositeCommandIB<B>> : CompilationUnitIB<B> {
+    fun commands(): ListMultiHolder<CommandIB<*>>
+    fun commands(vararg value: CommandIB<*>): B
 }
 
 
-interface ControllerI : CompilationUnitI {
-    fun enums(): ListMultiHolderI<EnumTypeI>
-    fun enums(vararg value: EnumTypeI): ControllerI
-    fun enumType(value: EnumTypeI): EnumTypeI
-    fun enumType(value: EnumTypeI.() -> Unit = {}): EnumTypeI
+interface ControllerIB<B : ControllerIB<B>> : CompilationUnitIB<B> {
+    fun enums(): ListMultiHolder<EnumTypeIB<*>>
+    fun enums(vararg value: EnumTypeIB<*>): B
+    fun enumType(value: EnumTypeIB<*>): EnumTypeIB<*>
+    fun enumType(value: EnumTypeIB<*>.() -> Unit = {}): EnumTypeIB<*>
 
-    fun values(): ListMultiHolderI<ValuesI>
-    fun values(vararg value: ValuesI): ControllerI
-    fun valueType(value: ValuesI): ValuesI
-    fun valueType(value: ValuesI.() -> Unit = {}): ValuesI
+    fun values(): ListMultiHolder<ValuesIB<*>>
+    fun values(vararg value: ValuesIB<*>): B
+    fun valueType(value: ValuesIB<*>): ValuesIB<*>
+    fun valueType(value: ValuesIB<*>.() -> Unit = {}): ValuesIB<*>
 
-    fun basics(): ListMultiHolderI<BasicI>
-    fun basics(vararg value: BasicI): ControllerI
-    fun basic(value: BasicI): BasicI
-    fun basic(value: BasicI.() -> Unit = {}): BasicI
+    fun basics(): ListMultiHolder<BasicIB<*>>
+    fun basics(vararg value: BasicIB<*>): B
+    fun basic(value: BasicIB<*>): BasicIB<*>
+    fun basic(value: BasicIB<*>.() -> Unit = {}): BasicIB<*>
 }
 
 
-interface CountByI : DataTypeOperationI {
+interface CountByIB<B : CountByIB<B>> : DataTypeOperationIB<B> {
 }
 
 
-interface CreateByI : CommandI {
+interface CreateByIB<B : CreateByIB<B>> : CommandIB<B> {
 }
 
 
-interface CreatedI : EventI {
+interface CreatedIB<B : CreatedIB<B>> : EventIB<B> {
 }
 
 
-interface DeleteByI : CommandI {
+interface DeleteByIB<B : DeleteByIB<B>> : CommandIB<B> {
 }
 
 
-interface DeletedI : EventI {
+interface DeletedIB<B : DeletedIB<B>> : EventIB<B> {
 }
 
 
-interface DynamicStateI : StateI {
-    fun checks(): ListMultiHolderI<CheckI>
-    fun checks(vararg value: CheckI): DynamicStateI
-    fun yes(value: CheckI): CheckI
-    fun yes(value: CheckI.() -> Unit = {}): CheckI
+interface DynamicStateIB<B : DynamicStateIB<B>> : StateIB<B> {
+    fun checks(): ListMultiHolder<CheckIB<*>>
+    fun checks(vararg value: CheckIB<*>): B
+    fun yes(value: CheckIB<*>): CheckIB<*>
+    fun yes(value: CheckIB<*>.() -> Unit = {}): CheckIB<*>
 
-    fun notChecks(): ListMultiHolderI<CheckI>
-    fun notChecks(vararg value: CheckI): DynamicStateI
-    fun no(value: CheckI): CheckI
-    fun no(value: CheckI.() -> Unit = {}): CheckI
+    fun notChecks(): ListMultiHolder<CheckIB<*>>
+    fun notChecks(vararg value: CheckIB<*>): B
+    fun no(value: CheckIB<*>): CheckIB<*>
+    fun no(value: CheckIB<*>.() -> Unit = {}): CheckIB<*>
 }
 
 
-interface EntityI : DataTypeI {
+interface EntityIB<B : EntityIB<B>> : DataTypeIB<B> {
     fun defaultEvents(): Boolean
-    fun defaultEvents(value: Boolean): EntityI
+    fun defaultEvents(value: Boolean): B
 
     fun defaultQueries(): Boolean
-    fun defaultQueries(value: Boolean): EntityI
+    fun defaultQueries(value: Boolean): B
 
     fun defaultCommands(): Boolean
-    fun defaultCommands(value: Boolean): EntityI
+    fun defaultCommands(value: Boolean): B
 
-    fun belongsToAggregate(): EntityI
-    fun belongsToAggregate(value: EntityI): EntityI
+    fun belongsToAggregate(): EntityIB<*>
+    fun belongsToAggregate(value: EntityIB<*>): B
 
-    fun aggregateFor(): ListMultiHolderI<EntityI>
-    fun aggregateFor(vararg value: EntityI): EntityI
+    fun aggregateFor(): ListMultiHolder<EntityIB<*>>
+    fun aggregateFor(vararg value: EntityIB<*>): B
 
-    fun controllers(): ListMultiHolderI<ControllerI>
-    fun controllers(vararg value: ControllerI): EntityI
-    fun controller(value: ControllerI): ControllerI
-    fun controller(value: ControllerI.() -> Unit = {}): ControllerI
+    fun controllers(): ListMultiHolder<ControllerIB<*>>
+    fun controllers(vararg value: ControllerIB<*>): B
+    fun controller(value: ControllerIB<*>): ControllerIB<*>
+    fun controller(value: ControllerIB<*>.() -> Unit = {}): ControllerIB<*>
 
-    fun findBys(): ListMultiHolderI<FindByI>
-    fun findBys(vararg value: FindByI): EntityI
-    fun findBy(value: FindByI): FindByI
-    fun findBy(value: FindByI.() -> Unit = {}): FindByI
+    fun findBys(): ListMultiHolder<FindByIB<*>>
+    fun findBys(vararg value: FindByIB<*>): B
+    fun findBy(value: FindByIB<*>): FindByIB<*>
+    fun findBy(value: FindByIB<*>.() -> Unit = {}): FindByIB<*>
 
-    fun countBys(): ListMultiHolderI<CountByI>
-    fun countBys(vararg value: CountByI): EntityI
-    fun countBy(value: CountByI): CountByI
-    fun countBy(value: CountByI.() -> Unit = {}): CountByI
+    fun countBys(): ListMultiHolder<CountByIB<*>>
+    fun countBys(vararg value: CountByIB<*>): B
+    fun countBy(value: CountByIB<*>): CountByIB<*>
+    fun countBy(value: CountByIB<*>.() -> Unit = {}): CountByIB<*>
 
-    fun existBys(): ListMultiHolderI<ExistByI>
-    fun existBys(vararg value: ExistByI): EntityI
-    fun existBy(value: ExistByI): ExistByI
-    fun existBy(value: ExistByI.() -> Unit = {}): ExistByI
+    fun existBys(): ListMultiHolder<ExistByIB<*>>
+    fun existBys(vararg value: ExistByIB<*>): B
+    fun existBy(value: ExistByIB<*>): ExistByIB<*>
+    fun existBy(value: ExistByIB<*>.() -> Unit = {}): ExistByIB<*>
 
-    fun commands(): ListMultiHolderI<BusinessCommandI>
-    fun commands(vararg value: BusinessCommandI): EntityI
-    fun command(value: BusinessCommandI): BusinessCommandI
-    fun command(value: BusinessCommandI.() -> Unit = {}): BusinessCommandI
+    fun commands(): ListMultiHolder<BusinessCommandIB<*>>
+    fun commands(vararg value: BusinessCommandIB<*>): B
+    fun command(value: BusinessCommandIB<*>): BusinessCommandIB<*>
+    fun command(value: BusinessCommandIB<*>.() -> Unit = {}): BusinessCommandIB<*>
 
-    fun composites(): ListMultiHolderI<CompositeCommandI>
-    fun composites(vararg value: CompositeCommandI): EntityI
-    fun composite(value: CompositeCommandI): CompositeCommandI
-    fun composite(value: CompositeCommandI.() -> Unit = {}): CompositeCommandI
+    fun composites(): ListMultiHolder<CompositeCommandIB<*>>
+    fun composites(vararg value: CompositeCommandIB<*>): B
+    fun composite(value: CompositeCommandIB<*>): CompositeCommandIB<*>
+    fun composite(value: CompositeCommandIB<*>.() -> Unit = {}): CompositeCommandIB<*>
 
-    fun createBys(): ListMultiHolderI<CreateByI>
-    fun createBys(vararg value: CreateByI): EntityI
-    fun createBy(value: CreateByI): CreateByI
-    fun createBy(value: CreateByI.() -> Unit = {}): CreateByI
+    fun createBys(): ListMultiHolder<CreateByIB<*>>
+    fun createBys(vararg value: CreateByIB<*>): B
+    fun createBy(value: CreateByIB<*>): CreateByIB<*>
+    fun createBy(value: CreateByIB<*>.() -> Unit = {}): CreateByIB<*>
 
-    fun updateBys(): ListMultiHolderI<UpdateByI>
-    fun updateBys(vararg value: UpdateByI): EntityI
-    fun updateBy(value: UpdateByI): UpdateByI
-    fun updateBy(value: UpdateByI.() -> Unit = {}): UpdateByI
+    fun updateBys(): ListMultiHolder<UpdateByIB<*>>
+    fun updateBys(vararg value: UpdateByIB<*>): B
+    fun updateBy(value: UpdateByIB<*>): UpdateByIB<*>
+    fun updateBy(value: UpdateByIB<*>.() -> Unit = {}): UpdateByIB<*>
 
-    fun deleteBys(): ListMultiHolderI<DeleteByI>
-    fun deleteBys(vararg value: DeleteByI): EntityI
-    fun deleteBy(value: DeleteByI): DeleteByI
-    fun deleteBy(value: DeleteByI.() -> Unit = {}): DeleteByI
+    fun deleteBys(): ListMultiHolder<DeleteByIB<*>>
+    fun deleteBys(vararg value: DeleteByIB<*>): B
+    fun deleteBy(value: DeleteByIB<*>): DeleteByIB<*>
+    fun deleteBy(value: DeleteByIB<*>.() -> Unit = {}): DeleteByIB<*>
 
-    fun events(): ListMultiHolderI<BussinesEventI>
-    fun events(vararg value: BussinesEventI): EntityI
-    fun event(value: BussinesEventI): BussinesEventI
-    fun event(value: BussinesEventI.() -> Unit = {}): BussinesEventI
+    fun events(): ListMultiHolder<BussinesEventIB<*>>
+    fun events(vararg value: BussinesEventIB<*>): B
+    fun event(value: BussinesEventIB<*>): BussinesEventIB<*>
+    fun event(value: BussinesEventIB<*>.() -> Unit = {}): BussinesEventIB<*>
 
-    fun created(): ListMultiHolderI<CreatedI>
-    fun created(vararg value: CreatedI): EntityI
-    fun created(value: CreatedI): CreatedI
-    fun created(value: CreatedI.() -> Unit = {}): CreatedI
+    fun created(): ListMultiHolder<CreatedIB<*>>
+    fun created(vararg value: CreatedIB<*>): B
+    fun created(value: CreatedIB<*>): CreatedIB<*>
+    fun created(value: CreatedIB<*>.() -> Unit = {}): CreatedIB<*>
 
-    fun updated(): ListMultiHolderI<UpdatedI>
-    fun updated(vararg value: UpdatedI): EntityI
-    fun updated(value: UpdatedI): UpdatedI
-    fun updated(value: UpdatedI.() -> Unit = {}): UpdatedI
+    fun updated(): ListMultiHolder<UpdatedIB<*>>
+    fun updated(vararg value: UpdatedIB<*>): B
+    fun updated(value: UpdatedIB<*>): UpdatedIB<*>
+    fun updated(value: UpdatedIB<*>.() -> Unit = {}): UpdatedIB<*>
 
-    fun deleted(): ListMultiHolderI<DeletedI>
-    fun deleted(vararg value: DeletedI): EntityI
-    fun deleted(value: DeletedI): DeletedI
-    fun deleted(value: DeletedI.() -> Unit = {}): DeletedI
+    fun deleted(): ListMultiHolder<DeletedIB<*>>
+    fun deleted(vararg value: DeletedIB<*>): B
+    fun deleted(value: DeletedIB<*>): DeletedIB<*>
+    fun deleted(value: DeletedIB<*>.() -> Unit = {}): DeletedIB<*>
 
-    fun handlers(): ListMultiHolderI<AggregateHandlerI>
-    fun handlers(vararg value: AggregateHandlerI): EntityI
-    fun handler(value: AggregateHandlerI): AggregateHandlerI
-    fun handler(value: AggregateHandlerI.() -> Unit = {}): AggregateHandlerI
+    fun handlers(): ListMultiHolder<AggregateHandlerIB<*>>
+    fun handlers(vararg value: AggregateHandlerIB<*>): B
+    fun handler(value: AggregateHandlerIB<*>): AggregateHandlerIB<*>
+    fun handler(value: AggregateHandlerIB<*>.() -> Unit = {}): AggregateHandlerIB<*>
 
-    fun projectors(): ListMultiHolderI<ProjectorI>
-    fun projectors(vararg value: ProjectorI): EntityI
-    fun projector(value: ProjectorI): ProjectorI
-    fun projector(value: ProjectorI.() -> Unit = {}): ProjectorI
+    fun projectors(): ListMultiHolder<ProjectorIB<*>>
+    fun projectors(vararg value: ProjectorIB<*>): B
+    fun projector(value: ProjectorIB<*>): ProjectorIB<*>
+    fun projector(value: ProjectorIB<*>.() -> Unit = {}): ProjectorIB<*>
 
-    fun processManager(): ListMultiHolderI<ProcessManagerI>
-    fun processManager(vararg value: ProcessManagerI): EntityI
-    fun processManager(value: ProcessManagerI): ProcessManagerI
-    fun processManager(value: ProcessManagerI.() -> Unit = {}): ProcessManagerI
+    fun processManager(): ListMultiHolder<ProcessManagerIB<*>>
+    fun processManager(vararg value: ProcessManagerIB<*>): B
+    fun processManager(value: ProcessManagerIB<*>): ProcessManagerIB<*>
+    fun processManager(value: ProcessManagerIB<*>.() -> Unit = {}): ProcessManagerIB<*>
 }
 
 
-interface EventI : CompilationUnitI {
+interface EventIB<B : EventIB<B>> : CompilationUnitIB<B> {
 }
 
 
-interface ExecutorI : LogicUnitI {
-    fun on(): CommandI
-    fun on(value: CommandI): ExecutorI
+interface ExecutorIB<B : ExecutorIB<B>> : LogicUnitIB<B> {
+    fun on(): CommandIB<*>
+    fun on(value: CommandIB<*>): B
 
-    fun checks(): ListMultiHolderI<CheckI>
-    fun checks(vararg value: CheckI): ExecutorI
-    fun yes(value: CheckI): CheckI
-    fun yes(value: CheckI.() -> Unit = {}): CheckI
+    fun checks(): ListMultiHolder<CheckIB<*>>
+    fun checks(vararg value: CheckIB<*>): B
+    fun yes(value: CheckIB<*>): CheckIB<*>
+    fun yes(value: CheckIB<*>.() -> Unit = {}): CheckIB<*>
 
-    fun notChecks(): ListMultiHolderI<CheckI>
-    fun notChecks(vararg value: CheckI): ExecutorI
-    fun no(value: CheckI): CheckI
-    fun no(value: CheckI.() -> Unit = {}): CheckI
+    fun notChecks(): ListMultiHolder<CheckIB<*>>
+    fun notChecks(vararg value: CheckIB<*>): B
+    fun no(value: CheckIB<*>): CheckIB<*>
+    fun no(value: CheckIB<*>.() -> Unit = {}): CheckIB<*>
 
-    fun actions(): ListMultiHolderI<ActionI>
-    fun actions(vararg value: ActionI): ExecutorI
-    fun action(value: ActionI): ActionI
-    fun action(value: ActionI.() -> Unit = {}): ActionI
+    fun actions(): ListMultiHolder<ActionIB<*>>
+    fun actions(vararg value: ActionIB<*>): B
+    fun action(value: ActionIB<*>): ActionIB<*>
+    fun action(value: ActionIB<*>.() -> Unit = {}): ActionIB<*>
 
-    fun output(): ListMultiHolderI<EventI>
-    fun output(vararg value: EventI): ExecutorI
-    fun produce(value: EventI): EventI
-    fun produce(value: EventI.() -> Unit = {}): EventI
+    fun output(): ListMultiHolder<EventIB<*>>
+    fun output(vararg value: EventIB<*>): B
+    fun produce(value: EventIB<*>): EventIB<*>
+    fun produce(value: EventIB<*>.() -> Unit = {}): EventIB<*>
 }
 
 
-interface ExistByI : DataTypeOperationI {
+interface ExistByIB<B : ExistByIB<B>> : DataTypeOperationIB<B> {
 }
 
 
-interface ExternalModuleI : ModuleI {
-    fun externalTypes(): ListMultiHolderI<ExternalTypeI>
-    fun externalTypes(vararg value: ExternalTypeI): ExternalModuleI
+interface ExternalModuleIB<B : ExternalModuleIB<B>> : ModuleIB<B> {
+    fun externalTypes(): ListMultiHolder<ExternalTypeIB<*>>
+    fun externalTypes(vararg value: ExternalTypeIB<*>): B
 }
 
 
-interface FacetI : ModuleGroupI {
+interface FacetIB<B : FacetIB<B>> : ModuleGroupIB<B> {
 }
 
 
-interface FindByI : DataTypeOperationI {
+interface FindByIB<B : FindByIB<B>> : DataTypeOperationIB<B> {
     fun multiResult(): Boolean
-    fun multiResult(value: Boolean): FindByI
+    fun multiResult(value: Boolean): B
 }
 
 
-interface HandlerI : LogicUnitI {
-    fun on(): EventI
-    fun on(value: EventI): HandlerI
+interface HandlerIB<B : HandlerIB<B>> : LogicUnitIB<B> {
+    fun on(): EventIB<*>
+    fun on(value: EventIB<*>): B
 
-    fun checks(): ListMultiHolderI<CheckI>
-    fun checks(vararg value: CheckI): HandlerI
-    fun yes(value: CheckI): CheckI
-    fun yes(value: CheckI.() -> Unit = {}): CheckI
+    fun checks(): ListMultiHolder<CheckIB<*>>
+    fun checks(vararg value: CheckIB<*>): B
+    fun yes(value: CheckIB<*>): CheckIB<*>
+    fun yes(value: CheckIB<*>.() -> Unit = {}): CheckIB<*>
 
-    fun notChecks(): ListMultiHolderI<CheckI>
-    fun notChecks(vararg value: CheckI): HandlerI
-    fun no(value: CheckI): CheckI
-    fun no(value: CheckI.() -> Unit = {}): CheckI
+    fun notChecks(): ListMultiHolder<CheckIB<*>>
+    fun notChecks(vararg value: CheckIB<*>): B
+    fun no(value: CheckIB<*>): CheckIB<*>
+    fun no(value: CheckIB<*>.() -> Unit = {}): CheckIB<*>
 
-    fun to(): StateI
-    fun to(value: StateI): HandlerI
+    fun to(): StateIB<*>
+    fun to(value: StateIB<*>): B
 
-    fun actions(): ListMultiHolderI<ActionI>
-    fun actions(vararg value: ActionI): HandlerI
-    fun action(value: ActionI): ActionI
-    fun action(value: ActionI.() -> Unit = {}): ActionI
+    fun actions(): ListMultiHolder<ActionIB<*>>
+    fun actions(vararg value: ActionIB<*>): B
+    fun action(value: ActionIB<*>): ActionIB<*>
+    fun action(value: ActionIB<*>.() -> Unit = {}): ActionIB<*>
 
-    fun output(): ListMultiHolderI<CommandI>
-    fun output(vararg value: CommandI): HandlerI
-    fun produce(value: CommandI): CommandI
-    fun produce(value: CommandI.() -> Unit = {}): CommandI
+    fun output(): ListMultiHolder<CommandIB<*>>
+    fun output(vararg value: CommandIB<*>): B
+    fun produce(value: CommandIB<*>): CommandIB<*>
+    fun produce(value: CommandIB<*>.() -> Unit = {}): CommandIB<*>
 }
 
 
-interface ModelI : StructureUnitI {
-    fun models(): ListMultiHolderI<ModelI>
-    fun models(vararg value: ModelI): ModelI
+interface ModelIB<B : ModelIB<B>> : StructureUnitIB<B> {
+    fun models(): ListMultiHolder<ModelIB<*>>
+    fun models(vararg value: ModelIB<*>): B
 
-    fun comps(): ListMultiHolderI<CompI>
-    fun comps(vararg value: CompI): ModelI
+    fun comps(): ListMultiHolder<CompIB<*>>
+    fun comps(vararg value: CompIB<*>): B
 }
 
 
-interface ModuleI : StructureUnitI {
+interface ModuleIB<B : ModuleIB<B>> : StructureUnitIB<B> {
     fun parentNamespace(): Boolean
-    fun parentNamespace(value: Boolean): ModuleI
+    fun parentNamespace(value: Boolean): B
 
-    fun dependencies(): ListMultiHolderI<ModuleI>
-    fun dependencies(vararg value: ModuleI): ModuleI
+    fun dependencies(): ListMultiHolder<ModuleIB<*>>
+    fun dependencies(vararg value: ModuleIB<*>): B
 
-    fun entities(): ListMultiHolderI<EntityI>
-    fun entities(vararg value: EntityI): ModuleI
-    fun entity(value: EntityI): EntityI
-    fun entity(value: EntityI.() -> Unit = {}): EntityI
+    fun entities(): ListMultiHolder<EntityIB<*>>
+    fun entities(vararg value: EntityIB<*>): B
+    fun entity(value: EntityIB<*>): EntityIB<*>
+    fun entity(value: EntityIB<*>.() -> Unit = {}): EntityIB<*>
 
-    fun enums(): ListMultiHolderI<EnumTypeI>
-    fun enums(vararg value: EnumTypeI): ModuleI
-    fun enumType(value: EnumTypeI): EnumTypeI
-    fun enumType(value: EnumTypeI.() -> Unit = {}): EnumTypeI
+    fun enums(): ListMultiHolder<EnumTypeIB<*>>
+    fun enums(vararg value: EnumTypeIB<*>): B
+    fun enumType(value: EnumTypeIB<*>): EnumTypeIB<*>
+    fun enumType(value: EnumTypeIB<*>.() -> Unit = {}): EnumTypeIB<*>
 
-    fun values(): ListMultiHolderI<ValuesI>
-    fun values(vararg value: ValuesI): ModuleI
-    fun valueType(value: ValuesI): ValuesI
-    fun valueType(value: ValuesI.() -> Unit = {}): ValuesI
+    fun values(): ListMultiHolder<ValuesIB<*>>
+    fun values(vararg value: ValuesIB<*>): B
+    fun valueType(value: ValuesIB<*>): ValuesIB<*>
+    fun valueType(value: ValuesIB<*>.() -> Unit = {}): ValuesIB<*>
 
-    fun basics(): ListMultiHolderI<BasicI>
-    fun basics(vararg value: BasicI): ModuleI
-    fun basic(value: BasicI): BasicI
-    fun basic(value: BasicI.() -> Unit = {}): BasicI
+    fun basics(): ListMultiHolder<BasicIB<*>>
+    fun basics(vararg value: BasicIB<*>): B
+    fun basic(value: BasicIB<*>): BasicIB<*>
+    fun basic(value: BasicIB<*>.() -> Unit = {}): BasicIB<*>
 
-    fun controllers(): ListMultiHolderI<ControllerI>
-    fun controllers(vararg value: ControllerI): ModuleI
-    fun controller(value: ControllerI): ControllerI
-    fun controller(value: ControllerI.() -> Unit = {}): ControllerI
+    fun controllers(): ListMultiHolder<ControllerIB<*>>
+    fun controllers(vararg value: ControllerIB<*>): B
+    fun controller(value: ControllerIB<*>): ControllerIB<*>
+    fun controller(value: ControllerIB<*>.() -> Unit = {}): ControllerIB<*>
 
-    fun processManagers(): ListMultiHolderI<ProcessManagerI>
-    fun processManagers(vararg value: ProcessManagerI): ModuleI
-    fun processManager(value: ProcessManagerI): ProcessManagerI
-    fun processManager(value: ProcessManagerI.() -> Unit = {}): ProcessManagerI
+    fun processManagers(): ListMultiHolder<ProcessManagerIB<*>>
+    fun processManagers(vararg value: ProcessManagerIB<*>): B
+    fun processManager(value: ProcessManagerIB<*>): ProcessManagerIB<*>
+    fun processManager(value: ProcessManagerIB<*>.() -> Unit = {}): ProcessManagerIB<*>
 
-    fun projectors(): ListMultiHolderI<ProjectorI>
-    fun projectors(vararg value: ProjectorI): ModuleI
-    fun projector(value: ProjectorI): ProjectorI
-    fun projector(value: ProjectorI.() -> Unit = {}): ProjectorI
+    fun projectors(): ListMultiHolder<ProjectorIB<*>>
+    fun projectors(vararg value: ProjectorIB<*>): B
+    fun projector(value: ProjectorIB<*>): ProjectorIB<*>
+    fun projector(value: ProjectorIB<*>.() -> Unit = {}): ProjectorIB<*>
 }
 
 
-interface ModuleGroupI : StructureUnitI {
-    fun modules(): ListMultiHolderI<ModuleI>
-    fun modules(vararg value: ModuleI): ModuleGroupI
+interface ModuleGroupIB<B : ModuleGroupIB<B>> : StructureUnitIB<B> {
+    fun modules(): ListMultiHolder<ModuleIB<*>>
+    fun modules(vararg value: ModuleIB<*>): B
 }
 
 
-interface ProcessManagerI : StateMachineI {
+interface ProcessManagerIB<B : ProcessManagerIB<B>> : StateMachineIB<B> {
 }
 
 
-interface ProjectorI : StateMachineI {
+interface ProjectorIB<B : ProjectorIB<B>> : StateMachineIB<B> {
 }
 
 
-interface StateI : ControllerI {
+interface StateIB<B : StateIB<B>> : ControllerIB<B> {
     fun timeout(): Long
-    fun timeout(value: Long): StateI
+    fun timeout(value: Long): B
 
-    fun entryActions(): ListMultiHolderI<ActionI>
-    fun entryActions(vararg value: ActionI): StateI
-    fun entry(value: ActionI): ActionI
-    fun entry(value: ActionI.() -> Unit = {}): ActionI
+    fun entryActions(): ListMultiHolder<ActionIB<*>>
+    fun entryActions(vararg value: ActionIB<*>): B
+    fun entry(value: ActionIB<*>): ActionIB<*>
+    fun entry(value: ActionIB<*>.() -> Unit = {}): ActionIB<*>
 
-    fun exitActions(): ListMultiHolderI<ActionI>
-    fun exitActions(vararg value: ActionI): StateI
-    fun exit(value: ActionI): ActionI
-    fun exit(value: ActionI.() -> Unit = {}): ActionI
+    fun exitActions(): ListMultiHolder<ActionIB<*>>
+    fun exitActions(vararg value: ActionIB<*>): B
+    fun exit(value: ActionIB<*>): ActionIB<*>
+    fun exit(value: ActionIB<*>.() -> Unit = {}): ActionIB<*>
 
-    fun executors(): ListMultiHolderI<ExecutorI>
-    fun executors(vararg value: ExecutorI): StateI
-    fun execute(value: ExecutorI): ExecutorI
-    fun execute(value: ExecutorI.() -> Unit = {}): ExecutorI
+    fun executors(): ListMultiHolder<ExecutorIB<*>>
+    fun executors(vararg value: ExecutorIB<*>): B
+    fun execute(value: ExecutorIB<*>): ExecutorIB<*>
+    fun execute(value: ExecutorIB<*>.() -> Unit = {}): ExecutorIB<*>
 
-    fun handlers(): ListMultiHolderI<HandlerI>
-    fun handlers(vararg value: HandlerI): StateI
-    fun handle(value: HandlerI): HandlerI
-    fun handle(value: HandlerI.() -> Unit = {}): HandlerI
+    fun handlers(): ListMultiHolder<HandlerIB<*>>
+    fun handlers(vararg value: HandlerIB<*>): B
+    fun handle(value: HandlerIB<*>): HandlerIB<*>
+    fun handle(value: HandlerIB<*>.() -> Unit = {}): HandlerIB<*>
 }
 
 
-interface StateMachineI : ControllerI {
-    fun stateProp(): AttributeI
-    fun stateProp(value: AttributeI): StateMachineI
+interface StateMachineIB<B : StateMachineIB<B>> : ControllerIB<B> {
+    fun stateProp(): AttributeIB<*>
+    fun stateProp(value: AttributeIB<*>): B
 
-    fun timeoutProp(): AttributeI
-    fun timeoutProp(value: AttributeI): StateMachineI
+    fun timeoutProp(): AttributeIB<*>
+    fun timeoutProp(value: AttributeIB<*>): B
 
     fun timeout(): Long
-    fun timeout(value: Long): StateMachineI
+    fun timeout(value: Long): B
 
-    fun states(): ListMultiHolderI<StateI>
-    fun states(vararg value: StateI): StateMachineI
-    fun state(value: StateI): StateI
-    fun state(value: StateI.() -> Unit = {}): StateI
+    fun states(): ListMultiHolder<StateIB<*>>
+    fun states(vararg value: StateIB<*>): B
+    fun state(value: StateIB<*>): StateIB<*>
+    fun state(value: StateIB<*>.() -> Unit = {}): StateIB<*>
 
-    fun checks(): ListMultiHolderI<CheckI>
-    fun checks(vararg value: CheckI): StateMachineI
-    fun check(value: CheckI): CheckI
-    fun check(value: CheckI.() -> Unit = {}): CheckI
+    fun checks(): ListMultiHolder<CheckIB<*>>
+    fun checks(vararg value: CheckIB<*>): B
+    fun check(value: CheckIB<*>): CheckIB<*>
+    fun check(value: CheckIB<*>.() -> Unit = {}): CheckIB<*>
 }
 
 
-interface UpdateByI : CommandI {
+interface UpdateByIB<B : UpdateByIB<B>> : CommandIB<B> {
 }
 
 
-interface UpdatedI : EventI {
+interface UpdatedIB<B : UpdatedIB<B>> : EventIB<B> {
 }
 
 
-interface ValuesI : DataTypeI {
+interface ValuesIB<B : ValuesIB<B>> : DataTypeIB<B> {
 }
 
 
-interface WidgetI : CompilationUnitI {
+interface WidgetIB<B : WidgetIB<B>> : CompilationUnitIB<B> {
 }
 

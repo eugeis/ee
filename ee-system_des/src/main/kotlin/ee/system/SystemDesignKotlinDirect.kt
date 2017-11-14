@@ -2,7 +2,6 @@ package ee.system
 
 import java.util.*
 import kotlin.reflect.full.functions
-import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.reflect
 
 

@@ -18,8 +18,9 @@ open class LangKotlinContextFactory {
     open fun buildForDslBuilder(): StructureUnitIB<*>.() -> KotlinContext {
         val controller = DerivedController()
 
-        controller.registerKind(LangDerivedKind.API, { "${name()}I" }, isNotPartOfNativeTypes)
+        controller.registerKind(LangDerivedKind.API, { "${name()}IB" }, isNotPartOfNativeTypes)
         controller.registerKind(LangDerivedKind.IMPL, { name() }, isNotPartOfNativeTypes)
+        controller.registerKind(LangDerivedKind.MANUAL, { "${name()}B" }, isNotPartOfNativeTypes)
 
         return contextBuilder(controller)
     }

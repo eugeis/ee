@@ -325,7 +325,7 @@ open class MacroController {
     val nameToMacro = hashMapOf<String, Macro<*>>()
 
     open fun <T : ItemIB<*>> registerMacro(name: String, template: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
-        nameToMacro.put(name, Macro<T>(name = name, template = template))
+        nameToMacro.put(name, Macro(name = name, template = template))
     }
 
     open fun <T : ItemIB<*>> find(name: String): Macro<T> {

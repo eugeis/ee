@@ -2,9 +2,7 @@ package ee.lang.fx.view
 
 import ee.task.Task
 import javafx.application.Platform
-import tornadofx.View
-import tornadofx.tab
-import tornadofx.tabpane
+import tornadofx.*
 
 class OptionsContainerView : View("OptionsContainerView") {
     val tasksController: TasksController by inject()
