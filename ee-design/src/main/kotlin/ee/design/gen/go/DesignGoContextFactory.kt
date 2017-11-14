@@ -1,17 +1,17 @@
 package ee.design.gen.go
 
-import ee.design.CommandIB
-import ee.design.CompIB
-import ee.design.EventIB
+import ee.design.CommandI
+import ee.design.CompI
+import ee.design.EventI
 import ee.lang.*
 import ee.lang.gen.go.GoContext
 import ee.lang.gen.go.LangGoContextFactory
 
 open class DesignGoContextFactory : LangGoContextFactory() {
-    override fun contextBuilder(derived: DerivedController): StructureUnitIB<*>.() -> GoContext {
+    override fun contextBuilder(derived: DerivedController): StructureUnitI<*>.() -> GoContext {
         return {
             val structureUnit = this
-            val compOrStructureUnit = this.findThisOrParentUnsafe(CompIB::class.java) ?: structureUnit
+            val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: structureUnit
 
             GoContext(moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}",
                     namespace = structureUnit.namespace().toLowerCase(),
@@ -25,16 +25,16 @@ open class DesignGoContextFactory : LangGoContextFactory() {
         super.registerForImplOnly(derived)
     }
 
-    override fun buildName(item: ItemIB<*>, kind: String): String {
-        return if (item is CommandIB<*>) {
+    override fun buildName(item: ItemI<*>, kind: String): String {
+        return if (item is CommandI<*>) {
             buildNameForCommand(item, kind)
-        } else if (item is EventIB<*>) {
+        } else if (item is EventI<*>) {
             buildNameForEvent(item, kind)
         } else {
             super.buildName(item, kind)
         }
     }
 
-    protected open fun buildNameForCommand(item: CommandIB<*>, kind: String) = item.nameAndParentName().capitalize()
-    protected open fun buildNameForEvent(item: EventIB<*>, kind: String) = item.parentNameAndName().capitalize()
+    protected open fun buildNameForCommand(item: CommandI<*>, kind: String) = item.nameAndParentName().capitalize()
+    protected open fun buildNameForEvent(item: EventI<*>, kind: String) = item.parentNameAndName().capitalize()
 }

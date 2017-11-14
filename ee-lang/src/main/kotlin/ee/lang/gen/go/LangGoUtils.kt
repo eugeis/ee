@@ -268,7 +268,7 @@ open class GoContext : GenerationContext {
         }
     }
 
-    override fun n(item: ItemIB<*>, derivedKind: String): String {
+    override fun n(item: ItemI<*>, derivedKind: String): String {
         val derived = types.addReturn(derivedController.derive(item, derivedKind))
         if (derived.namespace().isEmpty() || derived.namespace().equals(namespace, true)) {
             return derived.name()
@@ -278,19 +278,19 @@ open class GoContext : GenerationContext {
     }
 }
 
-fun <T : StructureUnitIB<*>> T.prepareForGoGeneration(): T {
+fun <T : StructureUnitI<*>> T.prepareForGoGeneration(): T {
     initsForGoGeneration()
     extendForGoGenerationLang()
     return this
 }
 
-fun <T : StructureUnitIB<*>> T.initsForGoGeneration(): T {
+fun <T : StructureUnitI<*>> T.initsForGoGeneration(): T {
     g.initObjectTree()
     initObjectTrees()
     return this
 }
 
-fun <T : StructureUnitIB<*>> T.extendForGoGenerationLang(): T {
+fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
     //declare as 'base' all compilation units with non implemented operations.
     declareAsBaseWithNonImplementedOperation()
 
@@ -302,23 +302,23 @@ fun <T : StructureUnitIB<*>> T.extendForGoGenerationLang(): T {
     return this
 }
 
-fun OperationIB<*>.retTypeAndError(retType: TypeIB<*>): OperationIB<*> = returns(Attribute { type(retType).name("ret") },
+fun OperationI<*>.retTypeAndError(retType: TypeI<*>): OperationI<*> = returns(Attribute { type(retType).name("ret") },
         Attribute { type(g.error).name("err") })
 
-fun OperationIB<*>.retError(): OperationIB<*> = returns(Attribute { type(g.error).name("err") })
+fun OperationI<*>.retError(): OperationI<*> = returns(Attribute { type(g.error).name("err") })
 
-fun AttributeIB<*>.nameForGoMember(): String = storage.getOrPut(this, "nameForGoMember", {
+fun AttributeI<*>.nameForGoMember(): String = storage.getOrPut(this, "nameForGoMember", {
     replaceable().notSetOrTrue().ifElse({ name().capitalize() }, { name().decapitalize() })
 })
 
-val itemAndTemplateNameAsGoFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
+val itemAndTemplateNameAsGoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("${it.name().capitalize()}${name.capitalize()}.go")
 }
 
-val templateNameAsGoFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
+val templateNameAsGoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("$name.go")
 }
 
-val itemNameAsGoFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
+val itemNameAsGoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("${it.name()}.go")
 }

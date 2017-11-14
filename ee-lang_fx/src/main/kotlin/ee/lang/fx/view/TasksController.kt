@@ -1,5 +1,6 @@
 package ee.lang.fx.view
 
+import ee.lang.ItemI
 import ee.task.Result
 import ee.task.TaskFactory
 import ee.task.TaskRepository
@@ -11,9 +12,9 @@ class TasksController : Controller() {
     val outputContainerView: OutputContainerView by inject()
 
     val repo: TaskRepository by di()
-    var selectedElements: List<ItemI> = emptyList()
+    var selectedElements: List<ItemI<*>> = emptyList()
 
-    fun onStructureUnitsSelected(elements: List<ItemI>) {
+    fun onStructureUnitsSelected(elements: List<ItemI<*>>) {
         selectedElements = elements
         runAsync {
             repo.find(elements)

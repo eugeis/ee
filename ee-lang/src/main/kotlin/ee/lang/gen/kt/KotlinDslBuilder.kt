@@ -6,16 +6,16 @@ import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 
-fun <T : AttributeIB<*>> T.toKotlinTypeSingleB(c: GenerationContext, api: String): String {
+fun <T : AttributeI<*>> T.toKotlinTypeSingleB(c: GenerationContext, api: String): String {
     return type().isNative().ifElse({ c.n(type(), api) }, { "${c.n(type(), api)}<*>" })
 }
 
-fun <T : AttributeIB<*>> T.toKotlinDslTypeDef(c: GenerationContext, api: String): String {
+fun <T : AttributeI<*>> T.toKotlinDslTypeDef(c: GenerationContext, api: String): String {
     return """${multi().ifElse({ "${c.n(l.ListMultiHolder, LangDerivedKind.IMPL)}<${toKotlinTypeSingleB(c, api)}>" }, { toKotlinTypeSingleB(c, api) })}${nullable().then("?")}"""
 }
 
-fun <T : AttributeIB<*>> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: String,
-                                                      parent: ItemIB<*> = findParent(CompilationUnitIB::class.java) ?: parent()): String {
+fun <T : AttributeI<*>> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: String,
+                                                      parent: ItemI<*> = findParent(CompilationUnitI::class.java) ?: parent()): String {
     val value = (name() == "value").ifElse("aValue", "value")
     return """
     fun ${name()}(): ${toKotlinDslTypeDef(c, api)}${multi().ifElse({
@@ -31,8 +31,8 @@ fun <T : AttributeIB<*>> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api:
     }}"""
 }
 
-fun <T : AttributeIB<*>> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: String, api: String,
-                                                     parent: ItemIB<*> = findParent(CompilationUnitIB::class.java) ?: parent()): String {
+fun <T : AttributeI<*>> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: String, api: String,
+                                                     parent: ItemI<*> = findParent(CompilationUnitI::class.java) ?: parent()): String {
     val value = (name() == "value").ifElse("aValue", "value")
     val override = (derived != api).ifElse("override ", "")
     return """${multi().ifElse({
@@ -55,14 +55,14 @@ fun <T : AttributeIB<*>> T.toKotlinDslBuilderMethods(c: GenerationContext, deriv
     }}"""
 }
 
-fun <T : CompilationUnitIB<*>> T.toKotlinDslBuilderI(c: GenerationContext, derived: String = LangDerivedKind.API): String {
+fun <T : CompilationUnitI<*>> T.toKotlinDslBuilderI(c: GenerationContext, derived: String = LangDerivedKind.API): String {
     return """
 interface ${c.n(this, derived)}<B : ${c.n(this, derived)}<B>> : ${c.n(superUnit(), derived)}<B> {${
     props().joinToString(nL) { it.toKotlinDslBuilderMethodsI(c, derived, this) }}
 }"""
 }
 
-fun <T : CompilationUnitIB<*>> T.toKotlinDslBuilder(c: GenerationContext,
+fun <T : CompilationUnitI<*>> T.toKotlinDslBuilder(c: GenerationContext,
                                                     derived: String = LangDerivedKind.IMPL,
                                                     api: String = LangDerivedKind.API
 ): String {

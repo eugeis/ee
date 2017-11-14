@@ -1,17 +1,17 @@
 package ee.design.gen.kt
 
-import ee.design.ModuleIB
+import ee.design.ModuleI
 import ee.design.defineNamesForTypeControllers
 import ee.design.gen.DesignGeneratorFactory
-import ee.lang.StructureUnitIB
+import ee.lang.StructureUnitI
 import ee.lang.findDownByType
 import ee.lang.gen.kt.prepareForKotlinGeneration
 import java.nio.file.Path
 
 open class DesignKotlinGenerator {
-    val model: StructureUnitIB<*>
+    val model: StructureUnitI<*>
 
-    constructor(model: StructureUnitIB<*>) {
+    constructor(model: StructureUnitI<*>) {
         this.model = model
     }
 
@@ -20,12 +20,12 @@ open class DesignKotlinGenerator {
         val generatorFactory = DesignGeneratorFactory()
         val generator = generatorFactory.pojoKt()
         generator.delete(target, model)
-        model.findDownByType(ModuleIB::class.java).forEach { module ->
+        model.findDownByType(ModuleI::class.java).forEach { module ->
             generator.generate(target, module)
         }
     }
 
-    protected fun StructureUnitIB<*>.extendForKotlinGeneration() {
+    protected fun StructureUnitI<*>.extendForKotlinGeneration() {
         prepareForKotlinGeneration()
 
         //define names for data type controllers

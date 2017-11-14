@@ -1,5 +1,6 @@
 package ee.task
 
+import ee.lang.ItemI
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
@@ -143,9 +144,9 @@ abstract class TaskFactoryBase<T : Task> {
     }
 
 
-    abstract fun supports(items: List<ItemI> = arrayListOf()): Boolean
+    abstract fun supports(items: List<ItemI<*>> = arrayListOf()): Boolean
 
-    abstract fun create(items: List<ItemI> = arrayListOf()): List<*>
+    abstract fun create(items: List<ItemI<*>> = arrayListOf()): List<*>
 
 }
 
@@ -166,7 +167,7 @@ abstract class TaskRepositoryBase {
 
     abstract fun <V : TaskFactory<*> > register(factory: V)
 
-    abstract fun <T : ItemI> find(items: List<T>): List<*>
+    abstract fun <T : ItemI<*>> find(items: List<T>): List<*>
 
 }
 
@@ -187,7 +188,7 @@ abstract class PathResolverBase {
     }
 
 
-    abstract fun <T : ItemI> resolve(item: T): Path
+    abstract fun <T : ItemI<*>> resolve(item: T): Path
 
 }
 

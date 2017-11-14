@@ -1,7 +1,7 @@
 package ee.lang
 
 
-interface AttributeIB<B : AttributeIB<B>> : LiteralIB<B> {
+interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
     fun accessible(value: Boolean?): B
 
     fun anonymous(value: Boolean): B
@@ -32,7 +32,7 @@ interface AttributeIB<B : AttributeIB<B>> : LiteralIB<B> {
 
     fun replaceable(value: Boolean?): B
 
-    fun type(value: TypeIB<*>): B
+    fun type(value: TypeI<*>): B
 
     fun unique(value: Boolean): B
 
@@ -67,7 +67,7 @@ interface AttributeIB<B : AttributeIB<B>> : LiteralIB<B> {
 
     fun replaceable(): Boolean?
 
-    fun type(): TypeIB<*>
+    fun type(): TypeI<*>
 
     fun unique(): Boolean
 
@@ -75,80 +75,69 @@ interface AttributeIB<B : AttributeIB<B>> : LiteralIB<B> {
 }
 
 
-
-interface CompilationUnitIB<B : CompilationUnitIB<B>> : TypeIB<B> {
+interface CompilationUnitI<B : CompilationUnitI<B>> : TypeI<B> {
     fun base(value: Boolean): B
     fun base(): Boolean
 }
 
 
-
-interface ConstructorIB<B : ConstructorIB<B>> : LogicUnitIB<B> {
+interface ConstructorI<B : ConstructorI<B>> : LogicUnitI<B> {
     fun primary(value: Boolean): B
     fun primary(): Boolean
 }
 
 
-
-interface DataTypeIB<B : DataTypeIB<B>> : CompilationUnitIB<B> {
+interface DataTypeI<B : DataTypeI<B>> : CompilationUnitI<B> {
 }
 
 
-
-interface DataTypeOperationIB<B : DataTypeOperationIB<B>> : OperationIB<B> {
+interface DataTypeOperationI<B : DataTypeOperationI<B>> : OperationI<B> {
 }
 
 
-
-interface EnumTypeIB<B : EnumTypeIB<B>> : DataTypeIB<B> {
-    fun literals(vararg value: LiteralIB<*>): B
-    fun literals(): ListMultiHolder<LiteralIB<*>>
-    fun lit(value: LiteralIB<*>): LiteralIB<*>
-    fun lit(value: LiteralIB<*>.() -> Unit = {}): LiteralIB<*>
+interface EnumTypeI<B : EnumTypeI<B>> : DataTypeI<B> {
+    fun literals(vararg value: LiteralI<*>): B
+    fun literals(): ListMultiHolder<LiteralI<*>>
+    fun lit(value: LiteralI<*>): LiteralI<*>
+    fun lit(value: LiteralI<*>.() -> Unit = {}): LiteralI<*>
 }
 
 
-
-interface ExpressionIB<B : ExpressionIB<B>> : MacroCompositeIB<B> {
+interface ExpressionI<B : ExpressionI<B>> : MacroCompositeI<B> {
 }
 
 
-
-interface ExternalTypeIB<B : ExternalTypeIB<B>> : TypeIB<B> {
+interface ExternalTypeI<B : ExternalTypeI<B>> : TypeI<B> {
 }
 
 
-
-interface GenericIB<B : GenericIB<B>> : TypeIB<B> {
-    fun type(value: TypeIB<*>): B
-    fun type(): TypeIB<*>
+interface GenericI<B : GenericI<B>> : TypeI<B> {
+    fun type(value: TypeI<*>): B
+    fun type(): TypeI<*>
 }
 
 
-
-interface LambdaIB<B : LambdaIB<B>> : TypeIB<B> {
-    fun operation(value: OperationIB<*>): B
-    fun operation(): OperationIB<*>
+interface LambdaI<B : LambdaI<B>> : TypeI<B> {
+    fun operation(value: OperationI<*>): B
+    fun operation(): OperationI<*>
 }
 
 
-
-interface LiteralIB<B : LiteralIB<B>> : LogicUnitIB<B> {
+interface LiteralI<B : LiteralI<B>> : LogicUnitI<B> {
 }
 
 
+interface LogicUnitI<B : LogicUnitI<B>> : ExpressionI<B> {
+    fun params(vararg value: AttributeI<*>): B
 
-interface LogicUnitIB<B : LogicUnitIB<B>> : ExpressionIB<B> {
-    fun params(vararg value: AttributeIB<*>): B
-
-    fun superUnit(value: LogicUnitIB<*>): B
+    fun superUnit(value: LogicUnitI<*>): B
 
     fun virtual(value: Boolean): B
 
     fun visible(value: Boolean): B
-    fun params(): ListMultiHolder<AttributeIB<*>>
+    fun params(): ListMultiHolder<AttributeI<*>>
 
-    fun superUnit(): LogicUnitIB<*>
+    fun superUnit(): LogicUnitI<*>
 
     fun virtual(): Boolean
 
@@ -156,8 +145,7 @@ interface LogicUnitIB<B : LogicUnitIB<B>> : ExpressionIB<B> {
 }
 
 
-
-interface MacroCompositeIB<B : MacroCompositeIB<B>> : CompositeIB<B> {
+interface MacroCompositeI<B : MacroCompositeI<B>> : CompositeI<B> {
     fun macrosAfter(vararg value: String): B
 
     fun macrosAfterBody(vararg value: String): B
@@ -183,32 +171,29 @@ interface MacroCompositeIB<B : MacroCompositeIB<B>> : CompositeIB<B> {
 }
 
 
-
-interface NativeTypeIB<B : NativeTypeIB<B>> : TypeIB<B> {
+interface NativeTypeI<B : NativeTypeI<B>> : TypeI<B> {
 }
 
 
-
-interface OperationIB<B : OperationIB<B>> : LogicUnitIB<B> {
-    fun generics(vararg value: GenericIB<*>): B
+interface OperationI<B : OperationI<B>> : LogicUnitI<B> {
+    fun generics(vararg value: GenericI<*>): B
 
     fun open(value: Boolean): B
 
-    fun returns(vararg value: AttributeIB<*>): B
-    fun generics(): ListMultiHolder<GenericIB<*>>
-    fun G(value: GenericIB<*>): GenericIB<*>
-    fun G(value: GenericIB<*>.() -> Unit = {}): GenericIB<*>
+    fun returns(vararg value: AttributeI<*>): B
+    fun generics(): ListMultiHolder<GenericI<*>>
+    fun G(value: GenericI<*>): GenericI<*>
+    fun G(value: GenericI<*>.() -> Unit = {}): GenericI<*>
 
     fun open(): Boolean
 
-    fun returns(): ListMultiHolder<AttributeIB<*>>
-    fun ret(value: AttributeIB<*>): AttributeIB<*>
-    fun ret(value: AttributeIB<*>.() -> Unit = {}): AttributeIB<*>
+    fun returns(): ListMultiHolder<AttributeI<*>>
+    fun ret(value: AttributeI<*>): AttributeI<*>
+    fun ret(value: AttributeI<*>.() -> Unit = {}): AttributeI<*>
 }
 
 
-
-interface StructureUnitIB<B : StructureUnitIB<B>> : MacroCompositeIB<B> {
+interface StructureUnitI<B : StructureUnitI<B>> : MacroCompositeI<B> {
     fun artifact(value: String): B
 
     fun fullName(value: String): B
@@ -222,13 +207,12 @@ interface StructureUnitIB<B : StructureUnitIB<B>> : MacroCompositeIB<B> {
 }
 
 
-
-interface TypeIB<B : TypeIB<B>> : MacroCompositeIB<B> {
-    fun constructors(vararg value: ConstructorIB<*>): B
+interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
+    fun constructors(vararg value: ConstructorI<*>): B
 
     fun defaultValue(value: Any?): B
 
-    fun generics(vararg value: GenericIB<*>): B
+    fun generics(vararg value: GenericI<*>): B
 
     fun ifc(value: Boolean): B
 
@@ -236,24 +220,24 @@ interface TypeIB<B : TypeIB<B>> : MacroCompositeIB<B> {
 
     fun open(value: Boolean): B
 
-    fun operations(vararg value: OperationIB<*>): B
+    fun operations(vararg value: OperationI<*>): B
 
-    fun props(vararg value: AttributeIB<*>): B
+    fun props(vararg value: AttributeI<*>): B
 
-    fun superUnit(value: CompilationUnitIB<*>): B
+    fun superUnit(value: CompilationUnitI<*>): B
 
-    fun superUnitFor(vararg value: CompilationUnitIB<*>): B
+    fun superUnitFor(vararg value: CompilationUnitI<*>): B
 
     fun virtual(value: Boolean): B
-    fun constructors(): ListMultiHolder<ConstructorIB<*>>
-    fun constr(value: ConstructorIB<*>): ConstructorIB<*>
-    fun constr(value: ConstructorIB<*>.() -> Unit = {}): ConstructorIB<*>
+    fun constructors(): ListMultiHolder<ConstructorI<*>>
+    fun constr(value: ConstructorI<*>): ConstructorI<*>
+    fun constr(value: ConstructorI<*>.() -> Unit = {}): ConstructorI<*>
 
     fun defaultValue(): Any?
 
-    fun generics(): ListMultiHolder<GenericIB<*>>
-    fun G(value: GenericIB<*>): GenericIB<*>
-    fun G(value: GenericIB<*>.() -> Unit = {}): GenericIB<*>
+    fun generics(): ListMultiHolder<GenericI<*>>
+    fun G(value: GenericI<*>): GenericI<*>
+    fun G(value: GenericI<*>.() -> Unit = {}): GenericI<*>
 
     fun ifc(): Boolean
 
@@ -261,19 +245,18 @@ interface TypeIB<B : TypeIB<B>> : MacroCompositeIB<B> {
 
     fun open(): Boolean
 
-    fun operations(): ListMultiHolder<OperationIB<*>>
-    fun op(value: OperationIB<*>): OperationIB<*>
-    fun op(value: OperationIB<*>.() -> Unit = {}): OperationIB<*>
+    fun operations(): ListMultiHolder<OperationI<*>>
+    fun op(value: OperationI<*>): OperationI<*>
+    fun op(value: OperationI<*>.() -> Unit = {}): OperationI<*>
 
-    fun props(): ListMultiHolder<AttributeIB<*>>
-    fun prop(value: AttributeIB<*>): AttributeIB<*>
-    fun prop(value: AttributeIB<*>.() -> Unit = {}): AttributeIB<*>
+    fun props(): ListMultiHolder<AttributeI<*>>
+    fun prop(value: AttributeI<*>): AttributeI<*>
+    fun prop(value: AttributeI<*>.() -> Unit = {}): AttributeI<*>
 
-    fun superUnit(): CompilationUnitIB<*>
+    fun superUnit(): CompilationUnitI<*>
 
-    fun superUnitFor(): ListMultiHolder<CompilationUnitIB<*>>
+    fun superUnitFor(): ListMultiHolder<CompilationUnitI<*>>
 
     fun virtual(): Boolean
 }
-
 

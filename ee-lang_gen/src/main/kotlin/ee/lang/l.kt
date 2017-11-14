@@ -154,7 +154,7 @@ object l : Composite({ namespace("ee.lang") }) {
 
 //help model types
 open class AttributeI : Item {
-    private var type: ItemIB<*> = ItemB.EMPTY
+    private var type: ItemI<*> = ItemB.EMPTY
     private var value: Any = ""
     private var nullable: Boolean = false
     private var multi: Boolean = false
@@ -169,8 +169,8 @@ open class AttributeI : Item {
         init(this)
     }
 
-    fun type(): ItemIB<*> = type
-    fun type(value: ItemIB<*>): AttributeI = apply { type = value }
+    fun type(): ItemI<*> = type
+    fun type(value: ItemI<*>): AttributeI = apply { type = value }
 
     fun value(): Any = value
     fun value(aValue: Any): AttributeI = apply { value = aValue }

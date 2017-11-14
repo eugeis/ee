@@ -34,19 +34,19 @@ infix fun Predicate.or(predicate: Predicate): OrExpression {
  */
 class EqExpression(val left: Any?, val right: Any?) : Predicate()
 
-infix fun LiteralIB<*>.eq(column: LiteralIB<*>): EqExpression {
+infix fun LiteralI<*>.eq(column: LiteralI<*>): EqExpression {
     return EqExpression(this, column)
 }
 
-infix fun LiteralIB<*>.eq(str: String?): EqExpression {
+infix fun LiteralI<*>.eq(str: String?): EqExpression {
     return EqExpression(this, str)
 }
 
-infix fun LiteralIB<*>.eq(num: Number): EqExpression {
+infix fun LiteralI<*>.eq(num: Number): EqExpression {
     return EqExpression(this, num)
 }
 
-infix fun LiteralIB<*>.eq(flag: Boolean): EqExpression {
+infix fun LiteralI<*>.eq(flag: Boolean): EqExpression {
     return EqExpression(this, flag)
 }
 
@@ -55,19 +55,19 @@ infix fun LiteralIB<*>.eq(flag: Boolean): EqExpression {
  */
 class NeExpression(val left: Any?, val right: Any?) : Predicate()
 
-infix fun LiteralIB<*>.ne(column: LiteralIB<*>): NeExpression {
+infix fun LiteralI<*>.ne(column: LiteralI<*>): NeExpression {
     return NeExpression(this, column)
 }
 
-infix fun LiteralIB<*>.ne(str: String?): NeExpression {
+infix fun LiteralI<*>.ne(str: String?): NeExpression {
     return NeExpression(this, str)
 }
 
-infix fun LiteralIB<*>.ne(num: Number): NeExpression {
+infix fun LiteralI<*>.ne(num: Number): NeExpression {
     return NeExpression(this, num)
 }
 
-infix fun LiteralIB<*>.ne(flag: Boolean): NeExpression {
+infix fun LiteralI<*>.ne(flag: Boolean): NeExpression {
     return NeExpression(this, flag)
 }
 
@@ -76,15 +76,15 @@ infix fun LiteralIB<*>.ne(flag: Boolean): NeExpression {
  */
 class LtExpression(val left: Any?, val right: Any?) : Predicate()
 
-infix fun LiteralIB<*>.lt(column: LiteralIB<*>): LtExpression {
+infix fun LiteralI<*>.lt(column: LiteralI<*>): LtExpression {
     return LtExpression(this, column)
 }
 
-infix fun LiteralIB<*>.lt(str: String?): LtExpression {
+infix fun LiteralI<*>.lt(str: String?): LtExpression {
     return LtExpression(this, str)
 }
 
-infix fun LiteralIB<*>.lt(num: Number): LtExpression {
+infix fun LiteralI<*>.lt(num: Number): LtExpression {
     return LtExpression(this, num)
 }
 
@@ -93,15 +93,15 @@ infix fun LiteralIB<*>.lt(num: Number): LtExpression {
  */
 class LteExpression(val left: Any?, val right: Any?) : Predicate()
 
-infix fun LiteralIB<*>.lte(column: LiteralIB<*>): LteExpression {
+infix fun LiteralI<*>.lte(column: LiteralI<*>): LteExpression {
     return LteExpression(this, column)
 }
 
-infix fun LiteralIB<*>.lte(str: String?): LteExpression {
+infix fun LiteralI<*>.lte(str: String?): LteExpression {
     return LteExpression(this, str)
 }
 
-infix fun LiteralIB<*>.lte(num: Number): LteExpression {
+infix fun LiteralI<*>.lte(num: Number): LteExpression {
     return LteExpression(this, num)
 }
 
@@ -110,15 +110,15 @@ infix fun LiteralIB<*>.lte(num: Number): LteExpression {
  */
 class GtExpression(val left: Any?, val right: Any?) : Predicate()
 
-infix fun LiteralIB<*>.gt(column: LiteralIB<*>): GtExpression {
+infix fun LiteralI<*>.gt(column: LiteralI<*>): GtExpression {
     return GtExpression(this, column)
 }
 
-infix fun LiteralIB<*>.gt(str: String?): GtExpression {
+infix fun LiteralI<*>.gt(str: String?): GtExpression {
     return GtExpression(this, str)
 }
 
-infix fun LiteralIB<*>.gt(num: Number): GtExpression {
+infix fun LiteralI<*>.gt(num: Number): GtExpression {
     return GtExpression(this, num)
 }
 
@@ -127,14 +127,14 @@ infix fun LiteralIB<*>.gt(num: Number): GtExpression {
  */
 class GteExpression(val left: Any?, val right: Any?) : Predicate()
 
-infix fun LiteralIB<*>.gte(column: LiteralIB<*>): GteExpression {
+infix fun LiteralI<*>.gte(column: LiteralI<*>): GteExpression {
     return GteExpression(this, column)
 }
 
-infix fun LiteralIB<*>.gte(str: String?): GteExpression {
+infix fun LiteralI<*>.gte(str: String?): GteExpression {
     return GteExpression(this, str)
 }
 
-infix fun LiteralIB<*>.gte(num: Number): GteExpression {
+infix fun LiteralI<*>.gte(num: Number): GteExpression {
     return GteExpression(this, num)
 }

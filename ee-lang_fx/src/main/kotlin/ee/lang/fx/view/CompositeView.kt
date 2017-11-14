@@ -1,5 +1,7 @@
 package ee.lang.fx.view
 
+import ee.lang.ItemI
+import ee.lang.MultiHolderI
 import javafx.scene.control.SelectionMode
 import javafx.scene.control.TreeItem
 import tornadofx.*
@@ -34,20 +36,20 @@ class CompositeView() : View("Explorer") {
     )
 }
 
-open class ExplorerModel(val name: String, val elementGroups: List<Pair<String, MultiHolderI<*>>>, val nodeFilter: (ItemI) -> Boolean)
+open class ExplorerModel(val name: String, val elementGroups: List<Pair<String, MultiHolderI<*, *>>>, val nodeFilter: (ItemI<*>) -> Boolean)
 
-open class ItemNode(val el: ItemI, val factory: () -> List<ItemNode> = { emptyList<ItemNode>() })
+open class ItemNode(val el: ItemI<*>, val factory: () -> List<ItemNode> = { emptyList<ItemNode>() })
 
-fun ItemI.toNode(filter: (ItemI) -> Boolean): ItemNode =
-        if (this is MultiHolderI<*>) toNode(filter) else ItemNode(this)
+fun ItemI<*>.toNode(filter: (ItemI<*>) -> Boolean): ItemNode =
+        if (this is MultiHolderI<*, *>) toNode(filter) else ItemNode(this)
 
-fun MultiHolderI<Any>.toNode(filter: (Any) -> Boolean): ItemNode {
+fun MultiHolderI<Any, *>.toNode(filter: (Any) -> Boolean): ItemNode {
     return ItemNode(this) {
         val ret = arrayListOf<ItemNode>()
         items().filterIsInstance(ItemI::class.java).filter(filter).forEach {
-            if (it is MultiHolderI<*>) {
+            if (it is MultiHolderI<*, *>) {
                 ret.add(it.toNode(filter))
-            } else if (it is ItemI) {
+            } else {
                 ret.add(it.toNode(filter))
             }
         }

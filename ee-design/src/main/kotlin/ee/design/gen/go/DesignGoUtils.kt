@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("DesignGoUtils")
 
-fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
+fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
 
     val reposFactory = lambda {
         p("name")
@@ -17,26 +17,26 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
         ret(g.eh.ReadWriteRepo)
     }
 
-    findDownByType(EntityIB::class.java).filter { !it.virtual() && it.derivedAsType().isEmpty() }.groupBy {
-        it.findParentMust(ModuleIB::class.java)
+    findDownByType(EntityI::class.java).filter { !it.virtual() && it.derivedAsType().isEmpty() }.groupBy {
+        it.findParentMust(ModuleI::class.java)
     }.forEach { module, items ->
         module.extend {
-            val aggregateInitializer = arrayListOf<ControllerIB<*>>()
-            val httpRouters = arrayListOf<ControllerIB<*>>()
+            val aggregateInitializer = arrayListOf<ControllerI<*>>()
+            val httpRouters = arrayListOf<ControllerI<*>>()
             items.forEach { item ->
                 item.extend {
                     val finders = findDownByType(FindBy::class.java)
-                    val counters = findDownByType(CountByIB::class.java)
-                    val exists = findDownByType(ExistByIB::class.java)
+                    val counters = findDownByType(CountByI::class.java)
+                    val exists = findDownByType(ExistByI::class.java)
 
-                    val creaters = findDownByType(CreateByIB::class.java)
-                    val updaters = findDownByType(UpdateByIB::class.java)
-                    val deleters = findDownByType(DeleteByIB::class.java)
+                    val creaters = findDownByType(CreateByI::class.java)
+                    val updaters = findDownByType(UpdateByI::class.java)
+                    val deleters = findDownByType(DeleteByI::class.java)
 
-                    val bussinesCommands = findDownByType(BusinessCommandIB::class.java)
+                    val bussinesCommands = findDownByType(BusinessCommandI::class.java)
 
                     //command handler
-                    val commands = item.findDownByType(CommandIB::class.java)
+                    val commands = item.findDownByType(CommandI::class.java)
                     val commandHandler = controller {
                         name(DesignDerivedType.CommandHandler).derivedAsType(DesignDerivedType.Aggregate)
                         commands.forEach { command ->
@@ -57,7 +57,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                                     retError()
                                 })
                                 derivedFrom(command)
-                                macrosBody(OperationIB<*>::toGoCommandHandlerAddPreparerBody.name)
+                                macrosBody(OperationI<*>::toGoCommandHandlerAddPreparerBody.name)
                             }
                         }
 
@@ -67,13 +67,13 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                             p("entity", g.eh.Entity)
                             p("store", g.gee.eh.AggregateStoreEvent)
                             retError()
-                            macrosBody(OperationIB<*>::toGoCommandHandlerExecuteCommandBody.name)
+                            macrosBody(OperationI<*>::toGoCommandHandlerExecuteCommandBody.name)
                         }
 
                         op {
                             name("SetupCommandHandler")
                             retError()
-                            macrosBody(OperationIB<*>::toGoCommandHandlerSetupBody.name)
+                            macrosBody(OperationI<*>::toGoCommandHandlerSetupBody.name)
                         }
 
                         //add command type enum
@@ -86,7 +86,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                     }
 
                     //event handler
-                    val events = item.findDownByType(EventIB::class.java)
+                    val events = item.findDownByType(EventI::class.java)
                     val eventHandler = controller {
                         name(DesignDerivedType.EventHandler).derivedAsType(DesignDerivedType.Aggregate)
                         events.forEach { event ->
@@ -104,13 +104,13 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                             p("event", g.eh.Event)
                             p("entity", g.eh.Entity)
                             retError()
-                            macrosBody(OperationIB<*>::toGoEventHandlerApplyEvent.name)
+                            macrosBody(OperationI<*>::toGoEventHandlerApplyEvent.name)
                         }
 
                         op {
                             name("SetupEventHandler")
                             retError()
-                            macrosBody(OperationIB<*>::toGoEventHandlerSetupBody.name)
+                            macrosBody(OperationI<*>::toGoEventHandlerSetupBody.name)
                         }
 
                         //add event type enum
@@ -130,15 +130,15 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
 
                         //queries
                         finders.forEach {
-                            op(it).macrosBody(OperationIB<*>::toGoFindByBody.name)
+                            op(it).macrosBody(OperationI<*>::toGoFindByBody.name)
                         }
 
                         counters.forEach {
-                            op(it).macrosBody(OperationIB<*>::toGoCountByBody.name)
+                            op(it).macrosBody(OperationI<*>::toGoCountByBody.name)
                         }
 
                         exists.forEach {
-                            op(it).macrosBody(OperationIB<*>::toGoExistByBody.name)
+                            op(it).macrosBody(OperationI<*>::toGoExistByBody.name)
                         }
 
                         constructorAllProps {}
@@ -154,8 +154,8 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                                 prop { type(eventHandler).anonymous(true).name("eventHandler") }
                                 prop { type(eventHandler).name("projectorHandler") }
 
-                                macrosBefore(CompilationUnitIB<*>::toGoAggregateInitializerConst.name)
-                                macrosAfter(CompilationUnitIB<*>::toGoAggregateInitializerRegisterForEvents.name)
+                                macrosBefore(CompilationUnitI<*>::toGoAggregateInitializerConst.name)
+                                macrosAfter(CompilationUnitI<*>::toGoAggregateInitializerRegisterForEvents.name)
 
                                 constr {
                                     params(p { type(g.eh.EventStore).name("eventStore") },
@@ -163,7 +163,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                                             p { type(g.eh.EventPublisher).name("eventPublisher") },
                                             p { type(g.eh.CommandBus).name("commandBus") },
                                             p { type(reposFactory).name("readRepos") })
-                                    macrosBody(ConstructorIB<*>::toGoAggregateInitializerBody.name)
+                                    macrosBody(ConstructorI<*>::toGoAggregateInitializerBody.name)
                                 }
                             })
 
@@ -178,7 +178,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
                                 derivedFrom(it)
-                                macrosBody(OperationIB<*>::toGoHttpHandlerBody.name)
+                                macrosBody(OperationI<*>::toGoHttpHandlerBody.name)
                             }
                         }
 
@@ -188,7 +188,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
                                 derivedFrom(it)
-                                macrosBody(OperationIB<*>::toGoHttpHandlerBody.name)
+                                macrosBody(OperationI<*>::toGoHttpHandlerBody.name)
                             }
                         }
 
@@ -198,7 +198,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
                                 derivedFrom(it)
-                                macrosBody(OperationIB<*>::toGoHttpHandlerBody.name)
+                                macrosBody(OperationI<*>::toGoHttpHandlerBody.name)
                             }
                         }
 
@@ -216,7 +216,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
                                 derivedFrom(it)
-                                macrosBody(OperationIB<*>::toGoHttpHandlerCommandBody.name)
+                                macrosBody(OperationI<*>::toGoHttpHandlerCommandBody.name)
                             }
                         }
 
@@ -226,7 +226,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
                                 derivedFrom(it)
-                                macrosBody(OperationIB<*>::toGoHttpHandlerCommandBody.name)
+                                macrosBody(OperationI<*>::toGoHttpHandlerCommandBody.name)
                             }
                         }
 
@@ -236,7 +236,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
                                 derivedFrom(it)
-                                macrosBody(OperationIB<*>::toGoHttpHandlerCommandBody.name)
+                                macrosBody(OperationI<*>::toGoHttpHandlerCommandBody.name)
                             }
                         }
 
@@ -246,7 +246,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                                 p("w", g.net.http.ResponseWriter)
                                 p("r", g.net.http.Request)
                                 derivedFrom(it)
-                                macrosBody(OperationIB<*>::toGoHttpHandlerCommandBody.name)
+                                macrosBody(OperationI<*>::toGoHttpHandlerCommandBody.name)
                             }
                         }
 
@@ -264,7 +264,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                                     name("Setup")
                                     params(prop { type(g.mux.Router).name("router") })
                                     retError()
-                                    macrosBody(OperationIB<*>::toGoSetupHttpRouterBody.name)
+                                    macrosBody(OperationI<*>::toGoSetupHttpRouterBody.name)
                                 }
                                 constr {
                                     params(pathPrefix,
@@ -275,7 +275,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                                             p(queryHandler, { default(true) }),
                                             p(commandHandler, { default(true) })
                                     )
-                                    macrosBeforeBody(ConstructorIB<*>::toGoHttpRouterBeforeBody.name)
+                                    macrosBeforeBody(ConstructorI<*>::toGoHttpRouterBeforeBody.name)
                                 }
                             }
                     )
@@ -303,7 +303,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                 op {
                     name("Setup")
                     retError()
-                    macrosBody(OperationIB<*>::toGoEventhorizonInitializerSetupBody.name)
+                    macrosBody(OperationI<*>::toGoEventhorizonInitializerSetupBody.name)
                 }
             }
 
@@ -319,7 +319,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                     name("Setup")
                     params(prop { type(g.mux.Router).name("router") })
                     retError()
-                    macrosBody(OperationIB<*>::toGoSetupModuleHttpRouter.name)
+                    macrosBody(OperationI<*>::toGoSetupModuleHttpRouter.name)
                 }
                 constr {
                     params(pathPrefix,
@@ -329,7 +329,7 @@ fun StructureUnitIB<*>.addEventhorizonArtifactsForAggregate() {
                                 type(reposFactory).name("readRepos")
                             },
                             *httpRouterParams.map { p(it, { default(true) }) }.toTypedArray())
-                    macrosBeforeBody(ConstructorIB<*>::toGoHttpModuleRouterBeforeBody.name)
+                    macrosBeforeBody(ConstructorI<*>::toGoHttpModuleRouterBeforeBody.name)
                 }
             }
         }

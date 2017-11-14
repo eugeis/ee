@@ -6,18 +6,18 @@ import ee.common.ext.joinWithIndexToString
 import ee.common.ext.setAndTrue
 import ee.lang.*
 
-fun LiteralIB<*>.toGo(): String = name().capitalize()
-fun EnumTypeIB<*>.toGoAccess(): String = "${name().capitalize()}s"
-fun EnumTypeIB<*>.toGoLiterals(): String = toGoAccess().decapitalize()
+fun LiteralI<*>.toGo(): String = name().capitalize()
+fun EnumTypeI<*>.toGoAccess(): String = "${name().capitalize()}s"
+fun EnumTypeI<*>.toGoLiterals(): String = toGoAccess().decapitalize()
 
-fun LiteralIB<*>.toGoIsMethod(o: String, literals: String): String {
+fun LiteralI<*>.toGoIsMethod(o: String, literals: String): String {
     return """
 func (o *$o) Is${name().capitalize()}() bool {
     return o == _$literals.${toGo()}()
 }"""
 }
 
-fun AttributeIB<*>.toGoGetMethod(o: String, c: GenerationContext,
+fun AttributeI<*>.toGoGetMethod(o: String, c: GenerationContext,
                              api: String = LangDerivedKind.API): String {
     return """
 func (o *$o) ${name().capitalize()}() ${toGoType(c, api)} {
@@ -25,7 +25,7 @@ func (o *$o) ${name().capitalize()}() ${toGoType(c, api)} {
 }"""
 }
 
-fun AttributeIB<*>.toGoAddMethod(o: String, c: GenerationContext,
+fun AttributeI<*>.toGoAddMethod(o: String, c: GenerationContext,
                              api: String = LangDerivedKind.API): String {
     val type = type().generics()[0].toGo(c, api)
     return """
@@ -35,26 +35,26 @@ func (o *$o) AddTo${name().capitalize()}(item $type) $type {
 }"""
 }
 
-fun LiteralIB<*>.toGoLitMethod(index: Int, enum: String, literals: String): String {
+fun LiteralI<*>.toGoLitMethod(index: Int, enum: String, literals: String): String {
     return """
 func (o *$literals) ${name().capitalize()}() *$enum {
     return _$literals.values[$index]
 }"""
 }
 
-fun LiteralIB<*>.toGoCase(): String {
+fun LiteralI<*>.toGoCase(): String {
     return """  case o.${this.toGo()}().Name():
         ret = o.${this.toGo()}()"""
 }
 
-fun LiteralIB<*>.toGoInitVariables(index: Int, c: GenerationContext, derived: String): String {
+fun LiteralI<*>.toGoInitVariables(index: Int, c: GenerationContext, derived: String): String {
     return """{name: "${this.name()}", ordinal: $index${
     this.params().joinSurroundIfNotEmptyToString(", ", ", ") {
         it.toGoInitForConstructor(c, derived)
     }}}"""
 }
 
-fun <T : EnumTypeIB<*>> T.toGoEnum(c: GenerationContext, api: String = LangDerivedKind.API): String {
+fun <T : EnumTypeI<*>> T.toGoEnum(c: GenerationContext, api: String = LangDerivedKind.API): String {
     val name = c.n(this, api)
     val enums = toGoAccess()
     val literals = toGoLiterals()
@@ -145,7 +145,7 @@ func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {
 }"""
 }
 
-fun <T : CompilationUnitIB<*>> T.toGoImpl(c: GenerationContext,
+fun <T : CompilationUnitI<*>> T.toGoImpl(c: GenerationContext,
                                       derived: String = LangDerivedKind.IMPL,
                                       api: String = LangDerivedKind.API, excludePropsWithValue: Boolean = false): String {
     val name = c.n(this, derived)

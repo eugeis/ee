@@ -16,36 +16,36 @@ data class InitChain<T>(val initFunctions: List<T.() -> Unit>) : Function1<T, Un
 
 fun <T> inits(vararg initFunctions: T.() -> Unit) = InitChain<T>(initFunctions.toList())
 
-fun ItemIB<*>.findDerivedOrThis() = if (derivedFrom().isEMPTY()) this else derivedFrom()
-fun ItemIB<*>.isOrDerived(item: ItemIB<*>) = this == item || derivedFrom() == item
+fun ItemI<*>.findDerivedOrThis() = if (derivedFrom().isEMPTY()) this else derivedFrom()
+fun ItemI<*>.isOrDerived(item: ItemI<*>) = this == item || derivedFrom() == item
 
-fun <T : ItemIB<*>> List<T>.extend(code: T.() -> Unit = {}) {
+fun <T : ItemI<*>> List<T>.extend(code: T.() -> Unit = {}) {
     forEach { it.extend(code) }
 }
 
-fun <T : ItemIB<*>> T.extend(code: T.() -> Unit = {}) {
+fun <T : ItemI<*>> T.extend(code: T.() -> Unit = {}) {
     code()
     init()
-    if (this is MultiHolderIB<*, *>) {
+    if (this is MultiHolderI<*, *>) {
         fillSupportsItems()
     }
 }
 
-fun <B : ItemIB<*>> B.doc(comment: String): B = apply { doc(Comment({ name(comment) })) }
+fun <B : ItemI<*>> B.doc(comment: String): B = apply { doc(Comment({ name(comment) })) }
 
-fun <B : ItemIB<B>> List<B>.derive(adapt: B.() -> Unit = {}): List<B> {
+fun <B : ItemI<B>> List<B>.derive(adapt: B.() -> Unit = {}): List<B> {
     return map { it.derive(adapt) }
 }
 
-fun <T : ItemIB<*>> ItemIB<*>.findThisOrParentUnsafe(clazz: Class<*>): T? {
+fun <T : ItemI<*>> ItemI<*>.findThisOrParentUnsafe(clazz: Class<*>): T? {
     return if (clazz.isInstance(this)) this as T else findParentUnsafe(clazz)
 }
 
-fun <T : ItemIB<*>> ItemIB<*>.findThisOrParent(clazz: Class<T>): T? {
+fun <T : ItemI<*>> ItemI<*>.findThisOrParent(clazz: Class<T>): T? {
     return if (clazz.isInstance(this)) this as T else findParent(clazz)
 }
 
-fun <T : ItemIB<*>> ItemIB<*>.findParent(clazz: Class<T>): T? {
+fun <T : ItemI<*>> ItemI<*>.findParent(clazz: Class<T>): T? {
     val parent = parent()
     if (parent.isEMPTY()) {
         return null
@@ -56,7 +56,7 @@ fun <T : ItemIB<*>> ItemIB<*>.findParent(clazz: Class<T>): T? {
     }
 }
 
-fun <T : ItemIB<*>> ItemIB<*>.findParentUnsafe(clazz: Class<*>): T? {
+fun <T : ItemI<*>> ItemI<*>.findParentUnsafe(clazz: Class<*>): T? {
     val parent = parent()
     if (parent.isEMPTY()) {
         return null
@@ -67,7 +67,7 @@ fun <T : ItemIB<*>> ItemIB<*>.findParentUnsafe(clazz: Class<*>): T? {
     }
 }
 
-fun <T : ItemIB<*>> ItemIB<*>.findParentMust(clazz: Class<T>): T {
+fun <T : ItemI<*>> ItemI<*>.findParentMust(clazz: Class<T>): T {
     val parent = parent()
     if (parent.isEMPTY()) {
         throw IllegalStateException("There is no parent for $clazz in $this")
@@ -78,7 +78,7 @@ fun <T : ItemIB<*>> ItemIB<*>.findParentMust(clazz: Class<T>): T {
     }
 }
 
-fun <T : ItemIB<*>> ItemIB<*>.findParentNonInternal(): T? {
+fun <T : ItemI<*>> ItemI<*>.findParentNonInternal(): T? {
     val parent = parent()
     if (parent.isEMPTY()) {
         return null
@@ -89,43 +89,43 @@ fun <T : ItemIB<*>> ItemIB<*>.findParentNonInternal(): T? {
     }
 }
 
-fun <T> MultiHolderIB<*, *>.findAllByType(type: Class<T>): List<T> {
+fun <T> MultiHolderI<*, *>.findAllByType(type: Class<T>): List<T> {
     return items().filterIsInstance(type)
 }
 
-fun <T> ItemIB<*>.findUpByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                               alreadyHandled: MutableSet<ItemIB<*>> = hashSetOf(),
+fun <T> ItemI<*>.findUpByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
+                               alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(),
                                stopSteppingUpIfFound: Boolean = true): List<T> =
         findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound) { listOf(parent()) }
 
-fun <T> ItemIB<*>.findAcrossByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                   alreadyHandled: MutableSet<ItemIB<*>> = HashSet(),
+fun <T> ItemI<*>.findAcrossByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
+                                   alreadyHandled: MutableSet<ItemI<*>> = HashSet(),
                                    stopSteppingAcrossIfFound: Boolean = true,
-                                   acrossSelector: ItemIB<*>.() -> Collection<ItemIB<*>>): List<T> =
+                                   acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>): List<T> =
         findAcross({
             if (type.isInstance(this)) this as T else null
         }, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
 
-fun <T> MultiHolderIB<*, *>.findDownByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                           alreadyHandled: MutableSet<ItemIB<*>> = hashSetOf(),
+fun <T> MultiHolderI<*, *>.findDownByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
+                                           alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(),
                                            stopSteppingDownIfFound: Boolean = true): List<T> =
         findAcrossByType(type, destination, alreadyHandled, stopSteppingDownIfFound, {
-            if (this is MultiHolderIB<*, *> && this.supportsItemType(ItemIB::class.java))
-                this.items() as Collection<ItemIB<*>> else emptyList()
+            if (this is MultiHolderI<*, *> && this.supportsItemType(ItemI::class.java))
+                this.items() as Collection<ItemI<*>> else emptyList()
         })
 
-fun <T> ItemIB<*>.findDown(select: ItemIB<*>.() -> T?, destination: MutableList<T> = ArrayList<T>(),
-                           alreadyHandled: MutableSet<ItemIB<*>> = HashSet(),
+fun <T> ItemI<*>.findDown(select: ItemI<*>.() -> T?, destination: MutableList<T> = ArrayList<T>(),
+                           alreadyHandled: MutableSet<ItemI<*>> = HashSet(),
                            stopSteppingAcrossIfFound: Boolean = true): List<T> =
         findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound, {
-            if (this is MultiHolderIB<*, *> && this.supportsItemType(ItemIB::class.java))
-                this.items() as Collection<ItemIB<*>> else emptyList()
+            if (this is MultiHolderI<*, *> && this.supportsItemType(ItemI::class.java))
+                this.items() as Collection<ItemI<*>> else emptyList()
         })
 
-fun <T> ItemIB<*>.findAcross(select: ItemIB<*>.() -> T?, destination: MutableList<T> = ArrayList<T>(),
-                             alreadyHandled: MutableSet<ItemIB<*>> = HashSet(),
+fun <T> ItemI<*>.findAcross(select: ItemI<*>.() -> T?, destination: MutableList<T> = ArrayList<T>(),
+                             alreadyHandled: MutableSet<ItemI<*>> = HashSet(),
                              stopSteppingAcrossIfFound: Boolean = true,
-                             acrossSelector: ItemIB<*>.() -> Collection<ItemIB<*>>): List<T> {
+                             acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>): List<T> {
     acrossSelector().forEach { acrossItem ->
         if (!alreadyHandled.contains(acrossItem)) {
             alreadyHandled.add(acrossItem)
@@ -143,7 +143,7 @@ fun <T> ItemIB<*>.findAcross(select: ItemIB<*>.() -> T?, destination: MutableLis
 }
 
 
-fun <B : MultiHolderIB<I, *>, I> B.initObjectTree(deriveNamespace: ItemIB<*>.() -> String = {
+fun <B : MultiHolderI<I, *>, I> B.initObjectTree(deriveNamespace: ItemI<*>.() -> String = {
     parent().namespace()
 }): B {
     initIfNotInitialized()
@@ -155,7 +155,7 @@ fun <B : MultiHolderIB<I, *>, I> B.initObjectTree(deriveNamespace: ItemIB<*>.() 
             val getter = javaClass.declaredMethods.find { it.name == "get${f.name.capitalize()}" }
             if (getter != null) {
                 val child = getter.invoke(this)
-                if (child is ItemIB<*>) {
+                if (child is ItemI<*>) {
                     child.initIfNotInitialized()
                     if (child.name().isBlank() && !f.name.equals(IGNORE)) child.name(f.name)
                     //set the parent, parent shall be the DSL model parent and not some internal object or reference object
@@ -173,7 +173,7 @@ fun <B : MultiHolderIB<I, *>, I> B.initObjectTree(deriveNamespace: ItemIB<*>.() 
     }
     javaClass.declaredClasses.forEach {
         val child = it.findInstance()
-        if (child != null && child is ItemIB<*>) {
+        if (child != null && child is ItemI<*>) {
             if (!child.isInitialized()) child.init()
             if (child.name().isBlank()) child.name(child.buildLabel().name)
 
@@ -183,7 +183,7 @@ fun <B : MultiHolderIB<I, *>, I> B.initObjectTree(deriveNamespace: ItemIB<*>.() 
             if (!containsItem(child as I)) {
                 addItem(child)
                 if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
-                if (child is MultiHolderIB<*, *>) child.initObjectTree<B, I>(deriveNamespace)
+                if (child is MultiHolderI<*, *>) child.initObjectTree<B, I>(deriveNamespace)
             }
             if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
         }
@@ -206,12 +206,12 @@ fun <T> Class<T>.findInstance(): Any? {
 }
 
 
-fun MultiHolderIB<*, *>.initBlackNames() {
+fun MultiHolderI<*, *>.initBlackNames() {
     findDown({ if (this.name().isBlank()) this else null }).forEach { it.initBlackName() }
 }
 
-fun ItemIB<*>.initBlackName() {
-    if (name().isBlank() && this is ItemIB<*>) {
+fun ItemI<*>.initBlackName() {
+    if (name().isBlank() && this is ItemI<*>) {
         if (derivedFrom().isNotEMPTY() && derivedFrom().name().isNotBlank()) {
             name(derivedFrom().name())
         } else if (parent().isNotEMPTY() && parent().name().isNotBlank()) {
@@ -222,6 +222,6 @@ fun ItemIB<*>.initBlackName() {
     }
 }
 
-fun ItemIB<*>.initIfNotInitialized() {
+fun ItemI<*>.initIfNotInitialized() {
     if (!isInitialized()) init()
 }

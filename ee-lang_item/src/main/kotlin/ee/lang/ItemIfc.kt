@@ -1,17 +1,17 @@
 package ee.lang
 
-interface ItemIB<B : ItemIB<B>> {
+interface ItemI<B : ItemI<B>> {
     fun namespace(): String
     fun name(): String
-    fun doc(): CommentIB<*>
-    fun parent(): ItemIB<*>
+    fun doc(): CommentI<*>
+    fun parent(): ItemI<*>
 
     /** The instance is internal an not real part of model,
      * it must not be a parent of real model item */
     fun internal(): Boolean
 
-    fun derivedItems(): List<ItemIB<*>>
-    fun onDerived(derived: ItemIB<*>)
+    fun derivedItems(): List<ItemI<*>>
+    fun onDerived(derived: ItemI<*>)
     /**
      * Derived as new free given type, e.g. Aggregate from Entity,
      * in order to have filter criteria and not catch derived Entity for generation and
@@ -19,7 +19,7 @@ interface ItemIB<B : ItemIB<B>> {
      */
     fun derivedAsType(): String
 
-    fun derivedFrom(): ItemIB<*>
+    fun derivedFrom(): ItemI<*>
 
     fun <R> applyAndReturn(code: () -> R): R
 
@@ -30,19 +30,19 @@ interface ItemIB<B : ItemIB<B>> {
     fun init()
     fun namespace(value: String): B
     fun name(value: String): B
-    fun doc(value: CommentIB<*>): B
-    fun parent(value: ItemIB<*>): B
+    fun doc(value: CommentI<*>): B
+    fun parent(value: ItemI<*>): B
     fun derivedAsType(value: String): B
-    fun derivedFrom(value: ItemIB<*>): B
+    fun derivedFrom(value: ItemI<*>): B
     fun copy(): B
 
-    fun <T : ItemIB<*>> apply(code: T.() -> Unit): T
+    fun <T : ItemI<*>> apply(code: T.() -> Unit): T
     fun derive(adapt: B.() -> Unit = {}): B
     fun deriveSubType(adapt: B.() -> Unit): B
 }
 
 
-interface MultiHolderIB<I, B : MultiHolderIB<I, B>> : ItemIB<B> {
+interface MultiHolderI<I, B : MultiHolderI<I, B>> : ItemI<B> {
     fun items(): Collection<I>
 
     fun <T : I> addItem(item: T): T
@@ -56,19 +56,19 @@ interface MultiHolderIB<I, B : MultiHolderIB<I, B>> : ItemIB<B> {
     fun <T : I> addItems(items: Collection<T>): B
 }
 
-interface ListMultiHolderIB<I, B : ListMultiHolderIB<I, B>> : MultiHolderIB<I, B>, MutableList<I> {
+interface ListMultiHolderI<I, B : ListMultiHolderI<I, B>> : MultiHolderI<I, B>, MutableList<I> {
 }
 
-interface MapMultiHolderIB<I, B : MapMultiHolderIB<I, B>> : MultiHolderIB<I, B> {
+interface MapMultiHolderI<I, B : MapMultiHolderI<I, B>> : MultiHolderI<I, B> {
     fun <T : I> addItem(childName: String, item: T): T
     fun removeItem(childName: String)
     fun itemsMap(): Map<String, I>
 }
 
-interface CompositeIB<B : CompositeIB<B>> : MapMultiHolderIB<ItemIB<*>, B> {
+interface CompositeI<B : CompositeI<B>> : MapMultiHolderI<ItemI<*>, B> {
     fun <T : Any> attr(name: String, attr: T?): T?
-    fun attributes(): MapMultiHolderIB<*, *>
+    fun attributes(): MapMultiHolderI<*, *>
 }
 
-interface CommentIB<B : CommentIB<B>> : ListMultiHolderIB<String, B> {
+interface CommentI<B : CommentI<B>> : ListMultiHolderI<String, B> {
 }

@@ -10,10 +10,10 @@ import ee.lang.gen.go.nameForGoMember
 import ee.lang.gen.go.toGoImpl
 import ee.lang.gen.go.toGoInstance
 
-fun <T : CommandIB<*>> T.toGoHandler(c: GenerationContext,
+fun <T : CommandI<*>> T.toGoHandler(c: GenerationContext,
                                  derived: String = DesignDerivedKind.IMPL,
                                  api: String = DesignDerivedKind.API): String {
-    val entity = findParentMust(EntityIB::class.java)
+    val entity = findParentMust(EntityI::class.java)
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api)}
@@ -23,10 +23,10 @@ func (o *$name) CommandType() ${c.n(g.eh.CommandType)}      { return ${nameAndPa
 """
 }
 
-fun <T : OperationIB<*>> T.toGoSetupHttpRouterBody(c: GenerationContext,
+fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext,
                                                derived: String = DesignDerivedKind.IMPL,
                                                api: String = DesignDerivedKind.API): String {
-    val entity = findParentMust(EntityIB::class.java)
+    val entity = findParentMust(EntityI::class.java)
 
     val finders = entity.findBys().sortedByDescending { it.params().size }
     val counters = entity.countBys().sortedByDescending { it.params().size }
@@ -106,11 +106,11 @@ fun <T : OperationIB<*>> T.toGoSetupHttpRouterBody(c: GenerationContext,
     }}"""
 }
 
-fun <T : OperationIB<*>> T.toGoSetupModuleHttpRouter(c: GenerationContext,
+fun <T : OperationI<*>> T.toGoSetupModuleHttpRouter(c: GenerationContext,
                                                  derived: String = DesignDerivedKind.IMPL,
                                                  api: String = DesignDerivedKind.API): String {
-    val httpRouters = findParentMust(CompilationUnitIB::class.java).props().filter {
-        it.type() is ControllerIB<*> && it.name().endsWith(DesignDerivedType.HttpRouter)
+    val httpRouters = findParentMust(CompilationUnitI::class.java).props().filter {
+        it.type() is ControllerI<*> && it.name().endsWith(DesignDerivedType.HttpRouter)
     }
     return httpRouters.joinSurroundIfNotEmptyToString("") {
         """
@@ -120,20 +120,20 @@ fun <T : OperationIB<*>> T.toGoSetupModuleHttpRouter(c: GenerationContext,
     }
 }
 
-fun <T : ConstructorIB<*>> T.toGoHttpRouterBeforeBody(c: GenerationContext,
+fun <T : ConstructorI<*>> T.toGoHttpRouterBeforeBody(c: GenerationContext,
                                                   derived: String = DesignDerivedKind.IMPL,
                                                   api: String = DesignDerivedKind.API): String {
-    val item = findParentMust(EntityIB::class.java)
+    val item = findParentMust(EntityI::class.java)
     return """
     pathPrefix = pathPrefix + "/" + "${item.name().toPlural().decapitalize()}"
     entityFactory := func() ${c.n(g.eh.Entity)} { return ${item.toGoInstance(c, derived, api)} }
     repo := readRepos(string(${item.name()}${DesignDerivedType.AggregateType}), entityFactory)"""
 }
 
-fun <T : ConstructorIB<*>> T.toGoHttpModuleRouterBeforeBody(c: GenerationContext,
+fun <T : ConstructorI<*>> T.toGoHttpModuleRouterBeforeBody(c: GenerationContext,
                                                         derived: String = DesignDerivedKind.IMPL,
                                                         api: String = DesignDerivedKind.API): String {
-    val item = findParentMust(StructureUnitIB::class.java)
+    val item = findParentMust(StructureUnitI::class.java)
     return """
     pathPrefix = pathPrefix + "/" + "${item.name().decapitalize()}""""
 }

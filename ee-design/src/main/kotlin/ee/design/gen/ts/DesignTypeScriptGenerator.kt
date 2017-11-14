@@ -2,14 +2,14 @@ package ee.design.gen.ts
 
 import ee.design.addIdPropToEntities
 import ee.design.gen.DesignGeneratorFactory
-import ee.lang.StructureUnitIB
+import ee.lang.StructureUnitI
 import ee.lang.gen.ts.initsForTsGeneration
 import java.nio.file.Path
 
 open class DesignTypeScriptGenerator {
-    val model: StructureUnitIB<*>
+    val model: StructureUnitI<*>
 
-    constructor(model: StructureUnitIB<*>) {
+    constructor(model: StructureUnitI<*>) {
         this.model = model
     }
 
@@ -22,7 +22,7 @@ open class DesignTypeScriptGenerator {
         generator.generate(target, model)
     }
 
-    protected fun StructureUnitIB<*>.extendForGoGeneration() {
+    protected fun StructureUnitI<*>.extendForGoGeneration() {
         initsForTsGeneration()
 
         addIdPropToEntities()

@@ -10,7 +10,7 @@ open class Action(value: Action.() -> Unit = {}) : ActionB<Action>(value) {
     }
 }
 
-open class ActionB<B : ActionB<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), ActionIB<B> {
+open class ActionB<B : ActionB<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), ActionI<B> {
 }
 
 
@@ -21,7 +21,7 @@ open class AggregateHandler(value: AggregateHandler.() -> Unit = {}) : Aggregate
     }
 }
 
-open class AggregateHandlerB<B : AggregateHandlerB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), AggregateHandlerIB<B> {
+open class AggregateHandlerB<B : AggregateHandlerB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), AggregateHandlerI<B> {
 }
 
 
@@ -32,13 +32,13 @@ open class ApplyAction(value: ApplyAction.() -> Unit = {}) : ApplyActionB<ApplyA
     }
 }
 
-open class ApplyActionB<B : ApplyActionB<B>>(value: B.() -> Unit = {}) : ActionB<B>(value), ApplyActionIB<B> {
+open class ApplyActionB<B : ApplyActionB<B>>(value: B.() -> Unit = {}) : ActionB<B>(value), ApplyActionI<B> {
 
-    override fun target(): AttributeIB<*> = attr(TARGET, { Attribute.EMPTY })
-    override fun target(value: AttributeIB<*>): B = apply { attr(TARGET, value) }
+    override fun target(): AttributeI<*> = attr(TARGET, { Attribute.EMPTY })
+    override fun target(value: AttributeI<*>): B = apply { attr(TARGET, value) }
 
-    override fun operator(): AttributeIB<*> = attr(OPERATOR, { Attribute.EMPTY })
-    override fun operator(value: AttributeIB<*>): B = apply { attr(OPERATOR, value) }
+    override fun operator(): AttributeI<*> = attr(OPERATOR, { Attribute.EMPTY })
+    override fun operator(value: AttributeI<*>): B = apply { attr(OPERATOR, value) }
 
     override fun value(): Any = attr(VALUE, { "" })
     override fun value(aValue: Any): B = apply { attr(VALUE, aValue) }
@@ -58,7 +58,7 @@ open class Basic(value: Basic.() -> Unit = {}) : BasicB<Basic>(value) {
     }
 }
 
-open class BasicB<B : BasicB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), BasicIB<B> {
+open class BasicB<B : BasicB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), BasicI<B> {
 }
 
 
@@ -69,10 +69,10 @@ open class Bundle(value: Bundle.() -> Unit = {}) : BundleB<Bundle>(value) {
     }
 }
 
-open class BundleB<B : BundleB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), BundleIB<B> {
+open class BundleB<B : BundleB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), BundleI<B> {
 
-    override fun units(): ListMultiHolder<StructureUnitIB<*>> = itemAsList(UNITS, StructureUnitIB::class.java, true)
-    override fun units(vararg value: StructureUnitIB<*>): B = apply { units().addItems(value.asList()) }
+    override fun units(): ListMultiHolder<StructureUnitI<*>> = itemAsList(UNITS, StructureUnitI::class.java, true)
+    override fun units(vararg value: StructureUnitI<*>): B = apply { units().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
         units()
@@ -92,7 +92,7 @@ open class BusinessCommand(value: BusinessCommand.() -> Unit = {}) : BusinessCom
     }
 }
 
-open class BusinessCommandB<B : BusinessCommandB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), BusinessCommandIB<B> {
+open class BusinessCommandB<B : BusinessCommandB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), BusinessCommandI<B> {
 }
 
 
@@ -103,7 +103,7 @@ open class BussinesEvent(value: BussinesEvent.() -> Unit = {}) : BussinesEventB<
     }
 }
 
-open class BussinesEventB<B : BussinesEventB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), BussinesEventIB<B> {
+open class BussinesEventB<B : BussinesEventB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), BussinesEventI<B> {
 }
 
 
@@ -114,7 +114,7 @@ open class Check(value: Check.() -> Unit = {}) : CheckB<Check>(value) {
     }
 }
 
-open class CheckB<B : CheckB<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), CheckIB<B> {
+open class CheckB<B : CheckB<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), CheckI<B> {
 
     override fun cachedInContext(): Boolean = attr(CACHED_IN_CONTEXT, { false })
     override fun cachedInContext(value: Boolean): B = apply { attr(CACHED_IN_CONTEXT, value) }
@@ -132,13 +132,13 @@ open class Command(value: Command.() -> Unit = {}) : CommandB<Command>(value) {
     }
 }
 
-open class CommandB<B : CommandB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), CommandIB<B> {
+open class CommandB<B : CommandB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), CommandI<B> {
 
     override fun affectMulti(): Boolean = attr(AFFECT_MULTI, { false })
     override fun affectMulti(value: Boolean): B = apply { attr(AFFECT_MULTI, value) }
 
-    override fun event(): EventIB<*> = attr(EVENT, { Event.EMPTY })
-    override fun event(value: EventIB<*>): B = apply { attr(EVENT, value) }
+    override fun event(): EventI<*> = attr(EVENT, { Event.EMPTY })
+    override fun event(value: EventI<*>): B = apply { attr(EVENT, value) }
 
     companion object {
         val AFFECT_MULTI = "_affectMulti"
@@ -154,10 +154,10 @@ open class Comp(value: Comp.() -> Unit = {}) : CompB<Comp>(value) {
     }
 }
 
-open class CompB<B : CompB<B>>(value: B.() -> Unit = {}) : ModuleGroupB<B>(value), CompIB<B> {
+open class CompB<B : CompB<B>>(value: B.() -> Unit = {}) : ModuleGroupB<B>(value), CompI<B> {
 
-    override fun moduleGroups(): ListMultiHolder<ModuleGroupIB<*>> = itemAsList(MODULE_GROUPS, ModuleGroupIB::class.java, true)
-    override fun moduleGroups(vararg value: ModuleGroupIB<*>): B = apply { moduleGroups().addItems(value.asList()) }
+    override fun moduleGroups(): ListMultiHolder<ModuleGroupI<*>> = itemAsList(MODULE_GROUPS, ModuleGroupI::class.java, true)
+    override fun moduleGroups(vararg value: ModuleGroupI<*>): B = apply { moduleGroups().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
         moduleGroups()
@@ -177,10 +177,10 @@ open class CompositeCommand(value: CompositeCommand.() -> Unit = {}) : Composite
     }
 }
 
-open class CompositeCommandB<B : CompositeCommandB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), CompositeCommandIB<B> {
+open class CompositeCommandB<B : CompositeCommandB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), CompositeCommandI<B> {
 
-    override fun commands(): ListMultiHolder<CommandIB<*>> = itemAsList(COMMANDS, CommandIB::class.java, true)
-    override fun commands(vararg value: CommandIB<*>): B = apply { commands().addItems(value.asList()) }
+    override fun commands(): ListMultiHolder<CommandI<*>> = itemAsList(COMMANDS, CommandI::class.java, true)
+    override fun commands(vararg value: CommandI<*>): B = apply { commands().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
         commands()
@@ -200,22 +200,22 @@ open class Controller(value: Controller.() -> Unit = {}) : ControllerB<Controlle
     }
 }
 
-open class ControllerB<B : ControllerB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), ControllerIB<B> {
+open class ControllerB<B : ControllerB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), ControllerI<B> {
 
-    override fun enums(): ListMultiHolder<EnumTypeIB<*>> = itemAsList(ENUMS, EnumTypeIB::class.java, true)
-    override fun enums(vararg value: EnumTypeIB<*>): B = apply { enums().addItems(value.asList()) }
-    override fun enumType(value: EnumTypeIB<*>): EnumTypeIB<*> = applyAndReturn { enums().addItem(value); value }
-    override fun enumType(value: EnumTypeIB<*>.() -> Unit): EnumTypeIB<*> = enumType(EnumType(value))
+    override fun enums(): ListMultiHolder<EnumTypeI<*>> = itemAsList(ENUMS, EnumTypeI::class.java, true)
+    override fun enums(vararg value: EnumTypeI<*>): B = apply { enums().addItems(value.asList()) }
+    override fun enumType(value: EnumTypeI<*>): EnumTypeI<*> = applyAndReturn { enums().addItem(value); value }
+    override fun enumType(value: EnumTypeI<*>.() -> Unit): EnumTypeI<*> = enumType(EnumType(value))
 
-    override fun values(): ListMultiHolder<ValuesIB<*>> = itemAsList(VALUES, ValuesIB::class.java, true)
-    override fun values(vararg value: ValuesIB<*>): B = apply { values().addItems(value.asList()) }
-    override fun valueType(value: ValuesIB<*>): ValuesIB<*> = applyAndReturn { values().addItem(value); value }
-    override fun valueType(value: ValuesIB<*>.() -> Unit): ValuesIB<*> = valueType(Values(value))
+    override fun values(): ListMultiHolder<ValuesI<*>> = itemAsList(VALUES, ValuesI::class.java, true)
+    override fun values(vararg value: ValuesI<*>): B = apply { values().addItems(value.asList()) }
+    override fun valueType(value: ValuesI<*>): ValuesI<*> = applyAndReturn { values().addItem(value); value }
+    override fun valueType(value: ValuesI<*>.() -> Unit): ValuesI<*> = valueType(Values(value))
 
-    override fun basics(): ListMultiHolder<BasicIB<*>> = itemAsList(BASICS, BasicIB::class.java, true)
-    override fun basics(vararg value: BasicIB<*>): B = apply { basics().addItems(value.asList()) }
-    override fun basic(value: BasicIB<*>): BasicIB<*> = applyAndReturn { basics().addItem(value); value }
-    override fun basic(value: BasicIB<*>.() -> Unit): BasicIB<*> = basic(Basic(value))
+    override fun basics(): ListMultiHolder<BasicI<*>> = itemAsList(BASICS, BasicI::class.java, true)
+    override fun basics(vararg value: BasicI<*>): B = apply { basics().addItems(value.asList()) }
+    override fun basic(value: BasicI<*>): BasicI<*> = applyAndReturn { basics().addItem(value); value }
+    override fun basic(value: BasicI<*>.() -> Unit): BasicI<*> = basic(Basic(value))
 
     override fun fillSupportsItems() {
         enums()
@@ -239,7 +239,7 @@ open class CountBy(value: CountBy.() -> Unit = {}) : CountByB<CountBy>(value) {
     }
 }
 
-open class CountByB<B : CountByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), CountByIB<B> {
+open class CountByB<B : CountByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), CountByI<B> {
 }
 
 
@@ -250,7 +250,7 @@ open class CreateBy(value: CreateBy.() -> Unit = {}) : CreateByB<CreateBy>(value
     }
 }
 
-open class CreateByB<B : CreateByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), CreateByIB<B> {
+open class CreateByB<B : CreateByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), CreateByI<B> {
 }
 
 
@@ -261,7 +261,7 @@ open class Created(value: Created.() -> Unit = {}) : CreatedB<Created>(value) {
     }
 }
 
-open class CreatedB<B : CreatedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), CreatedIB<B> {
+open class CreatedB<B : CreatedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), CreatedI<B> {
 }
 
 
@@ -272,7 +272,7 @@ open class DeleteBy(value: DeleteBy.() -> Unit = {}) : DeleteByB<DeleteBy>(value
     }
 }
 
-open class DeleteByB<B : DeleteByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), DeleteByIB<B> {
+open class DeleteByB<B : DeleteByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), DeleteByI<B> {
 }
 
 
@@ -283,7 +283,7 @@ open class Deleted(value: Deleted.() -> Unit = {}) : DeletedB<Deleted>(value) {
     }
 }
 
-open class DeletedB<B : DeletedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), DeletedIB<B> {
+open class DeletedB<B : DeletedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), DeletedI<B> {
 }
 
 
@@ -294,17 +294,17 @@ open class DynamicState(value: DynamicState.() -> Unit = {}) : DynamicStateB<Dyn
     }
 }
 
-open class DynamicStateB<B : DynamicStateB<B>>(value: B.() -> Unit = {}) : StateB<B>(value), DynamicStateIB<B> {
+open class DynamicStateB<B : DynamicStateB<B>>(value: B.() -> Unit = {}) : StateB<B>(value), DynamicStateI<B> {
 
-    override fun checks(): ListMultiHolder<CheckIB<*>> = itemAsList(CHECKS, CheckIB::class.java, true)
-    override fun checks(vararg value: CheckIB<*>): B = apply { checks().addItems(value.asList()) }
-    override fun yes(value: CheckIB<*>): CheckIB<*> = applyAndReturn { checks().addItem(value); value }
-    override fun yes(value: CheckIB<*>.() -> Unit): CheckIB<*> = yes(Check(value))
+    override fun checks(): ListMultiHolder<CheckI<*>> = itemAsList(CHECKS, CheckI::class.java, true)
+    override fun checks(vararg value: CheckI<*>): B = apply { checks().addItems(value.asList()) }
+    override fun yes(value: CheckI<*>): CheckI<*> = applyAndReturn { checks().addItem(value); value }
+    override fun yes(value: CheckI<*>.() -> Unit): CheckI<*> = yes(Check(value))
 
-    override fun notChecks(): ListMultiHolder<CheckIB<*>> = itemAsList(NOT_CHECKS, CheckIB::class.java, true)
-    override fun notChecks(vararg value: CheckIB<*>): B = apply { notChecks().addItems(value.asList()) }
-    override fun no(value: CheckIB<*>): CheckIB<*> = applyAndReturn { notChecks().addItem(value); value }
-    override fun no(value: CheckIB<*>.() -> Unit): CheckIB<*> = no(Check(value))
+    override fun notChecks(): ListMultiHolder<CheckI<*>> = itemAsList(NOT_CHECKS, CheckI::class.java, true)
+    override fun notChecks(vararg value: CheckI<*>): B = apply { notChecks().addItems(value.asList()) }
+    override fun no(value: CheckI<*>): CheckI<*> = applyAndReturn { notChecks().addItem(value); value }
+    override fun no(value: CheckI<*>.() -> Unit): CheckI<*> = no(Check(value))
 
     override fun fillSupportsItems() {
         checks()
@@ -326,7 +326,7 @@ open class Entity(value: Entity.() -> Unit = {}) : EntityB<Entity>(value) {
     }
 }
 
-open class EntityB<B : EntityB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), EntityIB<B> {
+open class EntityB<B : EntityB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), EntityI<B> {
 
     override fun defaultEvents(): Boolean = attr(DEFAULT_EVENTS, { true })
     override fun defaultEvents(value: Boolean): B = apply { attr(DEFAULT_EVENTS, value) }
@@ -337,91 +337,91 @@ open class EntityB<B : EntityB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(valu
     override fun defaultCommands(): Boolean = attr(DEFAULT_COMMANDS, { true })
     override fun defaultCommands(value: Boolean): B = apply { attr(DEFAULT_COMMANDS, value) }
 
-    override fun belongsToAggregate(): EntityIB<*> = attr(BELONGS_TO_AGGREGATE, { Entity.EMPTY })
-    override fun belongsToAggregate(value: EntityIB<*>): B = apply { attr(BELONGS_TO_AGGREGATE, value) }
+    override fun belongsToAggregate(): EntityI<*> = attr(BELONGS_TO_AGGREGATE, { Entity.EMPTY })
+    override fun belongsToAggregate(value: EntityI<*>): B = apply { attr(BELONGS_TO_AGGREGATE, value) }
 
-    override fun aggregateFor(): ListMultiHolder<EntityIB<*>> = itemAsList(AGGREGATE_FOR, EntityIB::class.java, true)
-    override fun aggregateFor(vararg value: EntityIB<*>): B = apply { aggregateFor().addItems(value.asList()) }
+    override fun aggregateFor(): ListMultiHolder<EntityI<*>> = itemAsList(AGGREGATE_FOR, EntityI::class.java, true)
+    override fun aggregateFor(vararg value: EntityI<*>): B = apply { aggregateFor().addItems(value.asList()) }
 
-    override fun controllers(): ListMultiHolder<ControllerIB<*>> = itemAsList(CONTROLLERS, ControllerIB::class.java, true)
-    override fun controllers(vararg value: ControllerIB<*>): B = apply { controllers().addItems(value.asList()) }
-    override fun controller(value: ControllerIB<*>): ControllerIB<*> = applyAndReturn { controllers().addItem(value); value }
-    override fun controller(value: ControllerIB<*>.() -> Unit): ControllerIB<*> = controller(Controller(value))
+    override fun controllers(): ListMultiHolder<ControllerI<*>> = itemAsList(CONTROLLERS, ControllerI::class.java, true)
+    override fun controllers(vararg value: ControllerI<*>): B = apply { controllers().addItems(value.asList()) }
+    override fun controller(value: ControllerI<*>): ControllerI<*> = applyAndReturn { controllers().addItem(value); value }
+    override fun controller(value: ControllerI<*>.() -> Unit): ControllerI<*> = controller(Controller(value))
 
-    override fun findBys(): ListMultiHolder<FindByIB<*>> = itemAsList(FIND_BYS, FindByIB::class.java, true)
-    override fun findBys(vararg value: FindByIB<*>): B = apply { findBys().addItems(value.asList()) }
-    override fun findBy(value: FindByIB<*>): FindByIB<*> = applyAndReturn { findBys().addItem(value); value }
-    override fun findBy(value: FindByIB<*>.() -> Unit): FindByIB<*> = findBy(FindBy(value))
+    override fun findBys(): ListMultiHolder<FindByI<*>> = itemAsList(FIND_BYS, FindByI::class.java, true)
+    override fun findBys(vararg value: FindByI<*>): B = apply { findBys().addItems(value.asList()) }
+    override fun findBy(value: FindByI<*>): FindByI<*> = applyAndReturn { findBys().addItem(value); value }
+    override fun findBy(value: FindByI<*>.() -> Unit): FindByI<*> = findBy(FindBy(value))
 
-    override fun countBys(): ListMultiHolder<CountByIB<*>> = itemAsList(COUNT_BYS, CountByIB::class.java, true)
-    override fun countBys(vararg value: CountByIB<*>): B = apply { countBys().addItems(value.asList()) }
-    override fun countBy(value: CountByIB<*>): CountByIB<*> = applyAndReturn { countBys().addItem(value); value }
-    override fun countBy(value: CountByIB<*>.() -> Unit): CountByIB<*> = countBy(CountBy(value))
+    override fun countBys(): ListMultiHolder<CountByI<*>> = itemAsList(COUNT_BYS, CountByI::class.java, true)
+    override fun countBys(vararg value: CountByI<*>): B = apply { countBys().addItems(value.asList()) }
+    override fun countBy(value: CountByI<*>): CountByI<*> = applyAndReturn { countBys().addItem(value); value }
+    override fun countBy(value: CountByI<*>.() -> Unit): CountByI<*> = countBy(CountBy(value))
 
-    override fun existBys(): ListMultiHolder<ExistByIB<*>> = itemAsList(EXIST_BYS, ExistByIB::class.java, true)
-    override fun existBys(vararg value: ExistByIB<*>): B = apply { existBys().addItems(value.asList()) }
-    override fun existBy(value: ExistByIB<*>): ExistByIB<*> = applyAndReturn { existBys().addItem(value); value }
-    override fun existBy(value: ExistByIB<*>.() -> Unit): ExistByIB<*> = existBy(ExistBy(value))
+    override fun existBys(): ListMultiHolder<ExistByI<*>> = itemAsList(EXIST_BYS, ExistByI::class.java, true)
+    override fun existBys(vararg value: ExistByI<*>): B = apply { existBys().addItems(value.asList()) }
+    override fun existBy(value: ExistByI<*>): ExistByI<*> = applyAndReturn { existBys().addItem(value); value }
+    override fun existBy(value: ExistByI<*>.() -> Unit): ExistByI<*> = existBy(ExistBy(value))
 
-    override fun commands(): ListMultiHolder<BusinessCommandIB<*>> = itemAsList(COMMANDS, BusinessCommandIB::class.java, true)
-    override fun commands(vararg value: BusinessCommandIB<*>): B = apply { commands().addItems(value.asList()) }
-    override fun command(value: BusinessCommandIB<*>): BusinessCommandIB<*> = applyAndReturn { commands().addItem(value); value }
-    override fun command(value: BusinessCommandIB<*>.() -> Unit): BusinessCommandIB<*> = command(BusinessCommand(value))
+    override fun commands(): ListMultiHolder<BusinessCommandI<*>> = itemAsList(COMMANDS, BusinessCommandI::class.java, true)
+    override fun commands(vararg value: BusinessCommandI<*>): B = apply { commands().addItems(value.asList()) }
+    override fun command(value: BusinessCommandI<*>): BusinessCommandI<*> = applyAndReturn { commands().addItem(value); value }
+    override fun command(value: BusinessCommandI<*>.() -> Unit): BusinessCommandI<*> = command(BusinessCommand(value))
 
-    override fun composites(): ListMultiHolder<CompositeCommandIB<*>> = itemAsList(COMPOSITES, CompositeCommandIB::class.java, true)
-    override fun composites(vararg value: CompositeCommandIB<*>): B = apply { composites().addItems(value.asList()) }
-    override fun composite(value: CompositeCommandIB<*>): CompositeCommandIB<*> = applyAndReturn { composites().addItem(value); value }
-    override fun composite(value: CompositeCommandIB<*>.() -> Unit): CompositeCommandIB<*> = composite(CompositeCommand(value))
+    override fun composites(): ListMultiHolder<CompositeCommandI<*>> = itemAsList(COMPOSITES, CompositeCommandI::class.java, true)
+    override fun composites(vararg value: CompositeCommandI<*>): B = apply { composites().addItems(value.asList()) }
+    override fun composite(value: CompositeCommandI<*>): CompositeCommandI<*> = applyAndReturn { composites().addItem(value); value }
+    override fun composite(value: CompositeCommandI<*>.() -> Unit): CompositeCommandI<*> = composite(CompositeCommand(value))
 
-    override fun createBys(): ListMultiHolder<CreateByIB<*>> = itemAsList(CREATE_BYS, CreateByIB::class.java, true)
-    override fun createBys(vararg value: CreateByIB<*>): B = apply { createBys().addItems(value.asList()) }
-    override fun createBy(value: CreateByIB<*>): CreateByIB<*> = applyAndReturn { createBys().addItem(value); value }
-    override fun createBy(value: CreateByIB<*>.() -> Unit): CreateByIB<*> = createBy(CreateBy(value))
+    override fun createBys(): ListMultiHolder<CreateByI<*>> = itemAsList(CREATE_BYS, CreateByI::class.java, true)
+    override fun createBys(vararg value: CreateByI<*>): B = apply { createBys().addItems(value.asList()) }
+    override fun createBy(value: CreateByI<*>): CreateByI<*> = applyAndReturn { createBys().addItem(value); value }
+    override fun createBy(value: CreateByI<*>.() -> Unit): CreateByI<*> = createBy(CreateBy(value))
 
-    override fun updateBys(): ListMultiHolder<UpdateByIB<*>> = itemAsList(UPDATE_BYS, UpdateByIB::class.java, true)
-    override fun updateBys(vararg value: UpdateByIB<*>): B = apply { updateBys().addItems(value.asList()) }
-    override fun updateBy(value: UpdateByIB<*>): UpdateByIB<*> = applyAndReturn { updateBys().addItem(value); value }
-    override fun updateBy(value: UpdateByIB<*>.() -> Unit): UpdateByIB<*> = updateBy(UpdateBy(value))
+    override fun updateBys(): ListMultiHolder<UpdateByI<*>> = itemAsList(UPDATE_BYS, UpdateByI::class.java, true)
+    override fun updateBys(vararg value: UpdateByI<*>): B = apply { updateBys().addItems(value.asList()) }
+    override fun updateBy(value: UpdateByI<*>): UpdateByI<*> = applyAndReturn { updateBys().addItem(value); value }
+    override fun updateBy(value: UpdateByI<*>.() -> Unit): UpdateByI<*> = updateBy(UpdateBy(value))
 
-    override fun deleteBys(): ListMultiHolder<DeleteByIB<*>> = itemAsList(DELETE_BYS, DeleteByIB::class.java, true)
-    override fun deleteBys(vararg value: DeleteByIB<*>): B = apply { deleteBys().addItems(value.asList()) }
-    override fun deleteBy(value: DeleteByIB<*>): DeleteByIB<*> = applyAndReturn { deleteBys().addItem(value); value }
-    override fun deleteBy(value: DeleteByIB<*>.() -> Unit): DeleteByIB<*> = deleteBy(DeleteBy(value))
+    override fun deleteBys(): ListMultiHolder<DeleteByI<*>> = itemAsList(DELETE_BYS, DeleteByI::class.java, true)
+    override fun deleteBys(vararg value: DeleteByI<*>): B = apply { deleteBys().addItems(value.asList()) }
+    override fun deleteBy(value: DeleteByI<*>): DeleteByI<*> = applyAndReturn { deleteBys().addItem(value); value }
+    override fun deleteBy(value: DeleteByI<*>.() -> Unit): DeleteByI<*> = deleteBy(DeleteBy(value))
 
-    override fun events(): ListMultiHolder<BussinesEventIB<*>> = itemAsList(EVENTS, BussinesEventIB::class.java, true)
-    override fun events(vararg value: BussinesEventIB<*>): B = apply { events().addItems(value.asList()) }
-    override fun event(value: BussinesEventIB<*>): BussinesEventIB<*> = applyAndReturn { events().addItem(value); value }
-    override fun event(value: BussinesEventIB<*>.() -> Unit): BussinesEventIB<*> = event(BussinesEvent(value))
+    override fun events(): ListMultiHolder<BussinesEventI<*>> = itemAsList(EVENTS, BussinesEventI::class.java, true)
+    override fun events(vararg value: BussinesEventI<*>): B = apply { events().addItems(value.asList()) }
+    override fun event(value: BussinesEventI<*>): BussinesEventI<*> = applyAndReturn { events().addItem(value); value }
+    override fun event(value: BussinesEventI<*>.() -> Unit): BussinesEventI<*> = event(BussinesEvent(value))
 
-    override fun created(): ListMultiHolder<CreatedIB<*>> = itemAsList(CREATED, CreatedIB::class.java, true)
-    override fun created(vararg value: CreatedIB<*>): B = apply { created().addItems(value.asList()) }
-    override fun created(value: CreatedIB<*>): CreatedIB<*> = applyAndReturn { created().addItem(value); value }
-    override fun created(value: CreatedIB<*>.() -> Unit): CreatedIB<*> = created(Created(value))
+    override fun created(): ListMultiHolder<CreatedI<*>> = itemAsList(CREATED, CreatedI::class.java, true)
+    override fun created(vararg value: CreatedI<*>): B = apply { created().addItems(value.asList()) }
+    override fun created(value: CreatedI<*>): CreatedI<*> = applyAndReturn { created().addItem(value); value }
+    override fun created(value: CreatedI<*>.() -> Unit): CreatedI<*> = created(Created(value))
 
-    override fun updated(): ListMultiHolder<UpdatedIB<*>> = itemAsList(UPDATED, UpdatedIB::class.java, true)
-    override fun updated(vararg value: UpdatedIB<*>): B = apply { updated().addItems(value.asList()) }
-    override fun updated(value: UpdatedIB<*>): UpdatedIB<*> = applyAndReturn { updated().addItem(value); value }
-    override fun updated(value: UpdatedIB<*>.() -> Unit): UpdatedIB<*> = updated(Updated(value))
+    override fun updated(): ListMultiHolder<UpdatedI<*>> = itemAsList(UPDATED, UpdatedI::class.java, true)
+    override fun updated(vararg value: UpdatedI<*>): B = apply { updated().addItems(value.asList()) }
+    override fun updated(value: UpdatedI<*>): UpdatedI<*> = applyAndReturn { updated().addItem(value); value }
+    override fun updated(value: UpdatedI<*>.() -> Unit): UpdatedI<*> = updated(Updated(value))
 
-    override fun deleted(): ListMultiHolder<DeletedIB<*>> = itemAsList(DELETED, DeletedIB::class.java, true)
-    override fun deleted(vararg value: DeletedIB<*>): B = apply { deleted().addItems(value.asList()) }
-    override fun deleted(value: DeletedIB<*>): DeletedIB<*> = applyAndReturn { deleted().addItem(value); value }
-    override fun deleted(value: DeletedIB<*>.() -> Unit): DeletedIB<*> = deleted(Deleted(value))
+    override fun deleted(): ListMultiHolder<DeletedI<*>> = itemAsList(DELETED, DeletedI::class.java, true)
+    override fun deleted(vararg value: DeletedI<*>): B = apply { deleted().addItems(value.asList()) }
+    override fun deleted(value: DeletedI<*>): DeletedI<*> = applyAndReturn { deleted().addItem(value); value }
+    override fun deleted(value: DeletedI<*>.() -> Unit): DeletedI<*> = deleted(Deleted(value))
 
-    override fun handlers(): ListMultiHolder<AggregateHandlerIB<*>> = itemAsList(HANDLERS, AggregateHandlerIB::class.java, true)
-    override fun handlers(vararg value: AggregateHandlerIB<*>): B = apply { handlers().addItems(value.asList()) }
-    override fun handler(value: AggregateHandlerIB<*>): AggregateHandlerIB<*> = applyAndReturn { handlers().addItem(value); value }
-    override fun handler(value: AggregateHandlerIB<*>.() -> Unit): AggregateHandlerIB<*> = handler(AggregateHandler(value))
+    override fun handlers(): ListMultiHolder<AggregateHandlerI<*>> = itemAsList(HANDLERS, AggregateHandlerI::class.java, true)
+    override fun handlers(vararg value: AggregateHandlerI<*>): B = apply { handlers().addItems(value.asList()) }
+    override fun handler(value: AggregateHandlerI<*>): AggregateHandlerI<*> = applyAndReturn { handlers().addItem(value); value }
+    override fun handler(value: AggregateHandlerI<*>.() -> Unit): AggregateHandlerI<*> = handler(AggregateHandler(value))
 
-    override fun projectors(): ListMultiHolder<ProjectorIB<*>> = itemAsList(PROJECTORS, ProjectorIB::class.java, true)
-    override fun projectors(vararg value: ProjectorIB<*>): B = apply { projectors().addItems(value.asList()) }
-    override fun projector(value: ProjectorIB<*>): ProjectorIB<*> = applyAndReturn { projectors().addItem(value); value }
-    override fun projector(value: ProjectorIB<*>.() -> Unit): ProjectorIB<*> = projector(Projector(value))
+    override fun projectors(): ListMultiHolder<ProjectorI<*>> = itemAsList(PROJECTORS, ProjectorI::class.java, true)
+    override fun projectors(vararg value: ProjectorI<*>): B = apply { projectors().addItems(value.asList()) }
+    override fun projector(value: ProjectorI<*>): ProjectorI<*> = applyAndReturn { projectors().addItem(value); value }
+    override fun projector(value: ProjectorI<*>.() -> Unit): ProjectorI<*> = projector(Projector(value))
 
-    override fun processManager(): ListMultiHolder<ProcessManagerIB<*>> = itemAsList(PROCESS_MANAGER, ProcessManagerIB::class.java, true)
-    override fun processManager(vararg value: ProcessManagerIB<*>): B = apply { processManager().addItems(value.asList()) }
-    override fun processManager(value: ProcessManagerIB<*>): ProcessManagerIB<*> = applyAndReturn { processManager().addItem(value); value }
-    override fun processManager(value: ProcessManagerIB<*>.() -> Unit): ProcessManagerIB<*> = processManager(ProcessManager(value))
+    override fun processManager(): ListMultiHolder<ProcessManagerI<*>> = itemAsList(PROCESS_MANAGER, ProcessManagerI::class.java, true)
+    override fun processManager(vararg value: ProcessManagerI<*>): B = apply { processManager().addItems(value.asList()) }
+    override fun processManager(value: ProcessManagerI<*>): ProcessManagerI<*> = applyAndReturn { processManager().addItem(value); value }
+    override fun processManager(value: ProcessManagerI<*>.() -> Unit): ProcessManagerI<*> = processManager(ProcessManager(value))
 
     override fun fillSupportsItems() {
         aggregateFor()
@@ -477,7 +477,7 @@ open class Event(value: Event.() -> Unit = {}) : EventB<Event>(value) {
     }
 }
 
-open class EventB<B : EventB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), EventIB<B> {
+open class EventB<B : EventB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), EventI<B> {
 }
 
 
@@ -488,30 +488,30 @@ open class Executor(value: Executor.() -> Unit = {}) : ExecutorB<Executor>(value
     }
 }
 
-open class ExecutorB<B : ExecutorB<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), ExecutorIB<B> {
+open class ExecutorB<B : ExecutorB<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), ExecutorI<B> {
 
-    override fun on(): CommandIB<*> = attr(ON, { Command.EMPTY })
-    override fun on(value: CommandIB<*>): B = apply { attr(ON, value) }
+    override fun on(): CommandI<*> = attr(ON, { Command.EMPTY })
+    override fun on(value: CommandI<*>): B = apply { attr(ON, value) }
 
-    override fun checks(): ListMultiHolder<CheckIB<*>> = itemAsList(CHECKS, CheckIB::class.java, true)
-    override fun checks(vararg value: CheckIB<*>): B = apply { checks().addItems(value.asList()) }
-    override fun yes(value: CheckIB<*>): CheckIB<*> = applyAndReturn { checks().addItem(value); value }
-    override fun yes(value: CheckIB<*>.() -> Unit): CheckIB<*> = yes(Check(value))
+    override fun checks(): ListMultiHolder<CheckI<*>> = itemAsList(CHECKS, CheckI::class.java, true)
+    override fun checks(vararg value: CheckI<*>): B = apply { checks().addItems(value.asList()) }
+    override fun yes(value: CheckI<*>): CheckI<*> = applyAndReturn { checks().addItem(value); value }
+    override fun yes(value: CheckI<*>.() -> Unit): CheckI<*> = yes(Check(value))
 
-    override fun notChecks(): ListMultiHolder<CheckIB<*>> = itemAsList(NOT_CHECKS, CheckIB::class.java, true)
-    override fun notChecks(vararg value: CheckIB<*>): B = apply { notChecks().addItems(value.asList()) }
-    override fun no(value: CheckIB<*>): CheckIB<*> = applyAndReturn { notChecks().addItem(value); value }
-    override fun no(value: CheckIB<*>.() -> Unit): CheckIB<*> = no(Check(value))
+    override fun notChecks(): ListMultiHolder<CheckI<*>> = itemAsList(NOT_CHECKS, CheckI::class.java, true)
+    override fun notChecks(vararg value: CheckI<*>): B = apply { notChecks().addItems(value.asList()) }
+    override fun no(value: CheckI<*>): CheckI<*> = applyAndReturn { notChecks().addItem(value); value }
+    override fun no(value: CheckI<*>.() -> Unit): CheckI<*> = no(Check(value))
 
-    override fun actions(): ListMultiHolder<ActionIB<*>> = itemAsList(ACTIONS, ActionIB::class.java, true)
-    override fun actions(vararg value: ActionIB<*>): B = apply { actions().addItems(value.asList()) }
-    override fun action(value: ActionIB<*>): ActionIB<*> = applyAndReturn { actions().addItem(value); value }
-    override fun action(value: ActionIB<*>.() -> Unit): ActionIB<*> = action(Action(value))
+    override fun actions(): ListMultiHolder<ActionI<*>> = itemAsList(ACTIONS, ActionI::class.java, true)
+    override fun actions(vararg value: ActionI<*>): B = apply { actions().addItems(value.asList()) }
+    override fun action(value: ActionI<*>): ActionI<*> = applyAndReturn { actions().addItem(value); value }
+    override fun action(value: ActionI<*>.() -> Unit): ActionI<*> = action(Action(value))
 
-    override fun output(): ListMultiHolder<EventIB<*>> = itemAsList(OUTPUT, EventIB::class.java, true)
-    override fun output(vararg value: EventIB<*>): B = apply { output().addItems(value.asList()) }
-    override fun produce(value: EventIB<*>): EventIB<*> = applyAndReturn { output().addItem(value); value }
-    override fun produce(value: EventIB<*>.() -> Unit): EventIB<*> = produce(Event(value))
+    override fun output(): ListMultiHolder<EventI<*>> = itemAsList(OUTPUT, EventI::class.java, true)
+    override fun output(vararg value: EventI<*>): B = apply { output().addItems(value.asList()) }
+    override fun produce(value: EventI<*>): EventI<*> = applyAndReturn { output().addItem(value); value }
+    override fun produce(value: EventI<*>.() -> Unit): EventI<*> = produce(Event(value))
 
     override fun fillSupportsItems() {
         checks()
@@ -538,7 +538,7 @@ open class ExistBy(value: ExistBy.() -> Unit = {}) : ExistByB<ExistBy>(value) {
     }
 }
 
-open class ExistByB<B : ExistByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), ExistByIB<B> {
+open class ExistByB<B : ExistByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), ExistByI<B> {
 }
 
 
@@ -549,10 +549,10 @@ open class ExternalModule(value: ExternalModule.() -> Unit = {}) : ExternalModul
     }
 }
 
-open class ExternalModuleB<B : ExternalModuleB<B>>(value: B.() -> Unit = {}) : ModuleB<B>(value), ExternalModuleIB<B> {
+open class ExternalModuleB<B : ExternalModuleB<B>>(value: B.() -> Unit = {}) : ModuleB<B>(value), ExternalModuleI<B> {
 
-    override fun externalTypes(): ListMultiHolder<ExternalTypeIB<*>> = itemAsList(EXTERNAL_TYPES, ExternalTypeIB::class.java, true)
-    override fun externalTypes(vararg value: ExternalTypeIB<*>): B = apply { externalTypes().addItems(value.asList()) }
+    override fun externalTypes(): ListMultiHolder<ExternalTypeI<*>> = itemAsList(EXTERNAL_TYPES, ExternalTypeI::class.java, true)
+    override fun externalTypes(vararg value: ExternalTypeI<*>): B = apply { externalTypes().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
         externalTypes()
@@ -572,7 +572,7 @@ open class Facet(value: Facet.() -> Unit = {}) : FacetB<Facet>(value) {
     }
 }
 
-open class FacetB<B : FacetB<B>>(value: B.() -> Unit = {}) : ModuleGroupB<B>(value), FacetIB<B> {
+open class FacetB<B : FacetB<B>>(value: B.() -> Unit = {}) : ModuleGroupB<B>(value), FacetI<B> {
 }
 
 
@@ -583,7 +583,7 @@ open class FindBy(value: FindBy.() -> Unit = {}) : FindByB<FindBy>(value) {
     }
 }
 
-open class FindByB<B : FindByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), FindByIB<B> {
+open class FindByB<B : FindByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), FindByI<B> {
 
     override fun multiResult(): Boolean = attr(MULTI_RESULT, { true })
     override fun multiResult(value: Boolean): B = apply { attr(MULTI_RESULT, value) }
@@ -601,33 +601,33 @@ open class Handler(value: Handler.() -> Unit = {}) : HandlerB<Handler>(value) {
     }
 }
 
-open class HandlerB<B : HandlerB<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), HandlerIB<B> {
+open class HandlerB<B : HandlerB<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), HandlerI<B> {
 
-    override fun on(): EventIB<*> = attr(ON, { Event.EMPTY })
-    override fun on(value: EventIB<*>): B = apply { attr(ON, value) }
+    override fun on(): EventI<*> = attr(ON, { Event.EMPTY })
+    override fun on(value: EventI<*>): B = apply { attr(ON, value) }
 
-    override fun checks(): ListMultiHolder<CheckIB<*>> = itemAsList(CHECKS, CheckIB::class.java, true)
-    override fun checks(vararg value: CheckIB<*>): B = apply { checks().addItems(value.asList()) }
-    override fun yes(value: CheckIB<*>): CheckIB<*> = applyAndReturn { checks().addItem(value); value }
-    override fun yes(value: CheckIB<*>.() -> Unit): CheckIB<*> = yes(Check(value))
+    override fun checks(): ListMultiHolder<CheckI<*>> = itemAsList(CHECKS, CheckI::class.java, true)
+    override fun checks(vararg value: CheckI<*>): B = apply { checks().addItems(value.asList()) }
+    override fun yes(value: CheckI<*>): CheckI<*> = applyAndReturn { checks().addItem(value); value }
+    override fun yes(value: CheckI<*>.() -> Unit): CheckI<*> = yes(Check(value))
 
-    override fun notChecks(): ListMultiHolder<CheckIB<*>> = itemAsList(NOT_CHECKS, CheckIB::class.java, true)
-    override fun notChecks(vararg value: CheckIB<*>): B = apply { notChecks().addItems(value.asList()) }
-    override fun no(value: CheckIB<*>): CheckIB<*> = applyAndReturn { notChecks().addItem(value); value }
-    override fun no(value: CheckIB<*>.() -> Unit): CheckIB<*> = no(Check(value))
+    override fun notChecks(): ListMultiHolder<CheckI<*>> = itemAsList(NOT_CHECKS, CheckI::class.java, true)
+    override fun notChecks(vararg value: CheckI<*>): B = apply { notChecks().addItems(value.asList()) }
+    override fun no(value: CheckI<*>): CheckI<*> = applyAndReturn { notChecks().addItem(value); value }
+    override fun no(value: CheckI<*>.() -> Unit): CheckI<*> = no(Check(value))
 
-    override fun to(): StateIB<*> = attr(TO, { State.EMPTY })
-    override fun to(value: StateIB<*>): B = apply { attr(TO, value) }
+    override fun to(): StateI<*> = attr(TO, { State.EMPTY })
+    override fun to(value: StateI<*>): B = apply { attr(TO, value) }
 
-    override fun actions(): ListMultiHolder<ActionIB<*>> = itemAsList(ACTIONS, ActionIB::class.java, true)
-    override fun actions(vararg value: ActionIB<*>): B = apply { actions().addItems(value.asList()) }
-    override fun action(value: ActionIB<*>): ActionIB<*> = applyAndReturn { actions().addItem(value); value }
-    override fun action(value: ActionIB<*>.() -> Unit): ActionIB<*> = action(Action(value))
+    override fun actions(): ListMultiHolder<ActionI<*>> = itemAsList(ACTIONS, ActionI::class.java, true)
+    override fun actions(vararg value: ActionI<*>): B = apply { actions().addItems(value.asList()) }
+    override fun action(value: ActionI<*>): ActionI<*> = applyAndReturn { actions().addItem(value); value }
+    override fun action(value: ActionI<*>.() -> Unit): ActionI<*> = action(Action(value))
 
-    override fun output(): ListMultiHolder<CommandIB<*>> = itemAsList(OUTPUT, CommandIB::class.java, true)
-    override fun output(vararg value: CommandIB<*>): B = apply { output().addItems(value.asList()) }
-    override fun produce(value: CommandIB<*>): CommandIB<*> = applyAndReturn { output().addItem(value); value }
-    override fun produce(value: CommandIB<*>.() -> Unit): CommandIB<*> = produce(Command(value))
+    override fun output(): ListMultiHolder<CommandI<*>> = itemAsList(OUTPUT, CommandI::class.java, true)
+    override fun output(vararg value: CommandI<*>): B = apply { output().addItems(value.asList()) }
+    override fun produce(value: CommandI<*>): CommandI<*> = applyAndReturn { output().addItem(value); value }
+    override fun produce(value: CommandI<*>.() -> Unit): CommandI<*> = produce(Command(value))
 
     override fun fillSupportsItems() {
         checks()
@@ -655,13 +655,13 @@ open class Model(value: Model.() -> Unit = {}) : ModelB<Model>(value) {
     }
 }
 
-open class ModelB<B : ModelB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), ModelIB<B> {
+open class ModelB<B : ModelB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), ModelI<B> {
 
-    override fun models(): ListMultiHolder<ModelIB<*>> = itemAsList(MODELS, ModelIB::class.java, true)
-    override fun models(vararg value: ModelIB<*>): B = apply { models().addItems(value.asList()) }
+    override fun models(): ListMultiHolder<ModelI<*>> = itemAsList(MODELS, ModelI::class.java, true)
+    override fun models(vararg value: ModelI<*>): B = apply { models().addItems(value.asList()) }
 
-    override fun comps(): ListMultiHolder<CompIB<*>> = itemAsList(COMPS, CompIB::class.java, true)
-    override fun comps(vararg value: CompIB<*>): B = apply { comps().addItems(value.asList()) }
+    override fun comps(): ListMultiHolder<CompI<*>> = itemAsList(COMPS, CompI::class.java, true)
+    override fun comps(vararg value: CompI<*>): B = apply { comps().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
         models()
@@ -683,48 +683,48 @@ open class Module(value: Module.() -> Unit = {}) : ModuleB<Module>(value) {
     }
 }
 
-open class ModuleB<B : ModuleB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), ModuleIB<B> {
+open class ModuleB<B : ModuleB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), ModuleI<B> {
 
     override fun parentNamespace(): Boolean = attr(PARENT_NAMESPACE, { false })
     override fun parentNamespace(value: Boolean): B = apply { attr(PARENT_NAMESPACE, value) }
 
-    override fun dependencies(): ListMultiHolder<ModuleIB<*>> = itemAsList(DEPENDENCIES, ModuleIB::class.java, true)
-    override fun dependencies(vararg value: ModuleIB<*>): B = apply { dependencies().addItems(value.asList()) }
+    override fun dependencies(): ListMultiHolder<ModuleI<*>> = itemAsList(DEPENDENCIES, ModuleI::class.java, true)
+    override fun dependencies(vararg value: ModuleI<*>): B = apply { dependencies().addItems(value.asList()) }
 
-    override fun entities(): ListMultiHolder<EntityIB<*>> = itemAsList(ENTITIES, EntityIB::class.java, true)
-    override fun entities(vararg value: EntityIB<*>): B = apply { entities().addItems(value.asList()) }
-    override fun entity(value: EntityIB<*>): EntityIB<*> = applyAndReturn { entities().addItem(value); value }
-    override fun entity(value: EntityIB<*>.() -> Unit): EntityIB<*> = entity(Entity(value))
+    override fun entities(): ListMultiHolder<EntityI<*>> = itemAsList(ENTITIES, EntityI::class.java, true)
+    override fun entities(vararg value: EntityI<*>): B = apply { entities().addItems(value.asList()) }
+    override fun entity(value: EntityI<*>): EntityI<*> = applyAndReturn { entities().addItem(value); value }
+    override fun entity(value: EntityI<*>.() -> Unit): EntityI<*> = entity(Entity(value))
 
-    override fun enums(): ListMultiHolder<EnumTypeIB<*>> = itemAsList(ENUMS, EnumTypeIB::class.java, true)
-    override fun enums(vararg value: EnumTypeIB<*>): B = apply { enums().addItems(value.asList()) }
-    override fun enumType(value: EnumTypeIB<*>): EnumTypeIB<*> = applyAndReturn { enums().addItem(value); value }
-    override fun enumType(value: EnumTypeIB<*>.() -> Unit): EnumTypeIB<*> = enumType(EnumType(value))
+    override fun enums(): ListMultiHolder<EnumTypeI<*>> = itemAsList(ENUMS, EnumTypeI::class.java, true)
+    override fun enums(vararg value: EnumTypeI<*>): B = apply { enums().addItems(value.asList()) }
+    override fun enumType(value: EnumTypeI<*>): EnumTypeI<*> = applyAndReturn { enums().addItem(value); value }
+    override fun enumType(value: EnumTypeI<*>.() -> Unit): EnumTypeI<*> = enumType(EnumType(value))
 
-    override fun values(): ListMultiHolder<ValuesIB<*>> = itemAsList(VALUES, ValuesIB::class.java, true)
-    override fun values(vararg value: ValuesIB<*>): B = apply { values().addItems(value.asList()) }
-    override fun valueType(value: ValuesIB<*>): ValuesIB<*> = applyAndReturn { values().addItem(value); value }
-    override fun valueType(value: ValuesIB<*>.() -> Unit): ValuesIB<*> = valueType(Values(value))
+    override fun values(): ListMultiHolder<ValuesI<*>> = itemAsList(VALUES, ValuesI::class.java, true)
+    override fun values(vararg value: ValuesI<*>): B = apply { values().addItems(value.asList()) }
+    override fun valueType(value: ValuesI<*>): ValuesI<*> = applyAndReturn { values().addItem(value); value }
+    override fun valueType(value: ValuesI<*>.() -> Unit): ValuesI<*> = valueType(Values(value))
 
-    override fun basics(): ListMultiHolder<BasicIB<*>> = itemAsList(BASICS, BasicIB::class.java, true)
-    override fun basics(vararg value: BasicIB<*>): B = apply { basics().addItems(value.asList()) }
-    override fun basic(value: BasicIB<*>): BasicIB<*> = applyAndReturn { basics().addItem(value); value }
-    override fun basic(value: BasicIB<*>.() -> Unit): BasicIB<*> = basic(Basic(value))
+    override fun basics(): ListMultiHolder<BasicI<*>> = itemAsList(BASICS, BasicI::class.java, true)
+    override fun basics(vararg value: BasicI<*>): B = apply { basics().addItems(value.asList()) }
+    override fun basic(value: BasicI<*>): BasicI<*> = applyAndReturn { basics().addItem(value); value }
+    override fun basic(value: BasicI<*>.() -> Unit): BasicI<*> = basic(Basic(value))
 
-    override fun controllers(): ListMultiHolder<ControllerIB<*>> = itemAsList(CONTROLLERS, ControllerIB::class.java, true)
-    override fun controllers(vararg value: ControllerIB<*>): B = apply { controllers().addItems(value.asList()) }
-    override fun controller(value: ControllerIB<*>): ControllerIB<*> = applyAndReturn { controllers().addItem(value); value }
-    override fun controller(value: ControllerIB<*>.() -> Unit): ControllerIB<*> = controller(Controller(value))
+    override fun controllers(): ListMultiHolder<ControllerI<*>> = itemAsList(CONTROLLERS, ControllerI::class.java, true)
+    override fun controllers(vararg value: ControllerI<*>): B = apply { controllers().addItems(value.asList()) }
+    override fun controller(value: ControllerI<*>): ControllerI<*> = applyAndReturn { controllers().addItem(value); value }
+    override fun controller(value: ControllerI<*>.() -> Unit): ControllerI<*> = controller(Controller(value))
 
-    override fun processManagers(): ListMultiHolder<ProcessManagerIB<*>> = itemAsList(PROCESS_MANAGERS, ProcessManagerIB::class.java, true)
-    override fun processManagers(vararg value: ProcessManagerIB<*>): B = apply { processManagers().addItems(value.asList()) }
-    override fun processManager(value: ProcessManagerIB<*>): ProcessManagerIB<*> = applyAndReturn { processManagers().addItem(value); value }
-    override fun processManager(value: ProcessManagerIB<*>.() -> Unit): ProcessManagerIB<*> = processManager(ProcessManager(value))
+    override fun processManagers(): ListMultiHolder<ProcessManagerI<*>> = itemAsList(PROCESS_MANAGERS, ProcessManagerI::class.java, true)
+    override fun processManagers(vararg value: ProcessManagerI<*>): B = apply { processManagers().addItems(value.asList()) }
+    override fun processManager(value: ProcessManagerI<*>): ProcessManagerI<*> = applyAndReturn { processManagers().addItem(value); value }
+    override fun processManager(value: ProcessManagerI<*>.() -> Unit): ProcessManagerI<*> = processManager(ProcessManager(value))
 
-    override fun projectors(): ListMultiHolder<ProjectorIB<*>> = itemAsList(PROJECTORS, ProjectorIB::class.java, true)
-    override fun projectors(vararg value: ProjectorIB<*>): B = apply { projectors().addItems(value.asList()) }
-    override fun projector(value: ProjectorIB<*>): ProjectorIB<*> = applyAndReturn { projectors().addItem(value); value }
-    override fun projector(value: ProjectorIB<*>.() -> Unit): ProjectorIB<*> = projector(Projector(value))
+    override fun projectors(): ListMultiHolder<ProjectorI<*>> = itemAsList(PROJECTORS, ProjectorI::class.java, true)
+    override fun projectors(vararg value: ProjectorI<*>): B = apply { projectors().addItems(value.asList()) }
+    override fun projector(value: ProjectorI<*>): ProjectorI<*> = applyAndReturn { projectors().addItem(value); value }
+    override fun projector(value: ProjectorI<*>.() -> Unit): ProjectorI<*> = projector(Projector(value))
 
     override fun fillSupportsItems() {
         dependencies()
@@ -759,10 +759,10 @@ open class ModuleGroup(value: ModuleGroup.() -> Unit = {}) : ModuleGroupB<Module
     }
 }
 
-open class ModuleGroupB<B : ModuleGroupB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), ModuleGroupIB<B> {
+open class ModuleGroupB<B : ModuleGroupB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), ModuleGroupI<B> {
 
-    override fun modules(): ListMultiHolder<ModuleIB<*>> = itemAsList(MODULES, ModuleIB::class.java, true)
-    override fun modules(vararg value: ModuleIB<*>): B = apply { modules().addItems(value.asList()) }
+    override fun modules(): ListMultiHolder<ModuleI<*>> = itemAsList(MODULES, ModuleI::class.java, true)
+    override fun modules(vararg value: ModuleI<*>): B = apply { modules().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
         modules()
@@ -782,7 +782,7 @@ open class ProcessManager(value: ProcessManager.() -> Unit = {}) : ProcessManage
     }
 }
 
-open class ProcessManagerB<B : ProcessManagerB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), ProcessManagerIB<B> {
+open class ProcessManagerB<B : ProcessManagerB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), ProcessManagerI<B> {
 }
 
 
@@ -793,7 +793,7 @@ open class Projector(value: Projector.() -> Unit = {}) : ProjectorB<Projector>(v
     }
 }
 
-open class ProjectorB<B : ProjectorB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), ProjectorIB<B> {
+open class ProjectorB<B : ProjectorB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), ProjectorI<B> {
 }
 
 
@@ -804,30 +804,30 @@ open class State(value: State.() -> Unit = {}) : StateB<State>(value) {
     }
 }
 
-open class StateB<B : StateB<B>>(value: B.() -> Unit = {}) : ControllerB<B>(value), StateIB<B> {
+open class StateB<B : StateB<B>>(value: B.() -> Unit = {}) : ControllerB<B>(value), StateI<B> {
 
     override fun timeout(): Long = attr(TIMEOUT, { 0L })
     override fun timeout(value: Long): B = apply { attr(TIMEOUT, value) }
 
-    override fun entryActions(): ListMultiHolder<ActionIB<*>> = itemAsList(ENTRY_ACTIONS, ActionIB::class.java, true)
-    override fun entryActions(vararg value: ActionIB<*>): B = apply { entryActions().addItems(value.asList()) }
-    override fun entry(value: ActionIB<*>): ActionIB<*> = applyAndReturn { entryActions().addItem(value); value }
-    override fun entry(value: ActionIB<*>.() -> Unit): ActionIB<*> = entry(Action(value))
+    override fun entryActions(): ListMultiHolder<ActionI<*>> = itemAsList(ENTRY_ACTIONS, ActionI::class.java, true)
+    override fun entryActions(vararg value: ActionI<*>): B = apply { entryActions().addItems(value.asList()) }
+    override fun entry(value: ActionI<*>): ActionI<*> = applyAndReturn { entryActions().addItem(value); value }
+    override fun entry(value: ActionI<*>.() -> Unit): ActionI<*> = entry(Action(value))
 
-    override fun exitActions(): ListMultiHolder<ActionIB<*>> = itemAsList(EXIT_ACTIONS, ActionIB::class.java, true)
-    override fun exitActions(vararg value: ActionIB<*>): B = apply { exitActions().addItems(value.asList()) }
-    override fun exit(value: ActionIB<*>): ActionIB<*> = applyAndReturn { exitActions().addItem(value); value }
-    override fun exit(value: ActionIB<*>.() -> Unit): ActionIB<*> = exit(Action(value))
+    override fun exitActions(): ListMultiHolder<ActionI<*>> = itemAsList(EXIT_ACTIONS, ActionI::class.java, true)
+    override fun exitActions(vararg value: ActionI<*>): B = apply { exitActions().addItems(value.asList()) }
+    override fun exit(value: ActionI<*>): ActionI<*> = applyAndReturn { exitActions().addItem(value); value }
+    override fun exit(value: ActionI<*>.() -> Unit): ActionI<*> = exit(Action(value))
 
-    override fun executors(): ListMultiHolder<ExecutorIB<*>> = itemAsList(EXECUTORS, ExecutorIB::class.java, true)
-    override fun executors(vararg value: ExecutorIB<*>): B = apply { executors().addItems(value.asList()) }
-    override fun execute(value: ExecutorIB<*>): ExecutorIB<*> = applyAndReturn { executors().addItem(value); value }
-    override fun execute(value: ExecutorIB<*>.() -> Unit): ExecutorIB<*> = execute(Executor(value))
+    override fun executors(): ListMultiHolder<ExecutorI<*>> = itemAsList(EXECUTORS, ExecutorI::class.java, true)
+    override fun executors(vararg value: ExecutorI<*>): B = apply { executors().addItems(value.asList()) }
+    override fun execute(value: ExecutorI<*>): ExecutorI<*> = applyAndReturn { executors().addItem(value); value }
+    override fun execute(value: ExecutorI<*>.() -> Unit): ExecutorI<*> = execute(Executor(value))
 
-    override fun handlers(): ListMultiHolder<HandlerIB<*>> = itemAsList(HANDLERS, HandlerIB::class.java, true)
-    override fun handlers(vararg value: HandlerIB<*>): B = apply { handlers().addItems(value.asList()) }
-    override fun handle(value: HandlerIB<*>): HandlerIB<*> = applyAndReturn { handlers().addItem(value); value }
-    override fun handle(value: HandlerIB<*>.() -> Unit): HandlerIB<*> = handle(Handler(value))
+    override fun handlers(): ListMultiHolder<HandlerI<*>> = itemAsList(HANDLERS, HandlerI::class.java, true)
+    override fun handlers(vararg value: HandlerI<*>): B = apply { handlers().addItems(value.asList()) }
+    override fun handle(value: HandlerI<*>): HandlerI<*> = applyAndReturn { handlers().addItem(value); value }
+    override fun handle(value: HandlerI<*>.() -> Unit): HandlerI<*> = handle(Handler(value))
 
     override fun fillSupportsItems() {
         entryActions()
@@ -854,26 +854,26 @@ open class StateMachine(value: StateMachine.() -> Unit = {}) : StateMachineB<Sta
     }
 }
 
-open class StateMachineB<B : StateMachineB<B>>(value: B.() -> Unit = {}) : ControllerB<B>(value), StateMachineIB<B> {
+open class StateMachineB<B : StateMachineB<B>>(value: B.() -> Unit = {}) : ControllerB<B>(value), StateMachineI<B> {
 
-    override fun stateProp(): AttributeIB<*> = attr(STATE_PROP, { Attribute.EMPTY })
-    override fun stateProp(value: AttributeIB<*>): B = apply { attr(STATE_PROP, value) }
+    override fun stateProp(): AttributeI<*> = attr(STATE_PROP, { Attribute.EMPTY })
+    override fun stateProp(value: AttributeI<*>): B = apply { attr(STATE_PROP, value) }
 
-    override fun timeoutProp(): AttributeIB<*> = attr(TIMEOUT_PROP, { Attribute.EMPTY })
-    override fun timeoutProp(value: AttributeIB<*>): B = apply { attr(TIMEOUT_PROP, value) }
+    override fun timeoutProp(): AttributeI<*> = attr(TIMEOUT_PROP, { Attribute.EMPTY })
+    override fun timeoutProp(value: AttributeI<*>): B = apply { attr(TIMEOUT_PROP, value) }
 
     override fun timeout(): Long = attr(TIMEOUT, { 0L })
     override fun timeout(value: Long): B = apply { attr(TIMEOUT, value) }
 
-    override fun states(): ListMultiHolder<StateIB<*>> = itemAsList(STATES, StateIB::class.java, true)
-    override fun states(vararg value: StateIB<*>): B = apply { states().addItems(value.asList()) }
-    override fun state(value: StateIB<*>): StateIB<*> = applyAndReturn { states().addItem(value); value }
-    override fun state(value: StateIB<*>.() -> Unit): StateIB<*> = state(State(value))
+    override fun states(): ListMultiHolder<StateI<*>> = itemAsList(STATES, StateI::class.java, true)
+    override fun states(vararg value: StateI<*>): B = apply { states().addItems(value.asList()) }
+    override fun state(value: StateI<*>): StateI<*> = applyAndReturn { states().addItem(value); value }
+    override fun state(value: StateI<*>.() -> Unit): StateI<*> = state(State(value))
 
-    override fun checks(): ListMultiHolder<CheckIB<*>> = itemAsList(CHECKS, CheckIB::class.java, true)
-    override fun checks(vararg value: CheckIB<*>): B = apply { checks().addItems(value.asList()) }
-    override fun check(value: CheckIB<*>): CheckIB<*> = applyAndReturn { checks().addItem(value); value }
-    override fun check(value: CheckIB<*>.() -> Unit): CheckIB<*> = check(Check(value))
+    override fun checks(): ListMultiHolder<CheckI<*>> = itemAsList(CHECKS, CheckI::class.java, true)
+    override fun checks(vararg value: CheckI<*>): B = apply { checks().addItems(value.asList()) }
+    override fun check(value: CheckI<*>): CheckI<*> = applyAndReturn { checks().addItem(value); value }
+    override fun check(value: CheckI<*>.() -> Unit): CheckI<*> = check(Check(value))
 
     override fun fillSupportsItems() {
         states()
@@ -898,7 +898,7 @@ open class UpdateBy(value: UpdateBy.() -> Unit = {}) : UpdateByB<UpdateBy>(value
     }
 }
 
-open class UpdateByB<B : UpdateByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), UpdateByIB<B> {
+open class UpdateByB<B : UpdateByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), UpdateByI<B> {
 }
 
 
@@ -909,7 +909,7 @@ open class Updated(value: Updated.() -> Unit = {}) : UpdatedB<Updated>(value) {
     }
 }
 
-open class UpdatedB<B : UpdatedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), UpdatedIB<B> {
+open class UpdatedB<B : UpdatedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), UpdatedI<B> {
 }
 
 
@@ -920,7 +920,7 @@ open class Values(value: Values.() -> Unit = {}) : ValuesB<Values>(value) {
     }
 }
 
-open class ValuesB<B : ValuesB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), ValuesIB<B> {
+open class ValuesB<B : ValuesB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), ValuesI<B> {
 }
 
 
@@ -931,6 +931,6 @@ open class Widget(value: Widget.() -> Unit = {}) : WidgetB<Widget>(value) {
     }
 }
 
-open class WidgetB<B : WidgetB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), WidgetIB<B> {
+open class WidgetB<B : WidgetB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), WidgetI<B> {
 }
 

@@ -260,12 +260,12 @@ open class GenerationContext : Cloneable {
     val derivedController: DerivedController
     val macroController: MacroController
 
-    val types: MutableSet<ItemIB<*>> = hashSetOf()
+    val types: MutableSet<ItemI<*>> = hashSetOf()
 
     constructor(namespace: String = "",
                 moduleFolder: String = "", genFolder: String = "",
                 genFolderDeletable: Boolean = false, genFolderDeletePattern: Regex? = null,
-                derivedController: DerivedController = DerivedController(DerivedStorage<ItemIB<*>>()),
+                derivedController: DerivedController = DerivedController(DerivedStorage<ItemI<*>>()),
                 macroController: MacroController = MacroController()) {
         this.namespace = namespace
         this.moduleFolder = moduleFolder
@@ -295,19 +295,19 @@ open class GenerationContext : Cloneable {
 
     /* Name */
     open fun n(value: Any?, derivedKind: String = ""): String {
-        return if (value is ItemIB<*>) n(value, derivedKind) else "$value"
+        return if (value is ItemI<*>) n(value, derivedKind) else "$value"
     }
 
-    open fun n(item: ItemIB<*>, derivedKind: String = ""): String {
+    open fun n(item: ItemI<*>, derivedKind: String = ""): String {
         return types.addReturn(derivedController.derive(item, derivedKind)).name()
     }
 
-    open fun <T : ItemIB<*>> body(macro: String, item: T, derivedKind: String = "", apiKind: String = ""): String {
+    open fun <T : ItemI<*>> body(macro: String, item: T, derivedKind: String = "", apiKind: String = ""): String {
         return macroController.find<T>(macro).code.invoke(item, this, derivedKind, apiKind)
     }
 }
 
-open class Macro<T : ItemIB<*>> {
+open class Macro<T : ItemI<*>> {
     val name: String
     val code: T.(c: GenerationContext, derivedKind: String, api: String) -> String
 
@@ -317,18 +317,18 @@ open class Macro<T : ItemIB<*>> {
     }
 
     companion object {
-        val EMPTY = Macro<ItemIB<*>>("EMPTY", { c, d, a -> "" })
+        val EMPTY = Macro<ItemI<*>>("EMPTY", { c, d, a -> "" })
     }
 }
 
 open class MacroController {
     val nameToMacro = hashMapOf<String, Macro<*>>()
 
-    open fun <T : ItemIB<*>> registerMacro(name: String, template: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
+    open fun <T : ItemI<*>> registerMacro(name: String, template: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
         nameToMacro.put(name, Macro(name = name, template = template))
     }
 
-    open fun <T : ItemIB<*>> find(name: String): Macro<T> {
+    open fun <T : ItemI<*>> find(name: String): Macro<T> {
         var ret = nameToMacro.get(name)
         if (ret == null) {
             log.warn("No macro '$name' found, return EMPTY.")

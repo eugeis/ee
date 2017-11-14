@@ -9,14 +9,14 @@ private val log = LoggerFactory.getLogger("ItemApi")
 open class Item(adapt: Item.() -> Unit = {}) : ItemB<Item>(adapt) {
 }
 
-open class ItemB<B : ItemIB<B>> : ItemIB<B> {
+open class ItemB<B : ItemI<B>> : ItemI<B> {
     private var _name: String = ""
     private var _namespace: String = ""
-    private var _doc: CommentIB<*> = CommentEmpty
-    private var _parent: ItemIB<*> = EMPTY
+    private var _doc: CommentI<*> = CommentEmpty
+    private var _parent: ItemI<*> = EMPTY
     private var _internal: Boolean = false
-    private var _derivedFrom: ItemIB<*> = EMPTY
-    private var _derivedItems: MutableList<ItemIB<*>> = arrayListOf()
+    private var _derivedFrom: ItemI<*> = EMPTY
+    private var _derivedItems: MutableList<ItemI<*>> = arrayListOf()
     private var _derivedAsType: String = ""
     private var _initialized: Boolean = false
     protected var _adapt: B.() -> Unit
@@ -40,20 +40,20 @@ open class ItemB<B : ItemIB<B>> : ItemIB<B> {
     override fun namespace(): String = _namespace
     override fun namespace(value: String): B = apply { _namespace = value }
 
-    override fun doc(): CommentIB<*> = _doc
-    override fun doc(value: CommentIB<*>): B = apply { _doc = value }
+    override fun doc(): CommentI<*> = _doc
+    override fun doc(value: CommentI<*>): B = apply { _doc = value }
 
-    override fun parent(): ItemIB<*> = _parent
-    override fun parent(value: ItemIB<*>): B = apply { _parent = value }
+    override fun parent(): ItemI<*> = _parent
+    override fun parent(value: ItemI<*>): B = apply { _parent = value }
 
-    override fun onDerived(derived: ItemIB<*>) {
+    override fun onDerived(derived: ItemI<*>) {
         _derivedItems.add(derived)
     }
 
-    override fun derivedItems(): List<ItemIB<*>> = _derivedItems
+    override fun derivedItems(): List<ItemI<*>> = _derivedItems
 
-    override fun derivedFrom(): ItemIB<*> = _derivedFrom
-    override fun derivedFrom(value: ItemIB<*>): B = apply {
+    override fun derivedFrom(): ItemI<*> = _derivedFrom
+    override fun derivedFrom(value: ItemI<*>): B = apply {
         _derivedFrom = value
         value.onDerived(this)
     }
@@ -65,7 +65,7 @@ open class ItemB<B : ItemIB<B>> : ItemIB<B> {
         init()
         val ret = copy()
         ret.init()
-        if (ret is MultiHolderIB<*, *>) {
+        if (ret is MultiHolderI<*, *>) {
             ret.fillSupportsItems()
         }
         ret.adapt()
@@ -122,7 +122,7 @@ open class ItemB<B : ItemIB<B>> : ItemIB<B> {
         item.derivedFrom(this)
     }
 
-    override fun <T : ItemIB<*>> apply(code: T.() -> Unit): T {
+    override fun <T : ItemI<*>> apply(code: T.() -> Unit): T {
         (this as T).code()
         return this
     }
@@ -141,20 +141,20 @@ open class ItemB<B : ItemIB<B>> : ItemIB<B> {
     }
 
     override fun internal(): Boolean = _internal
-    open fun internal(value: Boolean): ItemIB<*> = apply { _internal = value }
+    open fun internal(value: Boolean): ItemI<*> = apply { _internal = value }
 
     companion object {
         val EMPTY = ItemEmpty
     }
 }
 
-abstract class MultiHolder<I, B : MultiHolderIB<I, B>>(private val _type: Class<I>, value: B.() -> Unit = {}) :
-        ItemB<B>(value), MultiHolderIB<I, B> {
+abstract class MultiHolder<I, B : MultiHolderI<I, B>>(private val _type: Class<I>, value: B.() -> Unit = {}) :
+        ItemB<B>(value), MultiHolderI<I, B> {
 
     override fun init() {
         if (!isInitialized()) super.init()
-        items().filterIsInstance<ItemIB<*>>().forEach {
-            if (!it.isInitialized() || (it is MultiHolderIB<*, *> && it.parent() == this)) {
+        items().filterIsInstance<ItemI<*>>().forEach {
+            if (!it.isInitialized() || (it is MultiHolderI<*, *> && it.parent() == this)) {
                 it.init()
             }
         }
@@ -184,7 +184,7 @@ abstract class MultiHolder<I, B : MultiHolderIB<I, B>>(private val _type: Class<
     fun itemType(): Class<I> = _type
 
     protected fun fillThisOrNonInternalAsParentAndInit(item: I) {
-        if (item is ItemIB<*>) {
+        if (item is ItemI<*>) {
             if (item.parent().isEMPTY()) {
                 if (item.internal() || !this.internal()) {
                     item.parent(this)
@@ -208,9 +208,9 @@ abstract class MultiHolder<I, B : MultiHolderIB<I, B>>(private val _type: Class<
     }
 
     override fun fillSupportsItems() {
-        val items = items().filterIsInstance<ItemIB<*>>()
+        val items = items().filterIsInstance<ItemI<*>>()
         val plainItems = items.filter { !it.name().startsWith("_") }
-        val containers = items.filterIsInstance<MultiHolderIB<*, *>>().filter { it.name().startsWith("_") && !it.name().startsWith("__") }
+        val containers = items.filterIsInstance<MultiHolderI<*, *>>().filter { it.name().startsWith("_") && !it.name().startsWith("__") }
         plainItems.forEach { plainItem ->
             containers.forEach { container -> container.fillSupportsItem(plainItem) }
         }
@@ -224,7 +224,7 @@ abstract class MultiHolder<I, B : MultiHolderIB<I, B>>(private val _type: Class<
 
     open fun renderChildren(builder: StringBuilder, indent: String) {
         items().joinSurroundIfNotEmptyTo(builder, "", " {\n", "$indent}") {
-            if (it is ItemIB<*>) {
+            if (it is ItemI<*>) {
                 it.render(builder, indent + "  ")
                 "\n"
             } else {
@@ -241,9 +241,9 @@ open class ListMultiHolder<I>(_type: Class<I>, adapt: ListMultiHolder<I>.() -> U
     }
 }
 
-open class ListMultiHolderB<I, B : ListMultiHolderIB<I, B>>(_type: Class<I>, value: B.() -> Unit = {},
+open class ListMultiHolderB<I, B : ListMultiHolderI<I, B>>(_type: Class<I>, value: B.() -> Unit = {},
                                                             private val _items: MutableList<I> = arrayListOf()) :
-        MultiHolder<I, B>(_type, value), ListMultiHolderIB<I, B>, MutableList<I> by _items {
+        MultiHolder<I, B>(_type, value), ListMultiHolderI<I, B>, MutableList<I> by _items {
 
     override fun <T : I> addItem(item: T): T {
         fillThisOrNonInternalAsParentAndInit(item)
@@ -274,11 +274,11 @@ open class ListMultiHolderB<I, B : ListMultiHolderIB<I, B>>(_type: Class<I>, val
 
     override fun fill(item: B) {
         super.fill(item)
-        val itemToFill = item as ListMultiHolderIB<I, B>
+        val itemToFill = item as ListMultiHolderI<I, B>
         _items.forEach {
-            if (it is ItemIB<*> && it.parent() == this) {
+            if (it is ItemI<*> && it.parent() == this) {
                 itemToFill.addItem(it.copy() as I)
-            } else if (it is ItemIB<*> && it.parent() == this.parent()) {
+            } else if (it is ItemI<*> && it.parent() == this.parent()) {
                 //don't need to copy, because it will be grouped by fillSupported
             } else {
                 itemToFill.addItem(it)
@@ -293,12 +293,12 @@ open class ListMultiHolderB<I, B : ListMultiHolderIB<I, B>>(_type: Class<I>, val
 
 open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Unit = {}) : MapMultiHolderB<I, MapMultiHolder<I>>(_type, adapt)
 
-open class MapMultiHolderB<I, B : MapMultiHolderIB<I, B>>(_type: Class<I>, adapt: B.() -> Unit = {},
+open class MapMultiHolderB<I, B : MapMultiHolderI<I, B>>(_type: Class<I>, adapt: B.() -> Unit = {},
                                                           private val _items: MutableMap<String, I> = TreeMap()) :
-        MultiHolder<I, B>(_type, adapt), MapMultiHolderIB<I, B> {
+        MultiHolder<I, B>(_type, adapt), MapMultiHolderI<I, B> {
 
     override fun <T : I> addItem(item: T): T {
-        if (item is ItemIB<*>) {
+        if (item is ItemI<*>) {
             addItem(item.name(), item)
         } else {
             fillThisOrNonInternalAsParentAndInit(item)
@@ -356,10 +356,10 @@ open class MapMultiHolderB<I, B : MapMultiHolderIB<I, B>>(_type: Class<I>, adapt
 
     override fun fill(item: B) {
         super.fill(item)
-        val itemToFill = item as MapMultiHolderIB<I, B>
+        val itemToFill = item as MapMultiHolderI<I, B>
         _items.forEach {
             val value = it.value
-            if (value is ItemIB<*> && value.parent() == this) {
+            if (value is ItemI<*> && value.parent() == this) {
                 itemToFill.addItem(it.key, value.copy() as I)
             } else {
                 itemToFill.addItem(it.key, value)
@@ -369,8 +369,8 @@ open class MapMultiHolderB<I, B : MapMultiHolderIB<I, B>>(_type: Class<I>, adapt
 }
 
 open class Composite(adapt: Composite.() -> Unit = {}) : CompositeB<Composite>(adapt)
-open class CompositeB<B : CompositeIB<B>> : MapMultiHolderB<ItemIB<*>, B>, CompositeIB<B> {
-    constructor(adapt: B.() -> Unit = {}) : super(ItemIB::class.java, adapt)
+open class CompositeB<B : CompositeI<B>> : MapMultiHolderB<ItemI<*>, B>, CompositeI<B> {
+    constructor(adapt: B.() -> Unit = {}) : super(ItemI::class.java, adapt)
 
     open fun <R> itemAsMap(name: String, type: Class<R>, attachParent: Boolean = false, internal: Boolean = false): MapMultiHolderB<R, *> {
         return item(name, internal, { MapMultiHolder(type, { name(name) }) })
@@ -396,6 +396,6 @@ open class CompositeB<B : CompositeIB<B>> : MapMultiHolderB<ItemIB<*>, B>, Compo
     override fun attributes(): MapMultiHolderB<Any, *> = itemAsMap("__attributes", Any::class.java, true, true)
 }
 
-open class Comment : ListMultiHolderB<String, Comment>, CommentIB<Comment> {
+open class Comment : ListMultiHolderB<String, Comment>, CommentI<Comment> {
     constructor(adapt: Comment.() -> Unit = {}) : super(String::class.java, adapt)
 }

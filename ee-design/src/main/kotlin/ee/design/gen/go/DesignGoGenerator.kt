@@ -7,9 +7,9 @@ import ee.lang.gen.go.initsForGoGeneration
 import java.nio.file.Path
 
 open class DesignGoGenerator {
-    val model: StructureUnitIB<*>
+    val model: StructureUnitI<*>
 
-    constructor(model: StructureUnitIB<*>) {
+    constructor(model: StructureUnitI<*>) {
         this.model = model
     }
 
@@ -22,7 +22,7 @@ open class DesignGoGenerator {
         generator.generate(target, model)
     }
 
-    protected fun StructureUnitIB<*>.extendForGoGeneration() {
+    protected fun StructureUnitI<*>.extendForGoGeneration() {
         initsForGoGeneration()
 
         addIdPropToEntities()
@@ -48,7 +48,7 @@ open class DesignGoGenerator {
 
         defineSuperUnitsAsAnonymousProps()
 
-        defineConstructorEmpty { constructors().isEmpty() && this !is CommandIB<*> && this !is EventIB<*> }
+        defineConstructorEmpty { constructors().isEmpty() && this !is CommandI<*> && this !is EventI<*> }
     }
 
     private fun addEventhorizonArtifactsForAggregate() {

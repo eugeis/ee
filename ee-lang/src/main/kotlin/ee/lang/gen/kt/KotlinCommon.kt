@@ -4,7 +4,7 @@ import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
 
-fun <T : TypeIB<*>> T.toKotlinDefault(c: GenerationContext, derived: String, attr: AttributeIB<*>): String {
+fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
     val baseType = findDerivedOrThis()
     return when (baseType) {
         n.String, n.Text -> "\"\""
@@ -23,10 +23,10 @@ fun <T : TypeIB<*>> T.toKotlinDefault(c: GenerationContext, derived: String, att
         n.List -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("arrayListOf()", "arrayListOf()")
         else -> {
             if (baseType is Literal) {
-                "${(baseType.findParent(EnumTypeIB::class.java) as EnumTypeIB<*>).toKotlin(c, derived, attr)}.${baseType.toKotlin()}"
-            } else if (baseType is EnumTypeIB<*>) {
+                "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI<*>).toKotlin(c, derived, attr)}.${baseType.toKotlin()}"
+            } else if (baseType is EnumTypeI<*>) {
                 "${c.n(this, derived)}.${baseType.literals().first().toKotlin()}"
-            } else if (baseType is CompilationUnitIB<*>) {
+            } else if (baseType is CompilationUnitI<*>) {
                 "${c.n(this, derived)}()"
             } else {
                 (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
@@ -35,35 +35,35 @@ fun <T : TypeIB<*>> T.toKotlinDefault(c: GenerationContext, derived: String, att
     }
 }
 
-fun <T : AttributeIB<*>> T.toKotlinDefault(c: GenerationContext, derived: String): String {
+fun <T : AttributeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String): String {
     return type().toKotlinDefault(c, derived, this)
 }
 
-fun <T : AttributeIB<*>> T.toKotlinEMPTY(c: GenerationContext, derived: String): String {
+fun <T : AttributeI<*>> T.toKotlinEMPTY(c: GenerationContext, derived: String): String {
     return (type().parent() == n).ifElse({ type().toKotlinDefault(c, derived, this) }, { "${c.n(type(), derived)}.EMPTY" })
 }
 
 
-fun <T : AttributeIB<*>> T.toKotlinTypeSingle(c: GenerationContext, api: String): String {
+fun <T : AttributeI<*>> T.toKotlinTypeSingle(c: GenerationContext, api: String): String {
     return type().toKotlin(c, api, this)
 }
 
-fun <T : AttributeIB<*>> T.toKotlinTypeDef(c: GenerationContext, api: String): String {
+fun <T : AttributeI<*>> T.toKotlinTypeDef(c: GenerationContext, api: String): String {
     return """${type().toKotlin(c, api, this)}${nullable().then("?")}"""
 }
 
-fun <T : CompilationUnitIB<*>> T.toKotlinEmptyObject(c: GenerationContext, derived: String): String {
+fun <T : CompilationUnitI<*>> T.toKotlinEmptyObject(c: GenerationContext, derived: String): String {
     return """
     companion object {
         val EMPTY = ${c.n(this, derived)}()
     }"""
 }
 
-fun <T : AttributeIB<*>> T.toKotlinCompanionObjectName(c: GenerationContext): String {
+fun <T : AttributeI<*>> T.toKotlinCompanionObjectName(c: GenerationContext): String {
     return """        val ${name().toUnderscoredUpperCase()} = "_${name()}""""
 }
 
-fun <T : CompilationUnitIB<*>> T.toKotlinExtends(c: GenerationContext, derived: String, api: String): String {
+fun <T : CompilationUnitI<*>> T.toKotlinExtends(c: GenerationContext, derived: String, api: String): String {
     if (superUnit().isNotEMPTY() && derived != api) {
         return " : ${c.n(superUnit(), derived)}, ${c.n(this, api)}"
     } else if (superUnit().isNotEMPTY()) {
@@ -75,7 +75,7 @@ fun <T : CompilationUnitIB<*>> T.toKotlinExtends(c: GenerationContext, derived: 
     }
 }
 
-fun <T : TypeIB<*>> T.toKotlinIfNative(c: GenerationContext, derived: String, attr: AttributeIB<*>): String? {
+fun <T : TypeI<*>> T.toKotlinIfNative(c: GenerationContext, derived: String, attr: AttributeI<*>): String? {
     val baseType = findDerivedOrThis()
     return when (baseType) {
         n.String -> "String"
@@ -102,40 +102,40 @@ fun <T : TypeIB<*>> T.toKotlinIfNative(c: GenerationContext, derived: String, at
     }
 }
 
-fun TypeIB<*>.toKotlinGenericTypes(c: GenerationContext, derived: String, attr: AttributeIB<*>): String =
+fun TypeI<*>.toKotlinGenericTypes(c: GenerationContext, derived: String, attr: AttributeI<*>): String =
         generics().joinWrappedToString(", ", "", "<", ">") { it.type().toKotlin(c, derived, attr) }
 
 
-fun GenericIB<*>.toKotlin(c: GenerationContext, derived: String): String =
+fun GenericI<*>.toKotlin(c: GenerationContext, derived: String): String =
         c.n(type(), derived)
 
-fun TypeIB<*>.toKotlinGenerics(c: GenerationContext, derived: String, attr: AttributeIB<*>): String =
+fun TypeI<*>.toKotlinGenerics(c: GenerationContext, derived: String, attr: AttributeI<*>): String =
         generics().joinWrappedToString(", ", "", "<", ">") { it.toKotlin(c, derived, attr) }
 
-fun TypeIB<*>.toKotlinGenericsClassDef(c: GenerationContext, derived: String, attr: AttributeIB<*>): String =
+fun TypeI<*>.toKotlinGenericsClassDef(c: GenerationContext, derived: String, attr: AttributeI<*>): String =
         generics().joinWrappedToString(", ", "", "<", ">") {
             "${it.name()} : ${it.type().toKotlin(c, derived, attr)}"
         }
 
-fun TypeIB<*>.toKotlinGenericsMethodDef(c: GenerationContext, derived: String, attr: AttributeIB<*>): String =
+fun TypeI<*>.toKotlinGenericsMethodDef(c: GenerationContext, derived: String, attr: AttributeI<*>): String =
         generics().joinWrappedToString(", ", "", "<", "> ") {
             "${it.name()} : ${it.type().toKotlin(c, derived, attr)}"
         }
 
 
-fun TypeIB<*>.toKotlinGenericsStar(context: GenerationContext, derived: String): String =
+fun TypeI<*>.toKotlinGenericsStar(context: GenerationContext, derived: String): String =
         generics().joinWrappedToString(", ", "", "<", "> ") { "*" }
 
-fun OperationIB<*>.toKotlinGenerics(c: GenerationContext, derived: String): String =
+fun OperationI<*>.toKotlinGenerics(c: GenerationContext, derived: String): String =
         generics().joinWrappedToString(", ", "", "<", "> ") {
             "${it.name()} : ${it.type().toKotlin(c, derived)}"
         }
 
-fun <T : TypeIB<*>> T.toKotlin(c: GenerationContext, derived: String, attr: AttributeIB<*> = Attribute.EMPTY): String =
+fun <T : TypeI<*>> T.toKotlin(c: GenerationContext, derived: String, attr: AttributeI<*> = Attribute.EMPTY): String =
         toKotlinIfNative(c, derived, attr) ?: "${c.n(this, derived)}${this.toKotlinGenericTypes(c, derived, attr)}"
 
 
-fun <T : AttributeIB<*>> T.toKotlinValue(c: GenerationContext, derived: String): String {
+fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String): String {
     if (value() != null) {
         return when (type()) {
             n.String, n.Text -> "\"${value()}\""
@@ -143,7 +143,7 @@ fun <T : AttributeIB<*>> T.toKotlinValue(c: GenerationContext, derived: String):
             else -> {
                 if (value() is Literal) {
                     val lit = value() as Literal
-                    "${(lit.parent() as EnumTypeIB<*>).toKotlin(c, derived, this)}.${lit.toKotlin()}"
+                    "${(lit.parent() as EnumTypeI<*>).toKotlin(c, derived, this)}.${lit.toKotlin()}"
                 } else {
                     "${value()}"
                 }
@@ -154,7 +154,7 @@ fun <T : AttributeIB<*>> T.toKotlinValue(c: GenerationContext, derived: String):
     }
 }
 
-fun <T : AttributeIB<*>> T.toKotlinInit(c: GenerationContext, derived: String): String {
+fun <T : AttributeI<*>> T.toKotlinInit(c: GenerationContext, derived: String): String {
     if (value() != null) {
         return " = ${toKotlinValue(c, derived)}"
     } else if (nullable()) {
@@ -166,66 +166,66 @@ fun <T : AttributeIB<*>> T.toKotlinInit(c: GenerationContext, derived: String): 
     }
 }
 
-fun <T : AttributeIB<*>> T.toKotlinInitMember(c: GenerationContext, derived: String): String = "this.${name()}${toKotlinInit(c, derived)}"
+fun <T : AttributeI<*>> T.toKotlinInitMember(c: GenerationContext, derived: String): String = "this.${name()}${toKotlinInit(c, derived)}"
 
-fun <T : AttributeIB<*>> T.toKotlinSignature(c: GenerationContext, derived: String, api: String, init: Boolean = true): String =
+fun <T : AttributeI<*>> T.toKotlinSignature(c: GenerationContext, derived: String, api: String, init: Boolean = true): String =
         "${name()}: ${toKotlinTypeDef(c, api)}${init.then { toKotlinInit(c, derived) }}"
 
-fun <T : AttributeIB<*>> T.toKotlinConstructorMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String =
+fun <T : AttributeI<*>> T.toKotlinConstructorMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String =
         "${replaceable().setAndTrue().ifElse("var ", "val ")}${toKotlinSignature(c, derived, api, init)}"
 
-fun <T : AttributeIB<*>> T.toKotlinMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String =
+fun <T : AttributeI<*>> T.toKotlinMember(c: GenerationContext, derived: String, api: String, init: Boolean = true): String =
         "    ${replaceable().setAndTrue().ifElse("var ", "val ")}${toKotlinSignature(c, derived, api, init)}"
 
-fun List<AttributeIB<*>>.toKotlinSignature(c: GenerationContext, derived: String, api: String): String =
+fun List<AttributeI<*>>.toKotlinSignature(c: GenerationContext, derived: String, api: String): String =
         joinWrappedToString(", ") { it.toKotlinSignature(c, derived, api) }
 
-fun List<AttributeIB<*>>.toKotlinMember(c: GenerationContext, derived: String, api: String): String =
+fun List<AttributeI<*>>.toKotlinMember(c: GenerationContext, derived: String, api: String): String =
         joinWrappedToString(", ") { it.toKotlinSignature(c, derived, api) }
 
-fun <T : ConstructorIB<*>> T.toKotlinPrimary(c: GenerationContext, derived: String, api: String): String {
+fun <T : ConstructorI<*>> T.toKotlinPrimary(c: GenerationContext, derived: String, api: String): String {
     return if (isNotEMPTY()) """(${params().
             joinWrappedToString(", ", "      ") { it.toKotlinConstructorMember(c, derived, api) }})${
     superUnit().toKotlinCall(c)}""" else ""
 }
 
-fun <T : ConstructorIB<*>> T.toKotlin(c: GenerationContext, derived: String, api: String): String {
+fun <T : ConstructorI<*>> T.toKotlin(c: GenerationContext, derived: String, api: String): String {
     return if (isNotEMPTY()) """
     constructor(${params().joinWrappedToString(", ", "                ") { it.toKotlinSignature(c, derived, api) }
-    })${superUnit().isNotEMPTY().then { (superUnit() as ConstructorIB<*>).toKotlinCall(c, (parent() != superUnit().parent()).ifElse("super", "this")) }} ${
+    })${superUnit().isNotEMPTY().then { (superUnit() as ConstructorI<*>).toKotlinCall(c, (parent() != superUnit().parent()).ifElse("super", "this")) }} ${
     paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("$nL        ", prefix = "{$nL        ") {
         it.toKotlinAssign(c)
-    }}${(parent() as CompilationUnitIB<*>).props().filter { it.meta() }.joinSurroundIfNotEmptyToString("$nL        ", prefix = "$nL        ") {
+    }}${(parent() as CompilationUnitI<*>).props().filter { it.meta() }.joinSurroundIfNotEmptyToString("$nL        ", prefix = "$nL        ") {
         it.toKotlinInitMember(c, derived)
     }}
     }""" else ""
 }
 
-fun <T : ConstructorIB<*>> T.toKotlinCall(c: GenerationContext, name: String = "this"): String =
+fun <T : ConstructorI<*>> T.toKotlinCall(c: GenerationContext, name: String = "this"): String =
         isNotEMPTY().then { " : $name(${params().joinWrappedToString(", ") { it.name() }})" }
 
-fun <T : AttributeIB<*>> T.toKotlinAssign(c: GenerationContext): String =
+fun <T : AttributeI<*>> T.toKotlinAssign(c: GenerationContext): String =
         "this.${name()} = ${name()}"
 
-fun <T : LogicUnitIB<*>> T.toKotlinCall(c: GenerationContext): String =
+fun <T : LogicUnitI<*>> T.toKotlinCall(c: GenerationContext): String =
         isNotEMPTY().then { "(${params().joinWrappedToString(", ") { it.name() }})" }
 
 
-fun <T : LogicUnitIB<*>> T.toKotlinCallValue(c: GenerationContext, derived: String): String =
+fun <T : LogicUnitI<*>> T.toKotlinCallValue(c: GenerationContext, derived: String): String =
         isNotEMPTY().then { "(${params().joinWrappedToString(", ") { it.toKotlinValue(c, derived) }})" }
 
-fun <T : LiteralIB<*>> T.toKotlinCallValue(c: GenerationContext, derived: String): String =
+fun <T : LiteralI<*>> T.toKotlinCallValue(c: GenerationContext, derived: String): String =
         params().isNotEmpty().then { "(${params().joinWrappedToString(", ") { it.toKotlinValue(c, derived) }})" }
 
-fun <T : AttributeIB<*>> T.toKotlinType(c: GenerationContext, derived: String): String = type().toKotlin(c, derived, this)
+fun <T : AttributeI<*>> T.toKotlinType(c: GenerationContext, derived: String): String = type().toKotlin(c, derived, this)
 
-fun List<AttributeIB<*>>.toKotlinTypes(c: GenerationContext, derived: String): String =
+fun List<AttributeI<*>>.toKotlinTypes(c: GenerationContext, derived: String): String =
         joinWrappedToString(", ") { it.toKotlinType(c, derived) }
 
-fun <T : OperationIB<*>> T.toKotlinLambda(c: GenerationContext, derived: String): String =
+fun <T : OperationI<*>> T.toKotlinLambda(c: GenerationContext, derived: String): String =
         """(${params().toKotlinTypes(c, derived)}) -> ${retFirst().toKotlinType(c, derived)}"""
 
-fun <T : OperationIB<*>> T.toKotlinImpl(c: GenerationContext, derived: String, api: String): String {
+fun <T : OperationI<*>> T.toKotlinImpl(c: GenerationContext, derived: String, api: String): String {
     return """
     ${open().then("open ")}fun ${toKotlinGenerics(c, derived)}${name()}(${
     params().toKotlinSignature(c, derived, api)})${retFirst().toKotlinTypeDef(c, api)} {
@@ -233,7 +233,7 @@ fun <T : OperationIB<*>> T.toKotlinImpl(c: GenerationContext, derived: String, a
     }"""
 }
 
-fun <T : CompositeIB<*>> T.toKotlinIsEmptyExt(c: GenerationContext,
+fun <T : CompositeI<*>> T.toKotlinIsEmptyExt(c: GenerationContext,
                                           derived: String = LangDerivedKind.IMPL,
                                           api: String = LangDerivedKind.API): String {
     return """

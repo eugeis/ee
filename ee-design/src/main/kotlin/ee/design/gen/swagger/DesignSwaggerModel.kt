@@ -8,14 +8,14 @@ import ee.lang.*
 import ee.lang.gen.swagger.*
 
 
-fun <T : EntityIB<*>> T.toSwaggerGet(c: GenerationContext,
+fun <T : EntityI<*>> T.toSwaggerGet(c: GenerationContext,
                                  derived: String = LangDerivedKind.IMPL,
                                  api: String = LangDerivedKind.API): String {
     val finders = findDownByType(FindBy::class.java)
-    val counters = findDownByType(CountByIB::class.java)
-    val exists = findDownByType(ExistByIB::class.java)
+    val counters = findDownByType(CountByI::class.java)
+    val exists = findDownByType(ExistByI::class.java)
 
-    val paramsMap = mutableMapOf<String, AttributeIB<*>>()
+    val paramsMap = mutableMapOf<String, AttributeI<*>>()
     finders.forEach { it.params().forEach { paramsMap[it.name()] = it } }
     counters.forEach { it.params().forEach { paramsMap[it.name()] = it } }
     exists.forEach { it.params().forEach { paramsMap[it.name()] = it } }
@@ -66,29 +66,29 @@ fun <T : EntityIB<*>> T.toSwaggerGet(c: GenerationContext,
     } else ""
 }
 
-fun <T : EntityIB<*>> T.toSwaggerPost(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : EntityI<*>> T.toSwaggerPost(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                   api: String = LangDerivedKind.API): String {
     return """"""
 }
 
-fun <T : EntityIB<*>> T.toSwaggerPut(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : EntityI<*>> T.toSwaggerPut(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                  api: String = LangDerivedKind.API): String {
     return """"""
 }
 
-fun <T : EntityIB<*>> T.toSwaggerDelete(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : EntityI<*>> T.toSwaggerDelete(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                     api: String = LangDerivedKind.API): String {
     return """"""
 }
 
-fun <T : CompIB<*>> T.toSwagger(c: GenerationContext,
+fun <T : CompI<*>> T.toSwagger(c: GenerationContext,
                             derived: String = LangDerivedKind.IMPL,
                             api: String = LangDerivedKind.API): String {
-    val moduleAggregates = findDownByType(EntityIB::class.java).filter { !it.virtual() && it.belongsToAggregate().isEMPTY() && it.derivedAsType().isEmpty() }.groupBy {
-        it.findParentMust(ModuleIB::class.java)
+    val moduleAggregates = findDownByType(EntityI::class.java).filter { !it.virtual() && it.belongsToAggregate().isEMPTY() && it.derivedAsType().isEmpty() }.groupBy {
+        it.findParentMust(ModuleI::class.java)
     }
-    val moduleItems = findDownByType(DataTypeIB::class.java).filter { it.derivedAsType().isEmpty() }.groupBy {
-        it.findParentMust(ModuleIB::class.java)
+    val moduleItems = findDownByType(DataTypeI::class.java).filter { it.derivedAsType().isEmpty() }.groupBy {
+        it.findParentMust(ModuleI::class.java)
     }
     return """openapi: "3.0.0"
 info:
@@ -98,7 +98,7 @@ info:
     }}
   version: "1.0.0"
 paths:${moduleAggregates.joinSurroundIfNotEmptyToString("") { module, item ->
-        if (item.findDownByType(FindByIB::class.java).isNotEmpty()) {
+        if (item.findDownByType(FindByI::class.java).isNotEmpty()) {
             """
   /${c.n(module, derived).toHyphenLowerCase()}${item.toSwaggerPath(c, derived)}:${
             item.toSwaggerGet(c, derived, api)}${
@@ -109,7 +109,7 @@ paths:${moduleAggregates.joinSurroundIfNotEmptyToString("") { module, item ->
     }}
 components:
   schemas:${moduleItems.joinSurroundIfNotEmptyToString("") { module, item ->
-        if (item is EnumTypeIB<*>) item.toSwaggerEnum(c, derived) else item.toSwaggerDefinition(c, derived)
+        if (item is EnumTypeI<*>) item.toSwaggerEnum(c, derived) else item.toSwaggerDefinition(c, derived)
     }}"""
 }
 

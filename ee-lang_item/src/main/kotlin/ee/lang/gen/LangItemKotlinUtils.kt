@@ -29,14 +29,14 @@ open class KotlinContext : GenerationContext {
     }
 }
 
-val itemAndTemplateNameAsKotlinFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
+val itemAndTemplateNameAsKotlinFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("${it.name().capitalize()}${name.capitalize()}.kt")
 }
 
-val templateNameAsKotlinFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
+val templateNameAsKotlinFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("$name.kt")
 }
 
-val itemNameAsKotlinFileName: TemplateI<*>.(CompositeIB<*>) -> Names = {
+val itemNameAsKotlinFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("${it.name()}.kt")
 }

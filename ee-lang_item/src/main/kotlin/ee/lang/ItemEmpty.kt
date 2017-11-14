@@ -4,23 +4,23 @@ import java.util.*
 
 object ItemEmpty : ItemEmptyClass<ItemEmpty>()
 
-open class ItemEmptyClass<B : ItemIB<B>> : ItemIB<B> {
+open class ItemEmptyClass<B : ItemI<B>> : ItemI<B> {
     override fun namespace(): String = ""
     override fun namespace(value: String): B = apply {}
     override fun name(): String = "@@EMPTY@@"
     override fun name(value: String): B = apply {}
-    override fun doc(): CommentIB<*> = CommentEmpty
-    override fun doc(value: CommentIB<*>): B = apply {}
-    override fun parent(): ItemIB<*> = ItemEmpty
-    override fun parent(value: ItemIB<*>): B = apply {}
-    override fun onDerived(derived: ItemIB<*>) {}
-    override fun derivedItems(): List<ItemIB<*>> = emptyList()
-    override fun derivedFrom(): ItemIB<*> = ItemEmpty
-    override fun derivedFrom(value: ItemIB<*>): B = apply {}
+    override fun doc(): CommentI<*> = CommentEmpty
+    override fun doc(value: CommentI<*>): B = apply {}
+    override fun parent(): ItemI<*> = ItemEmpty
+    override fun parent(value: ItemI<*>): B = apply {}
+    override fun onDerived(derived: ItemI<*>) {}
+    override fun derivedItems(): List<ItemI<*>> = emptyList()
+    override fun derivedFrom(): ItemI<*> = ItemEmpty
+    override fun derivedFrom(value: ItemI<*>): B = apply {}
     override fun derivedAsType(): String = ""
     override fun derivedAsType(value: String): B = apply {}
     override fun derive(adapt: B.() -> Unit): B = apply {}
-    override fun <T : ItemIB<*>> apply(code: T.() -> Unit): T = this as T
+    override fun <T : ItemI<*>> apply(code: T.() -> Unit): T = this as T
     override fun <R> applyAndReturn(code: () -> R): R = code()
     override fun deriveSubType(adapt: B.() -> Unit): B = apply {}
     override fun render(builder: StringBuilder, indent: String) {}
@@ -33,7 +33,7 @@ open class ItemEmptyClass<B : ItemIB<B>> : ItemIB<B> {
 
 object MultiMapHolderEmpty : MapMultiHolderEmptyClass<Any, MultiMapHolderEmpty>()
 
-open class MultiHolderEmptyClass<I, B : MultiHolderIB<I, B>> : ItemEmptyClass<B>(), MultiHolderIB<I, B> {
+open class MultiHolderEmptyClass<I, B : MultiHolderI<I, B>> : ItemEmptyClass<B>(), MultiHolderI<I, B> {
     override fun items(): Collection<I> = emptyList()
 
     override fun containsItem(item: I): Boolean = false
@@ -51,11 +51,11 @@ open class MultiHolderEmptyClass<I, B : MultiHolderIB<I, B>> : ItemEmptyClass<B>
     override fun fillSupportsItems() {}
 }
 
-open class ListMultiHolderEmptyClass<I, B : ListMultiHolderIB<I, B>>(private val items: MutableList<I> = ArrayList()) :
-        MultiHolderEmptyClass<I, B>(), ListMultiHolderIB<I, B>, MutableList<I> by items {
+open class ListMultiHolderEmptyClass<I, B : ListMultiHolderI<I, B>>(private val items: MutableList<I> = ArrayList()) :
+        MultiHolderEmptyClass<I, B>(), ListMultiHolderI<I, B>, MutableList<I> by items {
 }
 
-open class MapMultiHolderEmptyClass<I, B : MapMultiHolderIB<I, B>> : MultiHolderEmptyClass<I, B>(), MapMultiHolderIB<I, B> {
+open class MapMultiHolderEmptyClass<I, B : MapMultiHolderI<I, B>> : MultiHolderEmptyClass<I, B>(), MapMultiHolderI<I, B> {
     override fun removeItem(childName: String) {}
     override fun <T : I> addItem(childName: String, item: T): T = item
     override fun itemsMap(): Map<String, I> = emptyMap()
@@ -63,16 +63,16 @@ open class MapMultiHolderEmptyClass<I, B : MapMultiHolderIB<I, B>> : MultiHolder
 
 object CompositeEmpty : CompositeEmptyClass<CompositeEmpty>()
 
-open class CompositeEmptyClass<B : CompositeIB<B>> : MapMultiHolderEmptyClass<ItemIB<*>, B>(), CompositeIB<B> {
+open class CompositeEmptyClass<B : CompositeI<B>> : MapMultiHolderEmptyClass<ItemI<*>, B>(), CompositeI<B> {
     override fun <T : Any> attr(name: String, attr: T?) = attr
-    override fun attributes(): MapMultiHolderIB<*, *> = MultiMapHolderEmpty
+    override fun attributes(): MapMultiHolderI<*, *> = MultiMapHolderEmpty
 }
 
 object CommentEmpty : CommentEmptyClass<CommentEmpty>()
 
-open class CommentEmptyClass<B : CommentIB<B>> : ListMultiHolderEmptyClass<String, B>(), CommentIB<B>
+open class CommentEmptyClass<B : CommentI<B>> : ListMultiHolderEmptyClass<String, B>(), CommentI<B>
 
-fun <T : ItemIB<*>> T?.isEMPTY(): Boolean = (this == null || this == ItemEmpty ||
+fun <T : ItemI<*>> T?.isEMPTY(): Boolean = (this == null || this == ItemEmpty ||
         this.javaClass.toString().contains("Empty") || this.name().equals(ItemEmpty.name()))
 
-fun <T : ItemIB<*>> T?.isNotEMPTY(): Boolean = !isEMPTY()
+fun <T : ItemI<*>> T?.isNotEMPTY(): Boolean = !isEMPTY()

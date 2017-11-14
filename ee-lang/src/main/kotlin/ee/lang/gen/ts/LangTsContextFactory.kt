@@ -1,18 +1,18 @@
 package ee.lang.gen.ts
 
 import ee.lang.DerivedController
-import ee.lang.StructureUnitIB
+import ee.lang.StructureUnitI
 import ee.lang.gen.common.LangCommonContextFactory
 
 open class LangTsContextFactory : LangCommonContextFactory() {
 
-    open fun buildForImplOnly(): StructureUnitIB<*>.() -> TsContext {
+    open fun buildForImplOnly(): StructureUnitI<*>.() -> TsContext {
         val derivedController = DerivedController()
         registerForImplOnly(derivedController)
         return contextBuilder(derivedController)
     }
 
-    override fun contextBuilder(derived: DerivedController): StructureUnitIB<*>.() -> TsContext {
+    override fun contextBuilder(derived: DerivedController): StructureUnitI<*>.() -> TsContext {
         return {
             val structureUnit = this
             TsContext(moduleFolder = structureUnit.artifact(), namespace = structureUnit.namespace().toLowerCase(),

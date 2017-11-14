@@ -1,5 +1,7 @@
 package ee.task
 
+import ee.lang.ItemI
+
 open class TaskRepository : TaskRepositoryBase {
     companion object {
         val EMPTY = TaskRepositoryBase.EMPTY
@@ -13,7 +15,7 @@ open class TaskRepository : TaskRepositoryBase {
         typeFactories.add(factory)
     }
 
-    override fun <T : ItemI> find(items: List<T>): List<TaskFactory<*>> {
+    override fun <T : ItemI<*>> find(items: List<T>): List<TaskFactory<*>> {
         return typeFactories.filter { it.supports(items) }
     }
 }
