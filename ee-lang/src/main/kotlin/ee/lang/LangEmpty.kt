@@ -8,7 +8,7 @@ object CompilationUnitEmpty : TypeB<CompilationUnitEmpty>(), CompilationUnitI<Co
     override fun open(value: Boolean): CompilationUnitEmpty = this
     override fun virtual(): Boolean = false
     override fun virtual(value: Boolean): CompilationUnitEmpty = this
-    override fun superUnitFor(vararg value: CompilationUnitI<*>): CompilationUnitEmpty = this
+    override fun superUnitFor(vararg value: TypeI<*>): CompilationUnitEmpty = this
     override fun operations(vararg value: OperationI<*>): CompilationUnitEmpty = this
     override fun op(value: OperationI<*>): OperationI<*> = Operation.EMPTY
     override fun op(value: OperationI<*>.() -> Unit): OperationI<*> = Operation.EMPTY
@@ -17,7 +17,7 @@ object CompilationUnitEmpty : TypeB<CompilationUnitEmpty>(), CompilationUnitI<Co
     override fun constr(value: ConstructorI<*>.() -> Unit): ConstructorI<*> = Constructor.EMPTY
     override fun constructors(): ListMultiHolder<ConstructorI<*>> = ListMultiHolder.empty()
     override fun operations(): ListMultiHolder<OperationI<*>> = ListMultiHolder.empty()
-    override fun superUnitFor(): ListMultiHolder<CompilationUnitI<*>> = ListMultiHolder.empty()
+    override fun superUnitFor(): ListMultiHolder<TypeI<*>> = ListMultiHolder.empty()
 }
 
 object LogicUnitEmpty : MacroCompositeB<LogicUnitEmpty>(), LogicUnitI<LogicUnitEmpty> {

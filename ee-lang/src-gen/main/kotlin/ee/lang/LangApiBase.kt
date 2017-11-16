@@ -452,11 +452,11 @@ open class TypeB<B : TypeI<B>>(value: B.() -> Unit = {}) : MacroCompositeB<B>(va
     override fun prop(value: AttributeI<*>): AttributeI<*> = applyAndReturn { props().addItem(value); value }
     override fun prop(value: AttributeI<*>.() -> Unit): AttributeI<*> = prop(Attribute(value))
 
-    override fun superUnit(): CompilationUnitI<*> = attr(SUPER_UNIT, { CompilationUnit.EMPTY })
-    override fun superUnit(value: CompilationUnitI<*>): B = apply { attr(SUPER_UNIT, value) }
+    override fun superUnitFor(): ListMultiHolder<TypeI<*>> = itemAsList(SUPER_UNIT_FOR, TypeI::class.java, true)
+    override fun superUnitFor(vararg value: TypeI<*>): B = apply { superUnitFor().addItems(value.asList()) }
 
-    override fun superUnitFor(): ListMultiHolder<CompilationUnitI<*>> = itemAsList(SUPER_UNIT_FOR, CompilationUnitI::class.java, true)
-    override fun superUnitFor(vararg value: CompilationUnitI<*>): B = apply { superUnitFor().addItems(value.asList()) }
+    override fun superUnits(): ListMultiHolder<TypeI<*>> = itemAsList(SUPER_UNITS, TypeI::class.java, true)
+    override fun superUnits(vararg value: TypeI<*>): B = apply { superUnits().addItems(value.asList()) }
 
     override fun virtual(): Boolean = attr(VIRTUAL, { false })
     override fun virtual(value: Boolean): B = apply { attr(VIRTUAL, value) }
@@ -467,6 +467,7 @@ open class TypeB<B : TypeI<B>>(value: B.() -> Unit = {}) : MacroCompositeB<B>(va
         operations()
         props()
         superUnitFor()
+        superUnits()
         super.fillSupportsItems()
     }
 
@@ -479,8 +480,8 @@ open class TypeB<B : TypeI<B>>(value: B.() -> Unit = {}) : MacroCompositeB<B>(va
         val OPEN = "_open"
         val OPERATIONS = "_operations"
         val PROPS = "_props"
-        val SUPER_UNIT = "__superUnit"
-        val SUPER_UNIT_FOR = "__superUnitFor"
+        val SUPER_UNIT_FOR = "_superUnitFor"
+        val SUPER_UNITS = "_superUnits"
         val VIRTUAL = "_virtual"
     }
 }

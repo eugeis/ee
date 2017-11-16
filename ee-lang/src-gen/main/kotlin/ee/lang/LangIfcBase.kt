@@ -224,9 +224,9 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
 
     fun props(vararg value: AttributeI<*>): B
 
-    fun superUnit(value: CompilationUnitI<*>): B
+    fun superUnitFor(vararg value: TypeI<*>): B
 
-    fun superUnitFor(vararg value: CompilationUnitI<*>): B
+    fun superUnits(vararg value: TypeI<*>): B
 
     fun virtual(value: Boolean): B
     fun constructors(): ListMultiHolder<ConstructorI<*>>
@@ -253,9 +253,9 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
     fun prop(value: AttributeI<*>): AttributeI<*>
     fun prop(value: AttributeI<*>.() -> Unit = {}): AttributeI<*>
 
-    fun superUnit(): CompilationUnitI<*>
+    fun superUnitFor(): ListMultiHolder<TypeI<*>>
 
-    fun superUnitFor(): ListMultiHolder<CompilationUnitI<*>>
+    fun superUnits(): ListMultiHolder<TypeI<*>>
 
     fun virtual(): Boolean
 }

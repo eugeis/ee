@@ -1,6 +1,18 @@
 package ee.design
 
-import ee.lang.*
+import ee.lang.Attribute
+import ee.lang.AttributeI
+import ee.lang.CompilationUnitB
+import ee.lang.DataTypeB
+import ee.lang.DataTypeOperationB
+import ee.lang.EnumType
+import ee.lang.EnumTypeI
+import ee.lang.ExternalTypeI
+import ee.lang.ItemEmpty
+import ee.lang.ListMultiHolder
+import ee.lang.LogicUnitB
+import ee.lang.StructureUnitB
+import ee.lang.StructureUnitI
 
 
 open class Action(value: Action.() -> Unit = {}) : ActionB<Action>(value) {
@@ -759,7 +771,7 @@ open class ModuleGroup(value: ModuleGroup.() -> Unit = {}) : ModuleGroupB<Module
     }
 }
 
-open class ModuleGroupB<B : ModuleGroupB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), ModuleGroupI<B> {
+open class ModuleGroupB<B : ModuleGroupB<B>>(value: B.() -> Unit = {}) : ModuleB<B>(value), ModuleGroupI<B> {
 
     override fun modules(): ListMultiHolder<ModuleI<*>> = itemAsList(MODULES, ModuleI::class.java, true)
     override fun modules(vararg value: ModuleI<*>): B = apply { modules().addItems(value.asList()) }

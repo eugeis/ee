@@ -1,6 +1,14 @@
 package ee.design
 
-import ee.lang.*
+import ee.lang.AttributeI
+import ee.lang.CompilationUnitI
+import ee.lang.DataTypeI
+import ee.lang.DataTypeOperationI
+import ee.lang.EnumTypeI
+import ee.lang.ExternalTypeI
+import ee.lang.ListMultiHolder
+import ee.lang.LogicUnitI
+import ee.lang.StructureUnitI
 
 
 interface ActionI<B : ActionI<B>> : LogicUnitI<B> {
@@ -349,7 +357,7 @@ interface ModuleI<B : ModuleI<B>> : StructureUnitI<B> {
 }
 
 
-interface ModuleGroupI<B : ModuleGroupI<B>> : StructureUnitI<B> {
+interface ModuleGroupI<B : ModuleGroupI<B>> : ModuleI<B> {
     fun modules(): ListMultiHolder<ModuleI<*>>
     fun modules(vararg value: ModuleI<*>): B
 }

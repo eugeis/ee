@@ -195,49 +195,49 @@ fun p(name: String, type: TypeI<*> = n.String, body: AttributeI<*>.() -> Unit = 
 
 fun p(name: AttributeI<*>, init: AttributeI<*>.() -> Unit = {}): AttributeI<*> = name.derive(init)
 
-fun CompilationUnitI<*>.propE(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
+fun TypeI<*>.propE(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
     type(l.EnumType)
     adapt()
 }))
 
-fun CompilationUnitI<*>.propS(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
+fun TypeI<*>.propS(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
     type(n.String)
     adapt()
 }))
 
-fun CompilationUnitI<*>.propListT(type: TypeI<*>, adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
+fun TypeI<*>.propListT(type: TypeI<*>, adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
     type(n.List.GT(type))
     adapt()
 }))
 
-fun CompilationUnitI<*>.propB(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
+fun TypeI<*>.propB(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
     type(n.Boolean)
     adapt()
 }))
 
-fun CompilationUnitI<*>.propI(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
+fun TypeI<*>.propI(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
     type(n.Int)
     adapt()
 }))
 
 
-fun CompilationUnitI<*>.propL(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
+fun TypeI<*>.propL(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
     type(n.Long)
     adapt()
 }))
 
-fun CompilationUnitI<*>.propF(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
+fun TypeI<*>.propF(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
     type(n.Float)
     adapt()
 }))
 
 
-fun CompilationUnitI<*>.propDT(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
+fun TypeI<*>.propDT(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(Attribute({
     type(n.Date)
     adapt()
 }))
 
-fun <T : TypeI<*>> CompilationUnitI<*>.prop(type: T): TypedAttributeI<T, *> {
+fun <T : TypeI<*>> TypeI<*>.prop(type: T): TypedAttributeI<T, *> {
     val ret = TypedAttribute<T>({ type(type) })
     props(ret)
     return ret
@@ -266,17 +266,17 @@ fun AttributeI<*>.nameDecapitalize(): String = storage.getOrPut(this, "nameDecap
 })
 
 fun <T : CompositeI<*>> T.defineConstructorAllPropsForNonConstructors() {
-    findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
+    findDownByType(TypeI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
             .extend { constructorAllProps() }
 }
 
 fun <T : CompositeI<*>> T.defineConstructorOwnPropsOnlyForNonConstructors() {
-    findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
+    findDownByType(TypeI::class.java, stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }
             .extend { constructorOwnPropsOnly() }
 }
 
-fun <T : CompositeI<*>> T.defineConstructorEmpty(filter: CompilationUnitI<*>.() -> Boolean = { constructors().isEmpty() }) {
-    findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.filter() }
+fun <T : CompositeI<*>> T.defineConstructorEmpty(filter: TypeI<*>.() -> Boolean = { constructors().isEmpty() }) {
+    findDownByType(TypeI::class.java, stopSteppingDownIfFound = false).filter { it.filter() }
             .extend { constructorEmpty() }
 }
 
@@ -295,6 +295,9 @@ fun <T : CompositeI<*>> T.declareAsBaseWithNonImplementedOperation() {
 fun <T : CompositeI<*>> T.prepareAttributesOfEnums() {
     findDownByType(EnumTypeI::class.java).forEach { it.props().forEach { it.replaceable(false).initByDefaultTypeValue(false) } }
 }
+
+fun TypeI<*>.superUnit(): TypeI<*> = superUnits().firstOrNull() ?: Type.EMPTY
+fun <B : TypeI<B>> B.superUnit(value: TypeI<*>): B = superUnits(value)
 
 fun <T : TypeI<*>> T.constructorAllProps(adapt: ConstructorI<*>.() -> Unit = {}): ConstructorI<*> {
     val primary = this is EnumTypeI<*>
@@ -337,9 +340,9 @@ fun <T : TypeI<*>> T.constructorEmpty(adapt: ConstructorI<*>.() -> Unit = {}): C
     } else Constructor.EMPTY
 }
 
-fun <T : CompilationUnitI<*>> T.propagateItemToSubtypes(item: CompilationUnitI<*>) {
+fun <T : TypeI<*>> T.propagateItemToSubtypes(item: TypeI<*>) {
     superUnitFor().filter { superUnitChild ->
-        superUnitChild.items().filterIsInstance<CompilationUnitI<*>>().find {
+        superUnitChild.items().filterIsInstance<TypeI<*>>().find {
             (it.name() == item.name() || it.superUnit() == superUnitChild)
         } == null
     }.forEach { superUnitChild ->
