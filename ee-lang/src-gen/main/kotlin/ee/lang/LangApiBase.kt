@@ -1,6 +1,18 @@
 package ee.lang
 
 
+open class AndExpression(value: AndExpression.() -> Unit = {}) : AndExpressionB<AndExpression>(value) {
+
+    companion object {
+        val EMPTY = AndExpression { name(ItemEmpty.name()) }.apply<AndExpression> { init() }
+    }
+}
+
+open class AndExpressionB<B : AndExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateExpressionB<B>(value), AndExpressionI<B> {
+}
+
+
+
 open class Attribute(value: Attribute.() -> Unit = {}) : AttributeB<Attribute>(value) {
 
     companion object {
@@ -55,14 +67,8 @@ open class AttributeB<B : AttributeI<B>>(value: B.() -> Unit = {}) : LiteralB<B>
     override fun replaceable(): Boolean? = attr(REPLACEABLE)
     override fun replaceable(value: Boolean?): B = apply { attr(REPLACEABLE, value) }
 
-    override fun type(): TypeI<*> = attr(TYPE, { n.Void })
-    override fun type(value: TypeI<*>): B = apply { attr(TYPE, value) }
-
     override fun unique(): Boolean = attr(UNIQUE, { false })
     override fun unique(value: Boolean): B = apply { attr(UNIQUE, value) }
-
-    override fun value(): Any? = attr(VALUE)
-    override fun value(aValue: Any?): B = apply { attr(VALUE, aValue) }
 
     companion object {
         val ACCESSIBLE = "_accessible"
@@ -80,9 +86,7 @@ open class AttributeB<B : AttributeI<B>>(value: B.() -> Unit = {}) : LiteralB<B>
         val NULLABLE = "_nullable"
         val OPEN = "_open"
         val REPLACEABLE = "_replaceable"
-        val TYPE = "_type"
         val UNIQUE = "_unique"
-        val VALUE = "_value"
     }
 }
 
@@ -176,6 +180,18 @@ open class EnumTypeB<B : EnumTypeI<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(
 
 
 
+open class EqExpression(value: EqExpression.() -> Unit = {}) : EqExpressionB<EqExpression>(value) {
+
+    companion object {
+        val EMPTY = EqExpression { name(ItemEmpty.name()) }.apply<EqExpression> { init() }
+    }
+}
+
+open class EqExpressionB<B : EqExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightExpressionB<B>(value), EqExpressionI<B> {
+}
+
+
+
 open class Expression(value: Expression.() -> Unit = {}) : ExpressionB<Expression>(value) {
 
     companion object {
@@ -219,6 +235,30 @@ open class GenericB<B : GenericI<B>>(value: B.() -> Unit = {}) : TypeB<B>(value)
 
 
 
+open class GtExpression(value: GtExpression.() -> Unit = {}) : GtExpressionB<GtExpression>(value) {
+
+    companion object {
+        val EMPTY = GtExpression { name(ItemEmpty.name()) }.apply<GtExpression> { init() }
+    }
+}
+
+open class GtExpressionB<B : GtExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightExpressionB<B>(value), GtExpressionI<B> {
+}
+
+
+
+open class GteExpression(value: GteExpression.() -> Unit = {}) : GteExpressionB<GteExpression>(value) {
+
+    companion object {
+        val EMPTY = GteExpression { name(ItemEmpty.name()) }.apply<GteExpression> { init() }
+    }
+}
+
+open class GteExpressionB<B : GteExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightExpressionB<B>(value), GteExpressionI<B> {
+}
+
+
+
 open class Lambda(value: Lambda.() -> Unit = {}) : LambdaB<Lambda>(value) {
 
     companion object {
@@ -238,6 +278,52 @@ open class LambdaB<B : LambdaI<B>>(value: B.() -> Unit = {}) : TypeB<B>(value), 
 
 
 
+open class LeftRightExpression(value: LeftRightExpression.() -> Unit = {}) : LeftRightExpressionB<LeftRightExpression>(value) {
+
+    companion object {
+        val EMPTY = LeftRightExpression { name(ItemEmpty.name()) }.apply<LeftRightExpression> { init() }
+    }
+}
+
+open class LeftRightExpressionB<B : LeftRightExpressionI<B>>(value: B.() -> Unit = {}) : PredicateB<B>(value), LeftRightExpressionI<B> {
+
+    override fun left(): LiteralI<*> = attr(LEFT, { Literal.EMPTY })
+    override fun left(value: LiteralI<*>): B = apply { attr(LEFT, value) }
+
+    override fun right(): LiteralI<*> = attr(RIGHT, { Literal.EMPTY })
+    override fun right(value: LiteralI<*>): B = apply { attr(RIGHT, value) }
+
+    companion object {
+        val LEFT = "_left"
+        val RIGHT = "_right"
+    }
+}
+
+
+
+open class LeftRightPredicateExpression(value: LeftRightPredicateExpression.() -> Unit = {}) : LeftRightPredicateExpressionB<LeftRightPredicateExpression>(value) {
+
+    companion object {
+        val EMPTY = LeftRightPredicateExpression { name(ItemEmpty.name()) }.apply<LeftRightPredicateExpression> { init() }
+    }
+}
+
+open class LeftRightPredicateExpressionB<B : LeftRightPredicateExpressionI<B>>(value: B.() -> Unit = {}) : PredicateB<B>(value), LeftRightPredicateExpressionI<B> {
+
+    override fun left(): PredicateI<*> = attr(LEFT, { Predicate.EMPTY })
+    override fun left(value: PredicateI<*>): B = apply { attr(LEFT, value) }
+
+    override fun right(): PredicateI<*> = attr(RIGHT, { Predicate.EMPTY })
+    override fun right(value: PredicateI<*>): B = apply { attr(RIGHT, value) }
+
+    companion object {
+        val LEFT = "_left"
+        val RIGHT = "_right"
+    }
+}
+
+
+
 open class Literal(value: Literal.() -> Unit = {}) : LiteralB<Literal>(value) {
 
     companion object {
@@ -245,7 +331,18 @@ open class Literal(value: Literal.() -> Unit = {}) : LiteralB<Literal>(value) {
     }
 }
 
-open class LiteralB<B : LiteralI<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), LiteralI<B> {
+open class LiteralB<B : LiteralI<B>>(value: B.() -> Unit = {}) : ExpressionB<B>(value), LiteralI<B> {
+
+    override fun type(): TypeI<*> = attr(TYPE, { n.Void })
+    override fun type(value: TypeI<*>): B = apply { attr(TYPE, value) }
+
+    override fun value(): Any? = attr(VALUE)
+    override fun value(aValue: Any?): B = apply { attr(VALUE, aValue) }
+
+    companion object {
+        val TYPE = "_type"
+        val VALUE = "_value"
+    }
 }
 
 
@@ -282,6 +379,30 @@ open class LogicUnitB<B : LogicUnitI<B>>(value: B.() -> Unit = {}) : ExpressionB
         val VIRTUAL = "_virtual"
         val VISIBLE = "_visible"
     }
+}
+
+
+
+open class LtExpression(value: LtExpression.() -> Unit = {}) : LtExpressionB<LtExpression>(value) {
+
+    companion object {
+        val EMPTY = LtExpression { name(ItemEmpty.name()) }.apply<LtExpression> { init() }
+    }
+}
+
+open class LtExpressionB<B : LtExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightExpressionB<B>(value), LtExpressionI<B> {
+}
+
+
+
+open class LteExpression(value: LteExpression.() -> Unit = {}) : LteExpressionB<LteExpression>(value) {
+
+    companion object {
+        val EMPTY = LteExpression { name(ItemEmpty.name()) }.apply<LteExpression> { init() }
+    }
+}
+
+open class LteExpressionB<B : LteExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightExpressionB<B>(value), LteExpressionI<B> {
 }
 
 
@@ -347,6 +468,37 @@ open class NativeTypeB<B : NativeTypeI<B>>(value: B.() -> Unit = {}) : TypeB<B>(
 
 
 
+open class NeExpression(value: NeExpression.() -> Unit = {}) : NeExpressionB<NeExpression>(value) {
+
+    companion object {
+        val EMPTY = NeExpression { name(ItemEmpty.name()) }.apply<NeExpression> { init() }
+    }
+}
+
+open class NeExpressionB<B : NeExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightExpressionB<B>(value), NeExpressionI<B> {
+}
+
+
+
+open class NotExpression(value: NotExpression.() -> Unit = {}) : NotExpressionB<NotExpression>(value) {
+
+    companion object {
+        val EMPTY = NotExpression { name(ItemEmpty.name()) }.apply<NotExpression> { init() }
+    }
+}
+
+open class NotExpressionB<B : NotExpressionI<B>>(value: B.() -> Unit = {}) : PredicateB<B>(value), NotExpressionI<B> {
+
+    override fun value(): PredicateI<*> = attr(VALUE, { Predicate.EMPTY })
+    override fun value(aValue: PredicateI<*>): B = apply { attr(VALUE, aValue) }
+
+    companion object {
+        val VALUE = "_value"
+    }
+}
+
+
+
 open class Operation(value: Operation.() -> Unit = {}) : OperationB<Operation>(value) {
 
     companion object {
@@ -380,6 +532,30 @@ open class OperationB<B : OperationI<B>>(value: B.() -> Unit = {}) : LogicUnitB<
         val OPEN = "_open"
         val RETURNS = "_returns"
     }
+}
+
+
+
+open class OrExpression(value: OrExpression.() -> Unit = {}) : OrExpressionB<OrExpression>(value) {
+
+    companion object {
+        val EMPTY = OrExpression { name(ItemEmpty.name()) }.apply<OrExpression> { init() }
+    }
+}
+
+open class OrExpressionB<B : OrExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateExpressionB<B>(value), OrExpressionI<B> {
+}
+
+
+
+open class Predicate(value: Predicate.() -> Unit = {}) : PredicateB<Predicate>(value) {
+
+    companion object {
+        val EMPTY = Predicate { name(ItemEmpty.name()) }.apply<Predicate> { init() }
+    }
+}
+
+open class PredicateB<B : PredicateI<B>>(value: B.() -> Unit = {}) : ExpressionB<B>(value), PredicateI<B> {
 }
 
 

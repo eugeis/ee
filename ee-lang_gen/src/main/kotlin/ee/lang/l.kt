@@ -49,13 +49,12 @@ object l : Composite({ namespace("ee.lang") }) {
     object Expression : Composite({ derivedFrom(MacroComposite) }) {
     }
 
-    object Literal : Composite({ derivedFrom(LogicUnit) }) {
+    object Literal : Composite({ derivedFrom(Expression) }) {
+        val type = AttributeI({ type(Type).value("n.Void") })
+        val value = AttributeI({ type(n.Any).nullable(true) })
     }
 
     object Attribute : Composite({ derivedFrom(Literal) }) {
-        val type = AttributeI({ type(Type).value("n.Void") })
-        val value = AttributeI({ type(n.Any).nullable(true) })
-
         val key = AttributeI({ type(n.Boolean).value(false) })
         val unique = AttributeI({ type(n.Boolean).value(false) })
         val initByDefaultTypeValue = AttributeI({ type(n.Boolean).value(true) })
@@ -109,7 +108,6 @@ object l : Composite({ namespace("ee.lang") }) {
     object DataTypeOperation : Composite({ derivedFrom(Operation) })
 
     //logic
-/*
     object Predicate : Composite({ derivedFrom(Expression) }) {
     }
 
@@ -117,15 +115,20 @@ object l : Composite({ namespace("ee.lang") }) {
         val value = AttributeI({ type(Predicate) })
     }
 
-    object LeftRightExpression : Composite({ derivedFrom(Predicate) }) {
+    object LeftRightPredicateExpression : Composite({ derivedFrom(Predicate) }) {
         val left = AttributeI({ type(Predicate) })
         val right = AttributeI({ type(Predicate) })
     }
 
-    object AndExpression : Composite({ derivedFrom(LeftRightExpression) }) {
+    object LeftRightExpression : Composite({ derivedFrom(Predicate) }) {
+        val left = AttributeI({ type(Literal) })
+        val right = AttributeI({ type(Literal) })
     }
 
-    object OrExpression : Composite({ derivedFrom(LeftRightExpression) }) {
+    object AndExpression : Composite({ derivedFrom(LeftRightPredicateExpression) }) {
+    }
+
+    object OrExpression : Composite({ derivedFrom(LeftRightPredicateExpression) }) {
     }
 
     object EqExpression : Composite({ derivedFrom(LeftRightExpression) }) {
@@ -148,7 +151,6 @@ object l : Composite({ namespace("ee.lang") }) {
 
     object GteExpression : Composite({ derivedFrom(LeftRightExpression) }) {
     }
-    */
 }
 
 

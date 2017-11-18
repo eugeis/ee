@@ -1,6 +1,10 @@
 package ee.lang
 
 
+interface AndExpressionI<B : AndExpressionI<B>> : LeftRightPredicateExpressionI<B> {
+}
+
+
 interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
     fun accessible(value: Boolean?): B
 
@@ -32,11 +36,7 @@ interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
 
     fun replaceable(value: Boolean?): B
 
-    fun type(value: TypeI<*>): B
-
     fun unique(value: Boolean): B
-
-    fun value(aValue: Any?): B
     fun accessible(): Boolean?
 
     fun anonymous(): Boolean
@@ -67,11 +67,7 @@ interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
 
     fun replaceable(): Boolean?
 
-    fun type(): TypeI<*>
-
     fun unique(): Boolean
-
-    fun value(): Any?
 }
 
 
@@ -103,6 +99,10 @@ interface EnumTypeI<B : EnumTypeI<B>> : DataTypeI<B> {
 }
 
 
+interface EqExpressionI<B : EqExpressionI<B>> : LeftRightExpressionI<B> {
+}
+
+
 interface ExpressionI<B : ExpressionI<B>> : MacroCompositeI<B> {
 }
 
@@ -117,13 +117,47 @@ interface GenericI<B : GenericI<B>> : TypeI<B> {
 }
 
 
+interface GtExpressionI<B : GtExpressionI<B>> : LeftRightExpressionI<B> {
+}
+
+
+interface GteExpressionI<B : GteExpressionI<B>> : LeftRightExpressionI<B> {
+}
+
+
 interface LambdaI<B : LambdaI<B>> : TypeI<B> {
     fun operation(value: OperationI<*>): B
     fun operation(): OperationI<*>
 }
 
 
-interface LiteralI<B : LiteralI<B>> : LogicUnitI<B> {
+interface LeftRightExpressionI<B : LeftRightExpressionI<B>> : PredicateI<B> {
+    fun left(value: LiteralI<*>): B
+
+    fun right(value: LiteralI<*>): B
+    fun left(): LiteralI<*>
+
+    fun right(): LiteralI<*>
+}
+
+
+interface LeftRightPredicateExpressionI<B : LeftRightPredicateExpressionI<B>> : PredicateI<B> {
+    fun left(value: PredicateI<*>): B
+
+    fun right(value: PredicateI<*>): B
+    fun left(): PredicateI<*>
+
+    fun right(): PredicateI<*>
+}
+
+
+interface LiteralI<B : LiteralI<B>> : ExpressionI<B> {
+    fun type(value: TypeI<*>): B
+
+    fun value(aValue: Any?): B
+    fun type(): TypeI<*>
+
+    fun value(): Any?
 }
 
 
@@ -142,6 +176,14 @@ interface LogicUnitI<B : LogicUnitI<B>> : ExpressionI<B> {
     fun virtual(): Boolean
 
     fun visible(): Boolean
+}
+
+
+interface LtExpressionI<B : LtExpressionI<B>> : LeftRightExpressionI<B> {
+}
+
+
+interface LteExpressionI<B : LteExpressionI<B>> : LeftRightExpressionI<B> {
 }
 
 
@@ -175,6 +217,16 @@ interface NativeTypeI<B : NativeTypeI<B>> : TypeI<B> {
 }
 
 
+interface NeExpressionI<B : NeExpressionI<B>> : LeftRightExpressionI<B> {
+}
+
+
+interface NotExpressionI<B : NotExpressionI<B>> : PredicateI<B> {
+    fun value(aValue: PredicateI<*>): B
+    fun value(): PredicateI<*>
+}
+
+
 interface OperationI<B : OperationI<B>> : LogicUnitI<B> {
     fun generics(vararg value: GenericI<*>): B
 
@@ -190,6 +242,14 @@ interface OperationI<B : OperationI<B>> : LogicUnitI<B> {
     fun returns(): ListMultiHolder<AttributeI<*>>
     fun ret(value: AttributeI<*>): AttributeI<*>
     fun ret(value: AttributeI<*>.() -> Unit = {}): AttributeI<*>
+}
+
+
+interface OrExpressionI<B : OrExpressionI<B>> : LeftRightPredicateExpressionI<B> {
+}
+
+
+interface PredicateI<B : PredicateI<B>> : ExpressionI<B> {
 }
 
 
