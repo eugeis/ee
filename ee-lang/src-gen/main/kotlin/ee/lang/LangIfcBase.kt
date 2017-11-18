@@ -91,6 +91,14 @@ interface DataTypeOperationI<B : DataTypeOperationI<B>> : OperationI<B> {
 }
 
 
+interface DecrementExpressionI<B : DecrementExpressionI<B>> : SingleLiteralExpressionI<B> {
+}
+
+
+interface DivideExpressionI<B : DivideExpressionI<B>> : LeftRightLiteralExpressionI<B> {
+}
+
+
 interface EnumTypeI<B : EnumTypeI<B>> : DataTypeI<B> {
     fun literals(vararg value: LiteralI<*>): B
     fun literals(): ListMultiHolder<LiteralI<*>>
@@ -125,6 +133,10 @@ interface GteExpressionI<B : GteExpressionI<B>> : LeftRightExpressionI<B> {
 }
 
 
+interface IncrementExpressionI<B : IncrementExpressionI<B>> : SingleLiteralExpressionI<B> {
+}
+
+
 interface LambdaI<B : LambdaI<B>> : TypeI<B> {
     fun operation(value: OperationI<*>): B
     fun operation(): OperationI<*>
@@ -132,6 +144,16 @@ interface LambdaI<B : LambdaI<B>> : TypeI<B> {
 
 
 interface LeftRightExpressionI<B : LeftRightExpressionI<B>> : PredicateI<B> {
+    fun left(value: LiteralI<*>): B
+
+    fun right(value: LiteralI<*>): B
+    fun left(): LiteralI<*>
+
+    fun right(): LiteralI<*>
+}
+
+
+interface LeftRightLiteralExpressionI<B : LeftRightLiteralExpressionI<B>> : LiteralI<B> {
     fun left(value: LiteralI<*>): B
 
     fun right(value: LiteralI<*>): B
@@ -213,6 +235,14 @@ interface MacroCompositeI<B : MacroCompositeI<B>> : CompositeI<B> {
 }
 
 
+interface MinusExpressionI<B : MinusExpressionI<B>> : LeftRightLiteralExpressionI<B> {
+}
+
+
+interface ModuloExpressionI<B : ModuloExpressionI<B>> : LeftRightLiteralExpressionI<B> {
+}
+
+
 interface NativeTypeI<B : NativeTypeI<B>> : TypeI<B> {
 }
 
@@ -249,7 +279,17 @@ interface OrExpressionI<B : OrExpressionI<B>> : LeftRightPredicateExpressionI<B>
 }
 
 
+interface PlusExpressionI<B : PlusExpressionI<B>> : LeftRightLiteralExpressionI<B> {
+}
+
+
 interface PredicateI<B : PredicateI<B>> : ExpressionI<B> {
+}
+
+
+interface SingleLiteralExpressionI<B : SingleLiteralExpressionI<B>> : LiteralI<B> {
+    fun value(aValue: LiteralI<*>): B
+    fun value(): LiteralI<*>
 }
 
 
@@ -264,6 +304,10 @@ interface StructureUnitI<B : StructureUnitI<B>> : MacroCompositeI<B> {
     fun fullName(): String
 
     fun key(): String
+}
+
+
+interface TimesExpressionI<B : TimesExpressionI<B>> : LeftRightLiteralExpressionI<B> {
 }
 
 

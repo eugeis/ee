@@ -125,32 +125,31 @@ object l : Composite({ namespace("ee.lang") }) {
         val right = AttributeI({ type(Literal) })
     }
 
-    object AndExpression : Composite({ derivedFrom(LeftRightPredicateExpression) }) {
+    object LeftRightLiteralExpression : Composite({ derivedFrom(Literal) }) {
+        val left = AttributeI({ type(Literal) })
+        val right = AttributeI({ type(Literal) })
     }
 
-    object OrExpression : Composite({ derivedFrom(LeftRightPredicateExpression) }) {
+    object SingleLiteralExpression : Composite({ derivedFrom(Literal) }) {
+        val value = AttributeI({ type(Literal) })
     }
 
-    object EqExpression : Composite({ derivedFrom(LeftRightExpression) }) {
-    }
+    object AndExpression : Composite({ derivedFrom(LeftRightPredicateExpression) })
+    object OrExpression : Composite({ derivedFrom(LeftRightPredicateExpression) })
+    object EqExpression : Composite({ derivedFrom(LeftRightExpression) })
+    object NeExpression : Composite({ derivedFrom(LeftRightExpression) })
+    object LtExpression : Composite({ derivedFrom(LeftRightExpression) })
+    object LteExpression : Composite({ derivedFrom(LeftRightExpression) })
+    object GtExpression : Composite({ derivedFrom(LeftRightExpression) })
+    object GteExpression : Composite({ derivedFrom(LeftRightExpression) })
 
-    /**
-     * Not equals expression
-     */
-    object NeExpression : Composite({ derivedFrom(LeftRightExpression) }) {
-    }
-
-    object LtExpression : Composite({ derivedFrom(LeftRightExpression) }) {
-    }
-
-    object LteExpression : Composite({ derivedFrom(LeftRightExpression) }) {
-    }
-
-    object GtExpression : Composite({ derivedFrom(LeftRightExpression) }) {
-    }
-
-    object GteExpression : Composite({ derivedFrom(LeftRightExpression) }) {
-    }
+    object PlusExpression : Composite({ derivedFrom(LeftRightLiteralExpression) })
+    object MinusExpression : Composite({ derivedFrom(LeftRightLiteralExpression) })
+    object DivideExpression : Composite({ derivedFrom(LeftRightLiteralExpression) })
+    object TimesExpression : Composite({ derivedFrom(LeftRightLiteralExpression) })
+    object ModuloExpression : Composite({ derivedFrom(LeftRightLiteralExpression) })
+    object IncrementExpression : Composite({ derivedFrom(SingleLiteralExpression) })
+    object DecrementExpression : Composite({ derivedFrom(SingleLiteralExpression) })
 }
 
 

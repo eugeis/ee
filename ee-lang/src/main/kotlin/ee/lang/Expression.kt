@@ -29,3 +29,11 @@ infix fun LiteralI<*>.gt(value: Long): GtExpression = gt(Literal { value(value).
 infix fun LiteralI<*>.gte(value: LiteralI<*>): GteExpression = GteExpression { left(this@gte).right(value) }
 infix fun LiteralI<*>.gte(value: String?): GteExpression = gte(Literal { value(value).type(n.String) })
 infix fun LiteralI<*>.gte(value: Long): GteExpression = gte(Literal { value(value).type(n.Long) })
+
+operator fun LiteralI<*>.plus(value: LiteralI<*>): LiteralI<*> = PlusExpression { left(this@plus).left(value) }
+operator fun LiteralI<*>.plus(value: Long): LiteralI<*> = plus(Literal { value(value).type(n.Long) })
+operator fun LiteralI<*>.plus(value: Int): LiteralI<*> = plus(Literal { value(value).type(n.Int) })
+operator fun LiteralI<*>.plus(value: Float): LiteralI<*> = plus(Literal { value(value).type(n.Float) })
+
+operator fun LiteralI<*>.inc(): LiteralI<*> = IncrementExpression { value(this@inc) }
+operator fun LiteralI<*>.dec(): LiteralI<*> = DecrementExpression { value(this@dec) }
