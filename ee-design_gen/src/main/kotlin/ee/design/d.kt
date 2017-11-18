@@ -78,8 +78,8 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
 
     object State : CompilationUnit({ superUnit(Controller) }) {
         val timeout = propL()
-        val entryActions = prop(Action).multi(true).nonFluent("entry")
-        val exitActions = prop(Action).multi(true).nonFluent("exit")
+        val entryActions = prop(l.Action).multi(true).nonFluent("entry")
+        val exitActions = prop(l.Action).multi(true).nonFluent("exit")
         val executors = prop(Executor).multi(true).nonFluent("execute")
         val handlers = prop(Handler).multi(true).nonFluent("handle")
     }
@@ -93,7 +93,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val on = prop(Command)
         val checks = prop(Check).multi(true).nonFluent("yes")
         val notChecks = prop(Check).multi(true).nonFluent("no")
-        val actions = prop(Action).multi(true).nonFluent("action")
+        val actions = prop(l.Action).multi(true).nonFluent("action")
         val output = prop(Event).multi(true).nonFluent("produce")
     }
 
@@ -102,17 +102,8 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val checks = prop(Check).multi(true).nonFluent("yes")
         val notChecks = prop(Check).multi(true).nonFluent("no")
         val to = prop(State)
-        val actions = prop(Action).multi(true).nonFluent("action")
+        val actions = prop(l.Action).multi(true).nonFluent("action")
         val output = prop(Command).multi(true).nonFluent("produce")
-    }
-
-    object Action : CompilationUnit({ superUnit(l.LogicUnit) }) {
-    }
-
-    object ApplyAction : CompilationUnit({ superUnit(Action) }) {
-        val target = prop(l.Attribute)
-        val operator = prop(l.Attribute)
-        val value = prop(n.Any)
     }
 
     object Check : CompilationUnit({ superUnit(l.LogicUnit) }) {

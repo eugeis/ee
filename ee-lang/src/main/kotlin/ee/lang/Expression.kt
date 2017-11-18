@@ -30,10 +30,19 @@ infix fun LiteralI<*>.gte(value: LiteralI<*>): GteExpression = GteExpression { l
 infix fun LiteralI<*>.gte(value: String?): GteExpression = gte(Literal { value(value).type(n.String) })
 infix fun LiteralI<*>.gte(value: Long): GteExpression = gte(Literal { value(value).type(n.Long) })
 
+infix fun LiteralI<*>.compareTo(value: LiteralI<*>): GteExpression = GteExpression { left(this@compareTo).right(value) }
+
 operator fun LiteralI<*>.plus(value: LiteralI<*>): LiteralI<*> = PlusExpression { left(this@plus).left(value) }
 operator fun LiteralI<*>.plus(value: Long): LiteralI<*> = plus(Literal { value(value).type(n.Long) })
 operator fun LiteralI<*>.plus(value: Int): LiteralI<*> = plus(Literal { value(value).type(n.Int) })
 operator fun LiteralI<*>.plus(value: Float): LiteralI<*> = plus(Literal { value(value).type(n.Float) })
 
+operator fun LiteralI<*>.minus(value: LiteralI<*>): LiteralI<*> = MinusExpression { left(this@minus).left(value) }
+operator fun LiteralI<*>.minus(value: Long): LiteralI<*> = minus(Literal { value(value).type(n.Long) })
+operator fun LiteralI<*>.minus(value: Int): LiteralI<*> = minus(Literal { value(value).type(n.Int) })
+operator fun LiteralI<*>.minus(value: Float): LiteralI<*> = minus(Literal { value(value).type(n.Float) })
+
 operator fun LiteralI<*>.inc(): LiteralI<*> = IncrementExpression { value(this@inc) }
 operator fun LiteralI<*>.dec(): LiteralI<*> = DecrementExpression { value(this@dec) }
+
+fun AttributeI<*>.assign(value: LiteralI<*>): ActionI<*> = AssignAction { target(this@assign).value(value) }

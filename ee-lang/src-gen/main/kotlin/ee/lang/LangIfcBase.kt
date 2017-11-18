@@ -1,7 +1,25 @@
 package ee.lang
 
 
-interface AndExpressionI<B : AndExpressionI<B>> : LeftRightPredicateExpressionI<B> {
+interface ActionI<B : ActionI<B>> : LogicUnitI<B> {
+}
+
+
+interface AndExpressionI<B : AndExpressionI<B>> : LeftRightPredicatesPredicateI<B> {
+}
+
+
+interface ApplyActionI<B : ApplyActionI<B>> : ActionI<B> {
+    fun target(value: AttributeI<*>): B
+
+    fun value(aValue: LiteralI<*>): B
+    fun target(): AttributeI<*>
+
+    fun value(): LiteralI<*>
+}
+
+
+interface AssignActionI<B : AssignActionI<B>> : ApplyActionI<B> {
 }
 
 
@@ -91,11 +109,15 @@ interface DataTypeOperationI<B : DataTypeOperationI<B>> : OperationI<B> {
 }
 
 
-interface DecrementExpressionI<B : DecrementExpressionI<B>> : SingleLiteralExpressionI<B> {
+interface DecrementExpressionI<B : DecrementExpressionI<B>> : LiteralI<B> {
 }
 
 
-interface DivideExpressionI<B : DivideExpressionI<B>> : LeftRightLiteralExpressionI<B> {
+interface DivideAssignActionI<B : DivideAssignActionI<B>> : ApplyActionI<B> {
+}
+
+
+interface DivideExpressionI<B : DivideExpressionI<B>> : LeftRightLiteralI<B> {
 }
 
 
@@ -107,7 +129,7 @@ interface EnumTypeI<B : EnumTypeI<B>> : DataTypeI<B> {
 }
 
 
-interface EqExpressionI<B : EqExpressionI<B>> : LeftRightExpressionI<B> {
+interface EqExpressionI<B : EqExpressionI<B>> : LeftRightPredicateI<B> {
 }
 
 
@@ -125,15 +147,15 @@ interface GenericI<B : GenericI<B>> : TypeI<B> {
 }
 
 
-interface GtExpressionI<B : GtExpressionI<B>> : LeftRightExpressionI<B> {
+interface GtExpressionI<B : GtExpressionI<B>> : LeftRightPredicateI<B> {
 }
 
 
-interface GteExpressionI<B : GteExpressionI<B>> : LeftRightExpressionI<B> {
+interface GteExpressionI<B : GteExpressionI<B>> : LeftRightPredicateI<B> {
 }
 
 
-interface IncrementExpressionI<B : IncrementExpressionI<B>> : SingleLiteralExpressionI<B> {
+interface IncrementExpressionI<B : IncrementExpressionI<B>> : LiteralI<B> {
 }
 
 
@@ -143,7 +165,7 @@ interface LambdaI<B : LambdaI<B>> : TypeI<B> {
 }
 
 
-interface LeftRightExpressionI<B : LeftRightExpressionI<B>> : PredicateI<B> {
+interface LeftRightLiteralI<B : LeftRightLiteralI<B>> : LiteralI<B> {
     fun left(value: LiteralI<*>): B
 
     fun right(value: LiteralI<*>): B
@@ -153,7 +175,7 @@ interface LeftRightExpressionI<B : LeftRightExpressionI<B>> : PredicateI<B> {
 }
 
 
-interface LeftRightLiteralExpressionI<B : LeftRightLiteralExpressionI<B>> : LiteralI<B> {
+interface LeftRightPredicateI<B : LeftRightPredicateI<B>> : PredicateI<B> {
     fun left(value: LiteralI<*>): B
 
     fun right(value: LiteralI<*>): B
@@ -163,7 +185,7 @@ interface LeftRightLiteralExpressionI<B : LeftRightLiteralExpressionI<B>> : Lite
 }
 
 
-interface LeftRightPredicateExpressionI<B : LeftRightPredicateExpressionI<B>> : PredicateI<B> {
+interface LeftRightPredicatesPredicateI<B : LeftRightPredicatesPredicateI<B>> : PredicateI<B> {
     fun left(value: PredicateI<*>): B
 
     fun right(value: PredicateI<*>): B
@@ -174,9 +196,13 @@ interface LeftRightPredicateExpressionI<B : LeftRightPredicateExpressionI<B>> : 
 
 
 interface LiteralI<B : LiteralI<B>> : ExpressionI<B> {
+    fun params(vararg value: AttributeI<*>): B
+
     fun type(value: TypeI<*>): B
 
     fun value(aValue: Any?): B
+    fun params(): ListMultiHolder<AttributeI<*>>
+
     fun type(): TypeI<*>
 
     fun value(): Any?
@@ -201,11 +227,11 @@ interface LogicUnitI<B : LogicUnitI<B>> : ExpressionI<B> {
 }
 
 
-interface LtExpressionI<B : LtExpressionI<B>> : LeftRightExpressionI<B> {
+interface LtExpressionI<B : LtExpressionI<B>> : LeftRightPredicateI<B> {
 }
 
 
-interface LteExpressionI<B : LteExpressionI<B>> : LeftRightExpressionI<B> {
+interface LteExpressionI<B : LteExpressionI<B>> : LeftRightPredicateI<B> {
 }
 
 
@@ -235,11 +261,11 @@ interface MacroCompositeI<B : MacroCompositeI<B>> : CompositeI<B> {
 }
 
 
-interface MinusExpressionI<B : MinusExpressionI<B>> : LeftRightLiteralExpressionI<B> {
+interface MinusAssignActionI<B : MinusAssignActionI<B>> : ApplyActionI<B> {
 }
 
 
-interface ModuloExpressionI<B : ModuloExpressionI<B>> : LeftRightLiteralExpressionI<B> {
+interface MinusExpressionI<B : MinusExpressionI<B>> : LeftRightLiteralI<B> {
 }
 
 
@@ -247,7 +273,7 @@ interface NativeTypeI<B : NativeTypeI<B>> : TypeI<B> {
 }
 
 
-interface NeExpressionI<B : NeExpressionI<B>> : LeftRightExpressionI<B> {
+interface NeExpressionI<B : NeExpressionI<B>> : LeftRightPredicateI<B> {
 }
 
 
@@ -275,11 +301,15 @@ interface OperationI<B : OperationI<B>> : LogicUnitI<B> {
 }
 
 
-interface OrExpressionI<B : OrExpressionI<B>> : LeftRightPredicateExpressionI<B> {
+interface OrExpressionI<B : OrExpressionI<B>> : LeftRightPredicatesPredicateI<B> {
 }
 
 
-interface PlusExpressionI<B : PlusExpressionI<B>> : LeftRightLiteralExpressionI<B> {
+interface PlusAssignActionI<B : PlusAssignActionI<B>> : ApplyActionI<B> {
+}
+
+
+interface PlusExpressionI<B : PlusExpressionI<B>> : LeftRightLiteralI<B> {
 }
 
 
@@ -287,9 +317,11 @@ interface PredicateI<B : PredicateI<B>> : ExpressionI<B> {
 }
 
 
-interface SingleLiteralExpressionI<B : SingleLiteralExpressionI<B>> : LiteralI<B> {
-    fun value(aValue: LiteralI<*>): B
-    fun value(): LiteralI<*>
+interface RemainderAssignActionI<B : RemainderAssignActionI<B>> : ApplyActionI<B> {
+}
+
+
+interface RemainderExpressionI<B : RemainderExpressionI<B>> : LeftRightLiteralI<B> {
 }
 
 
@@ -307,7 +339,11 @@ interface StructureUnitI<B : StructureUnitI<B>> : MacroCompositeI<B> {
 }
 
 
-interface TimesExpressionI<B : TimesExpressionI<B>> : LeftRightLiteralExpressionI<B> {
+interface TimesAssignActionI<B : TimesAssignActionI<B>> : ApplyActionI<B> {
+}
+
+
+interface TimesExpressionI<B : TimesExpressionI<B>> : LeftRightLiteralI<B> {
 }
 
 

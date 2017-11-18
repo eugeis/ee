@@ -1,5 +1,6 @@
 package ee.design
 
+import ee.lang.ActionI
 import ee.lang.AttributeI
 import ee.lang.CompilationUnitI
 import ee.lang.DataTypeI
@@ -11,23 +12,7 @@ import ee.lang.LogicUnitI
 import ee.lang.StructureUnitI
 
 
-interface ActionI<B : ActionI<B>> : LogicUnitI<B> {
-}
-
-
 interface AggregateHandlerI<B : AggregateHandlerI<B>> : StateMachineI<B> {
-}
-
-
-interface ApplyActionI<B : ApplyActionI<B>> : ActionI<B> {
-    fun target(): AttributeI<*>
-    fun target(value: AttributeI<*>): B
-
-    fun operator(): AttributeI<*>
-    fun operator(value: AttributeI<*>): B
-
-    fun value(): Any
-    fun value(aValue: Any): B
 }
 
 

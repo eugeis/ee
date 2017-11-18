@@ -288,10 +288,6 @@ fun AttributeI<*>.setOptionalTag(): AttributeI<*> {
     return this
 }
 
-fun AttributeI<*>.applyValue(value: Any): ActionI<*> {
-    return ApplyAction { target(this@applyValue) }
-}
-
 /*
 fun StructureUnitI<*>.declareAsBaseWithNonImplementedOperation() {
     findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEMPTY() && !it.base() }.forEach { it.base(true) }
@@ -374,5 +370,3 @@ fun StateI<*>.handle(event: EventI<*>, value: HandlerI<*>.() -> Unit = {}) = han
     on(event)
     value()
 }
-
-

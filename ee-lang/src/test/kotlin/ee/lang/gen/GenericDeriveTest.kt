@@ -1,9 +1,6 @@
 package ee.lang.gen
 
-import ee.lang.CompilationUnit
-import ee.lang.GT
-import ee.lang.StructureUnit
-import ee.lang.TypeI
+import ee.lang.*
 import ee.lang.gen.kt.prepareForKotlinGeneration
 import org.hamcrest.CoreMatchers
 import org.junit.Assert

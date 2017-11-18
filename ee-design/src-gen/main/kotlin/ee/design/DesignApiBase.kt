@@ -1,5 +1,7 @@
 package ee.design
 
+import ee.lang.Action
+import ee.lang.ActionI
 import ee.lang.Attribute
 import ee.lang.AttributeI
 import ee.lang.CompilationUnitB
@@ -15,17 +17,6 @@ import ee.lang.StructureUnitB
 import ee.lang.StructureUnitI
 
 
-open class Action(value: Action.() -> Unit = {}) : ActionB<Action>(value) {
-
-    companion object {
-        val EMPTY = Action { name(ItemEmpty.name()) }.apply<Action> { init() }
-    }
-}
-
-open class ActionB<B : ActionB<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), ActionI<B> {
-}
-
-
 open class AggregateHandler(value: AggregateHandler.() -> Unit = {}) : AggregateHandlerB<AggregateHandler>(value) {
 
     companion object {
@@ -34,32 +25,6 @@ open class AggregateHandler(value: AggregateHandler.() -> Unit = {}) : Aggregate
 }
 
 open class AggregateHandlerB<B : AggregateHandlerB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), AggregateHandlerI<B> {
-}
-
-
-open class ApplyAction(value: ApplyAction.() -> Unit = {}) : ApplyActionB<ApplyAction>(value) {
-
-    companion object {
-        val EMPTY = ApplyAction { name(ItemEmpty.name()) }.apply<ApplyAction> { init() }
-    }
-}
-
-open class ApplyActionB<B : ApplyActionB<B>>(value: B.() -> Unit = {}) : ActionB<B>(value), ApplyActionI<B> {
-
-    override fun target(): AttributeI<*> = attr(TARGET, { Attribute.EMPTY })
-    override fun target(value: AttributeI<*>): B = apply { attr(TARGET, value) }
-
-    override fun operator(): AttributeI<*> = attr(OPERATOR, { Attribute.EMPTY })
-    override fun operator(value: AttributeI<*>): B = apply { attr(OPERATOR, value) }
-
-    override fun value(): Any = attr(VALUE, { "" })
-    override fun value(aValue: Any): B = apply { attr(VALUE, aValue) }
-
-    companion object {
-        val TARGET = "_target"
-        val OPERATOR = "_operator"
-        val VALUE = "_value"
-    }
 }
 
 

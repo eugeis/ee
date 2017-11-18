@@ -1,6 +1,18 @@
 package ee.lang
 
 
+open class Action(value: Action.() -> Unit = {}) : ActionB<Action>(value) {
+
+    companion object {
+        val EMPTY = Action { name(ItemEmpty.name()) }.apply<Action> { init() }
+    }
+}
+
+open class ActionB<B : ActionI<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), ActionI<B> {
+}
+
+
+
 open class AndExpression(value: AndExpression.() -> Unit = {}) : AndExpressionB<AndExpression>(value) {
 
     companion object {
@@ -8,7 +20,42 @@ open class AndExpression(value: AndExpression.() -> Unit = {}) : AndExpressionB<
     }
 }
 
-open class AndExpressionB<B : AndExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateExpressionB<B>(value), AndExpressionI<B> {
+open class AndExpressionB<B : AndExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightPredicatesPredicateB<B>(value), AndExpressionI<B> {
+}
+
+
+
+open class ApplyAction(value: ApplyAction.() -> Unit = {}) : ApplyActionB<ApplyAction>(value) {
+
+    companion object {
+        val EMPTY = ApplyAction { name(ItemEmpty.name()) }.apply<ApplyAction> { init() }
+    }
+}
+
+open class ApplyActionB<B : ApplyActionI<B>>(value: B.() -> Unit = {}) : ActionB<B>(value), ApplyActionI<B> {
+
+    override fun target(): AttributeI<*> = attr(TARGET, { Attribute.EMPTY })
+    override fun target(value: AttributeI<*>): B = apply { attr(TARGET, value) }
+
+    override fun value(): LiteralI<*> = attr(VALUE, { Literal.EMPTY })
+    override fun value(aValue: LiteralI<*>): B = apply { attr(VALUE, aValue) }
+
+    companion object {
+        val TARGET = "_target"
+        val VALUE = "_value"
+    }
+}
+
+
+
+open class AssignAction(value: AssignAction.() -> Unit = {}) : AssignActionB<AssignAction>(value) {
+
+    companion object {
+        val EMPTY = AssignAction { name(ItemEmpty.name()) }.apply<AssignAction> { init() }
+    }
+}
+
+open class AssignActionB<B : AssignActionI<B>>(value: B.() -> Unit = {}) : ApplyActionB<B>(value), AssignActionI<B> {
 }
 
 
@@ -161,7 +208,19 @@ open class DecrementExpression(value: DecrementExpression.() -> Unit = {}) : Dec
     }
 }
 
-open class DecrementExpressionB<B : DecrementExpressionI<B>>(value: B.() -> Unit = {}) : SingleLiteralExpressionB<B>(value), DecrementExpressionI<B> {
+open class DecrementExpressionB<B : DecrementExpressionI<B>>(value: B.() -> Unit = {}) : LiteralB<B>(value), DecrementExpressionI<B> {
+}
+
+
+
+open class DivideAssignAction(value: DivideAssignAction.() -> Unit = {}) : DivideAssignActionB<DivideAssignAction>(value) {
+
+    companion object {
+        val EMPTY = DivideAssignAction { name(ItemEmpty.name()) }.apply<DivideAssignAction> { init() }
+    }
+}
+
+open class DivideAssignActionB<B : DivideAssignActionI<B>>(value: B.() -> Unit = {}) : ApplyActionB<B>(value), DivideAssignActionI<B> {
 }
 
 
@@ -173,7 +232,7 @@ open class DivideExpression(value: DivideExpression.() -> Unit = {}) : DivideExp
     }
 }
 
-open class DivideExpressionB<B : DivideExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralExpressionB<B>(value), DivideExpressionI<B> {
+open class DivideExpressionB<B : DivideExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralB<B>(value), DivideExpressionI<B> {
 }
 
 
@@ -211,7 +270,7 @@ open class EqExpression(value: EqExpression.() -> Unit = {}) : EqExpressionB<EqE
     }
 }
 
-open class EqExpressionB<B : EqExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightExpressionB<B>(value), EqExpressionI<B> {
+open class EqExpressionB<B : EqExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateB<B>(value), EqExpressionI<B> {
 }
 
 
@@ -266,7 +325,7 @@ open class GtExpression(value: GtExpression.() -> Unit = {}) : GtExpressionB<GtE
     }
 }
 
-open class GtExpressionB<B : GtExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightExpressionB<B>(value), GtExpressionI<B> {
+open class GtExpressionB<B : GtExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateB<B>(value), GtExpressionI<B> {
 }
 
 
@@ -278,7 +337,7 @@ open class GteExpression(value: GteExpression.() -> Unit = {}) : GteExpressionB<
     }
 }
 
-open class GteExpressionB<B : GteExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightExpressionB<B>(value), GteExpressionI<B> {
+open class GteExpressionB<B : GteExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateB<B>(value), GteExpressionI<B> {
 }
 
 
@@ -290,7 +349,7 @@ open class IncrementExpression(value: IncrementExpression.() -> Unit = {}) : Inc
     }
 }
 
-open class IncrementExpressionB<B : IncrementExpressionI<B>>(value: B.() -> Unit = {}) : SingleLiteralExpressionB<B>(value), IncrementExpressionI<B> {
+open class IncrementExpressionB<B : IncrementExpressionI<B>>(value: B.() -> Unit = {}) : LiteralB<B>(value), IncrementExpressionI<B> {
 }
 
 
@@ -314,14 +373,14 @@ open class LambdaB<B : LambdaI<B>>(value: B.() -> Unit = {}) : TypeB<B>(value), 
 
 
 
-open class LeftRightExpression(value: LeftRightExpression.() -> Unit = {}) : LeftRightExpressionB<LeftRightExpression>(value) {
+open class LeftRightLiteral(value: LeftRightLiteral.() -> Unit = {}) : LeftRightLiteralB<LeftRightLiteral>(value) {
 
     companion object {
-        val EMPTY = LeftRightExpression { name(ItemEmpty.name()) }.apply<LeftRightExpression> { init() }
+        val EMPTY = LeftRightLiteral { name(ItemEmpty.name()) }.apply<LeftRightLiteral> { init() }
     }
 }
 
-open class LeftRightExpressionB<B : LeftRightExpressionI<B>>(value: B.() -> Unit = {}) : PredicateB<B>(value), LeftRightExpressionI<B> {
+open class LeftRightLiteralB<B : LeftRightLiteralI<B>>(value: B.() -> Unit = {}) : LiteralB<B>(value), LeftRightLiteralI<B> {
 
     override fun left(): LiteralI<*> = attr(LEFT, { Literal.EMPTY })
     override fun left(value: LiteralI<*>): B = apply { attr(LEFT, value) }
@@ -337,14 +396,14 @@ open class LeftRightExpressionB<B : LeftRightExpressionI<B>>(value: B.() -> Unit
 
 
 
-open class LeftRightLiteralExpression(value: LeftRightLiteralExpression.() -> Unit = {}) : LeftRightLiteralExpressionB<LeftRightLiteralExpression>(value) {
+open class LeftRightPredicate(value: LeftRightPredicate.() -> Unit = {}) : LeftRightPredicateB<LeftRightPredicate>(value) {
 
     companion object {
-        val EMPTY = LeftRightLiteralExpression { name(ItemEmpty.name()) }.apply<LeftRightLiteralExpression> { init() }
+        val EMPTY = LeftRightPredicate { name(ItemEmpty.name()) }.apply<LeftRightPredicate> { init() }
     }
 }
 
-open class LeftRightLiteralExpressionB<B : LeftRightLiteralExpressionI<B>>(value: B.() -> Unit = {}) : LiteralB<B>(value), LeftRightLiteralExpressionI<B> {
+open class LeftRightPredicateB<B : LeftRightPredicateI<B>>(value: B.() -> Unit = {}) : PredicateB<B>(value), LeftRightPredicateI<B> {
 
     override fun left(): LiteralI<*> = attr(LEFT, { Literal.EMPTY })
     override fun left(value: LiteralI<*>): B = apply { attr(LEFT, value) }
@@ -360,14 +419,14 @@ open class LeftRightLiteralExpressionB<B : LeftRightLiteralExpressionI<B>>(value
 
 
 
-open class LeftRightPredicateExpression(value: LeftRightPredicateExpression.() -> Unit = {}) : LeftRightPredicateExpressionB<LeftRightPredicateExpression>(value) {
+open class LeftRightPredicatesPredicate(value: LeftRightPredicatesPredicate.() -> Unit = {}) : LeftRightPredicatesPredicateB<LeftRightPredicatesPredicate>(value) {
 
     companion object {
-        val EMPTY = LeftRightPredicateExpression { name(ItemEmpty.name()) }.apply<LeftRightPredicateExpression> { init() }
+        val EMPTY = LeftRightPredicatesPredicate { name(ItemEmpty.name()) }.apply<LeftRightPredicatesPredicate> { init() }
     }
 }
 
-open class LeftRightPredicateExpressionB<B : LeftRightPredicateExpressionI<B>>(value: B.() -> Unit = {}) : PredicateB<B>(value), LeftRightPredicateExpressionI<B> {
+open class LeftRightPredicatesPredicateB<B : LeftRightPredicatesPredicateI<B>>(value: B.() -> Unit = {}) : PredicateB<B>(value), LeftRightPredicatesPredicateI<B> {
 
     override fun left(): PredicateI<*> = attr(LEFT, { Predicate.EMPTY })
     override fun left(value: PredicateI<*>): B = apply { attr(LEFT, value) }
@@ -392,13 +451,22 @@ open class Literal(value: Literal.() -> Unit = {}) : LiteralB<Literal>(value) {
 
 open class LiteralB<B : LiteralI<B>>(value: B.() -> Unit = {}) : ExpressionB<B>(value), LiteralI<B> {
 
+    override fun params(): ListMultiHolder<AttributeI<*>> = itemAsList(PARAMS, AttributeI::class.java, true)
+    override fun params(vararg value: AttributeI<*>): B = apply { params().addItems(value.asList()) }
+
     override fun type(): TypeI<*> = attr(TYPE, { n.Void })
     override fun type(value: TypeI<*>): B = apply { attr(TYPE, value) }
 
     override fun value(): Any? = attr(VALUE)
     override fun value(aValue: Any?): B = apply { attr(VALUE, aValue) }
 
+    override fun fillSupportsItems() {
+        params()
+        super.fillSupportsItems()
+    }
+
     companion object {
+        val PARAMS = "_params"
         val TYPE = "_type"
         val VALUE = "_value"
     }
@@ -449,7 +517,7 @@ open class LtExpression(value: LtExpression.() -> Unit = {}) : LtExpressionB<LtE
     }
 }
 
-open class LtExpressionB<B : LtExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightExpressionB<B>(value), LtExpressionI<B> {
+open class LtExpressionB<B : LtExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateB<B>(value), LtExpressionI<B> {
 }
 
 
@@ -461,7 +529,7 @@ open class LteExpression(value: LteExpression.() -> Unit = {}) : LteExpressionB<
     }
 }
 
-open class LteExpressionB<B : LteExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightExpressionB<B>(value), LteExpressionI<B> {
+open class LteExpressionB<B : LteExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateB<B>(value), LteExpressionI<B> {
 }
 
 
@@ -515,6 +583,18 @@ open class MacroCompositeB<B : MacroCompositeI<B>>(value: B.() -> Unit = {}) : C
 
 
 
+open class MinusAssignAction(value: MinusAssignAction.() -> Unit = {}) : MinusAssignActionB<MinusAssignAction>(value) {
+
+    companion object {
+        val EMPTY = MinusAssignAction { name(ItemEmpty.name()) }.apply<MinusAssignAction> { init() }
+    }
+}
+
+open class MinusAssignActionB<B : MinusAssignActionI<B>>(value: B.() -> Unit = {}) : ApplyActionB<B>(value), MinusAssignActionI<B> {
+}
+
+
+
 open class MinusExpression(value: MinusExpression.() -> Unit = {}) : MinusExpressionB<MinusExpression>(value) {
 
     companion object {
@@ -522,19 +602,7 @@ open class MinusExpression(value: MinusExpression.() -> Unit = {}) : MinusExpres
     }
 }
 
-open class MinusExpressionB<B : MinusExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralExpressionB<B>(value), MinusExpressionI<B> {
-}
-
-
-
-open class ModuloExpression(value: ModuloExpression.() -> Unit = {}) : ModuloExpressionB<ModuloExpression>(value) {
-
-    companion object {
-        val EMPTY = ModuloExpression { name(ItemEmpty.name()) }.apply<ModuloExpression> { init() }
-    }
-}
-
-open class ModuloExpressionB<B : ModuloExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralExpressionB<B>(value), ModuloExpressionI<B> {
+open class MinusExpressionB<B : MinusExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralB<B>(value), MinusExpressionI<B> {
 }
 
 
@@ -558,7 +626,7 @@ open class NeExpression(value: NeExpression.() -> Unit = {}) : NeExpressionB<NeE
     }
 }
 
-open class NeExpressionB<B : NeExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightExpressionB<B>(value), NeExpressionI<B> {
+open class NeExpressionB<B : NeExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateB<B>(value), NeExpressionI<B> {
 }
 
 
@@ -626,7 +694,19 @@ open class OrExpression(value: OrExpression.() -> Unit = {}) : OrExpressionB<OrE
     }
 }
 
-open class OrExpressionB<B : OrExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateExpressionB<B>(value), OrExpressionI<B> {
+open class OrExpressionB<B : OrExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightPredicatesPredicateB<B>(value), OrExpressionI<B> {
+}
+
+
+
+open class PlusAssignAction(value: PlusAssignAction.() -> Unit = {}) : PlusAssignActionB<PlusAssignAction>(value) {
+
+    companion object {
+        val EMPTY = PlusAssignAction { name(ItemEmpty.name()) }.apply<PlusAssignAction> { init() }
+    }
+}
+
+open class PlusAssignActionB<B : PlusAssignActionI<B>>(value: B.() -> Unit = {}) : ApplyActionB<B>(value), PlusAssignActionI<B> {
 }
 
 
@@ -638,7 +718,7 @@ open class PlusExpression(value: PlusExpression.() -> Unit = {}) : PlusExpressio
     }
 }
 
-open class PlusExpressionB<B : PlusExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralExpressionB<B>(value), PlusExpressionI<B> {
+open class PlusExpressionB<B : PlusExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralB<B>(value), PlusExpressionI<B> {
 }
 
 
@@ -655,21 +735,26 @@ open class PredicateB<B : PredicateI<B>>(value: B.() -> Unit = {}) : ExpressionB
 
 
 
-open class SingleLiteralExpression(value: SingleLiteralExpression.() -> Unit = {}) : SingleLiteralExpressionB<SingleLiteralExpression>(value) {
+open class RemainderAssignAction(value: RemainderAssignAction.() -> Unit = {}) : RemainderAssignActionB<RemainderAssignAction>(value) {
 
     companion object {
-        val EMPTY = SingleLiteralExpression { name(ItemEmpty.name()) }.apply<SingleLiteralExpression> { init() }
+        val EMPTY = RemainderAssignAction { name(ItemEmpty.name()) }.apply<RemainderAssignAction> { init() }
     }
 }
 
-open class SingleLiteralExpressionB<B : SingleLiteralExpressionI<B>>(value: B.() -> Unit = {}) : LiteralB<B>(value), SingleLiteralExpressionI<B> {
+open class RemainderAssignActionB<B : RemainderAssignActionI<B>>(value: B.() -> Unit = {}) : ApplyActionB<B>(value), RemainderAssignActionI<B> {
+}
 
-    override fun value(): LiteralI<*> = attr(VALUE, { Literal.EMPTY })
-    override fun value(aValue: LiteralI<*>): B = apply { attr(VALUE, aValue) }
+
+
+open class RemainderExpression(value: RemainderExpression.() -> Unit = {}) : RemainderExpressionB<RemainderExpression>(value) {
 
     companion object {
-        val VALUE = "_value"
+        val EMPTY = RemainderExpression { name(ItemEmpty.name()) }.apply<RemainderExpression> { init() }
     }
+}
+
+open class RemainderExpressionB<B : RemainderExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralB<B>(value), RemainderExpressionI<B> {
 }
 
 
@@ -701,6 +786,18 @@ open class StructureUnitB<B : StructureUnitI<B>>(value: B.() -> Unit = {}) : Mac
 
 
 
+open class TimesAssignAction(value: TimesAssignAction.() -> Unit = {}) : TimesAssignActionB<TimesAssignAction>(value) {
+
+    companion object {
+        val EMPTY = TimesAssignAction { name(ItemEmpty.name()) }.apply<TimesAssignAction> { init() }
+    }
+}
+
+open class TimesAssignActionB<B : TimesAssignActionI<B>>(value: B.() -> Unit = {}) : ApplyActionB<B>(value), TimesAssignActionI<B> {
+}
+
+
+
 open class TimesExpression(value: TimesExpression.() -> Unit = {}) : TimesExpressionB<TimesExpression>(value) {
 
     companion object {
@@ -708,7 +805,7 @@ open class TimesExpression(value: TimesExpression.() -> Unit = {}) : TimesExpres
     }
 }
 
-open class TimesExpressionB<B : TimesExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralExpressionB<B>(value), TimesExpressionI<B> {
+open class TimesExpressionB<B : TimesExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralB<B>(value), TimesExpressionI<B> {
 }
 
 
