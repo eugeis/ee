@@ -342,7 +342,7 @@ interface ModuleI<B : ModuleI<B>> : StructureUnitI<B> {
 }
 
 
-interface ModuleGroupI<B : ModuleGroupI<B>> : ModuleI<B> {
+interface ModuleGroupI<B : ModuleGroupI<B>> : StructureUnitI<B> {
     fun modules(): ListMultiHolder<ModuleI<*>>
     fun modules(vararg value: ModuleI<*>): B
 }

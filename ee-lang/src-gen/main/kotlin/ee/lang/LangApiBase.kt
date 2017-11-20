@@ -483,6 +483,9 @@ open class LogicUnit(value: LogicUnit.() -> Unit = {}) : LogicUnitB<LogicUnit>(v
 
 open class LogicUnitB<B : LogicUnitI<B>>(value: B.() -> Unit = {}) : ExpressionB<B>(value), LogicUnitI<B> {
 
+    override fun errorHandling(): Boolean = attr(ERROR_HANDLING, { true })
+    override fun errorHandling(value: Boolean): B = apply { attr(ERROR_HANDLING, value) }
+
     override fun params(): ListMultiHolder<AttributeI<*>> = itemAsList(PARAMS, AttributeI::class.java, true)
     override fun params(vararg value: AttributeI<*>): B = apply { params().addItems(value.asList()) }
 
@@ -501,6 +504,7 @@ open class LogicUnitB<B : LogicUnitI<B>>(value: B.() -> Unit = {}) : ExpressionB
     }
 
     companion object {
+        val ERROR_HANDLING = "_errorHandling"
         val PARAMS = "_params"
         val SUPER_UNIT = "__superUnit"
         val VIRTUAL = "_virtual"

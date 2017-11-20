@@ -25,7 +25,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val projectors = prop(Projector).multi(true).nonFluent("projector")
     }
 
-    object ModuleGroup : CompilationUnit({ superUnit(Module) }) {
+    object ModuleGroup : CompilationUnit({ superUnit(l.StructureUnit) }) {
         val modules = prop(Module).multi(true)
     }
 

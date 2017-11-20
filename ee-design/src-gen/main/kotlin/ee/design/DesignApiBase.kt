@@ -736,7 +736,7 @@ open class ModuleGroup(value: ModuleGroup.() -> Unit = {}) : ModuleGroupB<Module
     }
 }
 
-open class ModuleGroupB<B : ModuleGroupB<B>>(value: B.() -> Unit = {}) : ModuleB<B>(value), ModuleGroupI<B> {
+open class ModuleGroupB<B : ModuleGroupB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), ModuleGroupI<B> {
 
     override fun modules(): ListMultiHolder<ModuleI<*>> = itemAsList(MODULES, ModuleI::class.java, true)
     override fun modules(vararg value: ModuleI<*>): B = apply { modules().addItems(value.asList()) }

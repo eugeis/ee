@@ -210,6 +210,8 @@ interface LiteralI<B : LiteralI<B>> : ExpressionI<B> {
 
 
 interface LogicUnitI<B : LogicUnitI<B>> : ExpressionI<B> {
+    fun errorHandling(value: Boolean): B
+
     fun params(vararg value: AttributeI<*>): B
 
     fun superUnit(value: LogicUnitI<*>): B
@@ -217,6 +219,8 @@ interface LogicUnitI<B : LogicUnitI<B>> : ExpressionI<B> {
     fun virtual(value: Boolean): B
 
     fun visible(value: Boolean): B
+    fun errorHandling(): Boolean
+
     fun params(): ListMultiHolder<AttributeI<*>>
 
     fun superUnit(): LogicUnitI<*>

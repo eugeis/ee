@@ -29,4 +29,6 @@ object LogicUnitEmpty : MacroCompositeB<LogicUnitEmpty>(), LogicUnitI<LogicUnitE
     override fun params(): ListMultiHolder<AttributeI<*>> = ListMultiHolder.empty()
     override fun visible(): Boolean = false
     override fun visible(value: Boolean): LogicUnitEmpty = this
+    override fun errorHandling(value: Boolean): LogicUnitEmpty = this
+    override fun errorHandling(): Boolean = false
 }
