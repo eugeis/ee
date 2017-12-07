@@ -14,7 +14,7 @@ open class DesignTypeScriptGenerator {
     }
 
     fun generate(target: Path) {
-        model.extendForGoGeneration()
+        model.extendForTsGeneration()
 
         val generatorFactory = DesignGeneratorFactory()
         val generator = generatorFactory.angular()
@@ -22,7 +22,7 @@ open class DesignTypeScriptGenerator {
         generator.generate(target, model)
     }
 
-    protected fun StructureUnitI<*>.extendForGoGeneration() {
+    protected fun StructureUnitI<*>.extendForTsGeneration() {
         initsForTsGeneration()
 
         addIdPropToEntities()

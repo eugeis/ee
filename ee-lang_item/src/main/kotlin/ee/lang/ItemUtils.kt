@@ -70,7 +70,7 @@ fun <T : ItemI<*>> ItemI<*>.findParentUnsafe(clazz: Class<*>): T? {
 fun <T : ItemI<*>> ItemI<*>.findParentMust(clazz: Class<T>): T {
     val parent = parent()
     if (parent.isEMPTY()) {
-        throw IllegalStateException("There is no parent for $clazz in $this")
+        throw IllegalStateException("There is no parent for $clazz in ${this.name()}")
     } else if (clazz.isInstance(parent)) {
         return parent as T
     } else {

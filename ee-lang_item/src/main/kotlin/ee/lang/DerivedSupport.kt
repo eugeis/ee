@@ -34,7 +34,13 @@ open class DerivedKind<T : ItemI<*>> {
 
 open class DerivedByTransformer(name: String, transformer: ItemI<*>.(String) -> String,
                                 support: ItemI<*>.() -> Boolean = { true }) : DerivedKind<ItemI<*>>(name, support,
-        { if (this.support()) this.derive({ name(transformer(it)) }) else this })
+        {
+            if (this.support()) {
+                val derived = this.derive({ name(transformer(it)) })
+                if (derived.parent().isEMPTY()) derived.parent(this.parent())
+                derived
+            } else this
+        })
 
 open class DerivedController {
     val nameToDerivedKind = HashMap<String, DerivedKind<*>>()
