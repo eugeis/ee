@@ -27,7 +27,7 @@ open class DesignBuildTaskFactory : BuildTaskFactory {
                 buildRequest: BuildRequest) : super(name, group, pathResolver, buildToolFactory, buildRequest) {
     }
 
-    override fun create(items: List<ItemI<*>>): List<BuildTask> = items.filterIsInstance(StructureUnit::class.java).fillBuildTasks()
+    override fun create(items: List<ItemI<*>>): List<BuildTask> = items.filterIsInstance(StructureUnitI::class.java).fillBuildTasks()
 
     fun ModelI<*>.fillBuildTasks(to: MutableList<BuildTask>) = findDownByType(CompI::class.java).forEach { it.fillBuildTasks(to) }
 

@@ -17,14 +17,14 @@ fun Model.generateSqlFiles(target: Path, db: String = "") {
         val context = buildContext(db)
         val buffer = StringBuffer()
 
-        for (module in findDownByType(CompModule::class.java)) {
-            for (item in module.findDownByType(Entity::class.java)) {
+        for (module in findDownByType(CompModuleI::class.java)) {
+            for (item in module.findDownByType(EntityI::class.java)) {
                 buffer.appendln(item.toSqlCreateTable(context))
             }
         }
 
-        for (module in findDownByType(CompModule::class.java)) {
-            for (item in module.findDownByType(Entity::class.java)) {
+        for (module in findDownByType(CompModuleI::class.java)) {
+            for (item in module.findDownByType(EntityI::class.java)) {
                 buffer.appendln(item.toSqlCreateForeignKeys(context))
             }
         }
@@ -38,8 +38,8 @@ fun Model.generateSqlFiles(target: Path, db: String = "") {
         val context = buildContext(db)
         val buffer = StringBuffer()
 
-        for (module in findDownByType(CompModule::class.java)) {
-            for (item in module.findDownByType(Entity::class.java)) {
+        for (module in findDownByType(CompModuleI::class.java)) {
+            for (item in module.findDownByType(EntityI::class.java)) {
                 buffer.appendln(item.toSqlDropTable(context))
                 buffer.appendln()
             }

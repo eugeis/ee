@@ -12,7 +12,7 @@ open class LangDerivedKindNames {
 object LangDerivedKind : LangDerivedKindNames()
 
 fun ItemI<*>.parentNameAndName(): String = storage.getOrPut(this, "parentNameAndName", {
-    val parent = findParent(DataType::class.java)
+    val parent = findParent(DataTypeI::class.java)
     if (parent != null) {
         val regexp = "(\\B[A-Z][a-z]*)".toRegex()
         if (regexp.containsMatchIn(name())) name().replaceFirst(regexp, "$1${parent.name().capitalize()}") else
@@ -23,7 +23,7 @@ fun ItemI<*>.parentNameAndName(): String = storage.getOrPut(this, "parentNameAnd
 })
 
 fun ItemI<*>.nameAndParentName(): String = storage.getOrPut(this, "nameAndParentName", {
-    val parent = findParent(DataType::class.java)
+    val parent = findParent(DataTypeI::class.java)
     if (parent != null) {
         val regexp = "(\\B[A-Z][a-z]*)".toRegex()
         if (regexp.containsMatchIn(name())) name().replaceFirst(regexp, "${parent.name().capitalize()}\$1") else

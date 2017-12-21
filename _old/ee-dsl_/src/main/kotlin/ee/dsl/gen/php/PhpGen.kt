@@ -275,7 +275,7 @@ val CompilationUnitD.otherConstructors: List<Constructor>
     get() = storage.getOrPut(this, "otherConstructors", { if (constructors.size > 1) constructors.subList(1, constructors.size) else emptyList() })
 
 val Constructor.props: List<Attribute>
-    get() = storage.getOrPut(this, "props", { params?.filterIsInstance(PropAttribute::class.java)?.map { it.prop!! } })
+    get() = storage.getOrPut(this, "props", { params?.filterIsInstance(PropAttributeI::class.java)?.map { it.prop!! } })
 
 val CompilationUnitD.propsExceptPrimaryConstructor: List<Attribute>
     get() = storage.getOrPut(this, "propsExceptPrimaryConstructor", { if (primaryConstructor != Constructor.EMPTY) props.filter { !primaryConstructor.props.contains(it) } else props })

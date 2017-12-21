@@ -151,7 +151,7 @@ fun EnumTypeD.toTypeScriptEnum(context: TypeScriptContext, indent: String = "", 
     return """${toTypeScriptComment(context, indent)}${indent}export enum ${derived.name} {
 ${literals.joinToString(",${nL}") { it.toTypeScriptLiteral(context, newIndent) }}
 ${props.joinToString(nL) { it.toTypeScriptMember(context, newIndent) }}
-${findAllByType(Operation::class.java).joinToString(nL) { it.toTypeScriptImpl(context, newIndent) }}
+${findAllByType(OperationI::class.java).joinToString(nL) { it.toTypeScriptImpl(context, newIndent) }}
 $indent}
 """
 }

@@ -38,6 +38,7 @@ interface ItemI<B : ItemI<B>> {
 
     fun <T : ItemI<*>> apply(code: T.() -> Unit): T
     fun derive(adapt: B.() -> Unit = {}): B
+    fun deriveWithParent(adapt: B.() -> Unit): B
     fun deriveSubType(adapt: B.() -> Unit): B
 }
 

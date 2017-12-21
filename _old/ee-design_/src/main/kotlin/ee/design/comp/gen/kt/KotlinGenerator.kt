@@ -42,7 +42,7 @@ open class KotlinGenerator {
     }
 
     protected fun Model.defineNamesForDataTypeControllers() {
-        findDownByType(DataType::class.java).forEach { entity ->
+        findDownByType(DataTypeI::class.java).forEach { entity ->
             entity.controllers.forEach { item ->
                 storage.put(item, DerivedNames.API_BASE.name, TypeDerived(item, "${entity.name}${item.name.capitalize()}Base", true))
                 storage.put(item, DerivedNames.API.name, TypeDerived(item, "${entity.name}${item.name.capitalize()}"))
@@ -59,15 +59,15 @@ open class KotlinGenerator {
     }
 
     protected fun Model.defineConstructorAllForNonConstructors() {
-        findDownByType(CompilationUnit::class.java, stopSteppingDownIfFound = false).filter { it.constructors.isEmpty() }
+        findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors.isEmpty() }
                 .extend { constructorAll() }
     }
 
     protected fun Model.declareAsBaseWithNonImplementedOperation() {
-        findDownByType(CompilationUnit::class.java).filter { it.operations.isNotEmpty() && !it.base }.forEach { it.base = true }
+        findDownByType(CompilationUnitI::class.java).filter { it.operations.isNotEmpty() && !it.base }.forEach { it.base = true }
 
         //derive controllers from super units
-        findDownByType(Controller::class.java).filter { it.parent is CompilationUnit }.forEach {
+        findDownByType(ControllerI::class.java).filter { it.parent is CompilationUnit }.forEach {
             val dataItem = it.parent as CompilationUnit
             dataItem.propagateItemToSubtypes(it)
 
@@ -96,7 +96,7 @@ open class KotlinGenerator {
     protected fun Model.generateKotlinApi(target: Path) {
         val metaData = target.loadMetaData()
         deleteSrcGenKotlin(target)
-        for (module in findDownByType(CompModule::class.java)) {
+        for (module in findDownByType(CompModuleI::class.java)) {
             module.generateKotlin(target, metaData)
         }
         metaData.store(target)

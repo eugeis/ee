@@ -72,6 +72,19 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
         return ret
     }
 
+    override fun deriveWithParent(adapt: B.() -> Unit): B {
+        init()
+        val ret = copy()
+        ret.parent(parent())
+        ret.init()
+        if (ret is MultiHolderI<*, *>) {
+            ret.fillSupportsItems()
+        }
+        ret.adapt()
+        return ret
+    }
+
+
     override fun deriveSubType(adapt: B.() -> Unit): B {
         init()
         val ret = createType()

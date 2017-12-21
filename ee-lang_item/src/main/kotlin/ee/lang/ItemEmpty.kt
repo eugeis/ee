@@ -20,6 +20,7 @@ open class ItemEmptyClass<B : ItemI<B>> : ItemI<B> {
     override fun derivedAsType(): String = ""
     override fun derivedAsType(value: String): B = apply {}
     override fun derive(adapt: B.() -> Unit): B = apply {}
+    override fun deriveWithParent(adapt: B.() -> Unit): B = apply {}
     override fun <T : ItemI<*>> apply(code: T.() -> Unit): T = this as T
     override fun <R> applyAndReturn(code: () -> R): R = code()
     override fun deriveSubType(adapt: B.() -> Unit): B = apply {}

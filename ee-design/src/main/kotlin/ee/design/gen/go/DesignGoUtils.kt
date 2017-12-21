@@ -25,7 +25,7 @@ fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
             val httpRouters = arrayListOf<ControllerI<*>>()
             items.forEach { item ->
                 item.extend {
-                    val finders = findDownByType(FindBy::class.java)
+                    val finders = findDownByType(FindByI::class.java)
                     val counters = findDownByType(CountByI::class.java)
                     val exists = findDownByType(ExistByI::class.java)
 

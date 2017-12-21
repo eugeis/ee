@@ -36,9 +36,7 @@ open class DerivedByTransformer(name: String, transformer: ItemI<*>.(String) -> 
                                 support: ItemI<*>.() -> Boolean = { true }) : DerivedKind<ItemI<*>>(name, support,
         {
             if (this.support()) {
-                val derived = this.derive({ name(transformer(it)) })
-                if (derived.parent().isEMPTY()) derived.parent(this.parent())
-                derived
+                this.deriveWithParent { name(transformer(it)) }
             } else this
         })
 

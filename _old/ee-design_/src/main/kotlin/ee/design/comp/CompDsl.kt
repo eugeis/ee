@@ -5,7 +5,7 @@ import ee.design.*
 
 open class Model : CompGroup {
     val models: MutableList<Model> by lazy {
-        children.filterIsInstance(Model::class.java).toMutableList()
+        children.filterIsInstance(ModelI::class.java).toMutableList()
     }
 
     constructor(init: Model.() -> Unit = {}) : super() {
@@ -31,7 +31,7 @@ abstract open class StructureGroup<T : StructureUnit> : StructureUnit {
 
 open class Bundle : StructureGroup<StructureUnit> {
     override val items: MutableList<StructureUnit> by lazy {
-        children.filterIsInstance(StructureUnit::class.java).toMutableList()
+        children.filterIsInstance(StructureUnitI::class.java).toMutableList()
     }
 
     constructor() : super()
@@ -47,7 +47,7 @@ open class Bundle : StructureGroup<StructureUnit> {
 
 open class ModuleGroup : StructureGroup<CompModule> {
     override val items: MutableList<CompModule> by lazy {
-        children.filterIsInstance(CompModule::class.java).toMutableList()
+        children.filterIsInstance(CompModuleI::class.java).toMutableList()
     }
 
     constructor() : super()
@@ -63,7 +63,7 @@ open class ModuleGroup : StructureGroup<CompModule> {
 
 open class CompGroup : StructureGroup<Comp> {
     override val items: MutableList<Comp> by lazy {
-        children.filterIsInstance(Comp::class.java).toMutableList()
+        children.filterIsInstance(CompI::class.java).toMutableList()
     }
 
     constructor() : super()
@@ -79,7 +79,7 @@ open class CompGroup : StructureGroup<Comp> {
 
 open class Comp : ModuleGroup {
     val moduleGroups: MutableList<ModuleGroup> by lazy {
-        children.filterIsInstance(ModuleGroup::class.java).toMutableList()
+        children.filterIsInstance(ModuleGroupI::class.java).toMutableList()
     }
 
     constructor(init: Comp.() -> Unit = {}) : super() {
@@ -95,25 +95,25 @@ open class CompModule : StructureUnit {
     val parentNamespace: Boolean = false
     val dependencies: ModuleGroup = ModuleGroup("dependencies")
     val events: MutableList<Event> by lazy {
-        children.filterIsInstance(Event::class.java).toMutableList()
+        children.filterIsInstance(EventI::class.java).toMutableList()
     }
     val commands: MutableList<Command> by lazy {
-        children.filterIsInstance(Command::class.java).toMutableList()
+        children.filterIsInstance(CommandI::class.java).toMutableList()
     }
     val entities: MutableList<Entity> by lazy {
-        children.filterIsInstance(Entity::class.java).toMutableList()
+        children.filterIsInstance(EntityI::class.java).toMutableList()
     }
     val enums: MutableList<EnumType> by lazy {
-        children.filterIsInstance(EnumType::class.java).toMutableList()
+        children.filterIsInstance(EnumTypeI::class.java).toMutableList()
     }
     val values: MutableList<Values> by lazy {
-        children.filterIsInstance(Values::class.java).toMutableList()
+        children.filterIsInstance(ValuesI::class.java).toMutableList()
     }
     val basics: MutableList<Basic> by lazy {
-        children.filterIsInstance(Basic::class.java).toMutableList()
+        children.filterIsInstance(BasicI::class.java).toMutableList()
     }
     val controllers: MutableList<Controller> by lazy {
-        children.filterIsInstance(Controller::class.java).toMutableList()
+        children.filterIsInstance(ControllerI::class.java).toMutableList()
     }
 
     constructor() : super()
@@ -147,7 +147,7 @@ open class Facet : ModuleGroup {
 
 open class ExternalModule : CompModule {
     val externalTypes: MutableList<ExternalType> by lazy {
-        children.filterIsInstance(ExternalType::class.java).toMutableList()
+        children.filterIsInstance(ExternalTypeI::class.java).toMutableList()
     }
 
     constructor() : super()

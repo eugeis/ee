@@ -71,7 +71,7 @@ fun <T : Element> T.toKotlinComment(context: KotlinContext, indent: String = "")
     }
 }
 
-fun <T : TypeIfc> T.toKotlin(context: KotlinContext, attr: Attribute? = findParent(Attribute::class.java),
+fun <T : TypeIfc> T.toKotlin(context: KotlinContext, attr: Attribute? = findParent(AttributeI::class.java),
                              indent: String = "", position: TypePosition = SIGNATURE): String {
     return when (this) {
         td.String -> "String"
@@ -110,7 +110,7 @@ fun <T : TypeIfc> T.toKotlin(context: KotlinContext, attr: Attribute? = findPare
     }
 }
 
-fun <T : TypeIfc> T.toKotlinValue(context: KotlinContext, attr: Attribute? = findParent(Attribute::class.java)): String {
+fun <T : TypeIfc> T.toKotlinValue(context: KotlinContext, attr: Attribute? = findParent(AttributeI::class.java)): String {
     if (this is NativeType) {
         return when (this) {
             td.String -> "\"\""
@@ -172,7 +172,7 @@ fun <T : Literal> T.toKotlinIs(context: KotlinContext, indent: String = "", mapp
     return """${indent}fun is${name.capitalize()}() : Boolean = this == ${toKotlin(context)}"""
 }
 
-fun <T : Attribute> T.toKotlinTypeDef(context: KotlinContext, compUnit: CompilationUnit? = findParent(CompilationUnit::class.java), position: TypePosition = SIGNATURE): String {
+fun <T : Attribute> T.toKotlinTypeDef(context: KotlinContext, compUnit: CompilationUnit? = findParent(CompilationUnitI::class.java), position: TypePosition = SIGNATURE): String {
     if (type == td.Void) {
         return ""
     } else {
@@ -186,7 +186,7 @@ fun <T : Attribute> T.toKotlinType(context: KotlinContext): String {
 
 fun <T : Attribute> T.toKotlinMember(context: KotlinContext, indent: String = "",
                                      mappings: T.(context: KotlinContext, indent: String) -> String = { c, ind -> "" },
-                                     modifier: String = open.then("open "), compUnit: CompilationUnit? = findParent(CompilationUnit::class.java)): String {
+                                     modifier: String = open.then("open "), compUnit: CompilationUnit? = findParent(CompilationUnitI::class.java)): String {
     return "${toKotlinComment(context, indent)}${mappings(context, indent)}$indent$modifier${replaceable.ifElse("var", "val")} $name${toKotlinTypeDef(context, position = MEMBER)}${toKotlinInit(context)}"
 }
 
@@ -424,7 +424,7 @@ val CompilationUnitD.otherConstructors: List<Constructor>
 
 val Constructor.props: List<Attribute>
     get() = storage.getOrPut(this, "props",
-            { params.filterIsInstance(PropAttribute::class.java).map { it.prop } })
+            { params.filterIsInstance(PropAttributeI::class.java).map { it.prop } })
 
 val CompilationUnitD.propsExceptPrimaryConstructor: List<Attribute>
     get() = storage.getOrPut(this, "propsExceptPrimaryConstructor",

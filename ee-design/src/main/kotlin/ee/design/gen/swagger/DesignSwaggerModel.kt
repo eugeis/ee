@@ -11,7 +11,7 @@ import ee.lang.gen.swagger.*
 fun <T : EntityI<*>> T.toSwaggerGet(c: GenerationContext,
                                  derived: String = LangDerivedKind.IMPL,
                                  api: String = LangDerivedKind.API): String {
-    val finders = findDownByType(FindBy::class.java)
+    val finders = findDownByType(FindByI::class.java)
     val counters = findDownByType(CountByI::class.java)
     val exists = findDownByType(ExistByI::class.java)
 
