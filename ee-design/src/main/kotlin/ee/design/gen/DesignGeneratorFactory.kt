@@ -66,8 +66,6 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
             }
         }
 
-        val derivedTypes = arrayListOf<String>(DesignDerivedType.Aggregate, DesignDerivedType.Query, DesignDerivedType.Http)
-
         val enums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
             findDownByType(EnumTypeI::class.java).filter {
                 it.parent() is StructureUnitI<*> && it.derivedAsType().isEmpty()
@@ -146,7 +144,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                 )
         ))
 
-
+        val derivedTypes = arrayListOf(DesignDerivedType.Aggregate, DesignDerivedType.Query, DesignDerivedType.Http)
         moduleGenerators.addAll(derivedTypes.map { derivedType ->
             GeneratorSimple(
                     contextBuilder = goContextBuilder, template = FragmentsTemplate<StructureUnitI<*>>(
@@ -176,6 +174,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                     })
             )
         })
+
         return ret
     }
 

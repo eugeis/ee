@@ -30,7 +30,7 @@ interface BusinessCommandI<B : BusinessCommandI<B>> : CommandI<B> {
 }
 
 
-interface BussinesEventI<B : BussinesEventI<B>> : EventI<B> {
+interface BusinessEventI<B : BusinessEventI<B>> : EventI<B> {
 }
 
 
@@ -173,10 +173,10 @@ interface EntityI<B : EntityI<B>> : DataTypeI<B> {
     fun deleteBy(value: DeleteByI<*>): DeleteByI<*>
     fun deleteBy(value: DeleteByI<*>.() -> Unit = {}): DeleteByI<*>
 
-    fun events(): ListMultiHolder<BussinesEventI<*>>
-    fun events(vararg value: BussinesEventI<*>): B
-    fun event(value: BussinesEventI<*>): BussinesEventI<*>
-    fun event(value: BussinesEventI<*>.() -> Unit = {}): BussinesEventI<*>
+    fun events(): ListMultiHolder<BusinessEventI<*>>
+    fun events(vararg value: BusinessEventI<*>): B
+    fun event(value: BusinessEventI<*>): BusinessEventI<*>
+    fun event(value: BusinessEventI<*>.() -> Unit = {}): BusinessEventI<*>
 
     fun created(): ListMultiHolder<CreatedI<*>>
     fun created(vararg value: CreatedI<*>): B

@@ -36,7 +36,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
     object Event : CompilationUnit({ superUnit(l.CompilationUnit) }) {
     }
 
-    object BussinesEvent : CompilationUnit({ superUnit(Event) })
+    object BusinessEvent : CompilationUnit({ superUnit(Event) })
 
     object Facet : CompilationUnit({ superUnit(ModuleGroup) })
 
@@ -150,7 +150,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val updateBys = prop(UpdateBy).multi(true).nonFluent("updateBy")
         val deleteBys = prop(DeleteBy).multi(true).nonFluent("deleteBy")
 
-        val events = prop(BussinesEvent).multi(true).nonFluent("event")
+        val events = prop(BusinessEvent).multi(true).nonFluent("event")
         val created = prop(Created).multi(true).nonFluent("created")
         val updated = prop(Updated).multi(true).nonFluent("updated")
         val deleted = prop(Deleted).multi(true).nonFluent("deleted")

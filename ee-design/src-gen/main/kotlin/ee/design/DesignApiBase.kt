@@ -73,14 +73,14 @@ open class BusinessCommandB<B : BusinessCommandB<B>>(value: B.() -> Unit = {}) :
 }
 
 
-open class BussinesEvent(value: BussinesEvent.() -> Unit = {}) : BussinesEventB<BussinesEvent>(value) {
+open class BusinessEvent(value: BusinessEvent.() -> Unit = {}) : BusinessEventB<BusinessEvent>(value) {
 
     companion object {
-        val EMPTY = BussinesEvent { name(ItemEmpty.name()) }.apply<BussinesEvent> { init() }
+        val EMPTY = BusinessEvent { name(ItemEmpty.name()) }.apply<BusinessEvent> { init() }
     }
 }
 
-open class BussinesEventB<B : BussinesEventB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), BussinesEventI<B> {
+open class BusinessEventB<B : BusinessEventB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), BusinessEventI<B> {
 }
 
 
@@ -365,10 +365,10 @@ open class EntityB<B : EntityB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(valu
     override fun deleteBy(value: DeleteByI<*>): DeleteByI<*> = applyAndReturn { deleteBys().addItem(value); value }
     override fun deleteBy(value: DeleteByI<*>.() -> Unit): DeleteByI<*> = deleteBy(DeleteBy(value))
 
-    override fun events(): ListMultiHolder<BussinesEventI<*>> = itemAsList(EVENTS, BussinesEventI::class.java, true)
-    override fun events(vararg value: BussinesEventI<*>): B = apply { events().addItems(value.asList()) }
-    override fun event(value: BussinesEventI<*>): BussinesEventI<*> = applyAndReturn { events().addItem(value); value }
-    override fun event(value: BussinesEventI<*>.() -> Unit): BussinesEventI<*> = event(BussinesEvent(value))
+    override fun events(): ListMultiHolder<BusinessEventI<*>> = itemAsList(EVENTS, BusinessEventI::class.java, true)
+    override fun events(vararg value: BusinessEventI<*>): B = apply { events().addItems(value.asList()) }
+    override fun event(value: BusinessEventI<*>): BusinessEventI<*> = applyAndReturn { events().addItem(value); value }
+    override fun event(value: BusinessEventI<*>.() -> Unit): BusinessEventI<*> = event(BusinessEvent(value))
 
     override fun created(): ListMultiHolder<CreatedI<*>> = itemAsList(CREATED, CreatedI::class.java, true)
     override fun created(vararg value: CreatedI<*>): B = apply { created().addItems(value.asList()) }
