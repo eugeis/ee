@@ -149,6 +149,10 @@ fun String.fileName(): String {
     return this.substringBeforeLast(".")
 }
 
+fun String.withFileNameSuffix(suffix: String): String {
+    return fileName() + suffix + "." + fileExt()
+}
+
 fun String.toPathString(): String {
     return this.replace("\\", "/")
 }
