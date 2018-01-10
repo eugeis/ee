@@ -50,8 +50,4 @@ open class DesignGoGenerator {
 
         defineConstructorEmpty { constructors().isEmpty() && this !is CommandI<*> && this !is EventI<*> }
     }
-
-    private fun addEventhorizonArtifactsForAggregate() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 }
