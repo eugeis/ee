@@ -8,15 +8,15 @@ import ee.lang.*
 import ee.lang.gen.go.*
 
 fun <T : EntityI<*>> T.toGoCommandTypes(c: GenerationContext): String {
-    val commands = findDownByType(CommandI::class.java)
-    return commands.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
+    val items = findDownByType(CommandI::class.java)
+    return items.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
         """     ${it.nameAndParentName().capitalize()}${DesignDerivedType.Command} ${c.n(g.eh.CommandType)} = "${it.nameAndParentName().capitalize()}""""
     }
 }
 
 fun <T : EntityI<*>> T.toGoEventTypes(c: GenerationContext): String {
-    val commands = findDownByType(EventI::class.java)
-    return commands.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
+    val items = findDownByType(EventI::class.java)
+    return items.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
         """     ${it.parentNameAndName().capitalize()}${DesignDerivedType.Event} ${c.n(g.eh.EventType)} = "${it.parentNameAndName().capitalize()}""""
     }
 }
@@ -25,9 +25,9 @@ fun <T : OperationI<*>> T.toGoCommandHandlerExecuteCommandBody(c: GenerationCont
                                                             derived: String = DesignDerivedKind.IMPL,
                                                             api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
-    val commands = entity.findDownByType(CommandI::class.java)
+    val items = entity.findDownByType(CommandI::class.java)
     return """
-    ${commands.joinSurroundIfNotEmptyToString("", "switch cmd.CommandType() {") {
+    ${items.joinSurroundIfNotEmptyToString("", "switch cmd.CommandType() {") {
         """
     case ${it.nameAndParentName().capitalize()}Command:
         err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${it.toGo(c, api)}), entity.(${entity.toGo(c, api)}), store)"""

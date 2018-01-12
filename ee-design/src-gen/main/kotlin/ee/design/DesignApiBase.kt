@@ -109,7 +109,7 @@ open class Command(value: Command.() -> Unit = {}) : CommandB<Command>(value) {
     }
 }
 
-open class CommandB<B : CommandB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), CommandI<B> {
+open class CommandB<B : CommandB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), CommandI<B> {
 
     override fun affectMulti(): Boolean = attr(AFFECT_MULTI, { false })
     override fun affectMulti(value: Boolean): B = apply { attr(AFFECT_MULTI, value) }

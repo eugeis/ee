@@ -40,7 +40,7 @@ interface CheckI<B : CheckI<B>> : LogicUnitI<B> {
 }
 
 
-interface CommandI<B : CommandI<B>> : EventI<B> {
+interface CommandI<B : CommandI<B>> : CompilationUnitI<B> {
     fun affectMulti(): Boolean
     fun affectMulti(value: Boolean): B
 
