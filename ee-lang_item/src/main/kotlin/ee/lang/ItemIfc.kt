@@ -35,6 +35,7 @@ interface ItemI<B : ItemI<B>> {
     fun derivedAsType(value: String): B
     fun derivedFrom(value: ItemI<*>): B
     fun copy(): B
+    fun copyWithParent(): B
 
     fun <T : ItemI<*>> apply(code: T.() -> Unit): T
     fun derive(adapt: B.() -> Unit = {}): B

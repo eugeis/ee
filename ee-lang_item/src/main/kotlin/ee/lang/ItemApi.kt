@@ -64,22 +64,13 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
     override fun derive(adapt: B.() -> Unit): B {
         init()
         val ret = copy()
-        ret.init()
-        if (ret is MultiHolderI<*, *>) {
-            ret.fillSupportsItems()
-        }
         ret.adapt()
         return ret
     }
 
     override fun deriveWithParent(adapt: B.() -> Unit): B {
         init()
-        val ret = copy()
-        ret.parent(parent())
-        ret.init()
-        if (ret is MultiHolderI<*, *>) {
-            ret.fillSupportsItems()
-        }
+        val ret = copyWithParent()
         ret.adapt()
         return ret
     }
@@ -100,7 +91,27 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
     override fun copy(): B {
         val ret = createType()
         if (ret != null) {
+            ret.init()
             fill(ret)
+            if (ret is MultiHolderI<*, *>) {
+                ret.fillSupportsItems()
+            }
+            return ret
+        } else {
+            log.debug("Can't create a new instance of $ret.")
+            return this as B
+        }
+    }
+
+    override fun copyWithParent(): B {
+        val ret = createType()
+        if (ret != null) {
+            ret.parent(parent())
+            ret.init()
+            fill(ret)
+            if (ret is MultiHolderI<*, *>) {
+                ret.fillSupportsItems()
+            }
             return ret
         } else {
             log.debug("Can't create a new instance of $ret.")

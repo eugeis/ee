@@ -1,8 +1,8 @@
 package ee.design.gen.kt
 
 import ee.design.ModuleI
-import ee.design.defineNamesForTypeControllers
 import ee.design.gen.DesignGeneratorFactory
+import ee.design.renameControllersAccordingParentType
 import ee.lang.StructureUnitI
 import ee.lang.findDownByType
 import ee.lang.gen.kt.prepareForKotlinGeneration
@@ -29,6 +29,6 @@ open class DesignKotlinGenerator {
         prepareForKotlinGeneration()
 
         //define names for data type controllers
-        defineNamesForTypeControllers()
+        renameControllersAccordingParentType()
     }
 }

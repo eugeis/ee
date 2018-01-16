@@ -30,6 +30,7 @@ open class ItemEmptyClass<B : ItemI<B>> : ItemI<B> {
     override fun internal(): Boolean = true
     override fun init() {}
     override fun copy(): B = apply {}
+    override fun copyWithParent(): B = apply {}
 }
 
 object MultiMapHolderEmpty : MapMultiHolderEmptyClass<Any, MultiMapHolderEmpty>()

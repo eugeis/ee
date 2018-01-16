@@ -4,15 +4,12 @@ import java.util.*
 
 val storage = DerivedStorage<ItemI<*>>()
 
-class DerivedStorage<I>(val itemToStorage: MutableMap<I, MutableMap<String, Any>> = HashMap<I, MutableMap<String, Any>>()) {
+class DerivedStorage<I>(val itemToStorage: MutableMap<I, MutableMap<String, Any>> = HashMap()) {
     fun <T, S : I> getOrPut(item: S, key: String, init: S.(String) -> T): T {
         val itemStorage = itemToStorage.getOrPut(item, { HashMap() })
-        return itemStorage.getOrPut(key, { item.init(key) as Any }) as T
-    }
-
-    fun <T, EE : I> put(item: EE, key: String, derived: T) {
-        val itemStorage = itemToStorage.getOrPut(item, { HashMap<String, Any>() })
-        itemStorage.put(key, derived as Any)
+        return itemStorage.getOrPut(key, {
+            item.init(key) as Any
+        }) as T
     }
 
     fun reset(item: I) {

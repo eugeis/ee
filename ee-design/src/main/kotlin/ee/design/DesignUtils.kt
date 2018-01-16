@@ -92,10 +92,10 @@ fun EntityI<*>.hasNoQueries() = findBys().isEmpty() && countBys().isEmpty() && e
 fun EntityI<*>.hasNoEvents() = events().isEmpty() && created().isEmpty() && updated().isEmpty() && deleted().isEmpty()
 fun EntityI<*>.hasNoCommands() = commands().isEmpty() && createBys().isEmpty() && updateBys().isEmpty() && deleteBys().isEmpty()
 
-fun StructureUnitI<*>.defineNamesForTypeControllers() {
+fun StructureUnitI<*>.renameControllersAccordingParentType() {
     findDownByType(ControllerI::class.java).forEach {
         val parent = it.findParent(CompilationUnitI::class.java)
-        if (parent != null) {
+        if (parent != null && !it.name().startsWith("${parent.name().capitalize()}")) {
             it.name("${parent.name().capitalize()}${it.name().capitalize()}")
         }
     }
@@ -103,167 +103,167 @@ fun StructureUnitI<*>.defineNamesForTypeControllers() {
 
 fun StructureUnitI<*>.addQueriesForAggregates() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.defaultQueries() }.extend {
-                val item = this
-                log.debug("Add default queries to ${name()}")
+        val item = this
+        log.debug("Add default queries to ${name()}")
 
-                findBy {
-                    name("FindAll")
-                    retTypeAndError(n.List.GT(item))
-                }
-                findBy {
-                    name("FindById")
-                    params(id())
-                    retTypeAndError(item)
-                }
-                countBy {
-                    name("CountAll")
-                    retTypeAndError(n.Long)
-                }
-                countBy {
-                    name("CountById")
-                    params(id())
-                    retTypeAndError(n.Long)
-                }
-                existBy {
-                    name("ExistAll")
-                    retTypeAndError(n.Boolean)
-                }
-                existBy {
-                    name("ExistById")
-                    params(id())
-                    retTypeAndError(n.Boolean)
-                }
-            }
+        findBy {
+            name("FindAll")
+            retTypeAndError(n.List.GT(item))
+        }
+        findBy {
+            name("FindById")
+            params(id())
+            retTypeAndError(item)
+        }
+        countBy {
+            name("CountAll")
+            retTypeAndError(n.Long)
+        }
+        countBy {
+            name("CountById")
+            params(id())
+            retTypeAndError(n.Long)
+        }
+        existBy {
+            name("ExistAll")
+            retTypeAndError(n.Boolean)
+        }
+        existBy {
+            name("ExistById")
+            params(id())
+            retTypeAndError(n.Boolean)
+        }
+    }
 }
 
 fun StructureUnitI<*>.addDefaultReturnValuesForQueries() {
     findDownByType(FindByI::class.java).filter { it.returns().isEmpty() }.extend {
-                if (multiResult()) {
-                    retTypeAndError(n.List.GT(findParentMust(TypeI::class.java)))
-                } else {
-                    retTypeAndError(findParentMust(TypeI::class.java))
-                }
-            }
+        if (multiResult()) {
+            retTypeAndError(n.List.GT(findParentMust(TypeI::class.java)))
+        } else {
+            retTypeAndError(findParentMust(TypeI::class.java))
+        }
+    }
 
     findDownByType(CountByI::class.java).filter { it.returns().isEmpty() }.extend {
-                retTypeAndError(n.Long)
-            }
+        retTypeAndError(n.Long)
+    }
 
     findDownByType(ExistByI::class.java).filter { it.returns().isEmpty() }.extend {
-                retTypeAndError(n.Boolean)
-            }
+        retTypeAndError(n.Boolean)
+    }
 }
 
 fun StructureUnitI<*>.addCommandsAndEventsForAggregates() {
     findDownByType(EntityI::class.java).filter { !it.virtual() }.extend {
-                val dataTypeProps = propsAll().filter { !it.meta() }.map { p(it) }
+        val dataTypeProps = propsAll().filter { !it.meta() }.map { p(it) }
 
-                var created: CreatedI<*> = Created.EMPTY
-                var updated: UpdatedI<*> = Updated.EMPTY
-                var deleted: DeletedI<*> = Deleted.EMPTY
+        var created: CreatedI<*> = Created.EMPTY
+        var updated: UpdatedI<*> = Updated.EMPTY
+        var deleted: DeletedI<*> = Deleted.EMPTY
 
-                if (defaultEvents()) {
-                    log.debug("Add default events to ${name()}")
+        if (defaultEvents()) {
+            log.debug("Add default events to ${name()}")
 
-                    created = created {
-                        name("created")
-                        props(*dataTypeProps.toTypedArray())
-                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                    }
-
-                    updated = updated {
-                        name("updated")
-                        props(*dataTypeProps.toTypedArray())
-                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                    }
-
-                    deleted = deleted {
-                        name("deleted")
-                        props(id())
-                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                    }
-                } else {
-                    created = created().firstOrNull() ?: created
-                    updated = updated().firstOrNull() ?: updated
-                    deleted = deleted().firstOrNull() ?: deleted
-                }
-
-                if (defaultCommands()) {
-                    log.debug("Add default commands to ${name()}")
-                    createBy {
-                        name("create")
-                        props(*dataTypeProps.toTypedArray())
-                        event(created)
-                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                    }
-
-                    updateBy {
-                        name("update")
-                        props(*dataTypeProps.toTypedArray())
-                        event(updated)
-                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                    }
-
-                    deleteBy {
-                        name("delete")
-                        props(id())
-                        event(deleted)
-                        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                    }
-                }
-
-                //create corresponding events for all commands without events
-                createBys().filter { it.event().isEMPTY() }.forEach {
-                            it.event(created {
-                                name(it.deriveEventName())
-                                props(*it.props().map { p(it) }.toTypedArray())
-                                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                            })
-                        }
-                updateBys().filter { it.event().isEMPTY() }.forEach {
-                            it.event(updated {
-                                name(it.deriveEventName())
-                                props(*it.props().map { p(it) }.toTypedArray())
-                                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                            })
-                        }
-                deleteBys().filter { it.event().isEMPTY() }.forEach {
-                            it.event(deleted {
-                                name(it.deriveEventName())
-                                props(*it.props().map { p(it) }.toTypedArray())
-                                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                            })
-                        }
-                commands().filter { it.event().isEMPTY() }.forEach {
-                            it.event(event {
-                                name(it.deriveEventName())
-                                props(*it.props().map { p(it) }.toTypedArray())
-                                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-                            })
-                        }
+            created = created {
+                name("created")
+                props(*dataTypeProps.toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
             }
+
+            updated = updated {
+                name("updated")
+                props(*dataTypeProps.toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            }
+
+            deleted = deleted {
+                name("deleted")
+                props(id())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            }
+        } else {
+            created = created().firstOrNull() ?: created
+            updated = updated().firstOrNull() ?: updated
+            deleted = deleted().firstOrNull() ?: deleted
+        }
+
+        if (defaultCommands()) {
+            log.debug("Add default commands to ${name()}")
+            createBy {
+                name("create")
+                props(*dataTypeProps.toTypedArray())
+                event(created)
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            }
+
+            updateBy {
+                name("update")
+                props(*dataTypeProps.toTypedArray())
+                event(updated)
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            }
+
+            deleteBy {
+                name("delete")
+                props(id())
+                event(deleted)
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            }
+        }
+
+        //create corresponding events for all commands without events
+        createBys().filter { it.event().isEMPTY() }.forEach {
+            it.event(created {
+                name(it.deriveEventName())
+                props(*it.props().map { p(it) }.toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            })
+        }
+        updateBys().filter { it.event().isEMPTY() }.forEach {
+            it.event(updated {
+                name(it.deriveEventName())
+                props(*it.props().map { p(it) }.toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            })
+        }
+        deleteBys().filter { it.event().isEMPTY() }.forEach {
+            it.event(deleted {
+                name(it.deriveEventName())
+                props(*it.props().map { p(it) }.toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            })
+        }
+        commands().filter { it.event().isEMPTY() }.forEach {
+            it.event(event {
+                name(it.deriveEventName())
+                props(*it.props().map { p(it) }.toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            })
+        }
+    }
 }
 
 fun StructureUnitI<*>.addIdPropToEntities() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.props().find { it.key() } == null }.extend {
-                val id = buildId()
-            }
+        val id = buildId()
+    }
 }
 
 fun StructureUnitI<*>.addIdPropToEventsAndCommands() {
     findDownByType(EntityI::class.java).filter { !it.virtual() }.extend {
-                created().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
-                updated().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
-                deleted().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        created().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        updated().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        deleted().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
 
-                events().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        events().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
 
-                createBys().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
-                updateBys().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
-                deleteBys().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        createBys().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        updateBys().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        deleteBys().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
 
-                commands().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
-            }
+        commands().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+    }
 }
 
 
@@ -306,8 +306,8 @@ fun StructureUnitI<*>.declareAsBaseWithNonImplementedOperation() {
 fun <T : CompilationUnitI<*>> T.propagateItemToSubtypes(item: CompilationUnitI<*>) {
     superUnitFor().filter { superUnitChild ->
         superUnitChild.items().filterIsInstance<CompilationUnitI<*>>().find {
-                    (it.name() == item.name() || it.superUnit() == superUnitChild)
-                } == null
+            (it.name() == item.name() || it.superUnit() == superUnitChild)
+        } == null
     }.forEach { superUnitChild ->
                 val derivedItem = item.deriveSubType {
                     namespace(superUnitChild.namespace())
