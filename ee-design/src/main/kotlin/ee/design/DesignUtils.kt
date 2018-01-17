@@ -94,10 +94,15 @@ fun EntityI<*>.hasNoCommands() = commands().isEmpty() && createBys().isEmpty() &
 
 fun StructureUnitI<*>.renameControllersAccordingParentType() {
     findDownByType(ControllerI::class.java).forEach {
-        val parent = it.findParent(CompilationUnitI::class.java)
-        if (parent != null && !it.name().startsWith("${parent.name().capitalize()}")) {
-            it.name("${parent.name().capitalize()}${it.name().capitalize()}")
-        }
+        //it.extend {
+            val parent = it.findParent(CompilationUnitI::class.java)
+            if (parent != null) {
+                var newPrefix = "${parent.name().capitalize()}"
+                if (!name().startsWith(newPrefix)) {
+                    name("$newPrefix${it.name().capitalize()}")
+                }
+            }
+        //}
     }
 }
 

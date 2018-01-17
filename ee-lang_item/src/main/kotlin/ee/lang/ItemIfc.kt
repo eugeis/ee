@@ -28,6 +28,7 @@ interface ItemI<B : ItemI<B>> {
 
     fun isInitialized(): Boolean
     fun init()
+    fun extend(value: B.() -> Unit): B
     fun namespace(value: String): B
     fun name(value: String): B
     fun doc(value: CommentI<*>): B
