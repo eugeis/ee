@@ -32,7 +32,7 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
         }
     }
 
-    override fun extend(adapt: B.() -> Unit): B = apply {
+    override fun extendAdapt(adapt: B.() -> Unit): B = apply {
         val oldAdapt = _adapt
         _adapt = {
             oldAdapt(this@ItemB as B)
@@ -75,7 +75,7 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
     override fun derive(adapt: B.() -> Unit): B {
         init()
         val ret = copy()
-        //ret.extend(adapt)
+        //ret.extendAdapt(adapt)
         ret.adapt()
         if (ret is MultiHolderI<*, *>) {
             ret.fillSupportsItems()
@@ -86,7 +86,7 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
     override fun deriveWithParent(adapt: B.() -> Unit): B {
         init()
         val ret = copyWithParent()
-        //ret.extend(adapt)
+        //ret.extendAdapt(adapt)
         ret.adapt()
         if (ret is MultiHolderI<*, *>) {
             ret.fillSupportsItems()
@@ -101,7 +101,7 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
         if (ret != null) {
             ret.name(name())
             ret.derivedFrom(this)
-            //ret.extend(adapt)
+            //ret.extendAdapt(adapt)
             ret.init()
             ret.adapt()
             if (ret is MultiHolderI<*, *>) {

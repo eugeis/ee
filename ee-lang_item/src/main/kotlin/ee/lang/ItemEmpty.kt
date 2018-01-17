@@ -5,7 +5,7 @@ import java.util.*
 object ItemEmpty : ItemEmptyClass<ItemEmpty>()
 
 open class ItemEmptyClass<B : ItemI<B>> : ItemI<B> {
-    override fun extend(value: B.() -> Unit): B = apply {}
+    override fun extendAdapt(value: B.() -> Unit): B = apply {}
     override fun namespace(): String = ""
     override fun namespace(value: String): B = apply {}
     override fun name(): String = "@@EMPTY@@"
