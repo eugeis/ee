@@ -312,7 +312,7 @@ open class GenericB<B : GenericI<B>>(value: B.() -> Unit = {}) : TypeB<B>(value)
     override fun type(value: TypeI<*>): B = apply { attr(TYPE, value) }
 
     companion object {
-        val TYPE = "_type"
+        val TYPE = "__type"
     }
 }
 
@@ -467,7 +467,7 @@ open class LiteralB<B : LiteralI<B>>(value: B.() -> Unit = {}) : ExpressionB<B>(
 
     companion object {
         val PARAMS = "_params"
-        val TYPE = "_type"
+        val TYPE = "__type"
         val VALUE = "_value"
     }
 }
@@ -883,8 +883,8 @@ open class TypeB<B : TypeI<B>>(value: B.() -> Unit = {}) : MacroCompositeB<B>(va
         val OPEN = "_open"
         val OPERATIONS = "_operations"
         val PROPS = "_props"
-        val SUPER_UNIT_FOR = "_superUnitFor"
-        val SUPER_UNITS = "_superUnits"
+        val SUPER_UNIT_FOR = "__superUnitFor"
+        val SUPER_UNITS = "__superUnits"
         val VIRTUAL = "_virtual"
     }
 }

@@ -20,7 +20,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val enums = prop(l.EnumType).multi(true).nonFluent("enumType")
         val values = prop(Values).multi(true).nonFluent("valueType")
         val basics = prop(Basic).multi(true).nonFluent("basic")
-        val controllers = prop(Controller).multi(true).nonFluent("controller")
+        val controllers = prop(BusinessController).multi(true).nonFluent("controller")
         val processManagers = prop(ProcessManager).multi(true).nonFluent("processManager")
         val projectors = prop(Projector).multi(true).nonFluent("projector")
     }
@@ -52,6 +52,8 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val basics = prop(Basic).multi(true).nonFluent("basic").doc(
                 "Baics used special for controller needs")
     }
+
+    object BusinessController : CompilationUnit({ superUnit(Controller) })
 
     object Command : CompilationUnit({ superUnit(l.CompilationUnit) }) {
         val affectMulti = prop(n.Boolean).value(false)
@@ -138,7 +140,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
 
         val belongsToAggregate = prop(Entity)
         val aggregateFor = prop(Entity).multi(true)
-        val controllers = prop(Controller).multi(true).nonFluent("controller")
+        val controllers = prop(BusinessController).multi(true).nonFluent("controller")
 
         val findBys = prop(FindBy).multi(true).nonFluent("findBy")
         val countBys = prop(CountBy).multi(true).nonFluent("countBy")

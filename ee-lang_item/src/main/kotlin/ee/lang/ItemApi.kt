@@ -121,7 +121,7 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
             }
             return ret
         } else {
-            log.debug("Can't create a new instance of $ret.")
+            log.debug("can't create a new instance of $ret.")
             return this as B
         }
     }
@@ -144,7 +144,7 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
     open protected fun createType(): B? {
         var ret = createType(javaClass)
         if (ret == null) {
-            log.trace("Can't create instance of '{}', try to use the superclass {}", javaClass, javaClass.superclass)
+            log.trace("can't create instance of '{}', try to use the superclass {}", javaClass, javaClass.superclass)
             ret = createType(javaClass.superclass)
         }
         return ret
@@ -240,7 +240,7 @@ abstract class MultiHolder<I, B : MultiHolderI<I, B>>(private val _type: Class<I
                 }
                 if (isInitialized() && !item.isInitialized()) item.init()
             } else {
-                log.trace("Can't set as parent '${this}(${this.name()})' to '$item(${
+                log.trace("can't set as parent '${this}(${this.name()})' to '$item(${
                 item.name()})', because current parent is ${item.parent()}(${item.parent().name()})")
             }
         }

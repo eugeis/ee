@@ -30,6 +30,10 @@ interface BusinessCommandI<B : BusinessCommandI<B>> : CommandI<B> {
 }
 
 
+interface BusinessControllerI<B : BusinessControllerI<B>> : ControllerI<B> {
+}
+
+
 interface BusinessEventI<B : BusinessEventI<B>> : EventI<B> {
 }
 
@@ -128,10 +132,10 @@ interface EntityI<B : EntityI<B>> : DataTypeI<B> {
     fun aggregateFor(): ListMultiHolder<EntityI<*>>
     fun aggregateFor(vararg value: EntityI<*>): B
 
-    fun controllers(): ListMultiHolder<ControllerI<*>>
-    fun controllers(vararg value: ControllerI<*>): B
-    fun controller(value: ControllerI<*>): ControllerI<*>
-    fun controller(value: ControllerI<*>.() -> Unit = {}): ControllerI<*>
+    fun controllers(): ListMultiHolder<BusinessControllerI<*>>
+    fun controllers(vararg value: BusinessControllerI<*>): B
+    fun controller(value: BusinessControllerI<*>): BusinessControllerI<*>
+    fun controller(value: BusinessControllerI<*>.() -> Unit = {}): BusinessControllerI<*>
 
     fun findBys(): ListMultiHolder<FindByI<*>>
     fun findBys(vararg value: FindByI<*>): B
@@ -325,10 +329,10 @@ interface ModuleI<B : ModuleI<B>> : StructureUnitI<B> {
     fun basic(value: BasicI<*>): BasicI<*>
     fun basic(value: BasicI<*>.() -> Unit = {}): BasicI<*>
 
-    fun controllers(): ListMultiHolder<ControllerI<*>>
-    fun controllers(vararg value: ControllerI<*>): B
-    fun controller(value: ControllerI<*>): ControllerI<*>
-    fun controller(value: ControllerI<*>.() -> Unit = {}): ControllerI<*>
+    fun controllers(): ListMultiHolder<BusinessControllerI<*>>
+    fun controllers(vararg value: BusinessControllerI<*>): B
+    fun controller(value: BusinessControllerI<*>): BusinessControllerI<*>
+    fun controller(value: BusinessControllerI<*>.() -> Unit = {}): BusinessControllerI<*>
 
     fun processManagers(): ListMultiHolder<ProcessManagerI<*>>
     fun processManagers(vararg value: ProcessManagerI<*>): B

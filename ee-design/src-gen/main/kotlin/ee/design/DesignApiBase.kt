@@ -73,6 +73,17 @@ open class BusinessCommandB<B : BusinessCommandB<B>>(value: B.() -> Unit = {}) :
 }
 
 
+open class BusinessController(value: BusinessController.() -> Unit = {}) : BusinessControllerB<BusinessController>(value) {
+
+    companion object {
+        val EMPTY = BusinessController { name(ItemEmpty.name()) }.apply<BusinessController> { init() }
+    }
+}
+
+open class BusinessControllerB<B : BusinessControllerB<B>>(value: B.() -> Unit = {}) : ControllerB<B>(value), BusinessControllerI<B> {
+}
+
+
 open class BusinessEvent(value: BusinessEvent.() -> Unit = {}) : BusinessEventB<BusinessEvent>(value) {
 
     companion object {
@@ -320,10 +331,10 @@ open class EntityB<B : EntityB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(valu
     override fun aggregateFor(): ListMultiHolder<EntityI<*>> = itemAsList(AGGREGATE_FOR, EntityI::class.java, true)
     override fun aggregateFor(vararg value: EntityI<*>): B = apply { aggregateFor().addItems(value.asList()) }
 
-    override fun controllers(): ListMultiHolder<ControllerI<*>> = itemAsList(CONTROLLERS, ControllerI::class.java, true)
-    override fun controllers(vararg value: ControllerI<*>): B = apply { controllers().addItems(value.asList()) }
-    override fun controller(value: ControllerI<*>): ControllerI<*> = applyAndReturn { controllers().addItem(value); value }
-    override fun controller(value: ControllerI<*>.() -> Unit): ControllerI<*> = controller(Controller(value))
+    override fun controllers(): ListMultiHolder<BusinessControllerI<*>> = itemAsList(CONTROLLERS, BusinessControllerI::class.java, true)
+    override fun controllers(vararg value: BusinessControllerI<*>): B = apply { controllers().addItems(value.asList()) }
+    override fun controller(value: BusinessControllerI<*>): BusinessControllerI<*> = applyAndReturn { controllers().addItem(value); value }
+    override fun controller(value: BusinessControllerI<*>.() -> Unit): BusinessControllerI<*> = controller(BusinessController(value))
 
     override fun findBys(): ListMultiHolder<FindByI<*>> = itemAsList(FIND_BYS, FindByI::class.java, true)
     override fun findBys(vararg value: FindByI<*>): B = apply { findBys().addItems(value.asList()) }
@@ -688,10 +699,10 @@ open class ModuleB<B : ModuleB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>
     override fun basic(value: BasicI<*>): BasicI<*> = applyAndReturn { basics().addItem(value); value }
     override fun basic(value: BasicI<*>.() -> Unit): BasicI<*> = basic(Basic(value))
 
-    override fun controllers(): ListMultiHolder<ControllerI<*>> = itemAsList(CONTROLLERS, ControllerI::class.java, true)
-    override fun controllers(vararg value: ControllerI<*>): B = apply { controllers().addItems(value.asList()) }
-    override fun controller(value: ControllerI<*>): ControllerI<*> = applyAndReturn { controllers().addItem(value); value }
-    override fun controller(value: ControllerI<*>.() -> Unit): ControllerI<*> = controller(Controller(value))
+    override fun controllers(): ListMultiHolder<BusinessControllerI<*>> = itemAsList(CONTROLLERS, BusinessControllerI::class.java, true)
+    override fun controllers(vararg value: BusinessControllerI<*>): B = apply { controllers().addItems(value.asList()) }
+    override fun controller(value: BusinessControllerI<*>): BusinessControllerI<*> = applyAndReturn { controllers().addItem(value); value }
+    override fun controller(value: BusinessControllerI<*>.() -> Unit): BusinessControllerI<*> = controller(BusinessController(value))
 
     override fun processManagers(): ListMultiHolder<ProcessManagerI<*>> = itemAsList(PROCESS_MANAGERS, ProcessManagerI::class.java, true)
     override fun processManagers(vararg value: ProcessManagerI<*>): B = apply { processManagers().addItems(value.asList()) }
