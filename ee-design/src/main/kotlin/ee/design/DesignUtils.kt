@@ -93,13 +93,13 @@ fun EntityI<*>.hasNoEvents() = events().isEmpty() && created().isEmpty() && upda
 fun EntityI<*>.hasNoCommands() = commands().isEmpty() && createBys().isEmpty() && updateBys().isEmpty() && deleteBys().isEmpty()
 
 fun StructureUnitI<*>.renameControllersAccordingParentType() {
-    findDownByType(ControllerI::class.java).forEach {
-        it.extendAdapt {
-            val parent = it.findParent(CompilationUnitI::class.java)
+    findDownByType(ControllerI::class.java).forEach { item ->
+        item.extendAdapt {
+            val parent = findParent(CompilationUnitI::class.java)
             if (parent != null) {
-                var newPrefix = "${parent.name().capitalize()}"
-                if (!name().startsWith(newPrefix)) {
-                    name("$newPrefix${it.name().capitalize()}")
+                var parentPrefix = parent.name().capitalize()
+                if (!name().startsWith(parentPrefix)) {
+                    name("$parentPrefix${name().capitalize()}")
                 }
             }
         }

@@ -32,15 +32,16 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
         }
     }
 
-    override fun extendAdapt(adapt: B.() -> Unit): B = apply {
+    override fun extendAdapt(adapt: B.() -> Unit): B {
         val oldAdapt = _adapt
         _adapt = {
-            oldAdapt(this@ItemB as B)
-            adapt(this@ItemB as B)
+            oldAdapt()
+            adapt()
         }
 
         //if already initialized, we need to apply for current instance
-        if (isInitialized()) adapt(this@ItemB as B)
+        if (isInitialized()) (this as B).adapt()
+        return this as B
     }
 
     override fun isInitialized(): Boolean = _initialized
@@ -75,22 +76,16 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
     override fun derive(adapt: B.() -> Unit): B {
         init()
         val ret = copy()
-        //ret.extendAdapt(adapt)
-        ret.adapt()
-        if (ret is MultiHolderI<*, *>) {
-            ret.fillSupportsItems()
-        }
+        ret.derivedFrom(this)
+        ret.extendAdapt(adapt)
         return ret
     }
 
     override fun deriveWithParent(adapt: B.() -> Unit): B {
         init()
         val ret = copyWithParent()
-        //ret.extendAdapt(adapt)
-        ret.adapt()
-        if (ret is MultiHolderI<*, *>) {
-            ret.fillSupportsItems()
-        }
+        ret.derivedFrom(this)
+        ret.extendAdapt(adapt)
         return ret
     }
 
@@ -101,9 +96,8 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
         if (ret != null) {
             ret.name(name())
             ret.derivedFrom(this)
-            //ret.extendAdapt(adapt)
+            ret.extendAdapt(adapt)
             ret.init()
-            ret.adapt()
             if (ret is MultiHolderI<*, *>) {
                 ret.fillSupportsItems()
             }
@@ -115,8 +109,12 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
     override fun copy(): B {
         val ret = createType()
         if (ret != null) {
-            fill(ret)
+            ret.parent(ItemB.EMPTY)
             ret.init()
+            fill(ret)
+            if (ret is MultiHolderI<*, *>) {
+                ret.fillSupportsItems()
+            }
             return ret
         } else {
             log.debug("Can't create a new instance of $ret.")
@@ -127,9 +125,12 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
     override fun copyWithParent(): B {
         val ret = createType()
         if (ret != null) {
-            fill(ret)
             ret.parent(parent())
             ret.init()
+            fill(ret)
+            if (ret is MultiHolderI<*, *>) {
+                ret.fillSupportsItems()
+            }
             return ret
         } else {
             log.debug("Can't create a new instance of $ret.")
@@ -156,12 +157,12 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
     }
 
     open protected fun fill(item: B) {
-        item.name(_name)
-        item.namespace(_namespace)
-        val doc = _doc
-        item.doc(doc.copy())
-        item.parent(ItemB.EMPTY)
-        item.derivedFrom(this)
+        if(item.name().isEmpty()) item.name(_name)
+        if(item.namespace().isEmpty()) item.namespace(_namespace)
+        if(item.doc().isEMPTY()) {
+            val doc = _doc
+            item.doc(doc.copy())
+        }
     }
 
     override fun <T : ItemI<*>> apply(code: T.() -> Unit): T {
