@@ -20,9 +20,11 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
     private var _derivedAsType: String = ""
     private var _initialized: Boolean = false
     protected var _adapt: B.() -> Unit
+    protected var _adaptDerive: B.() -> Unit
 
     constructor(adapt: B.() -> Unit = {}) {
         this._adapt = adapt
+        this._adaptDerive = {}
     }
 
     override fun init() {
@@ -77,7 +79,8 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
         init()
         val ret = copy()
         ret.derivedFrom(this)
-        ret.extendAdapt(adapt)
+        ret.adapt()
+        //ret.extendAdapt(adapt)
         return ret
     }
 
@@ -85,7 +88,8 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
         init()
         val ret = copyWithParent()
         ret.derivedFrom(this)
-        ret.extendAdapt(adapt)
+        ret.adapt()
+        //ret.extendAdapt(adapt)
         return ret
     }
 
@@ -96,7 +100,8 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
         if (ret != null) {
             ret.name(name())
             ret.derivedFrom(this)
-            ret.extendAdapt(adapt)
+            ret.adapt()
+            //ret.extendAdapt(adapt)
             ret.init()
             if (ret is MultiHolderI<*, *>) {
                 ret.fillSupportsItems()
@@ -110,7 +115,6 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
         val ret = createType()
         if (ret != null) {
             ret.parent(ItemB.EMPTY)
-            ret.init()
             fill(ret)
             if (ret is MultiHolderI<*, *>) {
                 ret.fillSupportsItems()
@@ -126,7 +130,6 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
         val ret = createType()
         if (ret != null) {
             ret.parent(parent())
-            ret.init()
             fill(ret)
             if (ret is MultiHolderI<*, *>) {
                 ret.fillSupportsItems()
@@ -152,14 +155,15 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
         var constructor = type.constructors.find {
             it.toString().contains("(kotlin.jvm.functions.Function1)")
         }
-        if (constructor != null) return constructor.newInstance(_adapt) as B
+        if (constructor != null) return constructor.newInstance(_adaptDerive) as B
         return null
     }
 
     open protected fun fill(item: B) {
-        if(item.name().isEmpty()) item.name(_name)
-        if(item.namespace().isEmpty()) item.namespace(_namespace)
-        if(item.doc().isEMPTY()) {
+        item.init()
+        if (item.name().isEmpty()) item.name(_name)
+        if (item.namespace().isEmpty()) item.namespace(_namespace)
+        if (item.doc().isEMPTY()) {
             val doc = _doc
             item.doc(doc.copy())
         }
@@ -207,12 +211,12 @@ abstract class MultiHolder<I, B : MultiHolderI<I, B>>(private val _type: Class<I
         var constructor = type.constructors.find {
             it.toString().contains("(java.lang.Class,kotlin.jvm.functions.Function1)")
         }
-        if (constructor != null) return constructor.newInstance(_type, _adapt) as B
+        if (constructor != null) return constructor.newInstance(_type, _adaptDerive) as B
 
         constructor = type.constructors.find {
             it.toString().contains("(kotlin.jvm.functions.Function1)")
         }
-        if (constructor != null) return constructor.newInstance(_adapt) as B
+        if (constructor != null) return constructor.newInstance(_adaptDerive) as B
         return null
     }
 
@@ -300,18 +304,18 @@ open class ListMultiHolderB<I, B : ListMultiHolderI<I, B>>(_type: Class<I>, valu
         var constructor = type.constructors.find {
             it.toString().contains("(java.lang.Class,kotlin.jvm.functions.Function1,java.util.List)")
         }
-        if (constructor != null) return constructor.newInstance(itemType(), _adapt, ArrayList<I>()) as B
+        if (constructor != null) return constructor.newInstance(itemType(), _adaptDerive, ArrayList<I>()) as B
 
         constructor = type.constructors.find {
             it.toString().contains("(java.lang.Class,kotlin.jvm.functions.Function1)")
         }
-        if (constructor != null) return constructor.newInstance(itemType(), _adapt) as B
+        if (constructor != null) return constructor.newInstance(itemType(), _adaptDerive) as B
 
 
         constructor = type.constructors.find {
             it.toString().contains("(kotlin.jvm.functions.Function1)")
         }
-        if (constructor != null) return constructor.newInstance(_adapt) as B
+        if (constructor != null) return constructor.newInstance(_adaptDerive) as B
         return null
     }
 
@@ -383,17 +387,17 @@ open class MapMultiHolderB<I, B : MapMultiHolderI<I, B>>(_type: Class<I>, adapt:
         var constructor = type.constructors.find {
             it.toString().contains("(java.lang.Class,kotlin.jvm.functions.Function1,java.util.Map)")
         }
-        if (constructor != null) return constructor.newInstance(itemType(), _adapt, TreeMap<String, I>()) as B
+        if (constructor != null) return constructor.newInstance(itemType(), _adaptDerive, TreeMap<String, I>()) as B
 
         constructor = type.constructors.find {
             it.toString().contains("(java.lang.Class,kotlin.jvm.functions.Function1)")
         }
-        if (constructor != null) return constructor.newInstance(itemType(), _adapt) as B
+        if (constructor != null) return constructor.newInstance(itemType(), _adaptDerive) as B
 
         constructor = type.constructors.find {
             it.toString().contains("(kotlin.jvm.functions.Function1)")
         }
-        if (constructor != null) return constructor.newInstance(_adapt) as B
+        if (constructor != null) return constructor.newInstance(_adaptDerive) as B
         return null
     }
 

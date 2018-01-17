@@ -356,15 +356,16 @@ fun <T : TypeI<*>> T.propagateItemToSubtypes(item: TypeI<*>) {
 }
 
 fun <T : TypeI<*>> T.GT(vararg types: TypeI<*>): T {
-    val generics = generics()
-    if (generics.size >= types.size) {
+    val originalGenerics = generics()
+    if (originalGenerics.size >= types.size) {
         var i = 0
         val ret = derive {
+            val derivedGenerics = generics()
             for (type in types) {
                 if (type is GenericI<*>) {
-                    generics[i++] = type
+                    derivedGenerics[i++] = type
                 } else {
-                    generics[i++].type(type)
+                    derivedGenerics[i++].type(type)
                 }
             }
         }
