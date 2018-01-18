@@ -33,9 +33,13 @@ fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
                     val updaters = findDownByType(UpdateByI::class.java)
                     val deleters = findDownByType(DeleteByI::class.java)
 
-                    val bussinesCommands = findDownByType(BusinessCommandI::class.java)
+                    val businessCommands = findDownByType(BusinessCommandI::class.java)
 
-                    //command handler
+                    if(item.handlers().isEmpty()) {
+                        //add default command handler
+
+                    }
+
                     val commands = item.findDownByType(CommandI::class.java)
                     val commandHandler = controller {
                         name(DesignDerivedType.CommandHandler).derivedAsType(DesignDerivedType.Aggregate)
@@ -240,7 +244,7 @@ fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
                             }
                         }
 
-                        bussinesCommands.forEach {
+                        businessCommands.forEach {
                             op {
                                 name(it.name().capitalize())
                                 p("w", g.net.http.ResponseWriter)

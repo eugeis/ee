@@ -88,6 +88,36 @@ fun CommandI<*>.deriveEventName() = name().endsWith("gin").ifElse(
         { name().capitalize().replace("gin", "gged") },
         { "${name().capitalize()}${consonants.matches(name()).then("e")}d" })
 
+fun CommandI<*>.deriveEvent(): EventI<*> {
+    val entity = findParentMust(EntityI::class.java)
+    return when (this) {
+        is CreateByI ->
+            entity.created {
+                name(deriveEventName())
+                props(*props().map { p(it) }.toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            }
+        is UpdateByI ->
+            entity.updated {
+                name(deriveEventName())
+                props(*props().map { p(it) }.toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            }
+        is DeleteByI ->
+            entity.deleted {
+                name(deriveEventName())
+                props(*props().map { p(it) }.toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            }
+        else ->
+            entity.event {
+                name(deriveEventName())
+                props(*props().map { p(it) }.toTypedArray())
+                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            }
+    }
+}
+
 fun EntityI<*>.hasNoQueries() = findBys().isEmpty() && countBys().isEmpty() && existBys().isEmpty()
 fun EntityI<*>.hasNoEvents() = events().isEmpty() && created().isEmpty() && updated().isEmpty() && deleted().isEmpty()
 fun EntityI<*>.hasNoCommands() = commands().isEmpty() && createBys().isEmpty() && updateBys().isEmpty() && deleteBys().isEmpty()
@@ -161,90 +191,15 @@ fun StructureUnitI<*>.addDefaultReturnValuesForQueries() {
 
 fun StructureUnitI<*>.addCommandsAndEventsForAggregates() {
     findDownByType(EntityI::class.java).filter { !it.virtual() }.extend {
-        val dataTypeProps = propsAll().filter { !it.meta() }.map { p(it) }
-
-        var created: CreatedI<*> = Created.EMPTY
-        var updated: UpdatedI<*> = Updated.EMPTY
-        var deleted: DeletedI<*> = Deleted.EMPTY
-
-        if (defaultEvents()) {
-            log.debug("Add default events to ${name()}")
-
-            created = created {
-                name("created")
-                props(*dataTypeProps.toTypedArray())
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            }
-
-            updated = updated {
-                name("updated")
-                props(*dataTypeProps.toTypedArray())
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            }
-
-            deleted = deleted {
-                name("deleted")
-                props(id())
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            }
-        } else {
-            created = created().firstOrNull() ?: created
-            updated = updated().firstOrNull() ?: updated
-            deleted = deleted().firstOrNull() ?: deleted
-        }
 
         if (defaultCommands()) {
-            log.debug("Add default commands to ${name()}")
-            createBy {
-                name("create")
-                props(*dataTypeProps.toTypedArray())
-                event(created)
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            }
-
-            updateBy {
-                name("update")
-                props(*dataTypeProps.toTypedArray())
-                event(updated)
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            }
-
-            deleteBy {
-                name("delete")
-                props(id())
-                event(deleted)
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            }
+            create()
+            update()
+            delete()
         }
 
-        //create corresponding events for all commands without events
-        createBys().filter { it.event().isEMPTY() }.forEach {
-            it.event(created {
-                name(it.deriveEventName())
-                props(*it.props().map { p(it) }.toTypedArray())
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            })
-        }
-        updateBys().filter { it.event().isEMPTY() }.forEach {
-            it.event(updated {
-                name(it.deriveEventName())
-                props(*it.props().map { p(it) }.toTypedArray())
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            })
-        }
-        deleteBys().filter { it.event().isEMPTY() }.forEach {
-            it.event(deleted {
-                name(it.deriveEventName())
-                props(*it.props().map { p(it) }.toTypedArray())
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            })
-        }
-        commands().filter { it.event().isEMPTY() }.forEach {
-            it.event(event {
-                name(it.deriveEventName())
-                props(*it.props().map { p(it) }.toTypedArray())
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            })
+        if (defaultEvents()) {
+            findDownByType(CommandI::class.java).filter { it.event().isEMPTY() }.forEach { it.deriveEvent() }
         }
     }
 }
@@ -341,26 +296,26 @@ fun EntityI<*>.dataTypeProps(): List<AttributeI<*>> = storage.getOrPut(this, "da
     propsAll().filter { !it.meta() }.map { p(it) }
 })
 
-fun EntityI<*>.createdEvent(): EventI<*> = storage.getOrPut(this, "createdEvent", {
-    created {
-        name("created")
+fun EntityI<*>.create(): CommandI<*> = storage.getOrPut(this, "create", {
+    createBy {
+        name("create")
         props(*dataTypeProps().toTypedArray())
         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
     }
 })
 
 
-fun EntityI<*>.updatedEvent(): EventI<*> = storage.getOrPut(this, "updatedEvent", {
-    updated {
-        name("updated")
+fun EntityI<*>.update(): CommandI<*> = storage.getOrPut(this, "update", {
+    updateBy {
+        name("update")
         props(*dataTypeProps().toTypedArray())
         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
     }
 })
 
-fun EntityI<*>.deletedEvent(): EventI<*> = storage.getOrPut(this, "deletedEvent", {
-    deleted {
-        name("deleted")
+fun EntityI<*>.delete(): CommandI<*> = storage.getOrPut(this, "delete", {
+    deleteBy {
+        name("delete")
         props(id())
         constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
     }
@@ -376,11 +331,9 @@ fun StateI<*>.handle(event: EventI<*>, value: HandlerI<*>.() -> Unit = {}) = han
     value()
 }
 
-fun StateI<*>.handleEventOf(command: CommandI<*>, value: HandlerI<*>.() -> Unit = {}) = handle(
-        HandlerForDefaultEventOfCommand(command, value))
-
-open class HandlerForDefaultEventOfCommand(val command: CommandI<*>, value: Handler.() -> Unit = {}) : Handler(value) {
-    override fun on(): EventI<*> {
-        return command.event()
+fun eventOf(command: CommandI<*>): EventI<*> {
+    if (command.event().isEMPTY()) {
+        command.event(command.deriveEvent())
     }
+    return command.event()
 }

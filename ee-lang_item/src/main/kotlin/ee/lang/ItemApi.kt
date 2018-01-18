@@ -424,7 +424,7 @@ open class CompositeB<B : CompositeI<B>> : MapMultiHolderB<ItemI<*>, B>, Composi
     }
 
     open fun <R> itemAsList(name: String, type: Class<R>, internal: Boolean = false): ListMultiHolder<R> {
-        return item(name, internal, { ListMultiHolder<R>(type, { name(name) }) })
+        return item(name, internal, { ListMultiHolder(type, { name(name) }) })
     }
 
     open fun <T : Any> attr(name: String): T? = attributes().item(name)
