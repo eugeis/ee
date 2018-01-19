@@ -4,7 +4,8 @@ open class ContentPackageCommands<T : ContentPackage> : ContentPackageCommandsBa
     companion object {
         val EMPTY = ContentPackageCommandsBase.EMPTY
     }
-    constructor(item: T): super(item) {
+
+    constructor(item: T) : super(item) {
 
     }
 

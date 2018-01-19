@@ -8,9 +8,8 @@ import ee.lang.*
 import ee.lang.gen.swagger.*
 
 
-fun <T : EntityI<*>> T.toSwaggerGet(c: GenerationContext,
-                                 derived: String = LangDerivedKind.IMPL,
-                                 api: String = LangDerivedKind.API): String {
+fun <T : EntityI<*>> T.toSwaggerGet(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+    api: String = LangDerivedKind.API): String {
     val finders = findDownByType(FindByI::class.java)
     val counters = findDownByType(CountByI::class.java)
     val exists = findDownByType(ExistByI::class.java)
@@ -32,9 +31,8 @@ fun <T : EntityI<*>> T.toSwaggerGet(c: GenerationContext,
           required: false
           schema:
             type: string
-            enum: ${finders.toSwaggerLiterals("              ")}${
-        counters.toSwaggerLiterals("            ")}${
-        exists.toSwaggerLiterals("            ")}
+            enum: ${finders.toSwaggerLiterals("              ")}${counters.toSwaggerLiterals(
+            "            ")}${exists.toSwaggerLiterals("            ")}
         - name: operationType
           in: query
           required: false
@@ -61,32 +59,32 @@ fun <T : EntityI<*>> T.toSwaggerGet(c: GenerationContext,
           description: fsdfsdf
           content:
             application/json:
-              schema:${
-        toSwagger(c, api, "                ")}"""
+              schema:${toSwagger(c, api, "                ")}"""
     } else ""
 }
 
 fun <T : EntityI<*>> T.toSwaggerPost(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                  api: String = LangDerivedKind.API): String {
+    api: String = LangDerivedKind.API): String {
     return """"""
 }
 
 fun <T : EntityI<*>> T.toSwaggerPut(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                 api: String = LangDerivedKind.API): String {
+    api: String = LangDerivedKind.API): String {
     return """"""
 }
 
 fun <T : EntityI<*>> T.toSwaggerDelete(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                    api: String = LangDerivedKind.API): String {
+    api: String = LangDerivedKind.API): String {
     return """"""
 }
 
-fun <T : CompI<*>> T.toSwagger(c: GenerationContext,
-                            derived: String = LangDerivedKind.IMPL,
-                            api: String = LangDerivedKind.API): String {
-    val moduleAggregates = findDownByType(EntityI::class.java).filter { !it.virtual() && it.belongsToAggregate().isEMPTY() && it.derivedAsType().isEmpty() }.groupBy {
-        it.findParentMust(ModuleI::class.java)
-    }
+fun <T : CompI<*>> T.toSwagger(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+    api: String = LangDerivedKind.API): String {
+    val moduleAggregates = findDownByType(
+        EntityI::class.java).filter { !it.virtual() && it.belongsToAggregate().isEMPTY() && it.derivedAsType().isEmpty() }
+        .groupBy {
+            it.findParentMust(ModuleI::class.java)
+        }
     val moduleItems = findDownByType(DataTypeI::class.java).filter { it.derivedAsType().isEmpty() }.groupBy {
         it.findParentMust(ModuleI::class.java)
     }
@@ -100,11 +98,9 @@ info:
 paths:${moduleAggregates.joinSurroundIfNotEmptyToString("") { module, item ->
         if (item.findDownByType(FindByI::class.java).isNotEmpty()) {
             """
-  /${c.n(module, derived).toHyphenLowerCase()}${item.toSwaggerPath(c, derived)}:${
-            item.toSwaggerGet(c, derived, api)}${
-            item.toSwaggerPost(c, derived, api)}${
-            item.toSwaggerPut(c, derived, api)}${
-            item.toSwaggerDelete(c, derived, api)}"""
+  /${c.n(module, derived).toHyphenLowerCase()}${item.toSwaggerPath(c, derived)}:${item.toSwaggerGet(c, derived,
+                api)}${item.toSwaggerPost(c, derived, api)}${item.toSwaggerPut(c, derived, api)}${item.toSwaggerDelete(
+                c, derived, api)}"""
         } else ""
     }}
 components:

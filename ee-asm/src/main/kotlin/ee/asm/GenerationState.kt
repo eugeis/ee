@@ -6,13 +6,12 @@ interface Generator<R> {
     fun generate(state: GenerationState): Iterable<R>
 }
 
-class GenerationState(
-        override val classTree: ClassTree,
-        config: AnkoConfiguration
-): ClassTreeUtils, Configurable(config), ReflectionUtils {
+class GenerationState(override val classTree: ClassTree, config: AnkoConfiguration) : ClassTreeUtils,
+                                                                                      Configurable(config),
+                                                                                      ReflectionUtils {
 
     val availableClasses: List<ClassNode> =
-            classTree.filter { !isExcluded(it) && !classTree.findNode(it)!!.fromPlatformJar }
+        classTree.filter { !isExcluded(it) && !classTree.findNode(it)!!.fromPlatformJar }
 
     val availableMethods: List<MethodNodeWithClass> = findAvailableMethods(availableClasses)
 
@@ -24,9 +23,9 @@ class GenerationState(
     } as Iterable<T>
 
     override fun isExcluded(node: ClassNode) =
-            node.fqName in config.excludedClasses || "${node.packageName}.*" in config.excludedClasses
+        node.fqName in config.excludedClasses || "${node.packageName}.*" in config.excludedClasses
 
     override fun isExcluded(node: MethodNodeWithClass) =
-            (node.clazz.fqName + "#" + node.method.name) in config.excludedMethods
+        (node.clazz.fqName + "#" + node.method.name) in config.excludedMethods
 
 }

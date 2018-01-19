@@ -14,27 +14,26 @@ fun LiteralI<*>.toTypeScriptIsMethod(): String {
     }"""
 }
 
-fun <T : EnumTypeI<*>> T.toTypeScriptEnum(c: GenerationContext,
-                                       derived: String = LangDerivedKind.API,
-                                       api: String = LangDerivedKind.API): String {
+fun <T : EnumTypeI<*>> T.toTypeScriptEnum(c: GenerationContext, derived: String = LangDerivedKind.API,
+    api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
     return """
 enum $name {
     ${literals().joinToString(",${nL}    ") { "${it.toTypeScript()}${it.toTypeScriptCallValue(c, derived)}" }}
 }"""
-/*
-;${
-    props().joinToString(nL) { it.toTypeScriptMember(c, derived, api) }}${
-    constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
-        it.toTypeScript(c, derived, api)
-    }}${
-    operations().joinToString(nL) { it.toTypeScriptImpl(c, derived, api) }}${
-    literals().joinToString("", nL) { it.toTypeScriptIsMethod() }}
-}"""*/
+    /*
+    ;${
+        props().joinToString(nL) { it.toTypeScriptMember(c, derived, api) }}${
+        constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+            it.toTypeScript(c, derived, api)
+        }}${
+        operations().joinToString(nL) { it.toTypeScriptImpl(c, derived, api) }}${
+        literals().joinToString("", nL) { it.toTypeScriptIsMethod() }}
+    }"""*/
 }
 
 fun <T : EnumTypeI<*>> T.toTypeScriptEnumParseMethod(c: GenerationContext,
-                                                  derived: String = LangDerivedKind.API): String {
+    derived: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
     return """
 fun String?.to$name(): $name {
@@ -42,15 +41,13 @@ fun String?.to$name(): $name {
 }"""
 }
 
-fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext,
-                                              derived: String = LangDerivedKind.IMPL,
-                                              api: String = LangDerivedKind.API): String {
+fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+    api: String = LangDerivedKind.API): String {
     return """
-${open().then("export ")}class ${c.n(this, derived)}${toTypeScriptExtends(c, derived, api)} {${
-    props().filter { !it.meta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+${open().then("export ")}class ${c.n(this, derived)}${toTypeScriptExtends(c, derived,
+        api)} {${props().filter { !it.meta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toTypeScriptMember(c, derived, api, false)
-    }}${
-    constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+    }}${constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toTypeScript(c, derived, api)
     }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toTypeScriptImpl(c, derived, api)

@@ -1,23 +1,12 @@
 package ee.design
 
-import ee.lang.ActionI
-import ee.lang.AttributeI
-import ee.lang.CompilationUnitI
-import ee.lang.DataTypeI
-import ee.lang.DataTypeOperationI
-import ee.lang.EnumTypeI
-import ee.lang.ExternalTypeI
-import ee.lang.ListMultiHolder
-import ee.lang.LogicUnitI
-import ee.lang.StructureUnitI
+import ee.lang.*
 
 
-interface AggregateHandlerI<B : AggregateHandlerI<B>> : StateMachineI<B> {
-}
+interface AggregateHandlerI<B : AggregateHandlerI<B>> : StateMachineI<B> {}
 
 
-interface BasicI<B : BasicI<B>> : DataTypeI<B> {
-}
+interface BasicI<B : BasicI<B>> : DataTypeI<B> {}
 
 
 interface BundleI<B : BundleI<B>> : StructureUnitI<B> {
@@ -26,16 +15,13 @@ interface BundleI<B : BundleI<B>> : StructureUnitI<B> {
 }
 
 
-interface BusinessCommandI<B : BusinessCommandI<B>> : CommandI<B> {
-}
+interface BusinessCommandI<B : BusinessCommandI<B>> : CommandI<B> {}
 
 
-interface BusinessControllerI<B : BusinessControllerI<B>> : ControllerI<B> {
-}
+interface BusinessControllerI<B : BusinessControllerI<B>> : ControllerI<B> {}
 
 
-interface BusinessEventI<B : BusinessEventI<B>> : EventI<B> {
-}
+interface BusinessEventI<B : BusinessEventI<B>> : EventI<B> {}
 
 
 interface CheckI<B : CheckI<B>> : LogicUnitI<B> {
@@ -83,24 +69,19 @@ interface ControllerI<B : ControllerI<B>> : CompilationUnitI<B> {
 }
 
 
-interface CountByI<B : CountByI<B>> : DataTypeOperationI<B> {
-}
+interface CountByI<B : CountByI<B>> : DataTypeOperationI<B> {}
 
 
-interface CreateByI<B : CreateByI<B>> : CommandI<B> {
-}
+interface CreateByI<B : CreateByI<B>> : CommandI<B> {}
 
 
-interface CreatedI<B : CreatedI<B>> : EventI<B> {
-}
+interface CreatedI<B : CreatedI<B>> : EventI<B> {}
 
 
-interface DeleteByI<B : DeleteByI<B>> : CommandI<B> {
-}
+interface DeleteByI<B : DeleteByI<B>> : CommandI<B> {}
 
 
-interface DeletedI<B : DeletedI<B>> : EventI<B> {
-}
+interface DeletedI<B : DeletedI<B>> : EventI<B> {}
 
 
 interface DynamicStateI<B : DynamicStateI<B>> : StateI<B> {
@@ -214,8 +195,7 @@ interface EntityI<B : EntityI<B>> : DataTypeI<B> {
 }
 
 
-interface EventI<B : EventI<B>> : CompilationUnitI<B> {
-}
+interface EventI<B : EventI<B>> : CompilationUnitI<B> {}
 
 
 interface ExecutorI<B : ExecutorI<B>> : LogicUnitI<B> {
@@ -244,8 +224,7 @@ interface ExecutorI<B : ExecutorI<B>> : LogicUnitI<B> {
 }
 
 
-interface ExistByI<B : ExistByI<B>> : DataTypeOperationI<B> {
-}
+interface ExistByI<B : ExistByI<B>> : DataTypeOperationI<B> {}
 
 
 interface ExternalModuleI<B : ExternalModuleI<B>> : ModuleI<B> {
@@ -254,8 +233,7 @@ interface ExternalModuleI<B : ExternalModuleI<B>> : ModuleI<B> {
 }
 
 
-interface FacetI<B : FacetI<B>> : ModuleGroupI<B> {
-}
+interface FacetI<B : FacetI<B>> : ModuleGroupI<B> {}
 
 
 interface FindByI<B : FindByI<B>> : DataTypeOperationI<B> {
@@ -352,12 +330,10 @@ interface ModuleGroupI<B : ModuleGroupI<B>> : StructureUnitI<B> {
 }
 
 
-interface ProcessManagerI<B : ProcessManagerI<B>> : StateMachineI<B> {
-}
+interface ProcessManagerI<B : ProcessManagerI<B>> : StateMachineI<B> {}
 
 
-interface ProjectorI<B : ProjectorI<B>> : StateMachineI<B> {
-}
+interface ProjectorI<B : ProjectorI<B>> : StateMachineI<B> {}
 
 
 interface StateI<B : StateI<B>> : ControllerI<B> {
@@ -408,18 +384,14 @@ interface StateMachineI<B : StateMachineI<B>> : ControllerI<B> {
 }
 
 
-interface UpdateByI<B : UpdateByI<B>> : CommandI<B> {
-}
+interface UpdateByI<B : UpdateByI<B>> : CommandI<B> {}
 
 
-interface UpdatedI<B : UpdatedI<B>> : EventI<B> {
-}
+interface UpdatedI<B : UpdatedI<B>> : EventI<B> {}
 
 
-interface ValuesI<B : ValuesI<B>> : DataTypeI<B> {
-}
+interface ValuesI<B : ValuesI<B>> : DataTypeI<B> {}
 
 
-interface WidgetI<B : WidgetI<B>> : CompilationUnitI<B> {
-}
+interface WidgetI<B : WidgetI<B>> : CompilationUnitI<B> {}
 

@@ -4,7 +4,8 @@ open class ContentPackageController<T : ContentPackage> : ContentPackageControll
     companion object {
         val EMPTY = ContentPackageControllerBase.EMPTY
     }
-    constructor(item: T): super(item) {
+
+    constructor(item: T) : super(item) {
 
     }
 

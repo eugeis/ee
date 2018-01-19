@@ -4,7 +4,8 @@ open class WildFlyServiceQueries<T : WildFlyService> : WildFlyServiceQueriesBase
     companion object {
         val EMPTY = WildFlyServiceQueriesBase.EMPTY
     }
-    constructor(): super() {
+
+    constructor() : super() {
 
     }
 

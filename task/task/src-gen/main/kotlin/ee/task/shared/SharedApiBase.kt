@@ -6,8 +6,6 @@ import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
 
-
-
 open class ExecConfig {
     val home: Path
     val cmd: List<String>
@@ -21,10 +19,11 @@ open class ExecConfig {
     val timeoutUnit: TimeUnit
 
 
-    constructor(home: Path = Paths.get(""), cmd: List<String> = arrayListOf(), env: Map<String, String> = emptyMap(), 
-                filterPattern: Unit = , failOnError: Boolean = false, filter: Boolean = false, 
-                noConsole: Boolean = false, wait: Boolean = true, timeout: Long = ee.lang.Attribute@6ebc05a6, 
-                timeoutUnit: TimeUnit = TimeUnit.SECONDS) {
+    constructor(home: Path = Paths.get(""), cmd: List<String> = arrayListOf(), env: Map<String, String> = emptyMap(),
+        filterPattern: Unit =, failOnError: Boolean = false, filter: Boolean = false, noConsole: Boolean = false,
+        wait: Boolean = true, timeout: Long = ee.lang.Attribute@6ebc05a6,
+    timeoutUnit: TimeUnit = TimeUnit.SECONDS)
+    {
         this.home = home
         this.cmd = cmd
         this.env = env
@@ -54,7 +53,8 @@ open class PathResolver {
     }
 
 
-    open fun <T : CompilationUnit> resolve()Path {
+    open fun <T : CompilationUnit> resolve()Path
+    {
         throw IllegalAccessException("Not implemented yet.")
     }
 
@@ -73,8 +73,8 @@ open class Result {
     val results: List<Result>
 
 
-    constructor(action: Unit = , ok: Boolean = true, failure: Unit = , info: Unit = , error: Throwable? = null, 
-                results: List<Result> = arrayListOf()) {
+    constructor(action: Unit =, ok: Boolean = true, failure: Unit =, info: Unit =, error: Throwable? = null,
+        results: List<Result> = arrayListOf()) {
         this.action = action
         this.ok = ok
         this.failure = failure
@@ -94,13 +94,14 @@ open class Task {
     val group: Unit
 
 
-    constructor(name: Unit = , group: Unit = ) {
+    constructor(name: Unit =, group: Unit =) {
         this.name = name
         this.group = group
     }
 
 
-    open fun execute()Result {
+    open fun execute()Result
+    {
         throw IllegalAccessException("Not implemented yet.")
     }
 
@@ -115,17 +116,19 @@ open class TaskFactory {
     val group: Unit
 
 
-    constructor(name: Unit = , group: Unit = ) {
+    constructor(name: Unit =, group: Unit =) {
         this.name = name
         this.group = group
     }
 
 
-    open fun supports()Boolean {
+    open fun supports()Boolean
+    {
         throw IllegalAccessException("Not implemented yet.")
     }
 
-    open fun create()List<Task> {
+    open fun create()List<Task>
+    {
         throw IllegalAccessException("Not implemented yet.")
     }
 
@@ -160,7 +163,8 @@ open class TaskRegistry {
     }
 
 
-    open fun register()Unit {
+    open fun register()Unit
+    {
         throw IllegalAccessException("Not implemented yet.")
     }
 
@@ -179,11 +183,13 @@ open class TaskRepository {
     }
 
 
-    open fun <V : TaskFactory<Task>> register()Unit {
+    open fun <V : TaskFactory<Task>> register()Unit
+    {
         throw IllegalAccessException("Not implemented yet.")
     }
 
-    open fun <T : CompilationUnit> find()List<TaskFactory<Task>> {
+    open fun <T : CompilationUnit> find()List<TaskFactory<Task>>
+    {
         throw IllegalAccessException("Not implemented yet.")
     }
 

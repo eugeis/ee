@@ -20,7 +20,8 @@ internal interface ReflectionUtils {
             val constructor = clazz.getConstructor(*argTypes)
             return constructor.newInstance(*argList)
         } catch (e: NoSuchMethodException) {
-            throw RuntimeException("Can't initialize class ${clazz.getName()}, no <init>(${argTypes.joinToString()})", e)
+            throw RuntimeException("Can't initialize class ${clazz.getName()}, no <init>(${argTypes.joinToString()})",
+                e)
         }
     }
 

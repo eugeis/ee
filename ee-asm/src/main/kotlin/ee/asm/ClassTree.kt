@@ -10,7 +10,7 @@ class ClassTreeNode(parent: ClassTreeNode?, val data: ClassNode, val fromPlatfor
     var children: MutableList<ClassTreeNode> = ArrayList()
 }
 
-class ClassTree : Iterable<ClassNode>{
+class ClassTree : Iterable<ClassNode> {
     private val root = ClassTreeNode(null, ClassNode(), true)
 
     override fun iterator(): ClassTreeIterator {

@@ -14,9 +14,7 @@ internal interface ClassTreeUtils {
 
     fun findAvailableMethods(availableClasses: List<ClassNode>): List<MethodNodeWithClass> {
         return availableClasses.flatMap { classNode ->
-            classNode.methods
-                    ?.map { MethodNodeWithClass(classNode, it as MethodNode) }
-                    ?.filter { !isExcluded(it) }
+            classNode.methods?.map { MethodNodeWithClass(classNode, it as MethodNode) }?.filter { !isExcluded(it) }
                     ?: listOf()
         }
     }
@@ -29,12 +27,14 @@ internal interface ClassTreeUtils {
 
     val ClassNode.isLayoutParams: Boolean
         get() {
-            return isInner && (classTree.isSuccessorOf(this, "android/view/ViewGroup\$LayoutParams") || this.name == "android/view/ViewGroup\$LayoutParams")
+            return isInner && (classTree.isSuccessorOf(this,
+                "android/view/ViewGroup\$LayoutParams") || this.name == "android/view/ViewGroup\$LayoutParams")
         }
 
     val ClassNode.isViewGroup: Boolean
         get() {
-            return !isInner && (classTree.isSuccessorOf(this, "android/view/ViewGroup") || this.name == "android/view/ViewGroup")
+            return !isInner && (classTree.isSuccessorOf(this,
+                "android/view/ViewGroup") || this.name == "android/view/ViewGroup")
         }
 
     fun ClassNode.resolveAllMethods(): List<MethodNode> {

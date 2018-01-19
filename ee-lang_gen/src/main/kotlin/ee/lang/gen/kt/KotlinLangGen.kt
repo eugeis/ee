@@ -23,7 +23,8 @@ fun <T : AttributeI> T.toKotlinTypeSingle(c: GenerationContext, api: String): St
 }
 
 fun <T : AttributeI> T.toKotlinDslTypeDef(c: GenerationContext, api: String): String {
-    return """${multi().ifElse({ "ListMultiHolder<${toKotlinTypeSingle(c, api)}>" }, { toKotlinTypeSingle(c, api) })}${nullable().then("?")}"""
+    return """${multi().ifElse({ "ListMultiHolder<${toKotlinTypeSingle(c, api)}>" },
+        { toKotlinTypeSingle(c, api) })}${nullable().then("?")}"""
 }
 
 fun <T : AttributeI> T.toKotlinTypeSingleNoGeneric(c: GenerationContext, api: String): String {
@@ -35,11 +36,12 @@ fun <T : AttributeI> T.toKotlinTypeSingleClass(c: GenerationContext, api: String
 }
 
 fun <T : AttributeI> T.toKotlinDslTypeDefNoGeneric(c: GenerationContext, api: String): String {
-    return """${multi().ifElse({ "ListMultiHolder<${toKotlinTypeSingleNoGeneric(c, api)}>" }, { toKotlinTypeSingleNoGeneric(c, api) })}${nullable().then("?")}"""
+    return """${multi().ifElse({ "ListMultiHolder<${toKotlinTypeSingleNoGeneric(c, api)}>" },
+        { toKotlinTypeSingleNoGeneric(c, api) })}${nullable().then("?")}"""
 }
 
 fun <T : AttributeI> T.toKotlinDslBuilderMethodsIB(c: GenerationContext, api: String,
-                                                   parent: ItemI<*> = parent()): String {
+    parent: ItemI<*> = parent()): String {
     val value = (name() == "value").ifElse("aValue", "value")
     return multi().ifElse({
         """
@@ -51,7 +53,7 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethodsIB(c: GenerationContext, api: St
 }
 
 fun <T : AttributeI> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: String,
-                                                  parent: ItemI<*> = parent()): String {
+    parent: ItemI<*> = parent()): String {
     val value = (name() == "value").ifElse("aValue", "value")
     return """
     fun ${name()}(): ${toKotlinDslTypeDef(c, api)}${nonFluent().isNotBlank().then {
@@ -61,27 +63,33 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: Str
     }}"""
 }
 
-fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: String, api: String, parent: ItemI<*> = parent()): String {
+fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: String, api: String,
+    parent: ItemI<*> = parent()): String {
     val value = (name() == "value").ifElse("aValue", "value")
     val override = (derived != api).ifElse("override ", "")
     return """${multi().ifElse({
         """
-    ${override}fun ${name()}(): ${toKotlinDslTypeDef(c, api)} = itemAsList(${
-        name().toUnderscoredUpperCase()}, ${toKotlinTypeSingleNoGeneric(c, api)}::class.java, true)
-    ${override}fun ${name()}(vararg $value: ${toKotlinTypeSingle(c, api)}): B = apply { ${name()}().addItems(value.asList()) }"""
+    ${override}fun ${name()}(): ${toKotlinDslTypeDef(c,
+            api)} = itemAsList(${name().toUnderscoredUpperCase()}, ${toKotlinTypeSingleNoGeneric(c,
+            api)}::class.java, true)
+    ${override}fun ${name()}(vararg $value: ${toKotlinTypeSingle(c,
+            api)}): B = apply { ${name()}().addItems(value.asList()) }"""
     }, {
         """
-    ${override}fun ${name()}(): ${toKotlinDslTypeDef(c, api)} = attr(${name().toUnderscoredUpperCase()}${
-        nullable().not().then { ", { ${value().toString().isEmpty().ifElse(toKotlinEMPTY(c, derived), value())} }" }})
-    ${override}fun ${name()}($value: ${toKotlinDslTypeDef(c, api)}): B = apply { attr(${
-        name().toUnderscoredUpperCase()}, $value) }"""
+    ${override}fun ${name()}(): ${toKotlinDslTypeDef(c,
+            api)} = attr(${name().toUnderscoredUpperCase()}${nullable().not().then {
+            ", { ${value().toString().isEmpty().ifElse(toKotlinEMPTY(c, derived), value())} }"
+        }})
+    ${override}fun ${name()}($value: ${toKotlinDslTypeDef(c,
+            api)}): B = apply { attr(${name().toUnderscoredUpperCase()}, $value) }"""
     })}${nonFluent().isNotBlank().then {
         """
-    ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}): ${toKotlinTypeSingle(c, api)} = applyAndReturn { ${multi().ifElse({
+    ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}): ${toKotlinTypeSingle(c,
+            api)} = applyAndReturn { ${multi().ifElse({
             """${name()}().addItem($value); value"""
         }, { """${name()}().addItem($value)""" })} }
-    ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}.() -> Unit): ${
-        toKotlinTypeSingle(c, api)} = ${nonFluent()}(${toKotlinTypeSingleClass(c, derived)}($value))"""
+    ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}.() -> Unit): ${toKotlinTypeSingle(c,
+            api)} = ${nonFluent()}(${toKotlinTypeSingleClass(c, derived)}($value))"""
     }}"""
 }
 
@@ -90,26 +98,28 @@ val specialEmptyObjects = setOf("CompilationUnit", "LogicUnit")
 val generalTypes = setOf("Item", "Composite", "CompilationUnit", "LogicUnit", "Type", "Command", "Controller")
 
 fun <T : AttributeI> T.toKotlinCompanionObjectName(c: GenerationContext): String {
-    return """        val ${name().toUnderscoredUpperCase()} = "${generalTypes.contains(type().name()).then("_")}_${name()}""""
+    return """        val ${name().toUnderscoredUpperCase()} = "${generalTypes.contains(type().name()).then(
+        "_")}_${name()}""""
 }
 
 fun <T : CompositeI<*>> T.toKotlinDslBuilderI(c: GenerationContext, api: String = DerivedNames.API): String {
     val props = items().filterIsInstance(AttributeI::class.java)
     return """
-interface ${c.n(this, api)}<B : ${c.n(this, api)}<B>> : ${c.n(derivedFrom(), api)}<B> {${
-    props.joinSurroundIfNotEmptyToString(nL) { it.toKotlinDslBuilderMethodsIB(c, api) }}${
-    props.joinSurroundIfNotEmptyToString(nL) { it.toKotlinDslBuilderMethodsI(c, api) }}
+interface ${c.n(this, api)}<B : ${c.n(this, api)}<B>> : ${c.n(derivedFrom(),
+        api)}<B> {${props.joinSurroundIfNotEmptyToString(nL) {
+        it.toKotlinDslBuilderMethodsIB(c, api)
+    }}${props.joinSurroundIfNotEmptyToString(nL) { it.toKotlinDslBuilderMethodsI(c, api) }}
 }"""
 }
 
-fun <T : CompositeI<*>> T.toKotlinDslBuilder(c: GenerationContext,
-                                             derived: String = DerivedNames.IMPL,
-                                             api: String = DerivedNames.API): String {
+fun <T : CompositeI<*>> T.toKotlinDslBuilder(c: GenerationContext, derived: String = DerivedNames.IMPL,
+    api: String = DerivedNames.API): String {
     val props = items().filterIsInstance(AttributeI::class.java)
     val multiProps = props.filter { it.multi() }
     val target = c.n(this, derived)
     return """
-open class ${c.n(this, derived)}(value: ${c.n(this, derived)}.() -> Unit = {}) : ${c.n(this, derived)}B<${c.n(this, derived)}>(value) {
+open class ${c.n(this, derived)}(value: ${c.n(this, derived)}.() -> Unit = {}) : ${c.n(this, derived)}B<${c.n(this,
+        derived)}>(value) {
 
     companion object {
         val EMPTY = ${specialEmptyObjects.contains(target).ifElse({ "${target}Empty" }, {
@@ -118,28 +128,28 @@ open class ${c.n(this, derived)}(value: ${c.n(this, derived)}.() -> Unit = {}) :
     }
 }
 
-open class ${c.n(this, derived)}B<B : ${c.n(this, api)}<B>>(value: B.() -> Unit = {}) : ${c.n(derivedFrom(), derived)}B<B>(value)${(derived != api).then(
-            { ", ${c.n(this, DerivedNames.API)}<B>" })} {${
-    props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}${
-    multiProps.isNotEmpty().then {
+open class ${c.n(this, derived)}B<B : ${c.n(this, api)}<B>>(value: B.() -> Unit = {}) : ${c.n(derivedFrom(),
+        derived)}B<B>(value)${(derived != api).then(
+        { ", ${c.n(this, DerivedNames.API)}<B>" })} {${props.joinSurroundIfNotEmptyToString(nL,
+        prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}${multiProps.isNotEmpty().then {
         """
 
-    override fun fillSupportsItems() {${
-        multiProps.joinSurroundIfNotEmptyToString(nL, prefix = nL) { "        ${it.name()}()" }}
+    override fun fillSupportsItems() {${multiProps.joinSurroundIfNotEmptyToString(nL,
+            prefix = nL) { "        ${it.name()}()" }}
         super.fillSupportsItems()
     }"""
     }}${props.isNotEmpty().then {
         """
 
-    companion object {${
-        props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinCompanionObjectName(c) }}
+    companion object {${props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinCompanionObjectName(c) }}
     }"""
     }}
 }
 """
 }
 
-fun <T : ItemI<*>> T.toKotlinObjectTreeCompilationUnit(c: GenerationContext, derived: String = DerivedNames.DSL_TYPE): String {
+fun <T : ItemI<*>> T.toKotlinObjectTreeCompilationUnit(c: GenerationContext,
+    derived: String = DerivedNames.DSL_TYPE): String {
     return """    val ${c.n(this, derived)} = ${c.n(l.CompilationUnit, derived)}${derivedFrom().isNotEMPTY().then {
         " { derivedFrom(${c.n(derivedFrom(), derived)}) }"
     }}"""

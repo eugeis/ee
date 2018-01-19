@@ -3,9 +3,7 @@ package ee.asm
 import java.io.File
 
 enum class ExternalAnnotation {
-    NotNull,
-    GenerateLayout,
-    GenerateView
+    NotNull, GenerateLayout, GenerateView
 }
 
 abstract class AnkoConfiguration {

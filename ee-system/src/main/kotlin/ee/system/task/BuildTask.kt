@@ -11,8 +11,9 @@ open class BuildTask : BuildTaskBase {
         val EMPTY = BuildTaskBase.EMPTY
     }
 
-    constructor(name: String = "", group: String = "", buildTool: BuildTool = BuildTool.EMPTY, buildHome: Path = Paths.get(""),
-                buildRequest: BuildRequest = BuildRequest.EMPTY) : super(name, group, buildTool, buildHome, buildRequest) {
+    constructor(name: String = "", group: String = "", buildTool: BuildTool = BuildTool.EMPTY,
+        buildHome: Path = Paths.get(""), buildRequest: BuildRequest = BuildRequest.EMPTY) : super(name, group,
+        buildTool, buildHome, buildRequest) {
 
     }
 

@@ -109,8 +109,7 @@ object l : Composite({ namespace("ee.lang") }) {
     object DataTypeOperation : Composite({ derivedFrom(Operation) })
 
     //logic
-    object Predicate : Composite({ derivedFrom(Expression) }) {
-    }
+    object Predicate : Composite({ derivedFrom(Expression) }) {}
 
     object NotExpression : Composite({ derivedFrom(Predicate) }) {
         val value = AttributeI({ type(Predicate) })
@@ -148,8 +147,7 @@ object l : Composite({ namespace("ee.lang") }) {
     object IncrementExpression : Composite({ derivedFrom(Literal) })
     object DecrementExpression : Composite({ derivedFrom(Literal) })
 
-    object Action : Composite({ derivedFrom(l.LogicUnit) }) {
-    }
+    object Action : Composite({ derivedFrom(l.LogicUnit) }) {}
 
     object ApplyAction : Composite({ derivedFrom(Action) }) {
         val target = AttributeI({ type(Attribute) })

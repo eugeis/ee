@@ -15,7 +15,8 @@ open class LangCommonContextFactory {
     }
 
     protected open fun registerForImplOnly(derived: DerivedController) {
-        derived.registerKinds(listOf(LangDerivedKind.API, LangDerivedKind.IMPL), { buildName(this, it) }, isNotPartOfNativeTypes)
+        derived.registerKinds(listOf(LangDerivedKind.API, LangDerivedKind.IMPL), { buildName(this, it) },
+            isNotPartOfNativeTypes)
         //derived.dynamicTransformer = DerivedByTransformer("DYNAMIC", { buildNameDynamic(this, it) }, isNotPartOfNativeTypes)
 
     }
@@ -24,8 +25,7 @@ open class LangCommonContextFactory {
         return {
             val su = this
             GenerationContext(moduleFolder = su.artifact(), namespace = su.namespace().toLowerCase(),
-                    derivedController = derived, macroController = macroController
-            )
+                derivedController = derived, macroController = macroController)
         }
     }
 

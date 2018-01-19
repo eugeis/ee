@@ -60,7 +60,8 @@ fun Attribute.toJavaStaticColumnValue(context: JavaContext): String {
 }
 
 fun Attribute.toJavaStaticColumnMember(context: JavaContext, indent: String = ""): String {
-    return """${indent}public static final String ${toJavaStaticColumnName(context)} = "${toJavaStaticColumnValue(context)}";"""
+    return """${indent}public static final String ${toJavaStaticColumnName(context)} = "${toJavaStaticColumnValue(
+        context)}";"""
 }
 
 fun Attribute.toJavaBeanMappings(context: JavaContext, indent: String = "", derived: TypeDerived<Entity>): String {
@@ -68,7 +69,8 @@ fun Attribute.toJavaBeanMappings(context: JavaContext, indent: String = "", deri
 }
 
 fun Entity.toJavaBeanMappings(context: JavaContext, indent: String = "", derived: TypeDerived<Entity>): String {
-    return """${derived.base.ifElse({ context.ann(Jpa.Persistence.MappedSuperclass, indent) }, { context.ann(Jpa.Persistence.Entity, indent) })}"""
+    return """${derived.base.ifElse({ context.ann(Jpa.Persistence.MappedSuperclass, indent) },
+        { context.ann(Jpa.Persistence.Entity, indent) })}"""
 }
 
 //completed

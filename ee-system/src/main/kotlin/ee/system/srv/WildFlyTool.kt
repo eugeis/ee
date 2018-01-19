@@ -8,7 +8,7 @@ open class WildFlyTool : WildFlyToolBase {
         val EMPTY = WildFlyToolBase.EMPTY
     }
 
-    constructor(elName: String = "", home: Path = Paths.get(""), bin: Path = Paths.get("")): super(elName, home, bin) {
+    constructor(elName: String = "", home: Path = Paths.get(""), bin: Path = Paths.get("")) : super(elName, home, bin) {
 
     }
 

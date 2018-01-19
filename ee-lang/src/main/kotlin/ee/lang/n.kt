@@ -41,6 +41,5 @@ object n : StructureUnit({ name("native") }) {
         val V = G({ type(String) })
     }
 
-    object ItemEmpty : ExternalType({namespace("ee.lang")}) {
-    }
+    object ItemEmpty : ExternalType({ namespace("ee.lang") }) {}
 }

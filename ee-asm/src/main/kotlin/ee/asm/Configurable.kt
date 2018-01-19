@@ -1,4 +1,3 @@
 package ee.asm
 
-abstract class Configurable(val config: AnkoConfiguration) {
-}
+abstract class Configurable(val config: AnkoConfiguration) {}

@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="dir" value="${logDir:-logs}" />
-    <property name="fileName" value="${logFileName:-trace}" />
+    <property name="dir" value="${logDir:-logs}"/>
+    <property name="fileName" value="${logFileName:-trace}"/>
 
-    <property resource="logback.properties" />
+    <property resource="logback.properties"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
         <encoder>
-            <pattern>%d{dd.MM.yyyy HH:mm:ss.SSSZ} %-5level [%X{transactionId}] [%logger{35}] [%thread] - %msg%exception%n</pattern>
+            <pattern>%d{dd.MM.yyyy HH:mm:ss.SSSZ} %-5level [%X{transactionId}] [%logger{35}] [%thread] -
+                %msg%exception%n
+            </pattern>
         </encoder>
     </appender>
 
@@ -28,16 +30,18 @@
         </triggeringPolicy>
 
         <encoder>
-            <pattern>%d{dd.MM.yyyy HH:mm:ss.SSSZ} %-5level [%X{transactionId}] [%logger{35}] [%thread] - %msg%exception%n</pattern>
+            <pattern>%d{dd.MM.yyyy HH:mm:ss.SSSZ} %-5level [%X{transactionId}] [%logger{35}] [%thread] -
+                %msg%exception%n
+            </pattern>
         </encoder>
     </appender>
 
     <appender name="ASYNCFILE" queueSize="500" discardingThreshold="0" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="FILE" />
+        <appender-ref ref="FILE"/>
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="ASYNCFILE" />
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="ASYNCFILE"/>
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

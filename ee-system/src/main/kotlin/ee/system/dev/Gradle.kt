@@ -20,9 +20,9 @@ open class Gradle : GradleBase {
     val defaultProfiles: List<String>
     val defaultCommandSuffix: String
 
-    constructor(home: Path = Paths.get(""),
-                defaultParams: MutableMap<String, String> = hashMapOf(), defaultFlags: List<String> = arrayListOf(),
-                defaultProfiles: List<String> = arrayListOf(), defaultCommandSuffix: String = "") : super("maven", home) {
+    constructor(home: Path = Paths.get(""), defaultParams: MutableMap<String, String> = hashMapOf(),
+        defaultFlags: List<String> = arrayListOf(), defaultProfiles: List<String> = arrayListOf(),
+        defaultCommandSuffix: String = "") : super("maven", home) {
         mvn = home.resolve("bin/gradle")
         this.defaultParams = defaultParams
         this.defaultFlags = defaultFlags
@@ -32,9 +32,10 @@ open class Gradle : GradleBase {
 
     override fun build(buildHome: Path, request: BuildRequest, output: (String) -> Unit): Result {
         val command = command(BuildRequest(tasks = ArrayList(request.tasks), params = HashMap(request.params),
-                flags = ArrayList(request.flags), profiles = ArrayList(request.profiles)))
-        val ret = buildHome.exec(ExecConfig(home = buildHome, cmd = command, wait = true,
-                timeout = 10, timeoutUnit = TimeUnit.MINUTES), output = output)
+            flags = ArrayList(request.flags), profiles = ArrayList(request.profiles)))
+        val ret = buildHome.exec(
+            ExecConfig(home = buildHome, cmd = command, wait = true, timeout = 10, timeoutUnit = TimeUnit.MINUTES),
+            output = output)
         return Result(ok = (ret == 0))
     }
 

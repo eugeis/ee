@@ -8,8 +8,8 @@ internal val Type.isVoid: Boolean
 internal val Type.isSimpleType: Boolean
     get() = when (sort) {
         Type.BOOLEAN, Type.INT, Type.FLOAT, Type.DOUBLE, Type.LONG, Type.BYTE, Type.CHAR, Type.SHORT -> true
-        Type.VOID -> true
-        else -> false
+        Type.VOID                                                                                    -> true
+        else                                                                                         -> false
     }
 
 internal val Type.fqName: String
@@ -18,10 +18,10 @@ internal val Type.fqName: String
 private fun mapJavaToKotlinType(str: String): String {
     return when (str) {
         "java.lang.CharSequence" -> "CharSequence"
-        "java.lang.String" -> "String"
-        "java.lang.Integer" -> "Int"
-        "java.lang.Object" -> "Any"
-        else -> str
+        "java.lang.String"       -> "String"
+        "java.lang.Integer"      -> "Int"
+        "java.lang.Object"       -> "Any"
+        else                     -> str
     }
 }
 
@@ -29,60 +29,60 @@ internal fun Type.asString(nullable: Boolean = true): String {
     val nullability = if (nullable) "?" else ""
     return when (sort) {
         Type.BOOLEAN -> "Boolean"
-        Type.INT -> "Int"
-        Type.FLOAT -> "Float"
-        Type.DOUBLE -> "Double"
-        Type.LONG -> "Long"
-        Type.BYTE -> "Byte"
-        Type.CHAR -> "Char"
-        Type.SHORT -> "Short"
-        Type.VOID -> "Unit"
-        Type.ARRAY -> when (elementType.sort) {
-            Type.INT -> "IntArray$nullability"
-            Type.FLOAT -> "FloatArray$nullability"
+        Type.INT     -> "Int"
+        Type.FLOAT   -> "Float"
+        Type.DOUBLE  -> "Double"
+        Type.LONG    -> "Long"
+        Type.BYTE    -> "Byte"
+        Type.CHAR    -> "Char"
+        Type.SHORT   -> "Short"
+        Type.VOID    -> "Unit"
+        Type.ARRAY   -> when (elementType.sort) {
+            Type.INT    -> "IntArray$nullability"
+            Type.FLOAT  -> "FloatArray$nullability"
             Type.DOUBLE -> "DoubleArray$nullability"
-            Type.LONG -> "LongArray$nullability"
-            else -> "Array<" + mapJavaToKotlinType(elementType.asString(nullable = false)) + ">$nullability"
+            Type.LONG   -> "LongArray$nullability"
+            else        -> "Array<" + mapJavaToKotlinType(elementType.asString(nullable = false)) + ">$nullability"
         }
-        else -> mapJavaToKotlinType(fqName) + nullability
+        else         -> mapJavaToKotlinType(fqName) + nullability
     }
 }
 
 internal fun Type.asJavaString(): String {
     return when (sort) {
         Type.BOOLEAN -> "boolean"
-        Type.INT -> "int"
-        Type.FLOAT -> "float"
-        Type.DOUBLE -> "double"
-        Type.LONG -> "long"
-        Type.BYTE -> "byte"
-        Type.CHAR -> "char"
-        Type.SHORT -> "short"
-        Type.VOID -> "void"
-        Type.ARRAY -> elementType.asJavaString() + "[]"
-        else -> fqName
+        Type.INT     -> "int"
+        Type.FLOAT   -> "float"
+        Type.DOUBLE  -> "double"
+        Type.LONG    -> "long"
+        Type.BYTE    -> "byte"
+        Type.CHAR    -> "char"
+        Type.SHORT   -> "short"
+        Type.VOID    -> "void"
+        Type.ARRAY   -> elementType.asJavaString() + "[]"
+        else         -> fqName
     }
 }
 
 internal fun Type.getDefaultValue(): String {
     return when (sort) {
         Type.BOOLEAN -> "false"
-        Type.INT -> "0"
-        Type.FLOAT -> "0.0"
-        Type.DOUBLE -> "0.0"
-        Type.LONG -> "0"
-        Type.BYTE -> "0"
-        Type.CHAR -> "\'\\u0000\'" //default value of a char
-        Type.SHORT -> "0"
-        Type.VOID -> ""
-        Type.ARRAY -> when (elementType.sort) {
-            Type.INT -> "IntArray()"
-            Type.FLOAT -> "FloatArray()"
+        Type.INT     -> "0"
+        Type.FLOAT   -> "0.0"
+        Type.DOUBLE  -> "0.0"
+        Type.LONG    -> "0"
+        Type.BYTE    -> "0"
+        Type.CHAR    -> "\'\\u0000\'" //default value of a char
+        Type.SHORT   -> "0"
+        Type.VOID    -> ""
+        Type.ARRAY   -> when (elementType.sort) {
+            Type.INT    -> "IntArray()"
+            Type.FLOAT  -> "FloatArray()"
             Type.DOUBLE -> "DoubleArray()"
-            Type.LONG -> "LongArray()"
-            else -> "Array<" + mapJavaToKotlinType(elementType.asString(nullable = false)) + ">()"
+            Type.LONG   -> "LongArray()"
+            else        -> "Array<" + mapJavaToKotlinType(elementType.asString(nullable = false)) + ">()"
         }
-        else -> mapJavaToKotlinType(fqName) + "()"
+        else         -> mapJavaToKotlinType(fqName) + "()"
     }
 }
 
@@ -93,8 +93,8 @@ internal fun genericTypeToStr(param: GenericType, nullable: Boolean = true): Str
 
     res.append(when (classifier) {
         is TopLevelClass -> classifier.internalName.replace('/', '.').replace('$', '.')
-        is BaseType -> Type.getType(classifier.descriptor.toString()).asString(nullable)
-        else -> return ""
+        is BaseType      -> Type.getType(classifier.descriptor.toString()).asString(nullable)
+        else             -> return ""
     })
 
     if (param.arguments.size > 0) {
@@ -102,13 +102,12 @@ internal fun genericTypeToStr(param: GenericType, nullable: Boolean = true): Str
         for (arg in param.arguments) {
             res.append(when (arg) {
                 is UnboundedWildcard -> "*"
-                is NoWildcard -> genericTypeToStr(arg.genericType)
-                is BoundedWildcard ->
-                    return when (arg.wildcard) {
-                        Wildcard.EXTENDS -> "out ${genericTypeToStr(arg.bound)}"
-                        Wildcard.SUPER -> "in ${genericTypeToStr(arg.bound)}"
-                    }
-                else -> throw RuntimeException("Unexpected generic argument type: $arg")
+                is NoWildcard        -> genericTypeToStr(arg.genericType)
+                is BoundedWildcard   -> return when (arg.wildcard) {
+                    Wildcard.EXTENDS -> "out ${genericTypeToStr(arg.bound)}"
+                    Wildcard.SUPER   -> "in ${genericTypeToStr(arg.bound)}"
+                }
+                else                 -> throw RuntimeException("Unexpected generic argument type: $arg")
             })
             res.append(", ")
         }

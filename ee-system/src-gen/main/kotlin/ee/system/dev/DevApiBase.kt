@@ -9,12 +9,13 @@ abstract class BuildRequestBase {
     companion object {
         val EMPTY = BuildRequest()
     }
+
     var tasks: MutableList<String> = arrayListOf()
     var params: MutableMap<String, String> = hashMapOf()
     var flags: MutableList<String> = arrayListOf()
     var profiles: MutableList<String> = arrayListOf()
 
-    constructor(tasks: MutableList<String> = arrayListOf(), params: MutableMap<String, String> = hashMapOf(), 
+    constructor(tasks: MutableList<String> = arrayListOf(), params: MutableMap<String, String> = hashMapOf(),
         flags: MutableList<String> = arrayListOf(), profiles: MutableList<String> = arrayListOf()) {
         this.tasks = tasks
         this.params = params
@@ -56,7 +57,7 @@ abstract class BuildToolBase : Tool {
         val EMPTY = BuildTool()
     }
 
-    constructor(elName: String = "", home: Path = Paths.get("")): super(elName, home) {
+    constructor(elName: String = "", home: Path = Paths.get("")) : super(elName, home) {
 
     }
 
@@ -65,7 +66,8 @@ abstract class BuildToolBase : Tool {
 
     abstract fun supports(buildHome: Path = Paths.get("")): Boolean
 
-    abstract fun build(buildHome: Path = Paths.get(""), request: BuildRequest = BuildRequest.EMPTY, output: (String) -> Unit = { line -> }): Result
+    abstract fun build(buildHome: Path = Paths.get(""), request: BuildRequest = BuildRequest.EMPTY,
+        output: (String) -> Unit = { line -> }): Result
 
 }
 
@@ -77,12 +79,13 @@ abstract class MavenBase : BuildTool {
     companion object {
         val EMPTY = Maven()
     }
+
     var plugins: MutableList<String> = arrayListOf()
 
-    constructor(elName: String = "", home: Path = Paths.get(""), plugins: MutableList<String> = arrayListOf()): super(elName, home) {
+    constructor(elName: String = "", home: Path = Paths.get(""), plugins: MutableList<String> = arrayListOf()) : super(
+        elName, home) {
         this.plugins = plugins
     }
-
 
 
 }
@@ -96,10 +99,9 @@ abstract class GradleBase : BuildTool {
         val EMPTY = Gradle()
     }
 
-    constructor(elName: String = "", home: Path = Paths.get("")): super(elName, home) {
+    constructor(elName: String = "", home: Path = Paths.get("")) : super(elName, home) {
 
     }
-
 
 
 }
@@ -112,6 +114,7 @@ abstract class BuildToolFactoryBase {
     companion object {
         val EMPTY = BuildToolFactory()
     }
+
     var maven: Maven = Maven.EMPTY
     var gradle: Gradle = Gradle.EMPTY
 

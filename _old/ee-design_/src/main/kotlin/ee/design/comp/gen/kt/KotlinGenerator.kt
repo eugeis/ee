@@ -44,27 +44,31 @@ open class KotlinGenerator {
     protected fun Model.defineNamesForDataTypeControllers() {
         findDownByType(DataTypeI::class.java).forEach { entity ->
             entity.controllers.forEach { item ->
-                storage.put(item, DerivedNames.API_BASE.name, TypeDerived(item, "${entity.name}${item.name.capitalize()}Base", true))
+                storage.put(item, DerivedNames.API_BASE.name,
+                    TypeDerived(item, "${entity.name}${item.name.capitalize()}Base", true))
                 storage.put(item, DerivedNames.API.name, TypeDerived(item, "${entity.name}${item.name.capitalize()}"))
             }
             entity.queriesControllers.forEach { item ->
-                storage.put(item, DerivedNames.API_BASE.name, TypeDerived(item, "${entity.name}${item.name.capitalize()}Base", true))
+                storage.put(item, DerivedNames.API_BASE.name,
+                    TypeDerived(item, "${entity.name}${item.name.capitalize()}Base", true))
                 storage.put(item, DerivedNames.API.name, TypeDerived(item, "${entity.name}${item.name.capitalize()}"))
             }
             entity.commandsControllers.forEach { item ->
-                storage.put(item, DerivedNames.API_BASE.name, TypeDerived(item, "${entity.name}${item.name.capitalize()}Base", true))
+                storage.put(item, DerivedNames.API_BASE.name,
+                    TypeDerived(item, "${entity.name}${item.name.capitalize()}Base", true))
                 storage.put(item, DerivedNames.API.name, TypeDerived(item, "${entity.name}${item.name.capitalize()}"))
             }
         }
     }
 
     protected fun Model.defineConstructorAllForNonConstructors() {
-        findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter { it.constructors.isEmpty() }
-                .extend { constructorAll() }
+        findDownByType(CompilationUnitI::class.java,
+            stopSteppingDownIfFound = false).filter { it.constructors.isEmpty() }.extend { constructorAll() }
     }
 
     protected fun Model.declareAsBaseWithNonImplementedOperation() {
-        findDownByType(CompilationUnitI::class.java).filter { it.operations.isNotEmpty() && !it.base }.forEach { it.base = true }
+        findDownByType(CompilationUnitI::class.java).filter { it.operations.isNotEmpty() && !it.base }
+            .forEach { it.base = true }
 
         //derive controllers from super units
         findDownByType(ControllerI::class.java).filter { it.parent is CompilationUnit }.forEach {
@@ -84,13 +88,13 @@ open class KotlinGenerator {
                 (it.name == item.name || it.superUnit == superUnitChild)
             } == null
         }.forEach { superUnitChild ->
-            val derivedItem = item.deriveSubType<Controller> {
-                namespace = superUnitChild.namespace
-                G("T", superUnitChild)
+                val derivedItem = item.deriveSubType<Controller> {
+                    namespace = superUnitChild.namespace
+                    G("T", superUnitChild)
+                }
+                superUnitChild.add(derivedItem)
+                superUnitChild.propagateItemToSubtypes(derivedItem)
             }
-            superUnitChild.add(derivedItem)
-            superUnitChild.propagateItemToSubtypes(derivedItem)
-        }
     }
 
     protected fun Model.generateKotlinApi(target: Path) {
@@ -152,12 +156,12 @@ open class KotlinGenerator {
 
     protected fun CompModule.buildContext(namespace: String = this.namespace): KotlinContext {
         val context = KotlinContext(moduleFolder = artifact, genFolder = "src-gen/main/kotlin", deleteGenFolder = true,
-                namespace = namespace)
+            namespace = namespace)
         return context
     }
 
     protected fun <T : CompilationUnit> generateSrcGenKotlinApi(buffer: StringBuffer, context: KotlinContext,
-                                                      items: Collection<T>, generator: T.(KotlinContext) -> String) {
+        items: Collection<T>, generator: T.(KotlinContext) -> String) {
         for (item in items) {
             buffer.appendln(item.generator(context))
             buffer.appendln()
@@ -177,18 +181,22 @@ open class KotlinGenerator {
 
         entities.forEach { item ->
             generateSrcKotlinApi(target, pkg, this, item.controllers, metaData, { context -> toKotlinExtends(context) })
-            generateSrcKotlinApi(target, pkg, this, item.queriesControllers, metaData, { context -> toKotlinExtends(context) })
-            generateSrcKotlinApi(target, pkg, this, item.commandsControllers, metaData, { context -> toKotlinExtends(context) })
+            generateSrcKotlinApi(target, pkg, this, item.queriesControllers, metaData,
+                { context -> toKotlinExtends(context) })
+            generateSrcKotlinApi(target, pkg, this, item.commandsControllers, metaData,
+                { context -> toKotlinExtends(context) })
         }
         values.forEach { item ->
             generateSrcKotlinApi(target, pkg, this, item.controllers, metaData, { context -> toKotlinExtends(context) })
-            generateSrcKotlinApi(target, pkg, this, item.queriesControllers, metaData, { context -> toKotlinExtends(context) })
-            generateSrcKotlinApi(target, pkg, this, item.commandsControllers, metaData, { context -> toKotlinExtends(context) })
+            generateSrcKotlinApi(target, pkg, this, item.queriesControllers, metaData,
+                { context -> toKotlinExtends(context) })
+            generateSrcKotlinApi(target, pkg, this, item.commandsControllers, metaData,
+                { context -> toKotlinExtends(context) })
         }
     }
 
-    protected fun <T : CompilationUnit> generateSrcKotlinApi(target: Path, pkg: Path, module: CompModule, items: Collection<T>,
-                                                   metaData: GenerationMetaData, generator: T.(KotlinContext) -> String) {
+    protected fun <T : CompilationUnit> generateSrcKotlinApi(target: Path, pkg: Path, module: CompModule,
+        items: Collection<T>, metaData: GenerationMetaData, generator: T.(KotlinContext) -> String) {
         for (item in items.filter { it.base }) {
             val path = pkg.resolve("${item.api.name.capitalize()}.gen")
             val relative = target.relativize(path).toString()

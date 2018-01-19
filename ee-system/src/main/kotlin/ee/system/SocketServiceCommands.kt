@@ -4,7 +4,8 @@ open class SocketServiceCommands<T : SocketService> : SocketServiceCommandsBase<
     companion object {
         val EMPTY = SocketServiceCommandsBase.EMPTY
     }
-    constructor(item: T): super(item) {
+
+    constructor(item: T) : super(item) {
 
     }
 

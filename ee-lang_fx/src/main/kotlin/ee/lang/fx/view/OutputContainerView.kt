@@ -1,13 +1,14 @@
 package ee.lang.fx.view
 
 import javafx.application.Platform
-import tornadofx.*
+import tornadofx.View
+import tornadofx.tab
+import tornadofx.tabpane
 
 
 open class OutputContainerView(name: String = "OutputContainerView") : View(name) {
     protected val views: MutableList<ConsoleView> = arrayListOf()
-    override val root = tabpane {
-    }
+    override val root = tabpane {}
 
     fun takeConsole(caller: Any, title: String): ConsoleView {
         return synchronized(views) {

@@ -52,6 +52,6 @@ fun Model.generateSqlFiles(target: Path, db: String = "") {
 
 fun Model.buildContext(namespace: String = this.namespace): SqlContext {
     val context = SqlContext(moduleFolder = artifact, genFolder = "src-gen/main/resources", deleteGenFolder = true,
-            namespace = namespace)
+        namespace = namespace)
     return context
 }

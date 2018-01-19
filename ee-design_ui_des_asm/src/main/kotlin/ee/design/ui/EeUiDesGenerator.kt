@@ -17,7 +17,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 data class ClassNodes(val enums: MutableList<ClassNode> = arrayListOf(),
-                      val widgets: MutableList<ClassNode> = arrayListOf())
+    val widgets: MutableList<ClassNode> = arrayListOf())
 
 fun main(args: Array<String>) {
     val path = Paths.get(if (isMac) "/Users/n/git/ee-gen" else "D:\\views\\git\\ee-gen")
@@ -65,8 +65,7 @@ private fun ClassTree.toClassNodes(classAsEnums: Set<String> = emptySet()): Clas
     val ret = ClassNodes()
     val controls = filter { it.packageName.startsWith("javafx.scene.control") && !it.name.contains("$") }
     controls.forEach { c ->
-        if (c.superName.equals("java/lang/Enum") ||
-                classAsEnums.contains(c.name)) {
+        if (c.superName.equals("java/lang/Enum") || classAsEnums.contains(c.name)) {
             ret.enums.add(c)
         } else {
             ret.widgets.add(c)
@@ -75,8 +74,8 @@ private fun ClassTree.toClassNodes(classAsEnums: Set<String> = emptySet()): Clas
     return ret
 }
 
-private fun <T : ClassNode> generateSrcGen(buffer: StringBuffer, context: KotlinContext,
-                                           items: Collection<T>, generator: T.(KotlinContext) -> String) {
+private fun <T : ClassNode> generateSrcGen(buffer: StringBuffer, context: KotlinContext, items: Collection<T>,
+    generator: T.(KotlinContext) -> String) {
     for (item in items) {
         buffer.appendln(item.generator(context))
         buffer.appendln()

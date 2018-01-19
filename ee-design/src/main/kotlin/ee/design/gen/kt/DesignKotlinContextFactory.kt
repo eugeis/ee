@@ -13,9 +13,7 @@ open class DesignKotlinContextFactory : LangKotlinContextFactory() {
             val structureUnit = this
             val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: structureUnit
             KotlinContext(moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}",
-                    namespace = structureUnit.namespace().toLowerCase(),
-                    derivedController = controller
-            )
+                namespace = structureUnit.namespace().toLowerCase(), derivedController = controller)
         }
     }
 }

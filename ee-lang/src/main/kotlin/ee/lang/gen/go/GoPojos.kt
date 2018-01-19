@@ -17,16 +17,14 @@ func (o *$o) Is${name().capitalize()}() bool {
 }"""
 }
 
-fun AttributeI<*>.toGoGetMethod(o: String, c: GenerationContext,
-                             api: String = LangDerivedKind.API): String {
+fun AttributeI<*>.toGoGetMethod(o: String, c: GenerationContext, api: String = LangDerivedKind.API): String {
     return """
 func (o *$o) ${name().capitalize()}() ${toGoType(c, api)} {
     return o.${name()}
 }"""
 }
 
-fun AttributeI<*>.toGoAddMethod(o: String, c: GenerationContext,
-                             api: String = LangDerivedKind.API): String {
+fun AttributeI<*>.toGoAddMethod(o: String, c: GenerationContext, api: String = LangDerivedKind.API): String {
     val type = type().generics()[0].toGo(c, api)
     return """
 func (o *$o) AddTo${name().capitalize()}(item $type) $type {
@@ -48,8 +46,7 @@ fun LiteralI<*>.toGoCase(): String {
 }
 
 fun LiteralI<*>.toGoInitVariables(index: Int, c: GenerationContext, derived: String): String {
-    return """{name: "${this.name()}", ordinal: $index${
-    this.params().joinSurroundIfNotEmptyToString(", ", ", ") {
+    return """{name: "${this.name()}", ordinal: $index${this.params().joinSurroundIfNotEmptyToString(", ", ", ") {
         it.toGoInitForConstructor(c, derived)
     }}}"""
 }
@@ -61,8 +58,7 @@ fun <T : EnumTypeI<*>> T.toGoEnum(c: GenerationContext, api: String = LangDerive
     return """
 type $name struct {
 	name  string
-	ordinal int${
-    props().joinSurroundIfNotEmptyToString(nL, nL) { it.toGoEnumMember(c, api) }}
+	ordinal int${props().joinSurroundIfNotEmptyToString(nL, nL) { it.toGoEnumMember(c, api) }}
 }
 
 func (o *$name) Name() string {
@@ -103,17 +99,18 @@ func (o *$name) SetBSON(raw ${c.n(g.mgo2.bson.Raw, api)}) (err error) {
         }
     }
     return
-}${
-    props().joinSurroundIfNotEmptyToString("", nL) { it.toGoGetMethod(name, c, api) }}
-${literals().joinSurroundIfNotEmptyToString(nL) { item -> item.toGoIsMethod(name, literals) }}${
-    operations().joinToString(nL) { it.toGoImpl(name, c, api) }}
+}${props().joinSurroundIfNotEmptyToString("", nL) { it.toGoGetMethod(name, c, api) }}
+${literals().joinSurroundIfNotEmptyToString(nL) { item ->
+        item.toGoIsMethod(name, literals)
+    }}${operations().joinToString(nL) { it.toGoImpl(name, c, api) }}
 
 type $literals struct {
 	values []*$name
     literals []${c.n(g.gee.enum.Literal)}
 }
 
-var _$literals = &$literals{values: []*$name${literals().joinWithIndexToString(",$nL    ", "{$nL    ", "},") { i, item ->
+var _$literals = &$literals{values: []*$name${literals().joinWithIndexToString(",$nL    ", "{$nL    ",
+        "},") { i, item ->
         item.toGoInitVariables(i, c, api)
     }}
 }
@@ -145,23 +142,21 @@ func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {
 }"""
 }
 
-fun <T : CompilationUnitI<*>> T.toGoImpl(c: GenerationContext,
-                                      derived: String = LangDerivedKind.IMPL,
-                                      api: String = LangDerivedKind.API, excludePropsWithValue: Boolean = false): String {
+fun <T : CompilationUnitI<*>> T.toGoImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+    api: String = LangDerivedKind.API, excludePropsWithValue: Boolean = false): String {
     val name = c.n(this, derived)
     val currentProps = excludePropsWithValue.ifElse({ props().filter { it.value() == null } }, props())
     return """${toGoMacrosBefore(c, derived, api)}
-type $name struct {${toGoMacrosBeforeBody(c, derived, api)}${
-    currentProps.joinSurroundIfNotEmptyToString(nL, prefix = nL) { "${it.toGoMember(c, api)}${it.toGoJsonTags()}" }}${
-    toGoMacrosAfterBody(c, derived, api)}
-}${toGoMacrosAfter(c, derived, api)}${
-    constructors().filter { it.derivedAsType().isEmpty() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-        it.toGo(c, derived, api)
-    }}${
-    currentProps.filter { it.accessible().setAndTrue() && !it.mutable().setAndTrue() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+type $name struct {${toGoMacrosBeforeBody(c, derived, api)}${currentProps.joinSurroundIfNotEmptyToString(nL,
+        prefix = nL) { "${it.toGoMember(c, api)}${it.toGoJsonTags()}" }}${toGoMacrosAfterBody(c, derived, api)}
+}${toGoMacrosAfter(c, derived, api)}${constructors().filter {
+        it.derivedAsType().isEmpty()
+    }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+            it.toGo(c, derived, api)
+        }}${currentProps.filter { it.accessible().setAndTrue() && !it.mutable().setAndTrue() }.joinSurroundIfNotEmptyToString(
+        nL, prefix = nL) {
         it.toGoGetMethod(name, c, derived)
-    }}${
-    currentProps.filter { it.type().isOrDerived(n.List) }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+    }}${currentProps.filter { it.type().isOrDerived(n.List) }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGoAddMethod(name, c, derived)
     }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGoImpl(name, c, api)

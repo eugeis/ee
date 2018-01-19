@@ -72,8 +72,7 @@ object System : Comp({ artifact("ee-system").namespace("ee.system") }) {
             val port = prop(n.Int)
         }
 
-        object JmxService : Entity({ superUnit(SocketService) }) {
-        }
+        object JmxService : Entity({ superUnit(SocketService) }) {}
 
         object JavaService : Entity({ superUnit(SocketService) }) {
             val home = prop(n.Path)
@@ -169,10 +168,8 @@ object System : Comp({ artifact("ee-system").namespace("ee.system") }) {
         }) {
             val bin = prop(n.Path)
 
-            val start = op(p("config", n.Path), p("host"), p("port", n.Int),
-                    p("params", n.Map))
-            val stop = op(p("host"),
-                    p("managementPort", n.Int), p("managementUser"), p("managementPassword"))
+            val start = op(p("config", n.Path), p("host"), p("port", n.Int), p("params", n.Map))
+            val stop = op(p("host"), p("managementPort", n.Int), p("managementUser"), p("managementPassword"))
 
         }
 
@@ -251,8 +248,9 @@ object System : Comp({ artifact("ee-system").namespace("ee.system") }) {
         }) {
             val buildRequest = op { ret(BuildRequest) }
             val supports = op(p("buildHome", n.Path)) { ret(n.Boolean) }
-            val build = op(p("buildHome", n.Path), p("request", BuildRequest),
-                    p("output", lambda(p("line")))) { ret(Result) }
+            val build = op(p("buildHome", n.Path), p("request", BuildRequest), p("output", lambda(p("line")))) {
+                ret(Result)
+            }
         }
 
         object Maven : Controller({

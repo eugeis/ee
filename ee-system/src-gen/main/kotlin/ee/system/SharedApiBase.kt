@@ -5,11 +5,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 enum class PackageState(var order: Int = 0) {
-    UNKNOWN(0),
-    RESOLVED(1),
-    PREPARED(2),
-    INSTALLED(3),
-    UNINSTALLED(-1);
+    UNKNOWN(0), RESOLVED(1), PREPARED(2), INSTALLED(3), UNINSTALLED(-1);
 
 
     fun isUnknown(): Boolean = this == UNKNOWN
@@ -27,8 +23,8 @@ fun String?.toPackageState(): PackageState {
     }
 }
 
-data class PackageCoordinate(var classifier: String = "", var version: String = "", var group: String = "", var artifact: String = "",
-                             var type: String = "", var packaging: String = "") {
+data class PackageCoordinate(var classifier: String = "", var version: String = "", var group: String = "",
+    var artifact: String = "", var type: String = "", var packaging: String = "") {
     companion object {
         val EMPTY = PackageCoordinate()
     }
@@ -40,7 +36,8 @@ fun PackageCoordinate?.orEmpty(): PackageCoordinate {
     return if (this != null) this else PackageCoordinate.EMPTY
 }
 
-data class PackagePaths(var resolved: Path = Paths.get(""), var prepared: Path = Paths.get(""), var installed: Path = Paths.get("")) {
+data class PackagePaths(var resolved: Path = Paths.get(""), var prepared: Path = Paths.get(""),
+    var installed: Path = Paths.get("")) {
     companion object {
         val EMPTY = PackagePaths()
     }
@@ -111,9 +108,9 @@ open class Workspace : SystemBase {
     var tools: MutableList<Tool> = arrayListOf()
     var packages: MutableList<Package> = arrayListOf()
 
-    constructor(elName: String = "", home: Path = Paths.get(""), meta: Path = Paths.get(""), prepared: Path = Paths.get(""),
-                services: MutableList<Service> = arrayListOf(), tools: MutableList<Tool> = arrayListOf(),
-                packages: MutableList<Package> = arrayListOf()) : super(elName) {
+    constructor(elName: String = "", home: Path = Paths.get(""), meta: Path = Paths.get(""),
+        prepared: Path = Paths.get(""), services: MutableList<Service> = arrayListOf(),
+        tools: MutableList<Tool> = arrayListOf(), packages: MutableList<Package> = arrayListOf()) : super(elName) {
         this.home = home
         this.meta = meta
         this.prepared = prepared
@@ -139,7 +136,7 @@ open class Service : SystemBase {
     var dependsOnMe: MutableList<Service> = arrayListOf()
 
     constructor(elName: String = "", category: String = "", dependsOn: MutableList<Service> = arrayListOf(),
-                dependsOnMe: MutableList<Service> = arrayListOf()) : super(elName) {
+        dependsOnMe: MutableList<Service> = arrayListOf()) : super(elName) {
         this.category = category
         this.dependsOn = dependsOn
         this.dependsOnMe = dependsOnMe
@@ -161,7 +158,8 @@ abstract class SocketServiceBase : Service {
     var port: Int = 0
 
     constructor(elName: String = "", category: String = "", dependsOn: MutableList<Service> = arrayListOf(),
-                dependsOnMe: MutableList<Service> = arrayListOf(), host: String = "", port: Int = 0) : super(elName, category, dependsOn, dependsOnMe) {
+        dependsOnMe: MutableList<Service> = arrayListOf(), host: String = "", port: Int = 0) : super(elName, category,
+        dependsOn, dependsOnMe) {
         this.host = host
         this.port = port
     }
@@ -180,7 +178,8 @@ open class JmxService : SocketService {
 
 
     constructor(elName: String = "", category: String = "", dependsOn: MutableList<Service> = arrayListOf(),
-                dependsOnMe: MutableList<Service> = arrayListOf(), host: String = "", port: Int = 0) : super(elName, category, dependsOn, dependsOnMe, host, port) {
+        dependsOnMe: MutableList<Service> = arrayListOf(), host: String = "", port: Int = 0) : super(elName, category,
+        dependsOn, dependsOnMe, host, port) {
 
     }
 
@@ -202,8 +201,9 @@ open class JavaService : SocketService {
     var command: String = ""
 
     constructor(elName: String = "", category: String = "", dependsOn: MutableList<Service> = arrayListOf(),
-                dependsOnMe: MutableList<Service> = arrayListOf(), host: String = "", port: Int = 0, home: Path = Paths.get(""),
-                logs: Path = Paths.get(""), configs: Path = Paths.get(""), command: String = "") : super(elName, category, dependsOn, dependsOnMe, host, port) {
+        dependsOnMe: MutableList<Service> = arrayListOf(), host: String = "", port: Int = 0, home: Path = Paths.get(""),
+        logs: Path = Paths.get(""), configs: Path = Paths.get(""), command: String = "") : super(elName, category,
+        dependsOn, dependsOnMe, host, port) {
         this.home = home
         this.logs = logs
         this.configs = configs
@@ -230,8 +230,8 @@ open class Package : SystemBase {
     var paths: PackagePaths = PackagePaths.EMPTY
 
     constructor(elName: String = "", category: String = "", coordinate: PackageCoordinate = PackageCoordinate.EMPTY,
-                state: PackageState = PackageState.UNKNOWN, dependsOn: MutableList<Package> = arrayListOf(),
-                dependsOnMe: MutableList<Package> = arrayListOf(), paths: PackagePaths = PackagePaths.EMPTY) : super(elName) {
+        state: PackageState = PackageState.UNKNOWN, dependsOn: MutableList<Package> = arrayListOf(),
+        dependsOnMe: MutableList<Package> = arrayListOf(), paths: PackagePaths = PackagePaths.EMPTY) : super(elName) {
         this.category = category
         this.coordinate = coordinate
         this.state = state
@@ -255,9 +255,10 @@ open class ContentPackage : Package {
     var targetCoordinate: PackageCoordinate = PackageCoordinate.EMPTY
 
     constructor(elName: String = "", category: String = "", coordinate: PackageCoordinate = PackageCoordinate.EMPTY,
-                state: PackageState = PackageState.UNKNOWN, dependsOn: MutableList<Package> = arrayListOf(),
-                dependsOnMe: MutableList<Package> = arrayListOf(), paths: PackagePaths = PackagePaths.EMPTY,
-                targetCoordinate: PackageCoordinate = PackageCoordinate.EMPTY) : super(elName, category, coordinate, state, dependsOn, dependsOnMe, paths) {
+        state: PackageState = PackageState.UNKNOWN, dependsOn: MutableList<Package> = arrayListOf(),
+        dependsOnMe: MutableList<Package> = arrayListOf(), paths: PackagePaths = PackagePaths.EMPTY,
+        targetCoordinate: PackageCoordinate = PackageCoordinate.EMPTY) : super(elName, category, coordinate, state,
+        dependsOn, dependsOnMe, paths) {
         this.targetCoordinate = targetCoordinate
     }
 
@@ -276,9 +277,10 @@ open class MetaPackage : Package {
     var targetCoordinate: PackageCoordinate = PackageCoordinate.EMPTY
 
     constructor(elName: String = "", category: String = "", coordinate: PackageCoordinate = PackageCoordinate.EMPTY,
-                state: PackageState = PackageState.UNKNOWN, dependsOn: MutableList<Package> = arrayListOf(),
-                dependsOnMe: MutableList<Package> = arrayListOf(), paths: PackagePaths = PackagePaths.EMPTY,
-                targetCoordinate: PackageCoordinate = PackageCoordinate.EMPTY) : super(elName, category, coordinate, state, dependsOn, dependsOnMe, paths) {
+        state: PackageState = PackageState.UNKNOWN, dependsOn: MutableList<Package> = arrayListOf(),
+        dependsOnMe: MutableList<Package> = arrayListOf(), paths: PackagePaths = PackagePaths.EMPTY,
+        targetCoordinate: PackageCoordinate = PackageCoordinate.EMPTY) : super(elName, category, coordinate, state,
+        dependsOn, dependsOnMe, paths) {
         this.targetCoordinate = targetCoordinate
     }
 
@@ -300,10 +302,11 @@ open class AddonPackage : MetaPackage {
     var target: Path = Paths.get("")
 
     constructor(elName: String = "", category: String = "", coordinate: PackageCoordinate = PackageCoordinate.EMPTY,
-                state: PackageState = PackageState.UNKNOWN, dependsOn: MutableList<Package> = arrayListOf(),
-                dependsOnMe: MutableList<Package> = arrayListOf(), paths: PackagePaths = PackagePaths.EMPTY,
-                targetCoordinate: PackageCoordinate = PackageCoordinate.EMPTY, extract: Boolean = false, includes: String = "",
-                excludes: String = "", target: Path = Paths.get("")) : super(elName, category, coordinate, state, dependsOn, dependsOnMe, paths, targetCoordinate) {
+        state: PackageState = PackageState.UNKNOWN, dependsOn: MutableList<Package> = arrayListOf(),
+        dependsOnMe: MutableList<Package> = arrayListOf(), paths: PackagePaths = PackagePaths.EMPTY,
+        targetCoordinate: PackageCoordinate = PackageCoordinate.EMPTY, extract: Boolean = false, includes: String = "",
+        excludes: String = "", target: Path = Paths.get("")) : super(elName, category, coordinate, state, dependsOn,
+        dependsOnMe, paths, targetCoordinate) {
         this.extract = extract
         this.includes = includes
         this.excludes = excludes

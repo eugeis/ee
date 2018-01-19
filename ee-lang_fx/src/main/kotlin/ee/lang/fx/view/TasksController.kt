@@ -5,7 +5,7 @@ import ee.task.Result
 import ee.task.TaskFactory
 import ee.task.TaskRepository
 import ee.task.print
-import tornadofx.*
+import tornadofx.Controller
 
 class TasksController : Controller() {
     val tasksView: TasksView by inject()

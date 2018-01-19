@@ -6,7 +6,8 @@ open class TaskFactory<T : Task> : TaskFactoryBase<Task> {
     companion object {
         val EMPTY = TaskFactoryBase.EMPTY
     }
-    constructor(name: String = "", group: String = ""): super(name, group) {
+
+    constructor(name: String = "", group: String = "") : super(name, group) {
 
     }
 

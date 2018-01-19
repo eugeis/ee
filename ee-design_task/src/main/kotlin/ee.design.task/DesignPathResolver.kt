@@ -9,7 +9,8 @@ import java.nio.file.Paths
 
 open class DesignPathResolver : PathResolver {
 
-    constructor(home: Path = Paths.get(""), itemToHome: MutableMap<String, String> = hashMapOf()) : super(home, itemToHome) {
+    constructor(home: Path = Paths.get(""), itemToHome: MutableMap<String, String> = hashMapOf()) : super(home,
+        itemToHome) {
     }
 
     override fun <T : ItemI<*>> resolve(item: T): Path {

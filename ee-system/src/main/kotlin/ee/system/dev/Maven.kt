@@ -21,8 +21,9 @@ open class Maven : MavenBase {
     val defaultCommandSuffix: String
 
     constructor(home: Path = Paths.get(""), plugins: MutableList<String> = arrayListOf(),
-                defaultParams: MutableMap<String, String> = hashMapOf(), defaultFlags: List<String> = arrayListOf(),
-                defaultProfiles: List<String> = arrayListOf(), defaultCommandSuffix: String = "") : super("maven", home, plugins) {
+        defaultParams: MutableMap<String, String> = hashMapOf(), defaultFlags: List<String> = arrayListOf(),
+        defaultProfiles: List<String> = arrayListOf(), defaultCommandSuffix: String = "") : super("maven", home,
+        plugins) {
         mvn = home.resolve("bin/mvn")
         this.defaultParams = defaultParams
         this.defaultFlags = defaultFlags
@@ -32,9 +33,10 @@ open class Maven : MavenBase {
 
     override fun build(buildHome: Path, request: BuildRequest, output: (String) -> Unit): Result {
         val command = command(BuildRequest(tasks = ArrayList(request.tasks), params = HashMap(request.params),
-                flags = ArrayList(request.flags), profiles = ArrayList(request.profiles)))
-        val ret = buildHome.exec(ExecConfig(home = buildHome, cmd = command, wait = true,
-                timeout = 10, timeoutUnit = TimeUnit.MINUTES), output = output)
+            flags = ArrayList(request.flags), profiles = ArrayList(request.profiles)))
+        val ret = buildHome.exec(
+            ExecConfig(home = buildHome, cmd = command, wait = true, timeout = 10, timeoutUnit = TimeUnit.MINUTES),
+            output = output)
         return Result(ok = (ret == 0))
     }
 
@@ -83,7 +85,8 @@ open class Maven : MavenBase {
         tasks.forEach { task ->
             val plugin = plugins.find { task.endsWith(it, true) }
             if (plugin != null) {
-                request.tasks.add(if (task == plugin) "$plugin:$task" else "$plugin:${task.substring(0, task.length - plugin.length)}")
+                request.tasks.add(if (task == plugin) "$plugin:$task" else "$plugin:${task.substring(0,
+                    task.length - plugin.length)}")
             } else {
                 request.tasks.add(task)
             }

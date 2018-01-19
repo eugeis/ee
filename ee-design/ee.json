@@ -1,20 +1,20 @@
 {
-  "files" : {
-    "ee-design\\src-gen\\main\\kotlin\\ee\\design\\DesignIfcBase.kt" : {
-      "path" : "ee-design\\src-gen\\main\\kotlin\\ee\\design\\DesignIfcBase.kt",
-      "date" : 1516209663735
+  "files": {
+    "ee-design\\src-gen\\main\\kotlin\\ee\\design\\DesignIfcBase.kt": {
+      "path": "ee-design\\src-gen\\main\\kotlin\\ee\\design\\DesignIfcBase.kt",
+      "date": 1516209663735
     },
-    "ee-design\\src-gen\\main\\kotlin\\ee\\design\\DesignApiBase.kt" : {
-      "path" : "ee-design\\src-gen\\main\\kotlin\\ee\\design\\DesignApiBase.kt",
-      "date" : 1516209663888
+    "ee-design\\src-gen\\main\\kotlin\\ee\\design\\DesignApiBase.kt": {
+      "path": "ee-design\\src-gen\\main\\kotlin\\ee\\design\\DesignApiBase.kt",
+      "date": 1516209663888
     },
-    "ee-design/src-gen/main/kotlin/ee/design/DesignIfcBase.kt" : {
-      "path" : "ee-design/src-gen/main/kotlin/ee/design/DesignIfcBase.kt",
-      "date" : 1514307202000
+    "ee-design/src-gen/main/kotlin/ee/design/DesignIfcBase.kt": {
+      "path": "ee-design/src-gen/main/kotlin/ee/design/DesignIfcBase.kt",
+      "date": 1514307202000
     },
-    "ee-design/src-gen/main/kotlin/ee/design/DesignApiBase.kt" : {
-      "path" : "ee-design/src-gen/main/kotlin/ee/design/DesignApiBase.kt",
-      "date" : 1514307202000
+    "ee-design/src-gen/main/kotlin/ee/design/DesignApiBase.kt": {
+      "path": "ee-design/src-gen/main/kotlin/ee/design/DesignApiBase.kt",
+      "date": 1514307202000
     }
   }
 }

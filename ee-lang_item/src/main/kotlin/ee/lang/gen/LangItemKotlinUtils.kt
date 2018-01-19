@@ -4,11 +4,10 @@ import ee.common.ext.then
 import ee.lang.*
 
 open class KotlinContext : GenerationContext {
-    constructor(namespace: String = "", moduleFolder: String = "",
-                genFolder: String = "src-gen/main/kotlin",
-                genFolderDeletable: Boolean = true, genFolderDeletePattern: Regex? = null,
-                derivedController: DerivedController = DerivedController(DerivedStorage()))
-            : super(namespace, moduleFolder, genFolder, genFolderDeletable, genFolderDeletePattern, derivedController)
+    constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src-gen/main/kotlin",
+        genFolderDeletable: Boolean = true, genFolderDeletePattern: Regex? = null,
+        derivedController: DerivedController = DerivedController(DerivedStorage())) : super(namespace, moduleFolder,
+        genFolder, genFolderDeletable, genFolderDeletePattern, derivedController)
 
     override fun complete(content: String, indent: String): String {
         return "${toHeader(indent)}${toPackage(indent)}${toImports(indent)}$content${toFooter(indent)}"
@@ -22,8 +21,8 @@ open class KotlinContext : GenerationContext {
         return types.isNotEmpty().then {
             val outsideTypes = types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }
             outsideTypes.isNotEmpty().then {
-                "${outsideTypes.map { "${indent}import ${it.namespace()}.${it.name()}" }.sorted().
-                        joinToString(nL)}$nL$nL"
+                "${outsideTypes.map { "${indent}import ${it.namespace()}.${it.name()}" }.sorted().joinToString(
+                    nL)}$nL$nL"
             }
         }
     }

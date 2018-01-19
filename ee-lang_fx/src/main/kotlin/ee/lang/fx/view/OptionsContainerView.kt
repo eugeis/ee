@@ -2,13 +2,14 @@ package ee.lang.fx.view
 
 import ee.task.Task
 import javafx.application.Platform
-import tornadofx.*
+import tornadofx.View
+import tornadofx.tab
+import tornadofx.tabpane
 
 class OptionsContainerView : View("OptionsContainerView") {
     val tasksController: TasksController by inject()
 
-    override val root = tabpane {
-    }
+    override val root = tabpane {}
 
     fun consoleTab(task: Task): ConsoleView {
         val ret = ConsoleView(task.name)

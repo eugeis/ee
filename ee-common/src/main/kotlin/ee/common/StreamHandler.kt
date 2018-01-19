@@ -11,7 +11,7 @@ open class StreamHandler : Thread {
     val log: Logger?
 
     constructor(inputStream: InputStream, filter: Boolean = false, filterPattern: Regex = "".toRegex(),
-                log: Logger? = null, outputProcessor: (String) -> Unit = {}) {
+        log: Logger? = null, outputProcessor: (String) -> Unit = {}) {
         this.inputStream = inputStream
         this.filterPattern = filterPattern
         this.filter = filter

@@ -2,13 +2,14 @@ package ee.design
 
 import java.util.*
 
-class UnitStorage<E>(val unitToStorage: MutableMap<E, MutableMap<String, Any>> = HashMap<E, MutableMap<String, Any>>()) {
+class UnitStorage<E>(
+    val unitToStorage: MutableMap<E, MutableMap<String, Any>> = HashMap<E, MutableMap<String, Any>>()) {
     fun <T, EE : E> getOrPut(unit: EE, key: String, init: EE.() -> T): T {
         val unitStorage = unitToStorage.getOrPut(unit, { HashMap<String, Any>() })
         return unitStorage.getOrPut(key, { unit.init() as Any }) as T
     }
 
-    fun <T, EE: E> put(unit: EE, key: String, derived: T) {
+    fun <T, EE : E> put(unit: EE, key: String, derived: T) {
         val unitStorage = unitToStorage.getOrPut(unit, { HashMap<String, Any>() })
         unitStorage.put(key, derived as Any)
     }

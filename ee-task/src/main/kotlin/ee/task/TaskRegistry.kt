@@ -4,7 +4,8 @@ open class TaskRegistry : TaskRegistryBase {
     companion object {
         val EMPTY = TaskRegistryBase.EMPTY
     }
-    constructor(): super() {
+
+    constructor() : super() {
 
     }
 

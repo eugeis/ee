@@ -47,22 +47,22 @@ fun <T : Comment> T.toSql(context: SqlContext, indent: String = ""): String {
 
 fun <T : TypeD> T.toSqlComment(context: SqlContext, indent: String = ""): String {
     return when (doc) {
-        null -> "$indent#$name${nL}"
+        null          -> "$indent#$name${nL}"
         Comment.EMPTY -> "$indent#$name${nL}"
-        else -> "${doc?.toSql(context, indent)}"
+        else          -> "${doc?.toSql(context, indent)}"
     }
 }
 
 fun <T : TypeD> T.toSql(context: SqlContext): String {
     return when (this) {
-        td.String -> "VARCHAR(255)"
-        td.Text -> "LONGTEXT"
+        td.String  -> "VARCHAR(255)"
+        td.Text    -> "LONGTEXT"
         td.Boolean -> "BOOLEAN"
         td.Integer -> "INTEGER"
-        td.Long -> "BIGINT"
-        td.Float -> "FLOAT(7,4)"
-        td.Date -> "DATETIME"
-        else -> {
+        td.Long    -> "BIGINT"
+        td.Float   -> "FLOAT(7,4)"
+        td.Date    -> "DATETIME"
+        else       -> {
             if (this is EnumType) "VARCHAR(255)" else context.n(this)
         }
     }
@@ -71,14 +71,14 @@ fun <T : TypeD> T.toSql(context: SqlContext): String {
 fun <T : TypeD> T.toSqlValue(context: SqlContext): String {
     if (this is NativeType) {
         return when (this) {
-            td.String -> "\"\""
-            td.Text -> "\"\""
+            td.String  -> "\"\""
+            td.Text    -> "\"\""
             td.Boolean -> "false"
             td.Integer -> "0"
-            td.Long -> "0l"
-            td.Float -> "0f"
-            td.Date -> "${td.Date.toSql(context)}()"
-            else -> "\"\""
+            td.Long    -> "0l"
+            td.Float   -> "0f"
+            td.Date    -> "${td.Date.toSql(context)}()"
+            else       -> "\"\""
         }
     } else if (this is ExternalType) {
         return "null"
@@ -101,7 +101,7 @@ fun <T : Attribute> T.toSql(context: SqlContext): String {
 
 
 fun <T : Attribute> T.toSqlComment(context: SqlContext, indent: String = "", commentPrefix: String = "",
-                                   parent: CompilationUnitD? = null): String {
+    parent: CompilationUnitD? = null): String {
     if (doc == null && doc != Comment.EMPTY) {
         if (parent == null) {
             if (type == null || type is NativeType) {

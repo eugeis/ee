@@ -1,20 +1,6 @@
 package ee.design
 
-import ee.lang.Action
-import ee.lang.ActionI
-import ee.lang.Attribute
-import ee.lang.AttributeI
-import ee.lang.CompilationUnitB
-import ee.lang.DataTypeB
-import ee.lang.DataTypeOperationB
-import ee.lang.EnumType
-import ee.lang.EnumTypeI
-import ee.lang.ExternalTypeI
-import ee.lang.ItemEmpty
-import ee.lang.ListMultiHolder
-import ee.lang.LogicUnitB
-import ee.lang.StructureUnitB
-import ee.lang.StructureUnitI
+import ee.lang.*
 
 
 open class AggregateHandler(value: AggregateHandler.() -> Unit = {}) : AggregateHandlerB<AggregateHandler>(value) {
@@ -24,8 +10,8 @@ open class AggregateHandler(value: AggregateHandler.() -> Unit = {}) : Aggregate
     }
 }
 
-open class AggregateHandlerB<B : AggregateHandlerB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), AggregateHandlerI<B> {
-}
+open class AggregateHandlerB<B : AggregateHandlerB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value),
+                                                                                   AggregateHandlerI<B> {}
 
 
 open class Basic(value: Basic.() -> Unit = {}) : BasicB<Basic>(value) {
@@ -35,8 +21,7 @@ open class Basic(value: Basic.() -> Unit = {}) : BasicB<Basic>(value) {
     }
 }
 
-open class BasicB<B : BasicB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), BasicI<B> {
-}
+open class BasicB<B : BasicB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), BasicI<B> {}
 
 
 open class Bundle(value: Bundle.() -> Unit = {}) : BundleB<Bundle>(value) {
@@ -69,19 +54,20 @@ open class BusinessCommand(value: BusinessCommand.() -> Unit = {}) : BusinessCom
     }
 }
 
-open class BusinessCommandB<B : BusinessCommandB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), BusinessCommandI<B> {
-}
+open class BusinessCommandB<B : BusinessCommandB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value),
+                                                                                 BusinessCommandI<B> {}
 
 
-open class BusinessController(value: BusinessController.() -> Unit = {}) : BusinessControllerB<BusinessController>(value) {
+open class BusinessController(value: BusinessController.() -> Unit = {}) :
+        BusinessControllerB<BusinessController>(value) {
 
     companion object {
         val EMPTY = BusinessController { name(ItemEmpty.name()) }.apply<BusinessController> { init() }
     }
 }
 
-open class BusinessControllerB<B : BusinessControllerB<B>>(value: B.() -> Unit = {}) : ControllerB<B>(value), BusinessControllerI<B> {
-}
+open class BusinessControllerB<B : BusinessControllerB<B>>(value: B.() -> Unit = {}) : ControllerB<B>(value),
+                                                                                       BusinessControllerI<B> {}
 
 
 open class BusinessEvent(value: BusinessEvent.() -> Unit = {}) : BusinessEventB<BusinessEvent>(value) {
@@ -91,8 +77,7 @@ open class BusinessEvent(value: BusinessEvent.() -> Unit = {}) : BusinessEventB<
     }
 }
 
-open class BusinessEventB<B : BusinessEventB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), BusinessEventI<B> {
-}
+open class BusinessEventB<B : BusinessEventB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), BusinessEventI<B> {}
 
 
 open class Check(value: Check.() -> Unit = {}) : CheckB<Check>(value) {
@@ -144,7 +129,9 @@ open class Comp(value: Comp.() -> Unit = {}) : CompB<Comp>(value) {
 
 open class CompB<B : CompB<B>>(value: B.() -> Unit = {}) : ModuleGroupB<B>(value), CompI<B> {
 
-    override fun moduleGroups(): ListMultiHolder<ModuleGroupI<*>> = itemAsList(MODULE_GROUPS, ModuleGroupI::class.java, true)
+    override fun moduleGroups(): ListMultiHolder<ModuleGroupI<*>> =
+        itemAsList(MODULE_GROUPS, ModuleGroupI::class.java, true)
+
     override fun moduleGroups(vararg value: ModuleGroupI<*>): B = apply { moduleGroups().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
@@ -165,7 +152,8 @@ open class CompositeCommand(value: CompositeCommand.() -> Unit = {}) : Composite
     }
 }
 
-open class CompositeCommandB<B : CompositeCommandB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), CompositeCommandI<B> {
+open class CompositeCommandB<B : CompositeCommandB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value),
+                                                                                   CompositeCommandI<B> {
 
     override fun commands(): ListMultiHolder<CommandI<*>> = itemAsList(COMMANDS, CommandI::class.java, true)
     override fun commands(vararg value: CommandI<*>): B = apply { commands().addItems(value.asList()) }
@@ -227,8 +215,7 @@ open class CountBy(value: CountBy.() -> Unit = {}) : CountByB<CountBy>(value) {
     }
 }
 
-open class CountByB<B : CountByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), CountByI<B> {
-}
+open class CountByB<B : CountByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), CountByI<B> {}
 
 
 open class CreateBy(value: CreateBy.() -> Unit = {}) : CreateByB<CreateBy>(value) {
@@ -238,8 +225,7 @@ open class CreateBy(value: CreateBy.() -> Unit = {}) : CreateByB<CreateBy>(value
     }
 }
 
-open class CreateByB<B : CreateByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), CreateByI<B> {
-}
+open class CreateByB<B : CreateByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), CreateByI<B> {}
 
 
 open class Created(value: Created.() -> Unit = {}) : CreatedB<Created>(value) {
@@ -249,8 +235,7 @@ open class Created(value: Created.() -> Unit = {}) : CreatedB<Created>(value) {
     }
 }
 
-open class CreatedB<B : CreatedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), CreatedI<B> {
-}
+open class CreatedB<B : CreatedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), CreatedI<B> {}
 
 
 open class DeleteBy(value: DeleteBy.() -> Unit = {}) : DeleteByB<DeleteBy>(value) {
@@ -260,8 +245,7 @@ open class DeleteBy(value: DeleteBy.() -> Unit = {}) : DeleteByB<DeleteBy>(value
     }
 }
 
-open class DeleteByB<B : DeleteByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), DeleteByI<B> {
-}
+open class DeleteByB<B : DeleteByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), DeleteByI<B> {}
 
 
 open class Deleted(value: Deleted.() -> Unit = {}) : DeletedB<Deleted>(value) {
@@ -271,8 +255,7 @@ open class Deleted(value: Deleted.() -> Unit = {}) : DeletedB<Deleted>(value) {
     }
 }
 
-open class DeletedB<B : DeletedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), DeletedI<B> {
-}
+open class DeletedB<B : DeletedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), DeletedI<B> {}
 
 
 open class DynamicState(value: DynamicState.() -> Unit = {}) : DynamicStateB<DynamicState>(value) {
@@ -331,10 +314,15 @@ open class EntityB<B : EntityB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(valu
     override fun aggregateFor(): ListMultiHolder<EntityI<*>> = itemAsList(AGGREGATE_FOR, EntityI::class.java, true)
     override fun aggregateFor(vararg value: EntityI<*>): B = apply { aggregateFor().addItems(value.asList()) }
 
-    override fun controllers(): ListMultiHolder<BusinessControllerI<*>> = itemAsList(CONTROLLERS, BusinessControllerI::class.java, true)
+    override fun controllers(): ListMultiHolder<BusinessControllerI<*>> =
+        itemAsList(CONTROLLERS, BusinessControllerI::class.java, true)
+
     override fun controllers(vararg value: BusinessControllerI<*>): B = apply { controllers().addItems(value.asList()) }
-    override fun controller(value: BusinessControllerI<*>): BusinessControllerI<*> = applyAndReturn { controllers().addItem(value); value }
-    override fun controller(value: BusinessControllerI<*>.() -> Unit): BusinessControllerI<*> = controller(BusinessController(value))
+    override fun controller(value: BusinessControllerI<*>): BusinessControllerI<*> =
+        applyAndReturn { controllers().addItem(value); value }
+
+    override fun controller(value: BusinessControllerI<*>.() -> Unit): BusinessControllerI<*> =
+        controller(BusinessController(value))
 
     override fun findBys(): ListMultiHolder<FindByI<*>> = itemAsList(FIND_BYS, FindByI::class.java, true)
     override fun findBys(vararg value: FindByI<*>): B = apply { findBys().addItems(value.asList()) }
@@ -351,15 +339,24 @@ open class EntityB<B : EntityB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(valu
     override fun existBy(value: ExistByI<*>): ExistByI<*> = applyAndReturn { existBys().addItem(value); value }
     override fun existBy(value: ExistByI<*>.() -> Unit): ExistByI<*> = existBy(ExistBy(value))
 
-    override fun commands(): ListMultiHolder<BusinessCommandI<*>> = itemAsList(COMMANDS, BusinessCommandI::class.java, true)
+    override fun commands(): ListMultiHolder<BusinessCommandI<*>> =
+        itemAsList(COMMANDS, BusinessCommandI::class.java, true)
+
     override fun commands(vararg value: BusinessCommandI<*>): B = apply { commands().addItems(value.asList()) }
-    override fun command(value: BusinessCommandI<*>): BusinessCommandI<*> = applyAndReturn { commands().addItem(value); value }
+    override fun command(value: BusinessCommandI<*>): BusinessCommandI<*> =
+        applyAndReturn { commands().addItem(value); value }
+
     override fun command(value: BusinessCommandI<*>.() -> Unit): BusinessCommandI<*> = command(BusinessCommand(value))
 
-    override fun composites(): ListMultiHolder<CompositeCommandI<*>> = itemAsList(COMPOSITES, CompositeCommandI::class.java, true)
+    override fun composites(): ListMultiHolder<CompositeCommandI<*>> =
+        itemAsList(COMPOSITES, CompositeCommandI::class.java, true)
+
     override fun composites(vararg value: CompositeCommandI<*>): B = apply { composites().addItems(value.asList()) }
-    override fun composite(value: CompositeCommandI<*>): CompositeCommandI<*> = applyAndReturn { composites().addItem(value); value }
-    override fun composite(value: CompositeCommandI<*>.() -> Unit): CompositeCommandI<*> = composite(CompositeCommand(value))
+    override fun composite(value: CompositeCommandI<*>): CompositeCommandI<*> =
+        applyAndReturn { composites().addItem(value); value }
+
+    override fun composite(value: CompositeCommandI<*>.() -> Unit): CompositeCommandI<*> =
+        composite(CompositeCommand(value))
 
     override fun createBys(): ListMultiHolder<CreateByI<*>> = itemAsList(CREATE_BYS, CreateByI::class.java, true)
     override fun createBys(vararg value: CreateByI<*>): B = apply { createBys().addItems(value.asList()) }
@@ -396,20 +393,32 @@ open class EntityB<B : EntityB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(valu
     override fun deleted(value: DeletedI<*>): DeletedI<*> = applyAndReturn { deleted().addItem(value); value }
     override fun deleted(value: DeletedI<*>.() -> Unit): DeletedI<*> = deleted(Deleted(value))
 
-    override fun handlers(): ListMultiHolder<AggregateHandlerI<*>> = itemAsList(HANDLERS, AggregateHandlerI::class.java, true)
+    override fun handlers(): ListMultiHolder<AggregateHandlerI<*>> =
+        itemAsList(HANDLERS, AggregateHandlerI::class.java, true)
+
     override fun handlers(vararg value: AggregateHandlerI<*>): B = apply { handlers().addItems(value.asList()) }
-    override fun handler(value: AggregateHandlerI<*>): AggregateHandlerI<*> = applyAndReturn { handlers().addItem(value); value }
-    override fun handler(value: AggregateHandlerI<*>.() -> Unit): AggregateHandlerI<*> = handler(AggregateHandler(value))
+    override fun handler(value: AggregateHandlerI<*>): AggregateHandlerI<*> =
+        applyAndReturn { handlers().addItem(value); value }
+
+    override fun handler(value: AggregateHandlerI<*>.() -> Unit): AggregateHandlerI<*> =
+        handler(AggregateHandler(value))
 
     override fun projectors(): ListMultiHolder<ProjectorI<*>> = itemAsList(PROJECTORS, ProjectorI::class.java, true)
     override fun projectors(vararg value: ProjectorI<*>): B = apply { projectors().addItems(value.asList()) }
     override fun projector(value: ProjectorI<*>): ProjectorI<*> = applyAndReturn { projectors().addItem(value); value }
     override fun projector(value: ProjectorI<*>.() -> Unit): ProjectorI<*> = projector(Projector(value))
 
-    override fun processManager(): ListMultiHolder<ProcessManagerI<*>> = itemAsList(PROCESS_MANAGER, ProcessManagerI::class.java, true)
-    override fun processManager(vararg value: ProcessManagerI<*>): B = apply { processManager().addItems(value.asList()) }
-    override fun processManager(value: ProcessManagerI<*>): ProcessManagerI<*> = applyAndReturn { processManager().addItem(value); value }
-    override fun processManager(value: ProcessManagerI<*>.() -> Unit): ProcessManagerI<*> = processManager(ProcessManager(value))
+    override fun processManager(): ListMultiHolder<ProcessManagerI<*>> =
+        itemAsList(PROCESS_MANAGER, ProcessManagerI::class.java, true)
+
+    override fun processManager(vararg value: ProcessManagerI<*>): B =
+        apply { processManager().addItems(value.asList()) }
+
+    override fun processManager(value: ProcessManagerI<*>): ProcessManagerI<*> =
+        applyAndReturn { processManager().addItem(value); value }
+
+    override fun processManager(value: ProcessManagerI<*>.() -> Unit): ProcessManagerI<*> =
+        processManager(ProcessManager(value))
 
     override fun fillSupportsItems() {
         aggregateFor()
@@ -465,8 +474,7 @@ open class Event(value: Event.() -> Unit = {}) : EventB<Event>(value) {
     }
 }
 
-open class EventB<B : EventB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), EventI<B> {
-}
+open class EventB<B : EventB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), EventI<B> {}
 
 
 open class Executor(value: Executor.() -> Unit = {}) : ExecutorB<Executor>(value) {
@@ -526,8 +534,7 @@ open class ExistBy(value: ExistBy.() -> Unit = {}) : ExistByB<ExistBy>(value) {
     }
 }
 
-open class ExistByB<B : ExistByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), ExistByI<B> {
-}
+open class ExistByB<B : ExistByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), ExistByI<B> {}
 
 
 open class ExternalModule(value: ExternalModule.() -> Unit = {}) : ExternalModuleB<ExternalModule>(value) {
@@ -539,7 +546,9 @@ open class ExternalModule(value: ExternalModule.() -> Unit = {}) : ExternalModul
 
 open class ExternalModuleB<B : ExternalModuleB<B>>(value: B.() -> Unit = {}) : ModuleB<B>(value), ExternalModuleI<B> {
 
-    override fun externalTypes(): ListMultiHolder<ExternalTypeI<*>> = itemAsList(EXTERNAL_TYPES, ExternalTypeI::class.java, true)
+    override fun externalTypes(): ListMultiHolder<ExternalTypeI<*>> =
+        itemAsList(EXTERNAL_TYPES, ExternalTypeI::class.java, true)
+
     override fun externalTypes(vararg value: ExternalTypeI<*>): B = apply { externalTypes().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
@@ -560,8 +569,7 @@ open class Facet(value: Facet.() -> Unit = {}) : FacetB<Facet>(value) {
     }
 }
 
-open class FacetB<B : FacetB<B>>(value: B.() -> Unit = {}) : ModuleGroupB<B>(value), FacetI<B> {
-}
+open class FacetB<B : FacetB<B>>(value: B.() -> Unit = {}) : ModuleGroupB<B>(value), FacetI<B> {}
 
 
 open class FindBy(value: FindBy.() -> Unit = {}) : FindByB<FindBy>(value) {
@@ -699,15 +707,27 @@ open class ModuleB<B : ModuleB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>
     override fun basic(value: BasicI<*>): BasicI<*> = applyAndReturn { basics().addItem(value); value }
     override fun basic(value: BasicI<*>.() -> Unit): BasicI<*> = basic(Basic(value))
 
-    override fun controllers(): ListMultiHolder<BusinessControllerI<*>> = itemAsList(CONTROLLERS, BusinessControllerI::class.java, true)
-    override fun controllers(vararg value: BusinessControllerI<*>): B = apply { controllers().addItems(value.asList()) }
-    override fun controller(value: BusinessControllerI<*>): BusinessControllerI<*> = applyAndReturn { controllers().addItem(value); value }
-    override fun controller(value: BusinessControllerI<*>.() -> Unit): BusinessControllerI<*> = controller(BusinessController(value))
+    override fun controllers(): ListMultiHolder<BusinessControllerI<*>> =
+        itemAsList(CONTROLLERS, BusinessControllerI::class.java, true)
 
-    override fun processManagers(): ListMultiHolder<ProcessManagerI<*>> = itemAsList(PROCESS_MANAGERS, ProcessManagerI::class.java, true)
-    override fun processManagers(vararg value: ProcessManagerI<*>): B = apply { processManagers().addItems(value.asList()) }
-    override fun processManager(value: ProcessManagerI<*>): ProcessManagerI<*> = applyAndReturn { processManagers().addItem(value); value }
-    override fun processManager(value: ProcessManagerI<*>.() -> Unit): ProcessManagerI<*> = processManager(ProcessManager(value))
+    override fun controllers(vararg value: BusinessControllerI<*>): B = apply { controllers().addItems(value.asList()) }
+    override fun controller(value: BusinessControllerI<*>): BusinessControllerI<*> =
+        applyAndReturn { controllers().addItem(value); value }
+
+    override fun controller(value: BusinessControllerI<*>.() -> Unit): BusinessControllerI<*> =
+        controller(BusinessController(value))
+
+    override fun processManagers(): ListMultiHolder<ProcessManagerI<*>> =
+        itemAsList(PROCESS_MANAGERS, ProcessManagerI::class.java, true)
+
+    override fun processManagers(vararg value: ProcessManagerI<*>): B =
+        apply { processManagers().addItems(value.asList()) }
+
+    override fun processManager(value: ProcessManagerI<*>): ProcessManagerI<*> =
+        applyAndReturn { processManagers().addItem(value); value }
+
+    override fun processManager(value: ProcessManagerI<*>.() -> Unit): ProcessManagerI<*> =
+        processManager(ProcessManager(value))
 
     override fun projectors(): ListMultiHolder<ProjectorI<*>> = itemAsList(PROJECTORS, ProjectorI::class.java, true)
     override fun projectors(vararg value: ProjectorI<*>): B = apply { projectors().addItems(value.asList()) }
@@ -770,8 +790,8 @@ open class ProcessManager(value: ProcessManager.() -> Unit = {}) : ProcessManage
     }
 }
 
-open class ProcessManagerB<B : ProcessManagerB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), ProcessManagerI<B> {
-}
+open class ProcessManagerB<B : ProcessManagerB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value),
+                                                                               ProcessManagerI<B> {}
 
 
 open class Projector(value: Projector.() -> Unit = {}) : ProjectorB<Projector>(value) {
@@ -781,8 +801,7 @@ open class Projector(value: Projector.() -> Unit = {}) : ProjectorB<Projector>(v
     }
 }
 
-open class ProjectorB<B : ProjectorB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), ProjectorI<B> {
-}
+open class ProjectorB<B : ProjectorB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), ProjectorI<B> {}
 
 
 open class State(value: State.() -> Unit = {}) : StateB<State>(value) {
@@ -886,8 +905,7 @@ open class UpdateBy(value: UpdateBy.() -> Unit = {}) : UpdateByB<UpdateBy>(value
     }
 }
 
-open class UpdateByB<B : UpdateByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), UpdateByI<B> {
-}
+open class UpdateByB<B : UpdateByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), UpdateByI<B> {}
 
 
 open class Updated(value: Updated.() -> Unit = {}) : UpdatedB<Updated>(value) {
@@ -897,8 +915,7 @@ open class Updated(value: Updated.() -> Unit = {}) : UpdatedB<Updated>(value) {
     }
 }
 
-open class UpdatedB<B : UpdatedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), UpdatedI<B> {
-}
+open class UpdatedB<B : UpdatedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), UpdatedI<B> {}
 
 
 open class Values(value: Values.() -> Unit = {}) : ValuesB<Values>(value) {
@@ -908,8 +925,7 @@ open class Values(value: Values.() -> Unit = {}) : ValuesB<Values>(value) {
     }
 }
 
-open class ValuesB<B : ValuesB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), ValuesI<B> {
-}
+open class ValuesB<B : ValuesB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), ValuesI<B> {}
 
 
 open class Widget(value: Widget.() -> Unit = {}) : WidgetB<Widget>(value) {
@@ -919,6 +935,5 @@ open class Widget(value: Widget.() -> Unit = {}) : WidgetB<Widget>(value) {
     }
 }
 
-open class WidgetB<B : WidgetB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), WidgetI<B> {
-}
+open class WidgetB<B : WidgetB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), WidgetI<B> {}
 

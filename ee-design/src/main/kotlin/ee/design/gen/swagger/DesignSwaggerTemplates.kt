@@ -14,7 +14,7 @@ open class DesignSwaggerTemplates {
         this.defaultNameBuilder = defaultNameBuilder
     }
 
-    open fun model(nameBuilder: TemplateI<CompI<*>>.(CompositeI<*>) -> NamesI = defaultNameBuilder)
-            = Template<CompI<*>>("Model", nameBuilder) { item, c -> item.toSwagger(c) }
+    open fun model(nameBuilder: TemplateI<CompI<*>>.(CompositeI<*>) -> NamesI = defaultNameBuilder) =
+        Template<CompI<*>>("Model", nameBuilder) { item, c -> item.toSwagger(c) }
 
 }

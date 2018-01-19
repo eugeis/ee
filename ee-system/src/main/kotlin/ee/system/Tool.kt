@@ -7,7 +7,8 @@ open class Tool : ToolBase {
     companion object {
         val EMPTY = ToolBase.EMPTY
     }
-    constructor(elName: String = "", home: Path = Paths.get("")): super(elName, home) {
+
+    constructor(elName: String = "", home: Path = Paths.get("")) : super(elName, home) {
 
     }
 

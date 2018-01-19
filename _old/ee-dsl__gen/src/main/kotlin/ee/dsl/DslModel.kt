@@ -12,7 +12,7 @@ open class ItemDsl : Item {
 object ItemTypes : Composite({ namespace("ee.design") }) {
     val Item = ItemDsl()
     val TypedComposite = ItemDsl({ derivedFrom(Item) })
-    val Composite = ItemDsl({derivedFrom(TypedComposite)})
+    val Composite = ItemDsl({ derivedFrom(TypedComposite) })
 }
 
 object DslModel : Composite({ namespace("ee.design") }) {

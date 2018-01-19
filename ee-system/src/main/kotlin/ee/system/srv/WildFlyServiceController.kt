@@ -4,7 +4,8 @@ open class WildFlyServiceController<T : WildFlyService> : WildFlyServiceControll
     companion object {
         val EMPTY = WildFlyServiceControllerBase.EMPTY
     }
-    constructor(item: T): super(item) {
+
+    constructor(item: T) : super(item) {
 
     }
 

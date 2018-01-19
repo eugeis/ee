@@ -14,24 +14,16 @@ open class DesignGoContextFactory : LangGoContextFactory() {
             val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: structureUnit
 
             GoContext(moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}",
-                    namespace = structureUnit.namespace().toLowerCase(),
-                    derivedController = derived,
-                    macroController = macroController
-            )
+                namespace = structureUnit.namespace().toLowerCase(), derivedController = derived,
+                macroController = macroController)
         }
     }
 
-    override fun registerForImplOnly(derived: DerivedController) {
-        super.registerForImplOnly(derived)
-    }
-
     override fun buildName(item: ItemI<*>, kind: String): String {
-        return if (item is CommandI<*>) {
-            buildNameForCommand(item, kind)
-        } else if (item is EventI<*>) {
-            buildNameForEvent(item, kind)
-        } else {
-            super.buildName(item, kind)
+        return when (item) {
+            is CommandI<*> -> buildNameForCommand(item, kind)
+            is EventI<*>   -> buildNameForEvent(item, kind)
+            else           -> super.buildName(item, kind)
         }
     }
 

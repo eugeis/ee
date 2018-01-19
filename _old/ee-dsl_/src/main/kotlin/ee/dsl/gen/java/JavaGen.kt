@@ -23,7 +23,7 @@ object Java : StructureUnit("Java") {
 
 fun override(condition: Boolean, indent: String): String = emptyOr(condition, { "$indent@Override${nL}" })
 fun serialVersionUID(condition: Boolean, indent: String): String =
-        emptyOr(condition, { "${indent}private static final long serialVersionUID = 1L;${nL}" })
+    emptyOr(condition, { "${indent}private static final long serialVersionUID = 1L;${nL}" })
 
 fun override(indent: String): String = "$indent@Override${nL}"
 
@@ -47,15 +47,13 @@ fun <T : Attribute> T.toJavaSetterIfc(context: JavaContext, indent: String): Str
     return "${indent}td.void set${name.capitalize()}(${type.toJava(context)} $name);"
 }
 
-fun <T : Attribute> T.toJavaMember(context: JavaContext, indent: String,
-                                   mappings: String = "",
-                                   modifier: String = "protected"): String {
+fun <T : Attribute> T.toJavaMember(context: JavaContext, indent: String, mappings: String = "",
+    modifier: String = "protected"): String {
     return """$mappings$indent$modifier ${type.toJava(context)} $name;"""
 }
 
-fun <T : Attribute> T.toJavaGetterImpl(context: JavaContext, indent: String,
-                                       mappings: String = "",
-                                       modifier: String = "public"): String {
+fun <T : Attribute> T.toJavaGetterImpl(context: JavaContext, indent: String, mappings: String = "",
+    modifier: String = "public"): String {
     val newIndent = "$indent$tab"
     return """$mappings$indent$modifier ${type.toJava(context)} get${name.capitalize()}() {
 ${newIndent}return $name;
@@ -63,8 +61,8 @@ $indent}
 """
 }
 
-fun <T : Attribute> T.toJavaSetterImpl(context: JavaContext, indent: String,
-                                       mappings: String = "", modifier: String = "public"): String {
+fun <T : Attribute> T.toJavaSetterImpl(context: JavaContext, indent: String, mappings: String = "",
+    modifier: String = "public"): String {
     val newIndent = "$indent$tab"
     return """$mappings$indent$modifier td.void set${name.capitalize()}(${type.toJava(context)} $name) {
 ${newIndent}this.$name = $name;
@@ -80,8 +78,7 @@ fun <T : Attribute> T.toJavaReturnDefault(context: JavaContext, indent: String):
     return "${type.toJavaReturnDefault(context, indent)}"
 }
 
-fun <T : Attribute> T.toJavaSignature(context: JavaContext, indent: String,
-                                      mappings: String = ""): String {
+fun <T : Attribute> T.toJavaSignature(context: JavaContext, indent: String, mappings: String = ""): String {
     return "$mappings$indent${type.toJava(context)} $name"
 }
 
@@ -102,8 +99,9 @@ fun <T : Operation> T.toJavaIfc(context: JavaContext, indent: String, mappings: 
 }
 
 fun <T : Operation> T.toJavaImpl(context: JavaContext, indent: String, mappings: String = "",
-                                 modifier: String = "public"): String {
-    return """$mappings$indent$modifier ${ret?.toJavaSignatureReturn(context)} $name(${params.toJavaSignature(context, indent)}) {
+    modifier: String = "public"): String {
+    return """$mappings$indent$modifier ${ret?.toJavaSignatureReturn(context)} $name(${params.toJavaSignature(context,
+        indent)}) {
 ${ret?.toJavaReturnDefault(context, indent)}
 $indent}
 """
@@ -132,15 +130,15 @@ class JavaContext : GenerationContext {
         return types.isEmpty().ifElse("", {
             val outsideTypes = types.filter { it.namespace.isNotEmpty() && it.namespace != namespace }
             outsideTypes.isEmpty().ifElse("", {
-                "${outsideTypes.map { "${indent}import ${it.namespace}.${it.name};" }.sorted().
-                        joinToString(nL)}$nL$nL"
+                "${outsideTypes.map { "${indent}import ${it.namespace}.${it.name};" }.sorted().joinToString(nL)}$nL$nL"
             })
         })
     }
 }
 
 //completed
-fun CompilationUnitD.toJavaIfc(context: JavaContext, indent: String = "", derived: TypeDerived<CompilationUnitD> = api): String {
+fun CompilationUnitD.toJavaIfc(context: JavaContext, indent: String = "",
+    derived: TypeDerived<CompilationUnitD> = api): String {
     val newIndent = "$indent$tab"
     return context.complete("""${indent}public interface ${derived.name} {
 ${operations.joinToString(nL) { it.toJavaIfc(context, newIndent) }}
@@ -150,7 +148,8 @@ $indent}
 """, indent)
 }
 
-fun CompilationUnitD.toJavaImpl(context: JavaContext, indent: String = "", derived: TypeDerived<CompilationUnitD> = impl, serializable: Boolean = true): String {
+fun CompilationUnitD.toJavaImpl(context: JavaContext, indent: String = "",
+    derived: TypeDerived<CompilationUnitD> = impl, serializable: Boolean = true): String {
     val newIndent = "$indent$tab"
     return context.complete("""${indent}public class ${derived.name} implements ${api.name} {
 ${serialVersionUID(serializable, newIndent)}

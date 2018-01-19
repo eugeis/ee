@@ -24,12 +24,14 @@ open class DesignBuildTaskFactory : BuildTaskFactory {
     }
 
     constructor(name: String, group: String = "Build", pathResolver: PathResolver, buildToolFactory: BuildToolFactory,
-                buildRequest: BuildRequest) : super(name, group, pathResolver, buildToolFactory, buildRequest) {
+        buildRequest: BuildRequest) : super(name, group, pathResolver, buildToolFactory, buildRequest) {
     }
 
-    override fun create(items: List<ItemI<*>>): List<BuildTask> = items.filterIsInstance(StructureUnitI::class.java).fillBuildTasks()
+    override fun create(items: List<ItemI<*>>): List<BuildTask> =
+        items.filterIsInstance(StructureUnitI::class.java).fillBuildTasks()
 
-    fun ModelI<*>.fillBuildTasks(to: MutableList<BuildTask>) = findDownByType(CompI::class.java).forEach { it.fillBuildTasks(to) }
+    fun ModelI<*>.fillBuildTasks(to: MutableList<BuildTask>) =
+        findDownByType(CompI::class.java).forEach { it.fillBuildTasks(to) }
 
     fun List<StructureUnitI<*>>.fillBuildTasks(to: MutableList<BuildTask> = arrayListOf()): List<BuildTask> {
         forEach {
@@ -57,7 +59,8 @@ open class DesignBuildTaskFactory : BuildTaskFactory {
         moduleGroups().forEach { mg ->
             val releaseUnitPath = releaseUnits.resolve(mg.name())
             if (releaseUnitPath.exists()) {
-                to.add(BuildTask("$name: ${artifact()}(${mg.name()})", group, buildToolFactory.buildTool(releaseUnitPath),
+                to.add(
+                    BuildTask("$name: ${artifact()}(${mg.name()})", group, buildToolFactory.buildTool(releaseUnitPath),
                         releaseUnitPath, buildRequest))
             } else {
                 log.warn("Release unit does not exists $mg")

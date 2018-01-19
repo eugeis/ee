@@ -16,8 +16,7 @@ open class LangGoContextFactory : LangCommonContextFactory() {
         return {
             val structureUnit = this
             GoContext(moduleFolder = structureUnit.artifact(), namespace = structureUnit.namespace().toLowerCase(),
-                    derivedController = derived, macroController = macroController
-            )
+                derivedController = derived, macroController = macroController)
         }
     }
 
@@ -31,9 +30,10 @@ open class LangGoContextFactory : LangCommonContextFactory() {
         }
     }
 
-    override fun buildNameForConstructor(item: ConstructorI<*>, kind: String) = item.name().equals(item.parent().name()).ifElse(
-            { "New${buildNameCommon(item, kind).capitalize()}" },
-            { "New${buildNameCommon(item.parent(), kind).capitalize()}${buildNameCommon(item, kind).capitalize()}" })
+    override fun buildNameForConstructor(item: ConstructorI<*>, kind: String) =
+        item.name().equals(item.parent().name()).ifElse({ "New${buildNameCommon(item, kind).capitalize()}" }, {
+            "New${buildNameCommon(item.parent(), kind).capitalize()}${buildNameCommon(item, kind).capitalize()}"
+        })
 
     override fun buildNameForOperation(item: OperationI<*>, kind: String): String {
         return buildNameCommon(item, kind).capitalize()

@@ -142,7 +142,7 @@ open class Facet : ModuleGroup {
     }
 
     fun module(namespace: String, init: ExternalModule.() -> Unit): ExternalModule =
-            add(ExternalModule(namespace, init))
+        add(ExternalModule(namespace, init))
 }
 
 open class ExternalModule : CompModule {
@@ -196,14 +196,14 @@ open class Queries : Controller {
         init()
     }
 
-    fun findBy(vararg params: Attribute, ret: Attribute = t.void, init: FindBy.() -> Unit = {}): FindBy
-            = findBys.addReturn(add(FindBy(params.toList(), ret, init)))
+    fun findBy(vararg params: Attribute, ret: Attribute = t.void, init: FindBy.() -> Unit = {}): FindBy =
+        findBys.addReturn(add(FindBy(params.toList(), ret, init)))
 
-    fun countBy(vararg params: Attribute, ret: Attribute = t.void, init: CountBy.() -> Unit = {}): CountBy
-            = countBys.addReturn(add(CountBy(params.toList(), ret, init)))
+    fun countBy(vararg params: Attribute, ret: Attribute = t.void, init: CountBy.() -> Unit = {}): CountBy =
+        countBys.addReturn(add(CountBy(params.toList(), ret, init)))
 
-    fun existBy(vararg params: Attribute, ret: Attribute = t.void, init: ExistBy.() -> Unit = {}): ExistBy
-            = existBys.addReturn(add(ExistBy(params.toList(), ret, init)))
+    fun existBy(vararg params: Attribute, ret: Attribute = t.void, init: ExistBy.() -> Unit = {}): ExistBy =
+        existBys.addReturn(add(ExistBy(params.toList(), ret, init)))
 
     override fun <T : Element> createType(): T {
         return Queries() as T
@@ -219,8 +219,8 @@ class Event : CompilationUnit {
 
 open class Command : DataTypeOperation {
     constructor() : super()
-    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void,
-                init: Command.() -> Unit = {}) : super(params, ret) {
+    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void, init: Command.() -> Unit = {}) : super(
+        params, ret) {
         init()
     }
 }
@@ -251,20 +251,20 @@ open class Commands : Controller {
     val updateBys: MutableList<UpdateBy> = arrayListOf()
     val deleteBys: MutableList<DeleteBy> = arrayListOf()
 
-    fun createBy(vararg params: Attribute, ret: Attribute = t.void, init: CreateBy.() -> Unit = {}): CreateBy
-            = createBys.addReturn(add(CreateBy(params.toList(), ret, init)))
+    fun createBy(vararg params: Attribute, ret: Attribute = t.void, init: CreateBy.() -> Unit = {}): CreateBy =
+        createBys.addReturn(add(CreateBy(params.toList(), ret, init)))
 
-    fun updateBy(vararg params: Attribute, ret: Attribute = t.void, init: UpdateBy.() -> Unit = {}): UpdateBy
-            = updateBys.addReturn(add(UpdateBy(params.toList(), ret, init)))
+    fun updateBy(vararg params: Attribute, ret: Attribute = t.void, init: UpdateBy.() -> Unit = {}): UpdateBy =
+        updateBys.addReturn(add(UpdateBy(params.toList(), ret, init)))
 
-    fun deleteBy(vararg params: Attribute, ret: Attribute = t.void, init: DeleteBy.() -> Unit = {}): DeleteBy
-            = deleteBys.addReturn(add(DeleteBy(params.toList(), ret, init)))
+    fun deleteBy(vararg params: Attribute, ret: Attribute = t.void, init: DeleteBy.() -> Unit = {}): DeleteBy =
+        deleteBys.addReturn(add(DeleteBy(params.toList(), ret, init)))
 
-    fun command(vararg params: Attribute, ret: Attribute = t.void, init: Command.() -> Unit = {}): Command
-            = commands.addReturn(add(Command(params.toList(), ret, init)))
+    fun command(vararg params: Attribute, ret: Attribute = t.void, init: Command.() -> Unit = {}): Command =
+        commands.addReturn(add(Command(params.toList(), ret, init)))
 
-    fun compositeCommand(vararg operations: Operation, init: CompositeCommand.() -> Unit = {}): CompositeCommand
-            = compositeCommands.addReturn(add(CompositeCommand(operations.toList(), init)))
+    fun compositeCommand(vararg operations: Operation, init: CompositeCommand.() -> Unit = {}): CompositeCommand =
+        compositeCommands.addReturn(add(CompositeCommand(operations.toList(), init)))
 
     override fun <T : Element> createType(): T {
         return Commands() as T
@@ -275,15 +275,15 @@ open class Commands : Controller {
 open class DataTypeOperation : Operation {
     constructor() : super()
     constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void,
-                init: DataTypeOperation.() -> Unit = {}) : super(params, ret) {
+        init: DataTypeOperation.() -> Unit = {}) : super(params, ret) {
         init()
     }
 }
 
 open class FindBy : DataTypeOperation {
     constructor() : super()
-    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void,
-                init: FindBy.() -> Unit = {}) : super(params, ret) {
+    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void, init: FindBy.() -> Unit = {}) : super(
+        params, ret) {
         deriveName("findBy")
         init()
     }
@@ -291,8 +291,8 @@ open class FindBy : DataTypeOperation {
 
 open class CountBy : DataTypeOperation {
     constructor() : super()
-    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void,
-                init: CountBy.() -> Unit = {}) : super(params, ret) {
+    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void, init: CountBy.() -> Unit = {}) : super(
+        params, ret) {
         deriveName("countBy")
         init()
     }
@@ -300,8 +300,8 @@ open class CountBy : DataTypeOperation {
 
 open class ExistBy : DataTypeOperation {
     constructor() : super()
-    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void,
-                init: ExistBy.() -> Unit = {}) : super(params, ret) {
+    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void, init: ExistBy.() -> Unit = {}) : super(
+        params, ret) {
         deriveName("existsBy")
         init()
     }
@@ -309,8 +309,8 @@ open class ExistBy : DataTypeOperation {
 
 open class CreateBy : Command {
     constructor() : super()
-    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void,
-                init: CreateBy.() -> Unit = {}) : super(params, ret) {
+    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void, init: CreateBy.() -> Unit = {}) : super(
+        params, ret) {
         deriveName("createBy")
         init()
 
@@ -319,8 +319,8 @@ open class CreateBy : Command {
 
 open class DeleteBy : Command {
     constructor() : super()
-    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void,
-                init: DeleteBy.() -> Unit = {}) : super(params, ret) {
+    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void, init: DeleteBy.() -> Unit = {}) : super(
+        params, ret) {
         deriveName("deleteBy")
         init()
     }
@@ -328,8 +328,8 @@ open class DeleteBy : Command {
 
 open class UpdateBy : Command {
     constructor() : super()
-    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void,
-                init: UpdateBy.() -> Unit = {}) : super(params, ret) {
+    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void, init: UpdateBy.() -> Unit = {}) : super(
+        params, ret) {
         deriveName("updateBy")
         init()
     }
@@ -337,7 +337,9 @@ open class UpdateBy : Command {
 
 open class DataType : CompilationUnit {
     val _id: Attribute? by lazy { propsAll.filterIsInstance<Attribute>().find { it.key } }
-    val controllers: List<Controller> by lazy { children.filterIsInstance(Controller::class.java).filter { it !is Commands && it !is Queries } }
+    val controllers: List<Controller> by lazy {
+        children.filterIsInstance(Controller::class.java).filter { it !is Commands && it !is Queries }
+    }
     val commandsControllers: List<Commands> by lazy { children.filterIsInstance(Commands::class.java) }
     val queriesControllers: List<Queries> by lazy { children.filterIsInstance(Queries::class.java) }
 
@@ -346,8 +348,7 @@ open class DataType : CompilationUnit {
         init()
     }
 
-    fun id(type: Type = t.String,
-           init: Attribute.() -> Unit = {}): Attribute = prop(type) {
+    fun id(type: Type = t.String, init: Attribute.() -> Unit = {}): Attribute = prop(type) {
         this.key = true
         init()
     }

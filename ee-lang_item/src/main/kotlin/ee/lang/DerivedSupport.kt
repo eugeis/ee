@@ -30,12 +30,11 @@ open class DerivedKind<T : ItemI<*>> {
 }
 
 open class DerivedByTransformer(name: String, transformer: ItemI<*>.(String) -> String,
-                                support: ItemI<*>.() -> Boolean = { true }) : DerivedKind<ItemI<*>>(name, support,
-        {
-            if (this.support()) {
-                this.deriveWithParent { name(transformer(it)) }
-            } else this
-        })
+    support: ItemI<*>.() -> Boolean = { true }) : DerivedKind<ItemI<*>>(name, support, {
+    if (this.support()) {
+        this.deriveWithParent { name(transformer(it)) }
+    } else this
+})
 
 open class DerivedController {
     val nameToDerivedKind = HashMap<String, DerivedKind<*>>()
@@ -46,11 +45,13 @@ open class DerivedController {
         this.storage = storage
     }
 
-    open fun registerKinds(kinds: Collection<String>, transformer: ItemI<*>.(String) -> String, support: ItemI<*>.() -> Boolean = { true }) {
+    open fun registerKinds(kinds: Collection<String>, transformer: ItemI<*>.(String) -> String,
+        support: ItemI<*>.() -> Boolean = { true }) {
         kinds.forEach { register(DerivedByTransformer(it, transformer, support)) }
     }
 
-    open fun registerKind(kind: String, transformer: ItemI<*>.(String) -> String, support: ItemI<*>.() -> Boolean = { true }): DerivedKind<*> {
+    open fun registerKind(kind: String, transformer: ItemI<*>.(String) -> String,
+        support: ItemI<*>.() -> Boolean = { true }): DerivedKind<*> {
         return register(DerivedByTransformer(kind, transformer, support))
     }
 

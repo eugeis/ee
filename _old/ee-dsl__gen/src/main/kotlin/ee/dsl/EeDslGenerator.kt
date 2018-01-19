@@ -15,12 +15,9 @@ fun generate(target: Path) {
     val nameBuilder: Template<ItemI>.(ItemI) -> NamesI = { Names("${it.name()}.gen") }
     val templates = templates(nameBuilder)
 
-    val generator = Generator<CompositeI, ItemI>(
-            moduleFolder = "ee-dsl/temp", genFolder = "src-gen/main/kotlin", deleteGenFolder = true,
-            context = KotlinContext("ee.design"),
-            items = { items() }, templates = { templates },
-            fileName = "${model.name()}ApiBase.gen"
-    )
+    val generator = Generator<CompositeI, ItemI>(moduleFolder = "ee-dsl/temp", genFolder = "src-gen/main/kotlin",
+        deleteGenFolder = true, context = KotlinContext("ee.design"), items = { items() }, templates = { templates },
+        fileName = "${model.name()}ApiBase.gen")
     generator.generate(target, model)
 }
 
@@ -31,11 +28,11 @@ fun prepareModel(): CompositeI {
 }
 
 private fun templates(nameBuilder: Template<ItemI>.(ItemI) -> NamesI) =
-        listOf(Template<ItemI>("ApiBase", nameBuilder) { item, c ->
-            """
+    listOf(Template<ItemI>("ApiBase", nameBuilder) { item, c ->
+        """
 open class ${c.n(item)} : ${c.n(item.derivedFrom())} {
     constructor(init: ${c.n(item)}.() -> Unit = {}) : super() {
         init()
     }
 }"""
-        })
+    })

@@ -10,22 +10,22 @@ import ee.lang.gen.go.nameForGoMember
 import ee.lang.gen.go.toGoImpl
 import ee.lang.gen.go.toGoInstance
 
-fun <T : CommandI<*>> T.toGoHandler(c: GenerationContext,
-                                 derived: String = DesignDerivedKind.IMPL,
-                                 api: String = DesignDerivedKind.API): String {
+fun <T : CommandI<*>> T.toGoHandler(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api)}
 func (o *$name) AggregateID() ${c.n(g.eh.UUID)}            { return o.${entity.id().nameForGoMember()} }
-func (o *$name) AggregateType() ${c.n(g.eh.AggregateType)}  { return ${entity.name()}${DesignDerivedType.AggregateType} }
-func (o *$name) CommandType() ${c.n(g.eh.CommandType)}      { return ${nameAndParentName().capitalize()}${DesignDerivedType.Command} }
+func (o *$name) AggregateType() ${c.n(
+        g.eh.AggregateType)}  { return ${entity.name()}${DesignDerivedType.AggregateType} }
+func (o *$name) CommandType() ${c.n(
+        g.eh.CommandType)}      { return ${nameAndParentName().capitalize()}${DesignDerivedType.Command} }
 """
 }
 
-fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext,
-                                               derived: String = DesignDerivedKind.IMPL,
-                                               api: String = DesignDerivedKind.API): String {
+fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
 
     val finders = entity.findBys().sortedByDescending { it.params().size }
@@ -41,46 +41,46 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext,
         val idParam = it.params().find { it.key() }
         val paramsNoId = it.params().filter { !it.key() }
         """
-    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${
-        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
+    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
+            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()}).
-        Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeCount, api)}${
-        paramsNoId.joinSurroundIfNotEmptyToString(", ", ", ") {
+        Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeCount,
+            api)}${paramsNoId.joinSurroundIfNotEmptyToString(", ", ", ") {
             """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
         }})"""
     }}${exists.joinSurroundIfNotEmptyToString("") {
         val idParam = it.params().find { it.key() }
         val paramsNoId = it.params().filter { !it.key() }
         """
-    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${
-        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
+    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
+            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()}).
-        Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeExist, api)}${
-        paramsNoId.joinSurroundIfNotEmptyToString(", ", ", ") {
+        Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeExist,
+            api)}${paramsNoId.joinSurroundIfNotEmptyToString(", ", ", ") {
             """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
         }})"""
     }}${finders.joinSurroundIfNotEmptyToString("") {
         val idParam = it.params().find { it.key() }
         val paramsNoId = it.params().filter { !it.key() }
         """
-    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${
-        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
-        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()})${
-        paramsNoId.joinSurroundIfNotEmptyToString(", ", ".$nL    Queries(", ")") {
+    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
+            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
+        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()})${paramsNoId.joinSurroundIfNotEmptyToString(
+            ", ", ".$nL    Queries(", ")") {
             """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
         }}"""
     }}${commands.joinSurroundIfNotEmptyToString("") {
         val idParam = it.props().find { it.key() }
         """
-    router.Methods(${c.n(g.net.http.MethodPost, api)}).PathPrefix(o.PathPrefix)${
-        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
+    router.Methods(${c.n(g.net.http.MethodPost, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
+            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}").
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
     }}${creaters.joinSurroundIfNotEmptyToString("") {
         val idParam = it.props().find { it.key() }
         """
-    router.Methods(${c.n(g.net.http.MethodPost, api)}).PathPrefix(o.PathPrefix)${
-        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
+    router.Methods(${c.n(g.net.http.MethodPost, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
+            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
             """
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""
         }}
@@ -88,8 +88,8 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext,
     }}${updaters.joinSurroundIfNotEmptyToString("") {
         val idParam = it.props().find { it.key() }
         """
-    router.Methods(${c.n(g.net.http.MethodPut, api)}).PathPrefix(o.PathPrefix)${
-        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
+    router.Methods(${c.n(g.net.http.MethodPut, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
+            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
             """
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""
         }}
@@ -97,8 +97,8 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext,
     }}${deleters.joinSurroundIfNotEmptyToString("") {
         val idParam = it.props().find { it.key() }
         """
-    router.Methods(${c.n(g.net.http.MethodDelete, api)}).PathPrefix(o.PathPrefix)${
-        (idParam != null).then({ """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
+    router.Methods(${c.n(g.net.http.MethodDelete, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
+            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
             """
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""
         }}
@@ -106,9 +106,8 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext,
     }}"""
 }
 
-fun <T : OperationI<*>> T.toGoSetupModuleHttpRouter(c: GenerationContext,
-                                                 derived: String = DesignDerivedKind.IMPL,
-                                                 api: String = DesignDerivedKind.API): String {
+fun <T : OperationI<*>> T.toGoSetupModuleHttpRouter(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API): String {
     val httpRouters = findParentMust(CompilationUnitI::class.java).props().filter {
         it.type() is ControllerI<*> && it.name().endsWith(DesignDerivedType.HttpRouter)
     }
@@ -120,9 +119,8 @@ fun <T : OperationI<*>> T.toGoSetupModuleHttpRouter(c: GenerationContext,
     }
 }
 
-fun <T : ConstructorI<*>> T.toGoHttpRouterBeforeBody(c: GenerationContext,
-                                                  derived: String = DesignDerivedKind.IMPL,
-                                                  api: String = DesignDerivedKind.API): String {
+fun <T : ConstructorI<*>> T.toGoHttpRouterBeforeBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API): String {
     val item = findParentMust(EntityI::class.java)
     return """
     pathPrefix = pathPrefix + "/" + "${item.name().toPlural().decapitalize()}"
@@ -131,8 +129,7 @@ fun <T : ConstructorI<*>> T.toGoHttpRouterBeforeBody(c: GenerationContext,
 }
 
 fun <T : ConstructorI<*>> T.toGoHttpModuleRouterBeforeBody(c: GenerationContext,
-                                                        derived: String = DesignDerivedKind.IMPL,
-                                                        api: String = DesignDerivedKind.API): String {
+    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API): String {
     val item = findParentMust(StructureUnitI::class.java)
     return """
     pathPrefix = pathPrefix + "/" + "${item.name().decapitalize()}""""

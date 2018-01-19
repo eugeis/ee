@@ -17,11 +17,11 @@ inline fun emptyOr(condition: Boolean, text: () -> String): String = if (conditi
 fun emptyOr(element: Any?): String = element?.toString() ?: ""
 
 fun <T> T?.orEmpty(prefix: String = "", suffix: String = ""): String =
-        if (this != null && (this !is String || trim().isNotEmpty())) "$prefix${this}$suffix" else ""
+    if (this != null && (this !is String || trim().isNotEmpty())) "$prefix${this}$suffix" else ""
 
 
 inline fun <T> T?.orEmpty(prefix: String = "", suffix: String = "", map: T.() -> String): String =
-        if (this != null && (this !is String || trim().isNotEmpty())) "$prefix${map()}$suffix" else ""
+    if (this != null && (this !is String || trim().isNotEmpty())) "$prefix${map()}$suffix" else ""
 
 fun Any.buildLabel(): Label = javaClass.buildLabel()
 
@@ -48,9 +48,7 @@ fun <T> Class<T>.location(): Path {
 
 fun <T> Class<T>.declaredConstuctorWithOneGenericType(): Constructor<*>? {
     return declaredConstructors.find {
-        it.parameterCount == 1 &&
-                it.genericParameterTypes.isNotEmpty() &&
-                !it.toString().contains("Function")
+        it.parameterCount == 1 && it.genericParameterTypes.isNotEmpty() && !it.toString().contains("Function")
     }
 }
 
@@ -75,11 +73,9 @@ fun <T> Boolean.ifElse(t: () -> T, f: T): T = if (this) t() else f
 
 fun <T> Boolean.ifElse(t: () -> T, f: () -> T): T = if (this) t() else f()
 
-fun Boolean?.then(text: String): String =
-        if (this != null && this) text else ""
+fun Boolean?.then(text: String): String = if (this != null && this) text else ""
 
-fun Boolean?.then(text: () -> String): String =
-        if (this != null && this) text() else ""
+fun Boolean?.then(text: () -> String): String = if (this != null && this) text() else ""
 
 //System
 val osName: String = System.getProperty("os.name")
@@ -142,18 +138,23 @@ fun String.toConvertUmlauts(): String = Umlauts.replaceUmlauts(this)
 
 fun String.toKey(): String = toConvertUmlauts().replace("[^a-zA-Z0-9.]".toRegex(), "_").replace("_+".toRegex(), "_")
 
-fun String.toUrlKey(): String = toConvertUmlauts().toLowerCase().replace("[^a-z0-9]".toRegex(), "-").replace("_+".toRegex(), "-")
+fun String.toUrlKey(): String =
+    toConvertUmlauts().toLowerCase().replace("[^a-z0-9]".toRegex(), "-").replace("_+".toRegex(), "-")
 
 val strToCamelCase = WeakHashMap<String, String>()
-fun String.toCamelCase(): String = strToCamelCase.getOrPut(this, { this.replace("_\\w".toRegex()) { it.value[1].toUpperCase().toString() } })
+fun String.toCamelCase(): String =
+    strToCamelCase.getOrPut(this, { this.replace("_\\w".toRegex()) { it.value[1].toUpperCase().toString() } })
 
 val strToUnderscoredUpper = WeakHashMap<String, String>()
-fun String.toUnderscoredUpperCase(): String = strToUnderscoredUpper.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "_$1").toUpperCase() })
+fun String.toUnderscoredUpperCase(): String =
+    strToUnderscoredUpper.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "_$1").toUpperCase() })
 
 val strToUnderscoredLower = WeakHashMap<String, String>()
-fun String.toUnderscoredLowerCase(): String = strToUnderscoredLower.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "_$1").toLowerCase() })
+fun String.toUnderscoredLowerCase(): String =
+    strToUnderscoredLower.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "_$1").toLowerCase() })
 
-fun String.toHyphenLowerCase(): String = strToUnderscoredLower.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "-$1").toLowerCase() })
+fun String.toHyphenLowerCase(): String =
+    strToUnderscoredLower.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "-$1").toLowerCase() })
 
 val sqlKeywords = mapOf("group" to "group_")
 val strToSql = WeakHashMap<String, String>()
@@ -212,7 +213,9 @@ fun Path.delete() = Files.delete(this)
 
 fun Path.deleteIfExists() = Files.deleteIfExists(this)
 
-fun Path.deleteFilesRecursively() = toFile().deleteRecursively()
+fun Path.deleteFilesRecursively() {
+    toFile().deleteRecursively()
+}
 
 fun Path.deleteFilesRecursively(pattern: Regex) = toFile().walkTopDown().filter {
     !it.isDirectory && pattern.matches(it.name)
@@ -227,13 +230,13 @@ fun Path.lastModified(): Date = Date(toFile().lastModified())
 
 // Collections
 
-fun <T> Collection<T>.joinSurroundIfNotEmptyToString(separator: CharSequence = ", ",
-                                                     prefix: CharSequence = "", postfix: CharSequence = "",
-                                                     emptyString: String = "", transform: ((T) -> CharSequence)? = null): String = joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
+fun <T> Collection<T>.joinSurroundIfNotEmptyToString(separator: CharSequence = ", ", prefix: CharSequence = "",
+    postfix: CharSequence = "", emptyString: String = "", transform: ((T) -> CharSequence)? = null): String =
+    joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
 
 fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(buffer: A, separator: CharSequence = ", ",
-                                                               prefix: CharSequence = "", postfix: CharSequence = "",
-                                                               emptyString: String = "", transform: ((T) -> CharSequence)? = null): A {
+    prefix: CharSequence = "", postfix: CharSequence = "", emptyString: String = "",
+    transform: ((T) -> CharSequence)? = null): A {
     if (size > 0) {
         buffer.append(prefix)
         forEachIndexed { index, item ->
@@ -250,14 +253,14 @@ fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(buffer: A, separa
     return buffer
 }
 
-fun <T> Collection<T>.joinWithIndexToString(separator: CharSequence = ", ",
-                                            prefix: CharSequence = "", postfix: CharSequence = "",
-                                            emptyString: String = "", transform: ((Int, T) -> CharSequence)? = null): String = joinWithIndexToString(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
+fun <T> Collection<T>.joinWithIndexToString(separator: CharSequence = ", ", prefix: CharSequence = "",
+    postfix: CharSequence = "", emptyString: String = "", transform: ((Int, T) -> CharSequence)? = null): String =
+    joinWithIndexToString(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
 
 
 fun <T, A : Appendable> Collection<T>.joinWithIndexToString(buffer: A, separator: CharSequence = ", ",
-                                                            prefix: CharSequence = "", postfix: CharSequence = "",
-                                                            emptyString: String = "", transform: ((Int, T) -> CharSequence)? = null): A {
+    prefix: CharSequence = "", postfix: CharSequence = "", emptyString: String = "",
+    transform: ((Int, T) -> CharSequence)? = null): A {
     if (size > 0) {
         buffer.append(prefix)
         forEachIndexed { index, item ->
@@ -275,14 +278,15 @@ fun <T, A : Appendable> Collection<T>.joinWithIndexToString(buffer: A, separator
 }
 
 fun <T> Collection<T>.joinWrappedToString(separator: CharSequence = ", ", wrapIndent: CharSequence = "",
-                                          prefix: CharSequence = "", postfix: CharSequence = "",
-                                          width: Int = 120, emptyString: String = "", transform: ((T) -> CharSequence)? = null): String {
-    return joinWrappedTo(StringBuilder(), separator, wrapIndent, prefix, postfix, width, emptyString, transform).toString()
+    prefix: CharSequence = "", postfix: CharSequence = "", width: Int = 120, emptyString: String = "",
+    transform: ((T) -> CharSequence)? = null): String {
+    return joinWrappedTo(StringBuilder(), separator, wrapIndent, prefix, postfix, width, emptyString,
+        transform).toString()
 }
 
-fun <T, A : Appendable> Collection<T>.joinWrappedTo(buffer: A, separator: CharSequence = ", ", wrapIndent: CharSequence = "",
-                                                    prefix: CharSequence = "", postfix: CharSequence = "",
-                                                    width: Int = 120, emptyString: String = "", transform: ((T) -> CharSequence)? = null): A {
+fun <T, A : Appendable> Collection<T>.joinWrappedTo(buffer: A, separator: CharSequence = ", ",
+    wrapIndent: CharSequence = "", prefix: CharSequence = "", postfix: CharSequence = "", width: Int = 120,
+    emptyString: String = "", transform: ((T) -> CharSequence)? = null): A {
     if (size > 0) {
         buffer.append(prefix)
         var currentWidth = 0
@@ -318,14 +322,14 @@ fun Boolean?.notSetOrTrue(): Boolean = this == null || this
 
 //map
 fun <K, T> Map<K, Collection<T>>.joinSurroundIfNotEmptyToString(separator: CharSequence = ", ",
-                                                                prefix: CharSequence = "", postfix: CharSequence = "",
-                                                                emptyString: String = "", transform: ((K, T) -> CharSequence)? = null): String {
+    prefix: CharSequence = "", postfix: CharSequence = "", emptyString: String = "",
+    transform: ((K, T) -> CharSequence)? = null): String {
     return joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
 }
 
 fun <K, T, A : Appendable> Map<K, Collection<T>>.joinSurroundIfNotEmptyTo(buffer: A, separator: CharSequence = ", ",
-                                                                          prefix: CharSequence = "", postfix: CharSequence = "",
-                                                                          emptyString: String = "", transform: ((K, T) -> CharSequence)? = null): A {
+    prefix: CharSequence = "", postfix: CharSequence = "", emptyString: String = "",
+    transform: ((K, T) -> CharSequence)? = null): A {
     if (size > 0) {
         buffer.append(prefix)
         var count = 0

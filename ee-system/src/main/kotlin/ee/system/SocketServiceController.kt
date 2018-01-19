@@ -4,7 +4,8 @@ open class SocketServiceController<T : SocketService> : SocketServiceControllerB
     companion object {
         val EMPTY = SocketServiceControllerBase.EMPTY
     }
-    constructor(item: T): super(item) {
+
+    constructor(item: T) : super(item) {
 
     }
 

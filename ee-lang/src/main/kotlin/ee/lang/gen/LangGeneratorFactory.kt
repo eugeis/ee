@@ -15,21 +15,17 @@ open class LangGeneratorFactory {
     open fun dslKt(fileNamePrefix: String = ""): GeneratorI<StructureUnitI<*>> {
         val kotlinTemplates = buildKotlinTemplates()
         val contextBuilder = buildKotlinContextFactory().buildForDslBuilder()
-        val composites: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = { items().filterIsInstance(CompilationUnitI::class.java) }
+        val composites: StructureUnitI<*>.() -> List<CompilationUnitI<*>> =
+            { items().filterIsInstance(CompilationUnitI::class.java) }
 
         return GeneratorGroup(listOf(
 
-                GeneratorSimple(
-                        contextBuilder = contextBuilder, template = ItemsTemplate(
-                        name = "${fileNamePrefix}IfcBase", nameBuilder = templateNameAsKotlinFileName,
-                        items = composites, fragments = { listOf(kotlinTemplates.dslBuilderI()) })
-                ),
-                GeneratorSimple(
-                        contextBuilder = contextBuilder, template = ItemsTemplate(
-                        name = "${fileNamePrefix}ApiBase", nameBuilder = templateNameAsKotlinFileName,
-                        items = composites, fragments = { listOf(kotlinTemplates.dslBuilder()) })
-                )
-        ))
+            GeneratorSimple(contextBuilder = contextBuilder,
+                template = ItemsTemplate(name = "${fileNamePrefix}IfcBase", nameBuilder = templateNameAsKotlinFileName,
+                    items = composites, fragments = { listOf(kotlinTemplates.dslBuilderI()) })),
+            GeneratorSimple(contextBuilder = contextBuilder,
+                template = ItemsTemplate(name = "${fileNamePrefix}ApiBase", nameBuilder = templateNameAsKotlinFileName,
+                    items = composites, fragments = { listOf(kotlinTemplates.dslBuilder()) }))))
     }
 
     open fun pojoKt(fileNamePrefix: String = ""): GeneratorI<StructureUnitI<*>> {
@@ -40,19 +36,13 @@ open class LangGeneratorFactory {
             findDownByType(CompilationUnitI::class.java).filter { it !is EnumTypeI<*> }
         }
 
-        return GeneratorGroup(listOf(
-                GeneratorSimple(
-                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI<*>>(
-                        name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsKotlinFileName,
-                        fragments = {
-                            listOf(
-                                    ItemsFragment(items = enums,
-                                            fragments = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) }),
-                                    ItemsFragment(items = compilationUnits,
-                                            fragments = { listOf(kotlinTemplates.pojo()) }))
-                        })
-                )
-        ))
+        return GeneratorGroup(listOf(GeneratorSimple(contextBuilder = contextBuilder,
+            template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
+                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                    listOf(ItemsFragment(items = enums,
+                        fragments = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) }),
+                        ItemsFragment(items = compilationUnits, fragments = { listOf(kotlinTemplates.pojo()) }))
+                }))))
     }
 
     open fun pojoGo(fileNamePrefix: String = ""): GeneratorI<StructureUnitI<*>> {
@@ -67,19 +57,12 @@ open class LangGeneratorFactory {
             findDownByType(CompilationUnitI::class.java).filter { it !is EnumTypeI<*> }
         }
 
-        return GeneratorGroup(listOf(
-                GeneratorSimple(
-                        contextBuilder = contextBuilder, template = FragmentsTemplate<StructureUnitI<*>>(
-                        name = "${fileNamePrefix}ApiBase", nameBuilder = itemAndTemplateNameAsGoFileName,
-                        fragments = {
-                            listOf(
-                                    ItemsFragment(items = enums,
-                                            fragments = { listOf(goTemplates.enum()) }),
-                                    ItemsFragment(items = compilationUnits,
-                                            fragments = { listOf(goTemplates.pojo()) }))
-                        })
-                )
-        ))
+        return GeneratorGroup(listOf(GeneratorSimple(contextBuilder = contextBuilder,
+            template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
+                nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
+                    listOf(ItemsFragment(items = enums, fragments = { listOf(goTemplates.enum()) }),
+                        ItemsFragment(items = compilationUnits, fragments = { listOf(goTemplates.pojo()) }))
+                }))))
     }
 
     protected open fun buildKotlinContextFactory() = LangKotlinContextFactory()

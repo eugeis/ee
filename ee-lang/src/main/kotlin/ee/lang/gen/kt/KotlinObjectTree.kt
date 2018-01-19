@@ -7,9 +7,9 @@ fun <T : AttributeI<*>> T.toKotlinObjectTreeProp(c: GenerationContext, derived: 
     val ${name()} = ${c.n(type(), derived)}()"""
 }
 
-fun <T : CompilationUnitI<*>> T.toKotlinObjectTree(c: GenerationContext, derived: String = LangDerivedKind.IMPL): String {
+fun <T : CompilationUnitI<*>> T.toKotlinObjectTree(c: GenerationContext,
+    derived: String = LangDerivedKind.IMPL): String {
     return """
-object ${c.n(this)} : ${c.n(derivedFrom())}() {${
-    props().joinToString(nL) { it.toKotlinObjectTreeProp(c, derived) }}
+object ${c.n(this)} : ${c.n(derivedFrom())}() {${props().joinToString(nL) { it.toKotlinObjectTreeProp(c, derived) }}
 }"""
 }

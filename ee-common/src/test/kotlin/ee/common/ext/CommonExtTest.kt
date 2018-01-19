@@ -11,20 +11,23 @@ import java.util.*
 
 class CommonExtTest {
 
-    @Test fun testBuildLabel() {
+    @Test
+    fun testBuildLabel() {
         assertEquals(Label("Date", "util"), Date().buildLabel())
     }
 
     //Date
     @Ignore
-    @Test fun testLongDateTime() {
+    @Test
+    fun testLongDateTime() {
         val cal = calendar()
 
         assertEquals("17.07.16 01:02:03.004", cal.time.longDateTime())
     }
 
     @Ignore
-    @Test fun longTime() {
+    @Test
+    fun longTime() {
         val cal = calendar()
 
         assertEquals("01:02:03.004", cal.time.longTime())
@@ -44,47 +47,58 @@ class CommonExtTest {
     }
 
     //File
-    @Test fun testFilePath() {
-        Assert.assertTrue(File("d:\\folder\\childFolder\\fileName.txt").toPathString().endsWith("/folder/childFolder/fileName.txt"))
+    @Test
+    fun testFilePath() {
+        Assert.assertTrue(
+            File("d:\\folder\\childFolder\\fileName.txt").toPathString().endsWith("/folder/childFolder/fileName.txt"))
     }
 
-    @Test fun testFileExt() {
+    @Test
+    fun testFileExt() {
         assertEquals("txt", File("fileName.txt").ext())
     }
 
     //Path
-    @Test fun testPath() {
+    @Test
+    fun testPath() {
         assertEquals("txt", Paths.get("d:\\folder\\childFolder\\fileName.txt").ext())
     }
 
     //String
-    @Test fun testStringFileExt() {
+    @Test
+    fun testStringFileExt() {
         assertEquals("txt", "fileName.txt".fileExt())
         assertEquals("txt", "fileName.TXT".fileExt())
     }
 
-    @Test fun testStringPath() {
+    @Test
+    fun testStringPath() {
         assertEquals("d:/folder/childFolder/fileName.txt", "d:\\folder\\childFolder\\fileName.txt".toPathString())
         assertEquals("d:/folder/childFolder/fileName.TXT", "d:\\folder\\childFolder\\fileName.TXT".toPathString())
     }
 
-    @Test fun testStringDotAsPath() {
+    @Test
+    fun testStringDotAsPath() {
         assertEquals("folder/childFolder/fileName", "folder.childFolder.fileName".toDotsAsPath())
     }
 
-    @Test fun testStringKey() {
+    @Test
+    fun testStringKey() {
         assertEquals("part1_part2", "part1-part2".toKey())
     }
 
-    @Test fun testStringUnderscoreToCamel() {
+    @Test
+    fun testStringUnderscoreToCamel() {
         assertEquals("part1Part2", "part1_part2".toCamelCase())
     }
 
-    @Test fun testStringAsClass() {
+    @Test
+    fun testStringAsClass() {
         assertEquals(Date::class.java, "Date".asClass<Date>("java.util"))
     }
 
-    @Test fun testStringAsClassInstance() {
+    @Test
+    fun testStringAsClassInstance() {
         var date = "Date".asClassInstance<Date>("java.util")
         Assert.assertNotNull(date)
     }

@@ -4,18 +4,15 @@ import ee.common.ext.then
 import ee.lang.*
 
 
-object ts : StructureUnit({ namespace("").name("TypeScript") }) {
-}
+object ts : StructureUnit({ namespace("").name("TypeScript") }) {}
 
 open class TsContext : GenerationContext {
 
-    constructor(namespace: String = "", moduleFolder: String = "",
-                genFolder: String = "src/app/shared",
-                genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.ts".toRegex(),
-                derivedController: DerivedController = DerivedController(DerivedStorage<ItemI<*>>()),
-                macroController: MacroController = MacroController())
-            : super(namespace, moduleFolder, genFolder, genFolderDeletable, genFolderPatternDeletable,
-            derivedController, macroController) {
+    constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src/app/shared",
+        genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.ts".toRegex(),
+        derivedController: DerivedController = DerivedController(DerivedStorage<ItemI<*>>()),
+        macroController: MacroController = MacroController()) : super(namespace, moduleFolder, genFolder,
+        genFolderDeletable, genFolderPatternDeletable, derivedController, macroController) {
     }
 
     override fun complete(content: String, indent: String): String {
@@ -23,13 +20,13 @@ open class TsContext : GenerationContext {
     }
 
     private fun toPackage(indent: String): String {
-        return ""//namespaceLastPart.isNotEmpty().then { "${indent}package $namespaceLastPart${nL}${nL}" }
+        return "" //namespaceLastPart.isNotEmpty().then { "${indent}package $namespaceLastPart${nL}${nL}" }
     }
 
     private fun toImports(indent: String): String {
         return types.isNotEmpty().then {
-            val outsideTypes = types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }.
-                    groupBy { it.findParentMust(StructureUnitI::class.java) }
+            val outsideTypes = types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }
+                .groupBy { it.findParentMust(StructureUnitI::class.java) }
             outsideTypes.isNotEmpty().then {
                 "${outsideTypes.map { (su, items) ->
                     """${indent}import {${items.sortedBy { it.name() }.joinToString(", ") {

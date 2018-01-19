@@ -1,12 +1,10 @@
 package ee.lang
 
 
-interface ActionI<B : ActionI<B>> : LogicUnitI<B> {
-}
+interface ActionI<B : ActionI<B>> : LogicUnitI<B> {}
 
 
-interface AndExpressionI<B : AndExpressionI<B>> : LeftRightPredicatesPredicateI<B> {
-}
+interface AndExpressionI<B : AndExpressionI<B>> : LeftRightPredicatesPredicateI<B> {}
 
 
 interface ApplyActionI<B : ApplyActionI<B>> : ActionI<B> {
@@ -19,8 +17,7 @@ interface ApplyActionI<B : ApplyActionI<B>> : ActionI<B> {
 }
 
 
-interface AssignActionI<B : AssignActionI<B>> : ApplyActionI<B> {
-}
+interface AssignActionI<B : AssignActionI<B>> : ApplyActionI<B> {}
 
 
 interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
@@ -101,24 +98,19 @@ interface ConstructorI<B : ConstructorI<B>> : LogicUnitI<B> {
 }
 
 
-interface DataTypeI<B : DataTypeI<B>> : CompilationUnitI<B> {
-}
+interface DataTypeI<B : DataTypeI<B>> : CompilationUnitI<B> {}
 
 
-interface DataTypeOperationI<B : DataTypeOperationI<B>> : OperationI<B> {
-}
+interface DataTypeOperationI<B : DataTypeOperationI<B>> : OperationI<B> {}
 
 
-interface DecrementExpressionI<B : DecrementExpressionI<B>> : LiteralI<B> {
-}
+interface DecrementExpressionI<B : DecrementExpressionI<B>> : LiteralI<B> {}
 
 
-interface DivideAssignActionI<B : DivideAssignActionI<B>> : ApplyActionI<B> {
-}
+interface DivideAssignActionI<B : DivideAssignActionI<B>> : ApplyActionI<B> {}
 
 
-interface DivideExpressionI<B : DivideExpressionI<B>> : LeftRightLiteralI<B> {
-}
+interface DivideExpressionI<B : DivideExpressionI<B>> : LeftRightLiteralI<B> {}
 
 
 interface EnumTypeI<B : EnumTypeI<B>> : DataTypeI<B> {
@@ -129,16 +121,13 @@ interface EnumTypeI<B : EnumTypeI<B>> : DataTypeI<B> {
 }
 
 
-interface EqExpressionI<B : EqExpressionI<B>> : LeftRightPredicateI<B> {
-}
+interface EqExpressionI<B : EqExpressionI<B>> : LeftRightPredicateI<B> {}
 
 
-interface ExpressionI<B : ExpressionI<B>> : MacroCompositeI<B> {
-}
+interface ExpressionI<B : ExpressionI<B>> : MacroCompositeI<B> {}
 
 
-interface ExternalTypeI<B : ExternalTypeI<B>> : TypeI<B> {
-}
+interface ExternalTypeI<B : ExternalTypeI<B>> : TypeI<B> {}
 
 
 interface GenericI<B : GenericI<B>> : TypeI<B> {
@@ -147,16 +136,13 @@ interface GenericI<B : GenericI<B>> : TypeI<B> {
 }
 
 
-interface GtExpressionI<B : GtExpressionI<B>> : LeftRightPredicateI<B> {
-}
+interface GtExpressionI<B : GtExpressionI<B>> : LeftRightPredicateI<B> {}
 
 
-interface GteExpressionI<B : GteExpressionI<B>> : LeftRightPredicateI<B> {
-}
+interface GteExpressionI<B : GteExpressionI<B>> : LeftRightPredicateI<B> {}
 
 
-interface IncrementExpressionI<B : IncrementExpressionI<B>> : LiteralI<B> {
-}
+interface IncrementExpressionI<B : IncrementExpressionI<B>> : LiteralI<B> {}
 
 
 interface LambdaI<B : LambdaI<B>> : TypeI<B> {
@@ -231,12 +217,10 @@ interface LogicUnitI<B : LogicUnitI<B>> : ExpressionI<B> {
 }
 
 
-interface LtExpressionI<B : LtExpressionI<B>> : LeftRightPredicateI<B> {
-}
+interface LtExpressionI<B : LtExpressionI<B>> : LeftRightPredicateI<B> {}
 
 
-interface LteExpressionI<B : LteExpressionI<B>> : LeftRightPredicateI<B> {
-}
+interface LteExpressionI<B : LteExpressionI<B>> : LeftRightPredicateI<B> {}
 
 
 interface MacroCompositeI<B : MacroCompositeI<B>> : CompositeI<B> {
@@ -265,20 +249,16 @@ interface MacroCompositeI<B : MacroCompositeI<B>> : CompositeI<B> {
 }
 
 
-interface MinusAssignActionI<B : MinusAssignActionI<B>> : ApplyActionI<B> {
-}
+interface MinusAssignActionI<B : MinusAssignActionI<B>> : ApplyActionI<B> {}
 
 
-interface MinusExpressionI<B : MinusExpressionI<B>> : LeftRightLiteralI<B> {
-}
+interface MinusExpressionI<B : MinusExpressionI<B>> : LeftRightLiteralI<B> {}
 
 
-interface NativeTypeI<B : NativeTypeI<B>> : TypeI<B> {
-}
+interface NativeTypeI<B : NativeTypeI<B>> : TypeI<B> {}
 
 
-interface NeExpressionI<B : NeExpressionI<B>> : LeftRightPredicateI<B> {
-}
+interface NeExpressionI<B : NeExpressionI<B>> : LeftRightPredicateI<B> {}
 
 
 interface NotExpressionI<B : NotExpressionI<B>> : PredicateI<B> {
@@ -305,28 +285,22 @@ interface OperationI<B : OperationI<B>> : LogicUnitI<B> {
 }
 
 
-interface OrExpressionI<B : OrExpressionI<B>> : LeftRightPredicatesPredicateI<B> {
-}
+interface OrExpressionI<B : OrExpressionI<B>> : LeftRightPredicatesPredicateI<B> {}
 
 
-interface PlusAssignActionI<B : PlusAssignActionI<B>> : ApplyActionI<B> {
-}
+interface PlusAssignActionI<B : PlusAssignActionI<B>> : ApplyActionI<B> {}
 
 
-interface PlusExpressionI<B : PlusExpressionI<B>> : LeftRightLiteralI<B> {
-}
+interface PlusExpressionI<B : PlusExpressionI<B>> : LeftRightLiteralI<B> {}
 
 
-interface PredicateI<B : PredicateI<B>> : ExpressionI<B> {
-}
+interface PredicateI<B : PredicateI<B>> : ExpressionI<B> {}
 
 
-interface RemainderAssignActionI<B : RemainderAssignActionI<B>> : ApplyActionI<B> {
-}
+interface RemainderAssignActionI<B : RemainderAssignActionI<B>> : ApplyActionI<B> {}
 
 
-interface RemainderExpressionI<B : RemainderExpressionI<B>> : LeftRightLiteralI<B> {
-}
+interface RemainderExpressionI<B : RemainderExpressionI<B>> : LeftRightLiteralI<B> {}
 
 
 interface StructureUnitI<B : StructureUnitI<B>> : MacroCompositeI<B> {
@@ -343,12 +317,10 @@ interface StructureUnitI<B : StructureUnitI<B>> : MacroCompositeI<B> {
 }
 
 
-interface TimesAssignActionI<B : TimesAssignActionI<B>> : ApplyActionI<B> {
-}
+interface TimesAssignActionI<B : TimesAssignActionI<B>> : ApplyActionI<B> {}
 
 
-interface TimesExpressionI<B : TimesExpressionI<B>> : LeftRightLiteralI<B> {
-}
+interface TimesExpressionI<B : TimesExpressionI<B>> : LeftRightLiteralI<B> {}
 
 
 interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {

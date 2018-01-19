@@ -3,8 +3,7 @@ package ee.lang
 
 import java.util.concurrent.TimeUnit
 
-fun duration(amount: Long, timeUnit: TimeUnit): Attribute =
-        Attribute { value(timeUnit.toMillis(amount)).type(n.Long) }
+fun duration(amount: Long, timeUnit: TimeUnit): Attribute = Attribute { value(timeUnit.toMillis(amount)).type(n.Long) }
 
 // Actually limited to 9223372036854775807 days, so unless you are very patient, it is unlimited ;-)
 val unlimited = duration(amount = Long.MAX_VALUE, timeUnit = TimeUnit.DAYS)

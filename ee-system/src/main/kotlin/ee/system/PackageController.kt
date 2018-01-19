@@ -4,7 +4,8 @@ open class PackageController<T : Package> : PackageControllerBase<T> {
     companion object {
         val EMPTY = PackageControllerBase.EMPTY
     }
-    constructor(item: T): super(item) {
+
+    constructor(item: T) : super(item) {
 
     }
 

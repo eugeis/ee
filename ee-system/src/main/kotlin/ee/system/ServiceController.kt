@@ -9,9 +9,7 @@ open class ServiceController<T : Service> : ServiceControllerBase<T> {
         val EMPTY = ServiceControllerBase.EMPTY
     }
 
-    constructor(item: T) : super(item) {
-
-    }
+    constructor(item: T) : super(item)
 
     override fun start() {
         throw IllegalAccessException("Not implemented yet.")

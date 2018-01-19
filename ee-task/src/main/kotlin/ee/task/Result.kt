@@ -13,8 +13,8 @@ open class Result : ResultBase {
         }
 
     constructor(action: String = "", ok: Boolean = true, failure: String = "", info: String = "",
-                error: Throwable? = null, results: List<Result> = emptyList()) :
-            super(action, ok, failure, info, error, results) {
+        error: Throwable? = null, results: List<Result> = emptyList()) : super(action, ok, failure, info, error,
+        results) {
     }
 
     override fun toString(): String {

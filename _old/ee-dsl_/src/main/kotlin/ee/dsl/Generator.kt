@@ -26,9 +26,9 @@ open class Generator<M, I> {
     val templates: I.() -> Collection<Template<I>>
     val fileName: String?
 
-    constructor(moduleFolder: String, genFolder: String, deleteGenFolder: Boolean = false,
-                namespace: String = "", context: GenerationContext, items: M.() -> Collection<I>,
-                templates: I.() -> Collection<Template<I>>, fileName: String? = null) {
+    constructor(moduleFolder: String, genFolder: String, deleteGenFolder: Boolean = false, namespace: String = "",
+        context: GenerationContext, items: M.() -> Collection<I>, templates: I.() -> Collection<Template<I>>,
+        fileName: String? = null) {
         this.moduleFolder = moduleFolder
         this.genFolder = genFolder
         this.deleteGenFolder = deleteGenFolder
@@ -101,9 +101,8 @@ open class Template<I> {
     val nameBuilder: Template<I>.(I) -> Names
     val generate: Template<I>.(I, GenerationContext) -> String
 
-    constructor(name: String,
-                nameBuilder: Template<I>.(I) -> Names,
-                generate: Template<I>.(item: I, context: GenerationContext) -> String) {
+    constructor(name: String, nameBuilder: Template<I>.(I) -> Names,
+        generate: Template<I>.(item: I, context: GenerationContext) -> String) {
         this.name = name
         this.nameBuilder = nameBuilder
         this.generate = generate

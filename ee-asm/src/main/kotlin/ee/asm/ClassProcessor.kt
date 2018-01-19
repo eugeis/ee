@@ -24,9 +24,8 @@ class ClassProcessor(val platformJars: List<File>, val versionJars: List<File>) 
 
         val jarSequences = (platformJars + versionJars).withIndex().asSequence().map { jar ->
             val jarFile = ZipFile(jar.value.first)
-            jarFile.entries().asSequence()
-                    .filter { it.name.endsWith(".class") }
-                    .map { jarFile.getInputStream(it) to jar.value.second }
+            jarFile.entries().asSequence().filter { it.name.endsWith(".class") }
+                .map { jarFile.getInputStream(it) to jar.value.second }
         }
 
         return jarSequences.flatten()

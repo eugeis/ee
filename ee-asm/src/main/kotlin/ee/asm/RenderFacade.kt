@@ -12,9 +12,7 @@ abstract class Renderer(config: AnkoConfiguration) : Configurable(config) {
     }
 }
 
-class RenderFacade(
-        val generationState: GenerationState
-) : Configurable(generationState.config), ReflectionUtils {
+class RenderFacade(val generationState: GenerationState) : Configurable(generationState.config), ReflectionUtils {
 
     private val cachedResults: MutableMap<Class<out Renderer>, String> = hashMapOf()
 

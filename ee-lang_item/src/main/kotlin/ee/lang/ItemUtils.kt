@@ -94,45 +94,40 @@ fun <T> MultiHolderI<*, *>.findAllByType(type: Class<T>): List<T> {
 }
 
 fun <T> ItemI<*>.findUpByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                              alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(),
-                              stopSteppingUpIfFound: Boolean = true): List<T> =
-        findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound) { listOf(parent()) }
+    alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(), stopSteppingUpIfFound: Boolean = true): List<T> =
+    findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound) { listOf(parent()) }
 
 fun <T> ItemI<*>.findAcrossByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                  alreadyHandled: MutableSet<ItemI<*>> = HashSet(),
-                                  stopSteppingAcrossIfFound: Boolean = true,
-                                  acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>): List<T> =
-        findAcross({
-            if (type.isInstance(this)) this as T else null
-        }, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
+    alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true,
+    acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>): List<T> = findAcross({
+    if (type.isInstance(this)) this as T else null
+}, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
 
 fun <T> MultiHolderI<*, *>.findDownByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                          alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(),
-                                          stopSteppingDownIfFound: Boolean = true): List<T> =
-        findAcrossByType(type, destination, alreadyHandled, stopSteppingDownIfFound, {
-            if (this is MultiHolderI<*, *> && this.supportsItemType(ItemI::class.java))
-                this.items() as Collection<ItemI<*>> else emptyList()
-        })
+    alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(), stopSteppingDownIfFound: Boolean = true): List<T> =
+    findAcrossByType(type, destination, alreadyHandled, stopSteppingDownIfFound, {
+        if (this is MultiHolderI<*, *> && this.supportsItemType(
+                ItemI::class.java)) this.items() as Collection<ItemI<*>> else emptyList()
+    })
 
 fun <T> ItemI<*>.findDown(select: ItemI<*>.() -> T?, destination: MutableList<T> = ArrayList<T>(),
-                          alreadyHandled: MutableSet<ItemI<*>> = HashSet(),
-                          stopSteppingAcrossIfFound: Boolean = true): List<T> =
-        findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound, {
-            if (this is MultiHolderI<*, *> && this.supportsItemType(ItemI::class.java))
-                this.items() as Collection<ItemI<*>> else emptyList()
-        })
+    alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true): List<T> =
+    findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound, {
+        if (this is MultiHolderI<*, *> && this.supportsItemType(
+                ItemI::class.java)) this.items() as Collection<ItemI<*>> else emptyList()
+    })
 
 fun <T> ItemI<*>.findAcross(select: ItemI<*>.() -> T?, destination: MutableList<T> = ArrayList<T>(),
-                            alreadyHandled: MutableSet<ItemI<*>> = HashSet(),
-                            stopSteppingAcrossIfFound: Boolean = true,
-                            acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>): List<T> {
+    alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true,
+    acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>): List<T> {
     acrossSelector().forEach { acrossItem ->
         if (!alreadyHandled.contains(acrossItem)) {
             alreadyHandled.add(acrossItem)
             val selected = acrossItem.select()
             if (selected != null && !destination.contains(selected)) {
                 destination.add(selected)
-                if (!stopSteppingAcrossIfFound) acrossItem.findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
+                if (!stopSteppingAcrossIfFound) acrossItem.findAcross(select, destination, alreadyHandled,
+                    stopSteppingAcrossIfFound, acrossSelector)
             } else {
                 acrossItem.findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
             }

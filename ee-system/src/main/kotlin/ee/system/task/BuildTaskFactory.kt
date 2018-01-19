@@ -13,7 +13,7 @@ open class BuildTaskFactory : BuildTaskFactoryBase {
     }
 
     constructor(name: String, group: String = "Build", pathResolver: PathResolver, buildToolFactory: BuildToolFactory,
-                buildRequest: BuildRequest) : super(name, group, pathResolver, buildToolFactory, buildRequest) {
+        buildRequest: BuildRequest) : super(name, group, pathResolver, buildToolFactory, buildRequest) {
     }
 }
 

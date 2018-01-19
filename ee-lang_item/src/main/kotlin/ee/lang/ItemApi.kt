@@ -239,8 +239,8 @@ abstract class MultiHolder<I, B : MultiHolderI<I, B>>(private val _type: Class<I
                 }
                 if (isInitialized() && !item.isInitialized()) item.init()
             } else {
-                log.trace("can't set as parent '${this}(${this.name()})' to '$item(${
-                item.name()})', because current parent is ${item.parent()}(${item.parent().name()})")
+                log.trace(
+                    "can't set as parent '${this}(${this.name()})' to '$item(${item.name()})', because current parent is ${item.parent()}(${item.parent().name()})")
             }
         }
     }
@@ -283,15 +283,16 @@ abstract class MultiHolder<I, B : MultiHolderI<I, B>>(private val _type: Class<I
 }
 
 
-open class ListMultiHolder<I>(_type: Class<I>, adapt: ListMultiHolder<I>.() -> Unit = {}) : ListMultiHolderB<I, ListMultiHolder<I>>(_type, adapt) {
+open class ListMultiHolder<I>(_type: Class<I>, adapt: ListMultiHolder<I>.() -> Unit = {}) :
+        ListMultiHolderB<I, ListMultiHolder<I>>(_type, adapt) {
     companion object {
         fun <I> empty(): ListMultiHolder<I> = ListMultiHolder(Any::class.java) as ListMultiHolder<I>
     }
 }
 
 open class ListMultiHolderB<I, B : ListMultiHolderI<I, B>>(_type: Class<I>, value: B.() -> Unit = {},
-                                                           private val _items: MutableList<I> = arrayListOf()) :
-        MultiHolder<I, B>(_type, value), ListMultiHolderI<I, B>, MutableList<I> by _items {
+    private val _items: MutableList<I> = arrayListOf()) : MultiHolder<I, B>(_type, value), ListMultiHolderI<I, B>,
+                                                          MutableList<I> by _items {
 
     override fun <T : I> addItem(item: T): T {
         fillThisOrNonInternalAsParentAndInit(item)
@@ -339,11 +340,11 @@ open class ListMultiHolderB<I, B : ListMultiHolderI<I, B>>(_type: Class<I>, valu
     }
 }
 
-open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Unit = {}) : MapMultiHolderB<I, MapMultiHolder<I>>(_type, adapt)
+open class MapMultiHolder<I>(_type: Class<I>, adapt: MapMultiHolder<I>.() -> Unit = {}) :
+        MapMultiHolderB<I, MapMultiHolder<I>>(_type, adapt)
 
 open class MapMultiHolderB<I, B : MapMultiHolderI<I, B>>(_type: Class<I>, adapt: B.() -> Unit = {},
-                                                         private val _items: MutableMap<String, I> = TreeMap()) :
-        MultiHolder<I, B>(_type, adapt), MapMultiHolderI<I, B> {
+    private val _items: MutableMap<String, I> = TreeMap()) : MultiHolder<I, B>(_type, adapt), MapMultiHolderI<I, B> {
 
     override fun <T : I> addItem(item: T): T {
         if (item is ItemI<*>) {
@@ -420,7 +421,8 @@ open class Composite(adapt: Composite.() -> Unit = {}) : CompositeB<Composite>(a
 open class CompositeB<B : CompositeI<B>> : MapMultiHolderB<ItemI<*>, B>, CompositeI<B> {
     constructor(adapt: B.() -> Unit = {}) : super(ItemI::class.java, adapt)
 
-    open fun <R> itemAsMap(name: String, type: Class<R>, attachParent: Boolean = false, internal: Boolean = false): MapMultiHolderB<R, *> {
+    open fun <R> itemAsMap(name: String, type: Class<R>, attachParent: Boolean = false,
+        internal: Boolean = false): MapMultiHolderB<R, *> {
         return item(name, internal, { MapMultiHolder(type, { name(name) }) })
     }
 
@@ -430,7 +432,7 @@ open class CompositeB<B : CompositeI<B>> : MapMultiHolderB<ItemI<*>, B>, Composi
 
     open fun <T : Any> attr(name: String): T? = attributes().item(name)
     open fun <T : Any> attr(name: String, factory: () -> T, attachParent: Boolean = false): T =
-            attributes().item(name, false, factory)
+        attributes().item(name, false, factory)
 
     override fun <T : Any> attr(name: String, attr: T?): T? {
         if (attr != null) {

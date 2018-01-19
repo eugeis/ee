@@ -16,8 +16,7 @@ open class LangTsContextFactory : LangCommonContextFactory() {
         return {
             val structureUnit = this
             TsContext(moduleFolder = structureUnit.artifact(), namespace = structureUnit.namespace().toLowerCase(),
-                    derivedController = derived, macroController = macroController
-            )
+                derivedController = derived, macroController = macroController)
         }
     }
 }

@@ -33,8 +33,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val moduleGroups = prop(ModuleGroup).multi(true)
     }
 
-    object Event : CompilationUnit({ superUnit(l.CompilationUnit) }) {
-    }
+    object Event : CompilationUnit({ superUnit(l.CompilationUnit) }) {}
 
     object BusinessEvent : CompilationUnit({ superUnit(Event) })
 
@@ -45,12 +44,10 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
     }
 
     object Controller : CompilationUnit({ superUnit(l.CompilationUnit) }) {
-        val enums = prop(l.EnumType).multi(true).nonFluent("enumType").doc(
-                "Enums used special for controller needs, like CommandTypeEnums")
-        val values = prop(Values).multi(true).nonFluent("valueType").doc(
-                "Values used special for controller needs")
-        val basics = prop(Basic).multi(true).nonFluent("basic").doc(
-                "Baics used special for controller needs")
+        val enums = prop(l.EnumType).multi(true).nonFluent("enumType")
+            .doc("Enums used special for controller needs, like CommandTypeEnums")
+        val values = prop(Values).multi(true).nonFluent("valueType").doc("Values used special for controller needs")
+        val basics = prop(Basic).multi(true).nonFluent("basic").doc("Baics used special for controller needs")
     }
 
     object BusinessController : CompilationUnit({ superUnit(Controller) })
@@ -69,14 +66,11 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val checks = prop(Check).multi(true).nonFluent("check")
     }
 
-    object ProcessManager : CompilationUnit({ superUnit(StateMachine) }) {
-    }
+    object ProcessManager : CompilationUnit({ superUnit(StateMachine) }) {}
 
-    object Projector : CompilationUnit({ superUnit(StateMachine) }) {
-    }
+    object Projector : CompilationUnit({ superUnit(StateMachine) }) {}
 
-    object AggregateHandler : CompilationUnit({ superUnit(StateMachine) }) {
-    }
+    object AggregateHandler : CompilationUnit({ superUnit(StateMachine) }) {}
 
     object State : CompilationUnit({ superUnit(Controller) }) {
         val timeout = propL()

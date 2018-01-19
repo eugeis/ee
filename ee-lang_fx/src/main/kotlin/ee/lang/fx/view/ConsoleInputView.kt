@@ -3,7 +3,10 @@ package ee.lang.fx.view
 import javafx.application.Platform
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
-import tornadofx.*
+import tornadofx.borderpane
+import tornadofx.bottom
+import tornadofx.center
+import tornadofx.textfield
 import java.util.*
 import java.util.function.Consumer
 
@@ -25,7 +28,7 @@ class ConsoleInputView : ConsoleView("ConsoleInputView") {
                     }
                     clear()
                 }
-                KeyCode.UP -> {
+                KeyCode.UP    -> {
                     if (historyPointer > 0) {
                         historyPointer--
                         Platform.runLater {
@@ -34,7 +37,7 @@ class ConsoleInputView : ConsoleView("ConsoleInputView") {
                         }
                     }
                 }
-                KeyCode.DOWN -> {
+                KeyCode.DOWN  -> {
                     if (historyPointer < history.size - 1) {
                         historyPointer++
                         Platform.runLater {
@@ -43,7 +46,7 @@ class ConsoleInputView : ConsoleView("ConsoleInputView") {
                         }
                     }
                 }
-                else -> {
+                else          -> {
                 }
             }
         }

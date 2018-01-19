@@ -6,8 +6,8 @@ open class BuildRequest : BuildRequestBase, Cloneable {
     }
 
     constructor(tasks: MutableList<String> = arrayListOf(), params: MutableMap<String, String> = hashMapOf(),
-                flags: MutableList<String> = arrayListOf(), profiles: MutableList<String> = arrayListOf()) : super(tasks, params,
-            flags, profiles) {
+        flags: MutableList<String> = arrayListOf(), profiles: MutableList<String> = arrayListOf()) : super(tasks,
+        params, flags, profiles) {
     }
 
     override fun build(): BuildRequest {

@@ -14,19 +14,19 @@ abstract class BuildTaskBase : Task {
     companion object {
         val EMPTY = BuildTask()
     }
+
     var buildTool: BuildTool = BuildTool.EMPTY
     var buildHome: Path = Paths.get("")
     var buildRequest: BuildRequest = BuildRequest.EMPTY
 
-    constructor(name: String = "", group: String = "", buildTool: BuildTool = BuildTool.EMPTY, buildHome: Path = Paths.get(""), 
-        buildRequest: BuildRequest = BuildRequest.EMPTY) {
+    constructor(name: String = "", group: String = "", buildTool: BuildTool = BuildTool.EMPTY,
+        buildHome: Path = Paths.get(""), buildRequest: BuildRequest = BuildRequest.EMPTY) {
         this.name = name
         this.group = group
         this.buildTool = buildTool
         this.buildHome = buildHome
         this.buildRequest = buildRequest
     }
-
 
 
 }
@@ -39,11 +39,12 @@ abstract class BuildTaskFactoryBase : TaskFactory<BuildTask> {
     companion object {
         val EMPTY = BuildTaskFactory()
     }
+
     var pathResolver: PathResolver = PathResolver.EMPTY
     var buildToolFactory: BuildToolFactory = BuildToolFactory.EMPTY
     var buildRequest: BuildRequest = BuildRequest.EMPTY
 
-    constructor(name: String = "", group: String = "", pathResolver: PathResolver = PathResolver.EMPTY, 
+    constructor(name: String = "", group: String = "", pathResolver: PathResolver = PathResolver.EMPTY,
         buildToolFactory: BuildToolFactory = BuildToolFactory.EMPTY, buildRequest: BuildRequest = BuildRequest.EMPTY) {
         this.name = name
         this.group = group
@@ -51,7 +52,6 @@ abstract class BuildTaskFactoryBase : TaskFactory<BuildTask> {
         this.buildToolFactory = buildToolFactory
         this.buildRequest = buildRequest
     }
-
 
 
 }
@@ -64,13 +64,14 @@ abstract class SystemTaskRegistryBase : TaskRegistry {
     companion object {
         val EMPTY = SystemTaskRegistry()
     }
+
     var buildToolFactory: BuildToolFactory = BuildToolFactory.EMPTY
 
-    constructor(pathResolver: PathResolver = PathResolver.EMPTY, buildToolFactory: BuildToolFactory = BuildToolFactory.EMPTY) {
+    constructor(pathResolver: PathResolver = PathResolver.EMPTY,
+        buildToolFactory: BuildToolFactory = BuildToolFactory.EMPTY) {
         this.pathResolver = pathResolver
         this.buildToolFactory = buildToolFactory
     }
-
 
 
 }

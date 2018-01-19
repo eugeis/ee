@@ -97,24 +97,25 @@ open class Element : EeAny, ElementIfc, Cloneable {
     }
 
     open fun <T : Element> findUpByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                        alreadyHandled: MutableSet<ElementIfc> = HashSet(), stopSteppingUpIfFound: Boolean = true): List<T> =
-            findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound) { parent }
+        alreadyHandled: MutableSet<ElementIfc> = HashSet(), stopSteppingUpIfFound: Boolean = true): List<T> =
+        findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound) { parent }
 
 
     open fun <T : Element> findAcrossByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                            alreadyHandled: MutableSet<ElementIfc> = HashSet(),
-                                            stopSteppingUpIfFound: Boolean = true,
-                                            acrossSelector: ElementIfc.() -> ElementIfc): List<T> {
+        alreadyHandled: MutableSet<ElementIfc> = HashSet(), stopSteppingUpIfFound: Boolean = true,
+        acrossSelector: ElementIfc.() -> ElementIfc): List<T> {
         val baseElement = acrossSelector()
         if (!alreadyHandled.contains(baseElement)) {
             alreadyHandled.add(baseElement)
             if (type.isInstance(baseElement) && !destination.contains(baseElement)) {
                 destination.add(baseElement as T)
-                if (!stopSteppingUpIfFound) findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound, acrossSelector)
+                if (!stopSteppingUpIfFound) findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound,
+                    acrossSelector)
             } else if (baseElement is CompositeD) {
                 baseElement.children.filterIsInstanceTo(destination, type)
             }
-            if (baseElement is Element) baseElement.findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound, acrossSelector)
+            if (baseElement is Element) baseElement.findAcrossByType(type, destination, alreadyHandled,
+                stopSteppingUpIfFound, acrossSelector)
         }
         return destination
     }
@@ -138,9 +139,8 @@ open class CompositeT<T : CompositeD> : DslType<T> {
     open fun <T : Element> findAllByType(type: Class<T>): List<T> = _d.findAllByType(type)
 
     open fun <T : ElementIfc> findDownByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                             alreadyHandled: MutableSet<ElementIfc> = HashSet(),
-                                             stopSteppingDownIfFound: Boolean = true): List<T> =
-            _d.findDownByType(type, destination, alreadyHandled, stopSteppingDownIfFound)
+        alreadyHandled: MutableSet<ElementIfc> = HashSet(), stopSteppingDownIfFound: Boolean = true): List<T> =
+        _d.findDownByType(type, destination, alreadyHandled, stopSteppingDownIfFound)
 }
 
 open class CompositeD : Element {
@@ -175,8 +175,7 @@ open class CompositeD : Element {
     }
 
     open fun <T : ElementIfc> findDownByType(type: Class<T>, destination: MutableList<T> = ArrayList<T>(),
-                                             alreadyHandled: MutableSet<ElementIfc> = HashSet(),
-                                             stopSteppingDownIfFound: Boolean = true): List<T> {
+        alreadyHandled: MutableSet<ElementIfc> = HashSet(), stopSteppingDownIfFound: Boolean = true): List<T> {
         for (item in children) {
             if (!alreadyHandled.contains(item)) {
                 alreadyHandled.add(item)
@@ -184,8 +183,10 @@ open class CompositeD : Element {
                     if (!destination.contains(item)) {
                         destination.add(item as T)
                     }
-                    if (!stopSteppingDownIfFound && item is CompositeD) item.findDownByType(type, destination, alreadyHandled, stopSteppingDownIfFound)
-                } else if (item is CompositeD) item.findDownByType(type, destination, alreadyHandled, stopSteppingDownIfFound)
+                    if (!stopSteppingDownIfFound && item is CompositeD) item.findDownByType(type, destination,
+                        alreadyHandled, stopSteppingDownIfFound)
+                } else if (item is CompositeD) item.findDownByType(type, destination, alreadyHandled,
+                    stopSteppingDownIfFound)
             }
         }
         return destination
@@ -413,11 +414,10 @@ open class Type : TypeT<TypeD> {
 open class TypeT<T : TypeD> : CompositeT<T> {
     constructor(data: T) : super(data)
 
-    fun G(type: TypeT<*> = t.Any, name: String = "", init: GenericD.() -> Unit = {}): GenericD
-            = _d.G(type._d, name, init)
+    fun G(type: TypeT<*> = t.Any, name: String = "", init: GenericD.() -> Unit = {}): GenericD =
+        _d.G(type._d, name, init)
 
-    fun G(name: String, type: TypeT<*> = t.Any, init: GenericD.() -> Unit = {}): GenericD
-            = _d.G(name, type._d, init)
+    fun G(name: String, type: TypeT<*> = t.Any, init: GenericD.() -> Unit = {}): GenericD = _d.G(name, type._d, init)
 
     fun <R : TypeT<*>> T(vararg types: TypeT<*>): R = derive(_d.T(types.map { it._d }.toList()))
 }
@@ -441,11 +441,11 @@ open class TypeD : CompositeD, TypeIfc {
         init()
     }
 
-    fun G(type: TypeIfc = t.Any._d, name: String = "", init: GenericD.() -> Unit = {}): GenericD
-            = generics.addReturn(add(GenericD(name, type, init)))
+    fun G(type: TypeIfc = t.Any._d, name: String = "", init: GenericD.() -> Unit = {}): GenericD =
+        generics.addReturn(add(GenericD(name, type, init)))
 
-    fun G(name: String, type: TypeIfc = t.Any._d, init: GenericD.() -> Unit = {}): GenericD
-            = generics.addReturn(add(GenericD(name, type, init)))
+    fun G(name: String, type: TypeIfc = t.Any._d, init: GenericD.() -> Unit = {}): GenericD =
+        generics.addReturn(add(GenericD(name, type, init)))
 
 
     fun <T : TypeD> T(types: List<TypeIfc>): T {
@@ -638,7 +638,8 @@ open class Operation : LogicUnit {
     var ret: Attribute = t.void
 
     constructor() : super()
-    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void, init: Operation.() -> Unit = {}) : super(params) {
+    constructor(params: List<Attribute> = emptyList(), ret: Attribute = t.void,
+        init: Operation.() -> Unit = {}) : super(params) {
         this.ret = ret
         init()
     }
@@ -647,11 +648,11 @@ open class Operation : LogicUnit {
         return generics.find { it.name == genName } ?: super.findGeneric(genName)
     }
 
-    fun G(type: TypeIfc = t.Any._d, name: String = "", init: GenericD.() -> Unit = {}): GenericD
-            = generics.addReturn(add(GenericD(name, type, init)))
+    fun G(type: TypeIfc = t.Any._d, name: String = "", init: GenericD.() -> Unit = {}): GenericD =
+        generics.addReturn(add(GenericD(name, type, init)))
 
-    fun G(name: String, type: TypeIfc = t.Any._d, init: GenericD.() -> Unit = {}): GenericD
-            = generics.addReturn(add(GenericD(name, type, init)))
+    fun G(name: String, type: TypeIfc = t.Any._d, init: GenericD.() -> Unit = {}): GenericD =
+        generics.addReturn(add(GenericD(name, type, init)))
 
     operator fun invoke(vararg initParams: Attribute): DelegateOperation {
         return DelegateOperation(this, { params = initParams.toList() })
@@ -679,8 +680,8 @@ open class DelegateOperation : Operation {
 }
 
 //helper design functions
-fun lambda(vararg params: Attribute, ret: Attribute = t.void, init: Operation.() -> Unit = {}): Lambda
-        = Lambda(Operation(params.toList(), ret, init))
+fun lambda(vararg params: Attribute, ret: Attribute = t.void, init: Operation.() -> Unit = {}): Lambda =
+    Lambda(Operation(params.toList(), ret, init))
 
 fun param(name: String, type: TypeT<*> = t.String, init: Attribute.() -> Unit = {}): Attribute {
     return Attribute(name, type._d, init)
@@ -690,8 +691,7 @@ fun param(name: Attribute, init: PropAttribute.() -> Unit = {}): PropAttribute {
     return PropAttribute(name, init)
 }
 
-fun ret(type: TypeT<*> = t.String, init: Attribute.() -> Unit = {}): Attribute =
-        param("ret", type, init)
+fun ret(type: TypeT<*> = t.String, init: Attribute.() -> Unit = {}): Attribute = param("ret", type, init)
 
 val refs = arrayListOf<Ref<*>>()
 fun <T : Element> ref(name: String, target: T? = null): Ref<T> {
@@ -734,8 +734,8 @@ open class DslType<T : ElementIfc> : Cloneable {
     }
 
     open protected fun <R : DslType<*>> derive(data: T): R {
-        val ctor = javaClass.declaredConstuctorWithOneGenericType() ?:
-                javaClass.superclass.declaredConstuctorWithOneGenericType()
+        val ctor = javaClass.declaredConstuctorWithOneGenericType()
+                ?: javaClass.superclass.declaredConstuctorWithOneGenericType()
         if (ctor != null) {
             return ctor!!.newInstance(data) as R
         } else {
@@ -753,19 +753,17 @@ open class CompilationUnit : CompilationUnitT<CompilationUnitD> {
 open class CompilationUnitT<T : CompilationUnitD> : TypeT<T> {
     constructor(data: T) : super(data)
 
-    fun prop(type: TypeT<*> = t.String, name: String = "", init: Attribute.() -> Unit = {}): Attribute
-            = _d.prop(type._d, name, init)
+    fun prop(type: TypeT<*> = t.String, name: String = "", init: Attribute.() -> Unit = {}): Attribute =
+        _d.prop(type._d, name, init)
 
     fun constructorAll() = _d.constructorAll()
 
-    fun constructor(vararg params: Attribute, init: Constructor.() -> Unit = {})
-            = _d.constructor(params.toList(), init)
+    fun constructor(vararg params: Attribute, init: Constructor.() -> Unit = {}) = _d.constructor(params.toList(), init)
 
-    fun op(vararg params: Attribute, ret: Attribute = t.void, init: Operation.() -> Unit = {}): Operation
-            = _d.op(params.toList(), ret, init)
+    fun op(vararg params: Attribute, ret: Attribute = t.void, init: Operation.() -> Unit = {}): Operation =
+        _d.op(params.toList(), ret, init)
 
-    fun op(operation: DelegateOperation): Operation
-            = _d.op(operation)
+    fun op(operation: DelegateOperation): Operation = _d.op(operation)
 }
 
 open class CompilationUnitD : TypeD, IsBase {
@@ -824,20 +822,18 @@ open class CompilationUnitD : TypeD, IsBase {
         superUnit = superUnitT?._d
     }
 
-    fun prop(type: TypeD = t.String._d, name: String = "", init: Attribute.() -> Unit = {}): Attribute
-            = props.addReturn(add(Attribute(name, type, init)))
+    fun prop(type: TypeD = t.String._d, name: String = "", init: Attribute.() -> Unit = {}): Attribute =
+        props.addReturn(add(Attribute(name, type, init)))
 
-    fun constructorAll()
-            = constructors.addReturn(add(Constructor(propsAll.filter { !it.meta }.map { param(it) })))
+    fun constructorAll() = constructors.addReturn(add(Constructor(propsAll.filter { !it.meta }.map { param(it) })))
 
-    fun constructor(params: List<Attribute>, init: Constructor.() -> Unit = {})
-            = constructors.addReturn(add(Constructor(params.toList(), init)))
+    fun constructor(params: List<Attribute>, init: Constructor.() -> Unit = {}) =
+        constructors.addReturn(add(Constructor(params.toList(), init)))
 
-    fun op(params: List<Attribute>, ret: Attribute = t.void, init: Operation.() -> Unit = {}): Operation
-            = operations.addReturn(add(Operation(params.toList(), ret, init)))
+    fun op(params: List<Attribute>, ret: Attribute = t.void, init: Operation.() -> Unit = {}): Operation =
+        operations.addReturn(add(Operation(params.toList(), ret, init)))
 
-    fun op(operation: DelegateOperation): Operation
-            = delegates.addReturn(add(operation))
+    fun op(operation: DelegateOperation): Operation = delegates.addReturn(add(operation))
 
     override fun <T : Element> deriveSubType(init: T.() -> Unit): T {
         val ret = super.deriveSubType(init)
@@ -902,11 +898,12 @@ open class StructureUnitD : CompositeD {
             }
         }
 
-    protected fun deriveNamespace(name: String) = (this.namespace.endsWith(name) || "shared".equals(name, true)).
-            ifElse(this.namespace, { "${this.namespace}.$name" })
+    protected fun deriveNamespace(name: String) =
+        (this.namespace.endsWith(name) || "shared".equals(name, true)).ifElse(this.namespace,
+            { "${this.namespace}.$name" })
 
-    protected fun deriveArtifact(name: String) = (this.artifact.endsWith(name)).
-            ifElse(this.artifact, { "${this.artifact}-$name" })
+    protected fun deriveArtifact(name: String) =
+        (this.artifact.endsWith(name)).ifElse(this.artifact, { "${this.artifact}-$name" })
 
     constructor() : super()
     constructor(init: StructureUnitD.() -> Unit = {}) : super() {
@@ -957,11 +954,9 @@ open class EnumTypeD : CompilationUnitD {
         init()
     }
 
-    fun lit(init: Literal.() -> Unit = {}) =
-            literals.addReturn(add(Literal(init)))
+    fun lit(init: Literal.() -> Unit = {}) = literals.addReturn(add(Literal(init)))
 
-    fun lit(params: List<Attribute>, init: Literal.() -> Unit = {}) =
-            literals.addReturn(add(Literal(params, init)))
+    fun lit(params: List<Attribute>, init: Literal.() -> Unit = {}) = literals.addReturn(add(Literal(params, init)))
 
     override fun <T : Element> createType(): T {
         return EnumType() as T
@@ -970,8 +965,7 @@ open class EnumTypeD : CompilationUnitD {
 
 open class Literal : LogicUnit {
     constructor(init: Literal.() -> Unit = {}) : super()
-    constructor(params: List<Attribute> = emptyList(),
-                init: Literal.() -> Unit = {}) : super(params) {
+    constructor(params: List<Attribute> = emptyList(), init: Literal.() -> Unit = {}) : super(params) {
         init()
     }
 }
@@ -1016,8 +1010,7 @@ object t : StructureUnit("ee") {
         val V = G(String)
     }
 
-    object Comment : CompilationUnitForDsl() {
-    }
+    object Comment : CompilationUnitForDsl() {}
 
     object ElementIfc : CompilationUnitForDsl() {
         val name = prop()
@@ -1044,8 +1037,7 @@ object t : StructureUnit("ee") {
         val secondConstructor = constructor(name)
     }
 
-    object Operation : CompilationUnitForDsl() {
-    }
+    object Operation : CompilationUnitForDsl() {}
 
     object StructureUnit : CompilationUnitForDsl() {
         val name = prop()

@@ -56,14 +56,14 @@ fun EntityI<*>.countBy(vararg params: AttributeI<*>) = countBy {
     retTypeAndError(n.Int)
 }
 
-fun CreateByI<*>.primary() = findParentMust(EntityI::class.java).createBys().size == 1 ||
-        name().startsWith("create", true)
+fun CreateByI<*>.primary() =
+    findParentMust(EntityI::class.java).createBys().size == 1 || name().startsWith("create", true)
 
-fun UpdateByI<*>.primary() = findParentMust(EntityI::class.java).updateBys().size == 1 ||
-        name().startsWith("update", true)
+fun UpdateByI<*>.primary() =
+    findParentMust(EntityI::class.java).updateBys().size == 1 || name().startsWith("update", true)
 
-fun DeleteByI<*>.primary() = findParentMust(EntityI::class.java).countBys().size == 1 ||
-        name().startsWith("delete", true)
+fun DeleteByI<*>.primary() =
+    findParentMust(EntityI::class.java).countBys().size == 1 || name().startsWith("delete", true)
 
 fun CompilationUnitI<*>.op(vararg params: AttributeI<*>, body: OperationI<*>.() -> Unit = {}) = op {
     params(*params)
@@ -84,43 +84,39 @@ fun EntityI<*>.deleted(vararg params: AttributeI<*>) = deleted { props(*params) 
 //TODO provide customizable solution for event name derivation from command
 val consonants = ".*[wrtzpsdfghklxcvbnm]".toRegex()
 
-fun CommandI<*>.deriveEventName() = name().endsWith("gin").ifElse(
-        { name().capitalize().replace("gin", "gged") },
-        { "${name().capitalize()}${consonants.matches(name()).then("e")}d" })
+fun CommandI<*>.deriveEventName() = name().endsWith("gin").ifElse({ name().capitalize().replace("gin", "gged") },
+    { "${name().capitalize()}${consonants.matches(name()).then("e")}d" })
 
 fun CommandI<*>.deriveEvent(): EventI<*> {
     val entity = findParentMust(EntityI::class.java)
     return when (this) {
-        is CreateByI ->
-            entity.created {
-                name(deriveEventName())
-                props(*props().map { p(it) }.toTypedArray())
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            }
-        is UpdateByI ->
-            entity.updated {
-                name(deriveEventName())
-                props(*props().map { p(it) }.toTypedArray())
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            }
-        is DeleteByI ->
-            entity.deleted {
-                name(deriveEventName())
-                props(*props().map { p(it) }.toTypedArray())
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            }
-        else ->
-            entity.event {
-                name(deriveEventName())
-                props(*props().map { p(it) }.toTypedArray())
-                constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
-            }
+        is CreateByI -> entity.created {
+            name(deriveEventName())
+            props(*props().map { p(it) }.toTypedArray())
+            constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+        }
+        is UpdateByI -> entity.updated {
+            name(deriveEventName())
+            props(*props().map { p(it) }.toTypedArray())
+            constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+        }
+        is DeleteByI -> entity.deleted {
+            name(deriveEventName())
+            props(*props().map { p(it) }.toTypedArray())
+            constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+        }
+        else         -> entity.event {
+            name(deriveEventName())
+            props(*props().map { p(it) }.toTypedArray())
+            constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+        }
     }
 }
 
 fun EntityI<*>.hasNoQueries() = findBys().isEmpty() && countBys().isEmpty() && existBys().isEmpty()
 fun EntityI<*>.hasNoEvents() = events().isEmpty() && created().isEmpty() && updated().isEmpty() && deleted().isEmpty()
-fun EntityI<*>.hasNoCommands() = commands().isEmpty() && createBys().isEmpty() && updateBys().isEmpty() && deleteBys().isEmpty()
+fun EntityI<*>.hasNoCommands() =
+    commands().isEmpty() && createBys().isEmpty() && updateBys().isEmpty() && deleteBys().isEmpty()
 
 fun StructureUnitI<*>.renameControllersAccordingParentType() {
     findDownByType(ControllerI::class.java).forEach { item ->
@@ -269,13 +265,13 @@ fun <T : CompilationUnitI<*>> T.propagateItemToSubtypes(item: CompilationUnitI<*
             (it.name() == item.name() || it.superUnit() == superUnitChild)
         } == null
     }.forEach { superUnitChild ->
-                val derivedItem = item.deriveSubType {
-                    namespace(superUnitChild.namespace())
-                    G { type(superUnitChild).name("T") }
-                }
-                superUnitChild.addItem(derivedItem)
-                superUnitChild.propagateItemToSubtypes(derivedItem)
+            val derivedItem = item.deriveSubType {
+                namespace(superUnitChild.namespace())
+                G { type(superUnitChild).name("T") }
             }
+            superUnitChild.addItem(derivedItem)
+            superUnitChild.propagateItemToSubtypes(derivedItem)
+        }
 }
 
 fun EntityI<*>.buildId(): AttributeI<*> = prop { key(true).type(n.UUID).name("id") }

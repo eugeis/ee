@@ -82,7 +82,7 @@ abstract class GeneratorBase<M> : GeneratorI<M> {
             val module = target.resolve(c.moduleFolder)
             val folder = module.resolve(c.genFolder)
             folder.deleteFilesRecursively()
-        } else if(c.genFolderDeletePattern != null) {
+        } else if (c.genFolderDeletePattern != null) {
             val module = target.resolve(c.moduleFolder)
             val folder = module.resolve(c.genFolder)
             folder.deleteFilesRecursively(c.genFolderDeletePattern)
@@ -121,7 +121,7 @@ open class Generator<M, I> : GeneratorBase<M> {
     val templates: I.() -> Collection<Template<I>>
 
     constructor(contextBuilder: M.() -> GenerationContext, items: M.() -> Collection<I>,
-                templates: I.() -> Collection<Template<I>>) : super(contextBuilder) {
+        templates: I.() -> Collection<Template<I>>) : super(contextBuilder) {
         this.items = items
         this.templates = templates
     }
@@ -170,7 +170,7 @@ open class Template<I> : TemplateI<I> {
     val nameBuilder: TemplateI<I>.(I) -> NamesI
 
     constructor(name: String, nameBuilder: TemplateI<I>.(I) -> NamesI,
-                generate: TemplateI<I>.(item: I, context: GenerationContext) -> String) {
+        generate: TemplateI<I>.(item: I, context: GenerationContext) -> String) {
         this.name = name
         this.nameBuilder = nameBuilder
         this.generate = generate
@@ -188,8 +188,7 @@ open class FragmentsTemplate<M> : TemplateI<M> {
     val fragments: M.() -> Collection<FragmentI<M>>
     val nameBuilder: TemplateI<M>.(M) -> NamesI
 
-    constructor(name: String, fragments: M.() -> Collection<FragmentI<M>>,
-                nameBuilder: TemplateI<M>.(M) -> NamesI) {
+    constructor(name: String, fragments: M.() -> Collection<FragmentI<M>>, nameBuilder: TemplateI<M>.(M) -> NamesI) {
         this.name = name
         this.nameBuilder = nameBuilder
         this.fragments = fragments
@@ -236,7 +235,7 @@ open class ItemsTemplate<M, I> : ItemsFragment<M, I>, TemplateI<M> {
     val nameBuilder: TemplateI<M>.(M) -> NamesI
 
     constructor(name: String, items: M.() -> Collection<I>, fragments: I.() -> Collection<FragmentI<I>>,
-                nameBuilder: TemplateI<M>.(M) -> NamesI) : super(name, items, fragments) {
+        nameBuilder: TemplateI<M>.(M) -> NamesI) : super(name, items, fragments) {
         this.nameBuilder = nameBuilder
     }
 
@@ -262,11 +261,10 @@ open class GenerationContext : Cloneable {
 
     val types: MutableSet<ItemI<*>> = hashSetOf()
 
-    constructor(namespace: String = "",
-                moduleFolder: String = "", genFolder: String = "",
-                genFolderDeletable: Boolean = false, genFolderDeletePattern: Regex? = null,
-                derivedController: DerivedController = DerivedController(DerivedStorage<ItemI<*>>()),
-                macroController: MacroController = MacroController()) {
+    constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "",
+        genFolderDeletable: Boolean = false, genFolderDeletePattern: Regex? = null,
+        derivedController: DerivedController = DerivedController(DerivedStorage<ItemI<*>>()),
+        macroController: MacroController = MacroController()) {
         this.namespace = namespace
         this.moduleFolder = moduleFolder
         this.genFolder = genFolder
@@ -324,7 +322,8 @@ open class Macro<T : ItemI<*>> {
 open class MacroController {
     val nameToMacro = hashMapOf<String, Macro<*>>()
 
-    open fun <T : ItemI<*>> registerMacro(name: String, template: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
+    open fun <T : ItemI<*>> registerMacro(name: String,
+        template: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
         nameToMacro.put(name, Macro(name = name, template = template))
     }
 

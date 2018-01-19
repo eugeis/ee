@@ -9,6 +9,7 @@ abstract class ResultBase {
     companion object {
         val EMPTY = Result()
     }
+
     var action: String = ""
     open var ok: Boolean = true
     var failure: String = ""
@@ -16,8 +17,8 @@ abstract class ResultBase {
     var error: Throwable? = null
     var results: List<Result> = emptyList()
 
-    constructor(action: String = "", ok: Boolean = true, failure: String = "", info: String = "", error: Throwable? = null, 
-        results: List<Result> = emptyList()) {
+    constructor(action: String = "", ok: Boolean = true, failure: String = "", info: String = "",
+        error: Throwable? = null, results: List<Result> = emptyList()) {
         this.action = action
         this.ok = ok
         this.failure = failure
@@ -25,7 +26,6 @@ abstract class ResultBase {
         this.error = error
         this.results = results
     }
-
 
 
 }
@@ -38,6 +38,7 @@ open class TaskResult {
     companion object {
         val EMPTY = TaskResult()
     }
+
     var task: Task = Task.EMPTY
     var result: Result = Result.EMPTY
 
@@ -45,7 +46,6 @@ open class TaskResult {
         this.task = task
         this.result = result
     }
-
 
 
 }
@@ -58,6 +58,7 @@ open class ExecConfig {
     companion object {
         val EMPTY = ExecConfig()
     }
+
     var home: Path = Paths.get("")
     var cmd: List<String> = emptyList()
     var env: Map<String, String> = emptyMap()
@@ -69,8 +70,8 @@ open class ExecConfig {
     var timeout: Long = 30
     var timeoutUnit: TimeUnit = TimeUnit.SECONDS
 
-    constructor(home: Path = Paths.get(""), cmd: List<String> = emptyList(), env: Map<String, String> = emptyMap(), 
-        filterPattern: String = "", failOnError: Boolean = false, filter: Boolean = false, noConsole: Boolean = false, 
+    constructor(home: Path = Paths.get(""), cmd: List<String> = emptyList(), env: Map<String, String> = emptyMap(),
+        filterPattern: String = "", failOnError: Boolean = false, filter: Boolean = false, noConsole: Boolean = false,
         wait: Boolean = true, timeout: Long = 30, timeoutUnit: TimeUnit = TimeUnit.SECONDS) {
         this.home = home
         this.cmd = cmd
@@ -85,7 +86,6 @@ open class ExecConfig {
     }
 
 
-
 }
 
 fun ExecConfig?.orEmpty(): ExecConfig {
@@ -96,14 +96,14 @@ open class TaskGroup {
     companion object {
         val EMPTY = TaskGroup()
     }
-    var taskFactories: MutableList<TaskFactory<*> > = arrayListOf()
+
+    var taskFactories: MutableList<TaskFactory<*>> = arrayListOf()
     var tasks: MutableList<Task> = arrayListOf()
 
-    constructor(taskFactories: MutableList<TaskFactory<*> > = arrayListOf(), tasks: MutableList<Task> = arrayListOf()) {
+    constructor(taskFactories: MutableList<TaskFactory<*>> = arrayListOf(), tasks: MutableList<Task> = arrayListOf()) {
         this.taskFactories = taskFactories
         this.tasks = tasks
     }
-
 
 
 }
@@ -116,8 +116,10 @@ abstract class TaskBase {
     companion object {
         val EMPTY = Task()
     }
+
     var name: String = ""
     var group: String = ""
+
     constructor(name: String = "", group: String = "") {
         this.name = name
         this.group = group
@@ -136,8 +138,10 @@ abstract class TaskFactoryBase<T : Task> {
     companion object {
         val EMPTY = TaskFactory<Task>()
     }
+
     var name: String = ""
     var group: String = ""
+
     constructor(name: String = "", group: String = "") {
         this.name = name
         this.group = group
@@ -150,22 +154,23 @@ abstract class TaskFactoryBase<T : Task> {
 
 }
 
-fun TaskFactoryBase<*> ?.orEmpty(): TaskFactory<*>  {
-    return if (this != null) this as TaskFactory<*>  else TaskFactoryBase.EMPTY
+fun TaskFactoryBase<*>?.orEmpty(): TaskFactory<*> {
+    return if (this != null) this as TaskFactory<*> else TaskFactoryBase.EMPTY
 }
 
 abstract class TaskRepositoryBase {
     companion object {
         val EMPTY = TaskRepository()
     }
-    var typeFactories: MutableList<TaskFactory<*> > = arrayListOf()
 
-    constructor(typeFactories: MutableList<TaskFactory<*> > = arrayListOf()) {
+    var typeFactories: MutableList<TaskFactory<*>> = arrayListOf()
+
+    constructor(typeFactories: MutableList<TaskFactory<*>> = arrayListOf()) {
         this.typeFactories = typeFactories
     }
 
 
-    abstract fun <V : TaskFactory<*> > register(factory: V)
+    abstract fun <V : TaskFactory<*>> register(factory: V)
 
     abstract fun <T : ItemI<*>> find(items: List<T>): List<*>
 
@@ -179,6 +184,7 @@ abstract class PathResolverBase {
     companion object {
         val EMPTY = PathResolver()
     }
+
     var home: Path = Paths.get("")
     var itemToHome: MutableMap<String, String> = hashMapOf()
 
@@ -200,7 +206,9 @@ abstract class TaskRegistryBase {
     companion object {
         val EMPTY = TaskRegistry()
     }
+
     var pathResolver: PathResolver = PathResolver.EMPTY
+
     constructor(pathResolver: PathResolver = PathResolver.EMPTY) {
         this.pathResolver = pathResolver
     }

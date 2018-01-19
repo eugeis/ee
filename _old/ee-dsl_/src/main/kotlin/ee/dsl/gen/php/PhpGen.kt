@@ -22,8 +22,8 @@ class PhpContext : GenerationContext {
         return types.isEmpty().ifElse("", {
             val outsideTypes = types.filter { it.namespace.isNotEmpty() && it.namespace != namespace }
             outsideTypes.isEmpty().ifElse("", {
-                "${outsideTypes.map { "${indent}import ${it.namespace}.${it.name}" }.sorted().
-                        joinToString(nL)}${nL}${nL}"
+                "${outsideTypes.map { "${indent}import ${it.namespace}.${it.name}" }.sorted().joinToString(
+                    nL)}${nL}${nL}"
             })
         })
     }
@@ -60,34 +60,34 @@ fun <T : Comment> T.toPhp(context: PhpContext, indent: String = ""): String {
 
 fun <T : Element> T.toPhpComment(context: PhpContext, indent: String = ""): String {
     return when (doc) {
-        null -> ""
+        null          -> ""
         Comment.EMPTY -> ""
-        else -> "${doc?.toPhp(context, indent)}"
+        else          -> "${doc?.toPhp(context, indent)}"
     }
 }
 
 fun <T : TypeD> T.toPhp(context: PhpContext, indent: String = ""): String {
     return when (this) {
-        td.String -> "String"
+        td.String  -> "String"
         td.Boolean -> "Boolean"
         td.Integer -> "Integer"
-        td.Long -> "Long"
-        td.Float -> "Float"
-        td.Date -> context.n(Java.util.Date)
-        else -> "$indent$name"
+        td.Long    -> "Long"
+        td.Float   -> "Float"
+        td.Date    -> context.n(Java.util.Date)
+        else       -> "$indent$name"
     }
 }
 
 fun <T : TypeD> T.toPhpValue(context: PhpContext): String {
     if (this is NativeType) {
         return when (this) {
-            td.String -> "''"
+            td.String  -> "''"
             td.Boolean -> "false"
             td.Integer -> "0"
-            td.Long -> "0l"
-            td.Float -> "0f"
-            td.Date -> "${td.Date.toPhp(context)}()"
-            else -> "\"\""
+            td.Long    -> "0l"
+            td.Float   -> "0f"
+            td.Date    -> "${td.Date.toPhp(context)}()"
+            else       -> "\"\""
         }
     } else if (this is ExternalType) {
         return "null"
@@ -108,8 +108,10 @@ fun <T : Attribute> T.toPhpSetterIfc(context: PhpContext, indent: String = ""): 
     return "${toPhpComment(context, indent)}$indent$name($name: ${type.toPhp(context)})"
 }
 
-fun <T : Literal> T.toPhpLiteral(context: PhpContext, indent: String = "", mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }): String {
-    return """${toPhpComment(context, indent)}${mappings(context, indent)}${indent}const ${name.toUnderscoredUpperCase()} = '$name';"""
+fun <T : Literal> T.toPhpLiteral(context: PhpContext, indent: String = "",
+    mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }): String {
+    return """${toPhpComment(context, indent)}${mappings(context,
+        indent)}${indent}const ${name.toUnderscoredUpperCase()} = '$name';"""
 }
 
 fun <T : Attribute> T.toPhpTypeDef(context: PhpContext): String {
@@ -120,13 +122,18 @@ fun <T : Attribute> T.toPhpTypeDef(context: PhpContext): String {
     }
 }
 
-fun <T : Attribute> T.toPhpMember(context: PhpContext, indent: String = "", mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }, modifier: String = "public "): String {
-    return "${toPhpComment(context, indent)}${mappings(context, indent)}$indent$modifier$$name${toPhpTypeDef(context)}${toPhpInit(context, true)}"
+fun <T : Attribute> T.toPhpMember(context: PhpContext, indent: String = "",
+    mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" },
+    modifier: String = "public "): String {
+    return "${toPhpComment(context, indent)}${mappings(context, indent)}$indent$modifier$$name${toPhpTypeDef(
+        context)}${toPhpInit(context, true)}"
 }
 
-fun <T : Attribute> T.toPhpGetterImpl(context: PhpContext, indent: String = "", mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }, modifier: String = ""): String {
+fun <T : Attribute> T.toPhpGetterImpl(context: PhpContext, indent: String = "",
+    mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }, modifier: String = ""): String {
     val newIndent = "$indent$tab"
-    return """${toPhpComment(context, indent)}${mappings(context, indent)}$indent$modifier$name(): ${type.toPhp(context)} {
+    return """${toPhpComment(context, indent)}${mappings(context, indent)}$indent$modifier$name(): ${type.toPhp(
+        context)} {
 ${newIndent}return $name
 $indent}
 """
@@ -136,9 +143,11 @@ fun <T : Attribute> T.toPhpAssign(context: PhpContext, indent: String = ""): Str
     return "${indent}this.$name = $name"
 }
 
-fun <T : Attribute> T.toPhpSetterImpl(context: PhpContext, indent: String = "", mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }, modifier: String = ""): String {
+fun <T : Attribute> T.toPhpSetterImpl(context: PhpContext, indent: String = "",
+    mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }, modifier: String = ""): String {
     val newIndent = "$indent$tab"
-    return """${toPhpComment(context, indent)}${mappings(context, indent)}$indent$modifier$name($type.to name: ${type.toPhp(context)}) {
+    return """${toPhpComment(context, indent)}${mappings(context,
+        indent)}$indent$modifier$name($type.to name: ${type.toPhp(context)}) {
 ${toPhpAssign(context, newIndent)}
 $indent}
 """
@@ -169,27 +178,35 @@ fun <T : Attribute> T.toPhpInit(context: PhpContext, mustInit: Boolean): String 
     }
 }
 
-fun <T : Attribute> T.toPhpSignature(context: PhpContext, indent: String = "", definition: Boolean = false, modifier: String = "",
-                                     mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }): String {
-    return "${toPhpComment(context, indent)}${mappings(context, indent)}$modifier$$name${toPhpTypeDef(context)}${toPhpInit(context, true)}"
+fun <T : Attribute> T.toPhpSignature(context: PhpContext, indent: String = "", definition: Boolean = false,
+    modifier: String = "", mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }): String {
+    return "${toPhpComment(context, indent)}${mappings(context, indent)}$modifier$$name${toPhpTypeDef(
+        context)}${toPhpInit(context, true)}"
 }
 
-fun List<Attribute>.toPhpSignature(context: PhpContext, indent: String, definition: Boolean = false, modifier: String = ""): String {
-    return "${joinWrappedToString(", ", indent) { it.toPhpSignature(context, indent, definition && !it.inherited, modifier) }}"
+fun List<Attribute>.toPhpSignature(context: PhpContext, indent: String, definition: Boolean = false,
+    modifier: String = ""): String {
+    return "${joinWrappedToString(", ", indent) {
+        it.toPhpSignature(context, indent, definition && !it.inherited, modifier)
+    }}"
 }
 
 fun List<Attribute>.toPhpMember(context: PhpContext, indent: String, modifier: String = ""): String {
-    return "${joinWrappedToString(", ", indent) { it.toPhpSignature(context, indent, true && !it.inherited, modifier) }}"
+    return "${joinWrappedToString(", ", indent) {
+        it.toPhpSignature(context, indent, true && !it.inherited, modifier)
+    }}"
 }
 
 fun <T : Operation> T.toPhpIfc(context: PhpContext, indent: String = "",
-                               mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }): String {
-    return "${toPhpComment(context, indent)}${mappings(context, indent)}$indent$name(${params.toPhpSignature(context, indent)})${ret?.toPhpTypeDef(context)}"
+    mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }): String {
+    return "${toPhpComment(context, indent)}${mappings(context, indent)}$indent$name(${params.toPhpSignature(context,
+        indent)})${ret?.toPhpTypeDef(context)}"
 }
 
 fun <T : Operation> T.toPhpImpl(context: PhpContext, indent: String = "",
-                                mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }, modifier: String = ""): String {
-    return """${toPhpComment(context, indent)}${mappings(context, indent)}$indent$modifier$name(${params.toPhpSignature(context, indent)})${ret?.toPhpTypeDef(context)} {
+    mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }, modifier: String = ""): String {
+    return """${toPhpComment(context, indent)}${mappings(context, indent)}$indent$modifier$name(${params.toPhpSignature(
+        context, indent)})${ret?.toPhpTypeDef(context)} {
 ${ret?.toPhpReturn(context, indent)}
 $indent}
 """
@@ -236,11 +253,11 @@ fun <T : Constructor> T.toPhpCall(context: PhpContext, indent: String = "", name
 }
 
 fun <T : Constructor> T.toPhpPrimary(context: PhpContext, indent: String = "", superUnit: CompilationUnitD? = null,
-                                     mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" },
-                                     modifier: String = ""): String {
+    mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }, modifier: String = ""): String {
     if (this != Constructor.EMPTY) {
         if (superUnit != null) {
-            return """(${params.toPhpMember(context, indent)})${superUnit.primaryConstructor.toPhpCall(context, indent, context.n(superUnit))}"""
+            return """(${params.toPhpMember(context, indent)})${superUnit.primaryConstructor.toPhpCall(context, indent,
+                context.n(superUnit))}"""
         } else {
             return """(${params.toPhpMember(context, indent)})"""
         }
@@ -250,37 +267,46 @@ fun <T : Constructor> T.toPhpPrimary(context: PhpContext, indent: String = "", s
 }
 
 fun <T : Constructor> T.toPhp(context: PhpContext, indent: String = "", superConstructor: Constructor,
-                              mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" },
-                              modifier: String = ""): String {
+    mappings: T.(context: PhpContext, indent: String) -> String = { c, ind -> "" }, modifier: String = ""): String {
     val newIndent = "$indent$tab"
-    return """${toPhpComment(context, indent)}${mappings(context, indent)}$indent${modifier}constructor(${params.toPhpSignature(context, newIndent)})${superConstructor.toPhpCall(context, "$newIndent$tab")} {
+    return """${toPhpComment(context, indent)}${mappings(context,
+        indent)}$indent${modifier}constructor(${params.toPhpSignature(context, newIndent)})${superConstructor.toPhpCall(
+        context, "$newIndent$tab")} {
 ${substractParamsOf(superConstructor).joinToString(nL) { it.toPhpAssign(context, newIndent) }}
 $indent}
 """
 }
 
-fun <T : Constructor> T.toPhpFactoryMethod(context: PhpContext, indent: String = "", derived: TypeDerived<CompilationUnitD>): String {
+fun <T : Constructor> T.toPhpFactoryMethod(context: PhpContext, indent: String = "",
+    derived: TypeDerived<CompilationUnitD>): String {
     val methodDef = """${indent}fun new"""
     val signatureIndent = "".padEnd(methodDef.length + 1)
-    return """$methodDef(${params.toPhpSignature(context, signatureIndent)}) = ${derived.name}(${params.toPhpCall(context, signatureIndent)})"""
+    return """$methodDef(${params.toPhpSignature(context, signatureIndent)}) = ${derived.name}(${params.toPhpCall(
+        context, signatureIndent)})"""
 }
 
-fun <T : Constructor> T.substractParamsOf(superConstructor: Constructor)
-        = params.filter { param -> superConstructor.params.firstOrNull { it.name == param.name } == null }
+fun <T : Constructor> T.substractParamsOf(superConstructor: Constructor) =
+    params.filter { param -> superConstructor.params.firstOrNull { it.name == param.name } == null }
 
 val CompilationUnitD.primaryConstructor: Constructor
     get() = storage.getOrPut(this, "primaryConstructor", { constructors.firstOrNull() ?: Constructor.EMPTY })
 
 val CompilationUnitD.otherConstructors: List<Constructor>
-    get() = storage.getOrPut(this, "otherConstructors", { if (constructors.size > 1) constructors.subList(1, constructors.size) else emptyList() })
+    get() = storage.getOrPut(this, "otherConstructors",
+        { if (constructors.size > 1) constructors.subList(1, constructors.size) else emptyList() })
 
 val Constructor.props: List<Attribute>
     get() = storage.getOrPut(this, "props", { params?.filterIsInstance(PropAttributeI::class.java)?.map { it.prop!! } })
 
 val CompilationUnitD.propsExceptPrimaryConstructor: List<Attribute>
-    get() = storage.getOrPut(this, "propsExceptPrimaryConstructor", { if (primaryConstructor != Constructor.EMPTY) props.filter { !primaryConstructor.props.contains(it) } else props })
+    get() = storage.getOrPut(this, "propsExceptPrimaryConstructor", {
+        if (primaryConstructor != Constructor.EMPTY) props.filter {
+            !primaryConstructor.props.contains(it)
+        } else props
+    })
 
-fun CompilationUnitD.toPhpIfc(context: PhpContext, indent: String = "", derived: TypeDerived<CompilationUnitD> = api): String {
+fun CompilationUnitD.toPhpIfc(context: PhpContext, indent: String = "",
+    derived: TypeDerived<CompilationUnitD> = api): String {
     val newIndent = "$indent$tab"
     return """${toPhpComment(context, indent)}${indent}interface ${derived.name} {
 ${props.joinToString(nL) { it.toPhpMember(context, newIndent) }}
@@ -292,15 +318,18 @@ fun CompilationUnitD.toPhpExtends(context: PhpContext, indent: String = ""): Str
     return (superUnit != null).ifElse({ "${superUnit?.primaryConstructor?.toPhp(context, indent)}" }, "")
 }
 
-fun CompilationUnitD.toPhpClassDef(context: PhpContext, indent: String, derived: TypeDerived<CompilationUnitD>): String {
+fun CompilationUnitD.toPhpClassDef(context: PhpContext, indent: String,
+    derived: TypeDerived<CompilationUnitD>): String {
     return """$indent${virtual.ifElse("abstract ", "")}class ${derived.name}"""
 }
 
-fun CompilationUnitD.toPhpImpl(context: PhpContext, indent: String = "", derived: TypeDerived<CompilationUnitD> = api): String {
+fun CompilationUnitD.toPhpImpl(context: PhpContext, indent: String = "",
+    derived: TypeDerived<CompilationUnitD> = api): String {
     val newIndent = "$indent$tab"
     val classDef = toPhpClassDef(context, indent, derived)
     val signatureIndent = "".padEnd(classDef.length + 1)
-    return """${toPhpComment(context, indent)}$classDef${primaryConstructor.toPhpPrimary(context, signatureIndent, superUnit)} {
+    return """${toPhpComment(context, indent)}$classDef${primaryConstructor.toPhpPrimary(context, signatureIndent,
+        superUnit)} {
 ${propsExceptPrimaryConstructor.joinToString(nL) { it.toPhpMember(context, newIndent) }}
 ${otherConstructors.joinWrappedToString(nL) { it.toPhp(context, newIndent, primaryConstructor) }}
 ${operations.joinToString(nL) { it.toPhpImpl(context, newIndent) }}

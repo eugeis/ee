@@ -13,11 +13,9 @@ open class DesignSwaggerContextFactory : LangCommonContextFactory() {
             val structureUnit = this
             val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: structureUnit
             GenerationContext(moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}",
-                    genFolder = "src-gen/main/swagger", genFolderDeletable = true,
-                    namespace = structureUnit.namespace().toLowerCase(),
-                    derivedController = derived,
-                    macroController = macroController
-            )
+                genFolder = "src-gen/main/swagger", genFolderDeletable = true,
+                namespace = structureUnit.namespace().toLowerCase(), derivedController = derived,
+                macroController = macroController)
         }
     }
 }

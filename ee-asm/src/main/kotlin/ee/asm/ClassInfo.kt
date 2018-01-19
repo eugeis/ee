@@ -29,9 +29,11 @@ fun ClassNode.buildTypeParams(): String {
         val genericMethodSignature = parseGenericMethodSignature(signature)
         if (genericMethodSignature.typeParameters.isEmpty()) return ""
 
-        genericMethodSignature.typeParameters
-                .map { it.upperBounds.fold("") { s, bound -> s + "out " + genericTypeToStr(bound) } }
-                .joinToString(prefix = "<", postfix = ">")
+        genericMethodSignature.typeParameters.map {
+            it.upperBounds.fold("") { s, bound ->
+                s + "out " + genericTypeToStr(bound)
+            }
+        }.joinToString(prefix = "<", postfix = ">")
     } else ""
 }
 

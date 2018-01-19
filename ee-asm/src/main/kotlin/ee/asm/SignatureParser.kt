@@ -42,51 +42,46 @@ internal class GenericTypeImpl : GenericType {
 internal class TypeParameter(val name: String, val upperBounds: List<GenericType>)
 internal class ValueParameter(val index: Int, val genericType: GenericType)
 
-internal class GenericMethodSignature(
-    val typeParameters: List<TypeParameter>,
-    val returnType: GenericType,
-    val valueParameters: List<ValueParameter>
-)
+internal class GenericMethodSignature(val typeParameters: List<TypeParameter>, val returnType: GenericType,
+    val valueParameters: List<ValueParameter>)
 
 internal fun parseGenericMethodSignature(signature: String): GenericMethodSignature {
     val typeParameters = ArrayList<TypeParameter>()
     val returnType = GenericTypeImpl()
     val valueParameters = ArrayList<ValueParameter>()
 
-    SignatureReader(signature).accept(
-        object : SignatureVisitor(Opcodes.ASM4) {
-            var bounds = ArrayList<GenericType>()
+    SignatureReader(signature).accept(object : SignatureVisitor(Opcodes.ASM4) {
+        var bounds = ArrayList<GenericType>()
 
-            override fun visitFormalTypeParameter(name: String) {
-                bounds = ArrayList<GenericType>()
-                var param = TypeParameter(name, bounds)
-                typeParameters.add(param)
-            }
-
-            override fun visitClassBound(): SignatureVisitor {
-                val bound = GenericTypeImpl()
-                bounds.add(bound)
-                return GenericTypeParser(bound)
-            }
-
-            override fun visitInterfaceBound(): SignatureVisitor {
-                val bound = GenericTypeImpl()
-                bounds.add(bound)
-                return GenericTypeParser(bound)
-            }
-
-            override fun visitParameterType(): SignatureVisitor {
-                val parameterType = GenericTypeImpl()
-                val param = ValueParameter(valueParameters.size, parameterType)
-                valueParameters.add(param)
-                return GenericTypeParser(parameterType)
-            }
-
-            override fun visitReturnType(): SignatureVisitor {
-                return GenericTypeParser(returnType)
-            }
+        override fun visitFormalTypeParameter(name: String) {
+            bounds = ArrayList<GenericType>()
+            var param = TypeParameter(name, bounds)
+            typeParameters.add(param)
         }
-    )
+
+        override fun visitClassBound(): SignatureVisitor {
+            val bound = GenericTypeImpl()
+            bounds.add(bound)
+            return GenericTypeParser(bound)
+        }
+
+        override fun visitInterfaceBound(): SignatureVisitor {
+            val bound = GenericTypeImpl()
+            bounds.add(bound)
+            return GenericTypeParser(bound)
+        }
+
+        override fun visitParameterType(): SignatureVisitor {
+            val parameterType = GenericTypeImpl()
+            val param = ValueParameter(valueParameters.size, parameterType)
+            valueParameters.add(param)
+            return GenericTypeParser(parameterType)
+        }
+
+        override fun visitReturnType(): SignatureVisitor {
+            return GenericTypeParser(returnType)
+        }
+    })
     return GenericMethodSignature(typeParameters, returnType, valueParameters)
 }
 
@@ -126,10 +121,10 @@ private class GenericTypeParser(val result: GenericTypeImpl) : SignatureVisitor(
     override fun visitTypeArgument(wildcard: Char): SignatureVisitor {
         val argument = GenericTypeImpl()
         result.arguments.add(when (wildcard) {
-            SignatureVisitor.EXTENDS -> BoundedWildcard(Wildcard.EXTENDS, argument)
-            SignatureVisitor.SUPER -> BoundedWildcard(Wildcard.SUPER, argument)
+            SignatureVisitor.EXTENDS    -> BoundedWildcard(Wildcard.EXTENDS, argument)
+            SignatureVisitor.SUPER      -> BoundedWildcard(Wildcard.SUPER, argument)
             SignatureVisitor.INSTANCEOF -> NoWildcard(argument)
-            else -> throw IllegalArgumentException("Unknown wildcard: $wildcard")
+            else                        -> throw IllegalArgumentException("Unknown wildcard: $wildcard")
         })
         return GenericTypeParser(argument)
     }

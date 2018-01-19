@@ -56,11 +56,9 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     }
 
     object mux : StructureUnit({ namespace("github.com.gorilla.mux") }) {
-        object Router : ExternalType() {
-        }
+        object Router : ExternalType() {}
 
-        object Vars : ExternalType() {
-        }
+        object Vars : ExternalType() {}
     }
 
     object mgo2 : StructureUnit({ namespace("gopkg.in.mgo.v2.bson") }) {
@@ -129,48 +127,37 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
             }
 
-            object Projector : ExternalType() {
-            }
+            object Projector : ExternalType() {}
 
-            object NewProjector : Operation() {
-            }
+            object NewProjector : Operation() {}
 
         }
     }
 
     object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("eh") }) {
 
-        object Aggregate : ExternalType() {
-        }
+        object Aggregate : ExternalType() {}
 
-        object AggregateBase : ExternalType() {
-        }
+        object AggregateBase : ExternalType() {}
 
-        object NewAggregateBase : Operation() {
-        }
+        object NewAggregateBase : Operation() {}
 
-        object RegisterEventData : Operation() {
-        }
+        object RegisterEventData : Operation() {}
 
-        object EventData : ExternalType({ ifc(true) }) {
-        }
+        object EventData : ExternalType({ ifc(true) }) {}
 
-        object AggregateType : ExternalType() {
-        }
+        object AggregateType : ExternalType() {}
 
-        object Command : ExternalType({ ifc(true) }) {
-        }
+        object Command : ExternalType({ ifc(true) }) {}
 
         object CommandHandler : ExternalType({ ifc(true) })
 
         object CommandBus : ExternalType({
             name("CommandHandler")
             namespace("github.com.looplab.eventhorizon.commandhandler.bus")
-        }) {
-        }
+        }) {}
 
-        object CommandType : ExternalType() {
-        }
+        object CommandType : ExternalType() {}
 
         object AggregateCommandHandler : ExternalType({ ifc(true) }) {
             object SetAggregate : Operation() {
@@ -180,8 +167,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             }
         }
 
-        object Entity : ExternalType({ ifc(true) }) {
-        }
+        object Entity : ExternalType({ ifc(true) }) {}
 
         object EventStore : ExternalType({ ifc(true) }) {
             object Save : Operation() {
@@ -189,23 +175,17 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             }
         }
 
-        object EventBus : ExternalType({ ifc(true) }) {
-        }
+        object EventBus : ExternalType({ ifc(true) }) {}
 
-        object EventPublisher : ExternalType({ ifc(true) }) {
-        }
+        object EventPublisher : ExternalType({ ifc(true) }) {}
 
-        object EventHandler : ExternalType({ ifc(true) }) {
-        }
+        object EventHandler : ExternalType({ ifc(true) }) {}
 
-        object Event : ExternalType({ ifc(true) }) {
-        }
+        object Event : ExternalType({ ifc(true) }) {}
 
-        object EventType : ExternalType() {
-        }
+        object EventType : ExternalType() {}
 
-        object UUID : ExternalType() {
-        }
+        object UUID : ExternalType() {}
 
         object ReadRepo : ExternalType({ ifc(true) }) {
 
@@ -219,8 +199,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
         }
 
-        object Projector : ExternalType({ namespace("github.com.looplab.eventhorizon.eventhandler.projector") }) {
-        }
+        object Projector : ExternalType({ namespace("github.com.looplab.eventhorizon.eventhandler.projector") }) {}
     }
 
 
@@ -237,13 +216,11 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 open class GoContext : GenerationContext {
     val namespaceLastPart: String
 
-    constructor(namespace: String = "", moduleFolder: String = "",
-                genFolder: String = "src/main/go",
-                genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.go".toRegex(),
-                derivedController: DerivedController = DerivedController(DerivedStorage()),
-                macroController: MacroController = MacroController())
-            : super(namespace, moduleFolder, genFolder, genFolderDeletable, genFolderPatternDeletable,
-            derivedController, macroController) {
+    constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src/main/go",
+        genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.go".toRegex(),
+        derivedController: DerivedController = DerivedController(DerivedStorage()),
+        macroController: MacroController = MacroController()) : super(namespace, moduleFolder, genFolder,
+        genFolderDeletable, genFolderPatternDeletable, derivedController, macroController) {
         namespaceLastPart = namespace.substringAfterLast(".")
     }
 
@@ -259,11 +236,11 @@ open class GoContext : GenerationContext {
         return types.isNotEmpty().then {
             val outsideTypes = types.filter { it.namespace().isNotEmpty() && !it.namespace().equals(namespace, true) }
             outsideTypes.isNotEmpty().then {
-                outsideTypes.map { "$indent${it.namespace()}" }.toSortedSet().
-                        joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
-                            """    "${it.toLowerCase().toDotsAsPath().replace("github/com", "github.com").
-                                    replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
-                        }
+                outsideTypes.map { "$indent${it.namespace()}" }.toSortedSet()
+                    .joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
+                        """    "${it.toLowerCase().toDotsAsPath().replace("github/com", "github.com").replace(
+                            "gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
+                    }
             }
         }
     }
@@ -302,8 +279,8 @@ fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
     return this
 }
 
-fun OperationI<*>.retTypeAndError(retType: TypeI<*>): OperationI<*> = returns(Attribute { type(retType).name("ret") },
-        Attribute { type(g.error).name("err") })
+fun OperationI<*>.retTypeAndError(retType: TypeI<*>): OperationI<*> =
+    returns(Attribute { type(retType).name("ret") }, Attribute { type(g.error).name("err") })
 
 fun OperationI<*>.retError(): OperationI<*> = returns(Attribute { type(g.error).name("err") })
 

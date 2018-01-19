@@ -6,7 +6,8 @@ import java.net.InetAddress
 
 class NetExtTest {
 
-    @Test fun testIsLocalAddress() {
+    @Test
+    fun testIsLocalAddress() {
         val inet = InetAddress.getLocalHost()
         assertTrue(inet.isLocalAddress())
     }

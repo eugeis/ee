@@ -5,16 +5,12 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.tree.LocalVariableNode
 import org.objectweb.asm.tree.MethodNode
 
-private val specialLayoutParamsArguments = mapOf(
-        "width" to "android.view.ViewGroup.LayoutParams.WRAP_CONTENT",
-        "height" to "android.view.ViewGroup.LayoutParams.WRAP_CONTENT",
-        "w" to "android.view.ViewGroup.LayoutParams.WRAP_CONTENT",
-        "h" to "android.view.ViewGroup.LayoutParams.WRAP_CONTENT"
-)
+private val specialLayoutParamsArguments = mapOf("width" to "android.view.ViewGroup.LayoutParams.WRAP_CONTENT",
+    "height" to "android.view.ViewGroup.LayoutParams.WRAP_CONTENT",
+    "w" to "android.view.ViewGroup.LayoutParams.WRAP_CONTENT",
+    "h" to "android.view.ViewGroup.LayoutParams.WRAP_CONTENT")
 
-private val specialLayoutParamsNames = mapOf(
-        "w" to "width", "h" to "height"
-)
+private val specialLayoutParamsNames = mapOf("w" to "width", "h" to "height")
 
 internal val MethodNode.args: Array<Type>
     get() = Type.getArgumentTypes(desc)
@@ -26,10 +22,8 @@ internal fun buildKotlinSignature(node: MethodNode): List<String> {
     return parsed.valueParameters.map { genericTypeToStr(it.genericType) }
 }
 
-internal fun MethodNodeWithClass.processArguments(
-        config: AnkoConfiguration,
-        template: (argName: String, argType: String, explicitNotNull: String) -> String
-): String {
+internal fun MethodNodeWithClass.processArguments(config: AnkoConfiguration,
+    template: (argName: String, argType: String, explicitNotNull: String) -> String): String {
     if (method.args.isEmpty()) return ""
 
     val locals = (method.localVariables as List<LocalVariableNode>)?.map { it.index to it }?.toMap() ?: hashMapOf()
@@ -45,16 +39,17 @@ internal fun MethodNodeWithClass.processArguments(
     for ((index, arg) in method.args.withIndex()) {
         val rawArgType = arg.asString(false)
 
-        val annotationSignature = "${clazz.fqName} ${method.returnType.asJavaString()} ${method.name}($javaArgsString) $index"
-        val nullable = !arg.isSimpleType &&
-                ExternalAnnotation.NotNull !in config.annotationManager.findAnnotationsFor(annotationSignature)
+        val annotationSignature =
+            "${clazz.fqName} ${method.returnType.asJavaString()} ${method.name}($javaArgsString) $index"
+        val nullable = !arg.isSimpleType && ExternalAnnotation.NotNull !in config.annotationManager.findAnnotationsFor(
+            annotationSignature)
         val argType = if (nullable) rawArgType + "?" else rawArgType
 
         val explicitNotNull = if (argType.endsWith("?")) "!!" else ""
         val argName = argNames?.get(index) ?: locals[nameIndex]?.name ?: "p$argNum"
         if (argType.isNotEmpty()) {
-            buffer.append(template(argName,
-                    if (method.signature != null) genericArgs[argNum] else argType, explicitNotNull))
+            buffer.append(
+                template(argName, if (method.signature != null) genericArgs[argNum] else argType, explicitNotNull))
         }
         argNum++
         nameIndex += arg.size
@@ -73,10 +68,8 @@ internal fun MethodNodeWithClass.formatLayoutParamsArguments(config: AnkoConfigu
     processArguments(config) { name, type, nul ->
         val defaultValue = specialLayoutParamsArguments[name]
         val realName = specialLayoutParamsNames.getOrElse(name, { name })
-        val arg = if (defaultValue == null)
-            "$realName: $type"
-        else
-            "$realName: $type = $defaultValue"
+        val arg = if (defaultValue == null) "$realName: $type"
+        else "$realName: $type = $defaultValue"
         args += arg
         arg
     }

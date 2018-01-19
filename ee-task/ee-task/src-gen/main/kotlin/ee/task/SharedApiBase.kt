@@ -3,10 +3,8 @@ package ee.task
 import ee.lang.Item
 
 
-
-
 open class ExecConfig {
-    val home: 
+    val home:
     val cmd: List<String>
     val env: Map<String, String>
     val filterPattern: String
@@ -15,12 +13,13 @@ open class ExecConfig {
     val noConsole: Boolean
     val wait: Boolean
     val timeout: Long
-    val timeoutUnit: 
+    val timeoutUnit:
 
 
-    constructor(home:  = .get(""), cmd: List<String> = arrayListOf(), env: Map<String, String> = emptyMap(), filterPattern: String = "", 
-                failOnError: Boolean = false, filter: Boolean = false, noConsole: Boolean = false, wait: Boolean = true, 
-                timeout: Long = 30, timeoutUnit:  = .SECONDS) {
+            constructor(home: = .get(""), cmd: List<String> = arrayListOf(), env: Map<String, String> = emptyMap(), filterPattern: String = "",
+    failOnError: Boolean = false, filter: Boolean = false, noConsole: Boolean = false, wait: Boolean = true,
+    timeout: Long = 30, timeoutUnit:  = .SECONDS)
+    {
         this.home = home
         this.cmd = cmd
         this.env = env
@@ -40,11 +39,12 @@ open class ExecConfig {
 
 
 open class PathResolver {
-    val home: 
+    val home:
     val itemToHome: MutableMap<String, String>
 
 
-    constructor(home:  = .get(""), itemToHome: MutableMap<String, String> = hashMapOf()) {
+    constructor(home: = .get(""), itemToHome: MutableMap<String, String> = hashMapOf())
+    {
         this.home = home
         this.itemToHome = itemToHome
     }
@@ -69,8 +69,8 @@ open class Result {
     val results: List<Result>
 
 
-    constructor(action: String = "", ok: Boolean = true, failure: String = "", info: String = "", error: Throwable? = null, 
-                results: List<Result> = arrayListOf()) {
+    constructor(action: String = "", ok: Boolean = true, failure: String = "", info: String = "",
+        error: Throwable? = null, results: List<Result> = arrayListOf()) {
         this.action = action
         this.ok = ok
         this.failure = failure
@@ -96,7 +96,8 @@ open class Task {
     }
 
 
-    open fun execute()Result {
+    open fun execute()Result
+    {
         throw IllegalAccessException("Not implemented yet.")
     }
 
@@ -117,11 +118,13 @@ open class TaskFactory {
     }
 
 
-    open fun supports()Boolean {
+    open fun supports()Boolean
+    {
         throw IllegalAccessException("Not implemented yet.")
     }
 
-    open fun create()MutableList<Task> {
+    open fun create()MutableList<Task>
+    {
         throw IllegalAccessException("Not implemented yet.")
     }
 
@@ -136,7 +139,8 @@ open class TaskGroup {
     val tasks: MutableList<Task>
 
 
-    constructor(taskFactories: MutableList<TaskFactory<Task>> = arrayListOf(), tasks: MutableList<Task> = arrayListOf()) {
+    constructor(taskFactories: MutableList<TaskFactory<Task>> = arrayListOf(),
+        tasks: MutableList<Task> = arrayListOf()) {
         this.taskFactories = taskFactories
         this.tasks = tasks
     }
@@ -156,7 +160,8 @@ open class TaskRegistry {
     }
 
 
-    open fun register()String {
+    open fun register()String
+    {
         throw IllegalAccessException("Not implemented yet.")
     }
 
@@ -175,11 +180,13 @@ open class TaskRepository {
     }
 
 
-    open fun <V : TaskFactory<Task>> register()String {
+    open fun <V : TaskFactory<Task>> register()String
+    {
         throw IllegalAccessException("Not implemented yet.")
     }
 
-    open fun <T : Item> find()MutableList<TaskFactory<Task>> {
+    open fun <T : Item> find()MutableList<TaskFactory<Task>>
+    {
         throw IllegalAccessException("Not implemented yet.")
     }
 

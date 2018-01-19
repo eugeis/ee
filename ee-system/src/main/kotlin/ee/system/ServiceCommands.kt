@@ -4,7 +4,8 @@ open class ServiceCommands<T : Service> : ServiceCommandsBase<T> {
     companion object {
         val EMPTY = ServiceCommandsBase.EMPTY
     }
-    constructor(item: T): super(item) {
+
+    constructor(item: T) : super(item) {
 
     }
 

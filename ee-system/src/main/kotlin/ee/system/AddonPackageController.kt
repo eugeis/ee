@@ -4,7 +4,8 @@ open class AddonPackageController<T : AddonPackage> : AddonPackageControllerBase
     companion object {
         val EMPTY = AddonPackageControllerBase.EMPTY
     }
-    constructor(item: T): super(item) {
+
+    constructor(item: T) : super(item) {
 
     }
 

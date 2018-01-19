@@ -4,7 +4,8 @@ open class MySqlServiceController<T : MySqlService> : MySqlServiceControllerBase
     companion object {
         val EMPTY = MySqlServiceControllerBase.EMPTY
     }
-    constructor(item: T): super(item) {
+
+    constructor(item: T) : super(item) {
 
     }
 

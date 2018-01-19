@@ -13,10 +13,8 @@ open class DesignTsContextFactory : LangTsContextFactory() {
             val structureUnit = this
             val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: structureUnit
             TsContext(moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}_ng",
-                    namespace = structureUnit.namespace().toLowerCase(),
-                    derivedController = derived,
-                    macroController = macroController
-            )
+                namespace = structureUnit.namespace().toLowerCase(), derivedController = derived,
+                macroController = macroController)
         }
     }
 

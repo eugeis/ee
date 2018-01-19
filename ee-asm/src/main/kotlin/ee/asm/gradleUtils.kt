@@ -16,7 +16,7 @@ fun generateMavenArtifact(outputDirectory: File, artifactName: String, sdkVersio
         val contents = process(File("anko/props/mvn/$original").readText())
         File(outputDirectory, original).writeText(contents)
     }
-    
+
     // Create res directory
     val resDirectory = File(outputDirectory, "src/main/res/")
     if (!resDirectory.exists()) {
@@ -35,9 +35,8 @@ fun generateMavenArtifact(outputDirectory: File, artifactName: String, sdkVersio
 
     // Copy gradle build files
     fun String.substVersions(): String {
-        return replace("%SDK_VERSION", sdkVersion)
-                .replace("%ARTIFACT_VERSION", File("version.txt").readText())
-                .replace("%ARTIFACT_NAME", artifactName)
+        return replace("%SDK_VERSION", sdkVersion).replace("%ARTIFACT_VERSION", File("version.txt").readText())
+            .replace("%ARTIFACT_NAME", artifactName)
     }
     copy("gradle.properties") { it.substVersions() }
     copy("build.gradle") { it.substVersions() }

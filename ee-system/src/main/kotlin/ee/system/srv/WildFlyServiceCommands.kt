@@ -4,7 +4,8 @@ open class WildFlyServiceCommands<T : WildFlyService> : WildFlyServiceCommandsBa
     companion object {
         val EMPTY = WildFlyServiceCommandsBase.EMPTY
     }
-    constructor(item: T): super(item) {
+
+    constructor(item: T) : super(item) {
 
     }
 
