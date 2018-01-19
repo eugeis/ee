@@ -28,7 +28,7 @@ interface ItemI<B : ItemI<B>> {
 
     fun isInitialized(): Boolean
     fun init()
-    fun extendAdapt(value: B.() -> Unit): B
+    fun extendAdapt(adapt: B.() -> Unit): B
     fun namespace(value: String): B
     fun name(value: String): B
     fun doc(value: CommentI<*>): B
@@ -59,8 +59,7 @@ interface MultiHolderI<I, B : MultiHolderI<I, B>> : ItemI<B> {
     fun <T : I> addItems(items: Collection<T>): B
 }
 
-interface ListMultiHolderI<I, B : ListMultiHolderI<I, B>> : MultiHolderI<I, B>, MutableList<I> {
-}
+interface ListMultiHolderI<I, B : ListMultiHolderI<I, B>> : MultiHolderI<I, B>, MutableList<I>
 
 interface MapMultiHolderI<I, B : MapMultiHolderI<I, B>> : MultiHolderI<I, B> {
     fun <T : I> addItem(childName: String, item: T): T
@@ -73,5 +72,4 @@ interface CompositeI<B : CompositeI<B>> : MapMultiHolderI<ItemI<*>, B> {
     fun attributes(): MapMultiHolderI<*, *>
 }
 
-interface CommentI<B : CommentI<B>> : ListMultiHolderI<String, B> {
-}
+interface CommentI<B : CommentI<B>> : ListMultiHolderI<String, B>

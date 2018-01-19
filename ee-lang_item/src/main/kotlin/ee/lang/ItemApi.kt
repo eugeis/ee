@@ -6,8 +6,7 @@ import java.util.*
 
 private val log = LoggerFactory.getLogger("ItemApi")
 
-open class Item(adapt: Item.() -> Unit = {}) : ItemB<Item>(adapt) {
-}
+open class Item(adapt: Item.() -> Unit = {}) : ItemB<Item>(adapt)
 
 open class ItemB<B : ItemI<B>> : ItemI<B> {
     private var _name: String = ""
@@ -257,7 +256,9 @@ abstract class MultiHolder<I, B : MultiHolderI<I, B>>(private val _type: Class<I
     override fun fillSupportsItems() {
         val items = items().filterIsInstance<ItemI<*>>()
         val plainItems = items.filter { !it.name().startsWith("_") }
-        val containers = items.filterIsInstance<MultiHolderI<*, *>>().filter { it.name().startsWith("_") && !it.name().startsWith("__") }
+        val containers = items.filterIsInstance<MultiHolderI<*, *>>().filter {
+            it.name().startsWith("_") && !it.name().startsWith("__")
+        }
         plainItems.forEach { plainItem ->
             containers.forEach { container -> container.fillSupportsItem(plainItem) }
         }
