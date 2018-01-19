@@ -13,32 +13,25 @@ import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
 
-inline fun emptyOr(condition: Boolean, text: () -> String): String {
-    if (condition) return text() else return ""
-}
-
-fun emptyOr(element: Any?): String {
-    if (element != null) return element.toString() else return ""
-}
+inline fun emptyOr(condition: Boolean, text: () -> String): String = if (condition) text() else ""
+fun emptyOr(element: Any?): String = element?.toString() ?: ""
 
 fun <T> T?.orEmpty(prefix: String = "", suffix: String = ""): String =
-        if (this != null && (this !is String || this.trim().isNotEmpty())) "$prefix${this}$suffix" else ""
+        if (this != null && (this !is String || trim().isNotEmpty())) "$prefix${this}$suffix" else ""
 
 
 inline fun <T> T?.orEmpty(prefix: String = "", suffix: String = "", map: T.() -> String): String =
-        if (this != null && (this !is String || this.trim().isNotEmpty())) "$prefix${this.map()}$suffix" else ""
+        if (this != null && (this !is String || trim().isNotEmpty())) "$prefix${map()}$suffix" else ""
 
-fun Any.buildLabel(): Label {
-    return javaClass.buildLabel()
-}
+fun Any.buildLabel(): Label = javaClass.buildLabel()
 
 //Class
 fun <T> Class<T>.buildLabel(): Label {
-    val nameParts = this.name.replace("$", ".").split(".")
-    if (nameParts.size > 1) {
-        return Label(nameParts[nameParts.size - 1], nameParts[nameParts.size - 2])
+    val nameParts = name.replace("$", ".").split(".")
+    return if (nameParts.size > 1) {
+        Label(nameParts[nameParts.size - 1], nameParts[nameParts.size - 2])
     } else {
-        return Label(nameParts[0])
+        Label(nameParts[0])
     }
 }
 
@@ -61,9 +54,7 @@ fun <T> Class<T>.declaredConstuctorWithOneGenericType(): Constructor<*>? {
     }
 }
 
-fun Any.logger(): Logger {
-    return LoggerFactory.getLogger(javaClass)
-}
+fun Any.logger(): Logger = LoggerFactory.getLogger(javaClass)
 
 fun <T, R> T.letTraceExc(debugLevel: Boolean = true, block: (T) -> R): R? = try {
     let(block)
@@ -76,21 +67,13 @@ fun <T, R> T.letTraceExc(debugLevel: Boolean = true, block: (T) -> R): R? = try 
     null
 }
 
-fun <T> Boolean.ifElse(t: T, f: T): T {
-    return if (this) t else f
-}
+fun <T> Boolean.ifElse(t: T, f: T): T = if (this) t else f
 
-fun <T> Boolean.ifElse(t: T, f: () -> T): T {
-    return if (this) t else f()
-}
+fun <T> Boolean.ifElse(t: T, f: () -> T): T = if (this) t else f()
 
-fun <T> Boolean.ifElse(t: () -> T, f: T): T {
-    return if (this) t() else f
-}
+fun <T> Boolean.ifElse(t: () -> T, f: T): T = if (this) t() else f
 
-fun <T> Boolean.ifElse(t: () -> T, f: () -> T): T {
-    return if (this) t() else f()
-}
+fun <T> Boolean.ifElse(t: () -> T, f: () -> T): T = if (this) t() else f()
 
 fun Boolean?.then(text: String): String =
         if (this != null && this) text else ""
@@ -141,187 +124,123 @@ fun <T : Serializable> T.deepCopy(): T {
 }
 
 //String
-fun String.fileExt(): String {
-    return this.substringAfterLast(".").toLowerCase()
-}
+fun String.fileExt(): String = substringAfterLast(".").toLowerCase()
 
-fun String.fileName(): String {
-    return this.substringBeforeLast(".")
-}
+fun String.fileName(): String = substringBeforeLast(".")
 
-fun String.withFileNameSuffix(suffix: String): String {
-    return fileName() + suffix + "." + fileExt()
-}
+fun String.withFileNameSuffix(suffix: String): String = fileName() + suffix + "." + fileExt()
 
-fun String.toPathString(): String {
-    return this.replace("\\", "/")
-}
+fun String.toPathString(): String = replace("\\", "/")
 
-fun String.toDotsAsPath(): String {
-    return this.replace(".", "/")
-}
+fun String.toDotsAsPath(): String = replace(".", "/")
 
-fun String.relativeTo(string: String): String {
-    return this.replace(".", "/")
-}
+fun String.relativeTo(string: String): String = replace(".", "/")
 
-fun String.toPlural(): String {
-    return this.endsWith("rch").ifElse({ "${this}es" }, { "${this}s" })
-}
+fun String.toPlural(): String = endsWith("rch").ifElse({ "${this}es" }, { "${this}s" })
 
+fun String.toConvertUmlauts(): String = Umlauts.replaceUmlauts(this)
 
-fun String.toConvertUmlauts(): String {
-    return Umlauts.replaceUmlauts(this)
-}
+fun String.toKey(): String = toConvertUmlauts().replace("[^a-zA-Z0-9.]".toRegex(), "_").replace("_+".toRegex(), "_")
 
-fun String.toKey(): String {
-    return toConvertUmlauts().replace("[^a-zA-Z0-9.]".toRegex(), "_").replace("_+".toRegex(), "_")
-}
-
-fun String.toUrlKey(): String {
-    return toConvertUmlauts().toLowerCase().replace("[^a-z0-9]".toRegex(), "-").replace("_+".toRegex(), "-")
-}
+fun String.toUrlKey(): String = toConvertUmlauts().toLowerCase().replace("[^a-z0-9]".toRegex(), "-").replace("_+".toRegex(), "-")
 
 val strToCamelCase = WeakHashMap<String, String>()
-fun String.toCamelCase(): String {
-    return strToCamelCase.getOrPut(this, { this.replace("_\\w".toRegex()) { it.value[1].toUpperCase().toString() } })
-}
+fun String.toCamelCase(): String = strToCamelCase.getOrPut(this, { this.replace("_\\w".toRegex()) { it.value[1].toUpperCase().toString() } })
 
 val strToUnderscoredUpper = WeakHashMap<String, String>()
-fun String.toUnderscoredUpperCase(): String {
-    return strToUnderscoredUpper.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "_$1").toUpperCase() })
-}
+fun String.toUnderscoredUpperCase(): String = strToUnderscoredUpper.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "_$1").toUpperCase() })
 
 val strToUnderscoredLower = WeakHashMap<String, String>()
-fun String.toUnderscoredLowerCase(): String {
-    return strToUnderscoredLower.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "_$1").toLowerCase() })
-}
+fun String.toUnderscoredLowerCase(): String = strToUnderscoredLower.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "_$1").toLowerCase() })
 
-fun String.toHyphenLowerCase(): String {
-    return strToUnderscoredLower.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "-$1").toLowerCase() })
-}
+fun String.toHyphenLowerCase(): String = strToUnderscoredLower.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "-$1").toLowerCase() })
 
 val sqlKeywords = mapOf("group" to "group_")
 val strToSql = WeakHashMap<String, String>()
-fun String.toSql(limit: Int = 64): String {
-    return strToSql.getOrPut(this, {
-        val base = this.toUnderscoredLowerCase()
-        (base.length > limit).ifElse({
-            base.replace("(?<!^)(?<!_)[qeuioajy]".toRegex(), "").replace("(\\w)\\1+".toRegex(), "$1")
-        }, sqlKeywords.getOrElse(base, { base }))
-    })
-}
+fun String.toSql(limit: Int = 64): String = strToSql.getOrPut(this, {
+    val base = this.toUnderscoredLowerCase()
+    (base.length > limit).ifElse({
+        base.replace("(?<!^)(?<!_)[qeuioajy]".toRegex(), "").replace("(\\w)\\1+".toRegex(), "$1")
+    }, sqlKeywords.getOrElse(base, { base }))
+})
 
 fun <T> String.asClass(namespace: String = ""): Class<T> {
-    if (namespace.isEmpty()) {
-        return Class.forName(this) as Class<T>
+    return if (namespace.isEmpty()) {
+        Class.forName(this) as Class<T>
     } else {
-        return Class.forName("$namespace.$this") as Class<T>
+        Class.forName("$namespace.$this") as Class<T>
     }
 }
 
 fun <T> String.asClassInstance(namespace: String = ""): T {
-    val clazz: Class<T>
-    clazz = asClass(namespace)
+    val clazz: Class<T> = asClass(namespace)
     return clazz.newInstance()
 }
 
 
-fun String.toIntOr0(): Int {
-    try {
-        return this.toInt()
-    } catch (e: Exception) {
-        return 0
-    }
+fun String.toIntOr0(): Int = try {
+    this.toInt()
+} catch (e: Exception) {
+    0
 }
 
 // Date
 private val longDateTimeFormat = SimpleDateFormat("dd.MM.yy HH:mm:ss.SSS")
 private val longTimeFormat = SimpleDateFormat("HH:mm:ss.SSS")
 
-fun Date.longDateTime(): String {
-    return longDateTimeFormat.format(this)
-}
+fun Date.longDateTime(): String = longDateTimeFormat.format(this)
 
-fun Date.longTime(): String {
-    return longTimeFormat.format(this)
-}
+fun Date.longTime(): String = longTimeFormat.format(this)
 
 // File
-fun File.toPathString(): String {
-    return this.canonicalPath.toPathString()
-}
+fun File.toPathString(): String = canonicalPath.toPathString()
 
-fun File.ext(): String {
-    return this.name.fileExt()
-}
+fun File.ext(): String = name.fileExt()
 
 // Path
 fun Path.isRegularFile(): Boolean {
     return Files.isRegularFile(this)
 }
 
-fun Path.isDirectory(): Boolean {
-    return Files.isDirectory(this)
-}
+fun Path.isDirectory(): Boolean = Files.isDirectory(this)
 
-fun Path.exists(): Boolean {
-    return Files.exists(this)
-}
+fun Path.exists(): Boolean = Files.exists(this)
 
-fun Path.mkdirs(): Boolean {
-    return toFile().mkdirs()
-}
+fun Path.mkdirs(): Boolean = toFile().mkdirs()
 
-fun Path.delete() {
-    Files.delete(this)
-}
+fun Path.delete() = Files.delete(this)
 
-fun Path.deleteIfExists() {
-    Files.deleteIfExists(this)
-}
+fun Path.deleteIfExists() = Files.deleteIfExists(this)
 
-fun Path.deleteFilesRecursively() {
-    toFile().deleteRecursively()
-}
+fun Path.deleteFilesRecursively() = toFile().deleteRecursively()
 
-fun Path.deleteFilesRecursively(pattern: Regex) {
-    toFile().walkTopDown().filter {
-        !it.isDirectory && pattern.matches(it.name)
-    }.forEach { it.delete() }
-}
+fun Path.deleteFilesRecursively(pattern: Regex) = toFile().walkTopDown().filter {
+    !it.isDirectory && pattern.matches(it.name)
+}.forEach { it.delete() }
 
-fun Path.copyRecursively(target: Path) {
-    toFile().copyRecursively(target.toFile())
-}
 
-fun Path.ext(): String {
-    return this.toString().fileExt()
-}
+fun Path.copyRecursively(target: Path) = toFile().copyRecursively(target.toFile())
 
-fun Path.lastModified(): Date {
-    return Date(toFile().lastModified())
-}
+fun Path.ext(): String = toString().fileExt()
+
+fun Path.lastModified(): Date = Date(toFile().lastModified())
 
 // Collections
 
 fun <T> Collection<T>.joinSurroundIfNotEmptyToString(separator: CharSequence = ", ",
                                                      prefix: CharSequence = "", postfix: CharSequence = "",
-                                                     emptyString: String = "", transform: ((T) -> CharSequence)? = null): String {
-    return joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
-}
+                                                     emptyString: String = "", transform: ((T) -> CharSequence)? = null): String = joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
 
 fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(buffer: A, separator: CharSequence = ", ",
                                                                prefix: CharSequence = "", postfix: CharSequence = "",
                                                                emptyString: String = "", transform: ((T) -> CharSequence)? = null): A {
     if (size > 0) {
         buffer.append(prefix)
-        var count = 0
-        for (element in this) {
-            if (++count > 1) {
+        forEachIndexed { index, item ->
+            if (index > 0) {
                 buffer.append(separator)
             }
-            val str = if (transform != null) transform(element) else if (element == null) "" else element.toString()
+            val str = if (transform != null) transform(item) else item?.toString() ?: ""
             buffer.append(str)
         }
         buffer.append(postfix)
@@ -333,23 +252,20 @@ fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(buffer: A, separa
 
 fun <T> Collection<T>.joinWithIndexToString(separator: CharSequence = ", ",
                                             prefix: CharSequence = "", postfix: CharSequence = "",
-                                            emptyString: String = "", transform: ((Int, T) -> CharSequence)? = null): String {
-    return joinWithIndexToString(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
-}
+                                            emptyString: String = "", transform: ((Int, T) -> CharSequence)? = null): String = joinWithIndexToString(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
+
 
 fun <T, A : Appendable> Collection<T>.joinWithIndexToString(buffer: A, separator: CharSequence = ", ",
                                                             prefix: CharSequence = "", postfix: CharSequence = "",
                                                             emptyString: String = "", transform: ((Int, T) -> CharSequence)? = null): A {
     if (size > 0) {
         buffer.append(prefix)
-        var count = 0
-        for (element in this) {
-            if (count > 0) {
+        forEachIndexed { index, item ->
+            if (index > 0) {
                 buffer.append(separator)
             }
-            val str = if (transform != null) transform(count, element) else if (element == null) "" else element.toString()
+            val str = if (transform != null) transform(index, item) else item?.toString() ?: ""
             buffer.append(str)
-            count++
         }
         buffer.append(postfix)
     } else if (emptyString.isNotEmpty()) {
@@ -369,15 +285,14 @@ fun <T, A : Appendable> Collection<T>.joinWrappedTo(buffer: A, separator: CharSe
                                                     width: Int = 120, emptyString: String = "", transform: ((T) -> CharSequence)? = null): A {
     if (size > 0) {
         buffer.append(prefix)
-        var count = 0
         var currentWidth = 0
         val separatorLength = separator.length
-        for (element in this) {
-            if (++count > 1) {
+        forEachIndexed { index, item ->
+            if (index > 0) {
                 buffer.append(separator)
                 currentWidth += separatorLength
             }
-            val str = if (transform != null) transform(element) else if (element == null) "" else element.toString()
+            val str = if (transform != null) transform(item) else item?.toString() ?: ""
             if (currentWidth + str.length > width) {
                 buffer.appendln().append(wrapIndent)
                 currentWidth = wrapIndent.length
@@ -415,11 +330,11 @@ fun <K, T, A : Appendable> Map<K, Collection<T>>.joinSurroundIfNotEmptyTo(buffer
         buffer.append(prefix)
         var count = 0
         for ((k, value) in this) {
-            for (element in value) {
+            for (item in value) {
                 if (++count > 1) {
                     buffer.append(separator)
                 }
-                val str = if (transform != null) transform(k, element) else if (element == null) "" else element.toString()
+                val str = if (transform != null) transform(k, item) else item?.toString() ?: ""
                 buffer.append(str)
             }
         }
