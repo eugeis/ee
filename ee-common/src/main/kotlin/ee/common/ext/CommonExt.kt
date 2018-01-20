@@ -198,6 +198,19 @@ fun File.toPathString(): String = canonicalPath.toPathString()
 
 fun File.ext(): String = name.fileExt()
 
+fun collectFilesByExtension(sourceList: String, fileExtension: String, delimiter: String = ";"): ArrayList<File> {
+    val files = arrayListOf<File>()
+    val fileValidator = { file: File -> file.name.endsWith(fileExtension, true) }
+    sourceList.split(delimiter).map { Paths.get(it).toFile() }.forEach {
+        if (it.isDirectory) {
+            files.addAll(it.listFiles(fileValidator))
+        } else if (fileValidator(it)) {
+            files.add(it)
+        }
+    }
+    return files
+}
+
 // Path
 fun Path.isRegularFile(): Boolean {
     return Files.isRegularFile(this)
