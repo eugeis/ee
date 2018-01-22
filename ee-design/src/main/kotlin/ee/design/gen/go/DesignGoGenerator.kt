@@ -31,6 +31,8 @@ open class DesignGoGenerator {
 
         addQueriesForAggregates()
 
+        addAggregateHandler()
+
         addDefaultReturnValuesForQueries()
 
         addIdPropToEventsAndCommands()

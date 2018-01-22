@@ -35,11 +35,6 @@ fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
 
                         val businessCommands = findDownByType(BusinessCommandI::class.java)
 
-                        if (item.handlers().isEmpty()) {
-                            //add default command handler
-
-                        }
-
                         val commands = item.findDownByType(CommandI::class.java)
                         val commandHandler = controller {
                             name(DesignDerivedType.CommandHandler).derivedAsType(DesignDerivedType.Aggregate)

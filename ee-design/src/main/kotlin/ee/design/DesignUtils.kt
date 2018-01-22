@@ -195,7 +195,15 @@ fun StructureUnitI<*>.addCommandsAndEventsForAggregates() {
         }
 
         if (defaultEvents()) {
-            findDownByType(CommandI::class.java).filter { it.event().isEMPTY() }.forEach { it.deriveEvent() }
+            findDownByType(CommandI::class.java).filter { it.event().isEMPTY() }.forEach { it.event(it.deriveEvent()) }
+        }
+    }
+}
+
+fun StructureUnitI<*>.addAggregateHandler() {
+    findDownByType(EntityI::class.java).filter { !it.virtual() && it.handlers().isEmpty() }.extend {
+        handler {
+
         }
     }
 }
