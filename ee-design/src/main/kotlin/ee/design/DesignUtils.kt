@@ -203,7 +203,7 @@ fun StructureUnitI<*>.addCommandsAndEventsForAggregates() {
 fun StructureUnitI<*>.addAggregateHandler() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.handlers().isEmpty() }.extend {
         handler {
-
+            val initial = state {  }
         }
     }
 }
