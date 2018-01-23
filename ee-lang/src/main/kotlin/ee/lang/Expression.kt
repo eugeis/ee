@@ -1,36 +1,38 @@
 package ee.lang
 
-fun not(predicate: Predicate): NotExpression = NotExpression { value(predicate) }
-infix fun Predicate.and(predicate: Predicate): AndExpression = AndExpression { left(this).right(predicate) }
-infix fun Predicate.or(predicate: Predicate): OrExpression = OrExpression { left(this).right(predicate) }
+fun not(predicate: Predicate): NotPredicate = NotPredicate { value(predicate) }
+infix fun Predicate.and(predicate: Predicate): AndPredicate = AndPredicate { left(this).right(predicate) }
+infix fun Predicate.or(predicate: Predicate): OrPredicate = OrPredicate { left(this).right(predicate) }
 
-infix fun LiteralI<*>.eq(value: LiteralI<*>): EqExpression = EqExpression { left(this@eq).right(value) }
-infix fun LiteralI<*>.eq(value: String?): EqExpression = eq(Literal { value(value).type(n.String) })
-infix fun LiteralI<*>.eq(value: Long): EqExpression = eq(Literal { value(value).type(n.Long) })
-infix fun LiteralI<*>.eq(value: Boolean): EqExpression = eq(Literal { value(value).type(n.Boolean) })
+infix fun LiteralI<*>.eq(value: LiteralI<*>): EqPredicate = EqPredicate { left(this@eq).right(value) }
+infix fun LiteralI<*>.eq(value: String?): EqPredicate = eq(Literal { value(value).type(n.String) })
+infix fun LiteralI<*>.eq(value: Long): EqPredicate = eq(Literal { value(value).type(n.Long) })
+infix fun LiteralI<*>.eq(value: Boolean): EqPredicate = eq(Literal { value(value).type(n.Boolean) })
+fun LiteralI<*>.yes(): EqPredicate = eq(true)
 
-infix fun LiteralI<*>.ne(value: LiteralI<*>): NeExpression = NeExpression { left(this@ne).right(value) }
-infix fun LiteralI<*>.ne(value: String?): NeExpression = ne(Literal { value(value).type(n.String) })
-infix fun LiteralI<*>.ne(value: Long): NeExpression = ne(Literal { value(value).type(n.Long) })
-infix fun LiteralI<*>.ne(value: Boolean): NeExpression = ne(Literal { value(value).type(n.Boolean) })
+infix fun LiteralI<*>.ne(value: LiteralI<*>): NePredicate = NePredicate { left(this@ne).right(value) }
+infix fun LiteralI<*>.ne(value: String?): NePredicate = ne(Literal { value(value).type(n.String) })
+infix fun LiteralI<*>.ne(value: Long): NePredicate = ne(Literal { value(value).type(n.Long) })
+infix fun LiteralI<*>.ne(value: Boolean): NePredicate = ne(Literal { value(value).type(n.Boolean) })
+fun LiteralI<*>.no(): EqPredicate = eq(false)
 
-infix fun LiteralI<*>.lt(value: LiteralI<*>): LtExpression = LtExpression { left(this@lt).right(value) }
-infix fun LiteralI<*>.lt(value: String?): LtExpression = lt(Literal { value(value).type(n.String) })
-infix fun LiteralI<*>.lt(value: Long): LtExpression = lt(Literal { value(value).type(n.Long) })
+infix fun LiteralI<*>.lt(value: LiteralI<*>): LtPredicate = LtPredicate { left(this@lt).right(value) }
+infix fun LiteralI<*>.lt(value: String?): LtPredicate = lt(Literal { value(value).type(n.String) })
+infix fun LiteralI<*>.lt(value: Long): LtPredicate = lt(Literal { value(value).type(n.Long) })
 
-infix fun LiteralI<*>.lte(value: LiteralI<*>): LteExpression = LteExpression { left(this@lte).right(value) }
-infix fun LiteralI<*>.lte(value: String?): LteExpression = lte(Literal { value(value).type(n.String) })
-infix fun LiteralI<*>.lte(value: Long): LteExpression = lte(Literal { value(value).type(n.Long) })
+infix fun LiteralI<*>.lte(value: LiteralI<*>): LtePredicate = LtePredicate { left(this@lte).right(value) }
+infix fun LiteralI<*>.lte(value: String?): LtePredicate = lte(Literal { value(value).type(n.String) })
+infix fun LiteralI<*>.lte(value: Long): LtePredicate = lte(Literal { value(value).type(n.Long) })
 
-infix fun LiteralI<*>.gt(value: LiteralI<*>): GtExpression = GtExpression { left(this@gt).right(value) }
-infix fun LiteralI<*>.gt(value: String?): GtExpression = gt(Literal { value(value).type(n.String) })
-infix fun LiteralI<*>.gt(value: Long): GtExpression = gt(Literal { value(value).type(n.Long) })
+infix fun LiteralI<*>.gt(value: LiteralI<*>): GtPredicate = GtPredicate { left(this@gt).right(value) }
+infix fun LiteralI<*>.gt(value: String?): GtPredicate = gt(Literal { value(value).type(n.String) })
+infix fun LiteralI<*>.gt(value: Long): GtPredicate = gt(Literal { value(value).type(n.Long) })
 
-infix fun LiteralI<*>.gte(value: LiteralI<*>): GteExpression = GteExpression { left(this@gte).right(value) }
-infix fun LiteralI<*>.gte(value: String?): GteExpression = gte(Literal { value(value).type(n.String) })
-infix fun LiteralI<*>.gte(value: Long): GteExpression = gte(Literal { value(value).type(n.Long) })
+infix fun LiteralI<*>.gte(value: LiteralI<*>): GtePredicate = GtePredicate { left(this@gte).right(value) }
+infix fun LiteralI<*>.gte(value: String?): GtePredicate = gte(Literal { value(value).type(n.String) })
+infix fun LiteralI<*>.gte(value: Long): GtePredicate = gte(Literal { value(value).type(n.Long) })
 
-infix fun LiteralI<*>.compareTo(value: LiteralI<*>): GteExpression = GteExpression { left(this@compareTo).right(value) }
+infix fun LiteralI<*>.compareTo(value: LiteralI<*>): GtePredicate = GtePredicate { left(this@compareTo).right(value) }
 
 operator fun LiteralI<*>.plus(value: LiteralI<*>): LiteralI<*> = PlusExpression { left(this@plus).left(value) }
 operator fun LiteralI<*>.plus(value: Long): LiteralI<*> = plus(Literal { value(value).type(n.Long) })

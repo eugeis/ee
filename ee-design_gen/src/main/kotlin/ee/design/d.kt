@@ -63,7 +63,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
 
         val timeout = propL()
         val states = prop(State).multi(true).nonFluent("state")
-        val checks = prop(Check).multi(true).nonFluent("check")
+        val checks = prop(l.Predicate).multi(true).nonFluent("check")
     }
 
     object ProcessManager : CompilationUnit({ superUnit(StateMachine) }) {}
@@ -81,29 +81,25 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
     }
 
     object DynamicState : CompilationUnit({ superUnit(State) }) {
-        val checks = prop(Check).multi(true).nonFluent("yes")
-        val notChecks = prop(Check).multi(true).nonFluent("no")
+        val ifTrue = prop(l.Predicate).multi(true).nonFluent("ifT")
+        val ifFalse = prop(l.Predicate).multi(true).nonFluent("ifF")
     }
 
     object Executor : CompilationUnit({ superUnit(l.LogicUnit) }) {
         val on = prop(Command)
-        val checks = prop(Check).multi(true).nonFluent("yes")
-        val notChecks = prop(Check).multi(true).nonFluent("no")
+        val ifTrue = prop(l.Predicate).multi(true).nonFluent("ifT")
+        val ifFalse = prop(l.Predicate).multi(true).nonFluent("ifF")
         val actions = prop(l.Action).multi(true).nonFluent("action")
         val output = prop(Event).multi(true).nonFluent("produce")
     }
 
     object Handler : CompilationUnit({ superUnit(l.LogicUnit) }) {
         val on = prop(Event)
-        val checks = prop(Check).multi(true).nonFluent("yes")
-        val notChecks = prop(Check).multi(true).nonFluent("no")
+        val ifTrue = prop(l.Predicate).multi(true).nonFluent("ifT")
+        val ifFalse = prop(l.Predicate).multi(true).nonFluent("ifF")
         val to = prop(State)
         val actions = prop(l.Action).multi(true).nonFluent("action")
         val output = prop(Command).multi(true).nonFluent("produce")
-    }
-
-    object Check : CompilationUnit({ superUnit(l.LogicUnit) }) {
-        val cachedInContext = propB()
     }
 
     object BusinessCommand : CompilationUnit({ superUnit(Command) })
@@ -151,6 +147,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val updated = prop(Updated).multi(true).nonFluent("updated")
         val deleted = prop(Deleted).multi(true).nonFluent("deleted")
 
+        val checks = prop(l.Predicate).multi(true).nonFluent("check")
         val handlers = prop(AggregateHandler).multi(true).nonFluent("handler")
         val projectors = prop(Projector).multi(true).nonFluent("projector")
         val processManager = prop(ProcessManager).multi(true).nonFluent("processManager")

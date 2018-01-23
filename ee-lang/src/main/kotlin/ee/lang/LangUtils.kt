@@ -447,3 +447,7 @@ fun <T : StructureUnitI<*>> T.initFullNameArtifacts() {
 
 fun <T : MacroCompositeI<*>> T.hasMacros() =
     macrosBefore().isNotEmpty() || macrosBody().isNotEmpty() || macrosAfter().isNotEmpty()
+
+fun TypeI<*>.findProp(propToSearch: AttributeI<*>): AttributeI<*> = props().find {
+    it == propToSearch || it.derivedFrom() == propToSearch || it.name() == propToSearch.name()
+} ?: Attribute.EMPTY

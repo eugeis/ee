@@ -1,12 +1,24 @@
 package ee.design
 
-import ee.lang.*
+import ee.lang.ActionI
+import ee.lang.AttributeI
+import ee.lang.CompilationUnitI
+import ee.lang.DataTypeI
+import ee.lang.DataTypeOperationI
+import ee.lang.EnumTypeI
+import ee.lang.ExternalTypeI
+import ee.lang.ListMultiHolder
+import ee.lang.LogicUnitI
+import ee.lang.PredicateI
+import ee.lang.StructureUnitI
 
 
-interface AggregateHandlerI<B : AggregateHandlerI<B>> : StateMachineI<B> {}
+interface AggregateHandlerI<B : AggregateHandlerI<B>> : StateMachineI<B> {
+}
 
 
-interface BasicI<B : BasicI<B>> : DataTypeI<B> {}
+interface BasicI<B : BasicI<B>> : DataTypeI<B> {
+}
 
 
 interface BundleI<B : BundleI<B>> : StructureUnitI<B> {
@@ -15,18 +27,15 @@ interface BundleI<B : BundleI<B>> : StructureUnitI<B> {
 }
 
 
-interface BusinessCommandI<B : BusinessCommandI<B>> : CommandI<B> {}
+interface BusinessCommandI<B : BusinessCommandI<B>> : CommandI<B> {
+}
 
 
-interface BusinessControllerI<B : BusinessControllerI<B>> : ControllerI<B> {}
+interface BusinessControllerI<B : BusinessControllerI<B>> : ControllerI<B> {
+}
 
 
-interface BusinessEventI<B : BusinessEventI<B>> : EventI<B> {}
-
-
-interface CheckI<B : CheckI<B>> : LogicUnitI<B> {
-    fun cachedInContext(): Boolean
-    fun cachedInContext(value: Boolean): B
+interface BusinessEventI<B : BusinessEventI<B>> : EventI<B> {
 }
 
 
@@ -69,31 +78,36 @@ interface ControllerI<B : ControllerI<B>> : CompilationUnitI<B> {
 }
 
 
-interface CountByI<B : CountByI<B>> : DataTypeOperationI<B> {}
+interface CountByI<B : CountByI<B>> : DataTypeOperationI<B> {
+}
 
 
-interface CreateByI<B : CreateByI<B>> : CommandI<B> {}
+interface CreateByI<B : CreateByI<B>> : CommandI<B> {
+}
 
 
-interface CreatedI<B : CreatedI<B>> : EventI<B> {}
+interface CreatedI<B : CreatedI<B>> : EventI<B> {
+}
 
 
-interface DeleteByI<B : DeleteByI<B>> : CommandI<B> {}
+interface DeleteByI<B : DeleteByI<B>> : CommandI<B> {
+}
 
 
-interface DeletedI<B : DeletedI<B>> : EventI<B> {}
+interface DeletedI<B : DeletedI<B>> : EventI<B> {
+}
 
 
 interface DynamicStateI<B : DynamicStateI<B>> : StateI<B> {
-    fun checks(): ListMultiHolder<CheckI<*>>
-    fun checks(vararg value: CheckI<*>): B
-    fun yes(value: CheckI<*>): CheckI<*>
-    fun yes(value: CheckI<*>.() -> Unit = {}): CheckI<*>
+    fun ifTrue(): ListMultiHolder<PredicateI<*>>
+    fun ifTrue(vararg value: PredicateI<*>): B
+    fun ifT(value: PredicateI<*>): PredicateI<*>
+    fun ifT(value: PredicateI<*>.() -> Unit = {}): PredicateI<*>
 
-    fun notChecks(): ListMultiHolder<CheckI<*>>
-    fun notChecks(vararg value: CheckI<*>): B
-    fun no(value: CheckI<*>): CheckI<*>
-    fun no(value: CheckI<*>.() -> Unit = {}): CheckI<*>
+    fun ifFalse(): ListMultiHolder<PredicateI<*>>
+    fun ifFalse(vararg value: PredicateI<*>): B
+    fun ifF(value: PredicateI<*>): PredicateI<*>
+    fun ifF(value: PredicateI<*>.() -> Unit = {}): PredicateI<*>
 }
 
 
@@ -178,6 +192,11 @@ interface EntityI<B : EntityI<B>> : DataTypeI<B> {
     fun deleted(value: DeletedI<*>): DeletedI<*>
     fun deleted(value: DeletedI<*>.() -> Unit = {}): DeletedI<*>
 
+    fun checks(): ListMultiHolder<PredicateI<*>>
+    fun checks(vararg value: PredicateI<*>): B
+    fun check(value: PredicateI<*>): PredicateI<*>
+    fun check(value: PredicateI<*>.() -> Unit = {}): PredicateI<*>
+
     fun handlers(): ListMultiHolder<AggregateHandlerI<*>>
     fun handlers(vararg value: AggregateHandlerI<*>): B
     fun handler(value: AggregateHandlerI<*>): AggregateHandlerI<*>
@@ -195,22 +214,23 @@ interface EntityI<B : EntityI<B>> : DataTypeI<B> {
 }
 
 
-interface EventI<B : EventI<B>> : CompilationUnitI<B> {}
+interface EventI<B : EventI<B>> : CompilationUnitI<B> {
+}
 
 
 interface ExecutorI<B : ExecutorI<B>> : LogicUnitI<B> {
     fun on(): CommandI<*>
     fun on(value: CommandI<*>): B
 
-    fun checks(): ListMultiHolder<CheckI<*>>
-    fun checks(vararg value: CheckI<*>): B
-    fun yes(value: CheckI<*>): CheckI<*>
-    fun yes(value: CheckI<*>.() -> Unit = {}): CheckI<*>
+    fun ifTrue(): ListMultiHolder<PredicateI<*>>
+    fun ifTrue(vararg value: PredicateI<*>): B
+    fun ifT(value: PredicateI<*>): PredicateI<*>
+    fun ifT(value: PredicateI<*>.() -> Unit = {}): PredicateI<*>
 
-    fun notChecks(): ListMultiHolder<CheckI<*>>
-    fun notChecks(vararg value: CheckI<*>): B
-    fun no(value: CheckI<*>): CheckI<*>
-    fun no(value: CheckI<*>.() -> Unit = {}): CheckI<*>
+    fun ifFalse(): ListMultiHolder<PredicateI<*>>
+    fun ifFalse(vararg value: PredicateI<*>): B
+    fun ifF(value: PredicateI<*>): PredicateI<*>
+    fun ifF(value: PredicateI<*>.() -> Unit = {}): PredicateI<*>
 
     fun actions(): ListMultiHolder<ActionI<*>>
     fun actions(vararg value: ActionI<*>): B
@@ -224,7 +244,8 @@ interface ExecutorI<B : ExecutorI<B>> : LogicUnitI<B> {
 }
 
 
-interface ExistByI<B : ExistByI<B>> : DataTypeOperationI<B> {}
+interface ExistByI<B : ExistByI<B>> : DataTypeOperationI<B> {
+}
 
 
 interface ExternalModuleI<B : ExternalModuleI<B>> : ModuleI<B> {
@@ -233,7 +254,8 @@ interface ExternalModuleI<B : ExternalModuleI<B>> : ModuleI<B> {
 }
 
 
-interface FacetI<B : FacetI<B>> : ModuleGroupI<B> {}
+interface FacetI<B : FacetI<B>> : ModuleGroupI<B> {
+}
 
 
 interface FindByI<B : FindByI<B>> : DataTypeOperationI<B> {
@@ -246,15 +268,15 @@ interface HandlerI<B : HandlerI<B>> : LogicUnitI<B> {
     fun on(): EventI<*>
     fun on(value: EventI<*>): B
 
-    fun checks(): ListMultiHolder<CheckI<*>>
-    fun checks(vararg value: CheckI<*>): B
-    fun yes(value: CheckI<*>): CheckI<*>
-    fun yes(value: CheckI<*>.() -> Unit = {}): CheckI<*>
+    fun ifTrue(): ListMultiHolder<PredicateI<*>>
+    fun ifTrue(vararg value: PredicateI<*>): B
+    fun ifT(value: PredicateI<*>): PredicateI<*>
+    fun ifT(value: PredicateI<*>.() -> Unit = {}): PredicateI<*>
 
-    fun notChecks(): ListMultiHolder<CheckI<*>>
-    fun notChecks(vararg value: CheckI<*>): B
-    fun no(value: CheckI<*>): CheckI<*>
-    fun no(value: CheckI<*>.() -> Unit = {}): CheckI<*>
+    fun ifFalse(): ListMultiHolder<PredicateI<*>>
+    fun ifFalse(vararg value: PredicateI<*>): B
+    fun ifF(value: PredicateI<*>): PredicateI<*>
+    fun ifF(value: PredicateI<*>.() -> Unit = {}): PredicateI<*>
 
     fun to(): StateI<*>
     fun to(value: StateI<*>): B
@@ -330,10 +352,12 @@ interface ModuleGroupI<B : ModuleGroupI<B>> : StructureUnitI<B> {
 }
 
 
-interface ProcessManagerI<B : ProcessManagerI<B>> : StateMachineI<B> {}
+interface ProcessManagerI<B : ProcessManagerI<B>> : StateMachineI<B> {
+}
 
 
-interface ProjectorI<B : ProjectorI<B>> : StateMachineI<B> {}
+interface ProjectorI<B : ProjectorI<B>> : StateMachineI<B> {
+}
 
 
 interface StateI<B : StateI<B>> : ControllerI<B> {
@@ -377,21 +401,25 @@ interface StateMachineI<B : StateMachineI<B>> : ControllerI<B> {
     fun state(value: StateI<*>): StateI<*>
     fun state(value: StateI<*>.() -> Unit = {}): StateI<*>
 
-    fun checks(): ListMultiHolder<CheckI<*>>
-    fun checks(vararg value: CheckI<*>): B
-    fun check(value: CheckI<*>): CheckI<*>
-    fun check(value: CheckI<*>.() -> Unit = {}): CheckI<*>
+    fun checks(): ListMultiHolder<PredicateI<*>>
+    fun checks(vararg value: PredicateI<*>): B
+    fun check(value: PredicateI<*>): PredicateI<*>
+    fun check(value: PredicateI<*>.() -> Unit = {}): PredicateI<*>
 }
 
 
-interface UpdateByI<B : UpdateByI<B>> : CommandI<B> {}
+interface UpdateByI<B : UpdateByI<B>> : CommandI<B> {
+}
 
 
-interface UpdatedI<B : UpdatedI<B>> : EventI<B> {}
+interface UpdatedI<B : UpdatedI<B>> : EventI<B> {
+}
 
 
-interface ValuesI<B : ValuesI<B>> : DataTypeI<B> {}
+interface ValuesI<B : ValuesI<B>> : DataTypeI<B> {
+}
 
 
-interface WidgetI<B : WidgetI<B>> : CompilationUnitI<B> {}
+interface WidgetI<B : WidgetI<B>> : CompilationUnitI<B> {
+}
 

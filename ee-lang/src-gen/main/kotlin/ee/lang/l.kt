@@ -3,7 +3,7 @@ package ee.lang
 
 object l : StructureUnit({ namespace("ee.lang") }) {
     val Action = CompilationUnit { derivedFrom(LogicUnit) }
-    val AndExpression = CompilationUnit { derivedFrom(LeftRightPredicatesPredicate) }
+    val AndPredicate = CompilationUnit { derivedFrom(LeftRightPredicatesPredicate) }
     val ApplyAction = CompilationUnit { derivedFrom(Action) }
     val AssignAction = CompilationUnit { derivedFrom(ApplyAction) }
     val Attribute = CompilationUnit { derivedFrom(Literal) }
@@ -17,12 +17,12 @@ object l : StructureUnit({ namespace("ee.lang") }) {
     val DivideAssignAction = CompilationUnit { derivedFrom(ApplyAction) }
     val DivideExpression = CompilationUnit { derivedFrom(LeftRightLiteral) }
     val EnumType = CompilationUnit { derivedFrom(DataType) }
-    val EqExpression = CompilationUnit { derivedFrom(LeftRightPredicate) }
+    val EqPredicate = CompilationUnit { derivedFrom(LeftRightPredicate) }
     val Expression = CompilationUnit { derivedFrom(MacroComposite) }
     val ExternalType = CompilationUnit { derivedFrom(Type) }
     val Generic = CompilationUnit { derivedFrom(Type) }
-    val GtExpression = CompilationUnit { derivedFrom(LeftRightPredicate) }
-    val GteExpression = CompilationUnit { derivedFrom(LeftRightPredicate) }
+    val GtPredicate = CompilationUnit { derivedFrom(LeftRightPredicate) }
+    val GtePredicate = CompilationUnit { derivedFrom(LeftRightPredicate) }
     val IncrementExpression = CompilationUnit { derivedFrom(Literal) }
     val Item = CompilationUnit
     val Lambda = CompilationUnit { derivedFrom(Type) }
@@ -32,17 +32,17 @@ object l : StructureUnit({ namespace("ee.lang") }) {
     val ListMultiHolder = CompilationUnit { derivedFrom(MultiHolder) }
     val Literal = CompilationUnit { derivedFrom(Expression) }
     val LogicUnit = CompilationUnit { derivedFrom(Expression) }
-    val LtExpression = CompilationUnit { derivedFrom(LeftRightPredicate) }
-    val LteExpression = CompilationUnit { derivedFrom(LeftRightPredicate) }
+    val LtPredicate = CompilationUnit { derivedFrom(LeftRightPredicate) }
+    val LtePredicate = CompilationUnit { derivedFrom(LeftRightPredicate) }
     val MacroComposite = CompilationUnit { derivedFrom(Composite) }
     val MapMultiHolder = CompilationUnit { derivedFrom(MultiHolder) }
     val MinusAssignAction = CompilationUnit { derivedFrom(ApplyAction) }
     val MinusExpression = CompilationUnit { derivedFrom(LeftRightLiteral) }
     val NativeType = CompilationUnit { derivedFrom(Type) }
-    val NeExpression = CompilationUnit { derivedFrom(LeftRightPredicate) }
-    val NotExpression = CompilationUnit { derivedFrom(Predicate) }
+    val NePredicate = CompilationUnit { derivedFrom(LeftRightPredicate) }
+    val NotPredicate = CompilationUnit { derivedFrom(Predicate) }
     val Operation = CompilationUnit { derivedFrom(LogicUnit) }
-    val OrExpression = CompilationUnit { derivedFrom(LeftRightPredicatesPredicate) }
+    val OrPredicate = CompilationUnit { derivedFrom(LeftRightPredicatesPredicate) }
     val PlusAssignAction = CompilationUnit { derivedFrom(ApplyAction) }
     val PlusExpression = CompilationUnit { derivedFrom(LeftRightLiteral) }
     val Predicate = CompilationUnit { derivedFrom(Expression) }

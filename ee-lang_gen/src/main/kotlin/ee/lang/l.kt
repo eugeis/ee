@@ -111,7 +111,7 @@ object l : Composite({ namespace("ee.lang") }) {
     //logic
     object Predicate : Composite({ derivedFrom(Expression) }) {}
 
-    object NotExpression : Composite({ derivedFrom(Predicate) }) {
+    object NotPredicate : Composite({ derivedFrom(Predicate) }) {
         val value = AttributeI({ type(Predicate) })
     }
 
@@ -130,14 +130,14 @@ object l : Composite({ namespace("ee.lang") }) {
         val right = AttributeI({ type(Literal) })
     }
 
-    object AndExpression : Composite({ derivedFrom(LeftRightPredicatesPredicate) })
-    object OrExpression : Composite({ derivedFrom(LeftRightPredicatesPredicate) })
-    object EqExpression : Composite({ derivedFrom(LeftRightPredicate) })
-    object NeExpression : Composite({ derivedFrom(LeftRightPredicate) })
-    object LtExpression : Composite({ derivedFrom(LeftRightPredicate) })
-    object LteExpression : Composite({ derivedFrom(LeftRightPredicate) })
-    object GtExpression : Composite({ derivedFrom(LeftRightPredicate) })
-    object GteExpression : Composite({ derivedFrom(LeftRightPredicate) })
+    object AndPredicate : Composite({ derivedFrom(LeftRightPredicatesPredicate) })
+    object OrPredicate : Composite({ derivedFrom(LeftRightPredicatesPredicate) })
+    object EqPredicate : Composite({ derivedFrom(LeftRightPredicate) })
+    object NePredicate : Composite({ derivedFrom(LeftRightPredicate) })
+    object LtPredicate : Composite({ derivedFrom(LeftRightPredicate) })
+    object LtePredicate : Composite({ derivedFrom(LeftRightPredicate) })
+    object GtPredicate : Composite({ derivedFrom(LeftRightPredicate) })
+    object GtePredicate : Composite({ derivedFrom(LeftRightPredicate) })
 
     object PlusExpression : Composite({ derivedFrom(LeftRightLiteral) })
     object MinusExpression : Composite({ derivedFrom(LeftRightLiteral) })

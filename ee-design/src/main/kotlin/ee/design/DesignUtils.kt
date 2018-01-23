@@ -6,6 +6,7 @@ import ee.design.gen.go.toGoPropOptionalAfterBody
 import ee.lang.*
 import ee.lang.gen.go.retTypeAndError
 import org.slf4j.LoggerFactory
+import java.util.logging.Handler
 
 open class DesignDerivedKindNames : LangDerivedKindNames() {
     val HttpGet = "Get"
@@ -203,7 +204,7 @@ fun StructureUnitI<*>.addCommandsAndEventsForAggregates() {
 fun StructureUnitI<*>.addAggregateHandler() {
     findDownByType(EntityI::class.java).filter { !it.virtual() && it.handlers().isEmpty() }.extend {
         handler {
-            val initial = state {  }
+            val initial = state { }
         }
     }
 }
@@ -341,3 +342,10 @@ fun eventOf(command: CommandI<*>): EventI<*> {
     }
     return command.event()
 }
+
+fun StateI<*>.executeAndProduce(command: CommandI<*>): ExecutorI<*> {
+    val ret = execute(command)
+    ret.produce(eventOf(command))
+    return ret
+}
+
