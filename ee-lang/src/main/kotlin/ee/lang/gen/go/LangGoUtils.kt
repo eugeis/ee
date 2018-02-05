@@ -216,7 +216,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 open class GoContext : GenerationContext {
     val namespaceLastPart: String
 
-    constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src/main/go",
+    constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src/main/go/src",
         genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.go".toRegex(),
         derivedController: DerivedController = DerivedController(DerivedStorage()),
         macroController: MacroController = MacroController()) : super(namespace, moduleFolder, genFolder,
