@@ -131,7 +131,7 @@ fun TypeI<*>.propsNoMetaNoKey(): List<AttributeI<*>> = storage.getOrPut(this, "p
 })
 
 fun TypeI<*>.propsNoMetaNoValue(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoMetaNoValue", {
-    props().filter { it.value() == null && !it.meta() }
+    props().filter { !it.meta() && it.value() == null }
 })
 
 //props().filter { it.anonymous() }.map { p(it).default(true).anonymous(it.anonymous()) }

@@ -90,25 +90,30 @@ fun CommandI<*>.deriveEventName() = name().endsWith("gin").ifElse({ name().capit
 
 fun CommandI<*>.deriveEvent(): EventI<*> {
     val entity = findParentMust(EntityI::class.java)
+    val command = this
     return when (this) {
         is CreateByI -> entity.created {
             name(deriveEventName())
-            props(*props().map { p(it) }.toTypedArray())
+            //props(*command.props().map { p(it) }.toTypedArray())
+            props(*command.props().toTypedArray())
             constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
         }
         is UpdateByI -> entity.updated {
             name(deriveEventName())
-            props(*props().map { p(it) }.toTypedArray())
+            //props(*command.props().map { p(it) }.toTypedArray())
+            props(*command.props().toTypedArray())
             constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
         }
         is DeleteByI -> entity.deleted {
             name(deriveEventName())
-            props(*props().map { p(it) }.toTypedArray())
+            //props(*command.props().map { p(it) }.toTypedArray())
+            props(*command.props().toTypedArray())
             constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
         }
         else         -> entity.event {
             name(deriveEventName())
-            props(*props().map { p(it) }.toTypedArray())
+            //props(*command.props().map { p(it) }.toTypedArray())
+            props(*command.props().toTypedArray())
             constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
         }
     }
@@ -291,8 +296,8 @@ fun EntityI<*>.id(): AttributeI<*> = storage.getOrPut(this, "id", {
     if (ret == null && superUnit() is EntityI<*>) {
         ret = (superUnit() as EntityI<*>).id()
     } else if (ret == null) {
-        log.warn("Id can't be found for '$this', return EMPTY")
-        ret = Attribute.EMPTY
+        log.debug("Id can't be found for '$this', build default one")
+        ret = buildId()
     }
     ret
 })
