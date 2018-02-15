@@ -200,13 +200,13 @@ fun <T : ConstructorI<*>> T.toKotlin(c: GenerationContext, derived: String, api:
         it.toKotlinSignature(c, derived, api)
     }})${superUnit().isNotEMPTY().then {
         (superUnit() as ConstructorI<*>).toKotlinCall(c, (parent() != superUnit().parent()).ifElse("super", "this"))
-    }} ${paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("$nL        ", prefix = "{$nL        ") {
+    }} ${paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("$nL        ", prefix = "{$nL        ",
+        postfix = "$nL    }") {
         it.toKotlinAssign(c)
     }}${(parent() as CompilationUnitI<*>).props().filter { it.meta() }.joinSurroundIfNotEmptyToString("$nL        ",
         prefix = "$nL        ") {
         it.toKotlinInitMember(c, derived)
-    }}
-    }""" else ""
+    }}""" else ""
 }
 
 fun <T : ConstructorI<*>> T.toKotlinCall(c: GenerationContext, name: String = "this"): String =

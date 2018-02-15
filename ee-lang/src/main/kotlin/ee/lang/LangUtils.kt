@@ -466,3 +466,4 @@ fun <T : MacroCompositeI<*>> T.hasMacros() =
 fun TypeI<*>.findProp(propToSearch: AttributeI<*>): AttributeI<*> = props().find {
     it == propToSearch || it.derivedFrom() == propToSearch || it.name() == propToSearch.name()
 } ?: Attribute.EMPTY
+
