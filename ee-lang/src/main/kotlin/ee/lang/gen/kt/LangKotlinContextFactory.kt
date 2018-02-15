@@ -6,6 +6,11 @@ import ee.lang.gen.java.j
 
 open class LangKotlinContextFactory {
     private val isNotPartOfNativeTypes: ItemI<*>.() -> Boolean = { n != parent() && j != parent() && k != parent() }
+    protected val singleModule: Boolean
+
+    constructor(singleModule: Boolean = true) {
+        this.singleModule = singleModule
+    }
 
     open fun buildForImplOnly(): StructureUnitI<*>.() -> KotlinContext {
         val controller = DerivedController()

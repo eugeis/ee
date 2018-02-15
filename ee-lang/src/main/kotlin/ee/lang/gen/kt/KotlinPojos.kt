@@ -21,7 +21,7 @@ enum class $name${primaryConstructor().toKotlinPrimary(c, derived, api)} {
         "${it.toKotlin()}${it.toKotlinCallValue(c, derived)}"
     }};${propsExceptPrimaryConstructor().joinToString(nL) {
         it.toKotlinMember(c, derived, api)
-    }}${operations().joinToString(nL) { it.toKotlinImpl(c, derived, api) }}${literals().joinToString("",
+    }}${operationsWithoutDataType().joinToString(nL) { it.toKotlinImpl(c, derived, api) }}${literals().joinToString("",
         nL) { it.toKotlinIsMethod() }}
 }"""
 }
@@ -43,7 +43,7 @@ ${open().then("open ")}class ${c.n(this, derived)}${toKotlinExtends(c, derived,
         it.toKotlinMember(c, derived, api, false)
     }}${otherConstructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toKotlin(c, derived, api)
-    }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+    }}${operationsWithoutDataType().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toKotlinImpl(c, derived, api)
     }}${toKotlinEmptyObject(c, derived)}
 }"""

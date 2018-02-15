@@ -134,6 +134,10 @@ fun TypeI<*>.propsNoMetaNoValue(): List<AttributeI<*>> = storage.getOrPut(this, 
     props().filter { !it.meta() && it.value() == null }
 })
 
+fun TypeI<*>.operationsWithoutDataType(): List<OperationI<*>> = storage.getOrPut(this, "operationsWithoutDataType", {
+    operations().filter { it !is DataTypeOperationI }
+})
+
 //props().filter { it.anonymous() }.map { p(it).default(true).anonymous(it.anonymous()) }
 
 //helper design functions
@@ -299,16 +303,27 @@ fun TypeI<*>.superUnit(): TypeI<*> = superUnits().firstOrNull() ?: Type.EMPTY
 fun <B : TypeI<B>> B.superUnit(value: TypeI<*>): B = superUnits(value)
 
 fun <T : TypeI<*>> T.constructorAllProps(adapt: ConstructorI<*>.() -> Unit = {}): ConstructorI<*> {
-    val primary = this is EnumTypeI<*>
-    storage.reset(this)
-    val parent = this
-    return constr {
-        parent(parent)
-        primary(primary).params(*propsAllNoMeta().toTypedArray())
-        namespace(parent.namespace())
-        superUnit(parent.superUnit().primaryOrFirstConstructor())
-        adapt()
+    var ret = primaryOrFirstConstructor()
+    if (ret.isEMPTY()) {
+        val primary = this is EnumTypeI<*>
+        storage.reset(this)
+        val parent = this
+        val superUnitConstructor =
+            if (parent.superUnit().isNotEMPTY() && parent.superUnit().primaryOrFirstConstructor().isEMPTY()) {
+                parent.superUnit().constructorAllProps(adapt)
+            } else {
+                parent.superUnit().primaryOrFirstConstructor()
+            }
+
+        ret = constr {
+            parent(parent)
+            primary(primary).params(*propsAllNoMeta().toTypedArray())
+            namespace(parent.namespace())
+            superUnit(superUnitConstructor)
+            adapt()
+        }
     }
+    return ret
 }
 
 fun <T : TypeI<*>> T.constructorOwnPropsOnly(adapt: ConstructorI<*>.() -> Unit = {}): ConstructorI<*> {

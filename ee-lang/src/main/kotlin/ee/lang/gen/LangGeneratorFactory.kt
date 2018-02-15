@@ -12,6 +12,12 @@ import ee.lang.gen.ts.LangTsContextFactory
 import ee.lang.gen.ts.LangTsTemplates
 
 open class LangGeneratorFactory {
+    protected val singleModule: Boolean
+
+    constructor(singleModule: Boolean = true) {
+        this.singleModule = singleModule
+    }
+
     open fun dslKt(fileNamePrefix: String = ""): GeneratorI<StructureUnitI<*>> {
         val kotlinTemplates = buildKotlinTemplates()
         val contextBuilder = buildKotlinContextFactory().buildForDslBuilder()

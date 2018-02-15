@@ -9,15 +9,17 @@ import ee.lang.gen.kt.prepareForKotlinGeneration
 import java.nio.file.Path
 
 open class DesignKotlinGenerator {
+    private val singleModule: Boolean
     val model: StructureUnitI<*>
 
-    constructor(model: StructureUnitI<*>) {
+    constructor(model: StructureUnitI<*>, singleModule: Boolean = true) {
         this.model = model
+        this.singleModule = singleModule
     }
 
     fun generate(target: Path) {
         model.extendForKotlinGeneration()
-        val generatorFactory = DesignGeneratorFactory()
+        val generatorFactory = DesignGeneratorFactory(singleModule)
         val generator = generatorFactory.pojoKt()
         generator.delete(target, model)
         model.findDownByType(ModuleI::class.java).forEach { module ->

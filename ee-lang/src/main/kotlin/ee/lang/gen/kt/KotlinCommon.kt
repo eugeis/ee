@@ -20,7 +20,7 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, attr
         n.Exception      -> "Exception()"
         n.Url            -> "${c.n(j.net.URL)}(\"\")"
         n.Map            -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
-        n.List           -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("arrayListOf()", "arrayListOf()")
+        n.List           -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("mutableListOf()", "listOf()")
         else             -> {
             if (baseType is Literal) {
                 "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI<*>).toKotlin(c, derived,
@@ -236,7 +236,7 @@ fun <T : OperationI<*>> T.toKotlinLambda(c: GenerationContext, derived: String):
 fun <T : OperationI<*>> T.toKotlinImpl(c: GenerationContext, derived: String, api: String): String {
     return """
     ${open().then("open ")}fun ${toKotlinGenerics(c, derived)}${name()}(${params().toKotlinSignature(c, derived,
-        api)})${retFirst().toKotlinTypeDef(c, api)} {
+        api)}) : ${retFirst().toKotlinTypeDef(c, api)} {
         throw IllegalAccessException("Not implemented yet.")
     }"""
 }

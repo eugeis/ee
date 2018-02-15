@@ -19,9 +19,9 @@ import ee.lang.gen.ts.itemAndTemplateNameAsTsFileName
 import ee.lang.gen.ts.itemNameAsTsFileName
 
 open class DesignGeneratorFactory : LangGeneratorFactory {
-    constructor() : super()
+    constructor(singleModule: Boolean = true) : super(singleModule)
 
-    override fun buildKotlinContextFactory() = DesignKotlinContextFactory()
+    override fun buildKotlinContextFactory() = DesignKotlinContextFactory(singleModule)
     override fun buildKotlinTemplates() = DesignKotlinTemplates(itemNameAsKotlinFileName)
 
     override fun buildGoContextFactory() = DesignGoContextFactory()
