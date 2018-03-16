@@ -27,7 +27,7 @@ interface ItemI<B : ItemI<B>> {
     fun render(): String
 
     fun isInitialized(): Boolean
-    fun init()
+    fun init(): B
     fun extendAdapt(adapt: B.() -> Unit): B
     fun namespace(value: String): B
     fun name(value: String): B

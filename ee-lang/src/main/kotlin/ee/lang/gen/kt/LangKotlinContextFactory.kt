@@ -32,9 +32,8 @@ open class LangKotlinContextFactory {
 
     protected open fun contextBuilder(controller: DerivedController): StructureUnitI<*>.() -> KotlinContext {
         return {
-            val structureUnit = this
-            KotlinContext(moduleFolder = structureUnit.artifact(), namespace = structureUnit.namespace().toLowerCase(),
-                derivedController = controller)
+            KotlinContext(moduleFolder = artifact(), namespace = namespace().toLowerCase(),
+                    derivedController = controller)
         }
     }
 }

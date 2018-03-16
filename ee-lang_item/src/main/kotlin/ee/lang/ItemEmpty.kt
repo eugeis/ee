@@ -29,7 +29,7 @@ open class ItemEmptyClass<B : ItemI<B>> : ItemI<B> {
     override fun render(): String = ""
     override fun isInitialized(): Boolean = true
     override fun internal(): Boolean = true
-    override fun init() {}
+    override fun init(): B = apply {}
     override fun copy(): B = apply {}
     override fun copyWithParent(): B = apply {}
 }

@@ -26,11 +26,12 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
         this._adaptDerive = {}
     }
 
-    override fun init() {
+    override fun init() : B {
         if (!isInitialized()) {
             _initialized = true
             _adapt(this as B)
         }
+        return this as B
     }
 
     override fun extendAdapt(adapt: B.() -> Unit): B {
@@ -197,13 +198,14 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
 abstract class MultiHolder<I, B : MultiHolderI<I, B>>(private val _type: Class<I>, value: B.() -> Unit = {}) :
         ItemB<B>(value), MultiHolderI<I, B> {
 
-    override fun init() {
+    override fun init(): B {
         if (!isInitialized()) super.init()
         items().filterIsInstance<ItemI<*>>().forEach {
             if (!it.isInitialized() || (it is MultiHolderI<*, *> && it.parent() == this)) {
                 it.init()
             }
         }
+        return this as B
     }
 
     override fun createType(type: Class<*>): B? {

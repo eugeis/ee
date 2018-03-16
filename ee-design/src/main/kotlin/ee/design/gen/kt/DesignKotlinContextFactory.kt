@@ -12,15 +12,17 @@ open class DesignKotlinContextFactory : LangKotlinContextFactory {
 
     override fun contextBuilder(controller: DerivedController): StructureUnitI<*>.() -> KotlinContext {
         return {
-            val structureUnit = this
-            val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: structureUnit
-            if (singleModule) {
-                KotlinContext(moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}",
-                    namespace = structureUnit.namespace().toLowerCase(), derivedController = controller)
-            } else {
-                KotlinContext(moduleFolder = "${compOrStructureUnit.artifact()}/${structureUnit.artifact()}",
-                    namespace = structureUnit.namespace().toLowerCase(), derivedController = controller)
-            }
+            KotlinContext(moduleFolder = computeModuleFolder(), namespace = namespace().toLowerCase(),
+                    derivedController = controller)
+        }
+    }
+
+    private fun StructureUnitI<*>.computeModuleFolder(): String {
+        val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: this
+        return if (singleModule) {
+            "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}"
+        } else {
+            "${compOrStructureUnit.artifact()}/${artifact()}"
         }
     }
 }

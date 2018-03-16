@@ -31,7 +31,7 @@ fun <T : EnumTypeI<*>> T.toKotlinEnumParseMethod(c: GenerationContext, derived: 
     val name = c.n(this, derived)
     return """
 fun String?.to$name(): $name {
-    return if (this != null) $name.valueOf(this) else $name.${literals().first().toKotlin()}
+    return $name.values().find { this == null || it.name.equals(this, true) } ?: $name.${literals().first().toKotlin()}
 }"""
 }
 

@@ -106,12 +106,13 @@ open class GeneratorSimple<M> : GeneratorBase<M> {
         val path = pkg.resolve(template.name(model).fileName)
         val relative = target.relativize(path).toString()
         if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
+            log.debug("generate $path for $model")
             path.toFile().writeText(c.complete(template.generate(model, c)))
             metaData.track(relative, path.lastModified())
             c.clear()
             metaData.store(module)
         } else {
-            println("File exists $path and was modified after generation, skip generation.")
+            log.debug("File exists $path and was modified after generation, skip generation.")
         }
     }
 }
@@ -137,11 +138,12 @@ open class Generator<M, I> : GeneratorBase<M> {
                 val path = pkg.resolve(template.name(item).fileName)
                 val relative = target.relativize(path).toString()
                 if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
+                    log.debug("generate $path for $model")
                     path.toFile().writeText(c.complete(template.generate(template, item, c)))
                     metaData.track(relative, path.lastModified())
                     c.clear()
                 } else {
-                    println("File exists $path and was modified after generation, skip generation.")
+                    log.debug("File exists $path and was modified after generation, skip generation.")
                 }
             }
         }
