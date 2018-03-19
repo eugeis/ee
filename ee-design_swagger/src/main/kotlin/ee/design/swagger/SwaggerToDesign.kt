@@ -70,7 +70,7 @@ fun io.swagger.models.properties.StringProperty.toDslEnum(name: String): String 
     return """
 object $name : EnumType() {
     val value = prop(n.String)${enum.joinToString(nL, nL) {
-        "    val ${it.toCamelCase().toLowerCase()} = lit({ value(\"$it\") })"
+        "    val ${it.toCamelCase().toLowerCase()} = lit(value,\"$it\")"
     }}
 }"""
 }
