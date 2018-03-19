@@ -176,8 +176,9 @@ open class AttributeI : Item {
         this.init = value
     }
 
-    override fun init() {
+    override fun init(): Item {
         init(this)
+        return this
     }
 
     fun type(): ItemI<*> = type

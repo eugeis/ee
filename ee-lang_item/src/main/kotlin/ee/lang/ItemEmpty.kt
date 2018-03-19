@@ -25,8 +25,8 @@ open class ItemEmptyClass<B : ItemI<B>> : ItemI<B> {
     override fun <T : ItemI<*>> apply(code: T.() -> Unit): T = this as T
     override fun <R> applyAndReturn(code: () -> R): R = code()
     override fun deriveSubType(adapt: B.() -> Unit): B = apply {}
-    override fun render(builder: StringBuilder, indent: String) {}
-    override fun render(): String = ""
+    override fun toDsl(builder: StringBuilder, indent: String) {}
+    override fun toDsl(): String = ""
     override fun isInitialized(): Boolean = true
     override fun internal(): Boolean = true
     override fun init(): B = apply {}

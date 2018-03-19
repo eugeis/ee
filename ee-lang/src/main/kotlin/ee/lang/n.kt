@@ -12,6 +12,7 @@ object n : StructureUnit({ name("native") }) {
     val Int = NativeType()
     val Long = NativeType()
     val Float = NativeType()
+    val Double = NativeType()
     val Date = NativeType()
     val Exception = NativeType()
     val Error = NativeType()

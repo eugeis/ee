@@ -10,7 +10,7 @@ fun <T : AttributeI<*>> T.toSwaggerTypeDef(c: GenerationContext, api: String, in
 
 fun <T : ItemI<*>> T.toSwaggerDescription(indent: String = "        "): String {
     return doc().isNotEMPTY().then {
-        "$nL${indent}description: ${doc().render()}"
+        "$nL${indent}description: ${doc().toDsl()}"
     }
 }
 

@@ -177,13 +177,13 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
     override fun <R> applyAndReturn(code: () -> R): R = code()
 
 
-    override fun render(builder: StringBuilder, indent: String) {
+    override fun toDsl(builder: StringBuilder, indent: String) {
         builder.append("$indent${name()}@${Integer.toHexString(hashCode())}")
     }
 
-    override fun render(): String {
+    override fun toDsl(): String {
         val builder = StringBuilder()
-        render(builder, "")
+        toDsl(builder, "")
         return builder.toString()
     }
 
@@ -267,15 +267,15 @@ abstract class MultiHolder<I, B : MultiHolderI<I, B>>(private val _type: Class<I
     }
 
     //renderer
-    override fun render(builder: StringBuilder, indent: String) {
-        super.render(builder, indent)
-        renderChildren(builder, indent)
+    override fun toDsl(builder: StringBuilder, indent: String) {
+        super.toDsl(builder, indent)
+        toDslChildren(builder, indent)
     }
 
-    open fun renderChildren(builder: StringBuilder, indent: String) {
+    open fun toDslChildren(builder: StringBuilder, indent: String) {
         items().joinSurroundIfNotEmptyTo(builder, "", " {\n", "$indent}") {
             if (it is ItemI<*>) {
-                it.render(builder, indent + "  ")
+                it.toDsl(builder, indent + "  ")
                 "\n"
             } else {
                 "$it"

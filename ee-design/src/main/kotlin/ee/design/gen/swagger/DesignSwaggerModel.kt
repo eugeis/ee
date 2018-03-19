@@ -92,7 +92,7 @@ fun <T : CompI<*>> T.toSwagger(c: GenerationContext, derived: String = LangDeriv
 info:
   title: ${fullName()}${doc().isNotEMPTY().then {
         """
-  description: ${doc().render()}"""
+  description: ${doc().toDsl()}"""
     }}
   version: "1.0.0"
 paths:${moduleAggregates.joinSurroundIfNotEmptyToString("") { module, item ->

@@ -23,8 +23,8 @@ interface ItemI<B : ItemI<B>> {
 
     fun <R> applyAndReturn(code: () -> R): R
 
-    fun render(builder: StringBuilder, indent: String)
-    fun render(): String
+    fun toDsl(builder: StringBuilder, indent: String)
+    fun toDsl(): String
 
     fun isInitialized(): Boolean
     fun init(): B

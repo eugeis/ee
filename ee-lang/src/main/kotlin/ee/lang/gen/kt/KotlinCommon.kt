@@ -85,6 +85,7 @@ fun <T : TypeI<*>> T.toKotlinIfNative(c: GenerationContext, derived: String, att
         n.Int       -> "Int"
         n.Long      -> "Long"
         n.Float     -> "Float"
+        n.Double     -> "Double"
         n.Date      -> c.n(j.util.Date)
         n.TimeUnit  -> c.n(j.util.concurrent.TimeUnit)
         n.Path      -> c.n(j.nio.file.Path)
