@@ -121,11 +121,15 @@ interface DivideExpressionI<B : DivideExpressionI<B>> : LeftRightLiteralI<B> {
 }
 
 
+interface EnumLiteralI<B : EnumLiteralI<B>> : LiteralI<B> {
+}
+
+
 interface EnumTypeI<B : EnumTypeI<B>> : DataTypeI<B> {
-    fun literals(vararg value: LiteralI<*>): B
-    fun literals(): ListMultiHolder<LiteralI<*>>
-    fun lit(value: LiteralI<*>): LiteralI<*>
-    fun lit(value: LiteralI<*>.() -> Unit = {}): LiteralI<*>
+    fun literals(vararg value: EnumLiteralI<*>): B
+    fun literals(): ListMultiHolder<EnumLiteralI<*>>
+    fun lit(value: EnumLiteralI<*>): EnumLiteralI<*>
+    fun lit(value: EnumLiteralI<*>.() -> Unit = {}): EnumLiteralI<*>
 }
 
 

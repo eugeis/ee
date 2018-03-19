@@ -94,25 +94,25 @@ fun CommandI<*>.deriveEvent(): EventI<*> {
     return when (this) {
         is CreateByI -> entity.created {
             name(deriveEventName())
-            //props(*command.props().map { p(it) }.toTypedArray())
+            //paramsNotDerived(*command.paramsNotDerived().map { p(it) }.toTypedArray())
             props(*command.props().toTypedArray())
             constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
         }
         is UpdateByI -> entity.updated {
             name(deriveEventName())
-            //props(*command.props().map { p(it) }.toTypedArray())
+            //paramsNotDerived(*command.paramsNotDerived().map { p(it) }.toTypedArray())
             props(*command.props().toTypedArray())
             constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
         }
         is DeleteByI -> entity.deleted {
             name(deriveEventName())
-            //props(*command.props().map { p(it) }.toTypedArray())
+            //paramsNotDerived(*command.paramsNotDerived().map { p(it) }.toTypedArray())
             props(*command.props().toTypedArray())
             constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
         }
         else         -> entity.event {
             name(deriveEventName())
-            //props(*command.props().map { p(it) }.toTypedArray())
+            //paramsNotDerived(*command.paramsNotDerived().map { p(it) }.toTypedArray())
             props(*command.props().toTypedArray())
             constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
         }

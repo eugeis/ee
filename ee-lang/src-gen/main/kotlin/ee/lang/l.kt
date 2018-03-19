@@ -16,6 +16,7 @@ object l : StructureUnit({ namespace("ee.lang") }) {
     val DecrementExpression = CompilationUnit { derivedFrom(Literal) }
     val DivideAssignAction = CompilationUnit { derivedFrom(ApplyAction) }
     val DivideExpression = CompilationUnit { derivedFrom(LeftRightLiteral) }
+    val EnumLiteral = CompilationUnit { derivedFrom(Literal) }
     val EnumType = CompilationUnit { derivedFrom(DataType) }
     val EqPredicate = CompilationUnit { derivedFrom(LeftRightPredicate) }
     val Expression = CompilationUnit { derivedFrom(MacroComposite) }

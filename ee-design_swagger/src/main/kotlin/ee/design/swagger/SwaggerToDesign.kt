@@ -1,6 +1,8 @@
 package ee.design.swagger
 
 import ee.common.ext.then
+import ee.common.ext.toCamelCase
+import ee.common.ext.toUnderscoredUpperCase
 import ee.design.Basic
 import ee.design.Module
 import ee.lang.TypeI
@@ -66,7 +68,10 @@ fun io.swagger.models.Model.toDslPropertyEnums(typesToFill: MutableMap<String, S
 
 fun io.swagger.models.properties.StringProperty.toDslEnum(name: String): String {
     return """
-object $name : EnumType() { ${enum.joinToString(nL, nL) { "    val ${it.toLowerCase().capitalize()} = lit()" }}
+object $name : EnumType() {
+    val value = prop(n.String)${enum.joinToString(nL, nL) {
+        "    val ${it.toCamelCase().toLowerCase()} = lit({ value(\"$it\") })"
+    }}
 }"""
 }
 

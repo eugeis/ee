@@ -23,7 +23,7 @@ enum $name {
 }"""
     /*
     ;${
-        props().joinToString(nL) { it.toTypeScriptMember(c, derived, api) }}${
+        paramsNotDerived().joinToString(nL) { it.toTypeScriptMember(c, derived, api) }}${
         constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
             it.toTypeScript(c, derived, api)
         }}${

@@ -193,7 +193,7 @@ fun List<AttributeI<*>>.toKotlinMember(c: GenerationContext, derived: String,
     api: String): String = joinWrappedToString(", ") { it.toKotlinSignature(c, derived, api) }
 
 fun <T : ConstructorI<*>> T.toKotlinPrimary(c: GenerationContext, derived: String, api: String): String {
-    return if (isNotEMPTY() && params().isNotEmpty()) """(${params().joinWrappedToString(", ", "      ") {
+    return if (isNotEMPTY()) """(${params().joinWrappedToString(", ", "      ") {
         it.toKotlinConstructorMember(c, derived, api)
     }})${superUnit().toKotlinCall(c)}""" else ""
 }

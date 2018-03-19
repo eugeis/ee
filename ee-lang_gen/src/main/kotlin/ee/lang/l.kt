@@ -54,6 +54,9 @@ object l : Composite({ namespace("ee.lang") }) {
         val params = AttributeI({ type(Attribute).multi(true) })
     }
 
+    object EnumLiteral : Composite({ derivedFrom(Literal) }) {
+    }
+
     object Attribute : Composite({ derivedFrom(Literal) }) {
         val key = AttributeI({ type(n.Boolean).value(false) })
         val unique = AttributeI({ type(n.Boolean).value(false) })
@@ -102,7 +105,7 @@ object l : Composite({ namespace("ee.lang") }) {
     }
 
     object EnumType : Composite({ derivedFrom(DataType) }) {
-        val literals = AttributeI({ type(Literal).multi(true).nonFluent("lit") })
+        val literals = AttributeI({ type(EnumLiteral).multi(true).nonFluent("lit") })
     }
 
     object DataType : Composite({ derivedFrom(CompilationUnit) })

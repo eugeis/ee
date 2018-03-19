@@ -145,16 +145,24 @@ val strToCamelCase = WeakHashMap<String, String>()
 fun String.toCamelCase(): String =
     strToCamelCase.getOrPut(this, { this.replace("_\\w".toRegex()) { it.value[1].toUpperCase().toString() } })
 
+val smallLetters =  Regex("[a-z]")
+
 val strToUnderscoredUpper = WeakHashMap<String, String>()
 fun String.toUnderscoredUpperCase(): String =
-    strToUnderscoredUpper.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "_$1").toUpperCase() })
+    strToUnderscoredUpper.getOrPut(this, {
+        if(smallLetters.matches(this)) this.replace("(\\B[A-Z])".toRegex(), "_$1").toUpperCase()
+    else this})
 
 val strToUnderscoredLower = WeakHashMap<String, String>()
 fun String.toUnderscoredLowerCase(): String =
-    strToUnderscoredLower.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "_$1").toLowerCase() })
+    strToUnderscoredLower.getOrPut(this, {
+        if(smallLetters.matches(this)) this.replace("(\\B[A-Z])".toRegex(), "_$1").toLowerCase()
+        else this.toLowerCase()})
 
 fun String.toHyphenLowerCase(): String =
-    strToUnderscoredLower.getOrPut(this, { this.replace("(\\B[A-Z])".toRegex(), "-$1").toLowerCase() })
+    strToUnderscoredLower.getOrPut(this, {
+        if(smallLetters.matches(this)) this.replace("(\\B[A-Z])".toRegex(), "-$1").toLowerCase()
+        else this.toLowerCase()})
 
 val sqlKeywords = mapOf("group" to "group_")
 val strToSql = WeakHashMap<String, String>()
