@@ -74,6 +74,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val inherited = AttributeI({ type(n.Boolean).value(false) })
         val open = AttributeI({ type(n.Boolean).value(false) })
         val nonFluent = AttributeI({ type(n.String) })
+        val externalName = AttributeI({ type(n.String) }).nullable(true)
     }
 
     object LogicUnit : Composite({ derivedFrom(Expression) }) {

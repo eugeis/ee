@@ -22,7 +22,7 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, attr
         n.Map            -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
         n.List           -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("mutableListOf()", "listOf()")
         else             -> {
-            if (baseType is Literal) {
+            if (baseType is EnumLiteral) {
                 "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI<*>).toKotlin(c, derived,
                         attr)}.${baseType.toKotlin()}"
             } else if (baseType is EnumTypeI<*>) {
@@ -85,7 +85,7 @@ fun <T : TypeI<*>> T.toKotlinIfNative(c: GenerationContext, derived: String, att
         n.Int       -> "Int"
         n.Long      -> "Long"
         n.Float     -> "Float"
-        n.Double     -> "Double"
+        n.Double    -> "Double"
         n.Date      -> c.n(j.util.Date)
         n.TimeUnit  -> c.n(j.util.concurrent.TimeUnit)
         n.Path      -> c.n(j.nio.file.Path)
@@ -147,8 +147,8 @@ fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String): 
             n.String, n.Text                                                  -> "\"${value()}\""
             n.Boolean, n.Int, n.Long, n.Float, n.Date, n.Path, n.Blob, n.Void -> "${value()}"
             else                                                              -> {
-                if (value() is Literal) {
-                    val lit = value() as Literal
+                if (value() is EnumLiteral) {
+                    val lit = value() as EnumLiteral
                     "${(lit.parent() as EnumTypeI<*>).toKotlin(c, derived, this)}.${lit.toKotlin()}"
                 } else {
                     "${value()}"
@@ -176,15 +176,20 @@ fun <T : AttributeI<*>> T.toKotlinInitMember(c: GenerationContext,
     derived: String): String = "this.${name()}${toKotlinInit(c, derived)}"
 
 fun <T : AttributeI<*>> T.toKotlinSignature(c: GenerationContext, derived: String, api: String,
-    init: Boolean = true): String = "${name()}: ${toKotlinTypeDef(c, api)}${init.then { toKotlinInit(c, derived) }}"
+    init: Boolean = true): String = "${name()}: ${toKotlinTypeDef(c, api)}${init.then {
+    toKotlinInit(c, derived)
+}}"
 
 fun <T : AttributeI<*>> T.toKotlinConstructorMember(c: GenerationContext, derived: String, api: String,
-    init: Boolean = true): String = "${replaceable().setAndTrue().ifElse("var ", "val ")}${toKotlinSignature(c, derived,
-        api, init)}"
+    init: Boolean = true): String = "${(key() && findParent(EnumType::class.java) != null).then(
+        { "@${c.n(k.json.JsonValue)} " })}${externalName().isNullOrEmpty().not().then(
+        { "@${c.n(k.json.JsonProperty)}(\"${externalName()}\")$ " })}${replaceable().setAndTrue().ifElse("var ",
+        "val ")}${toKotlinSignature(c, derived, api, init)}"
 
 fun <T : AttributeI<*>> T.toKotlinMember(c: GenerationContext, derived: String, api: String,
-    init: Boolean = true): String = "    ${replaceable().setAndTrue().ifElse("var ", "val ")}${toKotlinSignature(c,
-        derived, api, init)}"
+    init: Boolean = true): String = "    ${externalName().isNullOrEmpty().not().then(
+        { "@${c.n(k.json.JsonProperty)}(\"${externalName()}\")$nL    " })}${replaceable().setAndTrue().ifElse("var ",
+        "val ")}${toKotlinSignature(c, derived, api, init)}"
 
 fun List<AttributeI<*>>.toKotlinSignature(c: GenerationContext, derived: String,
     api: String): String = joinWrappedToString(", ") { it.toKotlinSignature(c, derived, api) }

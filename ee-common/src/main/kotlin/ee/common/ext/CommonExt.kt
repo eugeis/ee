@@ -16,12 +16,12 @@ import java.util.*
 inline fun emptyOr(condition: Boolean, text: () -> String): String = if (condition) text() else ""
 fun emptyOr(element: Any?): String = element?.toString() ?: ""
 
-fun <T> T?.orEmpty(prefix: String = "", suffix: String = ""): String =
-    if (this != null && (this !is String || trim().isNotEmpty())) "$prefix${this}$suffix" else ""
+fun <T> T?.orEmpty(prefix: String = "",
+    suffix: String = ""): String = if (this != null && (this !is String || trim().isNotEmpty())) "$prefix${this}$suffix" else ""
 
 
-inline fun <T> T?.orEmpty(prefix: String = "", suffix: String = "", map: T.() -> String): String =
-    if (this != null && (this !is String || trim().isNotEmpty())) "$prefix${map()}$suffix" else ""
+inline fun <T> T?.orEmpty(prefix: String = "", suffix: String = "",
+    map: T.() -> String): String = if (this != null && (this !is String || trim().isNotEmpty())) "$prefix${map()}$suffix" else ""
 
 fun Any.buildLabel(): Label = javaClass.buildLabel()
 
@@ -138,31 +138,37 @@ fun String.toConvertUmlauts(): String = Umlauts.replaceUmlauts(this)
 
 fun String.toKey(): String = toConvertUmlauts().replace("[^a-zA-Z0-9.]".toRegex(), "_").replace("_+".toRegex(), "_")
 
-fun String.toUrlKey(): String =
-    toConvertUmlauts().toLowerCase().replace("[^a-z0-9]".toRegex(), "-").replace("_+".toRegex(), "-")
+fun String.toUrlKey(): String = toConvertUmlauts().toLowerCase().replace("[^a-z0-9]".toRegex(), "-").replace(
+        "_+".toRegex(), "-")
 
 val strToCamelCase = WeakHashMap<String, String>()
-fun String.toCamelCase(): String =
-    strToCamelCase.getOrPut(this, { this.replace("_\\w".toRegex()) { it.value[1].toUpperCase().toString() } })
+fun String.toCamelCase(): String = strToCamelCase.getOrPut(this, {
+    val parts = split('_')
+    return if (parts.size > 1) {
+        parts.joinToString("") { it.toLowerCase().capitalize() }.decapitalize()
+    } else {
+        this
+    }
+})
 
-val smallLetters =  Regex("[a-z]")
+val smallLetters = Regex("[a-z]")
 
 val strToUnderscoredUpper = WeakHashMap<String, String>()
-fun String.toUnderscoredUpperCase(): String =
-    strToUnderscoredUpper.getOrPut(this, {
-        if(smallLetters.matches(this)) this.replace("(\\B[A-Z])".toRegex(), "_$1").toUpperCase()
-    else this})
+fun String.toUnderscoredUpperCase(): String = strToUnderscoredUpper.getOrPut(this, {
+    if (smallLetters.matches(this)) this.replace("(\\B[A-Z])".toRegex(), "_$1").toUpperCase()
+    else this
+})
 
 val strToUnderscoredLower = WeakHashMap<String, String>()
-fun String.toUnderscoredLowerCase(): String =
-    strToUnderscoredLower.getOrPut(this, {
-        if(smallLetters.matches(this)) this.replace("(\\B[A-Z])".toRegex(), "_$1").toLowerCase()
-        else this.toLowerCase()})
+fun String.toUnderscoredLowerCase(): String = strToUnderscoredLower.getOrPut(this, {
+    if (smallLetters.matches(this)) this.replace("(\\B[A-Z])".toRegex(), "_$1").toLowerCase()
+    else this.toLowerCase()
+})
 
-fun String.toHyphenLowerCase(): String =
-    strToUnderscoredLower.getOrPut(this, {
-        if(smallLetters.matches(this)) this.replace("(\\B[A-Z])".toRegex(), "-$1").toLowerCase()
-        else this.toLowerCase()})
+fun String.toHyphenLowerCase(): String = strToUnderscoredLower.getOrPut(this, {
+    if (smallLetters.matches(this)) this.replace("(\\B[A-Z])".toRegex(), "-$1").toLowerCase()
+    else this.toLowerCase()
+})
 
 val sqlKeywords = mapOf("group" to "group_")
 val strToSql = WeakHashMap<String, String>()
@@ -252,8 +258,9 @@ fun Path.lastModified(): Date = Date(toFile().lastModified())
 // Collections
 
 fun <T> Collection<T>.joinSurroundIfNotEmptyToString(separator: CharSequence = ", ", prefix: CharSequence = "",
-    postfix: CharSequence = "", emptyString: String = "", transform: ((T) -> CharSequence)? = null): String =
-    joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
+    postfix: CharSequence = "", emptyString: String = "",
+    transform: ((T) -> CharSequence)? = null): String = joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix,
+        postfix, emptyString, transform).toString()
 
 fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(buffer: A, separator: CharSequence = ", ",
     prefix: CharSequence = "", postfix: CharSequence = "", emptyString: String = "",
@@ -275,8 +282,9 @@ fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(buffer: A, separa
 }
 
 fun <T> Collection<T>.joinWithIndexToString(separator: CharSequence = ", ", prefix: CharSequence = "",
-    postfix: CharSequence = "", emptyString: String = "", transform: ((Int, T) -> CharSequence)? = null): String =
-    joinWithIndexToString(StringBuilder(), separator, prefix, postfix, emptyString, transform).toString()
+    postfix: CharSequence = "", emptyString: String = "",
+    transform: ((Int, T) -> CharSequence)? = null): String = joinWithIndexToString(StringBuilder(), separator, prefix,
+        postfix, emptyString, transform).toString()
 
 
 fun <T, A : Appendable> Collection<T>.joinWithIndexToString(buffer: A, separator: CharSequence = ", ",
@@ -302,7 +310,7 @@ fun <T> Collection<T>.joinWrappedToString(separator: CharSequence = ", ", wrapIn
     prefix: CharSequence = "", postfix: CharSequence = "", width: Int = 120, emptyString: String = "",
     transform: ((T) -> CharSequence)? = null): String {
     return joinWrappedTo(StringBuilder(), separator, wrapIndent, prefix, postfix, width, emptyString,
-        transform).toString()
+            transform).toString()
 }
 
 fun <T, A : Appendable> Collection<T>.joinWrappedTo(buffer: A, separator: CharSequence = ", ",

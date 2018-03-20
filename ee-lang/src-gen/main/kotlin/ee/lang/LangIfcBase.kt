@@ -30,6 +30,8 @@ interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
 
     fun default(value: Boolean): B
 
+    fun externalName(value: String?): B
+
     fun hidden(value: Boolean): B
 
     fun inherited(value: Boolean): B
@@ -60,6 +62,8 @@ interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
     fun anonymous(): Boolean
 
     fun default(): Boolean
+
+    fun externalName(): String?
 
     fun hidden(): Boolean
 

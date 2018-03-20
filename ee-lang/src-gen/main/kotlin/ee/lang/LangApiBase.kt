@@ -78,6 +78,9 @@ open class AttributeB<B : AttributeI<B>>(value: B.() -> Unit = {}) : LiteralB<B>
     override fun default(): Boolean = attr(default, { false })
     override fun default(value: Boolean): B = apply { attr(default, value) }
 
+    override fun externalName(): String? = attr(externalName)
+    override fun externalName(value: String?): B = apply { attr(externalName, value) }
+
     override fun hidden(): Boolean = attr(hidden, { false })
     override fun hidden(value: Boolean): B = apply { attr(hidden, value) }
 
@@ -121,6 +124,7 @@ open class AttributeB<B : AttributeI<B>>(value: B.() -> Unit = {}) : LiteralB<B>
         val accessible = "_accessible"
         val anonymous = "_anonymous"
         val default = "_default"
+        val externalName = "_externalName"
         val hidden = "_hidden"
         val inherited = "_inherited"
         val initByDefaultTypeValue = "_initByDefaultTypeValue"

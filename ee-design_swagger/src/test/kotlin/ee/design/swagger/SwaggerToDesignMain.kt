@@ -1,14 +1,13 @@
 package ee.design.swagger
 
-import io.swagger.parser.SwaggerParser
+import java.nio.file.Paths
 
 object SwaggerToDesignMain {
     @JvmStatic
     fun main(args: Array<String>) {
-        val swagger = SwaggerParser().read(
-                """D:\TC_CACHE\MindConnectRail\mcr-gateway\mcr-mindsphere_swagger\assetmanagement-v3.yaml""")
-
-        swagger.toDslTypes().types.forEach {
+        val swagger = SwaggerToDesign(mutableMapOf("rel.self" to "Link", "Href" to "Link"), mutableSetOf())
+        swagger.toDslTypes(Paths.get(
+                """D:\TC_CACHE\MindConnectRail\mcr-gateway\mcr-mindsphere_swagger\assetmanagement-v3.yaml""")).types.forEach {
             println(it.value)
         }
     }

@@ -23,6 +23,11 @@ object k : StructureUnit({ name("Kotlin") }) {
             val V = G()
         }
     }
+
+    object json : StructureUnit({ namespace("com.fasterxml.jackson.annotation") }) {
+        object JsonProperty : ExternalType()
+        object JsonValue : ExternalType()
+    }
 }
 
 fun <T : StructureUnitI<*>> T.prepareForKotlinGeneration(): T {
