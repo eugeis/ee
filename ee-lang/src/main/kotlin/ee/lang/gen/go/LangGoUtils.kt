@@ -120,7 +120,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
                 val context = prop { type(g.context.Context) }
                 val commandBus = prop { type(g.eh.CommandHandler) }
 
-                val ignore = constructorAllProps()
+                val ignore = constructorFull()
             }
 
             object HttpQueryHandler : ExternalType() {
@@ -275,7 +275,7 @@ fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
 
     defineSuperUnitsAsAnonymousProps()
 
-    defineConstructorEmpty()
+    defineConstructorDefault()
     return this
 }
 

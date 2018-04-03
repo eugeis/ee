@@ -8,6 +8,7 @@ import ee.lang.TypeI
 import ee.lang.doc
 import ee.lang.n
 import ee.lang.nL
+import io.swagger.models.ArrayModel
 import io.swagger.models.ComposedModel
 import io.swagger.models.ModelImpl
 import io.swagger.models.Swagger
@@ -86,15 +87,23 @@ class SwaggerToDesign(private val namesToTypeName: MutableMap<String, String> = 
     }
 
     private fun io.swagger.models.Model.toDslBasic(name: String, typesToFill: MutableMap<String, String>) {
-        typesToFill[name] = if (this is ComposedModel) {
-            """
+        if (this is ComposedModel) {
+            typesToFill[name] = """
 object ${name.toDslTypeName()} : Basic({ ${interfaces.joinSurroundIfNotEmptyToString(",", "superUnit(", ")") {
                 it.simpleRef.toDslTypeName()
             }}${description.toDslDoc()} }) {${properties.toDslProperties(
                     typesToFill)}${child?.properties.toDslProperties(typesToFill)}
 }"""
+        } else if (this is ArrayModel) {
+            val prop = items
+            if (prop is ObjectProperty) {
+                val typeName = prop.toDslTypeName()
+                typesToFill[typeName] = prop.toDslType(typeName, typesToFill)
+            } else {
+                log.info("not supported yet {} {}", this, prop)
+            }
         } else {
-            """
+            typesToFill[name] = """
 object ${name.toDslTypeName()} : Basic(${description.toDslDoc("{ ", " }")}) {${properties.toDslProperties(typesToFill)}
 }"""
         }

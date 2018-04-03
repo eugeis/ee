@@ -53,11 +53,11 @@ fun ListMultiHolderI<AttributeI<*>, *>.defaultOrWithValueAndNonDerived(): List<A
 })
 
 fun TypeI<*>.primaryConstructor(): ConstructorI<*> = storage.getOrPut(this, "primaryConstructor", {
-    constructors().filter { it.primary() }.firstOrNull() ?: Constructor.EMPTY
+    constructors().find { it.primary() } ?: Constructor.EMPTY
 })
 
 fun TypeI<*>.primaryOrFirstConstructor(): ConstructorI<*> = storage.getOrPut(this, "primaryOrFirstConstructor", {
-    constructors().filter { it.primary() }.firstOrNull() ?: constructors().firstOrNull() ?: Constructor.EMPTY
+    constructors().find { it.primary() } ?: constructors().firstOrNull() ?: constructorFull()
 })
 
 fun TypeI<*>.otherConstructors(): List<ConstructorI<*>> = storage.getOrPut(this, "otherConstructors", {
@@ -66,6 +66,14 @@ fun TypeI<*>.otherConstructors(): List<ConstructorI<*>> = storage.getOrPut(this,
 
 fun ConstructorI<*>.paramsNotDerived(): List<AttributeI<*>> = storage.getOrPut(this, "paramsNotDerived", {
     params().filter { it.derivedFrom().isNotEMPTY() }
+})
+
+fun ConstructorI<*>.paramsWithOutValue(): List<AttributeI<*>> = storage.getOrPut(this, "paramsWithOutValue", {
+    params().filter { param -> param.value() == null }
+})
+
+fun ConstructorI<*>.paramsWithValue(): Map<String, AttributeI<*>> = storage.getOrPut(this, "paramsWithValue", {
+    params().filter { param -> param.value() != null }.associateBy { it.name() }
 })
 
 fun ConstructorI<*>.paramsForType(): List<AttributeI<*>> = storage.getOrPut(this, "paramsForType", {
@@ -116,6 +124,16 @@ fun TypeI<*>.propsAllWithoutMetaAndAnonymousWithoutProps(): List<AttributeI<*>> 
 fun TypeI<*>.propsWithoutMetaAndAnonymousWithoutProps(): List<AttributeI<*>> = storage.getOrPut(this,
         "propsWithoutMetaAndAnonymousWithoutProps", {
     props().filter { !it.meta() && !(it.anonymous() && !props().isEmpty()) }
+})
+
+fun TypeI<*>.propsWithoutParamsOfPrimaryConstructor(): List<AttributeI<*>> = storage.getOrPut(this,
+        "propsWithoutPrimaryConstructor", {
+    val constrParams = primaryConstructor().params()
+    if (constrParams.isEmpty()) {
+        props()
+    } else {
+        props().filter { param -> constrParams.find { param.name() == it.name() } == null }
+    }
 })
 
 fun TypeI<*>.propsAllNoMeta(): List<AttributeI<*>> = storage.getOrPut(this, "propsAllNoMeta", {
@@ -273,7 +291,7 @@ fun EnumTypeI<*>.lit(prop: AttributeI<*>, paramValue: Any): LiteralI<*> = lit {
 fun <T : CompositeI<*>> T.defineConstructorAllPropsForNonConstructors() {
     findDownByType(TypeI::class.java, stopSteppingDownIfFound = false).filter {
         it.constructors().isEmpty() && (it !is EnumTypeI || it.props().isNotEmpty())
-    }.extend { constructorAllProps() }
+    }.extend { constructorFull() }
 }
 
 fun <T : CompositeI<*>> T.defineConstructorOwnPropsOnlyForNonConstructors() {
@@ -281,9 +299,9 @@ fun <T : CompositeI<*>> T.defineConstructorOwnPropsOnlyForNonConstructors() {
             stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }.extend { constructorOwnPropsOnly() }
 }
 
-fun <T : CompositeI<*>> T.defineConstructorEmpty(filter: TypeI<*>.() -> Boolean = { constructors().isEmpty() }) {
+fun <T : CompositeI<*>> T.defineConstructorDefault(filter: TypeI<*>.() -> Boolean = { constructors().isEmpty() }) {
     findDownByType(TypeI::class.java,
-            stopSteppingDownIfFound = false).filter { it.filter() }.extend { constructorEmpty() }
+            stopSteppingDownIfFound = false).filter { it.filter() }.extend { constructorFull() }
 }
 
 fun <T : CompositeI<*>> T.defineSuperUnitsAsAnonymousProps() {
@@ -309,29 +327,6 @@ fun <T : CompositeI<*>> T.prepareAttributesOfEnums() {
 fun TypeI<*>.superUnit(): TypeI<*> = superUnits().firstOrNull() ?: Type.EMPTY
 fun <B : TypeI<B>> B.superUnit(value: TypeI<*>): B = superUnits(value)
 
-fun <T : TypeI<*>> T.constructorAllProps(adapt: ConstructorI<*>.() -> Unit = {}): ConstructorI<*> {
-    var ret = primaryOrFirstConstructor()
-    if (ret.isEMPTY()) {
-        val primary = this is EnumTypeI<*>
-        storage.reset(this)
-        val parent = this
-        val superUnitConstructor = if (parent.superUnit().isNotEMPTY() && parent.superUnit().primaryOrFirstConstructor().isEMPTY()) {
-            parent.superUnit().constructorAllProps(adapt)
-        } else {
-            parent.superUnit().primaryOrFirstConstructor()
-        }
-
-        ret = constr {
-            parent(parent)
-            primary(primary).params(*propsAllNoMeta().toTypedArray())
-            namespace(parent.namespace())
-            superUnit(superUnitConstructor)
-            adapt()
-        }
-    }
-    return ret
-}
-
 fun <T : TypeI<*>> T.constructorOwnPropsOnly(adapt: ConstructorI<*>.() -> Unit = {}): ConstructorI<*> {
     val primary = this is EnumTypeI<*>
     storage.reset(this)
@@ -345,9 +340,23 @@ fun <T : TypeI<*>> T.constructorOwnPropsOnly(adapt: ConstructorI<*>.() -> Unit =
     }
 }
 
+fun <T : TypeI<*>> T.constructorFull(adapt: ConstructorI<*>.() -> Unit = {}): ConstructorI<*> {
+    return if (isNotEMPTY() && this !is EnumTypeI<*>) {
+        val primary = constructors().isEmpty()
+        storage.reset(this)
+        constr {
+            parent(this@constructorFull)
+            primary(primary).params(*propsAllNoMeta().toTypedArray())
+            namespace(namespace())
+            superUnit(this@constructorFull.superUnit().primaryOrFirstConstructor())
+            adapt()
+        }
+    } else Constructor.EMPTY
+}
+
 fun <T : TypeI<*>> T.constructorEmpty(adapt: ConstructorI<*>.() -> Unit = {}): ConstructorI<*> {
-    val constrProps = props().filter { it.anonymous() }.map { p(it).default(true).anonymous(it.anonymous()) }
-    return if (this !is EnumTypeI<*>) {
+    return if (isNotEMPTY() && this !is EnumTypeI<*>) {
+        val constrProps = props().filter { it.anonymous() }.map { p(it).default(true).anonymous(it.anonymous()) }
         storage.reset(this)
         val parent = this
         constr {
@@ -359,6 +368,21 @@ fun <T : TypeI<*>> T.constructorEmpty(adapt: ConstructorI<*>.() -> Unit = {}): C
         }
     } else Constructor.EMPTY
 }
+
+
+fun <T: LogicUnitI<*>> T.deriveReplaceParams(vararg newParams: AttributeI<*>) : T {
+    return derive {
+        params().replaceAll { org -> val found = newParams.find { it.name().equals(org.name(), true) }
+            found ?: org }
+        superUnit(this@deriveReplaceParams)
+    } as T
+}
+
+fun <T: TypeI<*>> T.constrSuper(vararg newParams: AttributeI<*>) {
+    constr(superUnit().primaryOrFirstConstructor().deriveReplaceParams(*newParams))
+}
+
+
 
 fun <T : TypeI<*>> T.propagateItemToSubtypes(item: TypeI<*>) {
     superUnitFor().filter { superUnitChild ->

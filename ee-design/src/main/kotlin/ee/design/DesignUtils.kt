@@ -96,25 +96,25 @@ fun CommandI<*>.deriveEvent(): EventI<*> {
             name(deriveEventName())
             //paramsNotDerived(*command.paramsNotDerived().map { p(it) }.toTypedArray())
             props(*command.props().toTypedArray())
-            constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
         }
         is UpdateByI -> entity.updated {
             name(deriveEventName())
             //paramsNotDerived(*command.paramsNotDerived().map { p(it) }.toTypedArray())
             props(*command.props().toTypedArray())
-            constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
         }
         is DeleteByI -> entity.deleted {
             name(deriveEventName())
             //paramsNotDerived(*command.paramsNotDerived().map { p(it) }.toTypedArray())
             props(*command.props().toTypedArray())
-            constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
         }
         else         -> entity.event {
             name(deriveEventName())
             //paramsNotDerived(*command.paramsNotDerived().map { p(it) }.toTypedArray())
             props(*command.props().toTypedArray())
-            constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+            constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
         }
     }
 }
@@ -310,7 +310,7 @@ fun EntityI<*>.create(): CommandI<*> = storage.getOrPut(this, "create", {
     createBy {
         name("create")
         props(*dataTypeProps().toTypedArray())
-        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+        constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
     }
 })
 
@@ -319,7 +319,7 @@ fun EntityI<*>.update(): CommandI<*> = storage.getOrPut(this, "update", {
     updateBy {
         name("update")
         props(*dataTypeProps().toTypedArray())
-        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+        constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
     }
 })
 
@@ -327,7 +327,7 @@ fun EntityI<*>.delete(): CommandI<*> = storage.getOrPut(this, "delete", {
     deleteBy {
         name("delete")
         props(id())
-        constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+        constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
     }
 })
 

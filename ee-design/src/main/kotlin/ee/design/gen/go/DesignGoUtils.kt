@@ -81,7 +81,7 @@ fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
                                 commands.forEach { lit({ name(it.nameAndParentName().capitalize()) }) }
                             }
 
-                            constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+                            constructorFull{ derivedAsType(LangDerivedKind.MANUAL) }
                         }
 
                         //event handler
@@ -118,7 +118,7 @@ fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
                                 events.forEach { lit({ name(it.parentNameAndName().capitalize()) }) }
                             }
 
-                            constructorAllProps { derivedAsType(LangDerivedKind.MANUAL) }
+                            constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
                         }
 
 
@@ -140,7 +140,7 @@ fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
                                 op(it).macrosBody(OperationI<*>::toGoExistByBody.name)
                             }
 
-                            constructorAllProps {}
+                            constructorFull {}
                         }
 
 
@@ -204,7 +204,7 @@ fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
                                 }
                             }
 
-                            constructorAllProps { }
+                            constructorFull { }
                         }
 
                         val httpCommandHandler = controller {
@@ -252,7 +252,7 @@ fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
                                 }
                             }
 
-                            constructorAllProps {}
+                            constructorFull {}
                         }
 
                         httpRouters.add(controller {

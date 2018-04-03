@@ -65,7 +65,7 @@ fun <T : AttributeI<*>> T.toKotlinCompanionObjectName(c: GenerationContext): Str
     return """        val ${name().toUnderscoredUpperCase()} = "_${name()}""""
 }
 
-fun <T : CompilationUnitI<*>> T.toKotlinExtends(c: GenerationContext, derived: String, api: String): String {
+fun <T : TypeI<*>> T.toKotlinExtends(c: GenerationContext, derived: String, api: String): String {
     if (superUnit().isNotEMPTY() && derived != api) {
         return " : ${c.n(superUnit(), derived)}, ${c.n(this, api)}"
     } else if (superUnit().isNotEMPTY()) {
@@ -197,18 +197,26 @@ fun List<AttributeI<*>>.toKotlinSignature(c: GenerationContext, derived: String,
 fun List<AttributeI<*>>.toKotlinMember(c: GenerationContext, derived: String,
     api: String): String = joinWrappedToString(", ") { it.toKotlinSignature(c, derived, api) }
 
-fun <T : ConstructorI<*>> T.toKotlinPrimary(c: GenerationContext, derived: String, api: String): String {
-    return if (isNotEMPTY()) """(${params().joinWrappedToString(", ", "      ") {
-        it.toKotlinConstructorMember(c, derived, api)
-    }})${superUnit().toKotlinCall(c)}""" else ""
+fun <T : ConstructorI<*>> T.toKotlinPrimary(c: GenerationContext, derived: String, api: String,
+    type: TypeI<*>): String {
+    val superUnitParams = superUnit().params()
+    return if (isNotEMPTY()) """(${paramsWithOutValue().joinWrappedToString(", ", "      ") { param ->
+        if (superUnitParams.find { it.name() == param.name() } == null) {
+            param.toKotlinConstructorMember(c, derived, api)
+        } else {
+            param.toKotlinSignature(c, derived, api)
+        }
+    }})${superUnit().toKotlinCall(c, derived, type.toKotlinExtends(c, derived, api),
+            paramsWithValue())}""" else type.toKotlinExtends(c, derived, api)
 }
 
 fun <T : ConstructorI<*>> T.toKotlin(c: GenerationContext, derived: String, api: String): String {
     return if (isNotEMPTY()) """
-    constructor(${params().joinWrappedToString(", ", "                ") {
+    constructor(${paramsWithOutValue().joinWrappedToString(", ", "                ") {
         it.toKotlinSignature(c, derived, api)
     }})${superUnit().isNotEMPTY().then {
-        (superUnit() as ConstructorI<*>).toKotlinCall(c, (parent() != superUnit().parent()).ifElse("super", "this"))
+        superUnit().toKotlinCall(c, derived, (parent() != superUnit().parent()).ifElse(" : super", " : this"),
+                paramsWithValue())
     }} ${paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("$nL        ", prefix = "{$nL        ",
             postfix = "$nL    }") {
         it.toKotlinAssign(c)
@@ -224,8 +232,16 @@ fun <T : ConstructorI<*>> T.toKotlinCall(c: GenerationContext, name: String = "t
 
 fun <T : AttributeI<*>> T.toKotlinAssign(c: GenerationContext): String = "this.${name()} = ${name()}"
 
-fun <T : LogicUnitI<*>> T.toKotlinCall(
-    c: GenerationContext): String = isNotEMPTY().then { "(${params().joinWrappedToString(", ") { it.name() }})" }
+fun <T : LogicUnitI<*>> T.toKotlinCall(c: GenerationContext, derived: String, prefix: String = "",
+    values: Map<String, AttributeI<*>> = emptyMap()): String = isNotEMPTY().then {
+    "$prefix(${params().joinWrappedToString(", ") {
+        if (values.containsKey(it.name())) {
+            values[it.name()]!!.toKotlinValue(c, derived)
+        } else {
+            it.name()
+        }
+    }})"
+}
 
 
 fun <T : LogicUnitI<*>> T.toKotlinCallValue(c: GenerationContext, derived: String): String = isNotEMPTY().then {
