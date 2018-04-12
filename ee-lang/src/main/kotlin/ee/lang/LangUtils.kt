@@ -36,7 +36,7 @@ fun ItemI<*>.nameAndParentName(): String = storage.getOrPut(this, "nameAndParent
 fun <T : LogicUnitI<*>> T.findGeneric(name: String): GenericI<*>? = findParent(TypeI::class.java)?.findGeneric(name)
 
 fun <T : LogicUnitI<*>> T.paramsWithOut(
-    superUnit: LogicUnitI<*>) = params().filter { param -> superUnit.params().firstOrNull { it.name() == param.name() } == null }
+        superUnit: LogicUnitI<*>) = params().filter { param -> superUnit.params().firstOrNull { it.name() == param.name() } == null }
 
 fun <T : TypeI<*>> T.findGeneric(name: String): GenericI<*>? = generics().find { it.name() == name } ?: findParent(
         LogicUnitI::class.java)?.findGeneric(name)
@@ -72,8 +72,12 @@ fun ConstructorI<*>.paramsWithOutValue(): List<AttributeI<*>> = storage.getOrPut
     params().filter { param -> param.value() == null }
 })
 
-fun ConstructorI<*>.paramsWithValue(): Map<String, AttributeI<*>> = storage.getOrPut(this, "paramsWithValue", {
-    params().filter { param -> param.value() != null }.associateBy { it.name() }
+fun ConstructorI<*>.paramsWithOutFixValue(): List<AttributeI<*>> = storage.getOrPut(this, "paramsWithOutFixValue", {
+    params().filter { param -> !param.fixValue() }
+})
+
+fun ConstructorI<*>.paramsWithFixValue(): Map<String, AttributeI<*>> = storage.getOrPut(this, "paramsWithFixValue", {
+    params().filter { param -> param.fixValue() }.associateBy { it.name() }
 })
 
 fun ConstructorI<*>.paramsForType(): List<AttributeI<*>> = storage.getOrPut(this, "paramsForType", {
@@ -289,9 +293,11 @@ fun EnumTypeI<*>.lit(prop: AttributeI<*>, paramValue: Any): LiteralI<*> = lit {
 }
 
 fun <T : CompositeI<*>> T.defineConstructorAllPropsForNonConstructors() {
-    findDownByType(TypeI::class.java, stopSteppingDownIfFound = false).filter {
-        it.constructors().isEmpty() && (it !is EnumTypeI || it.props().isNotEmpty())
-    }.extend { constructorFull() }
+    findDownByType(TypeI::class.java, stopSteppingDownIfFound = false).forEach {
+        if (it.constructors().isEmpty() && (it !is EnumTypeI || it.props().isNotEmpty())) {
+            it.extend { constructorFull() }
+        }
+    }
 }
 
 fun <T : CompositeI<*>> T.defineConstructorOwnPropsOnlyForNonConstructors() {
@@ -341,7 +347,7 @@ fun <T : TypeI<*>> T.constructorOwnPropsOnly(adapt: ConstructorI<*>.() -> Unit =
 }
 
 fun <T : TypeI<*>> T.constructorFull(adapt: ConstructorI<*>.() -> Unit = {}): ConstructorI<*> {
-    return if (isNotEMPTY() && this !is EnumTypeI<*>) {
+    return if (isNotEMPTY()) {
         val primary = constructors().isEmpty()
         storage.reset(this)
         constr {
@@ -370,18 +376,19 @@ fun <T : TypeI<*>> T.constructorEmpty(adapt: ConstructorI<*>.() -> Unit = {}): C
 }
 
 
-fun <T: LogicUnitI<*>> T.deriveReplaceParams(vararg newParams: AttributeI<*>) : T {
+fun <T : LogicUnitI<*>> T.deriveReplaceParams(vararg newParams: AttributeI<*>): T {
     return derive {
-        params().replaceAll { org -> val found = newParams.find { it.name().equals(org.name(), true) }
-            found ?: org }
+        params().replaceAll { org ->
+            val found = newParams.find { it.name().equals(org.name(), true) }
+            found ?: org
+        }
         superUnit(this@deriveReplaceParams)
     } as T
 }
 
-fun <T: TypeI<*>> T.constrSuper(vararg newParams: AttributeI<*>) {
+fun <T : TypeI<*>> T.constrSuper(vararg newParams: AttributeI<*>) {
     constr(superUnit().primaryOrFirstConstructor().deriveReplaceParams(*newParams))
 }
-
 
 
 fun <T : TypeI<*>> T.propagateItemToSubtypes(item: TypeI<*>) {
@@ -425,7 +432,7 @@ fun TypeI<*>.isNative(): Boolean = parent() == n
 fun OperationI<*>.retFirst(): AttributeI<*> = returns().firstOrNull() ?: Attribute.EMPTY
 fun OperationI<*>.ret(type: TypeI<*>): OperationI<*> = returns(Attribute { type(type).name("ret") })
 fun LogicUnitI<*>.p(name: String, type: TypeI<*> = n.String,
-    adapt: AttributeI<*>.() -> Unit = {}): LogicUnitI<*> = params(Attribute({
+                    adapt: AttributeI<*>.() -> Unit = {}): LogicUnitI<*> = params(Attribute({
     type(type).name(name)
     adapt()
 }))

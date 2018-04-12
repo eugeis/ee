@@ -21,7 +21,9 @@ open class DesignKotlinGenerator {
         model.extendForKotlinGeneration()
         val generatorFactory = DesignGeneratorFactory(singleModule)
         val generator = generatorFactory.pojoKt()
-        generator.delete(target, model)
+        model.findDownByType(ModuleI::class.java).forEach { module ->
+            generator.delete(target, module)
+        }
         model.findDownByType(ModuleI::class.java).forEach { module ->
             generator.generate(target, module)
         }

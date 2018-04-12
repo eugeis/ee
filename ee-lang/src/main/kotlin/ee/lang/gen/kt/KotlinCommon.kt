@@ -119,12 +119,12 @@ fun TypeI<*>.toKotlinGenerics(c: GenerationContext, derived: String,
 
 fun TypeI<*>.toKotlinGenericsClassDef(c: GenerationContext, derived: String,
     attr: AttributeI<*>): String = generics().joinWrappedToString(", ", "", "<", ">") {
-    "${it.name()} : ${it.type().toKotlin(c, derived, attr)}"
+    "${it.name()}: ${it.type().toKotlin(c, derived, attr)}"
 }
 
 fun TypeI<*>.toKotlinGenericsMethodDef(c: GenerationContext, derived: String,
     attr: AttributeI<*>): String = generics().joinWrappedToString(", ", "", "<", "> ") {
-    "${it.name()} : ${it.type().toKotlin(c, derived, attr)}"
+    "${it.name()}: ${it.type().toKotlin(c, derived, attr)}"
 }
 
 
@@ -183,7 +183,7 @@ fun <T : AttributeI<*>> T.toKotlinSignature(c: GenerationContext, derived: Strin
 fun <T : AttributeI<*>> T.toKotlinConstructorMember(c: GenerationContext, derived: String, api: String,
     init: Boolean = true): String = "${(key() && findParent(EnumType::class.java) != null).then(
         { "@${c.n(k.json.JsonValue)} " })}${externalName().isNullOrEmpty().not().then(
-        { "@${c.n(k.json.JsonProperty)}(\"${externalName()}\")$ " })}${replaceable().setAndTrue().ifElse("var ",
+        { "@${c.n(k.json.JsonProperty)}(\"${externalName()}\") " })}${replaceable().setAndTrue().ifElse("var ",
         "val ")}${toKotlinSignature(c, derived, api, init)}"
 
 fun <T : AttributeI<*>> T.toKotlinMember(c: GenerationContext, derived: String, api: String,
@@ -200,23 +200,23 @@ fun List<AttributeI<*>>.toKotlinMember(c: GenerationContext, derived: String,
 fun <T : ConstructorI<*>> T.toKotlinPrimary(c: GenerationContext, derived: String, api: String,
     type: TypeI<*>): String {
     val superUnitParams = superUnit().params()
-    return if (isNotEMPTY()) """(${paramsWithOutValue().joinWrappedToString(", ", "      ") { param ->
+    return if (isNotEMPTY()) """(${paramsWithOutFixValue().joinWrappedToString(", ", "      ") { param ->
         if (superUnitParams.find { it.name() == param.name() } == null) {
             param.toKotlinConstructorMember(c, derived, api)
         } else {
             param.toKotlinSignature(c, derived, api)
         }
     }})${superUnit().toKotlinCall(c, derived, type.toKotlinExtends(c, derived, api),
-            paramsWithValue())}""" else type.toKotlinExtends(c, derived, api)
+            paramsWithFixValue())}""" else type.toKotlinExtends(c, derived, api)
 }
 
 fun <T : ConstructorI<*>> T.toKotlin(c: GenerationContext, derived: String, api: String): String {
     return if (isNotEMPTY()) """
-    constructor(${paramsWithOutValue().joinWrappedToString(", ", "                ") {
+    constructor(${paramsWithOutFixValue().joinWrappedToString(", ", "                ") {
         it.toKotlinSignature(c, derived, api)
     }})${superUnit().isNotEMPTY().then {
         superUnit().toKotlinCall(c, derived, (parent() != superUnit().parent()).ifElse(" : super", " : this"),
-                paramsWithValue())
+                paramsWithFixValue())
     }} ${paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("$nL        ", prefix = "{$nL        ",
             postfix = "$nL    }") {
         it.toKotlinAssign(c)

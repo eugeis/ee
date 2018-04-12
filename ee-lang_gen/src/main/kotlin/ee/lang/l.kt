@@ -67,6 +67,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val replaceable = AttributeI({ type(n.Boolean).nullable(true) })
         val meta = AttributeI({ type(n.Boolean).value(false) })
         val default = AttributeI({ type(n.Boolean).value(false) })
+        val fixValue = AttributeI({ type(n.Boolean).value(false) })
         val multi = AttributeI({ type(n.Boolean).value(false) })
         val hidden = AttributeI({ type(n.Boolean).value(false) })
         val mutable = AttributeI({ type(n.Boolean).nullable(true) })

@@ -1,7 +1,10 @@
 package ee.system
 
 import java.util.*
+import kotlin.reflect.full.declaredMemberExtensionProperties
+import kotlin.reflect.full.extensionReceiverParameter
 import kotlin.reflect.full.functions
+import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.reflect
 
 
@@ -44,6 +47,9 @@ class DelegateService : SystemBase() {
 
 fun main(args: Array<String>) {
     val s1 = Service<*>::findByCategory
+    val s1a = Service<*>::findByCategory.valueParameters
+    val s1b = Service<*>::findByCategory.extensionReceiverParameter
+    val s1c = Service<*>::findByCategory
     val s2 = Service.Finders::findByCategory
     val s3 = DelegateService::findServiceByCategory
 

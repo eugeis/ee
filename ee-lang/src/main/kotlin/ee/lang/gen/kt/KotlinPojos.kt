@@ -10,14 +10,14 @@ fun LiteralI<*>.toKotlin(): String = name().capitalize()
 
 fun LiteralI<*>.toKotlinIsMethod(): String {
     return """
-    fun is${name().capitalize()}() : Boolean = this == ${toKotlin()}"""
+    fun is${name().capitalize()}(): Boolean = this == ${toKotlin()}"""
 }
 
 fun <T : EnumTypeI<*>> T.toKotlinEnum(c: GenerationContext, derived: String = LangDerivedKind.API,
     api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
     return """
-enum class $name${primaryConstructor().toKotlinPrimary(c, derived, api, this)} {
+enum class $name${primaryOrFirstConstructor().toKotlinPrimary(c, derived, api, this)} {
     ${literals().joinToString(",$nL    ") {
         "${it.toKotlin()}${it.toKotlinCallValue(c, derived)}"
     }};${propsExceptPrimaryConstructor().joinToString(nL) {
