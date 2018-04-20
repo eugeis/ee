@@ -8,7 +8,7 @@ object SwaggerToDesignMain {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val swagger = SwaggerToDesign(
+        val swagger = SwaggerToDesign(mutableMapOf(),
             mutableMapOf("rel.self" to "Link", "Href" to "Link", "AspectId" to "n.String", "ETag" to "n.String",
                 "Errors" to "n.String", "TenantId" to "n.String", "TypeId" to "n.String"),
             mutableSetOf("AspectId", "ETag", "Errors", "TenantId", "TypeId"))
