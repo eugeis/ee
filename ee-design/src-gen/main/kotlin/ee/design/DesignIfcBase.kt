@@ -40,6 +40,9 @@ interface BusinessEventI<B : BusinessEventI<B>> : EventI<B> {
 
 
 interface CommandI<B : CommandI<B>> : CompilationUnitI<B> {
+    fun httpMethod(): String
+    fun httpMethod(value: String): B
+
     fun affectMulti(): Boolean
     fun affectMulti(value: Boolean): B
 

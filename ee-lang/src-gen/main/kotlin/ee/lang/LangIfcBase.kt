@@ -114,6 +114,8 @@ interface DataTypeI<B : DataTypeI<B>> : CompilationUnitI<B> {
 
 
 interface DataTypeOperationI<B : DataTypeOperationI<B>> : OperationI<B> {
+    fun http(value: String): B
+    fun http(): String
 }
 
 

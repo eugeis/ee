@@ -1,0 +1,1607 @@
+swagger: '2.0'
+info:
+  description: 'Service for configuring, reading and managing assets, asset ~ and aspect types.'
+  version: '3.1'
+  x-released: yes
+  x-visibility: external
+  title: Asset Management API
+basePath: /api/assetmanagement/v3
+tags:
+  - name: aspecttype
+    description: >-
+      Managing static and dynamic aspect types.
+  - name: assettype
+    description: >-
+      Managing asset types.
+  - name: assets
+    description: >-
+      Managing users' assets and their locations.
+      Assets only can be created by types which are in three main topics; device
+      types, agent types and hierarchy types.
+  - name: structure
+    description: >-
+      Managing structure of specific assets.
+  - name: locations
+    description: >-
+      Managing locations.
+  - name: billboard
+schemes:
+  - https
+produces:
+  - application/hal+json
+  - application/vnd.error+json
+consumes:
+  - application/json
+securityDefinitions:
+  assettype:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: 'https://oauth.simple.api/authorization'
+    tokenUrl: 'https://oauth.simple.api/token'
+    scopes:
+      atm.w: create or update asset types
+      atm.r: read asset types
+  aspecttype:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: 'https://oauth.simple.api/authorization'
+    tokenUrl: 'https://oauth.simple.api/token'
+    scopes:
+      atm.apt.r: read aspect types
+      atm.apt.w: write aspect types
+  asset:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: 'https://oauth.simple.api/authorization'
+    tokenUrl: 'https://oauth.simple.api/token'
+    scopes:
+      asm.c: create assets
+      asm.r: read asset
+      asm.u: update assets
+      asm.d: delete assets
+      asm.m: move asset
+      asm.h.w: create or modify hierarchy of assets
+      asm.h.d: delete an element of the hierarchy of assets
+      asm.rh.w: create or modify root hierarchy of assets
+      asm.rh.d: delete a root element of the hierarchy of assets
+  location:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: 'https://oauth.simple.api/authorization'
+    tokenUrl: 'https://oauth.simple.api/token'
+    scopes:
+      asm.loc.w: write location
+      asm.loc.d: delete location
+
+paths:
+  /:
+    get:
+      tags:
+        - billboard
+      summary: List all links for available resources
+      description: List all links for available resources
+      security:
+        - assettype:
+          - atm.r
+      responses:
+        200:
+          description: Array of links to available resources
+          schema:
+            type: object
+            properties:
+              self:
+                type: object
+                properties:
+                  href:
+                    type: string
+                    format: uri
+                    description: Link to the billboard url
+              aspectTypes:
+                type: object
+                properties:
+                  href:
+                    type: string
+                    format: uri
+                    description: Link to aspect-types resource
+              assetTypes:
+                type: object
+                properties:
+                  href:
+                    type: string
+                    format: uri
+                    description: Link to asset-types resource
+              assets:
+                type: object
+                properties:
+                  href:
+                    type: string
+                    format: uri
+                    description: Link to assets resource
+  /assettypes:
+    get:
+      tags:
+        - assettype
+      summary: List all asset types
+      description: List all asset types
+      security:
+        - assettype:
+          - atm.r
+        - aspecttype:
+          - atm.apt.r # get aspect structure
+      parameters:
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/size'
+        - $ref: '#/parameters/sort'
+        - $ref: '#/parameters/filter'
+        - $ref: '#/parameters/ifNoneMatch'
+      responses:
+        200:
+          description: Array of asset types matched the tenant scope and filter criterias
+          headers:
+            ETag:
+              type: string
+              description: Shallow ETag of the resource
+          schema:
+            type: object
+            properties:
+              _embedded:
+                type: object
+                properties:
+                  assetTypes:
+                    type: array
+                    items:
+                      $ref: '#/definitions/AssetTypeResource'
+              page:
+                $ref: '#/definitions/Page'
+              _links:
+                $ref: '#/definitions/PagingLinks'
+        304:
+          description: Asset-types page not changed
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        401:
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        403:
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        500:
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+  /assettypes/{id}:
+    put:
+      tags:
+        - assettype
+      summary: Create or Update an asset type
+      description: Create or Update an asset type
+      security:
+        - assettype:
+          - atm.w
+        - aspecttype:
+          - atm.apt.r # check aspecttype existence
+      parameters:
+        - $ref: '#/parameters/ifMatch'
+        - $ref: '#/parameters/TypeId'
+        - name: assettype
+          in: body
+          description: asset type
+          required: true
+          schema:
+            $ref: '#/definitions/AssetTypeDto'
+      responses:
+        200:
+          description: The asset type has been updated
+          schema:
+            $ref: '#/definitions/AssetTypeResource'
+        201:
+          description: The asset type has been created
+          schema:
+            $ref: '#/definitions/AssetTypeResource'
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        401:
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        403:
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        412:
+          description: AssetType is changed in the background
+          schema:
+            $ref: '#/definitions/errors'
+        500:
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+    get:
+      tags:
+        - assettype
+      summary: Read an asset type
+      description: Read an asset type
+      security:
+        - assettype:
+          - atm.r
+        - aspecttype:
+          - atm.apt.r # read aspecttype
+      parameters:
+        - $ref: '#/parameters/ifNoneMatch'
+        - $ref: '#/parameters/TypeId'
+        - name: exploded
+          in: query
+          type: boolean
+          description: Specifies if the asset type should include all of it's inherited variables and aspects. Default is false.
+      responses:
+        200:
+          description: Returns the asset type
+          schema:
+            $ref: '#/definitions/AssetTypeResource'
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        401:
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        403:
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        304:
+          description: AssetType not changed
+          schema:
+            $ref: '#/definitions/errors'
+        500:
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+  /aspecttypes:
+    get:
+      tags:
+        - aspecttype
+      summary: List all aspect types
+      description: List all aspect types
+      security:
+        - aspecttype:
+          - atm.apt.r # get aspect structure
+      parameters:
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/size'
+        - $ref: '#/parameters/sort'
+        - $ref: '#/parameters/filter'
+        - $ref: '#/parameters/ifNoneMatch'
+      responses:
+        200:
+          description: Array of aspect types matched the tenant scope and filter criterias
+          headers:
+            ETag:
+              type: string
+              description: Shallow ETag of the resource
+          schema:
+            type: object
+            properties:
+              _embedded:
+                type: object
+                properties:
+                  aspecttypes:
+                    type: array
+                    items:
+                      $ref: '#/definitions/AspectTypeResource'
+              page:
+                $ref: '#/definitions/Page'
+              _links:
+                $ref: '#/definitions/PagingLinks'
+        304:
+          description: Aspect-types page not changed
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        401:
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        403:
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        500:
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+  /aspecttypes/{id}:
+    put:
+      tags:
+        - aspecttype
+      summary: Create or Update an aspect type
+      description: Create or Update an aspect type. Only adding variables supported.
+      security:
+        - aspecttype:
+          - atm.apt.w
+      parameters:
+        - $ref: '#/parameters/ifMatch'
+        - $ref: '#/parameters/TypeId'
+        - name: aspecttype
+          in: body
+          description: aspect type
+          required: true
+          schema:
+            $ref: '#/definitions/AspectTypeDto'
+      responses:
+        200:
+          description: The aspect type has been updated
+          schema:
+            $ref: '#/definitions/AspectTypeResource'
+        201:
+          description: The aspect type has been created
+          schema:
+            $ref: '#/definitions/AspectTypeResource'
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        401:
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        403:
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        404:
+          description: AspectType not found
+          schema:
+            $ref: '#/definitions/errors'
+        412:
+          description: AspectType is changed in the background
+          schema:
+            $ref: '#/definitions/errors'
+        500:
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+    get:
+      tags:
+        - aspecttype
+      summary: Read an aspect type
+      description: Read an aspect type.
+      security:
+        - aspecttype:
+          - atm.apt.r
+      parameters:
+        - $ref: '#/parameters/ifNoneMatch'
+        - $ref: '#/parameters/TypeId'
+      responses:
+        200:
+          description: Returns the aspect type
+          schema:
+            $ref: '#/definitions/AspectTypeResource'
+        304:
+          description: AspectType not changed
+          schema:
+            $ref: '#/definitions/errors'
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        401:
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        403:
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        404:
+          description: AspectType not found
+          schema:
+            $ref: '#/definitions/errors'
+        500:
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+  /assets:
+    get:
+      tags:
+        - assets
+      summary: List all available assets
+      description: |
+        List all assets available for the authenticated user.
+
+        ## Filter
+
+        Supports all basic fields.
+
+        # Examples
+
+        Example:
+        ```
+        { "typeId": "mandalmotors.ship" }
+        ```
+      security:
+        - asset:
+          - asm.r
+        - assettype:
+          - atm.r # for checking filter validity
+        - aspecttype:
+          - atm.apt.r # for checking filter validity
+      parameters:
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/size'
+        - $ref: '#/parameters/sort'
+        - $ref: '#/parameters/filter'
+        - $ref: '#/parameters/ifNoneMatch'
+      responses:
+        '200':
+          description: Array of assets matched the tenant scope and filter criterias
+          headers:
+            ETag:
+              type: string
+              description: The hash of the response's content
+          schema:
+            type: object
+            properties:
+              _embedded:
+                type: object
+                properties:
+                  assets:
+                    type: array
+                    items:
+                      $ref: '#/definitions/AssetResource'
+              page:
+                $ref: '#/definitions/Page'
+              _links:
+                $ref: '#/definitions/PagingLinks'
+        '304':
+          description: The answer's content has not changed since the last request
+        '400':
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        '401':
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        '403':
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: 'Server error, for more information see errorcode and message'
+          schema:
+            $ref: '#/definitions/errors'
+
+    post:
+      tags:
+        - assets
+      summary: Create an asset
+      description: Creates a new asset with the provided content
+      security:
+        - asset:
+          - asm.c
+          - asm.h.w
+          - asm.rh.w
+        - assettype:
+          - atm.r # check JSON body validity
+        - aspecttype:
+          - atm.apt.r # check JSON body validity
+        - location:
+          - asm.loc.w
+      parameters:
+        - name: asset
+          in: body
+          description: asset
+          required: true
+          schema:
+            $ref: '#/definitions/AssetDto'
+      responses:
+        201:
+          description: The asset is created
+          headers:
+            Location:
+              type: string
+              description: URL of the created resource
+              format: uri
+          schema:
+            $ref: '#/definitions/AssetResource'
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        401:
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        403:
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        500:
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+  /assets/{id}:
+    get:
+      tags:
+        - assets
+      summary: Returns an asset.
+      description: Read a single asset. All static properties of asset are returned.
+      security:
+        - asset:
+          - asm.r
+        - assettype:
+          - atm.r # collect type ancestors for possible inherited properties
+      parameters:
+        - $ref: '#/parameters/assetId'
+        - $ref: '#/parameters/ifNoneMatch'
+      responses:
+        '200':
+          description: Returns an asset with its static properties.
+          headers:
+            ETag:
+              type: string
+              description: ETag hash of the resource
+          schema:
+            $ref: '#/definitions/AssetResource'
+        '304':
+          description: Resource asset is not modified
+        '401':
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        '403':
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        '404':
+          description: Not found
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+    put:
+      tags:
+        - assets
+      summary: Update an asset
+      description: Updates an asset with the provided content. Only values can be modified, asset's structure have to be modified in asset's type
+      security:
+        - asset:
+          - asm.u
+          - asm.h.w
+          - asm.rh.w
+        - assettype:
+          - atm.r # check JSON body validity
+        - aspecttype:
+          - atm.apt.r # check JSON body validity
+        - location:
+          - asm.loc.w
+      parameters:
+        - $ref: '#/parameters/ifMatch'
+        - $ref: '#/parameters/assetId'
+        - name: asset
+          in: body
+          description: asset
+          required: true
+          schema:
+            $ref: '#/definitions/AssetUpdateDto'
+      responses:
+        200:
+          description: The asset is updated
+          schema:
+            $ref: '#/definitions/AssetResource'
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        401:
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        403:
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        404:
+          description: Asset not found
+          schema:
+            $ref: '#/definitions/errors'
+        412:
+          description: Asset is changed in the background
+          schema:
+            $ref: '#/definitions/errors'
+        500:
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+    delete:
+      tags:
+        - assets
+      summary: Delete an asset
+      description: Deletes the given asset. After deletion only users with admin role can read it, but modification is not possible anymore. It's not possible to delete an asset if it has children.
+      security:
+        - asset:
+          - asm.d
+          - asm.h.d
+          - asm.rh.d
+      parameters:
+        - $ref: '#/parameters/ifMatch'
+        - $ref: '#/parameters/assetId'
+      responses:
+        204:
+          description: Asset deletion was successful
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        401:
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        403:
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        404:
+          description: Asset not found
+          schema:
+            $ref: '#/definitions/errors'
+        412:
+          description: Asset is changed in the background
+          schema:
+            $ref: '#/definitions/errors'
+        500:
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+  /assets/{id}/move:
+    post:
+      tags:
+        - assets
+      summary: Move an asset
+      description: Moves an asset (and all it's children) in the instance hierarchy
+      security:
+        - asset:
+          - asm.r
+          - asm.m
+          - asm.h.w
+      parameters:
+        - $ref: '#/parameters/ifMatch'
+        - $ref: '#/parameters/assetId'
+        - name: moveParameters
+          in: body
+          description: parameters for the asset move
+          required: true
+          schema:
+            $ref: '#/definitions/AssetMoveDto'
+      responses:
+        200:
+          description: The asset is moved
+          schema:
+            $ref: '#/definitions/AssetResource'
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        401:
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        403:
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        404:
+          description: Asset not found
+          schema:
+            $ref: '#/definitions/errors'
+        412:
+          description: Asset is changed in the background
+          schema:
+            $ref: '#/definitions/errors'
+        500:
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+  /assets/{id}/variables:
+    get:
+      tags:
+        - structure
+      summary: Get all variables of an asset
+      description: |
+        Get all variables of a given asset including inherited ones
+      security:
+        - asset:
+          - asm.r
+        - assettype:
+          - atm.r # gather variables
+      parameters:
+        - $ref: '#/parameters/assetId'
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/size'
+        - $ref: '#/parameters/sort'
+        - $ref: '#/parameters/filter'
+        - $ref: '#/parameters/ifNoneMatch'
+      responses:
+        '200':
+          description: Variables of the given asset matched by the given filter criterias
+          headers:
+            ETag:
+              type: string
+              description: ETag hash of the resource
+          schema:
+            type: object
+            properties:
+              _embedded:
+                type: object
+                properties:
+                  variables:
+                    type: array
+                    items:
+                      $ref: '#/definitions/VariableDefinition'
+              page:
+                $ref: '#/definitions/Page'
+              _links:
+                $ref: '#/definitions/PagingLinks'
+        '304':
+          description: Resource variables have not been modified
+        '400':
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        '401':
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        '403':
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        '404':
+          description: Asset not found
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+  /assets/{id}/aspects:
+    get:
+      tags:
+        - structure
+      summary: Get all aspects of an asset
+      description: |
+        Get all static and dynamic aspects of a given asset
+      security:
+        - asset:
+          - asm.r
+        - assettype:
+          - atm.r # gather aspects
+        - aspecttype:
+          - atm.apt.r # gather variables
+      parameters:
+        - $ref: '#/parameters/assetId'
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/size'
+        - $ref: '#/parameters/sort'
+        - $ref: '#/parameters/filter'
+        - $ref: '#/parameters/ifNoneMatch'
+      responses:
+        '200':
+          description: Static and dynamic aspects of the given asset matched by the given filter criterias
+          headers:
+            ETag:
+              type: string
+              description: ETag hash of the resource
+          schema:
+            type: object
+            properties:
+              _embedded:
+                type: object
+                properties:
+                  aspects:
+                    type: array
+                    items:
+                      $ref: '#/definitions/AspectResource'
+              page:
+                $ref: '#/definitions/Page'
+              _links:
+                $ref: '#/definitions/PagingLinks'
+        '304':
+          description: Resource aspects have not been modified
+        '400':
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        '401':
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        '403':
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        '404':
+          description: Asset not found
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+  /assets/root:
+    get:
+      tags:
+        - assets
+      summary: Returns the root asset of the user.
+      description: Read the root asset of the user, from which the whole asset hierarchy can be rebuilt.
+      security:
+        - asset:
+          - asm.r
+        - assettype:
+          - atm.r # collect ancestors for possible inherited properties
+      parameters:
+        - $ref: '#/parameters/ifNoneMatch'
+      responses:
+        '200':
+          description: Returns the root asset of the user.
+          headers:
+            ETag:
+              type: string
+              description: ETag hash of the resource
+          schema:
+            $ref: '#/definitions/AssetResource'
+        '304':
+          description: Resource asset is not modified
+        '401':
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        '403':
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        '404':
+          description: Not found
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+  /assets/{id}/location/:
+    put:
+      tags:
+        - locations
+      summary: Create or Update location assigned to given asset
+      description: |
+        * If the given asset has own location, this endpoint will update that location.
+        * If the given asset has no location, this endpoint will create a new location and update the given asset.
+        * If the given asset has inherited location, this endpoint will create a new location and update the given asset. If you wanted to update the inherited location you have to use the 'location' url in AssetResource object (with PUT method).
+      security:
+        - asset:
+          - asm.r # check asset existence; collect affected child entities
+        - location:
+          - asm.loc.w
+        - assettype:
+          - atm.r # check structure of location type
+      parameters:
+        - $ref: '#/parameters/ifMatch'
+        - $ref: '#/parameters/assetId'
+        - name: location
+          in: body
+          description: location
+          required: true
+          schema:
+            $ref: '#/definitions/Location'
+      responses:
+        200:
+          description: Location has been successfully created or updated
+          headers:
+            Location:
+              type: string
+              description: URL of the updated asset resource
+              format: uri
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/errors'
+        401:
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        403:
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        404:
+          description: Asset not found with given asset identifier
+          schema:
+            $ref: '#/definitions/errors'
+        412:
+          description: Location is changed in the background
+          schema:
+            $ref: '#/definitions/errors'
+        500:
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+    delete:
+      tags:
+        - locations
+      summary: Delete location assigned to given asset.
+      description: |
+        * Only those locations can be deleted here which assigned to the given asset.
+        * If the location inherited from an ancestor asset, you have to delete the location with the assigned assetId (using ‘location’ url in AssetResource object with DELETE method).
+        * The response contains the updated AssetResource with the inherited Location details.
+      security:
+        - asset:
+          - asm.r # check asset existence; collect affected child entities
+        - location:
+          - asm.loc.d
+      parameters:
+        - $ref: '#/parameters/ifMatch'
+        - $ref: '#/parameters/assetId'
+      responses:
+        200:
+          description: Location has been successfully deleted
+          schema:
+            $ref: '#/definitions/AssetResource'
+        401:
+          description: User is not authenticated
+          schema:
+            $ref: '#/definitions/errors'
+        403:
+          description: User is not authorized for request
+          schema:
+            $ref: '#/definitions/errors'
+        404:
+          description: Asset not found with given asset identifier
+          schema:
+            $ref: '#/definitions/errors'
+        409:
+          description: Location not assigned to the given asset
+          schema:
+            $ref: '#/definitions/errors'
+        500:
+          description: Server error, for more information see errorcode and message
+          schema:
+            $ref: '#/definitions/errors'
+
+definitions:
+
+# asset type related definitions
+  AssetTypeBase:
+    type: object
+    required: [name]
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: '[A-Za-z_0-9_\. -]+'
+        description: The type's name.
+        example: 'X-Wing'
+      description:
+        type: string
+        description: description
+        maxLength: 255
+        example: Hyperspace jump capable space ship
+      parentTypeId:
+        allOf:
+          - $ref: '#/definitions/TypeId'
+          - example: "mdsp.spaceship"
+          - description: unique identifier of the parent asset type
+      scope:
+        type: string
+        enum:
+          - public
+          - private
+        default:
+          private
+        description: Visibility of the assettype. Setting this property to public makes it available to other tenants. Private types are only visible to the user's own tenant.
+      variables:
+        type: array
+        items:
+          $ref: '#/definitions/VariableDefinition'
+
+  AssetTypeDto:
+    type: object
+    allOf:
+      - $ref: '#/definitions/AssetTypeBase'
+      - properties:
+          aspects:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+                  pattern: '[A-Za-z0-9-_]+'
+                  example: 'left-wing'
+                aspectTypeId:
+                  allOf:
+                    - $ref: '#/definitions/TypeId'
+                    - example: 'mdsp.wing'
+                    - description: unique identifier of aspect type
+
+  AssetTypeResource:
+    type: object
+    allOf:
+      - properties:
+          id:
+            allOf:
+              - $ref: '#/definitions/TypeId'
+              - example: 'mdsp.x_wing'
+          tenantId:
+            $ref: '#/definitions/tenantId'
+          etag:
+            $ref: '#/definitions/ETag'
+      - $ref: '#/definitions/AssetTypeBase'
+      - properties:
+          aspects:
+            type: array
+            items:
+              allOf:
+                - properties:
+                    name:
+                      type: string
+                      description: "Name of the aspect type, it must be unique for the asset type."
+                      example: "left-wing"
+                    aspectType:
+                      type: object
+                      $ref: '#/definitions/AspectTypeResource'
+          _links:
+            $ref: '#/definitions/AssetTypeLinks'
+
+  AssetTypeLinks:
+    type: object
+    properties:
+      self:
+        $ref: '#/definitions/rel.self'
+      parent:
+        type: object
+        properties:
+          href:
+            type: string
+            format: uri
+            description: Link to the parent asset type
+
+
+# aspect type related definitions
+
+  AspectTypeDto:
+    type: object
+    required: [name, category, variables]
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: '[a-zA-Z0-9_]+'
+        description: Name of the aspect type
+        example: engine
+      category:
+        type: string
+        enum:
+          - dynamic
+          - static
+      scope:
+        type: string
+        enum:
+          - public
+          - private
+        default:
+          private
+        description: Visibility of aspecttype. Setting this property to public makes it available to other tenants. Private types are only visible to the user's own tenant. Currently only private types can be created.
+      description:
+        type: string
+        maxLength: 255
+        pattern: "[^\\']*"
+        description: The description of the aspect type
+        example: The engine of the Millenium Falcon
+      variables:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/definitions/AspectVariable'
+
+  AspectTypeResource:
+    type: object
+    allOf:
+      - properties:
+          id:
+            allOf:
+              - $ref: '#/definitions/TypeId'
+              - example: 'mdsp.engine'
+          tenantId:
+            $ref: '#/definitions/tenantId'
+      - $ref: '#/definitions/AspectTypeDto'
+      - properties:
+          etag:
+            $ref: '#/definitions/ETag'
+          _links:
+            $ref: '#/definitions/AspectTypeLinks'
+
+  AspectTypeLinks:
+    type: object
+    properties:
+      self:
+        $ref: '#/definitions/rel.self'
+
+# asset related definitions
+
+  assetId:
+    type: string
+    format: uuid
+    pattern: '[0-9a-f]+'
+    minLength: 32
+    maxLength: 32
+    example: c27a28b6eb16b507fabc11e75da8b4ce
+
+  AssetDto:
+    type: object
+    required:
+      - typeId
+      - parentId
+    allOf:
+      - properties:
+          typeId:
+            $ref: '#/definitions/TypeId'
+          t2Tenant:
+            type: string
+            description: The id of the end-customer
+            maxLength: 255
+            example: 'UnkarPlutt Inc.'
+          parentId:
+            $ref: '#/definitions/assetId'
+      - $ref: '#/definitions/AssetUpdateDto'
+# TenantId should come from context / session
+  AssetUpdateDto:
+    type: object
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: '[^\/\\]*'
+        description: Name of the asset
+        example: 'Millenium Falcon'
+      externalId:
+        type: string
+        description: The id given by the user
+        maxLength: 255
+        example: 'SN 123456-123-123456'
+      description:
+        type: string
+        description: The description of the asset
+        maxLength: 255
+        example: 'The ship of Han Solo and Chewbacca'
+      location:
+        $ref: '#/definitions/Location'
+      variables:
+        type: array
+        items:
+          $ref: '#/definitions/Variable'
+      aspects:
+        type: array
+        items:
+          $ref: '#/definitions/Aspect'
+
+  AssetMoveDto:
+    type: object
+    required:
+      - newParentId
+    properties:
+      newParentId:
+        $ref: '#/definitions/assetId'
+
+  AssetResource:
+    allOf:
+      - properties:
+          tenantId:
+            $ref: '#/definitions/tenantId'
+          assetId:
+            $ref: '#/definitions/assetId'
+      - $ref: '#/definitions/AssetDto'
+      - properties:
+          deleted:
+            type: string
+            format: date-time
+          etag:
+            $ref: '#/definitions/ETag'
+          _links:
+            $ref: '#/definitions/AssetLinks'
+
+  AssetLinks:
+    type: object
+    properties:
+      self:
+        type: object
+        properties:
+          href:
+            type: string
+            format: uri
+            description: URL to get the asset
+      parent:
+        type: object
+        properties:
+          href:
+            type: string
+            format: uri
+            description: URL to get the parent of the asset
+      children:
+        type: object
+        properties:
+          href:
+            type: string
+            format: uri
+            description: URL to get the children of the asset
+      variables:
+        type: object
+        properties:
+          href:
+            type: string
+            format: uri
+            description: URL to get the variable definitions of the asset
+      aspects:
+        type: object
+        properties:
+          href:
+            type: string
+            format: uri
+            description: URL to get the aspect structure of the asset
+      t2Tenant:
+        type: object
+        properties:
+          href:
+            type: string
+            format: uri
+            description: URL to get the end-customer of the asset
+      location:
+        type: object
+        properties:
+          href:
+            type: string
+            format: uri
+            description: URL to update or delete the location of the asset
+
+  Location:
+    type: object
+    properties:
+      country:
+        type: string
+        maxLength: 255
+        example: Austria
+      region:
+        type: string
+        description: County or other region code or name
+        maxLength: 255
+        example: Tyrol
+      locality:
+        type: string
+        maxLength: 255
+        pattern: '[\w -\'']+'
+        example: Innsbruck
+      streetAddress:
+        type: string
+        maxLength: 255
+        example: Industriestraße 21 A/II
+      postalcode:
+        type: string
+        maxLength: 255
+        example: '6020'
+      longitude:
+        type: number
+        description: The longitude part of the geographic coordinates
+        minimum: -180
+        maximum: 180
+        example: 53.5125546
+      latitude:
+        type: number
+        description: The latitude part of the geographic coordinates
+        minimum: -90
+        maximum: 90
+        example: 9.9763411
+
+# aspect related definitions
+  AspectVariable:
+    type: object
+    allOf:
+      - $ref: '#/definitions/VariableDefinition'
+      - properties:
+          qualityCode:
+            type: boolean
+            default: false
+            description: Indicates whether the variable has quality code
+            example: true
+  Aspect:
+    type: object
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 64
+        pattern: '[a-zA-Z0-9_]+'
+        example: "astroDroid"
+      variables:
+        type: array
+        items:
+          $ref: '#/definitions/Variable'
+
+  AspectResource:
+    type: object
+    required: [name]
+    properties:
+      aspectTypeId:
+        type: string
+        description: ID of the Aspect type
+        example: tenant.asp.engine
+      holderAssetId:
+        $ref: '#/definitions/assetId'
+      name:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: '[a-zA-Z0-9_]+'
+        description: Name of the aspect
+        example: engine
+      category:
+        type: string
+        enum:
+          - dynamic
+          - static
+      description:
+        type: string
+        maxLength: 255
+        pattern: "[^\\']*"
+        description: The description of the aspect
+        example: The engine of the Millenium Falcon
+      variables:
+        type: array
+        items:
+          $ref: '#/definitions/AspectVariable'
+      _links:
+        $ref: '#/definitions/AspectLinks'
+
+  AspectLinks:
+    type: object
+    properties:
+      self:
+        type: object
+        properties:
+          href:
+            type: string
+            format: uri
+            description: Link to the aspect
+      asset:
+        type: object
+        properties:
+          href:
+            type: string
+            format: uri
+            description: Link to the asset
+      aspectType:
+        type: object
+        properties:
+          href:
+            type: string
+            format: uri
+            description: Link to the origin aspect type of the aspect
+
+# variable related definitions
+
+  Variable:
+    type: object
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 64
+        pattern: '[a-zA-Z0-9_]+'
+        example: "color"
+      value:
+        type: string
+        minLength: 1
+        maxLength: 255
+        example: "yellow"
+
+  VariableDefinition:
+    type: object
+    required: [name, dataType]
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 64
+        pattern: '[a-zA-Z0-9_]+'
+        description: Name of the variable
+        example: temperature
+      dataType:
+        type: string
+        enum:
+          - BOOLEAN
+          - INT
+          - LONG
+          - DOUBLE
+          - STRING
+          - TIMESTAMP
+        description: Data type of the variable
+        example: DOUBLE
+      unit:
+        type: string
+        maxLength: 32
+        pattern: "[^\\']*"
+        description: Unit of measurement
+        example: "C"
+      searchable:
+        type: boolean
+        default: false
+        description: Indicates whether sorting and filtering is allowed on this variable. Only usable for static properties.
+        example: true
+      length:
+        type: integer
+        maximum: 255
+        description: The max length of the variable's value. The length field is only used for variables of string dataType.
+        example: 3
+
+# common definitions
+
+  tenantId:
+    type: string
+    pattern: '[a-zA-Z0-9-_.]+'
+    maxLength: 255
+    description: The unique identifier of the tenant
+    example: 'mindsphere'
+
+  TypeId:
+    type: string
+    minLength: 1
+    maxLength: 128
+    pattern: '[A-Za-z0-9_]{1,8}\.[A-Za-z0-9_]+'
+    description: The type's id is a unique identifier. The id's length must be between 1 and 128 characters and matches the following symbols "A-Z", "a-z", "0-9", "_" and "." beginning with the tenant prefix what has a maximum of 8 characters. (e.g . ten_pref.type_id)
+
+  Page:
+    type: object
+    properties:
+      size:
+        type: integer
+      totalElements:
+        type: integer
+      totalPages:
+        type: integer
+      number:
+        type: integer
+
+  PagingLinks:
+    type: object
+    properties:
+      self:
+        $ref: '#/definitions/rel.self'
+      first:
+        type: object
+        title: link to first page
+        properties:
+          href:
+            type: string
+      prev:
+        type: object
+        title: link to previous page
+        properties:
+          href:
+            type: string
+      next:
+        type: object
+        title: link to next page
+        properties:
+          href:
+            type: string
+      last:
+        type: object
+        title: link to last page
+        properties:
+          href:
+            type: string
+
+  rel.self:
+    type: object
+    title: self link
+    properties:
+      href:
+        type: string
+
+  errors:
+    type: array
+    items:
+      type: object
+      properties:
+        errorcode:
+          type: number
+        logref:
+          type: string
+          format: uuid
+        message:
+          type: string
+      example:
+        errorcode: assetmngmnt.errorcode
+        logref: c27a28b6eb16b507fabc11e75da8b4ce
+        message: Some meaningful message about the problems origin
+
+  ETag:
+    type: integer
+    description: incremental counter for optimistic locking
+    example: 1
+
+parameters:
+  TypeId:
+    name: id
+    in: path
+    type: string
+    minLength: 1
+    maxLength: 128
+    required: true
+    pattern: '[A-Za-z0-9_]{1,8}\.[A-Za-z0-9_]+'
+    description: The type's id is a unique identifier. The id's length must be between 1 and 128 characters and matches the following symbols "A-Z", "a-z", "0-9", "_" and "." beginning with the tenant prefix what has a maximum of 8 characters. (e.g . ten_pref.type_id)
+  assetId:
+    name: id
+    in: path
+    type: string
+    format: uuid
+    pattern: '[0-9A-F]{32}'
+    required: true
+    description: Unique identifier
+  page:
+    name: page
+    in: query
+    type: integer
+    description: Specifies the requested page index
+  size:
+    name: size
+    in: query
+    type: integer
+    description: Specifies the number of elements in a page
+  sort:
+    name: sort
+    in: query
+    type: string
+    description: Specifies the ordering of returned elements
+  filter:
+    name: filter
+    in: query
+    type: string
+    description: Specifies the additional filtering criteria
+  ifNoneMatch:
+    name: If-None-Match
+    in: header
+    type: string
+    description: ETag hash of previous request to allow caching
+  ifMatch:
+    name: If-Match
+    in: header
+    type: string
+    description: Last known version to facilitate optimistic locking

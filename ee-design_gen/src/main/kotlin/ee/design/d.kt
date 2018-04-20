@@ -53,6 +53,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
     object BusinessController : CompilationUnit({ superUnit(Controller) })
 
     object Command : CompilationUnit({ superUnit(l.CompilationUnit) }) {
+        val httpMethod = propS()
         val affectMulti = prop(n.Boolean).value(false)
         val event = prop(Event).doc("Default target/to be produced event")
     }

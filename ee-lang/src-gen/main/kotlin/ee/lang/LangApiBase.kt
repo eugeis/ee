@@ -205,6 +205,13 @@ open class DataTypeOperation(value: DataTypeOperation.() -> Unit = {}) : DataTyp
 }
 
 open class DataTypeOperationB<B : DataTypeOperationI<B>>(value: B.() -> Unit = {}) : OperationB<B>(value), DataTypeOperationI<B> {
+
+    override fun http(): String = attr(http, { "" })
+    override fun http(value: String): B = apply { attr(http, value) }
+
+    companion object {
+        val http = "_http"
+    }
 }
 
 

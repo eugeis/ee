@@ -26,6 +26,7 @@ private val log = LoggerFactory.getLogger("SwaggerToDesign")
 data class DslTypes(val name: String, val types: Map<String, String>)
 
 class SwaggerToDesign(private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
+    private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
                       private val ignoreTypes: MutableSet<String> = mutableSetOf()) {
 
     fun toDslTypes(swaggerFile: Path): DslTypes =
