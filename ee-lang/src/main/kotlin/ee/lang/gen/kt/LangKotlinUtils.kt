@@ -22,6 +22,11 @@ object k : StructureUnit({ name("Kotlin") }) {
             val K = G()
             val V = G()
         }
+
+        object Pair : ExternalType() {
+            val K = G()
+            val V = G()
+        }
     }
 
     object json : StructureUnit({ namespace("com.fasterxml.jackson.annotation") }) {
