@@ -97,6 +97,10 @@ interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
 }
 
 
+interface BasicI<B : BasicI<B>> : DataTypeI<B> {
+}
+
+
 interface CompilationUnitI<B : CompilationUnitI<B>> : TypeI<B> {
     fun base(value: Boolean): B
     fun base(): Boolean
@@ -114,8 +118,6 @@ interface DataTypeI<B : DataTypeI<B>> : CompilationUnitI<B> {
 
 
 interface DataTypeOperationI<B : DataTypeOperationI<B>> : OperationI<B> {
-    fun http(value: String): B
-    fun http(): String
 }
 
 
@@ -416,5 +418,9 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
     fun superUnits(): ListMultiHolder<TypeI<*>>
 
     fun virtual(): Boolean
+}
+
+
+interface ValuesI<B : ValuesI<B>> : DataTypeI<B> {
 }
 

@@ -1,13 +1,11 @@
 package ee.design.swagger
 
-import ee.common.ext.*
-import ee.design.Basic
-import ee.design.Model
+import ee.common.ext.ifElse
+import ee.common.ext.joinSurroundIfNotEmptyToString
+import ee.common.ext.then
+import ee.common.ext.toCamelCase
 import ee.design.Module
-import ee.lang.TypeI
-import ee.lang.doc
-import ee.lang.n
-import ee.lang.nL
+import ee.lang.*
 import io.swagger.models.ArrayModel
 import io.swagger.models.ComposedModel
 import io.swagger.models.ModelImpl
@@ -45,7 +43,7 @@ private class SwaggerToDesignExecutor(swaggerFile: Path,
 
     fun toDslTypes(): DslTypes {
         extractTypeDefsFromPrimitiveAliases().forEach {
-            it.value.toDslBasic(it.key.toDslTypeName())
+            it.value.toDslValues(it.key.toDslTypeName())
         }
         return DslTypes(name = swagger.info?.title ?: "", types = typesToFill)
     }
@@ -72,7 +70,7 @@ private class SwaggerToDesignExecutor(swaggerFile: Path,
             name("Shared")
 
             definitions?.forEach { defName, def ->
-                basic(def.toBasic(defName))
+                values(def.toValues(defName))
             }
         }.init()
     }
@@ -96,10 +94,10 @@ private class SwaggerToDesignExecutor(swaggerFile: Path,
         }, { "" })
     }
 
-    private fun io.swagger.models.Model.toDslBasic(name: String) {
+    private fun io.swagger.models.Model.toDslValues(name: String) {
         if (this is ComposedModel) {
             typesToFill[name] = """
-object ${name.toDslTypeName()} : Basic({ ${interfaces.joinSurroundIfNotEmptyToString(",", "superUnit(", ")") {
+object ${name.toDslTypeName()} : Values({ ${interfaces.joinSurroundIfNotEmptyToString(",", "superUnit(", ")") {
                 it.simpleRef.toDslTypeName()
             }}${description.toDslDoc()} }) {${allOf.filterNot { interfaces.contains(it) }.joinToString("") {
                 it.properties.toDslProperties()
@@ -275,9 +273,9 @@ object $name : Basic(${description.toDslDoc("{", "}")}) {${properties.toDslPrope
             { ".hidden(true)" })}${toDslPropValue(typeName, ".")}${description.toDslDoc(".")}"
     }
 
-    private fun io.swagger.models.Model.toBasic(name: String): Basic {
+    private fun io.swagger.models.Model.toValues(name: String): Values {
         val model = this
-        return Basic {
+        return Values {
             name(name).doc(model.description ?: "")
             model.properties?.forEach { propName, p ->
                 prop { name(propName).type(p.type.toType()).doc(p.description ?: "") }

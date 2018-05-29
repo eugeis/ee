@@ -14,7 +14,7 @@ fun LiteralI<*>.toKotlinIsMethod(): String {
 }
 
 fun <T : EnumTypeI<*>> T.toKotlinEnum(c: GenerationContext, derived: String = LangDerivedKind.API,
-    api: String = LangDerivedKind.API): String {
+                                      api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
     return """
 enum class $name${primaryOrFirstConstructor().toKotlinPrimary(c, derived, api, this)} {
@@ -36,9 +36,11 @@ fun String?.to$name(): $name {
 }
 
 fun <T : CompilationUnitI<*>> T.toKotlinImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-    api: String = LangDerivedKind.API): String {
+                                             api: String = LangDerivedKind.API,
+                                             dataClass: Boolean = this is BasicI<*> &&
+                                                     superUnits().isEmpty() && superUnitFor().isEmpty()): String {
     return """
-${open().then("open ")}class ${c.n(this, derived)}${primaryConstructor().toKotlinPrimary(c, derived, api,
+${(open() && !dataClass).then("open ")}${dataClass.then("data ")}class ${c.n(this, derived)}${primaryConstructor().toKotlinPrimary(c, derived, api,
             this)} {${propsWithoutParamsOfPrimaryConstructor().joinSurroundIfNotEmptyToString(nL, prefix = nL,
             postfix = nL) {
         it.toKotlinMember(c, derived, api, false)

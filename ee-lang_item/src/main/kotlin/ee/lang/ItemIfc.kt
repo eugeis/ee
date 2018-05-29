@@ -14,7 +14,7 @@ interface ItemI<B : ItemI<B>> {
     fun onDerived(derived: ItemI<*>)
     /**
      * Derived as new free given type, e.g. Aggregate from Entity,
-     * in order to have filter criteria and not catch derived Entity for generation and
+     * in order to have filterSkipped criteria and not catch derived Entity for generation and
      * provide special names
      */
     fun derivedAsType(): String

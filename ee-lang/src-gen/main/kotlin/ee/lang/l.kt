@@ -7,6 +7,7 @@ object l : StructureUnit({ namespace("ee.lang") }) {
     val ApplyAction = CompilationUnit { derivedFrom(Action) }
     val AssignAction = CompilationUnit { derivedFrom(ApplyAction) }
     val Attribute = CompilationUnit { derivedFrom(Literal) }
+    val Basic = CompilationUnit { derivedFrom(DataType) }
     val Comment = CompilationUnit { derivedFrom(Composite) }
     val CompilationUnit = CompilationUnit { derivedFrom(Type) }
     val Composite = CompilationUnit { derivedFrom(MapMultiHolder) }
@@ -53,6 +54,7 @@ object l : StructureUnit({ namespace("ee.lang") }) {
     val TimesAssignAction = CompilationUnit { derivedFrom(ApplyAction) }
     val TimesExpression = CompilationUnit { derivedFrom(LeftRightLiteral) }
     val Type = CompilationUnit { derivedFrom(MacroComposite) }
+    val Values = CompilationUnit { derivedFrom(DataType) }
 
     object MultiHolder : CompilationUnit({ derivedFrom(Item) }) {
         val T = G { type(Item) }

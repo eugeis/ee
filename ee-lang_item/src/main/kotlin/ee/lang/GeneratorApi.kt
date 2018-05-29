@@ -15,59 +15,78 @@ val nL = "\n"
 private val log = LoggerFactory.getLogger("GeneratorApi")
 
 interface GeneratorI<M> {
-    fun generate(target: Path, model: M)
-    fun delete(target: Path, model: M)
+    fun name(): String
+    fun parent(): GeneratorGroupI<M>?
+    fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean = { false })
+    fun delete(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean = { false })
 }
 
-open class GeneratorGroup<M> : GeneratorI<M> {
-    val generators: Collection<GeneratorI<M>>
+interface GeneratorGroupI<M> : GeneratorI<M> {
+    fun names(prefix: String = ""): List<String>
+}
 
-    constructor(generators: Collection<GeneratorI<M>>) {
-        this.generators = generators
-    }
-
-    override fun delete(target: Path, model: M) {
-        log.debug("delete in $target for $model")
-        generators.forEach { it.delete(target, model) }
-    }
-
-    override fun generate(target: Path, model: M) {
-        log.debug("generate in $target for $model")
-        generators.forEach { it.generate(target, model) }
+abstract class AbstractGenerator<M>(val name: String, var parent: GeneratorGroupI<M>? = null) : GeneratorI<M> {
+    override fun name(): String = name
+    override fun parent(): GeneratorGroupI<M>? = parent
+    fun parent(parent: GeneratorGroupI<M>?) {
+        this.parent = parent
     }
 }
 
-open class GeneratorGroupItems<M, I> : GeneratorI<M> {
-    val generators: Collection<GeneratorI<I>>
-    val items: M.() -> Collection<I>
+open class GeneratorGroup<M>(name: String, val generators: Collection<GeneratorI<M>>)
+    : AbstractGenerator<M>(name), GeneratorGroupI<M> {
 
-    constructor(generators: Collection<GeneratorI<I>>, items: M.() -> Collection<I>) {
-        this.generators = generators
-        this.items = items
+    override fun delete(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
+        if (shallSkip(model)) return
+        log.debug("delete in $target for $model")
+        generators.forEach { it.delete(target, model, shallSkip) }
     }
 
-    override fun delete(target: Path, model: M) {
-        log.debug("delete in $target for $model")
+    override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
+        if (shallSkip(model)) return
+
+        log.debug("generate ${names()} in $target for $model")
+        generators.forEach { it.generate(target, model, shallSkip) }
+    }
+
+    override fun names(prefix: String): List<String> = generators.names("$prefix$name")
+}
+
+open class GeneratorGroupItems<M, I>(facet: String, val generators: Collection<GeneratorI<I>>,
+                                     val items: M.() -> Collection<I>) : AbstractGenerator<M>(facet), GeneratorGroupI<M> {
+    override fun delete(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
+        if (shallSkip(model)) return
+
+        log.debug("delete ${name()} in $target for $model")
         model.items().forEach { item ->
-            generators.forEach { it.delete(target, item) }
+            generators.forEach { it.delete(target, item, shallSkip) }
         }
     }
 
-    override fun generate(target: Path, model: M) {
-        log.debug("generate in $target for $model")
+    override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
+        if (shallSkip(model)) return
 
+        log.debug("generate ${name()} to $target for $model")
         model.items().forEach { item ->
-            generators.forEach { it.generate(target, item) }
+            generators.forEach { it.generate(target, item, shallSkip) }
         }
     }
+
+    override fun names(prefix: String): List<String> = generators.names("$prefix$name")
 }
 
-abstract class GeneratorBase<M> : GeneratorI<M> {
-    val contextBuilder: M.() -> GenerationContext
+private fun Collection<GeneratorI<*>>.names(name: String): List<String> =
+        mutableListOf(name).apply {
+            this@names.forEach {
+                if (it is GeneratorGroupI<*>) {
+                    addAll(it.names("$name."))
+                } else {
+                    add("$name.${it.name()}")
+                }
+            }
+        }
 
-    constructor(contextBuilder: M.() -> GenerationContext) {
-        this.contextBuilder = contextBuilder
-    }
+abstract class GeneratorBase<M>(name: String, val contextBuilder: M.() -> GenerationContext) : AbstractGenerator<M>(name) {
 
     protected open fun prepareNamespace(module: Path, context: GenerationContext): Path {
         val folder = module.resolve(context.genFolder)
@@ -76,7 +95,9 @@ abstract class GeneratorBase<M> : GeneratorI<M> {
         return ret
     }
 
-    override fun delete(target: Path, model: M) {
+    override fun delete(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
+        if (shallSkip(model)) return
+
         val c = model.contextBuilder()
         if (c.genFolderDeletable) {
             val module = target.resolve(c.moduleFolder)
@@ -90,14 +111,12 @@ abstract class GeneratorBase<M> : GeneratorI<M> {
     }
 }
 
-open class GeneratorSimple<M> : GeneratorBase<M> {
-    val template: TemplateI<M>
+open class GeneratorSimple<M>(name: String, contextBuilder: M.() -> GenerationContext,
+                              val template: TemplateI<M>) : GeneratorBase<M>(name, contextBuilder) {
 
-    constructor(contextBuilder: M.() -> GenerationContext, template: TemplateI<M>) : super(contextBuilder) {
-        this.template = template
-    }
+    override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
+        if (shallSkip(model)) return
 
-    override fun generate(target: Path, model: M) {
         val c = model.contextBuilder()
         val module = target.resolve(c.moduleFolder)
         val metaData = module.loadMetaData()
@@ -117,17 +136,12 @@ open class GeneratorSimple<M> : GeneratorBase<M> {
     }
 }
 
-open class Generator<M, I> : GeneratorBase<M> {
-    val items: M.() -> Collection<I>
-    val templates: I.() -> Collection<Template<I>>
+open class Generator<M, I>(name: String, contextBuilder: M.() -> GenerationContext, val items: M.() -> Collection<I>,
+                           val templates: I.() -> Collection<Template<I>>) : GeneratorBase<M>(name, contextBuilder) {
 
-    constructor(contextBuilder: M.() -> GenerationContext, items: M.() -> Collection<I>,
-        templates: I.() -> Collection<Template<I>>) : super(contextBuilder) {
-        this.items = items
-        this.templates = templates
-    }
+    override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
+        if (shallSkip(model)) return
 
-    override fun generate(target: Path, model: M) {
         val c = model.contextBuilder()
         val module = target.resolve(c.moduleFolder)
         val metaData = module.loadMetaData()
@@ -172,7 +186,7 @@ open class Template<I> : TemplateI<I> {
     val nameBuilder: TemplateI<I>.(I) -> NamesI
 
     constructor(name: String, nameBuilder: TemplateI<I>.(I) -> NamesI,
-        generate: TemplateI<I>.(item: I, context: GenerationContext) -> String) {
+                generate: TemplateI<I>.(item: I, context: GenerationContext) -> String) {
         this.name = name
         this.nameBuilder = nameBuilder
         this.generate = generate
@@ -237,7 +251,7 @@ open class ItemsTemplate<M, I> : ItemsFragment<M, I>, TemplateI<M> {
     val nameBuilder: TemplateI<M>.(M) -> NamesI
 
     constructor(name: String, items: M.() -> Collection<I>, fragments: I.() -> Collection<FragmentI<I>>,
-        nameBuilder: TemplateI<M>.(M) -> NamesI) : super(name, items, fragments) {
+                nameBuilder: TemplateI<M>.(M) -> NamesI) : super(name, items, fragments) {
         this.nameBuilder = nameBuilder
     }
 
@@ -264,9 +278,9 @@ open class GenerationContext : Cloneable {
     val types: MutableSet<ItemI<*>> = hashSetOf()
 
     constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "",
-        genFolderDeletable: Boolean = false, genFolderDeletePattern: Regex? = null,
-        derivedController: DerivedController = DerivedController(DerivedStorage<ItemI<*>>()),
-        macroController: MacroController = MacroController()) {
+                genFolderDeletable: Boolean = false, genFolderDeletePattern: Regex? = null,
+                derivedController: DerivedController = DerivedController(DerivedStorage<ItemI<*>>()),
+                macroController: MacroController = MacroController()) {
         this.namespace = namespace
         this.moduleFolder = moduleFolder
         this.genFolder = genFolder
@@ -325,7 +339,7 @@ open class MacroController {
     val nameToMacro = hashMapOf<String, Macro<*>>()
 
     open fun <T : ItemI<*>> registerMacro(name: String,
-        template: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
+                                          template: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
         nameToMacro.put(name, Macro(name = name, template = template))
     }
 

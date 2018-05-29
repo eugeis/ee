@@ -106,12 +106,14 @@ object l : Composite({ namespace("ee.lang") }) {
         val primary = AttributeI({ type(n.Boolean).value(false) })
     }
 
+    object DataType : Composite({ derivedFrom(CompilationUnit) })
+    object DataTypeOperation : Composite({ derivedFrom(Operation) })
+
     object EnumType : Composite({ derivedFrom(DataType) }) {
         val literals = AttributeI({ type(EnumLiteral).multi(true).nonFluent("lit") })
     }
-
-    object DataType : Composite({ derivedFrom(CompilationUnit) })
-    object DataTypeOperation : Composite({ derivedFrom(Operation) })
+    object Basic : Composite({ derivedFrom(DataType) })
+    object Values : Composite({ derivedFrom(DataType) })
 
     //logic
     object Predicate : Composite({ derivedFrom(Expression) }) {}

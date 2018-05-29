@@ -2,6 +2,7 @@ package ee.design
 
 import ee.lang.ActionI
 import ee.lang.AttributeI
+import ee.lang.BasicI
 import ee.lang.CompilationUnitI
 import ee.lang.DataTypeI
 import ee.lang.DataTypeOperationI
@@ -11,13 +12,10 @@ import ee.lang.ListMultiHolder
 import ee.lang.LogicUnitI
 import ee.lang.PredicateI
 import ee.lang.StructureUnitI
+import ee.lang.ValuesI
 
 
 interface AggregateHandlerI<B : AggregateHandlerI<B>> : StateMachineI<B> {
-}
-
-
-interface BasicI<B : BasicI<B>> : DataTypeI<B> {
 }
 
 
@@ -416,10 +414,6 @@ interface UpdateByI<B : UpdateByI<B>> : CommandI<B> {
 
 
 interface UpdatedI<B : UpdatedI<B>> : EventI<B> {
-}
-
-
-interface ValuesI<B : ValuesI<B>> : DataTypeI<B> {
 }
 
 

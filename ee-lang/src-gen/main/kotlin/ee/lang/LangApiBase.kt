@@ -147,6 +147,18 @@ open class AttributeB<B : AttributeI<B>>(value: B.() -> Unit = {}) : LiteralB<B>
 
 
 
+open class Basic(value: Basic.() -> Unit = {}) : BasicB<Basic>(value) {
+
+    companion object {
+        val EMPTY = Basic { name(ItemEmpty.name()) }.apply<Basic> { init() }
+    }
+}
+
+open class BasicB<B : BasicI<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), BasicI<B> {
+}
+
+
+
 open class CompilationUnit(value: CompilationUnit.() -> Unit = {}) : CompilationUnitB<CompilationUnit>(value) {
 
     companion object {
@@ -205,13 +217,6 @@ open class DataTypeOperation(value: DataTypeOperation.() -> Unit = {}) : DataTyp
 }
 
 open class DataTypeOperationB<B : DataTypeOperationI<B>>(value: B.() -> Unit = {}) : OperationB<B>(value), DataTypeOperationI<B> {
-
-    override fun http(): String = attr(http, { "" })
-    override fun http(value: String): B = apply { attr(http, value) }
-
-    companion object {
-        val http = "_http"
-    }
 }
 
 
@@ -914,6 +919,18 @@ open class TypeB<B : TypeI<B>>(value: B.() -> Unit = {}) : MacroCompositeB<B>(va
         val superUnits = "__superUnits"
         val virtual = "_virtual"
     }
+}
+
+
+
+open class Values(value: Values.() -> Unit = {}) : ValuesB<Values>(value) {
+
+    companion object {
+        val EMPTY = Values { name(ItemEmpty.name()) }.apply<Values> { init() }
+    }
+}
+
+open class ValuesB<B : ValuesI<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), ValuesI<B> {
 }
 
 

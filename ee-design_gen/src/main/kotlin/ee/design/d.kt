@@ -18,8 +18,8 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val dependencies = prop(Module).multi(true)
         val entities = prop(Entity).multi(true).nonFluent("entity")
         val enums = prop(l.EnumType).multi(true).nonFluent("enumType")
-        val values = prop(Values).multi(true).nonFluent("valueType")
-        val basics = prop(Basic).multi(true).nonFluent("basic")
+        val values = prop(l.Values).multi(true).nonFluent("valueType")
+        val basics = prop(l.Basic).multi(true).nonFluent("basic")
         val controllers = prop(BusinessController).multi(true).nonFluent("controller")
         val processManagers = prop(ProcessManager).multi(true).nonFluent("processManager")
         val projectors = prop(Projector).multi(true).nonFluent("projector")
@@ -46,8 +46,8 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
     object Controller : CompilationUnit({ superUnit(l.CompilationUnit) }) {
         val enums = prop(l.EnumType).multi(true).nonFluent("enumType")
             .doc("Enums used special for controller needs, like CommandTypeEnums")
-        val values = prop(Values).multi(true).nonFluent("valueType").doc("Values used special for controller needs")
-        val basics = prop(Basic).multi(true).nonFluent("basic").doc("Baics used special for controller needs")
+        val values = prop(l.Values).multi(true).nonFluent("valueType").doc("Values used special for controller needs")
+        val basics = prop(l.Basic).multi(true).nonFluent("basic").doc("Baics used special for controller needs")
     }
 
     object BusinessController : CompilationUnit({ superUnit(Controller) })
@@ -154,7 +154,5 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val processManager = prop(ProcessManager).multi(true).nonFluent("processManager")
     }
 
-    object Basic : CompilationUnit({ superUnit(l.DataType) })
-    object Values : CompilationUnit({ superUnit(l.DataType) })
     object Widget : CompilationUnit({ superUnit(l.CompilationUnit) })
 }

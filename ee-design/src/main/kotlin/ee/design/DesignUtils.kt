@@ -260,10 +260,10 @@ fun AttributeI<*>.setOptionalTag(): AttributeI<*> {
 
 /*
 fun StructureUnitI<*>.declareAsBaseWithNonImplementedOperation() {
-    findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEMPTY() && !it.base() }.forEach { it.base(true) }
+    findDownByType(CompilationUnitI::class.java).filterSkipped { it.operations().isNotEMPTY() && !it.base() }.forEach { it.base(true) }
 
     //derive controllers from super units
-    findDownByType(ControllerI::class.java).filter { it.parent() is CompilationUnitI }.forEach {
+    findDownByType(ControllerI::class.java).filterSkipped { it.parent() is CompilationUnitI }.forEach {
         val dataItem = it.parent() as CompilationUnitI
         dataItem.propagateItemToSubtypes(it)
 

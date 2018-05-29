@@ -160,7 +160,7 @@ fun TypeI<*>.operationsWithoutDataType(): List<OperationI<*>> = storage.getOrPut
     operations().filter { it !is DataTypeOperationI }
 })
 
-//paramsNotDerived().filter { it.anonymous() }.map { p(it).default(true).anonymous(it.anonymous()) }
+//paramsNotDerived().filterSkipped { it.anonymous() }.map { p(it).default(true).anonymous(it.anonymous()) }
 
 //helper design functions
 /*

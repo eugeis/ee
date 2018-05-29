@@ -4,6 +4,8 @@ import ee.lang.Action
 import ee.lang.ActionI
 import ee.lang.Attribute
 import ee.lang.AttributeI
+import ee.lang.Basic
+import ee.lang.BasicI
 import ee.lang.CompilationUnitB
 import ee.lang.DataTypeB
 import ee.lang.DataTypeOperationB
@@ -17,6 +19,8 @@ import ee.lang.Predicate
 import ee.lang.PredicateI
 import ee.lang.StructureUnitB
 import ee.lang.StructureUnitI
+import ee.lang.Values
+import ee.lang.ValuesI
 
 
 open class AggregateHandler(value: AggregateHandler.() -> Unit = {}) : AggregateHandlerB<AggregateHandler>(value) {
@@ -27,17 +31,6 @@ open class AggregateHandler(value: AggregateHandler.() -> Unit = {}) : Aggregate
 }
 
 open class AggregateHandlerB<B : AggregateHandlerB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), AggregateHandlerI<B> {
-}
-
-
-open class Basic(value: Basic.() -> Unit = {}) : BasicB<Basic>(value) {
-
-    companion object {
-        val EMPTY = Basic { name(ItemEmpty.name()) }.apply<Basic> { init() }
-    }
-}
-
-open class BasicB<B : BasicB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), BasicI<B> {
 }
 
 
@@ -893,17 +886,6 @@ open class Updated(value: Updated.() -> Unit = {}) : UpdatedB<Updated>(value) {
 }
 
 open class UpdatedB<B : UpdatedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), UpdatedI<B> {
-}
-
-
-open class Values(value: Values.() -> Unit = {}) : ValuesB<Values>(value) {
-
-    companion object {
-        val EMPTY = Values { name(ItemEmpty.name()) }.apply<Values> { init() }
-    }
-}
-
-open class ValuesB<B : ValuesB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), ValuesI<B> {
 }
 
 
