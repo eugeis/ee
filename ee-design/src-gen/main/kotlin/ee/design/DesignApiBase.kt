@@ -20,6 +20,7 @@ import ee.lang.PredicateI
 import ee.lang.StructureUnitB
 import ee.lang.StructureUnitI
 import ee.lang.Values
+import ee.lang.ValuesB
 import ee.lang.ValuesI
 
 
@@ -158,6 +159,24 @@ open class CompositeCommandB<B : CompositeCommandB<B>>(value: B.() -> Unit = {})
 
     companion object {
         val commands = "_commands"
+    }
+}
+
+
+open class Config(value: Config.() -> Unit = {}) : ConfigB<Config>(value) {
+
+    companion object {
+        val EMPTY = Config { name(ItemEmpty.name()) }.apply<Config> { init() }
+    }
+}
+
+open class ConfigB<B : ConfigB<B>>(value: B.() -> Unit = {}) : ValuesB<B>(value), ConfigI<B> {
+
+    override fun prefix(): String = attr(prefix, { "" })
+    override fun prefix(value: String): B = apply { attr(prefix, value) }
+
+    companion object {
+        val prefix = "_prefix"
     }
 }
 

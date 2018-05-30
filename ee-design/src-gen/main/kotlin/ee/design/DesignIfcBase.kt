@@ -61,6 +61,12 @@ interface CompositeCommandI<B : CompositeCommandI<B>> : CompilationUnitI<B> {
 }
 
 
+interface ConfigI<B : ConfigI<B>> : ValuesI<B> {
+    fun prefix(): String
+    fun prefix(value: String): B
+}
+
+
 interface ControllerI<B : ControllerI<B>> : CompilationUnitI<B> {
     fun enums(): ListMultiHolder<EnumTypeI<*>>
     fun enums(vararg value: EnumTypeI<*>): B

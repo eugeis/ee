@@ -45,7 +45,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
 
     object Controller : CompilationUnit({ superUnit(l.CompilationUnit) }) {
         val enums = prop(l.EnumType).multi(true).nonFluent("enumType")
-            .doc("Enums used special for controller needs, like CommandTypeEnums")
+                .doc("Enums used special for controller needs, like CommandTypeEnums")
         val values = prop(l.Values).multi(true).nonFluent("valueType").doc("Values used special for controller needs")
         val basics = prop(l.Basic).multi(true).nonFluent("basic").doc("Baics used special for controller needs")
     }
@@ -152,6 +152,10 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val handlers = prop(AggregateHandler).multi(true).nonFluent("handler")
         val projectors = prop(Projector).multi(true).nonFluent("projector")
         val processManager = prop(ProcessManager).multi(true).nonFluent("processManager")
+    }
+
+    object Config : CompilationUnit({ superUnit(l.Values) }) {
+        val prefix = propS({ doc("Prefix of all properties in global configuration") })
     }
 
     object Widget : CompilationUnit({ superUnit(l.CompilationUnit) })

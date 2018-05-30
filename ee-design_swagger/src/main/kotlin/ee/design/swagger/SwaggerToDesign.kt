@@ -113,7 +113,7 @@ object ${name.toDslTypeName()} : Values({ ${interfaces.joinSurroundIfNotEmptyToS
             }
         } else {
             typesToFill[name] = """
-object ${name.toDslTypeName()} : Basic(${description.toDslDoc("{ ", " }")}) {${properties.toDslProperties()}
+object ${name.toDslTypeName()} : Values(${description.toDslDoc("{ ", " }")}) {${properties.toDslProperties()}
 }"""
         }
     }
@@ -129,7 +129,7 @@ object $name : EnumType() {
 
     private fun io.swagger.models.properties.ObjectProperty.toDslType(name: String): String {
         return """
-object $name : Basic(${description.toDslDoc("{", "}")}) {${properties.toDslProperties()}
+object $name : Values(${description.toDslDoc("{", "}")}) {${properties.toDslProperties()}
 }"""
     }
 
