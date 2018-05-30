@@ -21,7 +21,7 @@ open class KotlinContext : GenerationContext {
         return types.isNotEmpty().then {
             val outsideTypes = types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }
             outsideTypes.isNotEmpty().then {
-                "${outsideTypes.map { "${indent}import ${it.namespace()}.${it.name()}" }.sorted().joinToString(
+                "${outsideTypes.map { "${indent}import ${it.namespace()}.${it.name()}" }.toSortedSet().joinToString(
                     nL)}$nL$nL"
             }
         }

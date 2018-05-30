@@ -27,8 +27,9 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
                         mutable)}.${baseType.toKotlin()}"
             } else if (baseType is EnumTypeI<*>) {
                 "${c.n(this, derived)}.${baseType.literals().first().toKotlin()}"
-            } else if (baseType is CompilationUnitI<*>) {
+            /*} else if (baseType is CompilationUnitI<*>) {
                 "${c.n(this, derived)}()"
+                */
             } else {
                 (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
             }
