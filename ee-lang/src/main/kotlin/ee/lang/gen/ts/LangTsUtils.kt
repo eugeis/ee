@@ -60,7 +60,7 @@ fun <T : StructureUnitI<*>> T.extendForTsGenerationLang(): T {
 
     defineSuperUnitsAsAnonymousProps()
 
-    defineConstructorDefault()
+    defineConstructorNoProps()
     return this
 }
 

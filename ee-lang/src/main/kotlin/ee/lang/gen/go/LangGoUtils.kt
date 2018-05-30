@@ -124,7 +124,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             }
 
             object HttpQueryHandler : ExternalType() {
-
+                val ignore = constructorFull()
             }
 
             object Projector : ExternalType() {}
@@ -275,7 +275,7 @@ fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
 
     defineSuperUnitsAsAnonymousProps()
 
-    defineConstructorDefault()
+    defineConstructorNoProps()
     return this
 }
 

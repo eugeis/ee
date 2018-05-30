@@ -305,9 +305,9 @@ fun <T : CompositeI<*>> T.defineConstructorOwnPropsOnlyForNonConstructors() {
             stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }.extend { constructorOwnPropsOnly() }
 }
 
-fun <T : CompositeI<*>> T.defineConstructorDefault(filter: TypeI<*>.() -> Boolean = { constructors().isEmpty() }) {
+fun <T : CompositeI<*>> T.defineConstructorNoProps(filter: TypeI<*>.() -> Boolean = { constructors().isEmpty() }) {
     findDownByType(TypeI::class.java,
-            stopSteppingDownIfFound = false).filter { it.filter() }.extend { constructorFull() }
+            stopSteppingDownIfFound = false).filter { it.filter() }.extend { constructorNoProps() }
 }
 
 fun <T : CompositeI<*>> T.defineSuperUnitsAsAnonymousProps() {
@@ -360,7 +360,7 @@ fun <T : TypeI<*>> T.constructorFull(adapt: ConstructorI<*>.() -> Unit = {}): Co
     } else Constructor.EMPTY
 }
 
-fun <T : TypeI<*>> T.constructorEmpty(adapt: ConstructorI<*>.() -> Unit = {}): ConstructorI<*> {
+fun <T : TypeI<*>> T.constructorNoProps(adapt: ConstructorI<*>.() -> Unit = {}): ConstructorI<*> {
     return if (isNotEMPTY() && this !is EnumTypeI<*>) {
         val constrProps = props().filter { it.anonymous() }.map { p(it).default(true).anonymous(it.anonymous()) }
         storage.reset(this)

@@ -43,8 +43,8 @@ fun <T : AttributeI<*>> T.toGoValue(c: GenerationContext, derived: String): Stri
             n.String, n.Text                                                  -> "\"${value()}\""
             n.Boolean, n.Int, n.Long, n.Float, n.Date, n.Path, n.Blob, n.Void -> "${value()}"
             else                                                              -> {
-                if (value() is Literal) {
-                    val lit = value() as Literal
+                if (value() is LiteralI<*>) {
+                    val lit = value() as LiteralI<*>
                     lit.toGoValue(c, derived)
                 } else {
                     "${value()}"

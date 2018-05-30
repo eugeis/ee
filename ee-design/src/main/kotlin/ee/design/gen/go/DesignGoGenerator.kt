@@ -50,6 +50,6 @@ open class DesignGoGenerator {
 
         defineSuperUnitsAsAnonymousProps()
 
-        defineConstructorDefault { constructors().isEmpty() && this !is CommandI<*> && this !is EventI<*> }
+        defineConstructorNoProps { constructors().isEmpty() && this !is CommandI<*> && this !is EventI<*> }
     }
 }
