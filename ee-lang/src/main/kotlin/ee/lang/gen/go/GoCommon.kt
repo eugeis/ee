@@ -91,9 +91,9 @@ fun <T : TypeI<*>> T.toGoDefault(c: GenerationContext, derived: String, attr: At
         n.Map            -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
         n.List           -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("arrayListOf()", "arrayListOf()")
         else             -> {
-            if (baseType is Literal) {
+            if (baseType is LiteralI) {
                 baseType.toGoValue(c, derived)
-            } else if (baseType is EnumTypeI<*>) {
+            } else if (baseType is EnumTypeI) {
                 "${c.n(this, derived)}.${baseType.literals().first().toGoValue(c, derived)}"
             } else if (baseType is TypeI<*>) {
                 toGoInstance(c, derived, derived)
@@ -126,7 +126,7 @@ fun <T : TypeI<*>> T.toGoIfNative(c: GenerationContext, derived: String): String
         n.List                   -> "[]${generics()[0].toGo(c, derived)}"
         n.Map                    -> "map(${generics()[0].toGo(c, derived)})${generics()[1].toGo(c, derived)}"
         else                     -> {
-            if (this is Lambda) operation().toGoLambda(c, derived) else null
+            if (this is LambdaI<*>) operation().toGoLambda(c, derived) else null
         }
     }
 }

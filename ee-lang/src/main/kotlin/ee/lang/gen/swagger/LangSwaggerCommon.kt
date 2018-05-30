@@ -36,7 +36,7 @@ fun <T : TypeI<*>> T.toSwaggerIfNative(c: GenerationContext, derived: String, in
         n.List                   -> "array$nL${indent}items:${generics()[0].toSwagger(c, derived, "$indent  ")}"
         n.Map                    -> "string"
         else                     -> {
-            if (this is Lambda) operation().toSwaggerLambda(c, derived, indent) else null
+            if (this is LambdaI<*>) operation().toSwaggerLambda(c, derived, indent) else null
         }
     }
 }

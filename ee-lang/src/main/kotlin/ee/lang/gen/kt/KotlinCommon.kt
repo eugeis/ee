@@ -22,7 +22,7 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
         n.Map -> (mutable.setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
         n.List -> (mutable.setAndTrue()).ifElse("mutableListOf()", "listOf()")
         else -> {
-            if (baseType is EnumLiteral) {
+            if (baseType is EnumLiteralI) {
                 "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI<*>).toKotlin(c, derived,
                         mutable)}.${baseType.toKotlin()}"
             } else if (baseType is EnumTypeI<*>) {
@@ -105,7 +105,7 @@ fun <T : TypeI<*>> T.toKotlinIfNative(c: GenerationContext, derived: String,
         n.Map -> "${c.n((mutable.setAndTrue()).ifElse(k.core.MutableMap, k.core.Map),
                 derived)}${toKotlinGenericTypes(c, derived, mutable)}"
         else -> {
-            if (this is Lambda) operation().toKotlinLambda(c, derived) else null
+            if (this is LambdaI<*>) operation().toKotlinLambda(c, derived) else null
         }
     }
 }
@@ -155,8 +155,8 @@ fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, m
             n.String, n.Text -> "\"${value()}\""
             n.Boolean, n.Int, n.Long, n.Float, n.Date, n.Path, n.Blob, n.Void -> "${value()}"
             else -> {
-                if (value() is EnumLiteral) {
-                    val lit = value() as EnumLiteral
+                if (value() is EnumLiteralI<*>) {
+                    val lit = value() as EnumLiteralI<*>
                     "${(lit.parent() as EnumTypeI<*>).toKotlin(c, derived, mutable)}.${lit.toKotlin()}"
                 } else {
                     "${value()}"

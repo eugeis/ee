@@ -22,7 +22,7 @@ fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, 
         n.Map            -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("new Map()", "new Map()")
         n.List           -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("new Array()", "new Array()")
         else             -> {
-            if (baseType is Literal) {
+            if (baseType is LiteralI<*>) {
                 "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI<*>).toTypeScript(c, derived,
                     attr)}.${baseType.toTypeScript()}"
             } else if (baseType is EnumTypeI<*>) {
@@ -91,7 +91,7 @@ fun <T : TypeI<*>> T.toTypeScriptIfNative(c: GenerationContext, derived: String,
         n.List      -> "Array${toTypeScriptGenericTypes(c, derived, attr)}"
         n.Map       -> "Map${toTypeScriptGenericTypes(c, derived, attr)}"
         else        -> {
-            if (this is Lambda) operation().toTypeScriptLambda(c, derived) else null
+            if (this is LambdaI<*>) operation().toTypeScriptLambda(c, derived) else null
         }
     }
 }
@@ -132,8 +132,8 @@ fun <T : AttributeI<*>> T.toTypeScriptValue(c: GenerationContext, derived: Strin
             n.String, n.Text                                                  -> "\"${value()}\""
             n.Boolean, n.Int, n.Long, n.Float, n.Date, n.Path, n.Blob, n.Void -> "${value()}"
             else                                                              -> {
-                if (value() is Literal) {
-                    val lit = value() as Literal
+                if (value() is LiteralI<*>) {
+                    val lit = value() as LiteralI<*>
                     "${(lit.parent() as EnumTypeI<*>).toTypeScript(c, derived, this)}.${lit.toTypeScript()}"
                 } else {
                     "${value()}"
