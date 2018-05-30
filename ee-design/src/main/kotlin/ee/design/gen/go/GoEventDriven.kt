@@ -296,7 +296,7 @@ fun <T : ConstructorI<*>> T.toGoAggregateInitializerBody(c: GenerationContext, d
         }, entityFactory,
         ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(), eventHandler,
         []func() error{commandHandler.SetupCommandHandler, eventHandler.SetupEventHandler},
-        eventStore, eventBus, eventPublisher, commandBus, readRepos), ${entity.name()}${DesignDerivedType.CommandHandler}: commandHandler, ${entity.name()}${DesignDerivedType.EventHandler}: eventHandler, ProjectorHandler: eventHandler,
+        eventStore, eventBus, commandBus, readRepos), ${entity.name()}${DesignDerivedType.CommandHandler}: commandHandler, ${entity.name()}${DesignDerivedType.EventHandler}: eventHandler, ProjectorHandler: eventHandler,
     }
 """
 }
@@ -322,9 +322,9 @@ fun <T : ConstructorI<*>> T.toGoEventhorizonInitializerBody(c: GenerationContext
     val module = findParentMust(ModuleI::class.java)
     val entities = module.entities().filter { it.belongsToAggregate().isEMPTY() }
     return """
-	ret = &$name{eventStore: eventStore, eventBus: eventBus, eventPublisher: eventPublisher,
+	ret = &$name{eventStore: eventStore, eventBus: eventBus,
             commandBus: commandBus, ${entities.joinSurroundIfNotEmptyToString(",$nL    ", "$nL    ") {
-        """${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}: New${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}(eventStore, eventBus, eventPublisher, commandBus)"""
+        """${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}: New${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}(eventStore, eventBus, commandBus)"""
     }}}
 """
 }

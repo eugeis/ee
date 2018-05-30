@@ -162,7 +162,6 @@ fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
                                 constr {
                                     params(p { type(g.eh.EventStore).name("eventStore") },
                                         p { type(g.eh.EventBus).name("eventBus") },
-                                        p { type(g.eh.EventPublisher).name("eventPublisher") },
                                         p { type(g.eh.CommandBus).name("commandBus") },
                                         p { type(reposFactory).name("readRepos") })
                                     macrosBody(ConstructorI<*>::toGoAggregateInitializerBody.name)
@@ -285,7 +284,6 @@ fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
                         DesignDerivedType.Aggregate)
                     val eventStore = prop { type(g.eh.EventStore).replaceable(false).name("eventStore") }
                     val eventBus = prop { type(g.eh.EventBus).replaceable(false).name("eventBus") }
-                    val eventPublisher = prop { type(g.eh.EventPublisher).replaceable(false).name("eventPublisher") }
                     val commandBus = prop { type(g.eh.CommandBus).replaceable(false).name("commandBus") }
                     val readRepos = p { type(reposFactory).name("readRepos") }
 
@@ -295,7 +293,7 @@ fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
                         }
                     }
                     constr {
-                        params(eventStore, eventBus, eventPublisher, commandBus, readRepos,
+                        params(eventStore, eventBus, commandBus, readRepos,
                             *aggregateInitializerProps.map { p(it, { default(true) }) }.toTypedArray())
                     }
                     op {
