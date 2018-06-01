@@ -19,8 +19,8 @@ fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, 
         n.Error          -> "new Throwable()"
         n.Exception      -> "new Exception()"
         n.Url            -> "${c.n(j.net.URL)}(\"\")"
-        n.Map            -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("new Map()", "new Map()")
-        n.List           -> (attr.isNotEMPTY() && attr.mutable().setAndTrue()).ifElse("new Array()", "new Array()")
+        n.Map            -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("new Map()", "new Map()")
+        n.List           -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("new Array()", "new Array()")
         else             -> {
             if (baseType is LiteralI<*>) {
                 "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI<*>).toTypeScript(c, derived,
@@ -51,7 +51,7 @@ fun <T : AttributeI<*>> T.toTypeScriptTypeSingle(c: GenerationContext, api: Stri
     type().toTypeScript(c, api, this)
 
 fun <T : AttributeI<*>> T.toTypeScriptTypeDef(c: GenerationContext, api: String): String =
-    """${type().toTypeScript(c, api, this)}${nullable().then("?")}"""
+    """${type().toTypeScript(c, api, this)}${isNullable().then("?")}"""
 
 
 fun <T : AttributeI<*>> T.toTypeScriptCompanionObjectName(c: GenerationContext): String =
@@ -148,9 +148,9 @@ fun <T : AttributeI<*>> T.toTypeScriptValue(c: GenerationContext, derived: Strin
 fun <T : AttributeI<*>> T.toTypeScriptInit(c: GenerationContext, derived: String): String {
     if (value() != null) {
         return " = ${toTypeScriptValue(c, derived)}"
-    } else if (nullable()) {
+    } else if (isNullable()) {
         return " = null"
-    } else if (initByDefaultTypeValue()) {
+    } else if (isInitByDefaultTypeValue()) {
         return " = ${toTypeScriptValue(c, derived)}"
     } else {
         return ""
@@ -166,12 +166,12 @@ fun <T : AttributeI<*>> T.toTypeScriptSignature(c: GenerationContext, derived: S
 
 fun <T : AttributeI<*>> T.toTypeScriptConstructorMember(c: GenerationContext, derived: String, api: String,
     init: Boolean = true): String =
-        //"${replaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
+        //"${isReplaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
     "${toTypeScriptSignature(c, derived, api, init)}"
 
 fun <T : AttributeI<*>> T.toTypeScriptMember(c: GenerationContext, derived: String, api: String,
     init: Boolean = true): String =
-        //"    ${replaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
+        //"    ${isReplaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
     "    ${toTypeScriptSignature(c, derived, api, init)}"
 
 fun List<AttributeI<*>>.toTypeScriptSignature(c: GenerationContext, derived: String, api: String): String =
@@ -194,7 +194,7 @@ fun <T : ConstructorI<*>> T.toTypeScript(c: GenerationContext, derived: String, 
         (superUnit() as ConstructorI<*>).toTypeScriptCall(c, (parent() != superUnit().parent()).ifElse("super", "this"))
     }} ${paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("${nL}        ", prefix = "{${nL}        ") {
         it.toTypeScriptAssign(c)
-    }}${(parent() as CompilationUnitI<*>).props().filter { it.meta() }.joinSurroundIfNotEmptyToString("${nL}        ",
+    }}${(parent() as CompilationUnitI<*>).props().filter { it.isMeta() }.joinSurroundIfNotEmptyToString("${nL}        ",
         prefix = "${nL}        ") {
         it.toTypeScriptInitMember(c, derived)
     }}

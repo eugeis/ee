@@ -53,7 +53,7 @@ fun <T : StructureUnitI<*>> T.initsForTsGeneration(): T {
 }
 
 fun <T : StructureUnitI<*>> T.extendForTsGenerationLang(): T {
-    //declare as 'base' all compilation units with non implemented operations.
+    //declare as 'isBase' all compilation units with non implemented operations.
     declareAsBaseWithNonImplementedOperation()
 
     prepareAttributesOfEnums()

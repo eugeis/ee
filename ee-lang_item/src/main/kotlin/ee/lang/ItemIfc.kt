@@ -6,9 +6,9 @@ interface ItemI<B : ItemI<B>> {
     fun doc(): CommentI<*>
     fun parent(): ItemI<*>
 
-    /** The instance is internal an not real part of model,
+    /** The instance is isInternal an not real part of model,
      * it must not be a parent of real model item */
-    fun internal(): Boolean
+    fun isInternal(): Boolean
 
     fun derivedItems(): List<ItemI<*>>
     fun onDerived(derived: ItemI<*>)

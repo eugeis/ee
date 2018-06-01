@@ -81,7 +81,7 @@ fun <T : EntityI<*>> T.toSwaggerDelete(c: GenerationContext, derived: String = L
 fun <T : CompI<*>> T.toSwagger(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
     api: String = LangDerivedKind.API): String {
     val moduleAggregates = findDownByType(
-        EntityI::class.java).filter { !it.virtual() && it.belongsToAggregate().isEMPTY() && it.derivedAsType().isEmpty() }
+        EntityI::class.java).filter { !it.isVirtual() && it.belongsToAggregate().isEMPTY() && it.derivedAsType().isEmpty() }
         .groupBy {
             it.findParentMust(ModuleI::class.java)
         }

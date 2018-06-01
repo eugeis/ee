@@ -187,7 +187,7 @@ open class ItemB<B : ItemI<B>> : ItemI<B> {
         return builder.toString()
     }
 
-    override fun internal(): Boolean = _internal
+    override fun isInternal(): Boolean = _internal
     open fun internal(value: Boolean): ItemI<*> = apply { _internal = value }
 
     companion object {
@@ -234,7 +234,7 @@ abstract class MultiHolder<I, B : MultiHolderI<I, B>>(private val _type: Class<I
     protected fun fillThisOrNonInternalAsParentAndInit(item: I) {
         if (item is ItemI<*>) {
             if (item.parent().isEMPTY()) {
-                if (item.internal() || !this.internal()) {
+                if (item.isInternal() || !this.isInternal()) {
                     item.parent(this)
                 } else {
                     item.parent(findParentNonInternal() ?: this)

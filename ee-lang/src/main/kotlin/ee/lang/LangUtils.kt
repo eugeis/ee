@@ -44,24 +44,24 @@ fun <T : TypeI<*>> T.findGeneric(name: String): GenericI<*>? = generics().find {
 
 fun ListMultiHolderI<AttributeI<*>, *>.nonDefaultAndWithoutValueAndNonDerived(): List<AttributeI<*>> = storage.getOrPut(
         this, "nonDefaultAndWithoutValueAndNonDerived", {
-    filter { (!(it.default() || (it.anonymous() && it.type().props().isEmpty()))) && it.derivedAsType().isEmpty() }
+    filter { (!(it.isDefault() || (it.isAnonymous() && it.type().props().isEmpty()))) && it.derivedAsType().isEmpty() }
 })
 
 fun ListMultiHolderI<AttributeI<*>, *>.defaultOrWithValueAndNonDerived(): List<AttributeI<*>> = storage.getOrPut(this,
         "defaultOrWithValueAndNonDerived", {
-    filter { (it.default() || it.anonymous()) && it.derivedAsType().isEmpty() }
+    filter { (it.isDefault() || it.isAnonymous()) && it.derivedAsType().isEmpty() }
 })
 
 fun TypeI<*>.primaryConstructor(): ConstructorI<*> = storage.getOrPut(this, "primaryConstructor", {
-    constructors().find { it.primary() } ?: Constructor.EMPTY
+    constructors().find { it.isPrimary() } ?: Constructor.EMPTY
 })
 
 fun TypeI<*>.primaryOrFirstConstructor(): ConstructorI<*> = storage.getOrPut(this, "primaryOrFirstConstructor", {
-    constructors().find { it.primary() } ?: constructors().firstOrNull() ?: constructorFull()
+    constructors().find { it.isPrimary() } ?: constructors().firstOrNull() ?: constructorFull()
 })
 
 fun TypeI<*>.otherConstructors(): List<ConstructorI<*>> = storage.getOrPut(this, "otherConstructors", {
-    constructors().filterNot { it.primary() }
+    constructors().filterNot { it.isPrimary() }
 })
 
 fun ConstructorI<*>.paramsNotDerived(): List<AttributeI<*>> = storage.getOrPut(this, "paramsNotDerived", {
@@ -73,11 +73,11 @@ fun ConstructorI<*>.paramsWithOutValue(): List<AttributeI<*>> = storage.getOrPut
 })
 
 fun ConstructorI<*>.paramsWithOutFixValue(): List<AttributeI<*>> = storage.getOrPut(this, "paramsWithOutFixValue", {
-    params().filter { param -> !param.fixValue() }
+    params().filter { param -> !param.isFixValue() }
 })
 
 fun ConstructorI<*>.paramsWithFixValue(): Map<String, AttributeI<*>> = storage.getOrPut(this, "paramsWithFixValue", {
-    params().filter { param -> param.fixValue() }.associateBy { it.name() }
+    params().filter { param -> param.isFixValue() }.associateBy { it.name() }
 })
 
 fun ConstructorI<*>.paramsForType(): List<AttributeI<*>> = storage.getOrPut(this, "paramsForType", {
@@ -93,7 +93,7 @@ fun TypeI<*>.propsExceptPrimaryConstructor(): List<AttributeI<*>> = storage.getO
 })
 
 fun TypeI<*>.propsSuperUnit(): List<AttributeI<*>> = storage.getOrPut(this, "propsSuperUnit", {
-    propsAll().filter { !it.inherited() }
+    propsAll().filter { !it.isInherited() }
 })
 
 fun TypeI<*>.propsAll(): List<AttributeI<*>> = storage.getOrPut(this, "propsAll", {
@@ -122,12 +122,12 @@ fun TypeI<*>.propsAll(): List<AttributeI<*>> = storage.getOrPut(this, "propsAll"
 
 fun TypeI<*>.propsAllWithoutMetaAndAnonymousWithoutProps(): List<AttributeI<*>> = storage.getOrPut(this,
         "propsAllWithoutMetaAndAnonymousWithoutProps", {
-    propsAll().filter { !it.meta() && !(it.anonymous() && !props().isEmpty()) }
+    propsAll().filter { !it.isMeta() && !(it.isAnonymous() && !props().isEmpty()) }
 })
 
 fun TypeI<*>.propsWithoutMetaAndAnonymousWithoutProps(): List<AttributeI<*>> = storage.getOrPut(this,
         "propsWithoutMetaAndAnonymousWithoutProps", {
-    props().filter { !it.meta() && !(it.anonymous() && !props().isEmpty()) }
+    props().filter { !it.isMeta() && !(it.isAnonymous() && !props().isEmpty()) }
 })
 
 fun TypeI<*>.propsWithoutParamsOfPrimaryConstructor(): List<AttributeI<*>> = storage.getOrPut(this,
@@ -141,26 +141,26 @@ fun TypeI<*>.propsWithoutParamsOfPrimaryConstructor(): List<AttributeI<*>> = sto
 })
 
 fun TypeI<*>.propsAllNoMeta(): List<AttributeI<*>> = storage.getOrPut(this, "propsAllNoMeta", {
-    propsAll().filter { !it.meta() }
+    propsAll().filter { !it.isMeta() }
 })
 
 fun TypeI<*>.propsNoMeta(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoMeta", {
-    props().filter { !it.meta() }
+    props().filter { !it.isMeta() }
 })
 
 fun TypeI<*>.propsNoMetaNoKey(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoMetaNoKey", {
-    props().filter { !it.meta() && !it.key() }
+    props().filter { !it.isMeta() && !it.isKey() }
 })
 
 fun TypeI<*>.propsNoMetaNoValue(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoMetaNoValue", {
-    props().filter { !it.meta() && it.value() == null }
+    props().filter { !it.isMeta() && it.value() == null }
 })
 
 fun TypeI<*>.operationsWithoutDataType(): List<OperationI<*>> = storage.getOrPut(this, "operationsWithoutDataType", {
     operations().filter { it !is DataTypeOperationI }
 })
 
-//paramsNotDerived().filterSkipped { it.anonymous() }.map { p(it).default(true).anonymous(it.anonymous()) }
+//paramsNotDerived().filterSkipped { it.isAnonymous() }.map { p(it).isDefault(true).isAnonymous(it.isAnonymous()) }
 
 //helper design functions
 /*
@@ -280,7 +280,7 @@ fun <T : TypeI<*>> LogicUnitI<*>.paramT(type: T): TypedAttributeI<T> {
 */
 
 fun AttributeI<*>.accessibleAndMutable(): Boolean = storage.getOrPut(this, "accessibleAndMutable", {
-    accessible().setAndTrue() && mutable().setAndTrue()
+    isAccessible().setAndTrue() && isMutable().setAndTrue()
 })
 
 fun AttributeI<*>.nameDecapitalize(): String = storage.getOrPut(this, "nameDecapitalize", {
@@ -319,7 +319,7 @@ fun <T : CompositeI<*>> T.defineSuperUnitsAsAnonymousProps() {
 }
 
 fun <T : CompositeI<*>> T.declareAsBaseWithNonImplementedOperation() {
-    findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEMPTY() && !it.base() }.forEach {
+    findDownByType(CompilationUnitI::class.java).filter { it.operations().isNotEMPTY() && !it.isBase() }.forEach {
         it.base(true)
     }
 }
@@ -362,7 +362,7 @@ fun <T : TypeI<*>> T.constructorFull(adapt: ConstructorI<*>.() -> Unit = {}): Co
 
 fun <T : TypeI<*>> T.constructorNoProps(adapt: ConstructorI<*>.() -> Unit = {}): ConstructorI<*> {
     return if (isNotEMPTY() && this !is EnumTypeI<*>) {
-        val constrProps = props().filter { it.anonymous() }.map { p(it).default(true).anonymous(it.anonymous()) }
+        val constrProps = props().filter { it.isAnonymous() }.map { p(it).default(true).anonymous(it.isAnonymous()) }
         storage.reset(this)
         val parent = this
         constr {

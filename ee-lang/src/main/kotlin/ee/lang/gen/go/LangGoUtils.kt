@@ -268,7 +268,7 @@ fun <T : StructureUnitI<*>> T.initsForGoGeneration(): T {
 }
 
 fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
-    //declare as 'base' all compilation units with non implemented operations.
+    //declare as 'isBase' all compilation units with non implemented operations.
     declareAsBaseWithNonImplementedOperation()
 
     prepareAttributesOfEnums()
@@ -285,7 +285,7 @@ fun OperationI<*>.retTypeAndError(retType: TypeI<*>): OperationI<*> =
 fun OperationI<*>.retError(): OperationI<*> = returns(Attribute { type(g.error).name("err") })
 
 fun AttributeI<*>.nameForGoMember(): String = storage.getOrPut(this, "nameForGoMember", {
-    replaceable().notSetOrTrue().ifElse({ name().capitalize() }, { name().decapitalize() })
+    isReplaceable().notSetOrTrue().ifElse({ name().capitalize() }, { name().decapitalize() })
 })
 
 val itemAndTemplateNameAsGoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {

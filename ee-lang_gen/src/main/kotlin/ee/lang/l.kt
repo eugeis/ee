@@ -194,11 +194,15 @@ open class AttributeI : Item {
     fun value(): Any = value
     fun value(aValue: Any): AttributeI = apply { value = aValue }
 
-    fun nullable(): Boolean = nullable
+    fun isNullable(): Boolean = nullable
     fun nullable(value: Boolean): AttributeI = apply { nullable = value }
+    fun nullable(): AttributeI = nullable(true)
+    fun notNullable(): AttributeI = nullable(false)
 
-    fun multi(): Boolean = multi
+    fun isMulti(): Boolean = multi
     fun multi(value: Boolean): AttributeI = apply { multi = value }
+    fun multi(): AttributeI = multi(true)
+    fun notMulti(): AttributeI = multi(false)
 
     fun nonFluent(): String = nameNonFluent
     fun nonFluent(value: String): AttributeI = apply { nameNonFluent = value }

@@ -121,7 +121,7 @@ object ${name.toDslTypeName()} : Values(${description.toDslDoc("{ ", " }")}) {${
     private fun io.swagger.models.properties.StringProperty.toDslEnum(name: String): String {
         return """
 object $name : EnumType() {
-    val value = prop { type(n.String).key(true) }${enum.joinToString(nL, nL) {
+    val value = prop { type(n.String).isKey(true) }${enum.joinToString(nL, nL) {
             "    val ${it.toCamelCase().decapitalize()} = lit(value, \"$it\")"
         }}
 }"""
@@ -264,13 +264,13 @@ object $name : Values(${description.toDslDoc("{", "}")}) {${properties.toDslProp
 
     private fun Parameter.toDslInit(name: String): String {
         val typeName = toDslTypeName(name)
-        return "type($typeName)${required?.not().then({ ".nullable(true)" })}${description.toDslDoc(".")}"
+        return "type($typeName)${required?.not().then({ ".isNullable(true)" })}${description.toDslDoc(".")}"
     }
 
     private fun io.swagger.models.properties.Property.toDslInitDirect(name: String): String {
         val typeName = toDslTypeName(name)
-        return "type($typeName)${required?.not().then({ ".nullable(true)" })}${(this is PasswordProperty).then(
-            { ".hidden(true)" })}${toDslPropValue(typeName, ".")}${description.toDslDoc(".")}"
+        return "type($typeName)${required?.not().then({ ".isNullable(true)" })}${(this is PasswordProperty).then(
+            { ".isHidden(true)" })}${toDslPropValue(typeName, ".")}${description.toDslDoc(".")}"
     }
 
     private fun io.swagger.models.Model.toValues(name: String): Values {

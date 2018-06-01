@@ -6,7 +6,6 @@ import ee.design.gen.go.toGoPropOptionalAfterBody
 import ee.lang.*
 import ee.lang.gen.go.retTypeAndError
 import org.slf4j.LoggerFactory
-import java.util.logging.Handler
 
 open class DesignDerivedKindNames : LangDerivedKindNames() {
     val HttpGet = "Get"
@@ -139,9 +138,9 @@ fun StructureUnitI<*>.renameControllersAccordingParentType() {
 }
 
 fun StructureUnitI<*>.addQueriesForAggregates() {
-    findDownByType(EntityI::class.java).filter { !it.virtual() && it.defaultQueries() }.extend {
+    findDownByType(EntityI::class.java).filter { !it.isVirtual() && it.isDefaultQueries() }.extend {
         val item = this
-        log.debug("Add default queries to ${name()}")
+        log.debug("Add isDefault queries to ${name()}")
 
         findBy {
             name("FindAll")
@@ -175,7 +174,7 @@ fun StructureUnitI<*>.addQueriesForAggregates() {
 
 fun StructureUnitI<*>.addDefaultReturnValuesForQueries() {
     findDownByType(FindByI::class.java).filter { it.returns().isEmpty() }.extend {
-        if (multiResult()) {
+        if (isMultiResult()) {
             retTypeAndError(n.List.GT(findParentMust(TypeI::class.java)))
         } else {
             retTypeAndError(findParentMust(TypeI::class.java))
@@ -192,22 +191,22 @@ fun StructureUnitI<*>.addDefaultReturnValuesForQueries() {
 }
 
 fun StructureUnitI<*>.addCommandsAndEventsForAggregates() {
-    findDownByType(EntityI::class.java).filter { !it.virtual() }.extend {
+    findDownByType(EntityI::class.java).filter { !it.isVirtual() }.extend {
 
-        if (defaultCommands()) {
+        if (isDefaultCommands()) {
             create()
             update()
             delete()
         }
 
-        if (defaultEvents()) {
+        if (isDefaultEvents()) {
             findDownByType(CommandI::class.java).filter { it.event().isEMPTY() }.forEach { it.event(it.deriveEvent()) }
         }
     }
 }
 
 fun StructureUnitI<*>.addAggregateHandler() {
-    findDownByType(EntityI::class.java).filter { !it.virtual() && it.handlers().isEmpty() }.extend {
+    findDownByType(EntityI::class.java).filter { !it.isVirtual() && it.handlers().isEmpty() }.extend {
         handler {
             val initial = state { }
         }
@@ -215,24 +214,24 @@ fun StructureUnitI<*>.addAggregateHandler() {
 }
 
 fun StructureUnitI<*>.addIdPropToEntities() {
-    findDownByType(EntityI::class.java).filter { !it.virtual() && it.props().find { it.key() } == null }.extend {
+    findDownByType(EntityI::class.java).filter { !it.isVirtual() && it.props().find { it.isKey() } == null }.extend {
         val id = buildId()
     }
 }
 
 fun StructureUnitI<*>.addIdPropToEventsAndCommands() {
-    findDownByType(EntityI::class.java).filter { !it.virtual() }.extend {
-        created().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
-        updated().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
-        deleted().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+    findDownByType(EntityI::class.java).filter { !it.isVirtual() }.extend {
+        created().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
+        updated().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
+        deleted().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
 
-        events().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        events().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
 
-        createBys().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
-        updateBys().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
-        deleteBys().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        createBys().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
+        updateBys().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
+        deleteBys().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
 
-        commands().filter { it.props().find { it.key() } == null }.forEach { it.prop(id()) }
+        commands().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
     }
 }
 
@@ -241,11 +240,11 @@ fun StructureUnitI<*>.setOptionalTagToEventsAndCommandsProps() {
     val allProps = hashSetOf<AttributeI<*>>()
 
     findDownByType(EventI::class.java).forEach {
-        allProps.addAll(it.props().filter { !it.key() })
+        allProps.addAll(it.props().filter { !it.isKey() })
     }
 
     findDownByType(CommandI::class.java).forEach {
-        allProps.addAll(it.props().filter { !it.key() })
+        allProps.addAll(it.props().filter { !it.isKey() })
     }
 
     allProps.forEach {
@@ -260,7 +259,7 @@ fun AttributeI<*>.setOptionalTag(): AttributeI<*> {
 
 /*
 fun StructureUnitI<*>.declareAsBaseWithNonImplementedOperation() {
-    findDownByType(CompilationUnitI::class.java).filterSkipped { it.operations().isNotEMPTY() && !it.base() }.forEach { it.base(true) }
+    findDownByType(CompilationUnitI::class.java).filterSkipped { it.operations().isNotEMPTY() && !it.isBase() }.forEach { it.isBase(true) }
 
     //derive controllers from super units
     findDownByType(ControllerI::class.java).filterSkipped { it.parent() is CompilationUnitI }.forEach {
@@ -292,18 +291,18 @@ fun EntityI<*>.buildId(): AttributeI<*> = prop { key(true).type(n.UUID).name("id
 
 fun EntityI<*>.id(): AttributeI<*> = storage.getOrPut(this, "id", {
     initIfNotInitialized()
-    var ret = props().find { it.key() }
+    var ret = props().find { it.isKey() }
     if (ret == null && superUnit() is EntityI<*>) {
         ret = (superUnit() as EntityI<*>).id()
     } else if (ret == null) {
-        log.debug("Id can't be found for '$this', build default one")
+        log.debug("Id can't be found for '$this', build isDefault one")
         ret = buildId()
     }
     ret
 })
 
 fun EntityI<*>.dataTypeProps(): List<AttributeI<*>> = storage.getOrPut(this, "dataTypeProps", {
-    propsAll().filter { !it.meta() }.map { p(it) }
+    propsAll().filter { !it.isMeta() }.map { p(it) }
 })
 
 fun EntityI<*>.create(): CommandI<*> = storage.getOrPut(this, "create", {

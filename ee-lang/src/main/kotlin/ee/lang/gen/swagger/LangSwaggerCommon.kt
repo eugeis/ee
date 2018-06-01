@@ -67,7 +67,7 @@ fun GenericI<*>.toSwagger(c: GenerationContext, derived: String, indent: String)
 }
 
 fun <T : AttributeI<*>> T.toSwaggerSignature(c: GenerationContext, api: String): String {
-    return anonymous().ifElse({ type().props().filter { !it.meta() }.toSwaggerSignature(c, api) }, {
+    return isAnonymous().ifElse({ type().props().filter { !it.isMeta() }.toSwaggerSignature(c, api) }, {
         "${name()} ${toSwaggerTypeDef(c, api)}"
     })
 }
@@ -82,7 +82,7 @@ fun <T : AttributeI<*>> T.toSwaggerMember(c: GenerationContext, api: String, ind
 }
 
 fun <T : AttributeI<*>> T.toSwaggerEnumMember(c: GenerationContext, api: String): String {
-    return anonymous().ifElse({ "    ${toSwaggerTypeDef(c, api)}" },
+    return isAnonymous().ifElse({ "    ${toSwaggerTypeDef(c, api)}" },
         { "    " + nameDecapitalize() + " " + toSwaggerTypeDef(c, api) })
 }
 
@@ -100,7 +100,7 @@ fun List<AttributeI<*>>.toSwaggerTypes(c: GenerationContext, derived: String, in
 fun <T : OperationI<*>> T.toSwaggerLambda(c: GenerationContext, derived: String, indent: String): String =
     """func (${params().toSwaggerTypes(c, derived, indent)}) ${retFirst().toSwaggerType(c, derived, indent)}"""
 
-fun <T : LogicUnitI<*>> T.toSwaggerName(): String = visible().ifElse({ name().capitalize() }, { name().decapitalize() })
+fun <T : LogicUnitI<*>> T.toSwaggerName(): String = isVisible().ifElse({ name().capitalize() }, { name().decapitalize() })
 
 fun <T : CompilationUnitI<*>> T.toSwaggerPath(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
     api: String = LangDerivedKind.API): String {

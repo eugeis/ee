@@ -41,8 +41,10 @@ interface CommandI<B : CommandI<B>> : CompilationUnitI<B> {
     fun httpMethod(): String
     fun httpMethod(value: String): B
 
-    fun affectMulti(): Boolean
+    fun isAffectMulti(): Boolean
     fun affectMulti(value: Boolean): B
+    fun affectMulti(): B = affectMulti(true)
+    fun notAffectMulti(): B = affectMulti(false)
 
     fun event(): EventI<*>
     fun event(value: EventI<*>): B
@@ -119,14 +121,20 @@ interface DynamicStateI<B : DynamicStateI<B>> : StateI<B> {
 
 
 interface EntityI<B : EntityI<B>> : DataTypeI<B> {
-    fun defaultEvents(): Boolean
+    fun isDefaultEvents(): Boolean
     fun defaultEvents(value: Boolean): B
+    fun defaultEvents(): B = defaultEvents(true)
+    fun notDefaultEvents(): B = defaultEvents(false)
 
-    fun defaultQueries(): Boolean
+    fun isDefaultQueries(): Boolean
     fun defaultQueries(value: Boolean): B
+    fun defaultQueries(): B = defaultQueries(true)
+    fun notDefaultQueries(): B = defaultQueries(false)
 
-    fun defaultCommands(): Boolean
+    fun isDefaultCommands(): Boolean
     fun defaultCommands(value: Boolean): B
+    fun defaultCommands(): B = defaultCommands(true)
+    fun notDefaultCommands(): B = defaultCommands(false)
 
     fun belongsToAggregate(): EntityI<*>
     fun belongsToAggregate(value: EntityI<*>): B
@@ -266,8 +274,10 @@ interface FacetI<B : FacetI<B>> : ModuleGroupI<B> {
 
 
 interface FindByI<B : FindByI<B>> : DataTypeOperationI<B> {
-    fun multiResult(): Boolean
+    fun isMultiResult(): Boolean
     fun multiResult(value: Boolean): B
+    fun multiResult(): B = multiResult(true)
+    fun notMultiResult(): B = multiResult(false)
 }
 
 
@@ -310,8 +320,10 @@ interface ModelI<B : ModelI<B>> : StructureUnitI<B> {
 
 
 interface ModuleI<B : ModuleI<B>> : StructureUnitI<B> {
-    fun parentNamespace(): Boolean
+    fun isParentNamespace(): Boolean
     fun parentNamespace(value: Boolean): B
+    fun parentNamespace(): B = parentNamespace(true)
+    fun notParentNamespace(): B = parentNamespace(false)
 
     fun dependencies(): ListMultiHolder<ModuleI<*>>
     fun dependencies(vararg value: ModuleI<*>): B

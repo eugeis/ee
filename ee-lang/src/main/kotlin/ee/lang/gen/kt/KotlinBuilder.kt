@@ -15,25 +15,30 @@ fun <T : AttributeI<*>> T.toKotlinTypeGenerics(c: GenerationContext, api: String
             type().generics().first().type().toKotlinTypeDef(c, api, false)
 
 fun <T : AttributeI<*>> T.toKotlinSignatureBuilder(c: GenerationContext, derived: String, api: String): String =
-        "${name()}: ${type().multi().ifElse({
+        "${name()}: ${type().isMulti().ifElse({
             """${type().toKotlinTypeDef(c, api, false, true)}${toKotlinInit(c, derived, true, false)}"""
-        }, { """${type().toKotlinTypeDef(c, api, nullable())}${toKotlinInit(c, derived, true)}""" })}"
+        }, { """${type().toKotlinTypeDef(c, api, isNullable())}${toKotlinInit(c, derived, true)}""" })}"
 
 fun <T : AttributeI<*>> T.toKotlinSignatureBuilderInit(c: GenerationContext, derived: String): String =
-        "        ${name()}${toKotlinInit(c, derived, true, type().multi().not() && nullable())}"
+        "        ${name()}${toKotlinInit(c, derived, true, type().isMulti().not() && isNullable())}"
 
 fun <T : AttributeI<*>> T.toKotlinMemberBuilder(c: GenerationContext, derived: String, api: String): String =
         "    protected var ${toKotlinSignatureBuilder(c, derived, api)}"
 
 fun <T : AttributeI<*>> T.toKotlinBuilderMethodsI(c: GenerationContext, api: String): String {
     val value = (name() == "value").ifElse("aValue", "value")
+    val bool = (type() == n.Boolean)
     return """
-    fun ${name()}(): ${toKotlinTypeDef(c, api)}${type().multi().ifElse({
+    fun ${bool.ifElse({ "is${name().capitalize()}" }, { name() })}(): ${toKotlinTypeDef(c, api)}${type().isMulti().ifElse({
         """
     fun ${name()}(vararg $value: ${toKotlinTypeGenerics(c, api)}): B"""
     }, {
         """
-    fun ${name()}($value: ${toKotlinTypeDef(c, api)}): B"""
+    fun ${name()}($value: ${toKotlinTypeDef(c, api)}): B${bool.then {
+            """
+    fun ${name()}(): B = ${name()}(true)
+    fun not${name().capitalize()}(): B = ${name()}(false)"""
+        }}"""
     })}${nonFluent().isNotBlank().then {
         """
     fun ${nonFluent()}($value: ${toKotlinTypeGenerics(c, api)}): ${toKotlinTypeGenerics(c, api)}
@@ -44,20 +49,20 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethodsI(c: GenerationContext, api: Str
 fun <T : AttributeI<*>> T.toKotlinBuilderMethods(c: GenerationContext, derived: String, api: String): String {
     val value = (name() == "value").ifElse("aValue", "value")
     val override = (derived != api).ifElse("override ", "")
-    return """${type().multi().ifElse({
+    return """${type().isMulti().ifElse({
         """
-    ${override}fun ${name()}(): ${toKotlinTypeDef(c, api)} = ${nullable().ifElse(
+    ${override}fun ${name()}(): ${toKotlinTypeDef(c, api)} = ${isNullable().ifElse(
                 { "${name()}.takeUnless { it.isEmpty() }" }, { name() })}
     ${override}fun ${name()}(vararg $value: ${toKotlinTypeGenerics(c, api)
         }): B = applyB { ${name()}.${type().isOrDerived(n.Map).ifElse("putAll", "addAll")}(value) }"""
     }, {
         """
-    ${override}fun ${name()}(): ${toKotlinTypeDef(c, api)} = ${name()}
+    ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().capitalize()}" }, { name() })}(): ${toKotlinTypeDef(c, api)} = ${name()}
     ${override}fun ${name()}($value: ${toKotlinTypeDef(c, api)}): B = applyB { ${name()} = $value }"""
     })}${nonFluent().isNotBlank().then {
         """
     ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingleB(c, api)}): ${toKotlinTypeSingleB(c,
-                api)} = applyAndReturn { ${multi().ifElse({
+                api)} = applyAndReturn { ${isMulti().ifElse({
             """${name()}().addItem($value); value"""
         }, { """${name()}().value($value)""" })} }
     ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingleB(c, api)}.() -> Unit): ${toKotlinTypeSingleB(c,
@@ -88,7 +93,7 @@ fun <T : ConstructorI<*>> T.toKotlinCallParamsBuilder(c: GenerationContext): Str
 
 fun <T : CompilationUnitI<*>> T.toKotlinBuilder(c: GenerationContext, derived: String = derivedBuilderB,
                                                 api: String = derivedBuilder): String {
-    val multiProps = props().filter { it.multi() }
+    val multiProps = props().filter { it.isMulti() }
     val B = c.n(this, derived)
     val BT = c.n(this, derivedBuilderT)
     val T = c.n(this, LangDerivedKind.API)

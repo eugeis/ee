@@ -2,11 +2,11 @@ package ee.lang
 
 
 object CompilationUnitEmpty : TypeB<CompilationUnitEmpty>(), CompilationUnitI<CompilationUnitEmpty> {
-    override fun base(): Boolean = false
+    override fun isBase(): Boolean = false
     override fun base(value: Boolean): CompilationUnitEmpty = this
-    override fun open(): Boolean = false
+    override fun isOpen(): Boolean = false
     override fun open(value: Boolean): CompilationUnitEmpty = this
-    override fun virtual(): Boolean = false
+    override fun isVirtual(): Boolean = false
     override fun virtual(value: Boolean): CompilationUnitEmpty = this
     override fun superUnitFor(vararg value: TypeI<*>): CompilationUnitEmpty = this
     override fun operations(vararg value: OperationI<*>): CompilationUnitEmpty = this
@@ -21,14 +21,14 @@ object CompilationUnitEmpty : TypeB<CompilationUnitEmpty>(), CompilationUnitI<Co
 }
 
 object LogicUnitEmpty : MacroCompositeB<LogicUnitEmpty>(), LogicUnitI<LogicUnitEmpty> {
-    override fun virtual(): Boolean = false
+    override fun isVirtual(): Boolean = false
     override fun virtual(value: Boolean): LogicUnitEmpty = this
     override fun superUnit(): LogicUnitEmpty = this
     override fun superUnit(value: LogicUnitI<*>): LogicUnitEmpty = this
     override fun params(vararg value: AttributeI<*>): LogicUnitEmpty = this
     override fun params(): ListMultiHolder<AttributeI<*>> = ListMultiHolder.empty()
-    override fun visible(): Boolean = false
+    override fun isVisible(): Boolean = false
     override fun visible(value: Boolean): LogicUnitEmpty = this
     override fun errorHandling(value: Boolean): LogicUnitEmpty = this
-    override fun errorHandling(): Boolean = false
+    override fun isErrorHandling(): Boolean = false
 }

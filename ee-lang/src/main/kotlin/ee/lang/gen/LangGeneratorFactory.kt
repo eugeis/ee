@@ -55,13 +55,21 @@ open class LangGeneratorFactory {
         val contextBuilder = buildKotlinContextFactory().buildForImplOnly()
         val enums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = { findDownByType(EnumTypeI::class.java) }
         val compilationUnits: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
-            findDownByType(CompilationUnitI::class.java).filter { it !is EnumTypeI<*> }
+            findDownByType(CompilationUnitI::class.java).filter { it !is EnumTypeI<*> && !it.isIfc() }
+        }
+        val interfaces: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
+            findDownByType(CompilationUnitI::class.java).filter { it.isIfc() }
         }
         val dataTypes: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
-            findDownByType(DataTypeI::class.java).filter { it !is EnumTypeI<*> }
+            findDownByType(DataTypeI::class.java).filter { it !is EnumTypeI<*> && !it.isIfc()  }
         }
 
         return GeneratorGroup("pojoAndBuildersKt", listOf(
+                GeneratorSimple("IfcBase", contextBuilder = contextBuilder,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}IfcBase",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = interfaces, fragments = { listOf(kotlinTemplates.ifc()) }))
+                        })),
                 GeneratorSimple("ApiBase", contextBuilder = contextBuilder,
                         template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {

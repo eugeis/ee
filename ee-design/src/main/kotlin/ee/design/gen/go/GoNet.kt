@@ -38,8 +38,8 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext, derived:
     val deleters = entity.deleteBys().sortedBy { it.primary() }
 
     return """${counters.joinSurroundIfNotEmptyToString("") {
-        val idParam = it.params().find { it.key() }
-        val paramsNoId = it.params().filter { !it.key() }
+        val idParam = it.params().find { it.isKey() }
+        val paramsNoId = it.params().filter { !it.isKey() }
         """
     router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
             { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
@@ -49,8 +49,8 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext, derived:
             """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
         }})"""
     }}${exists.joinSurroundIfNotEmptyToString("") {
-        val idParam = it.params().find { it.key() }
-        val paramsNoId = it.params().filter { !it.key() }
+        val idParam = it.params().find { it.isKey() }
+        val paramsNoId = it.params().filter { !it.isKey() }
         """
     router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
             { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
@@ -60,8 +60,8 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext, derived:
             """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
         }})"""
     }}${finders.joinSurroundIfNotEmptyToString("") {
-        val idParam = it.params().find { it.key() }
-        val paramsNoId = it.params().filter { !it.key() }
+        val idParam = it.params().find { it.isKey() }
+        val paramsNoId = it.params().filter { !it.isKey() }
         """
     router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
             { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
@@ -70,14 +70,14 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext, derived:
             """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
         }}"""
     }}${commands.joinSurroundIfNotEmptyToString("") {
-        val idParam = it.props().find { it.key() }
+        val idParam = it.props().find { it.isKey() }
         """
     router.Methods(${c.n(g.net.http.MethodPost, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
             { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}").
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
     }}${creaters.joinSurroundIfNotEmptyToString("") {
-        val idParam = it.props().find { it.key() }
+        val idParam = it.props().find { it.isKey() }
         """
     router.Methods(${c.n(g.net.http.MethodPost, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
             { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
@@ -86,7 +86,7 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext, derived:
         }}
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
     }}${updaters.joinSurroundIfNotEmptyToString("") {
-        val idParam = it.props().find { it.key() }
+        val idParam = it.props().find { it.isKey() }
         """
     router.Methods(${c.n(g.net.http.MethodPut, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
             { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
@@ -95,7 +95,7 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext, derived:
         }}
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
     }}${deleters.joinSurroundIfNotEmptyToString("") {
-        val idParam = it.props().find { it.key() }
+        val idParam = it.props().find { it.isKey() }
         """
     router.Methods(${c.n(g.net.http.MethodDelete, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
             { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {

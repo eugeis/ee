@@ -153,7 +153,7 @@ type $name struct {${toGoMacrosBeforeBody(c, derived, api)}${currentProps.joinSu
         it.derivedAsType().isEmpty()
     }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
             it.toGo(c, derived, api)
-        }}${currentProps.filter { it.accessible().setAndTrue() && !it.mutable().setAndTrue() }.joinSurroundIfNotEmptyToString(
+        }}${currentProps.filter { it.isAccessible().setAndTrue() && !it.isMutable().setAndTrue() }.joinSurroundIfNotEmptyToString(
         nL, prefix = nL) {
         it.toGoGetMethod(name, c, derived)
     }}${currentProps.filter { it.type().isOrDerived(n.List) }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {

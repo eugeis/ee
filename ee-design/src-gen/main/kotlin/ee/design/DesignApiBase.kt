@@ -103,7 +103,7 @@ open class CommandB<B : CommandB<B>>(value: B.() -> Unit = {}) : CompilationUnit
     override fun httpMethod(): String = attr(httpMethod, { "" })
     override fun httpMethod(value: String): B = apply { attr(httpMethod, value) }
 
-    override fun affectMulti(): Boolean = attr(affectMulti, { false })
+    override fun isAffectMulti(): Boolean = attr(affectMulti, { false })
     override fun affectMulti(value: Boolean): B = apply { attr(affectMulti, value) }
 
     override fun event(): EventI<*> = attr(event, { Event.EMPTY })
@@ -316,13 +316,13 @@ open class Entity(value: Entity.() -> Unit = {}) : EntityB<Entity>(value) {
 
 open class EntityB<B : EntityB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), EntityI<B> {
 
-    override fun defaultEvents(): Boolean = attr(defaultEvents, { true })
+    override fun isDefaultEvents(): Boolean = attr(defaultEvents, { true })
     override fun defaultEvents(value: Boolean): B = apply { attr(defaultEvents, value) }
 
-    override fun defaultQueries(): Boolean = attr(defaultQueries, { true })
+    override fun isDefaultQueries(): Boolean = attr(defaultQueries, { true })
     override fun defaultQueries(value: Boolean): B = apply { attr(defaultQueries, value) }
 
-    override fun defaultCommands(): Boolean = attr(defaultCommands, { true })
+    override fun isDefaultCommands(): Boolean = attr(defaultCommands, { true })
     override fun defaultCommands(value: Boolean): B = apply { attr(defaultCommands, value) }
 
     override fun belongsToAggregate(): EntityI<*> = attr(belongsToAggregate, { Entity.EMPTY })
@@ -580,7 +580,7 @@ open class FindBy(value: FindBy.() -> Unit = {}) : FindByB<FindBy>(value) {
 
 open class FindByB<B : FindByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), FindByI<B> {
 
-    override fun multiResult(): Boolean = attr(multiResult, { true })
+    override fun isMultiResult(): Boolean = attr(multiResult, { true })
     override fun multiResult(value: Boolean): B = apply { attr(multiResult, value) }
 
     companion object {
@@ -680,7 +680,7 @@ open class Module(value: Module.() -> Unit = {}) : ModuleB<Module>(value) {
 
 open class ModuleB<B : ModuleB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), ModuleI<B> {
 
-    override fun parentNamespace(): Boolean = attr(parentNamespace, { false })
+    override fun isParentNamespace(): Boolean = attr(parentNamespace, { false })
     override fun parentNamespace(value: Boolean): B = apply { attr(parentNamespace, value) }
 
     override fun dependencies(): ListMultiHolder<ModuleI<*>> = itemAsList(dependencies, ModuleI::class.java, true)

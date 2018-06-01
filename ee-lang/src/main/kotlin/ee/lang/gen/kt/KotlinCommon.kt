@@ -37,22 +37,22 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
     }
 }
 
-fun <T : AttributeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, mutable: Boolean? = mutable()): String {
+fun <T : AttributeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, mutable: Boolean? = isMutable()): String {
     return type().toKotlinDefault(c, derived, mutable)
 }
 
 fun <T : AttributeI<*>> T.toKotlinEMPTY(c: GenerationContext, derived: String): String {
-    return (type().parent() == n).ifElse({ type().toKotlinDefault(c, derived, mutable()) },
+    return (type().parent() == n).ifElse({ type().toKotlinDefault(c, derived, isMutable()) },
             { "${c.n(type(), derived)}.EMPTY" })
 }
 
 
 fun <T : AttributeI<*>> T.toKotlinTypeSingle(c: GenerationContext, api: String): String {
-    return type().toKotlin(c, api, mutable())
+    return type().toKotlin(c, api, isMutable())
 }
 
-fun <T : AttributeI<*>> T.toKotlinTypeDef(c: GenerationContext, api: String, mutable: Boolean? = mutable()): String =
-        type().toKotlinTypeDef(c, api, nullable(), mutable)
+fun <T : AttributeI<*>> T.toKotlinTypeDef(c: GenerationContext, api: String, mutable: Boolean? = isMutable()): String =
+        type().toKotlinTypeDef(c, api, isNullable(), mutable)
 
 fun <T : TypeI<*>> T.toKotlinTypeDef(c: GenerationContext, api: String, nullable: Boolean, mutable: Boolean? = null): String =
         """${toKotlin(c, api, mutable)}${nullable.then("?")}"""
@@ -149,7 +149,7 @@ fun <T : TypeI<*>> T.toKotlin(c: GenerationContext, derived: String,
                 derived)}${this.toKotlinGenericTypes(c, derived, mutable)}"
 
 
-fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, mutable: Boolean? = mutable()): String {
+fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, mutable: Boolean? = isMutable()): String {
     if (value() != null) {
         return when (type()) {
             n.String, n.Text -> "\"${value()}\""
@@ -169,11 +169,11 @@ fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, m
 }
 
 fun <T : AttributeI<*>> T.toKotlinInit(c: GenerationContext, derived: String,
-                                       mutable: Boolean? = mutable(), nullable: Boolean = nullable()): String {
+                                       mutable: Boolean? = isMutable(), nullable: Boolean = isNullable()): String {
     return when {
         value() != null -> " = ${toKotlinValue(c, derived, mutable)}"
         nullable -> " = null"
-        initByDefaultTypeValue() -> " = ${toKotlinValue(c, derived, mutable)}"
+        isInitByDefaultTypeValue() -> " = ${toKotlinValue(c, derived, mutable)}"
         else -> ""
     }
 }
@@ -187,14 +187,14 @@ fun <T : AttributeI<*>> T.toKotlinSignature(c: GenerationContext, derived: Strin
 }}"
 
 fun <T : AttributeI<*>> T.toKotlinConstructorMember(c: GenerationContext, derived: String, api: String,
-                                                    init: Boolean = true): String = "${(key() && findParent(EnumType::class.java) != null).then(
+                                                    init: Boolean = true): String = "${(isKey() && findParent(EnumType::class.java) != null).then(
         { "@${c.n(k.json.JsonValue)} " })}${externalName().isNullOrEmpty().not().then(
-        { "@${c.n(k.json.JsonProperty)}(\"${externalName()}\") " })}${replaceable().setAndTrue().ifElse("var ",
+        { "@${c.n(k.json.JsonProperty)}(\"${externalName()}\") " })}${isReplaceable().setAndTrue().ifElse("var ",
         "val ")}${toKotlinSignature(c, derived, api, init)}"
 
 fun <T : AttributeI<*>> T.toKotlinMember(c: GenerationContext, derived: String, api: String,
                                          init: Boolean = true): String = "    ${externalName().isNullOrEmpty().not().then(
-        { "@${c.n(k.json.JsonProperty)}(\"${externalName()}\")$nL    " })}${replaceable().setAndTrue().ifElse("var ",
+        { "@${c.n(k.json.JsonProperty)}(\"${externalName()}\")$nL    " })}${isReplaceable().setAndTrue().ifElse("var ",
         "val ")}${toKotlinSignature(c, derived, api, init)}"
 
 fun List<AttributeI<*>>.toKotlinSignature(c: GenerationContext, derived: String,
@@ -226,7 +226,7 @@ fun <T : ConstructorI<*>> T.toKotlin(c: GenerationContext, derived: String, api:
     }} ${paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("$nL        ", prefix = "{$nL        ",
             postfix = "$nL    }") {
         it.toKotlinAssign(c)
-    }}${(parent() as CompilationUnitI<*>).props().filter { it.meta() }.joinSurroundIfNotEmptyToString("$nL        ",
+    }}${(parent() as CompilationUnitI<*>).props().filter { it.isMeta() }.joinSurroundIfNotEmptyToString("$nL        ",
             prefix = "$nL        ") {
         it.toKotlinInitMember(c, derived)
     }}""" else ""
@@ -267,7 +267,7 @@ fun <T : LiteralI<*>> T.toKotlinCallValue(c: GenerationContext, derived: String)
 }
 
 fun <T : AttributeI<*>> T.toKotlinType(c: GenerationContext, derived: String): String = type().toKotlin(c, derived,
-        mutable())
+        isMutable())
 
 fun List<AttributeI<*>>.toKotlinTypes(c: GenerationContext, derived: String): String = joinWrappedToString(
         ", ") { it.toKotlinType(c, derived) }
@@ -275,9 +275,15 @@ fun List<AttributeI<*>>.toKotlinTypes(c: GenerationContext, derived: String): St
 fun <T : OperationI<*>> T.toKotlinLambda(c: GenerationContext, derived: String): String = """(${params().toKotlinTypes(
         c, derived)}) -> ${retFirst().toKotlinType(c, derived)}"""
 
+fun <T : OperationI<*>> T.toKotlinIfc(c: GenerationContext, derived: String, api: String): String {
+    return """
+    fun ${toKotlinGenerics(c, derived)}${name()}(${params().toKotlinSignature(c, derived,
+            api)}) : ${retFirst().toKotlinTypeDef(c, api)}"""
+}
+
 fun <T : OperationI<*>> T.toKotlinImpl(c: GenerationContext, derived: String, api: String): String {
     return """
-    ${open().then("open ")}fun ${toKotlinGenerics(c, derived)}${name()}(${params().toKotlinSignature(c, derived,
+    ${isOpen().then("open ")}fun ${toKotlinGenerics(c, derived)}${name()}(${params().toKotlinSignature(c, derived,
             api)}) : ${retFirst().toKotlinTypeDef(c, api)} {
         throw IllegalAccessException("Not implemented yet.")
     }"""

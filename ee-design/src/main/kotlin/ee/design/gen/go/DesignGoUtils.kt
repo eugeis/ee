@@ -17,7 +17,7 @@ fun StructureUnitI<*>.addEventhorizonArtifactsForAggregate() {
         ret(g.eh.ReadWriteRepo)
     }
 
-    findDownByType(EntityI::class.java).filter { !it.virtual() && it.derivedAsType().isEmpty() }.groupBy {
+    findDownByType(EntityI::class.java).filter { !it.isVirtual() && it.derivedAsType().isEmpty() }.groupBy {
         it.findParentMust(ModuleI::class.java)
     }.forEach { module, items ->
             module.extend {

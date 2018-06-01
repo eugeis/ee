@@ -44,8 +44,8 @@ fun String?.to$name(): $name {
 fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
     api: String = LangDerivedKind.API): String {
     return """
-${open().then("export ")}class ${c.n(this, derived)}${toTypeScriptExtends(c, derived,
-        api)} {${props().filter { !it.meta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+${isOpen().then("export ")}class ${c.n(this, derived)}${toTypeScriptExtends(c, derived,
+        api)} {${props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toTypeScriptMember(c, derived, api, false)
     }}${constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toTypeScript(c, derived, api)

@@ -34,7 +34,7 @@ fun <T : OperationI<*>> T.toGoCommandHandlerExecuteCommandBody(c: GenerationCont
         err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${it.toGo(c, api)}), entity.(${entity.toGo(c,
             api)}), store)"""
     }}
-    default:
+    isDefault:
 		err = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf,
         api)}("Not supported command type '%v' for entity '%v", cmd.CommandType(), entity))
 	}"""
@@ -69,7 +69,7 @@ fun <T : OperationI<*>> T.toGoFindByBody(c: GenerationContext, derived: String =
 		}
     }"""
     }, {
-        (params().size == 1 && params().first().key()).ifElse({
+        (params().size == 1 && params().first().isKey()).ifElse({
             """
     var result ${c.n(g.eh.Entity)}
 	if result, err = o.repo.Find(o.context, ${params().first().name()}); err == nil {
@@ -91,7 +91,7 @@ fun <T : OperationI<*>> T.toGoExistByBody(c: GenerationContext, derived: String 
         ret = result > 0
     }"""
     }, {
-        (params().size == 1 && params().first().key()).ifElse({
+        (params().size == 1 && params().first().isKey()).ifElse({
             """
     var result int
 	if result, err = o.CountById(${params().first().name()}); err == nil {
@@ -114,7 +114,7 @@ fun <T : OperationI<*>> T.toGoCountByBody(c: GenerationContext, derived: String 
         ret = len(result)
     }"""
     }, {
-        (params().size == 1 && params().first().key()).ifElse({
+        (params().size == 1 && params().first().isKey()).ifElse({
             """
     var result ${entity.toGo(c, derived)}
 	if result, err = o.FindById(${params().first().name()}); err == nil && result != nil {
@@ -133,7 +133,7 @@ fun <T : OperationI<*>> T.toGoHttpHandlerBody(c: GenerationContext, derived: Str
     return """${queryHandler.params().joinSurroundIfNotEmptyToString("", """
     vars := ${c.n(g.mux.Vars, api)}(r)""") {
         """
-    ${it.nameDecapitalize()} := ${it.key().ifElse({ """${c.n(g.eh.UUID, api)}(vars["${it.nameDecapitalize()}"])""" },
+    ${it.nameDecapitalize()} := ${it.isKey().ifElse({ """${c.n(g.eh.UUID, api)}(vars["${it.nameDecapitalize()}"])""" },
             { """vars["${it.nameDecapitalize()}"]""" })}"""
     }}
     ret, err := o.QueryRepository.${queryHandler.toGoCall(c, api, api)}
@@ -198,7 +198,7 @@ fun <T : OperationI<*>> T.toGoCommandHandlerSetupBody(c: GenerationContext, deri
         if err = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, command.$id, $aggregateType); err == nil {
             ${item.toGoStoreEvent(c, derived, api)}
         }"""
-        } else if ((item is UpdateByI<*> || item is DeleteByI<*> || !item.affectMulti()) && item.event().isNotEMPTY()) {
+        } else if ((item is UpdateByI<*> || item is DeleteByI<*> || !item.isAffectMulti()) && item.event().isNotEMPTY()) {
             """
         if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, command.$id, $aggregateType); err == nil {
             ${item.toGoStoreEvent(c, derived, api)}
@@ -219,7 +219,7 @@ fun <T : OperationI<*>> T.toGoEventHandlerApplyEvent(c: GenerationContext, deriv
     val events = entity.findDownByType(EventI::class.java)
     return """
     ${events.joinSurroundIfNotEmptyToString("", "switch event.EventType() {", """
-    default:
+    isDefault:
 		err = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf,
         api)}("Not supported event type '%v' for entity '%v", event.EventType(), entity))
 	}""") {
@@ -245,7 +245,7 @@ fun <T : OperationI<*>> T.toGoEventHandlerSetupBody(c: GenerationContext, derive
 		return &${c.n(item, derived)}{}
 	})
 
-    //default handler implementation
+    //isDefault handler implementation
     o.$handler = func(event ${item.toGo(c, api)}, entity ${entity.toGo(c,
             api)}) (err error) {${if (item is CreatedI<*>) {
             """

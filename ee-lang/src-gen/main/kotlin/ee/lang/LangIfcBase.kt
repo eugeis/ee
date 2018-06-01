@@ -25,75 +25,105 @@ interface AssignActionI<B : AssignActionI<B>> : ApplyActionI<B> {
 
 interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
     fun accessible(value: Boolean?): B
+    fun accessible(): B = accessible(true)
+    fun notAccessible(): B = accessible(false)
 
     fun anonymous(value: Boolean): B
+    fun anonymous(): B = anonymous(true)
+    fun notAnonymous(): B = anonymous(false)
 
     fun default(value: Boolean): B
+    fun default(): B = default(true)
+    fun notDefault(): B = default(false)
 
     fun externalName(value: String?): B
 
     fun fixValue(value: Boolean): B
+    fun fixValue(): B = fixValue(true)
+    fun notFixValue(): B = fixValue(false)
 
     fun hidden(value: Boolean): B
+    fun hidden(): B = hidden(true)
+    fun notHidden(): B = hidden(false)
 
     fun inherited(value: Boolean): B
+    fun inherited(): B = inherited(true)
+    fun notInherited(): B = inherited(false)
 
     fun initByDefaultTypeValue(value: Boolean): B
+    fun initByDefaultTypeValue(): B = initByDefaultTypeValue(true)
+    fun notInitByDefaultTypeValue(): B = initByDefaultTypeValue(false)
 
     fun key(value: Boolean): B
+    fun key(): B = key(true)
+    fun notKey(): B = key(false)
 
     fun length(value: Int?): B
 
     fun meta(value: Boolean): B
+    fun meta(): B = meta(true)
+    fun notMeta(): B = meta(false)
 
     fun multi(value: Boolean): B
+    fun multi(): B = multi(true)
+    fun notMulti(): B = multi(false)
 
     fun mutable(value: Boolean?): B
+    fun mutable(): B = mutable(true)
+    fun notMutable(): B = mutable(false)
 
     fun nonFluent(value: String): B
 
     fun nullable(value: Boolean): B
+    fun nullable(): B = nullable(true)
+    fun notNullable(): B = nullable(false)
 
     fun open(value: Boolean): B
+    fun open(): B = open(true)
+    fun notOpen(): B = open(false)
 
     fun replaceable(value: Boolean?): B
+    fun replaceable(): B = replaceable(true)
+    fun notReplaceable(): B = replaceable(false)
 
     fun unique(value: Boolean): B
-    fun accessible(): Boolean?
+    fun unique(): B = unique(true)
+    fun notUnique(): B = unique(false)
+    fun isAccessible(): Boolean?
 
-    fun anonymous(): Boolean
+    fun isAnonymous(): Boolean
 
-    fun default(): Boolean
+    fun isDefault(): Boolean
 
     fun externalName(): String?
 
-    fun fixValue(): Boolean
+    fun isFixValue(): Boolean
 
-    fun hidden(): Boolean
+    fun isHidden(): Boolean
 
-    fun inherited(): Boolean
+    fun isInherited(): Boolean
 
-    fun initByDefaultTypeValue(): Boolean
+    fun isInitByDefaultTypeValue(): Boolean
 
-    fun key(): Boolean
+    fun isKey(): Boolean
 
     fun length(): Int?
 
-    fun meta(): Boolean
+    fun isMeta(): Boolean
 
-    fun multi(): Boolean
+    fun isMulti(): Boolean
 
-    fun mutable(): Boolean?
+    fun isMutable(): Boolean?
 
     fun nonFluent(): String
 
-    fun nullable(): Boolean
+    fun isNullable(): Boolean
 
-    fun open(): Boolean
+    fun isOpen(): Boolean
 
-    fun replaceable(): Boolean?
+    fun isReplaceable(): Boolean?
 
-    fun unique(): Boolean
+    fun isUnique(): Boolean
 }
 
 
@@ -103,13 +133,17 @@ interface BasicI<B : BasicI<B>> : DataTypeI<B> {
 
 interface CompilationUnitI<B : CompilationUnitI<B>> : TypeI<B> {
     fun base(value: Boolean): B
-    fun base(): Boolean
+    fun base(): B = base(true)
+    fun notBase(): B = base(false)
+    fun isBase(): Boolean
 }
 
 
 interface ConstructorI<B : ConstructorI<B>> : LogicUnitI<B> {
     fun primary(value: Boolean): B
-    fun primary(): Boolean
+    fun primary(): B = primary(true)
+    fun notPrimary(): B = primary(false)
+    fun isPrimary(): Boolean
 }
 
 
@@ -227,23 +261,29 @@ interface LiteralI<B : LiteralI<B>> : ExpressionI<B> {
 
 interface LogicUnitI<B : LogicUnitI<B>> : ExpressionI<B> {
     fun errorHandling(value: Boolean): B
+    fun errorHandling(): B = errorHandling(true)
+    fun notErrorHandling(): B = errorHandling(false)
 
     fun params(vararg value: AttributeI<*>): B
 
     fun superUnit(value: LogicUnitI<*>): B
 
     fun virtual(value: Boolean): B
+    fun virtual(): B = virtual(true)
+    fun notVirtual(): B = virtual(false)
 
     fun visible(value: Boolean): B
-    fun errorHandling(): Boolean
+    fun visible(): B = visible(true)
+    fun notVisible(): B = visible(false)
+    fun isErrorHandling(): Boolean
 
     fun params(): ListMultiHolder<AttributeI<*>>
 
     fun superUnit(): LogicUnitI<*>
 
-    fun virtual(): Boolean
+    fun isVirtual(): Boolean
 
-    fun visible(): Boolean
+    fun isVisible(): Boolean
 }
 
 
@@ -307,13 +347,15 @@ interface OperationI<B : OperationI<B>> : LogicUnitI<B> {
     fun generics(vararg value: GenericI<*>): B
 
     fun open(value: Boolean): B
+    fun open(): B = open(true)
+    fun notOpen(): B = open(false)
 
     fun returns(vararg value: AttributeI<*>): B
     fun generics(): ListMultiHolder<GenericI<*>>
     fun G(value: GenericI<*>): GenericI<*>
     fun G(value: GenericI<*>.() -> Unit = {}): GenericI<*>
 
-    fun open(): Boolean
+    fun isOpen(): Boolean
 
     fun returns(): ListMultiHolder<AttributeI<*>>
     fun ret(value: AttributeI<*>): AttributeI<*>
@@ -375,10 +417,16 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
     fun generics(vararg value: GenericI<*>): B
 
     fun ifc(value: Boolean): B
+    fun ifc(): B = ifc(true)
+    fun notIfc(): B = ifc(false)
 
     fun multi(value: Boolean): B
+    fun multi(): B = multi(true)
+    fun notMulti(): B = multi(false)
 
     fun open(value: Boolean): B
+    fun open(): B = open(true)
+    fun notOpen(): B = open(false)
 
     fun operations(vararg value: OperationI<*>): B
 
@@ -389,6 +437,8 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
     fun superUnits(vararg value: TypeI<*>): B
 
     fun virtual(value: Boolean): B
+    fun virtual(): B = virtual(true)
+    fun notVirtual(): B = virtual(false)
     fun constructors(): ListMultiHolder<ConstructorI<*>>
     fun constr(value: ConstructorI<*>): ConstructorI<*>
     fun constr(value: ConstructorI<*>.() -> Unit = {}): ConstructorI<*>
@@ -399,11 +449,11 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
     fun G(value: GenericI<*>): GenericI<*>
     fun G(value: GenericI<*>.() -> Unit = {}): GenericI<*>
 
-    fun ifc(): Boolean
+    fun isIfc(): Boolean
 
-    fun multi(): Boolean
+    fun isMulti(): Boolean
 
-    fun open(): Boolean
+    fun isOpen(): Boolean
 
     fun operations(): ListMultiHolder<OperationI<*>>
     fun op(value: OperationI<*>): OperationI<*>
@@ -417,7 +467,7 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
 
     fun superUnits(): ListMultiHolder<TypeI<*>>
 
-    fun virtual(): Boolean
+    fun isVirtual(): Boolean
 }
 
 

@@ -82,7 +82,7 @@ fun <T : ItemI<*>> ItemI<*>.findParentNonInternal(): T? {
     val parent = parent()
     if (parent.isEMPTY()) {
         return null
-    } else if (!parent.internal()) {
+    } else if (!parent.isInternal()) {
         return parent as T
     } else {
         return parent.findParentNonInternal()
@@ -152,7 +152,7 @@ fun <B : MultiHolderI<I, *>, I> B.initObjectTree(deriveNamespace: ItemI<*>.() ->
                 if (child is ItemI<*>) {
                     child.initIfNotInitialized()
                     if (child.name().isBlank() && f.name != IGNORE) child.name(f.name)
-                    //set the parent, parent shall be the DSL model parent and not some internal object or reference object
+                    //set the parent, parent shall be the DSL model parent and not some isInternal object or reference object
                     child.parent(this)
                     if (!containsItem(child as I)) {
                         addItem(child)
@@ -172,7 +172,7 @@ fun <B : MultiHolderI<I, *>, I> B.initObjectTree(deriveNamespace: ItemI<*>.() ->
             if (child.name().isBlank()) child.name(child.buildLabel().name)
 
             //initObjectTree recursively if the parent is not set
-            //set the parent, parent shall be the DSL model parent and not some internal object or reference object
+            //set the parent, parent shall be the DSL model parent and not some isInternal object or reference object
             child.parent(this)
             if (!containsItem(child as I)) {
                 addItem(child)

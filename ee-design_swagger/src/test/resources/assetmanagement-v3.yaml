@@ -239,7 +239,7 @@ paths:
         - name: exploded
           in: query
           type: boolean
-          description: Specifies if the asset type should include all of it's inherited variables and aspects. Default is false.
+          description: Specifies if the asset type should include all of it's isInherited variables and aspects. Default is false.
       responses:
         200:
           description: Returns the asset type
@@ -544,7 +544,7 @@ paths:
         - asset:
           - asm.r
         - assettype:
-          - atm.r # collect type ancestors for possible inherited properties
+          - atm.r # collect type ancestors for possible isInherited properties
       parameters:
         - $ref: '#/parameters/assetId'
         - $ref: '#/parameters/ifNoneMatch'
@@ -860,7 +860,7 @@ paths:
         - asset:
           - asm.r
         - assettype:
-          - atm.r # collect ancestors for possible inherited properties
+          - atm.r # collect ancestors for possible isInherited properties
       parameters:
         - $ref: '#/parameters/ifNoneMatch'
       responses:
@@ -1022,7 +1022,7 @@ definitions:
           - private
         default:
           private
-        description: Visibility of the assettype. Setting this property to public makes it available to other tenants. Private types are only visible to the user's own tenant.
+        description: Visibility of the assettype. Setting this property to public makes it available to other tenants. Private types are only isVisible to the user's own tenant.
       variables:
         type: array
         items:
@@ -1118,7 +1118,7 @@ definitions:
           - private
         default:
           private
-        description: Visibility of aspecttype. Setting this property to public makes it available to other tenants. Private types are only visible to the user's own tenant. Currently only private types can be created.
+        description: Visibility of aspecttype. Setting this property to public makes it available to other tenants. Private types are only isVisible to the user's own tenant. Currently only private types can be created.
       description:
         type: string
         maxLength: 255

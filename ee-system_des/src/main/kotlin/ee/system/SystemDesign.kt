@@ -34,7 +34,7 @@ object System : Comp({ artifact("ee-system").namespace("ee.system") }) {
         }
 
         object Service : Entity({ superUnit(SystemBase) }) {
-            val category = prop()
+            val category = propS()
             val dependsOn = prop(n.List.GT(Service))
             val dependsOnMe = prop(n.List.GT(Service))
 
@@ -157,7 +157,7 @@ object System : Comp({ artifact("ee-system").namespace("ee.system") }) {
             val bin = prop(n.Path)
 
             val start = op(p("defaultsFile", n.Path), p("params", n.Map))
-            val stop = op(p("user"), p("password") { hidden(true) })
+            val stop = op(p("user"), p("password").hidden())
             val sql = op(p("sqlCommand"), p("user"), p("password"), p("schema") { value("") })
             val truncateDb = op(p("schema"), p("sqlCommand"), p("user"), p("password"))
         }

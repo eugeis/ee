@@ -2,8 +2,6 @@ package ee.lang.gen.kt
 
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
-import ee.common.ext.toCamelCase
-import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 
 fun LiteralI<*>.toKotlin(): String = name().capitalize()
@@ -35,12 +33,23 @@ fun String?.to$name(): $name {
 }"""
 }
 
+fun <T : CompilationUnitI<*>> T.toKotlinIfc(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                             api: String = LangDerivedKind.API,
+                                             dataClass: Boolean = this is BasicI<*> &&
+                                                     superUnits().isEmpty() && superUnitFor().isEmpty()): String {
+    return """
+interface ${c.n(this, derived)} {${operationsWithoutDataType().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+        it.toKotlinIfc(c, derived, api)
+    }}
+}"""
+}
+
 fun <T : CompilationUnitI<*>> T.toKotlinImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                              api: String = LangDerivedKind.API,
                                              dataClass: Boolean = this is BasicI<*> &&
                                                      superUnits().isEmpty() && superUnitFor().isEmpty()): String {
     return """
-${(open() && !dataClass).then("open ")}${dataClass.then("data ")}class ${c.n(this, derived)}${primaryConstructor().toKotlinPrimary(c, derived, api,
+${(isOpen() && !dataClass).then("open ")}${dataClass.then("data ")}class ${c.n(this, derived)}${primaryConstructor().toKotlinPrimary(c, derived, api,
             this)} {${propsWithoutParamsOfPrimaryConstructor().joinSurroundIfNotEmptyToString(nL, prefix = nL,
             postfix = nL) {
         it.toKotlinMember(c, derived, api, false)
