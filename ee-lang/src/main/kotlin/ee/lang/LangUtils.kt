@@ -156,8 +156,14 @@ fun TypeI<*>.propsNoMetaNoValue(): List<AttributeI<*>> = storage.getOrPut(this, 
     props().filter { !it.isMeta() && it.value() == null }
 })
 
-fun TypeI<*>.operationsWithoutDataType(): List<OperationI<*>> = storage.getOrPut(this, "operationsWithoutDataType", {
+fun TypeI<*>.operationsWithoutDataTypeOperations(): List<OperationI<*>> = storage.getOrPut(this, "operationsWithoutDataTypeOperations", {
     operations().filter { it !is DataTypeOperationI }
+})
+
+fun TypeI<*>.operationsWithInherited(): List<OperationI<*>> = storage.getOrPut(this, "operationsWithInherited", {
+    operations().toMutableSet().apply {
+        superUnits().forEach { addAll(it.operationsWithInherited()) }
+    }.toList().sortedBy { it.name() }
 })
 
 //paramsNotDerived().filterSkipped { it.isAnonymous() }.map { p(it).isDefault(true).isAnonymous(it.isAnonymous()) }
