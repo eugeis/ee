@@ -89,7 +89,7 @@ private class SwaggerToDesignExecutor(swaggerFile: Path,
 
     private fun String?.toDslDoc(suffix: String = "", prefix: String = ""): String {
         return (this != null).ifElse({
-            "${suffix}doc(${(this!!.contains("\"") || this!!.contains("\n") || this!!.contains("\\")).ifElse(
+            "${suffix}doc(${(this!!.contains("\"") || contains("\n") || contains("\\")).ifElse(
                 "\"\"\"$this\"\"\"", "\"$this\"")})$prefix"
         }, { "" })
     }
@@ -264,12 +264,12 @@ object $name : Values(${description.toDslDoc("{", "}")}) {${properties.toDslProp
 
     private fun Parameter.toDslInit(name: String): String {
         val typeName = toDslTypeName(name)
-        return "type($typeName)${required?.not().then({ ".isNullable(true)" })}${description.toDslDoc(".")}"
+        return "type($typeName)${required.not().then({ ".isNullable(true)" })}${description.toDslDoc(".")}"
     }
 
     private fun io.swagger.models.properties.Property.toDslInitDirect(name: String): String {
         val typeName = toDslTypeName(name)
-        return "type($typeName)${required?.not().then({ ".isNullable(true)" })}${(this is PasswordProperty).then(
+        return "type($typeName)${required.not().then({ ".isNullable(true)" })}${(this is PasswordProperty).then(
             { ".isHidden(true)" })}${toDslPropValue(typeName, ".")}${description.toDslDoc(".")}"
     }
 

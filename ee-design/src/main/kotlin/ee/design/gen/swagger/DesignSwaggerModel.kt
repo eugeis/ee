@@ -8,8 +8,7 @@ import ee.lang.*
 import ee.lang.gen.swagger.*
 
 
-fun <T : EntityI<*>> T.toSwaggerGet(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-    api: String = LangDerivedKind.API): String {
+fun <T : EntityI<*>> T.toSwaggerGet(c: GenerationContext, api: String = LangDerivedKind.API): String {
     val finders = findDownByType(FindByI::class.java)
     val counters = findDownByType(CountByI::class.java)
     val exists = findDownByType(ExistByI::class.java)
@@ -63,18 +62,15 @@ fun <T : EntityI<*>> T.toSwaggerGet(c: GenerationContext, derived: String = Lang
     } else ""
 }
 
-fun <T : EntityI<*>> T.toSwaggerPost(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-    api: String = LangDerivedKind.API): String {
+fun <T : EntityI<*>> T.toSwaggerPost(): String {
     return """"""
 }
 
-fun <T : EntityI<*>> T.toSwaggerPut(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-    api: String = LangDerivedKind.API): String {
+fun <T : EntityI<*>> T.toSwaggerPut(): String {
     return """"""
 }
 
-fun <T : EntityI<*>> T.toSwaggerDelete(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-    api: String = LangDerivedKind.API): String {
+fun <T : EntityI<*>> T.toSwaggerDelete(): String {
     return """"""
 }
 
@@ -98,9 +94,8 @@ info:
 paths:${moduleAggregates.joinSurroundIfNotEmptyToString("") { module, item ->
         if (item.findDownByType(FindByI::class.java).isNotEmpty()) {
             """
-  /${c.n(module, derived).toHyphenLowerCase()}${item.toSwaggerPath(c, derived)}:${item.toSwaggerGet(c, derived,
-                api)}${item.toSwaggerPost(c, derived, api)}${item.toSwaggerPut(c, derived, api)}${item.toSwaggerDelete(
-                c, derived, api)}"""
+  /${c.n(module, derived).toHyphenLowerCase()}${item.toSwaggerPath(c, derived)}:${item.toSwaggerGet(c, api)}${
+            item.toSwaggerPost()}${item.toSwaggerPut()}${item.toSwaggerDelete()}"""
         } else ""
     }}
 components:

@@ -67,7 +67,7 @@ abstract class BuildToolBase : Tool {
     abstract fun supports(buildHome: Path = Paths.get("")): Boolean
 
     abstract fun build(buildHome: Path = Paths.get(""), request: BuildRequest = BuildRequest.EMPTY,
-        output: (String) -> Unit = { line -> }): Result
+        output: (String) -> Unit = { }): Result
 
 }
 
