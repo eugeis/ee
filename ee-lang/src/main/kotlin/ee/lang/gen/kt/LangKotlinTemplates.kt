@@ -40,6 +40,9 @@ open class LangKotlinTemplates {
     open fun ifc(nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
             Template("Ifc", nameBuilder) { item, c -> item.toKotlinIfc(c, LangDerivedKind.API) }
 
+    open fun ifcEmpty(nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
+            Template("IfcEmpty", nameBuilder) { item, c -> item.toKotlinIfcEMPTY(c, LangDerivedKind.API) }
+
     open fun pojo(nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
         Template("Pojo", nameBuilder) { item, c -> item.toKotlinImpl(c, LangDerivedKind.API) }
 }

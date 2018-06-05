@@ -34,12 +34,19 @@ fun String?.to$name(): $name {
 }
 
 fun <T : CompilationUnitI<*>> T.toKotlinIfc(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                             api: String = LangDerivedKind.API,
-                                             dataClass: Boolean = this is BasicI<*> &&
-                                                     superUnits().isEmpty() && superUnitFor().isEmpty()): String {
+                                             api: String = LangDerivedKind.API): String {
     return """
 interface ${c.n(this, derived)} {${operationsWithoutDataType().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toKotlinIfc(c, derived, api)
+    }}
+}"""
+}
+
+fun <T : CompilationUnitI<*>> T.toKotlinIfcEMPTY(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                            api: String = LangDerivedKind.API): String {
+    return """
+object ${c.n(this, derived)}EMPTY : ${c.n(this, derived)} {${operationsWithoutDataType().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+        it.toKotlinEMPTY(c, derived, api)
     }}
 }"""
 }

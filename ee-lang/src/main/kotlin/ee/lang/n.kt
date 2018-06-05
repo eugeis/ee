@@ -33,7 +33,11 @@ object n : StructureUnit({ name("native") }) {
         val T = G()
     }
 
-    object List : NativeType({ multi(true) }) {
+    object Collection : NativeType({ multi(true) }) {
+        val T = G({ type(String) })
+    }
+
+    object List : NativeType({ superUnit(Collection).multi(true) }) {
         val T = G({ type(String) })
     }
 

@@ -36,8 +36,7 @@ fun <T : AttributeI<*>> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: 
     }}"""
 }
 
-fun <T : AttributeI<*>> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: String, api: String,
-    parent: ItemI<*> = findParent(CompilationUnitI::class.java) ?: parent()): String {
+fun <T : AttributeI<*>> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: String, api: String): String {
     val value = (name() == "value").ifElse("aValue", "value")
     val override = (derived != api).ifElse("override ", "")
     return """${isMulti().ifElse({
@@ -89,7 +88,7 @@ open class $T(value: $T.() -> Unit = {}) : $B<$T>(value) {
 open class $B<B : $B<B>>(value: B.() -> Unit = {}) : ${c.n(superUnit(),
         LangDerivedKind.MANUAL)}<B>(value)${(derived != api).then(
         { ", ${c.n(this, LangDerivedKind.API)}<B>" })} {${props().joinSurroundIfNotEmptyToString(nL,
-        prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api, this) }}${multiProps.isNotEmpty().then {
+        prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}${multiProps.isNotEmpty().then {
         """
 
     override fun fillSupportsItems() {${multiProps.joinSurroundIfNotEmptyToString(nL,

@@ -121,6 +121,7 @@ abstract class $B<B : $B<B, T>, T : ${c.n(this, LangDerivedKind.API)}> : ${super
     }${superUnitExists.not().then {
             """
 
+    @Suppress("UNCHECKED_CAST")
     protected inline fun applyB(block: $B<B, T>.() -> Unit): B = apply(block) as B"""
         }}
 }"""

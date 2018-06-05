@@ -5,6 +5,14 @@ import ee.lang.gen.java.j
 
 object k : StructureUnit({ name("Kotlin") }) {
     object core : StructureUnit() {
+        object Collection : ExternalType() {
+            val T = G()
+        }
+
+        object MutableCollection : ExternalType() {
+            val T = G()
+        }
+
         object List : ExternalType() {
             val T = G()
         }

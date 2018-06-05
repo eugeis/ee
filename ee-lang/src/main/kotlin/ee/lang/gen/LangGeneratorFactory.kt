@@ -70,6 +70,11 @@ open class LangGeneratorFactory {
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
                             listOf(ItemsFragment(items = interfaces, fragments = { listOf(kotlinTemplates.ifc()) }))
                         })),
+                GeneratorSimple("IfcEmpty", contextBuilder = contextBuilder,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}IfcEmpty",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = interfaces, fragments = { listOf(kotlinTemplates.ifcEmpty()) }))
+                        })),
                 GeneratorSimple("ApiBase", contextBuilder = contextBuilder,
                         template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
@@ -80,11 +85,11 @@ open class LangGeneratorFactory {
                 GeneratorSimple("BuilderIfcBase", contextBuilder = contextBuilder,
                         template = ItemsTemplate(name = "${fileNamePrefix}BuilderIfcBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName,
-                                items = dataTypes, fragments = { listOf(kotlinTemplates.builderI(itemNameAsGoFileName)) })),
+                                items = dataTypes, fragments = { listOf(kotlinTemplates.builderI(itemNameAsKotlinFileName)) })),
                 GeneratorSimple("BuilderApiBase", contextBuilder = contextBuilder,
                         template = ItemsTemplate(name = "${fileNamePrefix}BuilderApiBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName,
-                                items = dataTypes, fragments = { listOf(kotlinTemplates.builder(itemNameAsGoFileName)) }))
+                                items = dataTypes, fragments = { listOf(kotlinTemplates.builder(itemNameAsKotlinFileName)) }))
         ))
     }
 
