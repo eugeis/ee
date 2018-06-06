@@ -264,13 +264,13 @@ object $name : Values(${description.toDslDoc("{", "}")}) {${properties.toDslProp
 
     private fun Parameter.toDslInit(name: String): String {
         val typeName = toDslTypeName(name)
-        return "type($typeName)${required?.not().then({ ".isNullable(true)" })}${description.toDslDoc(".")}"
+        return "type($typeName)${required.not().then({ ".nullable()" })}${description.toDslDoc(".")}"
     }
 
     private fun io.swagger.models.properties.Property.toDslInitDirect(name: String): String {
         val typeName = toDslTypeName(name)
-        return "type($typeName)${required?.not().then({ ".isNullable(true)" })}${(this is PasswordProperty).then(
-            { ".isHidden(true)" })}${toDslPropValue(typeName, ".")}${description.toDslDoc(".")}"
+        return "type($typeName)${required.not().then({ ".nullable()" })}${(this is PasswordProperty).then(
+            { ".hidden()" })}${toDslPropValue(typeName, ".")}${description.toDslDoc(".")}"
     }
 
     private fun io.swagger.models.Model.toValues(name: String): Values {
