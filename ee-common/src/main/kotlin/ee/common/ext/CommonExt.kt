@@ -96,6 +96,7 @@ val executableFileExtension = if (isWindows) ".exe" else ""
 
 //Serializable
 
+@Suppress("UNCHECKED_CAST")
 fun <T : Serializable> T.deepCopy(): T {
     var oos: ObjectOutputStream? = null
     var ois: ObjectInputStream? = null
@@ -111,7 +112,7 @@ fun <T : Serializable> T.deepCopy(): T {
 
         return ois.readObject() as T
     } catch (e: Exception) {
-        println("Exception in ObjectCloner = " + e)
+        println("exception in ObjectCloner = $e")
         throw e
     } finally {
         oos?.close()
@@ -130,7 +131,7 @@ fun String.toPathString(): String = replace("\\", "/")
 
 fun String.toDotsAsPath(): String = replace(".", "/")
 
-fun String.relativeTo(string: String): String = replace(".", "/")
+fun String.relativeTo(string: String): String = replaceFirst(string, "")
 
 fun String.toPlural(): String = endsWith("rch").ifElse({ "${this}es" }, { "${this}s" })
 
@@ -179,6 +180,7 @@ fun String.toSql(limit: Int = 64): String = strToSql.getOrPut(this, {
     }, sqlKeywords.getOrElse(base, { base }))
 })
 
+@Suppress("UNCHECKED_CAST")
 fun <T> String.asClass(namespace: String = ""): Class<T> {
     return if (namespace.isEmpty()) {
         Class.forName(this) as Class<T>

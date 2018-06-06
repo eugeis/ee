@@ -89,7 +89,7 @@ private class SwaggerToDesignExecutor(swaggerFile: Path,
 
     private fun String?.toDslDoc(suffix: String = "", prefix: String = ""): String {
         return (this != null).ifElse({
-            "${suffix}doc(${(this!!.contains("\"") || this!!.contains("\n") || this!!.contains("\\")).ifElse(
+            "${suffix}doc(${(this!!.contains("\"") || contains("\n") || contains("\\")).ifElse(
                 "\"\"\"$this\"\"\"", "\"$this\"")})$prefix"
         }, { "" })
     }

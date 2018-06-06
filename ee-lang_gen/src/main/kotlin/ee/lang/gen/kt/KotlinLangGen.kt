@@ -66,8 +66,7 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: Str
     }}"""
 }
 
-fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: String, api: String,
-                                                 parent: ItemI<*> = parent()): String {
+fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: String, api: String): String {
     val value = (name() == "value").ifElse("aValue", "value")
     val override = (derived != api).ifElse("override ", "")
     return """${isMulti().ifElse({
@@ -100,7 +99,7 @@ val specialEmptyObjects = setOf("CompilationUnit", "LogicUnit")
 //isMulti holder for general types (like 'superUnitFor') must not be used as target for dynamic DSL objects, like "object commands : Command... {..}"
 val generalTypes = setOf("Item", "Composite", "CompilationUnit", "LogicUnit", "Type", "Command", "Controller")
 
-fun <T : AttributeI> T.toKotlinCompanionObjectName(c: GenerationContext): String {
+fun <T : AttributeI> T.toKotlinCompanionObjectName(): String {
     return """        val ${name().toUnderscoredUpperCase()} = "${generalTypes.contains(type().name()).then(
             "_")}_${name()}""""
 }
@@ -144,7 +143,7 @@ open class ${c.n(this, derived)}B<B : ${c.n(this, api)}<B>>(value: B.() -> Unit 
     }}${props.isNotEmpty().then {
         """
 
-    companion object {${props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinCompanionObjectName(c) }}
+    companion object {${props.joinSurroundIfNotEmptyToString(nL, prefix = nL) { it.toKotlinCompanionObjectName() }}
     }"""
     }}
 }
