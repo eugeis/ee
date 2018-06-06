@@ -121,7 +121,7 @@ object ${name.toDslTypeName()} : Values(${description.toDslDoc("{ ", " }")}) {${
     private fun io.swagger.models.properties.StringProperty.toDslEnum(name: String): String {
         return """
 object $name : EnumType() {
-    val value = prop { type(n.String).isKey(true) }${enum.joinToString(nL, nL) {
+    val value = prop { type(n.String).key() }${enum.joinToString(nL, nL) {
             "    val ${it.toCamelCase().decapitalize()} = lit(value, \"$it\")"
         }}
 }"""

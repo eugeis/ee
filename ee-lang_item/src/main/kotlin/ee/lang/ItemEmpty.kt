@@ -36,6 +36,8 @@ open class ItemEmptyClass<B : ItemI<B>> : ItemI<B> {
     override fun copyWithParent(): B = apply {}
 }
 
+object MultiMapHolderEmpty : MapMultiHolderEmptyClass<Any, MultiMapHolderEmpty>()
+
 open class MultiHolderEmptyClass<I, B : MultiHolderI<I, B>> : ItemEmptyClass<B>(), MultiHolderI<I, B> {
     override fun items(): Collection<I> = emptyList()
 
@@ -66,3 +68,18 @@ fun <T : ItemI<*>> T?.isEMPTY(): Boolean =
             ItemEmpty.name())
 
 fun <T : ItemI<*>> T?.isNotEMPTY(): Boolean = !isEMPTY()
+
+
+open class MapMultiHolderEmptyClass<I, B : MapMultiHolderI<I, B>> : MultiHolderEmptyClass<I, B>(),
+        MapMultiHolderI<I, B> {
+    override fun removeItem(childName: String) {}
+    override fun <T : I> addItem(childName: String, item: T): T = item
+    override fun itemsMap(): Map<String, I> = emptyMap()
+}
+
+object CompositeEmpty : CompositeEmptyClass<CompositeEmpty>()
+
+open class CompositeEmptyClass<B : CompositeI<B>> : MapMultiHolderEmptyClass<ItemI<*>, B>(), CompositeI<B> {
+    override fun <T : Any> attr(name: String, attr: T?) = attr
+    override fun attributes(): MapMultiHolderI<*, *> = MultiMapHolderEmpty
+}

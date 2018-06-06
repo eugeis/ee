@@ -467,8 +467,10 @@ fun <T : StructureUnitI<*>> T.initObjectTree(): T {
     (this as MultiHolderI<ItemI<*>, *>).initObjectTree {
         if (this is StructureUnitI) {
             val parent = (findParent(StructureUnitI::class.java) ?: parent()) as ItemI
-            if (parent.namespace().isBlank()) parent.namespace()
-            else parent.deriveNamespace(name().toLowerCase())
+            if (parent.namespace().isBlank())
+                parent.namespace()
+            else
+                parent.deriveNamespace(name().toLowerCase())
         } else {
             parent().namespace()
         }

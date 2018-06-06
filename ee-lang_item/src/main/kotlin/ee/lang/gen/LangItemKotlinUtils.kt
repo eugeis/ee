@@ -10,7 +10,8 @@ open class KotlinContext : GenerationContext {
         genFolder, genFolderDeletable, genFolderDeletePattern, derivedController)
 
     override fun complete(content: String, indent: String): String {
-        return "${toHeader(indent)}${toPackage(indent)}${toImports(indent)}$content${toFooter(indent)}"
+        val toImports = toImports(indent)
+        return "${toHeader(indent)}${toPackage(indent)}$toImports$content${toFooter(indent)}"
     }
 
     private fun toPackage(indent: String): String {
@@ -19,6 +20,7 @@ open class KotlinContext : GenerationContext {
 
     private fun toImports(indent: String): String {
         return types.isNotEmpty().then {
+            val all = types.map { "${it.namespace()}.${it.name()}" }.joinToString(";")
             val outsideTypes = types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }
             outsideTypes.isNotEmpty().then {
                 "${outsideTypes.map { "${indent}import ${it.namespace()}.${it.name()}" }.toSortedSet().joinToString(
