@@ -34,7 +34,7 @@ fun <T : OperationI<*>> T.toGoCommandHandlerExecuteCommandBody(c: GenerationCont
         err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${it.toGo(c, api)}), entity.(${entity.toGo(c,
             api)}), store)"""
     }}
-    isDefault:
+    default:
 		err = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf,
         api)}("Not supported command type '%v' for entity '%v", cmd.CommandType(), entity))
 	}"""
@@ -219,7 +219,7 @@ fun <T : OperationI<*>> T.toGoEventHandlerApplyEvent(c: GenerationContext, deriv
     val events = entity.findDownByType(EventI::class.java)
     return """
     ${events.joinSurroundIfNotEmptyToString("", "switch event.EventType() {", """
-    isDefault:
+    default:
 		err = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf,
         api)}("Not supported event type '%v' for entity '%v", event.EventType(), entity))
 	}""") {
@@ -245,7 +245,7 @@ fun <T : OperationI<*>> T.toGoEventHandlerSetupBody(c: GenerationContext, derive
 		return &${c.n(item, derived)}{}
 	})
 
-    //isDefault handler implementation
+    //default handler implementation
     o.$handler = func(event ${item.toGo(c, api)}, entity ${entity.toGo(c,
             api)}) (err error) {${if (item is CreatedI<*>) {
             """
