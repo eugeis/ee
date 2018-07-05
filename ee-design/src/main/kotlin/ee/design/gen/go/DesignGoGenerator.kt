@@ -37,7 +37,7 @@ open class DesignGoGenerator {
 
         addIdPropToEventsAndCommands()
 
-        addEventhorizonArtifactsForAggregate()
+        addEventHorizonArtifactsForAggregate()
 
         renameControllersAccordingParentType()
 

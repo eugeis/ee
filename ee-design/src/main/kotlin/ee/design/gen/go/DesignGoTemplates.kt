@@ -2,6 +2,7 @@ package ee.design.gen.go
 
 import ee.design.CommandI
 import ee.design.EntityI
+import ee.design.StateI
 import ee.lang.*
 import ee.lang.gen.go.LangGoTemplates
 
@@ -19,5 +20,9 @@ open class DesignGoTemplates : LangGoTemplates {
 
     open fun <T : EntityI<*>> entity(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("Entity", nameBuilder) { item, c -> item.toGoEntityImpl(c) }
+
+    open fun stateHandler(nameBuilder: TemplateI<StateI<*>>.(StateI<*>) -> NamesI = defaultNameBuilder) =
+        Template("StateHandler", nameBuilder) { item, c -> item.toGoStateHandler(c) }
+
 
 }
