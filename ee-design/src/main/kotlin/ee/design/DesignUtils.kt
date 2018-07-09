@@ -31,8 +31,13 @@ open class DesignDerivedTypeNames {
     val EventHandler = "EventHandler"
     val EventhorizonInitializer = "EventhorizonInitializer"
     val Handler = "Handler"
+    val Handlers = "Handlers"
+    val Executor = "Executor"
+    val Executors = "Executors"
+
     val Projector = "Projector"
     val Query = "Query"
+    val StateMachine = "StateMachine"
 
 }
 
@@ -109,7 +114,7 @@ fun CommandI<*>.deriveEvent(): EventI<*> {
             props(*command.props().toTypedArray())
             constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
         }
-        else         -> entity.event {
+        else -> entity.event {
             name(deriveEventName())
             //paramsNotDerived(*command.paramsNotDerived().map { p(it) }.toTypedArray())
             props(*command.props().toTypedArray())
@@ -207,8 +212,8 @@ fun StructureUnitI<*>.addCommandsAndEventsForAggregates() {
 
 fun StructureUnitI<*>.addAggregateHandler() {
     findDownByType(EntityI::class.java).filter { !it.isVirtual() && it.handlers().isEmpty() }.extend {
-        handler {
-            val initial = state { }
+        handler { name("Handler")
+            val initial = state { name("initial") }
         }
     }
 }
@@ -278,13 +283,13 @@ fun <T : CompilationUnitI<*>> T.propagateItemToSubtypes(item: CompilationUnitI<*
             (it.name() == item.name() || it.superUnit() == superUnitChild)
         } == null
     }.forEach { superUnitChild ->
-            val derivedItem = item.deriveSubType {
-                namespace(superUnitChild.namespace())
-                G { type(superUnitChild).name("T") }
-            }
-            superUnitChild.addItem(derivedItem)
-            superUnitChild.propagateItemToSubtypes(derivedItem)
+        val derivedItem = item.deriveSubType {
+            namespace(superUnitChild.namespace())
+            G { type(superUnitChild).name("T") }
         }
+        superUnitChild.addItem(derivedItem)
+        superUnitChild.propagateItemToSubtypes(derivedItem)
+    }
 }
 
 fun EntityI<*>.buildId(): AttributeI<*> = prop { key(true).type(n.UUID).name("id") }

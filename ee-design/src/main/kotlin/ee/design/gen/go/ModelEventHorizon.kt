@@ -1,5 +1,6 @@
 package ee.design.gen.go
 
+import ee.common.ext.then
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
@@ -9,7 +10,7 @@ import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("DesignGoUtils")
 
-fun StructureUnitI<*>.addEventHorizonArtifactsForAggregate() {
+fun StructureUnitI<*>.addEventHorizonArtifacts() {
 
     val reposFactory = lambda {
         p("name")
@@ -25,9 +26,9 @@ fun StructureUnitI<*>.addEventHorizonArtifactsForAggregate() {
             val aggregateInitializer = mutableListOf<ControllerI<*>>()
             val httpRouters = mutableListOf<ControllerI<*>>()
 
-            items.forEach { item ->
-                item.extend {
-                    entityHandlers(aggregateInitializer, reposFactory, httpRouters)
+            items.forEach {
+                it.extend {
+                    addEventHorizonArtifacts(aggregateInitializer, httpRouters, reposFactory)
                 }
             }
 
@@ -82,8 +83,8 @@ fun StructureUnitI<*>.addEventHorizonArtifactsForAggregate() {
     }
 }
 
-private fun EntityI<*>.entityHandlers(aggregateInitializer: MutableList<ControllerI<*>>,
-    reposFactory: LambdaI<*>, httpRouters: MutableList<ControllerI<*>>) {
+private fun EntityI<*>.addEventHorizonArtifacts(fillAggregateInitializer: MutableList<ControllerI<*>>,
+    fillHttpRouters: MutableList<ControllerI<*>>, reposFactory: LambdaI<*>) {
 
     val finders = findDownByType(FindByI::class.java)
     val counters = findDownByType(CountByI::class.java)
@@ -95,18 +96,18 @@ private fun EntityI<*>.entityHandlers(aggregateInitializer: MutableList<Controll
 
     val businessCommands = findDownByType(BusinessCommandI::class.java)
 
-    val commandHandler = commandHandler()
-    val eventHandler = eventHandler()
+    val commandHandler = addCommandHandler()
+    val eventHandler = addEventHandler()
 
-    val queryRepository = queryRepository(finders, counters, exists)
+    val queryRepository = addQueryRepository(finders, counters, exists)
 
-    aggregateInitializer.add(
-        //aggregateInitializer
+    fillAggregateInitializer.add(
+        //fillAggregateInitializer
         controller {
             name(DesignDerivedType.AggregateInitializer).derivedAsType(DesignDerivedType.Aggregate)
             prop {
                 type(g.gee.eh.AggregateInitializer)
-                    .anonymous(true).name("aggregateInitializer")
+                    .anonymous(true).name("fillAggregateInitializer")
             }
             prop { type(commandHandler).anonymous(true).name("commandHandler") }
             prop { type(eventHandler).anonymous(true).name("eventHandler") }
@@ -124,11 +125,11 @@ private fun EntityI<*>.entityHandlers(aggregateInitializer: MutableList<Controll
             }
         })
 
-    val httpQueryHandler = httpQueryHandler(queryRepository, finders, counters, exists)
+    val httpQueryHandler = addHttpQueryHandler(finders, counters, exists, queryRepository)
 
-    val httpCommandHandler = httpCommandHandler(creaters, updaters, deleters, businessCommands)
+    val httpCommandHandler = addHttpCommandHandler(creaters, updaters, deleters, businessCommands)
 
-    httpRouters.add(
+    fillHttpRouters.add(
         controller {
             name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
             val pathPrefix = propS { name("pathPrefix") }
@@ -151,11 +152,68 @@ private fun EntityI<*>.entityHandlers(aggregateInitializer: MutableList<Controll
             }
         }
     )
+
+    addStateMachineArtifacts()
 }
 
-private fun EntityI<*>.httpQueryHandler(queryRepository: BusinessControllerI<*>,
-    finders: List<FindByI<*>>, counters: List<CountByI<*>>,
-    exists: List<ExistByI<*>>): BusinessControllerI<*> {
+private fun EntityI<*>.addStateMachineArtifacts() {
+    val stateMachines = findDownByType(StateMachineI::class.java)
+    stateMachines.forEach { stateMachine ->
+
+        val prefix = (stateMachine is AggregateHandler).not().then { stateMachine.name() }
+
+        val handlers = mutableListOf<ControllerI<*>>()
+        val executors = mutableListOf<ControllerI<*>>()
+
+        stateMachine.states().forEach { state ->
+            val statePrefix = "$prefix${state.name()}"
+
+            handlers.add(controller {
+                name("$statePrefix${DesignDerivedType.Handler}")
+                    .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(state)
+                op {
+                    name("Apply")
+                    p("event", g.eh.Event)
+                    p("entity", g.eh.Entity)
+                    retError()
+                    macrosBody(OperationI<*>::toGoStateEventHandlerApplyEvent.name)
+                }
+
+                op {
+                    name("SetupEventHandler")
+                    retError()
+                    macrosBody(OperationI<*>::toGoStateEventHandlerSetupBody.name)
+                }
+            })
+
+            executors.add(controller {
+                name("$statePrefix${DesignDerivedType.Executor}")
+                    .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(state)
+            })
+        }
+
+        controller {
+            name("$prefix${DesignDerivedType.Handlers}")
+                .derivedAsType(DesignDerivedType.StateMachine)
+            handlers.forEach {
+                prop { type(it).name(it.derivedFrom().name().decapitalize()).default() }
+            }
+            constructorFull { }
+        }
+
+        controller {
+            name("$prefix${DesignDerivedType.Executors}")
+                .derivedAsType(DesignDerivedType.StateMachine)
+            executors.forEach {
+                prop { type(it).name(it.derivedFrom().name().decapitalize()).default() }
+            }
+            constructorFull { }
+        }
+    }
+}
+
+private fun EntityI<*>.addHttpQueryHandler(finders: List<FindByI<*>>, counters: List<CountByI<*>>,
+    exists: List<ExistByI<*>>, queryRepository: BusinessControllerI<*>): BusinessControllerI<*> {
     return controller {
         name(DesignDerivedType.HttpQueryHandler).derivedAsType(DesignDerivedType.Http)
         prop { type(g.gee.eh.HttpQueryHandler).anonymous(true).name("HttpQueryHandler") }
@@ -195,7 +253,7 @@ private fun EntityI<*>.httpQueryHandler(queryRepository: BusinessControllerI<*>,
     }
 }
 
-private fun EntityI<*>.queryRepository(finders: List<FindByI<*>>,
+private fun EntityI<*>.addQueryRepository(finders: List<FindByI<*>>,
     counters: List<CountByI<*>>,
     exists: List<ExistByI<*>>): BusinessControllerI<*> {
     return controller {
@@ -220,7 +278,7 @@ private fun EntityI<*>.queryRepository(finders: List<FindByI<*>>,
     }
 }
 
-private fun EntityI<*>.httpCommandHandler(
+private fun EntityI<*>.addHttpCommandHandler(
     creaters: List<CreateByI<*>>,
     updaters: List<UpdateByI<*>>,
     deleters: List<DeleteByI<*>>,
@@ -276,12 +334,12 @@ private fun EntityI<*>.httpCommandHandler(
     }
 }
 
-private fun EntityI<*>.eventHandler(): BusinessControllerI<*> {
+private fun EntityI<*>.addEventHandler(): BusinessControllerI<*> {
     //event handler
     val item = this
     val events = findDownByType(EventI::class.java)
     return controller {
-        name(DesignDerivedType.EventHandler).derivedAsType(DesignDerivedType.Aggregate)
+        name(DesignDerivedType.EventHandler).derivedAsType(DesignDerivedType.Aggregate).derivedFrom(item)
         events.forEach { event ->
             prop {
                 type(lambda {
@@ -316,11 +374,11 @@ private fun EntityI<*>.eventHandler(): BusinessControllerI<*> {
     }
 }
 
-private fun EntityI<*>.commandHandler(): BusinessControllerI<*> {
+private fun EntityI<*>.addCommandHandler(): BusinessControllerI<*> {
     val item = this
     val commands = findDownByType(CommandI::class.java)
     return controller {
-        name(DesignDerivedType.CommandHandler).derivedAsType(DesignDerivedType.Aggregate)
+        name(DesignDerivedType.CommandHandler).derivedAsType(DesignDerivedType.Aggregate).derivedFrom(item)
         commands.forEach { command ->
             prop {
                 type(lambda {

@@ -35,7 +35,7 @@ open class DesignTypeScriptGenerator {
 
         //addIdPropToEventsAndCommands()
 
-        //addEventHorizonArtifactsForAggregate()
+        //addEventHorizonArtifacts()
 
         //defineNamesForTypeControllers()
 

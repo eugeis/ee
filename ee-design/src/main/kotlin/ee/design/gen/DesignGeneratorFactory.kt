@@ -122,7 +122,8 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                 }))
         ))
 
-        val derivedTypes = mutableListOf(DesignDerivedType.Aggregate, DesignDerivedType.Query, DesignDerivedType.Http)
+        val derivedTypes = mutableListOf(DesignDerivedType.Aggregate, DesignDerivedType.Query, DesignDerivedType.Http,
+            DesignDerivedType.StateMachine)
         val derivedTypesGenerators = derivedTypes.map { derivedType ->
             GeneratorSimple("${derivedType}Base", contextBuilder = goContextBuilder,
                 template = FragmentsTemplate<StructureUnitI<*>>(name = "$fileNamePrefix${derivedType}Base",
@@ -251,6 +252,11 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         macros.registerMacro(OperationI<*>::toGoExistByBody.name, OperationI<*>::toGoExistByBody)
         macros.registerMacro(OperationI<*>::toGoCommandHandlerAddPreparerBody.name,
             OperationI<*>::toGoCommandHandlerAddPreparerBody)
+
+        macros.registerMacro(OperationI<*>::toGoStateEventHandlerApplyEvent.name,
+            OperationI<*>::toGoStateEventHandlerApplyEvent)
+        macros.registerMacro(OperationI<*>::toGoStateEventHandlerSetupBody.name,
+            OperationI<*>::toGoStateEventHandlerSetupBody)
 
     }
 }
