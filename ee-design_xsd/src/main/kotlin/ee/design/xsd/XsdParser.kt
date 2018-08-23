@@ -1,3 +1,5 @@
+/*
+
 import com.sun.xml.xsom.*
 import com.sun.xml.xsom.parser.*
 import kotlinx.html.generate.humanize.*
@@ -168,3 +170,5 @@ private val xsdToType = mapOf(
         "string" to AttributeType.STRING,
         "anyURI" to AttributeType.STRING // TODO links
 )
+
+*/
