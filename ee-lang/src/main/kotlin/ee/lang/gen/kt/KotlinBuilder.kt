@@ -11,12 +11,14 @@ const val derivedBuilderB = "BuilderB"
 const val derivedBuilderT = "Builder"
 
 fun <T : AttributeI<*>> T.toKotlinTypeGenerics(c: GenerationContext, api: String): String =
-        if (type().isOrDerived(n.Map)) k.core.Pair.GT(*type().generics().toTypedArray()).toKotlinTypeDef(c, api, false) else
+        if (type().isOrDerived(n.Map)) k.core.Pair.GT(*type().generics().toTypedArray())
+                .toKotlinTypeDef(c, api, false) else
             type().generics().first().type().toKotlinTypeDef(c, api, false)
 
 fun <T : AttributeI<*>> T.toKotlinSignatureBuilder(c: GenerationContext, derived: String, api: String): String =
         "${name()}: ${type().isMulti().ifElse({
-            """${type().toKotlinTypeDef(c, api, false, true)}${toKotlinInit(c, derived, true, false)}"""
+            """${type().toKotlinTypeDef(c, api, false, true)}${
+            toKotlinInit(c, derived, true, false)}"""
         }, { """${type().toKotlinTypeDef(c, api, isNullable())}${toKotlinInit(c, derived, true)}""" })}"
 
 fun <T : AttributeI<*>> T.toKotlinSignatureBuilderInit(c: GenerationContext, derived: String): String =
@@ -57,7 +59,8 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethods(c: GenerationContext, derived: 
         }): B = applyB { ${name()}.${type().isOrDerived(n.Map).ifElse("putAll", "addAll")}(value) }"""
     }, {
         """
-    ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().capitalize()}" }, { name() })}(): ${toKotlinTypeDef(c, api)} = ${name()}
+    ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().capitalize()}" },
+                { name() })}(): ${toKotlinTypeDef(c, api)} = ${name()}
     ${override}fun ${name()}($value: ${toKotlinTypeDef(c, api)}): B = applyB { ${name()} = $value }"""
     })}${nonFluent().isNotBlank().then {
         """
@@ -73,7 +76,8 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethods(c: GenerationContext, derived: 
 fun <T : CompilationUnitI<*>> T.toKotlinBuilderI(c: GenerationContext,
                                                  api: String = derivedBuilder): String {
     return """
-interface ${c.n(this, api)}<B : ${c.n(this, api)}<B, T>, T : ${c.n(this, LangDerivedKind.API)}>${superUnit().isNotEMPTY().then {
+interface ${c.n(this, api)}<B : ${c.n(this, api)}<B, T>, T : ${c.n(this, LangDerivedKind.API)}>${
+    superUnit().isNotEMPTY().then {
         """ : ${c.n(superUnit(), api)}<B, T>"""
     }}${props().isNotEmpty().then {
         """ {${props().joinToString(nL) { it.toKotlinBuilderMethodsI(c, LangDerivedKind.API) }}${
@@ -88,7 +92,12 @@ interface ${c.n(this, api)}<B : ${c.n(this, api)}<B, T>, T : ${c.n(this, LangDer
 }
 
 fun <T : ConstructorI<*>> T.toKotlinCallParamsBuilder(c: GenerationContext): String = isNotEMPTY().then {
-    params().joinWrappedToString(", ") { "${it.name()}()" }
+    params().joinWrappedToString(", ") {
+        (it.type() == n.Boolean).ifElse(
+                { "is${it.name().capitalize()}()" },
+                { "${it.name()}()" }
+        )
+    }
 }
 
 fun <T : CompilationUnitI<*>> T.toKotlinBuilder(c: GenerationContext, derived: String = derivedBuilderB,

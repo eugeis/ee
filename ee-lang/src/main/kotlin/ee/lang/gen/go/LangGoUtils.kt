@@ -4,7 +4,7 @@ import ee.common.ext.*
 import ee.lang.*
 
 object g : StructureUnit({ namespace("").name("Go") }) {
-    val error = ExternalType({ ifc(true) })
+    val error = ExternalType { ifc(true) }
 
     object fmt : StructureUnit({ namespace("fmt") }) {
         val Sprintf = Operation()
@@ -17,7 +17,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     }
 
     object errors : StructureUnit({ namespace("errors") }) {
-        val New = Operation({ ret(error) })
+        val New = Operation { ret(error) }
     }
 
     object time : StructureUnit({ namespace("time") }) {
@@ -26,12 +26,12 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     }
 
     object context : StructureUnit({ namespace("context") }) {
-        val Context = ExternalType({ ifc(true) })
+        val Context = ExternalType { ifc(true) }
     }
 
     object net : StructureUnit({ namespace("net") }) {
         object http : StructureUnit() {
-            val ResponseWriter = ExternalType({ ifc(true) })
+            val ResponseWriter = ExternalType { ifc(true) }
             val Request = ExternalType()
 
             val MethodGet = Operation()
@@ -217,10 +217,10 @@ open class GoContext : GenerationContext {
     val namespaceLastPart: String
 
     constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src/main/go/src",
-        genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.go".toRegex(),
-        derivedController: DerivedController = DerivedController(DerivedStorage()),
-        macroController: MacroController = MacroController()) : super(namespace, moduleFolder, genFolder,
-        genFolderDeletable, genFolderPatternDeletable, derivedController, macroController) {
+                genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.go".toRegex(),
+                derivedController: DerivedController = DerivedController(DerivedStorage()),
+                macroController: MacroController = MacroController()) : super(namespace, moduleFolder, genFolder,
+            genFolderDeletable, genFolderPatternDeletable, derivedController, macroController) {
         namespaceLastPart = namespace.substringAfterLast(".")
     }
 
@@ -237,10 +237,10 @@ open class GoContext : GenerationContext {
             val outsideTypes = types.filter { it.namespace().isNotEmpty() && !it.namespace().equals(namespace, true) }
             outsideTypes.isNotEmpty().then {
                 outsideTypes.map { "$indent${it.namespace()}" }.toSortedSet()
-                    .joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
-                        """    "${it.toLowerCase().toDotsAsPath().replace("github/com", "github.com").replace(
-                            "gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
-                    }
+                        .joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
+                            """    "${it.toLowerCase().toDotsAsPath().replace("github/com", "github.com").replace(
+                                    "gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
+                        }
             }
         }
     }
@@ -280,7 +280,7 @@ fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
 }
 
 fun OperationI<*>.retTypeAndError(retType: TypeI<*>): OperationI<*> =
-    returns(Attribute { type(retType).name("ret") }, Attribute { type(g.error).name("err") })
+        returns(Attribute { type(retType).name("ret") }, Attribute { type(g.error).name("err") })
 
 fun OperationI<*>.retError(): OperationI<*> = returns(Attribute { type(g.error).name("err") })
 

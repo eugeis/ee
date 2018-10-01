@@ -708,6 +708,9 @@ open class OperationB<B : OperationI<B>>(value: B.() -> Unit = {}) : LogicUnitB<
     override fun ret(value: AttributeI<*>): AttributeI<*> = applyAndReturn { returns().addItem(value); value }
     override fun ret(value: AttributeI<*>.() -> Unit): AttributeI<*> = ret(Attribute(value))
 
+    override fun isSuspend(): Boolean = attr(suspend, { false })
+    override fun suspend(value: Boolean): B = apply { attr(suspend, value) }
+
     override fun fillSupportsItems() {
         generics()
         returns()
@@ -718,6 +721,7 @@ open class OperationB<B : OperationI<B>>(value: B.() -> Unit = {}) : LogicUnitB<
         val generics = "_generics"
         val open = "_open"
         val returns = "_returns"
+        val suspend = "_suspend"
     }
 }
 

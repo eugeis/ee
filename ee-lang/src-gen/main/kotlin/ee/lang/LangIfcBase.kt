@@ -351,6 +351,10 @@ interface OperationI<B : OperationI<B>> : LogicUnitI<B> {
     fun notOpen(): B = open(false)
 
     fun returns(vararg value: AttributeI<*>): B
+
+    fun suspend(value: Boolean): B
+    fun suspend(): B = suspend(true)
+    fun notSuspend(): B = suspend(false)
     fun generics(): ListMultiHolder<GenericI<*>>
     fun G(value: GenericI<*>): GenericI<*>
     fun G(value: GenericI<*>.() -> Unit = {}): GenericI<*>
@@ -360,6 +364,8 @@ interface OperationI<B : OperationI<B>> : LogicUnitI<B> {
     fun returns(): ListMultiHolder<AttributeI<*>>
     fun ret(value: AttributeI<*>): AttributeI<*>
     fun ret(value: AttributeI<*>.() -> Unit = {}): AttributeI<*>
+
+    fun isSuspend(): Boolean
 }
 
 

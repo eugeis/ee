@@ -450,6 +450,12 @@ fun TypeI<*>.G(type: TypeI<*>): GenericI<*> = G { type(type) }
 fun TypeI<*>.isNative(): Boolean = parent() == n
 
 fun OperationI<*>.retFirst(): AttributeI<*> = returns().firstOrNull() ?: Attribute.EMPTY
+fun OperationI<*>.retA(type: TypeI<*>): AttributeI<*> {
+    val ret = Attribute { type(type).name("ret") }
+    returns(ret)
+    return ret
+}
+
 fun OperationI<*>.ret(type: TypeI<*>): OperationI<*> = returns(Attribute { type(type).name("ret") })
 fun LogicUnitI<*>.p(name: String, type: TypeI<*> = n.String,
     adapt: AttributeI<*>.() -> Unit = {}): LogicUnitI<*> = params(Attribute {

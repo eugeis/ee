@@ -292,13 +292,13 @@ fun <T : OperationI<*>> T.toKotlinLambdaDefault(c: GenerationContext, derived: S
 
 fun <T : OperationI<*>> T.toKotlinIfc(c: GenerationContext, derived: String, api: String): String {
     return """
-    fun ${toKotlinGenerics(c, derived)}${name()}(${params().toKotlinSignature(c, derived,
+    ${isSuspend().then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}(${params().toKotlinSignature(c, derived,
             api, true, false)})${retFirst().isNotEMPTY().then { """ : ${retFirst().toKotlinTypeDef(c, api)}""" }}"""
 }
 
 fun <T : OperationI<*>> T.toKotlinImpl(c: GenerationContext, derived: String, api: String): String {
     return """
-    ${isOpen().then("open ")}fun ${toKotlinGenerics(c, derived)}${name()}(${params().toKotlinSignature(c, derived,
+    ${isSuspend().then("suspend ")}${isOpen().then("open ")}fun ${toKotlinGenerics(c, derived)}${name()}(${params().toKotlinSignature(c, derived,
             api)}): ${retFirst().toKotlinTypeDef(c, api)} {
         throw IllegalAccessException("Not implemented yet.")
     }"""
@@ -306,7 +306,7 @@ fun <T : OperationI<*>> T.toKotlinImpl(c: GenerationContext, derived: String, ap
 
 fun <T : OperationI<*>> T.toKotlinEMPTY(c: GenerationContext, derived: String, api: String): String {
     return """
-    override fun ${toKotlinGenerics(c, derived)}${name()}(${params().toKotlinSignature(c, derived,
+    override ${isSuspend().then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}(${params().toKotlinSignature(c, derived,
             api, false, false)})${retFirst().isNotEMPTY().ifElse({
         """: ${retFirst().toKotlinTypeDef(c, api)}${retFirst().toKotlinInit(c, api)}"""
     }, { " {}" })}"""

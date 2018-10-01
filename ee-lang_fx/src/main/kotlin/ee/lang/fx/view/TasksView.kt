@@ -16,7 +16,7 @@ class TasksView : View("TasksView") {
                 tilepane {
                     prefColumns = 10
                     for (taskFactory in group.value) {
-                        button("${taskFactory.name}") {
+                        button(taskFactory.name) {
                             setOnAction {
                                 tasksController.execute(taskFactory)
                             }
