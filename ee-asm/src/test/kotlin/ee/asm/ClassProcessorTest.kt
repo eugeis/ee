@@ -2,7 +2,7 @@ package ee.asm
 
 import ee.common.ext.location
 import javafx.application.Application
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class ClassProcessorTest {
     @Test

@@ -1,7 +1,7 @@
 package ee.common.ext
 
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import java.net.InetAddress
 
 class NetExtTest {

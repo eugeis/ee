@@ -3,14 +3,14 @@ package ee.lang.gen.go
 import ee.common.ext.logger
 import ee.lang.gen.kt.TestModel
 import org.hamcrest.CoreMatchers.`is`
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class GoPojosTest {
     val log = logger()
 
-    @Before
+    @BeforeEach
     fun beforeGoPojosTest() {
         TestModel.prepareForGoGeneration()
     }
@@ -19,7 +19,7 @@ class GoPojosTest {
     fun simplePojoTest() {
         val out = TestModel.Trace.toGoImpl(context())
         log.info(out)
-        Assert.assertThat(out, `is`("""
+        assertThat(out, `is`("""
 type Trace struct {
     createdAt time.Time
     updatedAt time.Time
@@ -40,7 +40,7 @@ func NewTrace(createdAt time.Time, updatedAt time.Time, modifiedBy string) (ret 
     fun complexPojoTest() {
         val out = TestModel.Login.toGoImpl(context())
         log.info(out)
-        Assert.assertThat(out, `is`("""
+        assertThat(out, `is`("""
 type ComplexEnum struct {
 	name  string
 	ordinal int

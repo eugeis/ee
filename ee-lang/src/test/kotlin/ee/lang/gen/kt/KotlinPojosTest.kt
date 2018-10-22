@@ -3,9 +3,9 @@ package ee.lang.gen.kt
 import ee.common.ext.logger
 import ee.lang.*
 import org.hamcrest.CoreMatchers.`is`
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 object TestModel : StructureUnit() {
     object SimpleEnum : EnumType({ namespace("ee.lang.test") }) {
@@ -16,8 +16,8 @@ object TestModel : StructureUnit() {
     object ComplexEnum : EnumType({}) {
         val code = prop(n.Int)
 
-        val LitName1 = lit({ params(p(code) { value(1) }) })
-        val LitName2 = lit({ params(p(code) { value(2) }) })
+        val LitName1 = lit { params(p(code) { value(1) }) }
+        val LitName2 = lit { params(p(code) { value(2) }) }
     }
 
     object Trace : CompilationUnit() {
@@ -38,7 +38,7 @@ object TestModel : StructureUnit() {
 class KotlinPojosTest {
     val log = logger()
 
-    @Before
+    @BeforeEach
     fun beforeKotlinPojosTest() {
         TestModel.prepareForKotlinGeneration()
     }
@@ -47,7 +47,7 @@ class KotlinPojosTest {
     fun simpleEnumTest() {
         val out = TestModel.SimpleEnum.toKotlinEnum(context())
         //log.info(out)
-        Assert.assertThat(out, `is`("""
+        assertThat(out, `is`("""
 enum class SimpleEnum {
     LIT_NAME1,
     LIT_NAME2;
@@ -61,7 +61,7 @@ enum class SimpleEnum {
     fun complexEnumTest() {
         val out = TestModel.ComplexEnum.toKotlinEnum(context())
         //log.info(out)
-        Assert.assertThat(out, `is`("""
+        assertThat(out, `is`("""
 enum class ComplexEnum(val code: Int) {
     LIT_NAME1(1),
     LIT_NAME2(2);

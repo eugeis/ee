@@ -1,10 +1,9 @@
 package ee.common.ext
 
 import ee.common.Label
-import org.junit.Assert
-import org.junit.Assert.assertEquals
-import org.junit.Ignore
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 import java.io.File
 import java.nio.file.Paths
 import java.util.*
@@ -17,7 +16,7 @@ class CommonExtTest {
     }
 
     //Date
-    @Ignore
+    @Disabled
     @Test
     fun testLongDateTime() {
         val cal = calendar()
@@ -25,7 +24,7 @@ class CommonExtTest {
         assertEquals("17.07.16 01:02:03.004", cal.time.longDateTime())
     }
 
-    @Ignore
+    @Disabled
     @Test
     fun longTime() {
         val cal = calendar()
@@ -49,7 +48,7 @@ class CommonExtTest {
     //File
     @Test
     fun testFilePath() {
-        Assert.assertTrue(
+        assertTrue(
             File("d:\\folder\\childFolder\\fileName.txt").toPathString().endsWith("/folder/childFolder/fileName.txt"))
     }
 
@@ -107,7 +106,7 @@ class CommonExtTest {
     @Test
     fun testStringAsClassInstance() {
         var date = "Date".asClassInstance<Date>("java.util")
-        Assert.assertNotNull(date)
+        assertNotNull(date)
     }
 
 }

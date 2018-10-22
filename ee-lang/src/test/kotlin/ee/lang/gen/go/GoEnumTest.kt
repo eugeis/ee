@@ -3,14 +3,14 @@ package ee.lang.gen.go
 import ee.common.ext.logger
 import ee.lang.gen.kt.TestModel
 import org.hamcrest.CoreMatchers.`is`
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class GoEnumTest {
     val log = logger()
 
-    @Before
+    @BeforeEach
     fun beforeGoPojosTest() {
         TestModel.prepareForGoGeneration()
     }
@@ -19,7 +19,7 @@ class GoEnumTest {
     fun simpleEnumTest() {
         val out = TestModel.SimpleEnum.toGoEnum(context())
         log.info(out)
-        Assert.assertThat(out, `is`("""
+        assertThat(out, `is`("""
 type SimpleEnum struct {
 	name  string
 	ordinal int
@@ -81,7 +81,7 @@ func (o *simpleEnums) ParseSimpleEnum(name string) (ret *SimpleEnum, ok bool) {
     fun complexEnumTest() {
         val out = TestModel.ComplexEnum.toGoEnum(context())
         log.info(out)
-        Assert.assertThat(out, `is`("""
+        assertThat(out, `is`("""
 type ComplexEnum struct {
 	name  string
 	ordinal int
