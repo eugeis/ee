@@ -33,10 +33,12 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
                     */
             } else if (baseType is LambdaI<*>) {
                 baseType.operation().toKotlinLambdaDefault(c, derived)
+            } else if (baseType is ExternalTypeI) {
+                (parent() == n).ifElse("\"\"") { "${c.n(this, derived)}()" }
             } else if (baseType is TypeI<*> && baseType.isIfc()) {
-                (parent() == n).ifElse("\"\"", { "${c.n(this, derived)}EMPTY" })
+                (parent() == n).ifElse("\"\"") { "${c.n(this, derived)}EMPTY" }
             } else {
-                (parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
+                (parent() == n).ifElse("\"\"") { "${c.n(this, derived)}.EMPTY" }
             }
         }
     }
@@ -153,8 +155,7 @@ fun OperationI<*>.toKotlinGenerics(c: GenerationContext, derived: String): Strin
 
 fun <T : TypeI<*>> T.toKotlin(c: GenerationContext, derived: String,
                               mutable: Boolean? = null): String = toKotlinIfNative(c, derived, mutable)
-        ?: "${c.n(this,
-                derived)}${this.toKotlinGenericTypes(c, derived, mutable)}"
+        ?: "${c.n(this, derived)}${this.toKotlinGenericTypes(c, derived, mutable)}"
 
 
 fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, mutable: Boolean? = isMutable()): String {
@@ -284,7 +285,7 @@ fun <T : AttributeI<*>> T.toKotlinType(c: GenerationContext, derived: String): S
 fun List<AttributeI<*>>.toKotlinTypes(c: GenerationContext, derived: String): String = joinWrappedToString(
         ", ") { it.toKotlinType(c, derived) }
 
-fun <T : OperationI<*>> T.toKotlinLambda(c: GenerationContext, derived: String): String = """(${params().toKotlinTypes(
+fun <T : OperationI<*>> T.toKotlinLambda(c: GenerationContext, derived: String): String = """${isSuspend().then("suspend ")}(${params().toKotlinTypes(
         c, derived)}) -> ${retFirst().toKotlinType(c, derived)}"""
 
 fun <T : OperationI<*>> T.toKotlinLambdaDefault(c: GenerationContext, derived: String): String = """{${params().joinWrappedToString(
