@@ -200,8 +200,8 @@ open class ItemB<B : ItemI<B>>(var _adapt: B.() -> Unit = {}) : ItemI<B> {
 }
 
 @Suppress("UNCHECKED_CAST")
-abstract class MultiHolder<I, B : MultiHolderI<I, B>>(private val _type: Class<I>, value: B.() -> Unit = {}) :
-    ItemB<B>(value), MultiHolderI<I, B> {
+abstract class MultiHolder<I, B : MultiHolderI<I, B>>(private val _type: Class<I>, adapt: B.() -> Unit = {}) :
+    ItemB<B>(adapt), MultiHolderI<I, B> {
 
     override fun init(): B {
         if (!isInitialized()) super.init()

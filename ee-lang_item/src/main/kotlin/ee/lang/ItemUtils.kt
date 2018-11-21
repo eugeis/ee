@@ -150,14 +150,18 @@ fun <B : MultiHolderI<I, *>, I> B.initObjectTree(deriveNamespace: ItemI<*>.() ->
     if (name().isBlank()) {
         name(buildLabel().name)
     }
+
+    if (namespace().isBlank()) namespace(deriveNamespace())
+
     for (f in javaClass.declaredFields) {
         try {
-            val getter = javaClass.declaredMethods.find { it.name == "get${f.name.capitalize()}" }
+            val name = f.name
+            val getter = javaClass.declaredMethods.find { it.name == "get${name.capitalize()}" }
             if (getter != null) {
                 val child = getter.invoke(this)
                 if (child is ItemI<*>) {
                     child.initIfNotInitialized()
-                    if (child.name().isBlank() && f.name != IGNORE) child.name(f.name)
+                    if (child.name().isBlank() && name != IGNORE) child.name(name)
                     //set the parent, parent shall be the DSL model parent and not some isInternal object or reference object
                     child.parent(this)
                     if (!containsItem(child as I)) {
@@ -169,7 +173,6 @@ fun <B : MultiHolderI<I, *>, I> B.initObjectTree(deriveNamespace: ItemI<*>.() ->
         } catch (e: Exception) {
             log.info("$f $e")
         }
-
     }
     javaClass.declaredClasses.forEach {
         val child = it.findInstance()
@@ -182,10 +185,8 @@ fun <B : MultiHolderI<I, *>, I> B.initObjectTree(deriveNamespace: ItemI<*>.() ->
             child.parent(this)
             if (!containsItem(child as I)) {
                 addItem(child)
-                if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
                 if (child is MultiHolderI<*, *>) child.initObjectTree<B, I>(deriveNamespace)
             }
-            if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
         }
     }
     fillSupportsItems()

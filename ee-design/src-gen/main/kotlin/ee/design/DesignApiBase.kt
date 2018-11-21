@@ -24,25 +24,25 @@ import ee.lang.ValuesB
 import ee.lang.ValuesI
 
 
-open class AggregateHandler(value: AggregateHandler.() -> Unit = {}) : AggregateHandlerB<AggregateHandler>(value) {
+open class AggregateHandler(adapt: AggregateHandler.() -> Unit = {}) : AggregateHandlerB<AggregateHandler>(adapt) {
 
     companion object {
         val EMPTY = AggregateHandler { name(ItemEmpty.name()) }.apply<AggregateHandler> { init() }
     }
 }
 
-open class AggregateHandlerB<B : AggregateHandlerB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), AggregateHandlerI<B> {
+open class AggregateHandlerB<B : AggregateHandlerB<B>>(adapt: B.() -> Unit = {}) : StateMachineB<B>(adapt), AggregateHandlerI<B> {
 }
 
 
-open class Bundle(value: Bundle.() -> Unit = {}) : BundleB<Bundle>(value) {
+open class Bundle(adapt: Bundle.() -> Unit = {}) : BundleB<Bundle>(adapt) {
 
     companion object {
         val EMPTY = Bundle { name(ItemEmpty.name()) }.apply<Bundle> { init() }
     }
 }
 
-open class BundleB<B : BundleB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), BundleI<B> {
+open class BundleB<B : BundleB<B>>(adapt: B.() -> Unit = {}) : StructureUnitB<B>(adapt), BundleI<B> {
 
     override fun units(): ListMultiHolder<StructureUnitI<*>> = itemAsList(units, StructureUnitI::class.java, true)
     override fun units(vararg value: StructureUnitI<*>): B = apply { units().addItems(value.asList()) }
@@ -58,47 +58,47 @@ open class BundleB<B : BundleB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>
 }
 
 
-open class BusinessCommand(value: BusinessCommand.() -> Unit = {}) : BusinessCommandB<BusinessCommand>(value) {
+open class BusinessCommand(adapt: BusinessCommand.() -> Unit = {}) : BusinessCommandB<BusinessCommand>(adapt) {
 
     companion object {
         val EMPTY = BusinessCommand { name(ItemEmpty.name()) }.apply<BusinessCommand> { init() }
     }
 }
 
-open class BusinessCommandB<B : BusinessCommandB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), BusinessCommandI<B> {
+open class BusinessCommandB<B : BusinessCommandB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), BusinessCommandI<B> {
 }
 
 
-open class BusinessController(value: BusinessController.() -> Unit = {}) : BusinessControllerB<BusinessController>(value) {
+open class BusinessController(adapt: BusinessController.() -> Unit = {}) : BusinessControllerB<BusinessController>(adapt) {
 
     companion object {
         val EMPTY = BusinessController { name(ItemEmpty.name()) }.apply<BusinessController> { init() }
     }
 }
 
-open class BusinessControllerB<B : BusinessControllerB<B>>(value: B.() -> Unit = {}) : ControllerB<B>(value), BusinessControllerI<B> {
+open class BusinessControllerB<B : BusinessControllerB<B>>(adapt: B.() -> Unit = {}) : ControllerB<B>(adapt), BusinessControllerI<B> {
 }
 
 
-open class BusinessEvent(value: BusinessEvent.() -> Unit = {}) : BusinessEventB<BusinessEvent>(value) {
+open class BusinessEvent(adapt: BusinessEvent.() -> Unit = {}) : BusinessEventB<BusinessEvent>(adapt) {
 
     companion object {
         val EMPTY = BusinessEvent { name(ItemEmpty.name()) }.apply<BusinessEvent> { init() }
     }
 }
 
-open class BusinessEventB<B : BusinessEventB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), BusinessEventI<B> {
+open class BusinessEventB<B : BusinessEventB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), BusinessEventI<B> {
 }
 
 
-open class Command(value: Command.() -> Unit = {}) : CommandB<Command>(value) {
+open class Command(adapt: Command.() -> Unit = {}) : CommandB<Command>(adapt) {
 
     companion object {
         val EMPTY = Command { name(ItemEmpty.name()) }.apply<Command> { init() }
     }
 }
 
-open class CommandB<B : CommandB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), CommandI<B> {
+open class CommandB<B : CommandB<B>>(adapt: B.() -> Unit = {}) : CompilationUnitB<B>(adapt), CommandI<B> {
 
     override fun httpMethod(): String = attr(httpMethod, { "" })
     override fun httpMethod(value: String): B = apply { attr(httpMethod, value) }
@@ -117,14 +117,14 @@ open class CommandB<B : CommandB<B>>(value: B.() -> Unit = {}) : CompilationUnit
 }
 
 
-open class Comp(value: Comp.() -> Unit = {}) : CompB<Comp>(value) {
+open class Comp(adapt: Comp.() -> Unit = {}) : CompB<Comp>(adapt) {
 
     companion object {
         val EMPTY = Comp { name(ItemEmpty.name()) }.apply<Comp> { init() }
     }
 }
 
-open class CompB<B : CompB<B>>(value: B.() -> Unit = {}) : ModuleGroupB<B>(value), CompI<B> {
+open class CompB<B : CompB<B>>(adapt: B.() -> Unit = {}) : ModuleGroupB<B>(adapt), CompI<B> {
 
     override fun moduleGroups(): ListMultiHolder<ModuleGroupI<*>> = itemAsList(moduleGroups, ModuleGroupI::class.java, true)
     override fun moduleGroups(vararg value: ModuleGroupI<*>): B = apply { moduleGroups().addItems(value.asList()) }
@@ -140,14 +140,14 @@ open class CompB<B : CompB<B>>(value: B.() -> Unit = {}) : ModuleGroupB<B>(value
 }
 
 
-open class CompositeCommand(value: CompositeCommand.() -> Unit = {}) : CompositeCommandB<CompositeCommand>(value) {
+open class CompositeCommand(adapt: CompositeCommand.() -> Unit = {}) : CompositeCommandB<CompositeCommand>(adapt) {
 
     companion object {
         val EMPTY = CompositeCommand { name(ItemEmpty.name()) }.apply<CompositeCommand> { init() }
     }
 }
 
-open class CompositeCommandB<B : CompositeCommandB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), CompositeCommandI<B> {
+open class CompositeCommandB<B : CompositeCommandB<B>>(adapt: B.() -> Unit = {}) : CompilationUnitB<B>(adapt), CompositeCommandI<B> {
 
     override fun commands(): ListMultiHolder<CommandI<*>> = itemAsList(commands, CommandI::class.java, true)
     override fun commands(vararg value: CommandI<*>): B = apply { commands().addItems(value.asList()) }
@@ -163,14 +163,14 @@ open class CompositeCommandB<B : CompositeCommandB<B>>(value: B.() -> Unit = {})
 }
 
 
-open class Config(value: Config.() -> Unit = {}) : ConfigB<Config>(value) {
+open class Config(adapt: Config.() -> Unit = {}) : ConfigB<Config>(adapt) {
 
     companion object {
         val EMPTY = Config { name(ItemEmpty.name()) }.apply<Config> { init() }
     }
 }
 
-open class ConfigB<B : ConfigB<B>>(value: B.() -> Unit = {}) : ValuesB<B>(value), ConfigI<B> {
+open class ConfigB<B : ConfigB<B>>(adapt: B.() -> Unit = {}) : ValuesB<B>(adapt), ConfigI<B> {
 
     override fun prefix(): String = attr(prefix, { "" })
     override fun prefix(value: String): B = apply { attr(prefix, value) }
@@ -181,14 +181,14 @@ open class ConfigB<B : ConfigB<B>>(value: B.() -> Unit = {}) : ValuesB<B>(value)
 }
 
 
-open class Controller(value: Controller.() -> Unit = {}) : ControllerB<Controller>(value) {
+open class Controller(adapt: Controller.() -> Unit = {}) : ControllerB<Controller>(adapt) {
 
     companion object {
         val EMPTY = Controller { name(ItemEmpty.name()) }.apply<Controller> { init() }
     }
 }
 
-open class ControllerB<B : ControllerB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), ControllerI<B> {
+open class ControllerB<B : ControllerB<B>>(adapt: B.() -> Unit = {}) : CompilationUnitB<B>(adapt), ControllerI<B> {
 
     override fun enums(): ListMultiHolder<EnumTypeI<*>> = itemAsList(enums, EnumTypeI::class.java, true)
     override fun enums(vararg value: EnumTypeI<*>): B = apply { enums().addItems(value.asList()) }
@@ -220,69 +220,69 @@ open class ControllerB<B : ControllerB<B>>(value: B.() -> Unit = {}) : Compilati
 }
 
 
-open class CountBy(value: CountBy.() -> Unit = {}) : CountByB<CountBy>(value) {
+open class CountBy(adapt: CountBy.() -> Unit = {}) : CountByB<CountBy>(adapt) {
 
     companion object {
         val EMPTY = CountBy { name(ItemEmpty.name()) }.apply<CountBy> { init() }
     }
 }
 
-open class CountByB<B : CountByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), CountByI<B> {
+open class CountByB<B : CountByB<B>>(adapt: B.() -> Unit = {}) : DataTypeOperationB<B>(adapt), CountByI<B> {
 }
 
 
-open class CreateBy(value: CreateBy.() -> Unit = {}) : CreateByB<CreateBy>(value) {
+open class CreateBy(adapt: CreateBy.() -> Unit = {}) : CreateByB<CreateBy>(adapt) {
 
     companion object {
         val EMPTY = CreateBy { name(ItemEmpty.name()) }.apply<CreateBy> { init() }
     }
 }
 
-open class CreateByB<B : CreateByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), CreateByI<B> {
+open class CreateByB<B : CreateByB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), CreateByI<B> {
 }
 
 
-open class Created(value: Created.() -> Unit = {}) : CreatedB<Created>(value) {
+open class Created(adapt: Created.() -> Unit = {}) : CreatedB<Created>(adapt) {
 
     companion object {
         val EMPTY = Created { name(ItemEmpty.name()) }.apply<Created> { init() }
     }
 }
 
-open class CreatedB<B : CreatedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), CreatedI<B> {
+open class CreatedB<B : CreatedB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), CreatedI<B> {
 }
 
 
-open class DeleteBy(value: DeleteBy.() -> Unit = {}) : DeleteByB<DeleteBy>(value) {
+open class DeleteBy(adapt: DeleteBy.() -> Unit = {}) : DeleteByB<DeleteBy>(adapt) {
 
     companion object {
         val EMPTY = DeleteBy { name(ItemEmpty.name()) }.apply<DeleteBy> { init() }
     }
 }
 
-open class DeleteByB<B : DeleteByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), DeleteByI<B> {
+open class DeleteByB<B : DeleteByB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), DeleteByI<B> {
 }
 
 
-open class Deleted(value: Deleted.() -> Unit = {}) : DeletedB<Deleted>(value) {
+open class Deleted(adapt: Deleted.() -> Unit = {}) : DeletedB<Deleted>(adapt) {
 
     companion object {
         val EMPTY = Deleted { name(ItemEmpty.name()) }.apply<Deleted> { init() }
     }
 }
 
-open class DeletedB<B : DeletedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), DeletedI<B> {
+open class DeletedB<B : DeletedB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), DeletedI<B> {
 }
 
 
-open class DynamicState(value: DynamicState.() -> Unit = {}) : DynamicStateB<DynamicState>(value) {
+open class DynamicState(adapt: DynamicState.() -> Unit = {}) : DynamicStateB<DynamicState>(adapt) {
 
     companion object {
         val EMPTY = DynamicState { name(ItemEmpty.name()) }.apply<DynamicState> { init() }
     }
 }
 
-open class DynamicStateB<B : DynamicStateB<B>>(value: B.() -> Unit = {}) : StateB<B>(value), DynamicStateI<B> {
+open class DynamicStateB<B : DynamicStateB<B>>(adapt: B.() -> Unit = {}) : StateB<B>(adapt), DynamicStateI<B> {
 
     override fun ifTrue(): ListMultiHolder<PredicateI<*>> = itemAsList(ifTrue, PredicateI::class.java, true)
     override fun ifTrue(vararg value: PredicateI<*>): B = apply { ifTrue().addItems(value.asList()) }
@@ -307,14 +307,14 @@ open class DynamicStateB<B : DynamicStateB<B>>(value: B.() -> Unit = {}) : State
 }
 
 
-open class Entity(value: Entity.() -> Unit = {}) : EntityB<Entity>(value) {
+open class Entity(adapt: Entity.() -> Unit = {}) : EntityB<Entity>(adapt) {
 
     companion object {
         val EMPTY = Entity { name(ItemEmpty.name()) }.apply<Entity> { init() }
     }
 }
 
-open class EntityB<B : EntityB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), EntityI<B> {
+open class EntityB<B : EntityB<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adapt), EntityI<B> {
 
     override fun isDefaultEvents(): Boolean = attr(defaultEvents, { true })
     override fun defaultEvents(value: Boolean): B = apply { attr(defaultEvents, value) }
@@ -465,25 +465,25 @@ open class EntityB<B : EntityB<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(valu
 }
 
 
-open class Event(value: Event.() -> Unit = {}) : EventB<Event>(value) {
+open class Event(adapt: Event.() -> Unit = {}) : EventB<Event>(adapt) {
 
     companion object {
         val EMPTY = Event { name(ItemEmpty.name()) }.apply<Event> { init() }
     }
 }
 
-open class EventB<B : EventB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), EventI<B> {
+open class EventB<B : EventB<B>>(adapt: B.() -> Unit = {}) : CompilationUnitB<B>(adapt), EventI<B> {
 }
 
 
-open class Executor(value: Executor.() -> Unit = {}) : ExecutorB<Executor>(value) {
+open class Executor(adapt: Executor.() -> Unit = {}) : ExecutorB<Executor>(adapt) {
 
     companion object {
         val EMPTY = Executor { name(ItemEmpty.name()) }.apply<Executor> { init() }
     }
 }
 
-open class ExecutorB<B : ExecutorB<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), ExecutorI<B> {
+open class ExecutorB<B : ExecutorB<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<B>(adapt), ExecutorI<B> {
 
     override fun on(): CommandI<*> = attr(on, { Command.EMPTY })
     override fun on(value: CommandI<*>): B = apply { attr(on, value) }
@@ -526,25 +526,25 @@ open class ExecutorB<B : ExecutorB<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>
 }
 
 
-open class ExistBy(value: ExistBy.() -> Unit = {}) : ExistByB<ExistBy>(value) {
+open class ExistBy(adapt: ExistBy.() -> Unit = {}) : ExistByB<ExistBy>(adapt) {
 
     companion object {
         val EMPTY = ExistBy { name(ItemEmpty.name()) }.apply<ExistBy> { init() }
     }
 }
 
-open class ExistByB<B : ExistByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), ExistByI<B> {
+open class ExistByB<B : ExistByB<B>>(adapt: B.() -> Unit = {}) : DataTypeOperationB<B>(adapt), ExistByI<B> {
 }
 
 
-open class ExternalModule(value: ExternalModule.() -> Unit = {}) : ExternalModuleB<ExternalModule>(value) {
+open class ExternalModule(adapt: ExternalModule.() -> Unit = {}) : ExternalModuleB<ExternalModule>(adapt) {
 
     companion object {
         val EMPTY = ExternalModule { name(ItemEmpty.name()) }.apply<ExternalModule> { init() }
     }
 }
 
-open class ExternalModuleB<B : ExternalModuleB<B>>(value: B.() -> Unit = {}) : ModuleB<B>(value), ExternalModuleI<B> {
+open class ExternalModuleB<B : ExternalModuleB<B>>(adapt: B.() -> Unit = {}) : ModuleB<B>(adapt), ExternalModuleI<B> {
 
     override fun externalTypes(): ListMultiHolder<ExternalTypeI<*>> = itemAsList(externalTypes, ExternalTypeI::class.java, true)
     override fun externalTypes(vararg value: ExternalTypeI<*>): B = apply { externalTypes().addItems(value.asList()) }
@@ -560,25 +560,25 @@ open class ExternalModuleB<B : ExternalModuleB<B>>(value: B.() -> Unit = {}) : M
 }
 
 
-open class Facet(value: Facet.() -> Unit = {}) : FacetB<Facet>(value) {
+open class Facet(adapt: Facet.() -> Unit = {}) : FacetB<Facet>(adapt) {
 
     companion object {
         val EMPTY = Facet { name(ItemEmpty.name()) }.apply<Facet> { init() }
     }
 }
 
-open class FacetB<B : FacetB<B>>(value: B.() -> Unit = {}) : ModuleGroupB<B>(value), FacetI<B> {
+open class FacetB<B : FacetB<B>>(adapt: B.() -> Unit = {}) : ModuleGroupB<B>(adapt), FacetI<B> {
 }
 
 
-open class FindBy(value: FindBy.() -> Unit = {}) : FindByB<FindBy>(value) {
+open class FindBy(adapt: FindBy.() -> Unit = {}) : FindByB<FindBy>(adapt) {
 
     companion object {
         val EMPTY = FindBy { name(ItemEmpty.name()) }.apply<FindBy> { init() }
     }
 }
 
-open class FindByB<B : FindByB<B>>(value: B.() -> Unit = {}) : DataTypeOperationB<B>(value), FindByI<B> {
+open class FindByB<B : FindByB<B>>(adapt: B.() -> Unit = {}) : DataTypeOperationB<B>(adapt), FindByI<B> {
 
     override fun isMultiResult(): Boolean = attr(multiResult, { true })
     override fun multiResult(value: Boolean): B = apply { attr(multiResult, value) }
@@ -589,14 +589,14 @@ open class FindByB<B : FindByB<B>>(value: B.() -> Unit = {}) : DataTypeOperation
 }
 
 
-open class Handler(value: Handler.() -> Unit = {}) : HandlerB<Handler>(value) {
+open class Handler(adapt: Handler.() -> Unit = {}) : HandlerB<Handler>(adapt) {
 
     companion object {
         val EMPTY = Handler { name(ItemEmpty.name()) }.apply<Handler> { init() }
     }
 }
 
-open class HandlerB<B : HandlerB<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), HandlerI<B> {
+open class HandlerB<B : HandlerB<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<B>(adapt), HandlerI<B> {
 
     override fun on(): EventI<*> = attr(on, { Event.EMPTY })
     override fun on(value: EventI<*>): B = apply { attr(on, value) }
@@ -643,14 +643,14 @@ open class HandlerB<B : HandlerB<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(v
 }
 
 
-open class Model(value: Model.() -> Unit = {}) : ModelB<Model>(value) {
+open class Model(adapt: Model.() -> Unit = {}) : ModelB<Model>(adapt) {
 
     companion object {
         val EMPTY = Model { name(ItemEmpty.name()) }.apply<Model> { init() }
     }
 }
 
-open class ModelB<B : ModelB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), ModelI<B> {
+open class ModelB<B : ModelB<B>>(adapt: B.() -> Unit = {}) : StructureUnitB<B>(adapt), ModelI<B> {
 
     override fun models(): ListMultiHolder<ModelI<*>> = itemAsList(models, ModelI::class.java, true)
     override fun models(vararg value: ModelI<*>): B = apply { models().addItems(value.asList()) }
@@ -671,14 +671,14 @@ open class ModelB<B : ModelB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(v
 }
 
 
-open class Module(value: Module.() -> Unit = {}) : ModuleB<Module>(value) {
+open class Module(adapt: Module.() -> Unit = {}) : ModuleB<Module>(adapt) {
 
     companion object {
         val EMPTY = Module { name(ItemEmpty.name()) }.apply<Module> { init() }
     }
 }
 
-open class ModuleB<B : ModuleB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), ModuleI<B> {
+open class ModuleB<B : ModuleB<B>>(adapt: B.() -> Unit = {}) : StructureUnitB<B>(adapt), ModuleI<B> {
 
     override fun isParentNamespace(): Boolean = attr(parentNamespace, { false })
     override fun parentNamespace(value: Boolean): B = apply { attr(parentNamespace, value) }
@@ -747,14 +747,14 @@ open class ModuleB<B : ModuleB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>
 }
 
 
-open class ModuleGroup(value: ModuleGroup.() -> Unit = {}) : ModuleGroupB<ModuleGroup>(value) {
+open class ModuleGroup(adapt: ModuleGroup.() -> Unit = {}) : ModuleGroupB<ModuleGroup>(adapt) {
 
     companion object {
         val EMPTY = ModuleGroup { name(ItemEmpty.name()) }.apply<ModuleGroup> { init() }
     }
 }
 
-open class ModuleGroupB<B : ModuleGroupB<B>>(value: B.() -> Unit = {}) : StructureUnitB<B>(value), ModuleGroupI<B> {
+open class ModuleGroupB<B : ModuleGroupB<B>>(adapt: B.() -> Unit = {}) : StructureUnitB<B>(adapt), ModuleGroupI<B> {
 
     override fun modules(): ListMultiHolder<ModuleI<*>> = itemAsList(modules, ModuleI::class.java, true)
     override fun modules(vararg value: ModuleI<*>): B = apply { modules().addItems(value.asList()) }
@@ -770,36 +770,36 @@ open class ModuleGroupB<B : ModuleGroupB<B>>(value: B.() -> Unit = {}) : Structu
 }
 
 
-open class ProcessManager(value: ProcessManager.() -> Unit = {}) : ProcessManagerB<ProcessManager>(value) {
+open class ProcessManager(adapt: ProcessManager.() -> Unit = {}) : ProcessManagerB<ProcessManager>(adapt) {
 
     companion object {
         val EMPTY = ProcessManager { name(ItemEmpty.name()) }.apply<ProcessManager> { init() }
     }
 }
 
-open class ProcessManagerB<B : ProcessManagerB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), ProcessManagerI<B> {
+open class ProcessManagerB<B : ProcessManagerB<B>>(adapt: B.() -> Unit = {}) : StateMachineB<B>(adapt), ProcessManagerI<B> {
 }
 
 
-open class Projector(value: Projector.() -> Unit = {}) : ProjectorB<Projector>(value) {
+open class Projector(adapt: Projector.() -> Unit = {}) : ProjectorB<Projector>(adapt) {
 
     companion object {
         val EMPTY = Projector { name(ItemEmpty.name()) }.apply<Projector> { init() }
     }
 }
 
-open class ProjectorB<B : ProjectorB<B>>(value: B.() -> Unit = {}) : StateMachineB<B>(value), ProjectorI<B> {
+open class ProjectorB<B : ProjectorB<B>>(adapt: B.() -> Unit = {}) : StateMachineB<B>(adapt), ProjectorI<B> {
 }
 
 
-open class State(value: State.() -> Unit = {}) : StateB<State>(value) {
+open class State(adapt: State.() -> Unit = {}) : StateB<State>(adapt) {
 
     companion object {
         val EMPTY = State { name(ItemEmpty.name()) }.apply<State> { init() }
     }
 }
 
-open class StateB<B : StateB<B>>(value: B.() -> Unit = {}) : ControllerB<B>(value), StateI<B> {
+open class StateB<B : StateB<B>>(adapt: B.() -> Unit = {}) : ControllerB<B>(adapt), StateI<B> {
 
     override fun timeout(): Long = attr(timeout, { 0L })
     override fun timeout(value: Long): B = apply { attr(timeout, value) }
@@ -842,14 +842,14 @@ open class StateB<B : StateB<B>>(value: B.() -> Unit = {}) : ControllerB<B>(valu
 }
 
 
-open class StateMachine(value: StateMachine.() -> Unit = {}) : StateMachineB<StateMachine>(value) {
+open class StateMachine(adapt: StateMachine.() -> Unit = {}) : StateMachineB<StateMachine>(adapt) {
 
     companion object {
         val EMPTY = StateMachine { name(ItemEmpty.name()) }.apply<StateMachine> { init() }
     }
 }
 
-open class StateMachineB<B : StateMachineB<B>>(value: B.() -> Unit = {}) : ControllerB<B>(value), StateMachineI<B> {
+open class StateMachineB<B : StateMachineB<B>>(adapt: B.() -> Unit = {}) : ControllerB<B>(adapt), StateMachineI<B> {
 
     override fun stateProp(): AttributeI<*> = attr(stateProp, { Attribute.EMPTY })
     override fun stateProp(value: AttributeI<*>): B = apply { attr(stateProp, value) }
@@ -886,35 +886,35 @@ open class StateMachineB<B : StateMachineB<B>>(value: B.() -> Unit = {}) : Contr
 }
 
 
-open class UpdateBy(value: UpdateBy.() -> Unit = {}) : UpdateByB<UpdateBy>(value) {
+open class UpdateBy(adapt: UpdateBy.() -> Unit = {}) : UpdateByB<UpdateBy>(adapt) {
 
     companion object {
         val EMPTY = UpdateBy { name(ItemEmpty.name()) }.apply<UpdateBy> { init() }
     }
 }
 
-open class UpdateByB<B : UpdateByB<B>>(value: B.() -> Unit = {}) : CommandB<B>(value), UpdateByI<B> {
+open class UpdateByB<B : UpdateByB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), UpdateByI<B> {
 }
 
 
-open class Updated(value: Updated.() -> Unit = {}) : UpdatedB<Updated>(value) {
+open class Updated(adapt: Updated.() -> Unit = {}) : UpdatedB<Updated>(adapt) {
 
     companion object {
         val EMPTY = Updated { name(ItemEmpty.name()) }.apply<Updated> { init() }
     }
 }
 
-open class UpdatedB<B : UpdatedB<B>>(value: B.() -> Unit = {}) : EventB<B>(value), UpdatedI<B> {
+open class UpdatedB<B : UpdatedB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), UpdatedI<B> {
 }
 
 
-open class Widget(value: Widget.() -> Unit = {}) : WidgetB<Widget>(value) {
+open class Widget(adapt: Widget.() -> Unit = {}) : WidgetB<Widget>(adapt) {
 
     companion object {
         val EMPTY = Widget { name(ItemEmpty.name()) }.apply<Widget> { init() }
     }
 }
 
-open class WidgetB<B : WidgetB<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), WidgetI<B> {
+open class WidgetB<B : WidgetB<B>>(adapt: B.() -> Unit = {}) : CompilationUnitB<B>(adapt), WidgetI<B> {
 }
 

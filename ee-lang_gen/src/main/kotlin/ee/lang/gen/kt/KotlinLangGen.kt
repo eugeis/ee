@@ -120,8 +120,8 @@ fun <T : CompositeI<*>> T.toKotlinDslBuilder(c: GenerationContext, derived: Stri
     val multiProps = props.filter { it.isMulti() }
     val target = c.n(this, derived)
     return """
-open class ${c.n(this, derived)}(value: ${c.n(this, derived)}.() -> Unit = {}) : ${c.n(this, derived)}B<${c.n(this,
-            derived)}>(value) {
+open class ${c.n(this, derived)}(adapt: ${c.n(this, derived)}.() -> Unit = {}) : ${c.n(this, derived)}B<${c.n(this,
+            derived)}>(adapt) {
 
     companion object {
         val EMPTY = ${specialEmptyObjects.contains(target).ifElse({ "${target}Empty" }, {
@@ -130,8 +130,8 @@ open class ${c.n(this, derived)}(value: ${c.n(this, derived)}.() -> Unit = {}) :
     }
 }
 
-open class ${c.n(this, derived)}B<B : ${c.n(this, api)}<B>>(value: B.() -> Unit = {}) : ${c.n(derivedFrom(),
-            derived)}B<B>(value)${(derived != api).then(
+open class ${c.n(this, derived)}B<B : ${c.n(this, api)}<B>>(adapt: B.() -> Unit = {}) : ${c.n(derivedFrom(),
+            derived)}B<B>(adapt)${(derived != api).then(
             { ", ${c.n(this, DerivedNames.API)}<B>" })} {${props.joinSurroundIfNotEmptyToString(nL,
             prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}${multiProps.isNotEmpty().then {
         """

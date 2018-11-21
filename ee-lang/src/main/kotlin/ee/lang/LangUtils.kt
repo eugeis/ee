@@ -486,7 +486,7 @@ fun <T : StructureUnitI<*>> T.initObjectTrees(): T {
 
 fun <T : StructureUnitI<*>> T.initObjectTree(): T {
     (this as MultiHolderI<ItemI<*>, *>).initObjectTree {
-        if (this is StructureUnitI) {
+        val ret = if (this is StructureUnitI) {
             val parent = (findParent(StructureUnitI::class.java) ?: parent()) as ItemI
             if (parent.namespace().isBlank())
                 parent.namespace()
@@ -495,6 +495,7 @@ fun <T : StructureUnitI<*>> T.initObjectTree(): T {
         } else {
             parent().namespace()
         }
+        ret
     }
     initBlackNames()
     initFullNameArtifacts()

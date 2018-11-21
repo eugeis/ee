@@ -78,15 +78,15 @@ fun <T : CompilationUnitI<*>> T.toKotlinDslBuilder(c: GenerationContext, derived
     val B = c.n(this, LangDerivedKind.MANUAL)
     val T = c.n(this, derived)
     return """
-open class $T(value: $T.() -> Unit = {}) : $B<$T>(value) {
+open class $T(adapt: $T.() -> Unit = {}) : $B<$T>(adapt) {
 
     companion object {
         val EMPTY = $T { name(${c.n(n.ItemEmpty, api)}.name()) }.apply<$T> { init() }
     }
 }
 
-open class $B<B : $B<B>>(value: B.() -> Unit = {}) : ${c.n(superUnit(),
-        LangDerivedKind.MANUAL)}<B>(value)${(derived != api).then(
+open class $B<B : $B<B>>(adapt: B.() -> Unit = {}) : ${c.n(superUnit(),
+        LangDerivedKind.MANUAL)}<B>(adapt)${(derived != api).then(
         { ", ${c.n(this, LangDerivedKind.API)}<B>" })} {${props().joinSurroundIfNotEmptyToString(nL,
         prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}${multiProps.isNotEmpty().then {
         """

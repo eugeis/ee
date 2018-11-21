@@ -1,38 +1,38 @@
 package ee.lang
 
 
-open class Action(value: Action.() -> Unit = {}) : ActionB<Action>(value) {
+open class Action(adapt: Action.() -> Unit = {}) : ActionB<Action>(adapt) {
 
     companion object {
         val EMPTY = Action { name(ItemEmpty.name()) }.apply<Action> { init() }
     }
 }
 
-open class ActionB<B : ActionI<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), ActionI<B> {
+open class ActionB<B : ActionI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<B>(adapt), ActionI<B> {
 }
 
 
 
-open class AndPredicate(value: AndPredicate.() -> Unit = {}) : AndPredicateB<AndPredicate>(value) {
+open class AndPredicate(adapt: AndPredicate.() -> Unit = {}) : AndPredicateB<AndPredicate>(adapt) {
 
     companion object {
         val EMPTY = AndPredicate { name(ItemEmpty.name()) }.apply<AndPredicate> { init() }
     }
 }
 
-open class AndPredicateB<B : AndPredicateI<B>>(value: B.() -> Unit = {}) : LeftRightPredicatesPredicateB<B>(value), AndPredicateI<B> {
+open class AndPredicateB<B : AndPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicatesPredicateB<B>(adapt), AndPredicateI<B> {
 }
 
 
 
-open class ApplyAction(value: ApplyAction.() -> Unit = {}) : ApplyActionB<ApplyAction>(value) {
+open class ApplyAction(adapt: ApplyAction.() -> Unit = {}) : ApplyActionB<ApplyAction>(adapt) {
 
     companion object {
         val EMPTY = ApplyAction { name(ItemEmpty.name()) }.apply<ApplyAction> { init() }
     }
 }
 
-open class ApplyActionB<B : ApplyActionI<B>>(value: B.() -> Unit = {}) : ActionB<B>(value), ApplyActionI<B> {
+open class ApplyActionB<B : ApplyActionI<B>>(adapt: B.() -> Unit = {}) : ActionB<B>(adapt), ApplyActionI<B> {
 
     override fun target(): AttributeI<*> = attr(target, { Attribute.EMPTY })
     override fun target(value: AttributeI<*>): B = apply { attr(target, value) }
@@ -48,26 +48,26 @@ open class ApplyActionB<B : ApplyActionI<B>>(value: B.() -> Unit = {}) : ActionB
 
 
 
-open class AssignAction(value: AssignAction.() -> Unit = {}) : AssignActionB<AssignAction>(value) {
+open class AssignAction(adapt: AssignAction.() -> Unit = {}) : AssignActionB<AssignAction>(adapt) {
 
     companion object {
         val EMPTY = AssignAction { name(ItemEmpty.name()) }.apply<AssignAction> { init() }
     }
 }
 
-open class AssignActionB<B : AssignActionI<B>>(value: B.() -> Unit = {}) : ApplyActionB<B>(value), AssignActionI<B> {
+open class AssignActionB<B : AssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), AssignActionI<B> {
 }
 
 
 
-open class Attribute(value: Attribute.() -> Unit = {}) : AttributeB<Attribute>(value) {
+open class Attribute(adapt: Attribute.() -> Unit = {}) : AttributeB<Attribute>(adapt) {
 
     companion object {
         val EMPTY = Attribute { name(ItemEmpty.name()) }.apply<Attribute> { init() }
     }
 }
 
-open class AttributeB<B : AttributeI<B>>(value: B.() -> Unit = {}) : LiteralB<B>(value), AttributeI<B> {
+open class AttributeB<B : AttributeI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>(adapt), AttributeI<B> {
 
     override fun isAccessible(): Boolean? = attr(accessible)
     override fun accessible(value: Boolean?): B = apply { attr(accessible, value) }
@@ -147,26 +147,26 @@ open class AttributeB<B : AttributeI<B>>(value: B.() -> Unit = {}) : LiteralB<B>
 
 
 
-open class Basic(value: Basic.() -> Unit = {}) : BasicB<Basic>(value) {
+open class Basic(adapt: Basic.() -> Unit = {}) : BasicB<Basic>(adapt) {
 
     companion object {
         val EMPTY = Basic { name(ItemEmpty.name()) }.apply<Basic> { init() }
     }
 }
 
-open class BasicB<B : BasicI<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), BasicI<B> {
+open class BasicB<B : BasicI<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adapt), BasicI<B> {
 }
 
 
 
-open class CompilationUnit(value: CompilationUnit.() -> Unit = {}) : CompilationUnitB<CompilationUnit>(value) {
+open class CompilationUnit(adapt: CompilationUnit.() -> Unit = {}) : CompilationUnitB<CompilationUnit>(adapt) {
 
     companion object {
         val EMPTY = CompilationUnitEmpty
     }
 }
 
-open class CompilationUnitB<B : CompilationUnitI<B>>(value: B.() -> Unit = {}) : TypeB<B>(value), CompilationUnitI<B> {
+open class CompilationUnitB<B : CompilationUnitI<B>>(adapt: B.() -> Unit = {}) : TypeB<B>(adapt), CompilationUnitI<B> {
 
     override fun isBase(): Boolean = attr(base, { false })
     override fun base(value: Boolean): B = apply { attr(base, value) }
@@ -178,14 +178,14 @@ open class CompilationUnitB<B : CompilationUnitI<B>>(value: B.() -> Unit = {}) :
 
 
 
-open class Constructor(value: Constructor.() -> Unit = {}) : ConstructorB<Constructor>(value) {
+open class Constructor(adapt: Constructor.() -> Unit = {}) : ConstructorB<Constructor>(adapt) {
 
     companion object {
         val EMPTY = Constructor { name(ItemEmpty.name()) }.apply<Constructor> { init() }
     }
 }
 
-open class ConstructorB<B : ConstructorI<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), ConstructorI<B> {
+open class ConstructorB<B : ConstructorI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<B>(adapt), ConstructorI<B> {
 
     override fun isPrimary(): Boolean = attr(primary, { false })
     override fun primary(value: Boolean): B = apply { attr(primary, value) }
@@ -197,86 +197,86 @@ open class ConstructorB<B : ConstructorI<B>>(value: B.() -> Unit = {}) : LogicUn
 
 
 
-open class DataType(value: DataType.() -> Unit = {}) : DataTypeB<DataType>(value) {
+open class DataType(adapt: DataType.() -> Unit = {}) : DataTypeB<DataType>(adapt) {
 
     companion object {
         val EMPTY = DataType { name(ItemEmpty.name()) }.apply<DataType> { init() }
     }
 }
 
-open class DataTypeB<B : DataTypeI<B>>(value: B.() -> Unit = {}) : CompilationUnitB<B>(value), DataTypeI<B> {
+open class DataTypeB<B : DataTypeI<B>>(adapt: B.() -> Unit = {}) : CompilationUnitB<B>(adapt), DataTypeI<B> {
 }
 
 
 
-open class DataTypeOperation(value: DataTypeOperation.() -> Unit = {}) : DataTypeOperationB<DataTypeOperation>(value) {
+open class DataTypeOperation(adapt: DataTypeOperation.() -> Unit = {}) : DataTypeOperationB<DataTypeOperation>(adapt) {
 
     companion object {
         val EMPTY = DataTypeOperation { name(ItemEmpty.name()) }.apply<DataTypeOperation> { init() }
     }
 }
 
-open class DataTypeOperationB<B : DataTypeOperationI<B>>(value: B.() -> Unit = {}) : OperationB<B>(value), DataTypeOperationI<B> {
+open class DataTypeOperationB<B : DataTypeOperationI<B>>(adapt: B.() -> Unit = {}) : OperationB<B>(adapt), DataTypeOperationI<B> {
 }
 
 
 
-open class DecrementExpression(value: DecrementExpression.() -> Unit = {}) : DecrementExpressionB<DecrementExpression>(value) {
+open class DecrementExpression(adapt: DecrementExpression.() -> Unit = {}) : DecrementExpressionB<DecrementExpression>(adapt) {
 
     companion object {
         val EMPTY = DecrementExpression { name(ItemEmpty.name()) }.apply<DecrementExpression> { init() }
     }
 }
 
-open class DecrementExpressionB<B : DecrementExpressionI<B>>(value: B.() -> Unit = {}) : LiteralB<B>(value), DecrementExpressionI<B> {
+open class DecrementExpressionB<B : DecrementExpressionI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>(adapt), DecrementExpressionI<B> {
 }
 
 
 
-open class DivideAssignAction(value: DivideAssignAction.() -> Unit = {}) : DivideAssignActionB<DivideAssignAction>(value) {
+open class DivideAssignAction(adapt: DivideAssignAction.() -> Unit = {}) : DivideAssignActionB<DivideAssignAction>(adapt) {
 
     companion object {
         val EMPTY = DivideAssignAction { name(ItemEmpty.name()) }.apply<DivideAssignAction> { init() }
     }
 }
 
-open class DivideAssignActionB<B : DivideAssignActionI<B>>(value: B.() -> Unit = {}) : ApplyActionB<B>(value), DivideAssignActionI<B> {
+open class DivideAssignActionB<B : DivideAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), DivideAssignActionI<B> {
 }
 
 
 
-open class DivideExpression(value: DivideExpression.() -> Unit = {}) : DivideExpressionB<DivideExpression>(value) {
+open class DivideExpression(adapt: DivideExpression.() -> Unit = {}) : DivideExpressionB<DivideExpression>(adapt) {
 
     companion object {
         val EMPTY = DivideExpression { name(ItemEmpty.name()) }.apply<DivideExpression> { init() }
     }
 }
 
-open class DivideExpressionB<B : DivideExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralB<B>(value), DivideExpressionI<B> {
+open class DivideExpressionB<B : DivideExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), DivideExpressionI<B> {
 }
 
 
 
-open class EnumLiteral(value: EnumLiteral.() -> Unit = {}) : EnumLiteralB<EnumLiteral>(value) {
+open class EnumLiteral(adapt: EnumLiteral.() -> Unit = {}) : EnumLiteralB<EnumLiteral>(adapt) {
 
     companion object {
         val EMPTY = EnumLiteral { name(ItemEmpty.name()) }.apply<EnumLiteral> { init() }
     }
 }
 
-open class EnumLiteralB<B : EnumLiteralI<B>>(value: B.() -> Unit = {}) : LiteralB<B>(value), EnumLiteralI<B> {
+open class EnumLiteralB<B : EnumLiteralI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>(adapt), EnumLiteralI<B> {
 }
 
 
 
-open class EnumType(value: EnumType.() -> Unit = {}) : EnumTypeB<EnumType>(value) {
+open class EnumType(adapt: EnumType.() -> Unit = {}) : EnumTypeB<EnumType>(adapt) {
 
     companion object {
         val EMPTY = EnumType { name(ItemEmpty.name()) }.apply<EnumType> { init() }
     }
 }
 
-open class EnumTypeB<B : EnumTypeI<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), EnumTypeI<B> {
+open class EnumTypeB<B : EnumTypeI<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adapt), EnumTypeI<B> {
 
     override fun literals(): ListMultiHolder<EnumLiteralI<*>> = itemAsList(literals, EnumLiteralI::class.java, true)
     override fun literals(vararg value: EnumLiteralI<*>): B = apply { literals().addItems(value.asList()) }
@@ -295,50 +295,50 @@ open class EnumTypeB<B : EnumTypeI<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(
 
 
 
-open class EqPredicate(value: EqPredicate.() -> Unit = {}) : EqPredicateB<EqPredicate>(value) {
+open class EqPredicate(adapt: EqPredicate.() -> Unit = {}) : EqPredicateB<EqPredicate>(adapt) {
 
     companion object {
         val EMPTY = EqPredicate { name(ItemEmpty.name()) }.apply<EqPredicate> { init() }
     }
 }
 
-open class EqPredicateB<B : EqPredicateI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateB<B>(value), EqPredicateI<B> {
+open class EqPredicateB<B : EqPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), EqPredicateI<B> {
 }
 
 
 
-open class Expression(value: Expression.() -> Unit = {}) : ExpressionB<Expression>(value) {
+open class Expression(adapt: Expression.() -> Unit = {}) : ExpressionB<Expression>(adapt) {
 
     companion object {
         val EMPTY = Expression { name(ItemEmpty.name()) }.apply<Expression> { init() }
     }
 }
 
-open class ExpressionB<B : ExpressionI<B>>(value: B.() -> Unit = {}) : MacroCompositeB<B>(value), ExpressionI<B> {
+open class ExpressionB<B : ExpressionI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(adapt), ExpressionI<B> {
 }
 
 
 
-open class ExternalType(value: ExternalType.() -> Unit = {}) : ExternalTypeB<ExternalType>(value) {
+open class ExternalType(adapt: ExternalType.() -> Unit = {}) : ExternalTypeB<ExternalType>(adapt) {
 
     companion object {
         val EMPTY = ExternalType { name(ItemEmpty.name()) }.apply<ExternalType> { init() }
     }
 }
 
-open class ExternalTypeB<B : ExternalTypeI<B>>(value: B.() -> Unit = {}) : TypeB<B>(value), ExternalTypeI<B> {
+open class ExternalTypeB<B : ExternalTypeI<B>>(adapt: B.() -> Unit = {}) : TypeB<B>(adapt), ExternalTypeI<B> {
 }
 
 
 
-open class Generic(value: Generic.() -> Unit = {}) : GenericB<Generic>(value) {
+open class Generic(adapt: Generic.() -> Unit = {}) : GenericB<Generic>(adapt) {
 
     companion object {
         val EMPTY = Generic { name(ItemEmpty.name()) }.apply<Generic> { init() }
     }
 }
 
-open class GenericB<B : GenericI<B>>(value: B.() -> Unit = {}) : TypeB<B>(value), GenericI<B> {
+open class GenericB<B : GenericI<B>>(adapt: B.() -> Unit = {}) : TypeB<B>(adapt), GenericI<B> {
 
     override fun type(): TypeI<*> = attr(type, { Type.EMPTY })
     override fun type(value: TypeI<*>): B = apply { attr(type, value) }
@@ -350,50 +350,50 @@ open class GenericB<B : GenericI<B>>(value: B.() -> Unit = {}) : TypeB<B>(value)
 
 
 
-open class GtPredicate(value: GtPredicate.() -> Unit = {}) : GtPredicateB<GtPredicate>(value) {
+open class GtPredicate(adapt: GtPredicate.() -> Unit = {}) : GtPredicateB<GtPredicate>(adapt) {
 
     companion object {
         val EMPTY = GtPredicate { name(ItemEmpty.name()) }.apply<GtPredicate> { init() }
     }
 }
 
-open class GtPredicateB<B : GtPredicateI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateB<B>(value), GtPredicateI<B> {
+open class GtPredicateB<B : GtPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), GtPredicateI<B> {
 }
 
 
 
-open class GtePredicate(value: GtePredicate.() -> Unit = {}) : GtePredicateB<GtePredicate>(value) {
+open class GtePredicate(adapt: GtePredicate.() -> Unit = {}) : GtePredicateB<GtePredicate>(adapt) {
 
     companion object {
         val EMPTY = GtePredicate { name(ItemEmpty.name()) }.apply<GtePredicate> { init() }
     }
 }
 
-open class GtePredicateB<B : GtePredicateI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateB<B>(value), GtePredicateI<B> {
+open class GtePredicateB<B : GtePredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), GtePredicateI<B> {
 }
 
 
 
-open class IncrementExpression(value: IncrementExpression.() -> Unit = {}) : IncrementExpressionB<IncrementExpression>(value) {
+open class IncrementExpression(adapt: IncrementExpression.() -> Unit = {}) : IncrementExpressionB<IncrementExpression>(adapt) {
 
     companion object {
         val EMPTY = IncrementExpression { name(ItemEmpty.name()) }.apply<IncrementExpression> { init() }
     }
 }
 
-open class IncrementExpressionB<B : IncrementExpressionI<B>>(value: B.() -> Unit = {}) : LiteralB<B>(value), IncrementExpressionI<B> {
+open class IncrementExpressionB<B : IncrementExpressionI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>(adapt), IncrementExpressionI<B> {
 }
 
 
 
-open class Lambda(value: Lambda.() -> Unit = {}) : LambdaB<Lambda>(value) {
+open class Lambda(adapt: Lambda.() -> Unit = {}) : LambdaB<Lambda>(adapt) {
 
     companion object {
         val EMPTY = Lambda { name(ItemEmpty.name()) }.apply<Lambda> { init() }
     }
 }
 
-open class LambdaB<B : LambdaI<B>>(value: B.() -> Unit = {}) : TypeB<B>(value), LambdaI<B> {
+open class LambdaB<B : LambdaI<B>>(adapt: B.() -> Unit = {}) : TypeB<B>(adapt), LambdaI<B> {
 
     override fun operation(): OperationI<*> = attr(operation, { Operation.EMPTY })
     override fun operation(value: OperationI<*>): B = apply { attr(operation, value) }
@@ -405,14 +405,14 @@ open class LambdaB<B : LambdaI<B>>(value: B.() -> Unit = {}) : TypeB<B>(value), 
 
 
 
-open class LeftRightLiteral(value: LeftRightLiteral.() -> Unit = {}) : LeftRightLiteralB<LeftRightLiteral>(value) {
+open class LeftRightLiteral(adapt: LeftRightLiteral.() -> Unit = {}) : LeftRightLiteralB<LeftRightLiteral>(adapt) {
 
     companion object {
         val EMPTY = LeftRightLiteral { name(ItemEmpty.name()) }.apply<LeftRightLiteral> { init() }
     }
 }
 
-open class LeftRightLiteralB<B : LeftRightLiteralI<B>>(value: B.() -> Unit = {}) : LiteralB<B>(value), LeftRightLiteralI<B> {
+open class LeftRightLiteralB<B : LeftRightLiteralI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>(adapt), LeftRightLiteralI<B> {
 
     override fun left(): LiteralI<*> = attr(left, { Literal.EMPTY })
     override fun left(value: LiteralI<*>): B = apply { attr(left, value) }
@@ -428,14 +428,14 @@ open class LeftRightLiteralB<B : LeftRightLiteralI<B>>(value: B.() -> Unit = {})
 
 
 
-open class LeftRightPredicate(value: LeftRightPredicate.() -> Unit = {}) : LeftRightPredicateB<LeftRightPredicate>(value) {
+open class LeftRightPredicate(adapt: LeftRightPredicate.() -> Unit = {}) : LeftRightPredicateB<LeftRightPredicate>(adapt) {
 
     companion object {
         val EMPTY = LeftRightPredicate { name(ItemEmpty.name()) }.apply<LeftRightPredicate> { init() }
     }
 }
 
-open class LeftRightPredicateB<B : LeftRightPredicateI<B>>(value: B.() -> Unit = {}) : PredicateB<B>(value), LeftRightPredicateI<B> {
+open class LeftRightPredicateB<B : LeftRightPredicateI<B>>(adapt: B.() -> Unit = {}) : PredicateB<B>(adapt), LeftRightPredicateI<B> {
 
     override fun left(): LiteralI<*> = attr(left, { Literal.EMPTY })
     override fun left(value: LiteralI<*>): B = apply { attr(left, value) }
@@ -451,14 +451,14 @@ open class LeftRightPredicateB<B : LeftRightPredicateI<B>>(value: B.() -> Unit =
 
 
 
-open class LeftRightPredicatesPredicate(value: LeftRightPredicatesPredicate.() -> Unit = {}) : LeftRightPredicatesPredicateB<LeftRightPredicatesPredicate>(value) {
+open class LeftRightPredicatesPredicate(adapt: LeftRightPredicatesPredicate.() -> Unit = {}) : LeftRightPredicatesPredicateB<LeftRightPredicatesPredicate>(adapt) {
 
     companion object {
         val EMPTY = LeftRightPredicatesPredicate { name(ItemEmpty.name()) }.apply<LeftRightPredicatesPredicate> { init() }
     }
 }
 
-open class LeftRightPredicatesPredicateB<B : LeftRightPredicatesPredicateI<B>>(value: B.() -> Unit = {}) : PredicateB<B>(value), LeftRightPredicatesPredicateI<B> {
+open class LeftRightPredicatesPredicateB<B : LeftRightPredicatesPredicateI<B>>(adapt: B.() -> Unit = {}) : PredicateB<B>(adapt), LeftRightPredicatesPredicateI<B> {
 
     override fun left(): PredicateI<*> = attr(left, { Predicate.EMPTY })
     override fun left(value: PredicateI<*>): B = apply { attr(left, value) }
@@ -474,14 +474,14 @@ open class LeftRightPredicatesPredicateB<B : LeftRightPredicatesPredicateI<B>>(v
 
 
 
-open class Literal(value: Literal.() -> Unit = {}) : LiteralB<Literal>(value) {
+open class Literal(adapt: Literal.() -> Unit = {}) : LiteralB<Literal>(adapt) {
 
     companion object {
         val EMPTY = Literal { name(ItemEmpty.name()) }.apply<Literal> { init() }
     }
 }
 
-open class LiteralB<B : LiteralI<B>>(value: B.() -> Unit = {}) : ExpressionB<B>(value), LiteralI<B> {
+open class LiteralB<B : LiteralI<B>>(adapt: B.() -> Unit = {}) : ExpressionB<B>(adapt), LiteralI<B> {
 
     override fun params(): ListMultiHolder<AttributeI<*>> = itemAsList(params, AttributeI::class.java, true)
     override fun params(vararg value: AttributeI<*>): B = apply { params().addItems(value.asList()) }
@@ -506,14 +506,14 @@ open class LiteralB<B : LiteralI<B>>(value: B.() -> Unit = {}) : ExpressionB<B>(
 
 
 
-open class LogicUnit(value: LogicUnit.() -> Unit = {}) : LogicUnitB<LogicUnit>(value) {
+open class LogicUnit(adapt: LogicUnit.() -> Unit = {}) : LogicUnitB<LogicUnit>(adapt) {
 
     companion object {
         val EMPTY = LogicUnitEmpty
     }
 }
 
-open class LogicUnitB<B : LogicUnitI<B>>(value: B.() -> Unit = {}) : ExpressionB<B>(value), LogicUnitI<B> {
+open class LogicUnitB<B : LogicUnitI<B>>(adapt: B.() -> Unit = {}) : ExpressionB<B>(adapt), LogicUnitI<B> {
 
     override fun isErrorHandling(): Boolean = attr(errorHandling, { true })
     override fun errorHandling(value: Boolean): B = apply { attr(errorHandling, value) }
@@ -546,38 +546,38 @@ open class LogicUnitB<B : LogicUnitI<B>>(value: B.() -> Unit = {}) : ExpressionB
 
 
 
-open class LtPredicate(value: LtPredicate.() -> Unit = {}) : LtPredicateB<LtPredicate>(value) {
+open class LtPredicate(adapt: LtPredicate.() -> Unit = {}) : LtPredicateB<LtPredicate>(adapt) {
 
     companion object {
         val EMPTY = LtPredicate { name(ItemEmpty.name()) }.apply<LtPredicate> { init() }
     }
 }
 
-open class LtPredicateB<B : LtPredicateI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateB<B>(value), LtPredicateI<B> {
+open class LtPredicateB<B : LtPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), LtPredicateI<B> {
 }
 
 
 
-open class LtePredicate(value: LtePredicate.() -> Unit = {}) : LtePredicateB<LtePredicate>(value) {
+open class LtePredicate(adapt: LtePredicate.() -> Unit = {}) : LtePredicateB<LtePredicate>(adapt) {
 
     companion object {
         val EMPTY = LtePredicate { name(ItemEmpty.name()) }.apply<LtePredicate> { init() }
     }
 }
 
-open class LtePredicateB<B : LtePredicateI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateB<B>(value), LtePredicateI<B> {
+open class LtePredicateB<B : LtePredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), LtePredicateI<B> {
 }
 
 
 
-open class MacroComposite(value: MacroComposite.() -> Unit = {}) : MacroCompositeB<MacroComposite>(value) {
+open class MacroComposite(adapt: MacroComposite.() -> Unit = {}) : MacroCompositeB<MacroComposite>(adapt) {
 
     companion object {
         val EMPTY = MacroComposite { name(ItemEmpty.name()) }.apply<MacroComposite> { init() }
     }
 }
 
-open class MacroCompositeB<B : MacroCompositeI<B>>(value: B.() -> Unit = {}) : CompositeB<B>(value), MacroCompositeI<B> {
+open class MacroCompositeB<B : MacroCompositeI<B>>(adapt: B.() -> Unit = {}) : CompositeB<B>(adapt), MacroCompositeI<B> {
 
     override fun macrosAfter(): ListMultiHolder<String> = itemAsList(macrosAfter, String::class.java, true)
     override fun macrosAfter(vararg value: String): B = apply { macrosAfter().addItems(value.asList()) }
@@ -619,62 +619,62 @@ open class MacroCompositeB<B : MacroCompositeI<B>>(value: B.() -> Unit = {}) : C
 
 
 
-open class MinusAssignAction(value: MinusAssignAction.() -> Unit = {}) : MinusAssignActionB<MinusAssignAction>(value) {
+open class MinusAssignAction(adapt: MinusAssignAction.() -> Unit = {}) : MinusAssignActionB<MinusAssignAction>(adapt) {
 
     companion object {
         val EMPTY = MinusAssignAction { name(ItemEmpty.name()) }.apply<MinusAssignAction> { init() }
     }
 }
 
-open class MinusAssignActionB<B : MinusAssignActionI<B>>(value: B.() -> Unit = {}) : ApplyActionB<B>(value), MinusAssignActionI<B> {
+open class MinusAssignActionB<B : MinusAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), MinusAssignActionI<B> {
 }
 
 
 
-open class MinusExpression(value: MinusExpression.() -> Unit = {}) : MinusExpressionB<MinusExpression>(value) {
+open class MinusExpression(adapt: MinusExpression.() -> Unit = {}) : MinusExpressionB<MinusExpression>(adapt) {
 
     companion object {
         val EMPTY = MinusExpression { name(ItemEmpty.name()) }.apply<MinusExpression> { init() }
     }
 }
 
-open class MinusExpressionB<B : MinusExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralB<B>(value), MinusExpressionI<B> {
+open class MinusExpressionB<B : MinusExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), MinusExpressionI<B> {
 }
 
 
 
-open class NativeType(value: NativeType.() -> Unit = {}) : NativeTypeB<NativeType>(value) {
+open class NativeType(adapt: NativeType.() -> Unit = {}) : NativeTypeB<NativeType>(adapt) {
 
     companion object {
         val EMPTY = NativeType { name(ItemEmpty.name()) }.apply<NativeType> { init() }
     }
 }
 
-open class NativeTypeB<B : NativeTypeI<B>>(value: B.() -> Unit = {}) : TypeB<B>(value), NativeTypeI<B> {
+open class NativeTypeB<B : NativeTypeI<B>>(adapt: B.() -> Unit = {}) : TypeB<B>(adapt), NativeTypeI<B> {
 }
 
 
 
-open class NePredicate(value: NePredicate.() -> Unit = {}) : NePredicateB<NePredicate>(value) {
+open class NePredicate(adapt: NePredicate.() -> Unit = {}) : NePredicateB<NePredicate>(adapt) {
 
     companion object {
         val EMPTY = NePredicate { name(ItemEmpty.name()) }.apply<NePredicate> { init() }
     }
 }
 
-open class NePredicateB<B : NePredicateI<B>>(value: B.() -> Unit = {}) : LeftRightPredicateB<B>(value), NePredicateI<B> {
+open class NePredicateB<B : NePredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), NePredicateI<B> {
 }
 
 
 
-open class NotPredicate(value: NotPredicate.() -> Unit = {}) : NotPredicateB<NotPredicate>(value) {
+open class NotPredicate(adapt: NotPredicate.() -> Unit = {}) : NotPredicateB<NotPredicate>(adapt) {
 
     companion object {
         val EMPTY = NotPredicate { name(ItemEmpty.name()) }.apply<NotPredicate> { init() }
     }
 }
 
-open class NotPredicateB<B : NotPredicateI<B>>(value: B.() -> Unit = {}) : PredicateB<B>(value), NotPredicateI<B> {
+open class NotPredicateB<B : NotPredicateI<B>>(adapt: B.() -> Unit = {}) : PredicateB<B>(adapt), NotPredicateI<B> {
 
     override fun value(): PredicateI<*> = attr(value, { Predicate.EMPTY })
     override fun value(aValue: PredicateI<*>): B = apply { attr(value, aValue) }
@@ -686,14 +686,14 @@ open class NotPredicateB<B : NotPredicateI<B>>(value: B.() -> Unit = {}) : Predi
 
 
 
-open class Operation(value: Operation.() -> Unit = {}) : OperationB<Operation>(value) {
+open class Operation(adapt: Operation.() -> Unit = {}) : OperationB<Operation>(adapt) {
 
     companion object {
         val EMPTY = Operation { name(ItemEmpty.name()) }.apply<Operation> { init() }
     }
 }
 
-open class OperationB<B : OperationI<B>>(value: B.() -> Unit = {}) : LogicUnitB<B>(value), OperationI<B> {
+open class OperationB<B : OperationI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<B>(adapt), OperationI<B> {
 
     override fun generics(): ListMultiHolder<GenericI<*>> = itemAsList(generics, GenericI::class.java, true)
     override fun generics(vararg value: GenericI<*>): B = apply { generics().addItems(value.asList()) }
@@ -727,86 +727,86 @@ open class OperationB<B : OperationI<B>>(value: B.() -> Unit = {}) : LogicUnitB<
 
 
 
-open class OrPredicate(value: OrPredicate.() -> Unit = {}) : OrPredicateB<OrPredicate>(value) {
+open class OrPredicate(adapt: OrPredicate.() -> Unit = {}) : OrPredicateB<OrPredicate>(adapt) {
 
     companion object {
         val EMPTY = OrPredicate { name(ItemEmpty.name()) }.apply<OrPredicate> { init() }
     }
 }
 
-open class OrPredicateB<B : OrPredicateI<B>>(value: B.() -> Unit = {}) : LeftRightPredicatesPredicateB<B>(value), OrPredicateI<B> {
+open class OrPredicateB<B : OrPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicatesPredicateB<B>(adapt), OrPredicateI<B> {
 }
 
 
 
-open class PlusAssignAction(value: PlusAssignAction.() -> Unit = {}) : PlusAssignActionB<PlusAssignAction>(value) {
+open class PlusAssignAction(adapt: PlusAssignAction.() -> Unit = {}) : PlusAssignActionB<PlusAssignAction>(adapt) {
 
     companion object {
         val EMPTY = PlusAssignAction { name(ItemEmpty.name()) }.apply<PlusAssignAction> { init() }
     }
 }
 
-open class PlusAssignActionB<B : PlusAssignActionI<B>>(value: B.() -> Unit = {}) : ApplyActionB<B>(value), PlusAssignActionI<B> {
+open class PlusAssignActionB<B : PlusAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), PlusAssignActionI<B> {
 }
 
 
 
-open class PlusExpression(value: PlusExpression.() -> Unit = {}) : PlusExpressionB<PlusExpression>(value) {
+open class PlusExpression(adapt: PlusExpression.() -> Unit = {}) : PlusExpressionB<PlusExpression>(adapt) {
 
     companion object {
         val EMPTY = PlusExpression { name(ItemEmpty.name()) }.apply<PlusExpression> { init() }
     }
 }
 
-open class PlusExpressionB<B : PlusExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralB<B>(value), PlusExpressionI<B> {
+open class PlusExpressionB<B : PlusExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), PlusExpressionI<B> {
 }
 
 
 
-open class Predicate(value: Predicate.() -> Unit = {}) : PredicateB<Predicate>(value) {
+open class Predicate(adapt: Predicate.() -> Unit = {}) : PredicateB<Predicate>(adapt) {
 
     companion object {
         val EMPTY = Predicate { name(ItemEmpty.name()) }.apply<Predicate> { init() }
     }
 }
 
-open class PredicateB<B : PredicateI<B>>(value: B.() -> Unit = {}) : ExpressionB<B>(value), PredicateI<B> {
+open class PredicateB<B : PredicateI<B>>(adapt: B.() -> Unit = {}) : ExpressionB<B>(adapt), PredicateI<B> {
 }
 
 
 
-open class RemainderAssignAction(value: RemainderAssignAction.() -> Unit = {}) : RemainderAssignActionB<RemainderAssignAction>(value) {
+open class RemainderAssignAction(adapt: RemainderAssignAction.() -> Unit = {}) : RemainderAssignActionB<RemainderAssignAction>(adapt) {
 
     companion object {
         val EMPTY = RemainderAssignAction { name(ItemEmpty.name()) }.apply<RemainderAssignAction> { init() }
     }
 }
 
-open class RemainderAssignActionB<B : RemainderAssignActionI<B>>(value: B.() -> Unit = {}) : ApplyActionB<B>(value), RemainderAssignActionI<B> {
+open class RemainderAssignActionB<B : RemainderAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), RemainderAssignActionI<B> {
 }
 
 
 
-open class RemainderExpression(value: RemainderExpression.() -> Unit = {}) : RemainderExpressionB<RemainderExpression>(value) {
+open class RemainderExpression(adapt: RemainderExpression.() -> Unit = {}) : RemainderExpressionB<RemainderExpression>(adapt) {
 
     companion object {
         val EMPTY = RemainderExpression { name(ItemEmpty.name()) }.apply<RemainderExpression> { init() }
     }
 }
 
-open class RemainderExpressionB<B : RemainderExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralB<B>(value), RemainderExpressionI<B> {
+open class RemainderExpressionB<B : RemainderExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), RemainderExpressionI<B> {
 }
 
 
 
-open class StructureUnit(value: StructureUnit.() -> Unit = {}) : StructureUnitB<StructureUnit>(value) {
+open class StructureUnit(adapt: StructureUnit.() -> Unit = {}) : StructureUnitB<StructureUnit>(adapt) {
 
     companion object {
         val EMPTY = StructureUnit { name(ItemEmpty.name()) }.apply<StructureUnit> { init() }
     }
 }
 
-open class StructureUnitB<B : StructureUnitI<B>>(value: B.() -> Unit = {}) : MacroCompositeB<B>(value), StructureUnitI<B> {
+open class StructureUnitB<B : StructureUnitI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(adapt), StructureUnitI<B> {
 
     override fun artifact(): String = attr(artifact, { "" })
     override fun artifact(value: String): B = apply { attr(artifact, value) }
@@ -826,38 +826,38 @@ open class StructureUnitB<B : StructureUnitI<B>>(value: B.() -> Unit = {}) : Mac
 
 
 
-open class TimesAssignAction(value: TimesAssignAction.() -> Unit = {}) : TimesAssignActionB<TimesAssignAction>(value) {
+open class TimesAssignAction(adapt: TimesAssignAction.() -> Unit = {}) : TimesAssignActionB<TimesAssignAction>(adapt) {
 
     companion object {
         val EMPTY = TimesAssignAction { name(ItemEmpty.name()) }.apply<TimesAssignAction> { init() }
     }
 }
 
-open class TimesAssignActionB<B : TimesAssignActionI<B>>(value: B.() -> Unit = {}) : ApplyActionB<B>(value), TimesAssignActionI<B> {
+open class TimesAssignActionB<B : TimesAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), TimesAssignActionI<B> {
 }
 
 
 
-open class TimesExpression(value: TimesExpression.() -> Unit = {}) : TimesExpressionB<TimesExpression>(value) {
+open class TimesExpression(adapt: TimesExpression.() -> Unit = {}) : TimesExpressionB<TimesExpression>(adapt) {
 
     companion object {
         val EMPTY = TimesExpression { name(ItemEmpty.name()) }.apply<TimesExpression> { init() }
     }
 }
 
-open class TimesExpressionB<B : TimesExpressionI<B>>(value: B.() -> Unit = {}) : LeftRightLiteralB<B>(value), TimesExpressionI<B> {
+open class TimesExpressionB<B : TimesExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), TimesExpressionI<B> {
 }
 
 
 
-open class Type(value: Type.() -> Unit = {}) : TypeB<Type>(value) {
+open class Type(adapt: Type.() -> Unit = {}) : TypeB<Type>(adapt) {
 
     companion object {
         val EMPTY = Type { name(ItemEmpty.name()) }.apply<Type> { init() }
     }
 }
 
-open class TypeB<B : TypeI<B>>(value: B.() -> Unit = {}) : MacroCompositeB<B>(value), TypeI<B> {
+open class TypeB<B : TypeI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(adapt), TypeI<B> {
 
     override fun constructors(): ListMultiHolder<ConstructorI<*>> = itemAsList(constructors, ConstructorI::class.java, true)
     override fun constructors(vararg value: ConstructorI<*>): B = apply { constructors().addItems(value.asList()) }
@@ -927,14 +927,14 @@ open class TypeB<B : TypeI<B>>(value: B.() -> Unit = {}) : MacroCompositeB<B>(va
 
 
 
-open class Values(value: Values.() -> Unit = {}) : ValuesB<Values>(value) {
+open class Values(adapt: Values.() -> Unit = {}) : ValuesB<Values>(adapt) {
 
     companion object {
         val EMPTY = Values { name(ItemEmpty.name()) }.apply<Values> { init() }
     }
 }
 
-open class ValuesB<B : ValuesI<B>>(value: B.() -> Unit = {}) : DataTypeB<B>(value), ValuesI<B> {
+open class ValuesB<B : ValuesI<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adapt), ValuesI<B> {
 }
 
 
