@@ -1,5 +1,6 @@
 package ee.lang.gen.kt
 
+import ee.common.ext.ifElse
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.joinWrappedToString
 import ee.common.ext.then
@@ -37,8 +38,8 @@ fun String?.to$name(): $name {
 fun <T : CompilationUnitI<*>> T.toKotlinIfc(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                             api: String = LangDerivedKind.API): String {
     return """
-interface ${c.n(this, api)}${superUnits().joinWrappedToString(
-            ", ", prefix = " : ") { c.n(it, api) }}${operationsWithoutDataTypeOperations()
+interface ${c.n(this, api)}${toKotlinGenericsClassDef(c, derived)}${superUnits().joinWrappedToString(
+            ", ", prefix = " : ") { "${c.n(it, api)}" }}${operationsWithoutDataTypeOperations()
             .joinSurroundIfNotEmptyToString(nL, prefix = " {$nL", postfix = "$nL}") {
                 it.toKotlinIfc(c, derived, api)
             }}"""
@@ -47,7 +48,7 @@ interface ${c.n(this, api)}${superUnits().joinWrappedToString(
 fun <T : CompilationUnitI<*>> T.toKotlinIfcEMPTY(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                  api: String = LangDerivedKind.API): String {
     return """
-object ${c.n(this, derived)}EMPTY : ${c.n(this, derived)}${operationsWithInherited()
+${generics().isEmpty().ifElse({"object ${c.n(this, derived)}EMPTY"}){"class ${c.n(this, derived)}EMPTY${toKotlinGenericsClassDef(c, derived)}"}} : ${c.n(this, derived)}${toKotlinGenerics(c, derived)}${operationsWithInherited()
             .joinSurroundIfNotEmptyToString(nL, prefix = " {$nL", postfix = "$nL}") {
                 it.toKotlinEMPTY(c, derived, api)
             }}"""
@@ -58,7 +59,7 @@ fun <T : CompilationUnitI<*>> T.toKotlinImpl(c: GenerationContext, derived: Stri
                                              dataClass: Boolean = this is BasicI<*> &&
                                                      superUnits().isEmpty() && superUnitFor().isEmpty()): String {
     return """
-${(isOpen() && !dataClass).then("open ")}${dataClass.then("data ")}class ${c.n(this, derived)}${primaryConstructor().toKotlinPrimary(c, derived, api,
+${(isOpen() && !dataClass).then("open ")}${dataClass.then("data ")}class ${toKotlinGenericsClassDef(c, derived)}${c.n(this, derived)}${primaryConstructor().toKotlinPrimary(c, derived, api,
             this)} {${propsWithoutParamsOfPrimaryConstructor().joinSurroundIfNotEmptyToString(nL, prefix = nL,
             postfix = nL) {
         it.toKotlinMember(c, derived, api, false)
