@@ -46,13 +46,13 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
     }
 }
 
-fun <T : AttributeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, mutable: Boolean? = isMutable()): String {
+fun <T : AttributeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String,
+                                          mutable: Boolean? = isMutable()): String {
     return type().toKotlinDefault(c, derived, mutable)
 }
 
 fun <T : AttributeI<*>> T.toKotlinEMPTY(c: GenerationContext, derived: String): String {
-    return (type().parent() == n).ifElse({ type().toKotlinDefault(c, derived, isMutable()) },
-            { (type() is GenericI).ifElse({ "throw IllegalAccessException(\"not supported\")" }) { "${c.n(type(), derived)}.EMPTY" } })
+    return type().toKotlinDefault(c, derived, isMutable())
 }
 
 
@@ -129,7 +129,7 @@ fun TypeI<*>.toKotlinGenericTypes(c: GenerationContext, derived: String,
 
 
 fun GenericI<*>.toKotlin(c: GenerationContext, derived: String, mutable: Boolean? = null): String =
-        type().isNotEMPTY().ifElse({ c.n(type(), derived) }) { c.n(this, derived) }
+        type().isNotEMPTY().ifElse({ type().toKotlin(c, derived, mutable) }) { c.n(this, derived) }
 
 fun TypeI<*>.toKotlinGenerics(c: GenerationContext, derived: String,
                               mutable: Boolean? = null): String = generics().joinWrappedToString(
@@ -158,7 +158,7 @@ fun OperationI<*>.toKotlinGenerics(c: GenerationContext, derived: String): Strin
 
 fun <T : TypeI<*>> T.toKotlin(c: GenerationContext, derived: String,
                               mutable: Boolean? = null): String = toKotlinIfNative(c, derived, mutable)
-        ?: "${c.n(this, derived)}${this.toKotlinGenericTypes(c, derived, mutable)}"
+        ?: "${c.n(this, derived)}${toKotlinGenericTypes(c, derived, mutable)}"
 
 
 fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, mutable: Boolean? = isMutable()): String {
