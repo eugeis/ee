@@ -294,7 +294,7 @@ fun <T : CompilationUnitI<*>> T.propagateItemToSubtypes(item: CompilationUnitI<*
 
 fun EntityI<*>.buildId(): AttributeI<*> = prop { key(true).type(n.UUID).name("id") }
 
-fun EntityI<*>.id(): AttributeI<*> = storage.getOrPut(this, "id", {
+fun EntityI<*>.id(): AttributeI<*> = storage.getOrPut(this, "id") {
     initIfNotInitialized()
     var ret = props().find { it.isKey() }
     if (ret == null && superUnit() is EntityI<*>) {
@@ -304,36 +304,36 @@ fun EntityI<*>.id(): AttributeI<*> = storage.getOrPut(this, "id", {
         ret = buildId()
     }
     ret
-})
+}
 
-fun EntityI<*>.dataTypeProps(): List<AttributeI<*>> = storage.getOrPut(this, "dataTypeProps", {
+fun EntityI<*>.dataTypeProps(): List<AttributeI<*>> = storage.getOrPut(this, "dataTypeProps") {
     propsAll().filter { !it.isMeta() }.map { p(it) }
-})
+}
 
-fun EntityI<*>.create(): CommandI<*> = storage.getOrPut(this, "create", {
+fun EntityI<*>.create(): CommandI<*> = storage.getOrPut(this, "create") {
     createBy {
         name("create")
         props(*dataTypeProps().toTypedArray())
         constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
     }
-})
+}
 
 
-fun EntityI<*>.update(): CommandI<*> = storage.getOrPut(this, "update", {
+fun EntityI<*>.update(): CommandI<*> = storage.getOrPut(this, "update") {
     updateBy {
         name("update")
         props(*dataTypeProps().toTypedArray())
         constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
     }
-})
+}
 
-fun EntityI<*>.delete(): CommandI<*> = storage.getOrPut(this, "delete", {
+fun EntityI<*>.delete(): CommandI<*> = storage.getOrPut(this, "delete") {
     deleteBy {
         name("delete")
         props(id())
         constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
     }
-})
+}
 
 fun StateI<*>.execute(command: CommandI<*>, value: ExecutorI<*>.() -> Unit = {}) = execute {
     on(command)

@@ -37,6 +37,10 @@ open class LangKotlinTemplates {
         nameBuilder: TemplateI<EnumTypeI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
         Template("EnumParseMethod", nameBuilder) { item, c -> item.toKotlinEnumParseMethod(c) }
 
+    open fun enumParseAndIsMethodsTestsParseMethodTests(
+            nameBuilder: TemplateI<EnumTypeI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
+            Template("EnumParseMethodTests", nameBuilder) { item, c -> item.toKotlinEnumParseAndIsMethodsTests(c) }
+
     open fun ifc(nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
             Template("Ifc", nameBuilder) { item, c -> item.toKotlinIfc(c, LangDerivedKind.API) }
 

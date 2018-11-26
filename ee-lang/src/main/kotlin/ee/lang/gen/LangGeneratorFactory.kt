@@ -52,6 +52,7 @@ open class LangGeneratorFactory {
 
     open fun pojoAndBuildersKt(fileNamePrefix: String = ""): GeneratorGroupI<StructureUnitI<*>> {
         val kotlinTemplates = buildKotlinTemplates()
+        val contextBuilderTest = buildKotlinContextFactory().buildForImplOnly("test")
         val contextBuilder = buildKotlinContextFactory().buildForImplOnly()
         val enums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = { findDownByType(EnumTypeI::class.java) }
         val compilationUnits: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
@@ -61,7 +62,7 @@ open class LangGeneratorFactory {
             findDownByType(CompilationUnitI::class.java).filter { it.isIfc() }
         }
         val dataTypes: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
-            findDownByType(DataTypeI::class.java).filter { it !is EnumTypeI<*> && !it.isIfc()  }
+            findDownByType(DataTypeI::class.java).filter { it !is EnumTypeI<*> && !it.isIfc() }
         }
 
         return GeneratorGroup("pojoAndBuildersKt", listOf(
@@ -81,6 +82,14 @@ open class LangGeneratorFactory {
                             listOf(ItemsFragment(items = enums,
                                     fragments = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) }),
                                     ItemsFragment(items = compilationUnits, fragments = { listOf(kotlinTemplates.pojo()) }))
+                        })),
+                GeneratorSimple("ApiTestBase", contextBuilder = contextBuilderTest,
+                        template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiTestEnumsBase",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = enums,
+                                    fragments = {
+                                        listOf(kotlinTemplates.enumParseAndIsMethodsTestsParseMethodTests())
+                                    }))
                         })),
                 GeneratorSimple("BuilderIfcBase", contextBuilder = contextBuilder,
                         template = ItemsTemplate(name = "${fileNamePrefix}BuilderIfcBase",

@@ -10,9 +10,9 @@ import ee.lang.gen.kt.LangKotlinContextFactory
 open class DesignKotlinContextFactory : LangKotlinContextFactory {
     constructor(singleModule: Boolean) : super(singleModule)
 
-    override fun contextBuilder(controller: DerivedController): StructureUnitI<*>.() -> KotlinContext {
+    override fun contextBuilder(controller: DerivedController, scope: String): StructureUnitI<*>.() -> KotlinContext {
         return {
-            KotlinContext(moduleFolder = computeModuleFolder(), namespace = namespace().toLowerCase(),
+            KotlinContext(namespace().toLowerCase(), computeModuleFolder(), "src-gen/$scope/kotlin",
                     derivedController = controller)
         }
     }

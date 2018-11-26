@@ -34,16 +34,16 @@ object n : StructureUnit({ name("native") }) {
     }
 
     object Collection : NativeType({ multi(true) }) {
-        val T = G({ type(String) })
+        val T = G { type(String) }
     }
 
     object List : NativeType({ superUnit(Collection).multi(true) }) {
-        val T = G({ type(String) })
+        val T = G { type(String) }
     }
 
     object Map : NativeType({ multi(true) }) {
-        val K = G({ type(String) })
-        val V = G({ type(String) })
+        val K = G { type(String) }
+        val V = G { type(String) }
     }
 
     object ItemEmpty : ExternalType({ namespace("ee.lang") }) {}

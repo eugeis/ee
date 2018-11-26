@@ -12,27 +12,27 @@ open class LangKotlinContextFactory {
         this.singleModule = singleModule
     }
 
-    open fun buildForImplOnly(): StructureUnitI<*>.() -> KotlinContext {
+    open fun buildForImplOnly(scope: String = "main"): StructureUnitI<*>.() -> KotlinContext {
         val controller = DerivedController()
 
         controller.registerKinds(listOf(LangDerivedKind.API, LangDerivedKind.IMPL), { name() }, isNotPartOfNativeTypes)
 
-        return contextBuilder(controller)
+        return contextBuilder(controller, scope)
     }
 
-    open fun buildForDslBuilder(): StructureUnitI<*>.() -> KotlinContext {
+    open fun buildForDslBuilder(scope: String = "main"): StructureUnitI<*>.() -> KotlinContext {
         val controller = DerivedController()
 
         controller.registerKind(LangDerivedKind.API, { "${name()}I" }, isNotPartOfNativeTypes)
         controller.registerKind(LangDerivedKind.IMPL, { name() }, isNotPartOfNativeTypes)
         controller.registerKind(LangDerivedKind.MANUAL, { "${name()}B" }, isNotPartOfNativeTypes)
 
-        return contextBuilder(controller)
+        return contextBuilder(controller, scope)
     }
 
-    protected open fun contextBuilder(controller: DerivedController): StructureUnitI<*>.() -> KotlinContext {
+    protected open fun contextBuilder(controller: DerivedController, scope: String): StructureUnitI<*>.() -> KotlinContext {
         return {
-            KotlinContext(moduleFolder = artifact(), namespace = namespace().toLowerCase(),
+            KotlinContext(namespace().toLowerCase(), artifact(), "src-gen/$scope/kotlin",
                     derivedController = controller)
         }
     }
