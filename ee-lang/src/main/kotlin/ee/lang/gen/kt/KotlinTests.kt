@@ -1,10 +1,9 @@
 package ee.lang.gen.kt
 
-import ee.lang.EnumTypeI
-import ee.lang.GenerationContext
-import ee.lang.LangDerivedKind
+import ee.common.ext.joinSurroundIfNotEmptyToString
+import ee.common.ext.then
+import ee.lang.*
 import ee.lang.gen.java.junit
-import ee.lang.nL
 
 fun <T : EnumTypeI<*>> T.toKotlinEnumParseAndIsMethodsTests(c: GenerationContext, derived: String = LangDerivedKind.API): String {
     val name = c.n(this, derived).capitalize()
@@ -59,7 +58,49 @@ class ${name}EnumParseAndIsMethodsTests {
         //wrong
         ${c.n(k.test.assertFalse, derived)}($name.$prevCap.is$litCap())
     }
-"""}}
+"""
+    }}
 }
 """
+}
+
+fun <T : CompilationUnitI<*>> T.toKotlinFieldTest(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                  api: String = LangDerivedKind.API,
+                                                  dataClass: Boolean = this is BasicI<*> &&
+                                                          superUnits().isEmpty() && superUnitFor().isEmpty()): String {
+    val name = c.n(this, derived).capitalize()
+    val timeProps = primaryConstructor().params().filter {
+        it.type() == n.Date
+    }.associateBy({ it.name() }) {
+        it.name()
+    }
+
+    return """
+class ${name}FieldTests {
+    @${c.n(junit.Test, derived)}
+    fun test${name}_Normal() {${timeProps.values.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+        "        val $it = Date()"
+    }}
+        val item = $name${primaryConstructor().toKotlinCallValue(c, derived, externalVariables = timeProps)}${
+    props().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+        "        ${c.n(k.test.assertEquals, derived)}(${
+        it.toKotlinValue(c, derived, value = timeProps[it.name()] ?: it.value())}, item.${it.name()})"
+    }}
+    }
+
+    @${c.n(junit.Test, derived)}
+    fun test${name}_Default() {
+        val item = $name()${
+    props().joinSurroundIfNotEmptyToString(nL, prefix = nL,
+            postfix = nL) {
+        if (!it.isNullable() &&  it.type() == n.Date) {
+            "        ${c.n(k.test.assertTrue, derived)}(${
+            it.toKotlinValueInit(c, derived)}.time - item.${it.name()}.time <= 1000)"
+        } else {
+            "        ${c.n(k.test.assertEquals, derived)}(${
+            it.toKotlinValueInit(c, derived)}, item.${it.name()})"
+        }
+    }}
+    }
+}"""
 }

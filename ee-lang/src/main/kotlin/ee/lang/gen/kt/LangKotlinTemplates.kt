@@ -49,4 +49,7 @@ open class LangKotlinTemplates {
 
     open fun pojo(nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
         Template("Pojo", nameBuilder) { item, c -> item.toKotlinImpl(c, LangDerivedKind.API) }
+
+    open fun pojoTest(nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
+            Template("Pojo", nameBuilder) { item, c -> item.toKotlinFieldTest(c, LangDerivedKind.API) }
 }

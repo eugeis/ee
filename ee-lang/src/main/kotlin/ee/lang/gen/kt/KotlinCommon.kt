@@ -12,6 +12,7 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
         n.Int -> "0"
         n.Long -> "0L"
         n.Float -> "0f"
+        n.Double -> "0.0"
         n.Date -> "${c.n(j.util.Date)}()"
         n.Path -> "${c.n(j.nio.file.Paths)}.get(\"\")"
         n.Blob -> "ByteArray(0)"
@@ -122,10 +123,10 @@ fun <T : TypeI<*>> T.toKotlinIfNative(c: GenerationContext, derived: String,
     }
 }
 
-fun TypeI<*>.toKotlinGenericTypes(c: GenerationContext, derived: String,
-                                  mutable: Boolean? = null): String = generics().joinWrappedToString(", ", "", "<", ">") {
-    it.toKotlin(c, derived, mutable)
-}
+fun TypeI<*>.toKotlinGenericTypes(c: GenerationContext, derived: String, mutable: Boolean? = null): String =
+        generics().joinWrappedToString(", ", "", "<", ">") {
+            it.toKotlin(c, derived, mutable)
+        }
 
 
 fun GenericI<*>.toKotlin(c: GenerationContext, derived: String, mutable: Boolean? = null): String =
@@ -161,22 +162,22 @@ fun <T : TypeI<*>> T.toKotlin(c: GenerationContext, derived: String,
         ?: "${c.n(this, derived)}${toKotlinGenericTypes(c, derived, mutable)}"
 
 
-fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, mutable: Boolean? = isMutable()): String {
-    if (value() != null) {
-        return when (type()) {
-            n.String, n.Text -> "\"${value()}\""
-            n.Boolean, n.Int, n.Long, n.Float, n.Date, n.Path, n.Blob, n.Void -> "${value()}"
+fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, mutable: Boolean? = isMutable(),
+                                        value: Any? = value()): String {
+    return if (value != null) {
+        when (type()) {
+            n.String, n.Text -> "\"$value\""
+            n.Boolean, n.Int, n.Long, n.Float, n.Date, n.Path, n.Blob, n.Void -> "$value"
             else -> {
-                if (value() is EnumLiteralI<*>) {
-                    val lit = value() as EnumLiteralI<*>
-                    "${(lit.parent() as EnumTypeI<*>).toKotlin(c, derived, mutable)}.${lit.toKotlin()}"
+                if (value is EnumLiteralI<*>) {
+                    "${(value.parent() as EnumTypeI<*>).toKotlin(c, derived, mutable)}.${value.toKotlin()}"
                 } else {
-                    "${value()}"
+                    "$value"
                 }
             }
         }
     } else {
-        return toKotlinDefault(c, derived, mutable)
+        toKotlinDefault(c, derived, mutable)
     }
 }
 
@@ -190,12 +191,24 @@ fun <T : AttributeI<*>> T.toKotlinInit(c: GenerationContext, derived: String,
     }
 }
 
+fun <T : AttributeI<*>> T.toKotlinValueInit(c: GenerationContext, derived: String,
+                                            mutable: Boolean? = isMutable(), nullable: Boolean = isNullable()): String {
+    return when {
+        value() != null -> toKotlinValue(c, derived, mutable)
+        nullable -> "null"
+        isInitByDefaultTypeValue() -> toKotlinValue(c, derived, mutable)
+        else -> ""
+    }
+}
+
 fun <T : AttributeI<*>> T.toKotlinInitMember(c: GenerationContext,
                                              derived: String): String = "this.${name()}${toKotlinInit(c, derived)}"
 
 fun <T : AttributeI<*>> T.toKotlinSignature(c: GenerationContext, derived: String, api: String,
-                                            initValue: Boolean = true, forceInit: Boolean = true): String = "${name()}: ${toKotlinTypeDef(c, api)}${
-(forceInit || (initValue && value() != null)).then { toKotlinInit(c, derived) }}"
+                                            initValue: Boolean = true, forceInit: Boolean = true): String =
+        "${name()}: ${toKotlinTypeDef(c, api)}${(forceInit || (initValue && value() != null)).then {
+            toKotlinInit(c, derived)
+        }}"
 
 fun <T : AttributeI<*>> T.toKotlinConstructorMember(c: GenerationContext, derived: String, api: String,
                                                     initValues: Boolean = true, forceInit: Boolean = true): String =
@@ -270,9 +283,14 @@ fun <T : LogicUnitI<*>> T.toKotlinCall(c: GenerationContext, derived: String, pr
 }
 
 
-fun <T : LogicUnitI<*>> T.toKotlinCallValue(c: GenerationContext, derived: String): String = isNotEMPTY().then {
+fun <T : LogicUnitI<*>> T.toKotlinCallValue(c: GenerationContext, derived: String,
+                                            externalVariables: Map<String, String> = emptyMap()): String = isNotEMPTY().then {
     "(${params().joinWrappedToString(", ") {
-        it.toKotlinValue(c, derived)
+        if (externalVariables.containsKey(it.name())) {
+            externalVariables[it.name()]!!
+        } else {
+            it.toKotlinValue(c, derived)
+        }
     }})"
 }
 

@@ -42,6 +42,7 @@ object k : StructureUnit({ name("Kotlin") }) {
         val assertSame = ExternalType()
         val assertTrue = ExternalType()
         val assertFalse = ExternalType()
+        val assertEquals = ExternalType()
     }
 
     object json : StructureUnit({ namespace("com.fasterxml.jackson.annotation") }) {

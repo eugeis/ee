@@ -83,14 +83,6 @@ open class LangGeneratorFactory {
                                     fragments = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) }),
                                     ItemsFragment(items = compilationUnits, fragments = { listOf(kotlinTemplates.pojo()) }))
                         })),
-                GeneratorSimple("ApiTestBase", contextBuilder = contextBuilderTest,
-                        template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiTestEnumsBase",
-                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                            listOf(ItemsFragment(items = enums,
-                                    fragments = {
-                                        listOf(kotlinTemplates.enumParseAndIsMethodsTestsParseMethodTests())
-                                    }))
-                        })),
                 GeneratorSimple("BuilderIfcBase", contextBuilder = contextBuilder,
                         template = ItemsTemplate(name = "${fileNamePrefix}BuilderIfcBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName,
@@ -98,7 +90,23 @@ open class LangGeneratorFactory {
                 GeneratorSimple("BuilderApiBase", contextBuilder = contextBuilder,
                         template = ItemsTemplate(name = "${fileNamePrefix}BuilderApiBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName,
-                                items = dataTypes, fragments = { listOf(kotlinTemplates.builder(itemNameAsKotlinFileName)) }))
+                                items = dataTypes, fragments = { listOf(kotlinTemplates.builder(itemNameAsKotlinFileName)) })),
+                GeneratorSimple("ApiTestEnumsBase", contextBuilder = contextBuilderTest,
+                        template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiTestEnumsBase",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = enums,
+                                    fragments = {
+                                        listOf(kotlinTemplates.enumParseAndIsMethodsTestsParseMethodTests())
+                                    }))
+                        })),
+                GeneratorSimple("ApiTestBase", contextBuilder = contextBuilderTest,
+                        template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiTestBase",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = compilationUnits,
+                                    fragments = {
+                                        listOf(kotlinTemplates.pojoTest())
+                                    }))
+                        }))
         ))
     }
 
