@@ -70,7 +70,7 @@ fun <T : TypeI<*>> T.toKotlinTypeDef(c: GenerationContext, api: String, nullable
 fun <T : CompilationUnitI<*>> T.toKotlinEmptyObject(c: GenerationContext, derived: String): String {
     return """
     companion object {
-        val EMPTY = ${c.n(this, derived)}()
+        val EMPTY by lazy { ${c.n(this, derived)}() }
     }"""
 }
 

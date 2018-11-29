@@ -90,7 +90,7 @@ class ${name}FieldTests {
 
     @${c.n(junit.Test, derived)}
     fun test${name}_Default() {
-        val item = $name()${
+        val item = $name.EMPTY${
     props().joinSurroundIfNotEmptyToString(nL, prefix = nL,
             postfix = nL) {
         if (!it.isNullable() &&  it.type() == n.Date) {
