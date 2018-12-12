@@ -9,8 +9,12 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
     return when (baseType) {
         n.String, n.Text -> "\"\""
         n.Boolean -> "false"
+        n.Short -> "0"
+        n.UShort -> "0"
         n.Int -> "0"
+        n.UInt -> "0"
         n.Long -> "0L"
+        n.ULong -> "0L"
         n.Float -> "0f"
         n.Double -> "0.0"
         n.Date -> "${c.n(j.util.Date)}()"

@@ -9,6 +9,7 @@ object n : StructureUnit({ name("native") }) {
     val Blob = NativeType()
     val String = NativeType()
     val Boolean = NativeType()
+    val Short = NativeType()
     val Int = NativeType()
     val Long = NativeType()
     val Float = NativeType()
@@ -18,6 +19,10 @@ object n : StructureUnit({ name("native") }) {
     val Error = NativeType()
     val Url = NativeType()
     val UUID = NativeType()
+
+    val UShort = NativeType()
+    val UInt = NativeType()
+    val ULong = NativeType()
 
     object TimeUnit : EnumType() {
         val Milliseconds = lit()
