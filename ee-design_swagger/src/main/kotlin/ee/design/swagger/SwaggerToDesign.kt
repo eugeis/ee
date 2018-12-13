@@ -24,17 +24,17 @@ private val log = LoggerFactory.getLogger("SwaggerToDesign")
 data class DslTypes(val name: String, val types: Map<String, String>)
 
 class SwaggerToDesign(private val pathsToEntityNames: MutableMap<String, String> = mutableMapOf(),
-    private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
-    private val ignoreTypes: MutableSet<String> = mutableSetOf()) {
+                      private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
+                      private val ignoreTypes: MutableSet<String> = mutableSetOf()) {
 
     fun toDslTypes(swaggerFile: Path): DslTypes =
-        SwaggerToDesignExecutor(swaggerFile, namesToTypeName, ignoreTypes).toDslTypes()
+            SwaggerToDesignExecutor(swaggerFile, namesToTypeName, ignoreTypes).toDslTypes()
 
 }
 
 private class SwaggerToDesignExecutor(swaggerFile: Path,
-    private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
-    private val ignoreTypes: MutableSet<String> = mutableSetOf()) {
+                                      private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
+                                      private val ignoreTypes: MutableSet<String> = mutableSetOf()) {
     private val primitiveTypes = mapOf("integer" to "n.Int", "string" to "n.String")
     private val typeToPrimitive = mutableMapOf<String, String>()
 
@@ -77,20 +77,20 @@ private class SwaggerToDesignExecutor(swaggerFile: Path,
 
     private fun Map<String, Property>?.toDslProperties(): String {
         return (this != null).ifElse(
-            { this!!.entries.joinToString(nL, nL) { it.value.toDslProp(it.key) } }, { "" })
+                { this!!.entries.joinToString(nL, nL) { it.value.toDslProp(it.key) } }, { "" })
     }
 
     private fun Property.toDslPropValue(name: String, suffix: String = "", prefix: String = ""): String {
         return ((this is StringProperty && default.isNullOrEmpty().not())).ifElse({
             "${suffix}value(${(this as StringProperty).enum.isNotEmpty().ifElse({ "$name.$default" },
-                { "\"$name.$default\"" })})$prefix"
+                    { "\"$name.$default\"" })})$prefix"
         }, { "" })
     }
 
     private fun String?.toDslDoc(suffix: String = "", prefix: String = ""): String {
         return (this != null).ifElse({
             "${suffix}doc(${(this!!.contains("\"") || contains("\n") || contains("\\")).ifElse(
-                "\"\"\"$this\"\"\"", "\"$this\"")})$prefix"
+                    "\"\"\"$this\"\"\"", "\"$this\"")})$prefix"
         }, { "" })
     }
 
@@ -135,8 +135,8 @@ object $name : Values(${description.toDslDoc("{", "}")}) {${properties.toDslProp
 
     private fun io.swagger.models.properties.Property.toDslProp(name: String): String {
         val nameCamelCase = name.toCamelCase()
-        return "    val $nameCamelCase = prop { ${(name != nameCamelCase).then(
-            { "externalName(\"$name\")." })}${toDslInit(nameCamelCase)} }"
+        return "    val $nameCamelCase = prop { ${(name != nameCamelCase)
+                .then { "externalName(\"$name\")." }}${toDslInit(nameCamelCase)} }"
     }
 
     private fun io.swagger.models.properties.Property.toDslTypeName(name: String): String {
@@ -241,10 +241,10 @@ object $name : Values(${description.toDslDoc("{", "}")}) {${properties.toDslProp
     }
 
     private fun ObjectProperty.toDslTypeName(): String = properties.keys.joinToString(
-        "") { it.capitalize() }.toDslTypeName()
+            "") { it.capitalize() }.toDslTypeName()
 
     private fun String.toDslTypeName(): String {
-        return typeToPrimitive[this] ?: namesToTypeName.getOrPut(this, { toCamelCase().capitalize() })
+        return typeToPrimitive[this] ?: namesToTypeName.getOrPut(this) { toCamelCase().capitalize() }
     }
 
     private fun io.swagger.models.properties.Property.toDslInit(name: String): String {
@@ -264,13 +264,13 @@ object $name : Values(${description.toDslDoc("{", "}")}) {${properties.toDslProp
 
     private fun Parameter.toDslInit(name: String): String {
         val typeName = toDslTypeName(name)
-        return "type($typeName)${required.not().then({ ".nullable()" })}${description.toDslDoc(".")}"
+        return "type($typeName)${required.not().then { ".nullable()" }}${description.toDslDoc(".")}"
     }
 
     private fun io.swagger.models.properties.Property.toDslInitDirect(name: String): String {
         val typeName = toDslTypeName(name)
-        return "type($typeName)${required.not().then({ ".nullable()" })}${(this is PasswordProperty).then(
-            { ".hidden()" })}${toDslPropValue(typeName, ".")}${description.toDslDoc(".")}"
+        return "type($typeName)${required.not().then { ".nullable()" }}${(this is PasswordProperty)
+                .then { ".hidden()" }}${toDslPropValue(typeName, ".")}${description.toDslDoc(".")}"
     }
 
     private fun io.swagger.models.Model.toValues(name: String): Values {

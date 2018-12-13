@@ -1,7 +1,5 @@
-package ee.design.swagger
+package ee.design.xsd
 
-import ee.design.xsd.DslTypes
-import ee.design.xsd.XsdToDesign
 import org.slf4j.LoggerFactory
 import java.nio.file.Paths
 
@@ -10,17 +8,17 @@ object XsdToDesignMain {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val swagger = XsdToDesign(mutableMapOf(),
+        val xsd = XsdToDesign(mutableMapOf(),
                 mutableMapOf("rel.self" to "Link", "Href" to "Link", "AspectId" to "n.String", "ETag" to "n.String",
                         "Errors" to "n.String", "TenantId" to "n.String", "TypeId" to "n.String"),
                 mutableSetOf("AspectId", "ETag", "Errors", "TenantId", "TypeId"))
 
-        val base = Paths.get("ee/ee-design_swagger/src/test/resources").toRealPath()
+        val base = Paths.get("ee/ee-design_xsd/src/test/resources").toRealPath()
 
         val alreadyGeneratedTypes = mutableMapOf<String, String>()
         val buffer = StringBuffer()
-        listOf("assetmanagement-v3.yaml").map {
-            swagger.toDslTypes(base.resolve(it))
+        listOf("UANodeSet.xsd").map {
+            xsd.toDslTypes(base.resolve(it))
         }.forEach { buffer.appendTypes(it, alreadyGeneratedTypes) }
 
         log.info(buffer.toString())
