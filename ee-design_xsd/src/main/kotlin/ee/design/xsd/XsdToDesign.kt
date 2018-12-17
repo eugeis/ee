@@ -1,7 +1,6 @@
 package ee.design.xsd
 
 import com.sun.xml.xsom.*
-import com.sun.xml.xsom.parser.SchemaDocument
 import com.sun.xml.xsom.parser.XSOMParser
 import ee.common.ext.safe
 import ee.common.ext.toCamelCase
@@ -13,7 +12,7 @@ import javax.xml.parsers.SAXParserFactory
 
 private val log = LoggerFactory.getLogger("XsdToDesign")
 
-data class DslTypes(val name: String, val types: Map<String, String>)
+data class DslTypes(val name: String, val types: Map<String, String>, val elements: Map<String, String>)
 
 class XsdToDesign(private val pathsToEntityNames: MutableMap<String, String> = mutableMapOf(),
                   private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
@@ -24,36 +23,35 @@ class XsdToDesign(private val pathsToEntityNames: MutableMap<String, String> = m
 
 }
 
-private class XsdToDesignExecutor(xsdFile: Path,
+private class XsdToDesignExecutor(val xsdFile: Path,
                                   private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
                                   private val ignoreTypes: MutableSet<String> = mutableSetOf()) {
     private val primitiveTypes = mapOf("integer" to "n.Int", "string" to "n.String")
     private val typeToPrimitive = mutableMapOf<String, String>()
     private val parser = XSOMParser(SAXParserFactory.newInstance())
 
-    private val xsd: SchemaDocument by lazy {
+    private val schemas: Collection<XSSchema> by lazy {
         parser.parse(xsdFile.toFile())
-        parser.result.schemas.forEach {
-            log.info("parsed {}", it.targetNamespace)
-        }
-        parser.documents.first()
+        parser.result.schemas
     }
     private val typesToFill = TreeMap<String, String>()
+    private val elementsToFill = TreeMap<String, String>()
 
     fun toDslTypes(): DslTypes {
         //fillRepository(xsd.schema)
 
         //val repository = Repository
         //log.info("{}", repository)
-        xsd.schema.elementDecls.forEach { name, item ->
-            typesToFill[name] = item.toDslValue(name)
-        }
+        schemas.forEach { schema ->
+            schema.elementDecls.forEach { name, item ->
+                elementsToFill[name] = item.toDslValue(name)
+            }
 
-        xsd.schema.complexTypes.forEach { name, item ->
-            typesToFill[name] = item.toDslValue(name)
+            schema.complexTypes.forEach { name, item ->
+                typesToFill[name] = item.toDslValue(name)
+            }
         }
-
-        return DslTypes(name = xsd.toString(), types = typesToFill)
+        return DslTypes(xsdFile.toString(), typesToFill, elementsToFill)
     }
 
     private fun XSElementDecl.toDslValue(currentName: String = name): String =
@@ -66,12 +64,30 @@ private class XsdToDesignExecutor(xsdFile: Path,
 
     private fun XSComplexType.toDslValue(currentName: String = name): String {
         val superUnit = safe(log) { baseType.name?.takeIf { it != "anyType" } }
+        val elements = mutableListOf<XSElementDecl>()
+        if (root != null) elements.addAll(elementDecls)
+        contentType?.asParticle()?.term?.flattenTo(elements)
         return """
 object ${currentName.toDslTypeName()} : Values({${superUnit?.let { "superUnit(${baseType.name})" } ?: ""}}) {${
         declaredAttributeUses.joinToString(nL, nL) { it.toDslProp() }}${
-        elementDecls.joinToString(nL, nL) { it.toDslProp() }}
-
+        elements.joinToString(nL, nL) {
+            it.toDslProp()
+        }}
 }"""
+    }
+
+    private fun XSTerm.flattenTo(toFill: MutableCollection<XSElementDecl>) {
+        if (isElementDecl) {
+            toFill.add(asElementDecl())
+        } else if (isModelGroupDecl) {
+            asModelGroupDecl().modelGroup.toList().map { it.term }.forEach {
+                it.flattenTo(toFill)
+            }
+        } else if (isModelGroup) {
+            asModelGroup().toList().map { it.term }.forEach {
+                it.flattenTo(toFill)
+            }
+        }
     }
 
     private fun XSAttributeUse.toDslProp(currentName: String = decl.name): String {
@@ -89,6 +105,9 @@ object ${currentName.toDslTypeName()} : Values({${superUnit?.let { "superUnit(${
         return "    val $nameCamelCase = $prop { ${parts.joinToString(".") { it }} }"
     }
 
+    private fun XSAttGroupDecl.toDslProp(currentName: String = name): String {
+        return """${attributeUses.joinToString(nL, nL) { it.toDslProp() }}"""
+    }
 
     private fun XSElementDecl.toDslProp(currentName: String = name): String {
         val nameCamelCase = currentName.toCamelCase().decapitalize()

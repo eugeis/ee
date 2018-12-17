@@ -38,5 +38,16 @@ object XsdToDesignMain {
                         appendln(v)
                     }
                 }
+                types.elements.forEach { k, v ->
+                    if (keyToTypes.containsKey(k)) {
+                        if (keyToTypes[k] != v) {
+                            log.warn("different type definitions in {}, with same name {} first:{} second {}", types.name,
+                                    k, keyToTypes[k], v)
+                        }
+                    } else {
+                        keyToTypes[k] = v
+                        appendln(v)
+                    }
+                }
             }
 }
