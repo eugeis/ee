@@ -23,14 +23,24 @@ object XsdToDesignMain {
         log.info(buffer.toString())
     }
 
-    private fun StringBuffer.appendTypes(types: DslTypes, keyToTypes: MutableMap<String, String>): StringBuffer =
+    private fun StringBuffer.appendTypes(types: DslTypes,
+                                         keyToTypes: MutableMap<String, String>): StringBuffer =
             apply {
-                appendln("//${types.name}")
+                append("""
+package mcr
+
+import ee.design.*
+import ee.lang.*
+
+
+object UaNodeSet : Module( { artifact("mcr-opcua_nodeset").initObjectTree() } ) {
+""")
+                append("    //").append(types.name)
                 types.types.forEach { k, v ->
                     if (keyToTypes.containsKey(k)) {
                         if (keyToTypes[k] != v) {
-                            log.warn("different type definitions in {}, with same name {} first:{} second {}", types.name,
-                                    k, keyToTypes[k], v)
+                            log.warn("different type definitions in {}, with same name {} first:{} second {}",
+                                    types.name, k, keyToTypes[k], v)
                         }
                     } else {
                         keyToTypes[k] = v
@@ -40,13 +50,14 @@ object XsdToDesignMain {
                 types.elements.forEach { k, v ->
                     if (keyToTypes.containsKey(k)) {
                         if (keyToTypes[k] != v) {
-                            log.warn("different type definitions in {}, with same name {} first:{} second {}", types.name,
-                                    k, keyToTypes[k], v)
+                            log.warn("different type definitions in {}, with same name {} first:{} second {}",
+                                    types.name, k, keyToTypes[k], v)
                         }
                     } else {
                         keyToTypes[k] = v
                         appendln(v)
                     }
                 }
+                appendln("}")
             }
 }

@@ -138,12 +138,13 @@ private class XsdToDesignExecutor(val xsdFile: Path,
         }
 
         return """
-object ${currentName.toDslTypeName()} : Values(${hasSuperUnit?.let { " { superUnit(${baseType.toDslTypeName()}) }" } ?: ""}) {${
+    object ${currentName.toDslTypeName()} : Values(${hasSuperUnit?.let { " { superUnit(${baseType.toDslTypeName()}) }" }
+                ?: ""}) {${
         declaredAttributeUses.joinToString(nL, nL) { it.toDslProp() }}${
         elements.joinToString(nL, nL) {
             it.toDslProp()
         }}
-}"""
+    }"""
     }
 
     private fun XSTerm.flattenTo(toFill: MutableCollection<Item>, min: BigInteger, max: BigInteger) {
@@ -167,14 +168,18 @@ object ${currentName.toDslTypeName()} : Values(${hasSuperUnit?.let { " { superUn
         val parts = mutableListOf<String>()
 
         if (!currentName.equals(nameCamelCase, true)) parts.add("externalName(\"$currentName\")")
-        if (!isRequired) parts.add("nullable()")
-        if (defaultValue?.value != null && defaultValue.value.isNotEmpty()) parts.add("value(${defaultValue.value})")
-        if (fixedValue?.value != null && fixedValue.value.isNotEmpty()) parts.add("value(${fixedValue.value})")
         val type = safe(log) { decl.type }?.toDslTypeName() ?: "n.String"
         val prop = type.definePropType(parts, if (isRequired) 1 else 0, 1)
+        //if (!isRequired) parts.add("nullable()")
+        defaultValue?.value?.addValue(parts, type)
+        fixedValue?.value?.addValue(parts, type)
 
-        return "    val $nameCamelCase = $prop${
+        return "        val $nameCamelCase = $prop${
         parts.joinSurroundIfNotEmptyToString(".", " { ", " }", "()") { it }}"
+    }
+
+    private fun String?.addValue(parts: MutableList<String>, type: String) {
+        if (this != null && isNotEmpty()) parts.add("value(${convertForType(type)})")
     }
 
     private fun XSAttGroupDecl.toDslProp(currentName: String = name): String {
@@ -187,17 +192,17 @@ object ${currentName.toDslTypeName()} : Values(${hasSuperUnit?.let { " { superUn
         val parts = mutableListOf<String>()
 
         if (!currentName.equals(nameCamelCase, true)) parts.add("externalName(\"$currentName\")")
-        //if (!isRequired) parts.add("nullable()")
-        val defaultValue = element.defaultValue?.value
-        if (defaultValue != null && defaultValue.isNotEmpty()) parts.add("value($defaultValue)")
-        val fixedValue = element.fixedValue?.value
-        if (fixedValue != null && fixedValue.isNotEmpty()) parts.add("value($fixedValue)")
         val type = safe(log) { element.type }?.toDslTypeName(element.type.name ?: "string") ?: "n.String"
         val prop = type.definePropType(parts, min, max)
+        //if (!isRequired) parts.add("nullable()")
+        element.defaultValue?.value?.addValue(parts, type)
+        element.fixedValue?.value?.addValue(parts, type)
 
-        return "    val $nameCamelCase = $prop${
+        return "        val $nameCamelCase = $prop${
         parts.joinSurroundIfNotEmptyToString(".", " { ", " }", "()") { it }}"
     }
+
+    private fun String.convertForType(type: String) = if (type == "n.String") "\"$this\"" else this
 
     private fun String.definePropType(parts: MutableList<String>, min: Int, max: Int): String {
         return if (max != 1) {
