@@ -142,39 +142,46 @@ fun String.toKey(): String = toConvertUmlauts().replace("[^a-zA-Z0-9.]".toRegex(
 fun String.toUrlKey(): String = toConvertUmlauts().toLowerCase().replace("[^a-z0-9]".toRegex(), "-").replace(
         "_+".toRegex(), "-")
 
+val bigsBigSmall = "([A-Z]+)([A-Z].*)".toRegex()
 val strToCamelCase = WeakHashMap<String, String>()
 fun String.toCamelCase(): String = strToCamelCase.getOrPut(this) {
     val parts = split('_')
-    return if (parts.size > 1) {
-        parts.joinToString("") { it.toLowerCase().capitalize() }.decapitalize()
+    val item = if (parts.size > 1) parts.joinToString("") {
+        it.toLowerCase().capitalize()
+    } else this
+    val ps = bigsBigSmall.matchEntire(item)
+    return if (ps != null) {
+        "${ps.groupValues[1].toLowerCase()}${ps.groupValues[2]}"
     } else {
-        this
+        item.decapitalize()
     }
 }
 
 val smallLetters = Regex("[a-z]")
+val bAZ = "(\\B[A-Z])".toRegex()
 
 val strToUnderscoredUpper = WeakHashMap<String, String>()
 fun String.toUnderscoredUpperCase(): String = strToUnderscoredUpper.getOrPut(this) {
-    if (smallLetters.matches(this)) this.replace("(\\B[A-Z])".toRegex(), "_$1").toUpperCase()
-    else this
+    if (smallLetters.matches(this)) {
+        replace(bAZ, "_$1").toUpperCase()
+    } else this
 }
 
 val strToUnderscoredLower = WeakHashMap<String, String>()
 fun String.toUnderscoredLowerCase(): String = strToUnderscoredLower.getOrPut(this) {
-    if (smallLetters.matches(this)) this.replace("(\\B[A-Z])".toRegex(), "_$1").toLowerCase()
+    if (smallLetters.matches(this)) replace(bAZ, "_$1").toLowerCase()
     else this.toLowerCase()
 }
 
 fun String.toHyphenLowerCase(): String = strToUnderscoredLower.getOrPut(this) {
-    if (smallLetters.matches(this)) this.replace("(\\B[A-Z])".toRegex(), "-$1").toLowerCase()
+    if (smallLetters.matches(this)) replace(bAZ, "-$1").toLowerCase()
     else this.toLowerCase()
 }
 
 val sqlKeywords = mapOf("group" to "group_")
 val strToSql = WeakHashMap<String, String>()
 fun String.toSql(limit: Int = 64): String = strToSql.getOrPut(this) {
-    val base = this.toUnderscoredLowerCase()
+    val base = toUnderscoredLowerCase()
     (base.length > limit).ifElse({
         base.replace("(?<!^)(?<!_)[qeuioajy]".toRegex(), "").replace("(\\w)\\1+".toRegex(), "$1")
     }, sqlKeywords.getOrElse(base) { base })

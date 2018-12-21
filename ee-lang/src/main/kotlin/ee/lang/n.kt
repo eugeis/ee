@@ -7,6 +7,7 @@ object n : StructureUnit({ name("native") }) {
     val Path = NativeType()
     val Text = NativeType()
     val Blob = NativeType()
+    val Byte = NativeType()
     val String = NativeType()
     val Boolean = NativeType()
     val Short = NativeType()
@@ -20,6 +21,7 @@ object n : StructureUnit({ name("native") }) {
     val Url = NativeType()
     val UUID = NativeType()
 
+    val UByte = NativeType()
     val UShort = NativeType()
     val UInt = NativeType()
     val ULong = NativeType()

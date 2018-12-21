@@ -122,7 +122,7 @@ object ${name.toDslTypeName()} : Values(${description.toDslDoc("{ ", " }")}) {${
         return """
 object $name : EnumType() {
     val value = prop { type(n.String).key() }${enum.joinToString(nL, nL) {
-            "    val ${it.toCamelCase().decapitalize()} = lit(value, \"$it\")"
+            "    val ${it.toCamelCase()} = lit(value, \"$it\")"
         }}
 }"""
     }

@@ -8,10 +8,9 @@ object XsdToDesignMain {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val xsd = XsdToDesign(mutableMapOf(),
-                mutableMapOf("rel.self" to "Link", "Href" to "Link", "AspectId" to "n.String", "ETag" to "n.String",
-                        "Errors" to "n.String", "TenantId" to "n.String", "TypeId" to "n.String"),
-                mutableSetOf("AspectId", "ETag", "Errors", "TenantId", "TypeId"))
+        val xsd = XsdToDesign(
+                //onlyItems = mutableSetOf("UANode")
+                )
 
         val base = Paths.get("ee/ee-design_xsd/src/test/resources").toRealPath()
 

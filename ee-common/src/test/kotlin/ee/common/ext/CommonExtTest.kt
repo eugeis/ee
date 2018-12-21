@@ -90,7 +90,7 @@ class CommonExtTest {
     fun testStringCamelCase() {
         assertEquals("part1Part2", "part1_part2".toCamelCase())
         assertEquals("part1Part2", "part1_part2".toCamelCase())
-        assertEquals("ETag", "ETag".toCamelCase())
+        assertEquals("eTag", "ETag".toCamelCase())
     }
 
     @Test
