@@ -68,7 +68,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     }
 
     //common libs
-    object gee : StructureUnit({ namespace("github.com.eugeis.gee") }) {
+    object gee : StructureUnit({ namespace("github.com.go-ee.utils") }) {
         object enum : StructureUnit() {
             val Literal = ExternalType()
             val EnumBaseJson = ExternalType()
@@ -217,10 +217,10 @@ open class GoContext : GenerationContext {
     val namespaceLastPart: String
 
     constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src/main/go/src",
-                genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.go".toRegex(),
-                derivedController: DerivedController = DerivedController(DerivedStorage()),
-                macroController: MacroController = MacroController()) : super(namespace, moduleFolder, genFolder,
-            genFolderDeletable, genFolderPatternDeletable, derivedController, macroController) {
+        genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.go".toRegex(),
+        derivedController: DerivedController = DerivedController(DerivedStorage()),
+        macroController: MacroController = MacroController()) : super(namespace, moduleFolder, genFolder,
+        genFolderDeletable, genFolderPatternDeletable, derivedController, macroController) {
         namespaceLastPart = namespace.substringAfterLast(".")
     }
 
@@ -236,11 +236,19 @@ open class GoContext : GenerationContext {
         return types.isNotEmpty().then {
             val outsideTypes = types.filter { it.namespace().isNotEmpty() && !it.namespace().equals(namespace, true) }
             outsideTypes.isNotEmpty().then {
-                outsideTypes.map { "$indent${it.namespace()}" }.toSortedSet()
-                        .joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
-                            """    "${it.toLowerCase().toDotsAsPath().replace("github/com", "github.com").replace(
-                                    "gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
+                outsideTypes.sortedBy { it.namespace() }.map { "$indent${it.namespace()}" }.toSortedSet()
+                    .joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
+                        if (it.startsWith("ee.")) {
+                            """    "${it.toLowerCase().toDotsAsPath()
+                                .replace("ee/", "github.com/go-ee/")
+                                .replace("github/com", "github.com")
+                                .replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
+                        } else {
+                            """    "${it.toLowerCase().toDotsAsPath()
+                                .replace("github/com", "github.com")
+                                .replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
                         }
+                    }
             }
         }
     }
@@ -280,7 +288,7 @@ fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
 }
 
 fun OperationI<*>.retTypeAndError(retType: TypeI<*>): OperationI<*> =
-        returns(Attribute { type(retType).name("ret") }, Attribute { type(g.error).name("err") })
+    returns(Attribute { type(retType).name("ret") }, Attribute { type(g.error).name("err") })
 
 fun OperationI<*>.retError(): OperationI<*> = returns(Attribute { type(g.error).name("err") })
 

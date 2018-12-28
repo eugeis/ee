@@ -40,9 +40,9 @@ fun <T : AttributeI<*>> T.toGoDefault(c: GenerationContext, derived: String): St
 fun <T : AttributeI<*>> T.toGoValue(c: GenerationContext, derived: String): String {
     return if (value() != null) {
         when (type()) {
-            n.String, n.Text                                                  -> "\"${value()}\""
+            n.String, n.Text -> "\"${value()}\""
             n.Boolean, n.Int, n.Long, n.Float, n.Date, n.Path, n.Blob, n.Void -> "${value()}"
-            else                                                              -> {
+            else -> {
                 if (value() is LiteralI<*>) {
                     val lit = value() as LiteralI<*>
                     lit.toGoValue(c, derived)
@@ -77,20 +77,20 @@ fun <T : TypeI<*>> T.toGoDefault(c: GenerationContext, derived: String, attr: At
     val baseType = findDerivedOrThis()
     return when (baseType) {
         n.String, n.Text -> "\"\""
-        n.Boolean        -> "false"
-        n.Int            -> "0"
-        n.Long           -> "0L"
-        n.Float          -> "0f"
-        n.Date           -> "${c.n(j.util.Date)}()"
-        n.Path           -> "${c.n(j.nio.file.Paths)}.get(\"\")"
-        n.Blob           -> "ByteArray(0)"
-        n.Void           -> ""
-        n.Error          -> "Throwable()"
-        n.Exception      -> "Exception()"
-        n.Url            -> "${c.n(j.net.URL)}(\"\")"
-        n.Map            -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
-        n.List           -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("arrayListOf()", "arrayListOf()")
-        else             -> {
+        n.Boolean -> "false"
+        n.Int -> "0"
+        n.Long -> "0L"
+        n.Float -> "0f"
+        n.Date -> "${c.n(j.util.Date)}()"
+        n.Path -> "${c.n(j.nio.file.Paths)}.get(\"\")"
+        n.Blob -> "ByteArray(0)"
+        n.Void -> ""
+        n.Error -> "Throwable()"
+        n.Exception -> "Exception()"
+        n.Url -> "${c.n(j.net.URL)}(\"\")"
+        n.Map -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
+        n.List -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("arrayListOf()", "arrayListOf()")
+        else -> {
             if (baseType is LiteralI) {
                 baseType.toGoValue(c, derived)
             } else if (baseType is EnumTypeI) {
@@ -112,20 +112,20 @@ fun <T : TypeI<*>> T.toGoIfNative(c: GenerationContext, derived: String): String
     val baseType = findDerivedOrThis()
     return when (baseType) {
         n.String, n.Path, n.Text -> "string"
-        n.Boolean                -> "bool"
-        n.Int, n.Long            -> "int"
-        n.Float                  -> "float64"
-        n.Date                   -> g.time.Time.toGo(c, derived)
-        n.TimeUnit               -> g.time.Time.toGo(c, derived)
-        n.Blob                   -> "[]byte"
-        n.Exception, n.Error     -> "error"
-        n.Void                   -> ""
-        n.Any                    -> "interface{}"
-        n.Url                    -> c.n(j.net.URL)
-        n.UUID                   -> c.n(g.eh.UUID)
-        n.List                   -> "[]${generics()[0].toGo(c, derived)}"
-        n.Map                    -> "map(${generics()[0].toGo(c, derived)})${generics()[1].toGo(c, derived)}"
-        else                     -> {
+        n.Boolean -> "bool"
+        n.Int, n.Long -> "int"
+        n.Float -> "float64"
+        n.Date -> g.time.Time.toGo(c, derived)
+        n.TimeUnit -> g.time.Time.toGo(c, derived)
+        n.Blob -> "[]byte"
+        n.Exception, n.Error -> "error"
+        n.Void -> ""
+        n.Any -> "interface{}"
+        n.Url -> c.n(j.net.URL)
+        n.UUID -> c.n(g.eh.UUID)
+        n.List -> "[]${generics()[0].toGo(c, derived)}"
+        n.Map -> "map(${generics()[0].toGo(c, derived)})${generics()[1].toGo(c, derived)}"
+        else -> {
             if (this is LambdaI<*>) operation().toGoLambda(c, derived) else null
         }
     }
@@ -135,7 +135,7 @@ fun <T : TypeI<*>> T.toGoNilOrEmpty(c: GenerationContext): String? {
     val baseType = findDerivedOrThis()
     return when (baseType) {
         n.String, n.UUID -> "\"\""
-        else             -> {
+        else -> {
             "nil"
         }
     }
@@ -193,7 +193,8 @@ func ${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().j
             """
     ${it.toGoInitVariables(c, derived)}"""
         }}
-    ret = &$name{${paramsForType().joinSurroundIfNotEmptyToString(",$nL        ", "$nL        ", ",$nL    ") {
+    ret = &$name{${paramsForType().joinSurroundIfNotEmptyToString(
+            ",$nL        ", "$nL        ", ",$nL    ") {
             it.toGoInitForConstructorFunc(c, derived)
         }}}"""
     })}${toGoMacrosAfterBody(c, derived, api)}

@@ -22,11 +22,13 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerApplyEvent(c: GenerationContext,
     val state = findParentMust(ControllerI::class.java).derivedFrom() as StateI<*>
     val events = state.handlers().map { it.on() }
     return """
-    ${events.joinSurroundIfNotEmptyToString("", "switch event.EventType() {", """
+    ${events.joinSurroundIfNotEmptyToString("", { "switch event.EventType() {" }, {
+        """
     default:
 		err = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf,
-        api)}("Not supported event type '%v' for entity '%v", event.EventType(), entity))
-	}""") {
+            api)}("Not supported event type '%v' for entity '%v", event.EventType(), entity))
+	}"""
+    }) {
         """
     case ${it.parentNameAndName().capitalize()}Event:
         err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(event.Data().(${it.toGo(c,
