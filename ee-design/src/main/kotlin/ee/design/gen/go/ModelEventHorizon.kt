@@ -167,10 +167,22 @@ private fun EntityI<*>.addStateMachineArtifacts() {
 
         stateMachine.states().forEach { state ->
             val statePrefix = "$prefix${state.name()}"
-
+            //add event handler
             handlers.add(controller {
                 name("$statePrefix${DesignDerivedType.Handler}")
                     .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(state)
+
+                val events = state.handlers().map { it.on() }
+                events.forEach { event ->
+                    prop {
+                        type(lambda {
+                            p(event.name(), event)
+                            p("entity", g.eh.Entity)
+                            retError()
+                        }).name("${event.name()}${DesignDerivedType.Handler}")
+                    }
+                }
+
                 op {
                     name("Apply")
                     p("event", g.eh.Event)
@@ -186,12 +198,14 @@ private fun EntityI<*>.addStateMachineArtifacts() {
                 }
             })
 
+            //add executor
             executors.add(controller {
                 name("$statePrefix${DesignDerivedType.Executor}")
                     .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(state)
             })
         }
 
+        //add state machine handlers
         controller {
             name("$prefix${DesignDerivedType.Handlers}")
                 .derivedAsType(DesignDerivedType.StateMachine)
@@ -201,6 +215,7 @@ private fun EntityI<*>.addStateMachineArtifacts() {
             constructorFull { }
         }
 
+        //add state machine executors
         controller {
             name("$prefix${DesignDerivedType.Executors}")
                 .derivedAsType(DesignDerivedType.StateMachine)
