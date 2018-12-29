@@ -157,6 +157,7 @@ private fun EntityI<*>.addEventHorizonArtifacts(fillAggregateInitializer: Mutabl
 }
 
 private fun EntityI<*>.addStateMachineArtifacts() {
+    val entity = this
     val stateMachines = findDownByType(StateMachineI::class.java)
     stateMachines.forEach { stateMachine ->
 
@@ -172,12 +173,12 @@ private fun EntityI<*>.addStateMachineArtifacts() {
                 name("$statePrefix${DesignDerivedType.Handler}")
                     .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(state)
 
-                val events = state.handlers().map { it.on() }
+                val events = state.handlers().map { it.on() }.toSet().toList().sortedBy { it.name() }
                 events.forEach { event ->
                     prop {
                         type(lambda {
                             p(event.name(), event)
-                            p("entity", g.eh.Entity)
+                            p("entity", entity)
                             retError()
                         }).name("${event.name()}${DesignDerivedType.Handler}")
                     }
@@ -352,7 +353,7 @@ private fun EntityI<*>.addHttpCommandHandler(
 private fun EntityI<*>.addEventHandler(): BusinessControllerI<*> {
     //event handler
     val item = this
-    val events = findDownByType(EventI::class.java)
+    val events = findDownByType(EventI::class.java).sortedBy { it.name() }
     return controller {
         name(DesignDerivedType.EventHandler).derivedAsType(DesignDerivedType.Aggregate).derivedFrom(item)
         events.forEach { event ->

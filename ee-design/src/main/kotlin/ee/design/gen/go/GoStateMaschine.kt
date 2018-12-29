@@ -20,7 +20,7 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerApplyEvent(c: GenerationContext,
     api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val state = findParentMust(ControllerI::class.java).derivedFrom() as StateI<*>
-    val events = state.handlers().map { it.on() }
+    val events = state.handlers().map { it.on() }.toSet().toList().sortedBy { it.name() }
     return """
     ${events.joinSurroundIfNotEmptyToString("", { "switch event.EventType() {" }, {
         """
