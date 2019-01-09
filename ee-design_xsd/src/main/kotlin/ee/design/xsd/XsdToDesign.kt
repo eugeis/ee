@@ -1,6 +1,7 @@
 package ee.design.xsd
 
 import com.sun.xml.xsom.*
+import com.sun.xml.xsom.impl.ElementDecl
 import com.sun.xml.xsom.impl.ListSimpleTypeImpl
 import com.sun.xml.xsom.parser.XSOMParser
 import ee.common.ext.joinSurroundIfNotEmptyToString
@@ -35,7 +36,8 @@ private class XsdToDesignExecutor(val xsdFile: Path,
     private val primitiveTypes = mapOf("integer" to "n.Int", "string" to "n.String",
             "boolean" to "n.Bool", "dateTime" to "n.Date", "date" to "n.Date",
             "byte" to "n.Byte",
-            "unsignedInt" to "n.UInt", "unsignedShort" to "n.UShort", "unsignedByte" to "n.UByte")
+            "unsignedInt" to "n.UInt", "unsignedShort" to "n.UShort", "unsignedByte" to "n.UByte",
+            "anyType" to "n.Any")
     private val typeToPrimitive = mutableMapOf<String, String>()
     private val parser = XSOMParser(SAXParserFactory.newInstance())
 
@@ -53,51 +55,55 @@ private class XsdToDesignExecutor(val xsdFile: Path,
         //log.info("{}", repository)
         schemas.forEach { schema ->
             schema.simpleTypes.forEach { name, item ->
-                typeToPrimitive[name] =
-                        if (item.isList) {
-                            val listType = item as ListSimpleTypeImpl
-                            val itemType = listType.baseListType.itemType
-                            "n.List.GT(${listType.baseListType.toDslTypeName(itemType.name("string"))})"
-                        } else if (item.baseType is ListSimpleTypeImpl) {
-                            val listType = item.baseType as ListSimpleTypeImpl
-                            val itemType = listType.baseListType.itemType
-                            "n.List.GT(${listType.baseListType.toDslTypeName(itemType.name("string"))})"
-                        } else {
-                            item.baseType.toDslTypeName(item.baseType.name(item.name))
-                        }
+                typeToPrimitive[name] = when {
+                    item.isList -> {
+                        val listType = item as ListSimpleTypeImpl
+                        val itemType = listType.baseListType.itemType
+                        "n.List.GT(${listType.baseListType.toDslTypeName(itemType.name("string"))})"
+                    }
+                    item.baseType is ListSimpleTypeImpl -> {
+                        val listType = item.baseType as ListSimpleTypeImpl
+                        val itemType = listType.baseListType.itemType
+                        "n.List.GT(${listType.baseListType.toDslTypeName(itemType.name("string"))})"
+                    }
+                    else -> item.baseType.toDslTypeName(item.baseType.name(item.name))
+                }
             }
+            when {
+                onlyItems.isNotEmpty() -> {
+                    schema.elementDecls.forEach { name, item ->
+                        if (onlyItems.contains(name)) {
+                            elementsToFill[name] = item.toDslValue(name)
+                        }
+                    }
 
-            if (onlyItems.isNotEmpty()) {
-                schema.elementDecls.forEach { name, item ->
-                    if (onlyItems.contains(name)) {
+                    schema.complexTypes.forEach { name, item ->
+                        if (onlyItems.contains(name)) {
+                            typesToFill[name] = item.toDslValue(name)
+                        }
+                    }
+                }
+                excludeItems.isNotEmpty() -> {
+                    schema.elementDecls.forEach { name, item ->
+                        if (!excludeItems.contains(name)) {
+                            elementsToFill[name] = item.toDslValue(name)
+                        }
+                    }
+
+                    schema.complexTypes.forEach { name, item ->
+                        if (!excludeItems.contains(name)) {
+                            typesToFill[name] = item.toDslValue(name)
+                        }
+                    }
+                }
+                else -> {
+                    schema.elementDecls.forEach { name, item ->
                         elementsToFill[name] = item.toDslValue(name)
                     }
-                }
 
-                schema.complexTypes.forEach { name, item ->
-                    if (onlyItems.contains(name)) {
+                    schema.complexTypes.forEach { name, item ->
                         typesToFill[name] = item.toDslValue(name)
                     }
-                }
-            } else if (excludeItems.isNotEmpty()) {
-                schema.elementDecls.forEach { name, item ->
-                    if (!excludeItems.contains(name)) {
-                        elementsToFill[name] = item.toDslValue(name)
-                    }
-                }
-
-                schema.complexTypes.forEach { name, item ->
-                    if (!excludeItems.contains(name)) {
-                        typesToFill[name] = item.toDslValue(name)
-                    }
-                }
-            } else {
-                schema.elementDecls.forEach { name, item ->
-                    elementsToFill[name] = item.toDslValue(name)
-                }
-
-                schema.complexTypes.forEach { name, item ->
-                    typesToFill[name] = item.toDslValue(name)
                 }
             }
         }
@@ -130,7 +136,9 @@ private class XsdToDesignExecutor(val xsdFile: Path,
 
 
     private fun XSComplexType.toDslValue(currentName: String = name): String {
-        val hasSuperUnit = safe(log) { baseType.name?.takeIf { it != "anyType" } }
+        val superUnit = safe(log) {
+            if (!baseType.isSimpleType) baseType.name?.takeIf { it != "anyType" } else null
+        }
         val elements = mutableListOf<Item>()
         if (root != null) elements.addAll(elementDecls.map { Item(it, 0, 1) })
         contentType?.asParticle()?.let {
@@ -138,8 +146,10 @@ private class XsdToDesignExecutor(val xsdFile: Path,
         }
 
         return """
-    object ${currentName.toDslTypeName()} : Values(${hasSuperUnit?.let { " { superUnit(${baseType.toDslTypeName()}) }" }
+    object ${currentName.toDslTypeName()} : Values(${superUnit?.let { " { superUnit(${baseType.toDslTypeName()}) }" }
                 ?: ""}) {${
+        if (superUnit != null && baseType.isSimpleType && baseType.name?.takeIf { it != "anyType" } != null)
+            "$nL${baseType.toDslProp("value")}" else ""}${
         declaredAttributeUses.joinToString(nL, nL) { it.toDslProp() }}${
         elements.joinToString(nL, nL) {
             it.toDslProp()
@@ -160,6 +170,20 @@ private class XsdToDesignExecutor(val xsdFile: Path,
                     it.term.flattenTo(toFill, it.maxOccurs, it.maxOccurs)
                 }
         }
+    }
+
+    private fun XSDeclaration.toDslProp(currentName: String): String {
+        val nameCamelCase = currentName.toCamelCase().decapitalize()
+
+        val parts = mutableListOf<String>()
+
+        if (!currentName.equals(nameCamelCase, true)) parts.add("externalName(\"$currentName\")")
+        val type = safe(log) { name }?.toDslTypeName() ?: "n.String"
+        val prop = type.definePropType(parts, 0, 1)
+        //if (!isRequired) parts.add("nullable()")
+
+        return "        val $nameCamelCase = $prop${
+        parts.joinSurroundIfNotEmptyToString(".", " { ", " }", "()") { it }}"
     }
 
     private fun XSAttributeUse.toDslProp(currentName: String = decl.name): String {
@@ -183,7 +207,7 @@ private class XsdToDesignExecutor(val xsdFile: Path,
     }
 
     private fun XSAttGroupDecl.toDslProp(currentName: String = name): String {
-        return """${attributeUses.joinToString(nL, nL) { it.toDslProp() }}"""
+        return attributeUses.joinToString(nL, nL) { it.toDslProp() }
     }
 
     private fun Item.toDslProp(currentName: String = element.name): String {

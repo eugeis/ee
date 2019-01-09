@@ -156,7 +156,9 @@ fun <B : MultiHolderI<I, *>, I> B.initObjectTree(deriveNamespace: ItemI<*>.() ->
     for (f in javaClass.declaredFields) {
         try {
             val name = f.name
-            val getter = javaClass.declaredMethods.find { it.name == "get${name.capitalize()}" }
+            val getter = javaClass.declaredMethods.find { it.name == "get${name.capitalize()}" ||
+                    //isXy getters
+                    it.name == name}
             if (getter != null) {
                 val child = getter.invoke(this)
                 if (child is ItemI<*>) {

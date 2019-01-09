@@ -1,6 +1,7 @@
 package ee.design.xsd
 
 import org.slf4j.LoggerFactory
+import java.io.File
 import java.nio.file.Paths
 
 object XsdToDesignMain {
@@ -10,7 +11,7 @@ object XsdToDesignMain {
     fun main(args: Array<String>) {
         val xsd = XsdToDesign(
                 //onlyItems = mutableSetOf("UANode")
-                )
+        )
 
         val base = Paths.get("ee/ee-design_xsd/src/test/resources").toRealPath()
 
@@ -19,8 +20,9 @@ object XsdToDesignMain {
         listOf("UANodeSet.xsd").map {
             xsd.toDslTypes(base.resolve(it))
         }.forEach { buffer.appendTypes(it, alreadyGeneratedTypes) }
-
-        log.info(buffer.toString())
+        //log.info(buffer.toString())
+        File("/home/ee/mcr/src/mcr-gateway/mcr-des/src/main/kotlin/mcr/UaNodeSet.kt")
+                .writeText(buffer.toString())
     }
 
     private fun StringBuffer.appendTypes(types: DslTypes,
@@ -33,7 +35,7 @@ import ee.design.*
 import ee.lang.*
 
 
-object UaNodeSet : Module( { artifact("mcr-opcua_nodeset").initObjectTree() } ) {
+object UaNodeSet : Module( { namespace("mcr.opcua.nodeset").artifact("mcr-opcua_nodeset").initObjectTree() } ) {
 """)
                 append("    //").append(types.name)
                 types.types.forEach { k, v ->

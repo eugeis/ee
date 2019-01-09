@@ -100,8 +100,12 @@ fun <T : TypeI<*>> T.toKotlinIfNative(c: GenerationContext, derived: String,
     return when (baseType) {
         n.String -> "String"
         n.Boolean -> "Boolean"
+        n.Short -> "Short"
+        n.UShort -> "Short"
         n.Int -> "Int"
+        n.UInt -> "Int"
         n.Long -> "Long"
+        n.ULong -> "Long"
         n.Float -> "Float"
         n.Double -> "Double"
         n.Date -> c.n(j.util.Date)
