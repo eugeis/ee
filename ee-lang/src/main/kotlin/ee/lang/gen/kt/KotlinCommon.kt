@@ -24,6 +24,8 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
         n.Error -> "Throwable()"
         n.Exception -> "Exception()"
         n.Url -> "${c.n(j.net.URL)}(\"\")"
+        n.Byte -> "0"
+        n.UByte -> "0"
         n.Map -> (mutable.setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
         n.List -> (mutable.setAndTrue()).ifElse("mutableListOf()", "listOf()")
         n.Collection -> (mutable.setAndTrue()).ifElse("mutableListOf()", "listOf()")
@@ -117,6 +119,8 @@ fun <T : TypeI<*>> T.toKotlinIfNative(c: GenerationContext, derived: String,
         n.Error -> "Throwable"
         n.Void -> "Unit"
         n.Url -> c.n(j.net.URL)
+        n.Byte -> "Byte"
+        n.UByte -> "Byte"
         n.Collection -> "${c.n(
                 (mutable.setAndTrue()).ifElse(k.core.MutableCollection, k.core.Collection),
                 derived)}${toKotlinGenericTypes(c, derived, mutable)}"

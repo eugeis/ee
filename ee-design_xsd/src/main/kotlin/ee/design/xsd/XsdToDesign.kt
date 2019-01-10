@@ -1,7 +1,6 @@
 package ee.design.xsd
 
 import com.sun.xml.xsom.*
-import com.sun.xml.xsom.impl.ElementDecl
 import com.sun.xml.xsom.impl.ListSimpleTypeImpl
 import com.sun.xml.xsom.parser.XSOMParser
 import ee.common.ext.joinSurroundIfNotEmptyToString
@@ -73,36 +72,48 @@ private class XsdToDesignExecutor(val xsdFile: Path,
                 onlyItems.isNotEmpty() -> {
                     schema.elementDecls.forEach { name, item ->
                         if (onlyItems.contains(name)) {
-                            elementsToFill[name] = item.toDslValue(name)
+                            item.toDslValue(name)?.let {
+                                elementsToFill[name] = it
+                            }
                         }
                     }
 
                     schema.complexTypes.forEach { name, item ->
                         if (onlyItems.contains(name)) {
-                            typesToFill[name] = item.toDslValue(name)
+                            item.toDslValue(name)?.let {
+                                typesToFill[name] = it
+                            }
                         }
                     }
                 }
                 excludeItems.isNotEmpty() -> {
                     schema.elementDecls.forEach { name, item ->
                         if (!excludeItems.contains(name)) {
-                            elementsToFill[name] = item.toDslValue(name)
+                            item.toDslValue(name)?.let {
+                                elementsToFill[name] = it
+                            }
                         }
                     }
 
                     schema.complexTypes.forEach { name, item ->
                         if (!excludeItems.contains(name)) {
-                            typesToFill[name] = item.toDslValue(name)
+                            item.toDslValue(name)?.let {
+                                typesToFill[name] = it
+                            }
                         }
                     }
                 }
                 else -> {
                     schema.elementDecls.forEach { name, item ->
-                        elementsToFill[name] = item.toDslValue(name)
+                        item.toDslValue(name)?.let {
+                            elementsToFill[name] = it
+                        }
                     }
 
                     schema.complexTypes.forEach { name, item ->
-                        typesToFill[name] = item.toDslValue(name)
+                        item.toDslValue(name)?.let {
+                            typesToFill[name] = it
+                        }
                     }
                 }
             }
@@ -127,7 +138,7 @@ private class XsdToDesignExecutor(val xsdFile: Path,
         default
     }()
 
-    private fun XSElementDecl.toDslValue(currentName: String = name): String =
+    private fun XSElementDecl.toDslValue(currentName: String = name): String? =
             if (type.isComplexType) {
                 type.asComplexType().toDslValue(currentName)
             } else {
@@ -135,20 +146,25 @@ private class XsdToDesignExecutor(val xsdFile: Path,
             }
 
 
-    private fun XSComplexType.toDslValue(currentName: String = name): String {
-        val superUnit = safe(log) {
-            if (!baseType.isSimpleType) baseType.name?.takeIf { it != "anyType" } else null
-        }
+    private fun XSComplexType.toDslValue(currentName: String = name): String? {
+        if (primitiveTypes.containsKey(currentName) || typeToPrimitive.containsKey(currentName)) return null
+
+        val superUnit = if (baseType.isComplexType) baseType.asComplexType()?.takeIf { it.name != "anyType" } else null
         val elements = mutableListOf<Item>()
         if (root != null) elements.addAll(elementDecls.map { Item(it, 0, 1) })
+
         contentType?.asParticle()?.let {
-            it.term.flattenTo(elements, it.maxOccurs, it.maxOccurs)
+            //explicitContent?.asParticle()?.let {
+            if (derivationMethod != XSType.EXTENSION) {
+                it.term.flattenTo(elements, it.maxOccurs, it.maxOccurs)
+            }
         }
 
+        val dslTypeName = currentName.toDslTypeName()
         return """
-    object ${currentName.toDslTypeName()} : Values(${superUnit?.let { " { superUnit(${baseType.toDslTypeName()}) }" }
-                ?: ""}) {${
-        if (superUnit != null && baseType.isSimpleType && baseType.name?.takeIf { it != "anyType" } != null)
+    object $dslTypeName : Values(${if (superUnit != null)
+            " { superUnit(${superUnit.toDslTypeName()}) }" else ""}) {${
+        if (superUnit == null && derivationMethod == XSType.EXTENSION)
             "$nL${baseType.toDslProp("value")}" else ""}${
         declaredAttributeUses.joinToString(nL, nL) { it.toDslProp() }}${
         elements.joinToString(nL, nL) {
