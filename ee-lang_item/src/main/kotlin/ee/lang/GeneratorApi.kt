@@ -273,6 +273,9 @@ open class GenerationContext : Cloneable {
     var header: String = ""
     var footer: String = ""
 
+    var xmlSupport: Boolean = false
+    var jsonSupport: Boolean = true
+
     val derivedController: DerivedController
     val macroController: MacroController
 

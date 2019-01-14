@@ -32,3 +32,16 @@ object junit : StructureUnit({ namespace("org.junit.jupiter.api").name("JUnit5")
         val assertEquals = ExternalType()
     }
 }
+
+
+object jackson : StructureUnit({ namespace("com.fasterxml.jackson") }) {
+    object json : StructureUnit({ namespace("com.fasterxml.jackson.annotation") }) {
+        object JsonProperty : ExternalType()
+        object JsonValue : ExternalType()
+    }
+
+    object xml : StructureUnit({ namespace("com.fasterxml.jackson.dataformat.xml.annotation") }) {
+        object JacksonXmlProperty : ExternalType()
+        object JacksonXmlElementWrapper : ExternalType()
+    }
+}

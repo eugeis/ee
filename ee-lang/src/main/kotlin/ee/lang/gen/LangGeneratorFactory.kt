@@ -92,7 +92,7 @@ open class LangGeneratorFactory {
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName,
                                 items = dataTypes, fragments = { listOf(kotlinTemplates.builder(itemNameAsKotlinFileName)) })),
                 GeneratorSimple("ApiTestEnumsBase", contextBuilder = contextBuilderTest,
-                        template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiTestEnumsBase",
+                        template = FragmentsTemplate(name = "${fileNamePrefix}ApiTestEnumsBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
                             listOf(ItemsFragment(items = enums,
                                     fragments = {
@@ -100,7 +100,7 @@ open class LangGeneratorFactory {
                                     }))
                         })),
                 GeneratorSimple("ApiTestBase", contextBuilder = contextBuilderTest,
-                        template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiTestBase",
+                        template = FragmentsTemplate(name = "${fileNamePrefix}ApiTestBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
                             listOf(ItemsFragment(items = compilationUnits,
                                     fragments = {

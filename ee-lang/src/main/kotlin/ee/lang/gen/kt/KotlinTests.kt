@@ -95,7 +95,7 @@ class ${name}FieldTests {
             postfix = nL) {
         if (!it.isNullable() &&  it.type() == n.Date) {
             "        ${c.n(k.test.assertTrue, derived)}(${
-            it.toKotlinValueInit(c, derived)}.time - item.${it.name()}.time <= 1000)"
+            it.toKotlinValueInit(c, derived)}.time - item.${it.name()}.time <= 5000)"
         } else {
             "        ${c.n(k.test.assertEquals, derived)}(${
             it.toKotlinValueInit(c, derived)}, item.${it.name()})"

@@ -2,6 +2,7 @@ package ee.lang.gen.kt
 
 import ee.lang.*
 import ee.lang.gen.java.j
+import ee.lang.gen.java.jackson
 import ee.lang.gen.java.junit
 
 object k : StructureUnit({ name("Kotlin") }) {
@@ -44,15 +45,11 @@ object k : StructureUnit({ name("Kotlin") }) {
         val assertFalse = ExternalType()
         val assertEquals = ExternalType()
     }
-
-    object json : StructureUnit({ namespace("com.fasterxml.jackson.annotation") }) {
-        object JsonProperty : ExternalType()
-        object JsonValue : ExternalType()
-    }
 }
 
 fun <T : StructureUnitI<*>> T.prepareForKotlinGeneration(): T {
     j.initObjectTree()
+    jackson.initObjectTree()
     junit.initObjectTree()
     k.initObjectTree()
 

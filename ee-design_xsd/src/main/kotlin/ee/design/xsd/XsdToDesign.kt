@@ -191,9 +191,8 @@ private class XsdToDesignExecutor(val xsdFile: Path,
     private fun XSDeclaration.toDslProp(currentName: String): String {
         val nameCamelCase = currentName.toCamelCase().decapitalize()
 
-        val parts = mutableListOf<String>()
+        val parts = mutableListOf<String>().externalName(currentName, nameCamelCase)
 
-        if (!currentName.equals(nameCamelCase, true)) parts.add("externalName(\"$currentName\")")
         val type = safe(log) { name }?.toDslTypeName() ?: "n.String"
         val prop = type.definePropType(parts, 0, 1)
         //if (!isRequired) parts.add("nullable()")
@@ -202,12 +201,16 @@ private class XsdToDesignExecutor(val xsdFile: Path,
         parts.joinSurroundIfNotEmptyToString(".", " { ", " }", "()") { it }}"
     }
 
+    private fun MutableList<String>.externalName(currentName: String, nameCamelCase: String): MutableList<String> =
+            apply {
+                if (currentName != nameCamelCase) add("externalName(\"$currentName\")")
+            }
+
     private fun XSAttributeUse.toDslProp(currentName: String = decl.name): String {
         val nameCamelCase = currentName.toCamelCase().decapitalize()
 
-        val parts = mutableListOf<String>()
+        val parts = mutableListOf<String>().externalName(currentName, nameCamelCase)
 
-        if (!currentName.equals(nameCamelCase, true)) parts.add("externalName(\"$currentName\")")
         val type = safe(log) { decl.type }?.toDslTypeName() ?: "n.String"
         val prop = type.definePropType(parts, if (isRequired) 1 else 0, 1)
         //if (!isRequired) parts.add("nullable()")
