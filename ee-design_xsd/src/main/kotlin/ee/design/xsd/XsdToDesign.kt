@@ -3,6 +3,7 @@ package ee.design.xsd
 import com.sun.xml.xsom.*
 import com.sun.xml.xsom.impl.ListSimpleTypeImpl
 import com.sun.xml.xsom.parser.XSOMParser
+import ee.common.ext.ifElse
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.safe
 import ee.common.ext.toCamelCase
@@ -15,20 +16,28 @@ import javax.xml.parsers.SAXParserFactory
 
 private val log = LoggerFactory.getLogger("XsdToDesign")
 
-data class Item(val element: XSElementDecl, val min: Int, val max: Int)
+data class Item(val name: String, val type: String, val min: Int, val max: Int,
+                val fixedValue: String? = null, val defaultValue: String? = null)
+
 data class DslTypes(val name: String, val types: Map<String, String>, val elements: Map<String, String>)
 
-class XsdToDesign(private val pathsToEntityNames: MutableMap<String, String> = mutableMapOf(),
+class XsdToDesign(private val entityNames: Set<String> = emptySet(),
+                  private val externalNameCaseSensitive: Boolean = false,
+                  private val implodeTypes: Set<String> = emptySet(),
                   private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
-                  private val onlyItems: MutableSet<String> = mutableSetOf(),
-                  private val excludeItems: MutableSet<String> = mutableSetOf()) {
+                  private val onlyItems: Set<String> = emptySet(),
+                  private val excludeItems: Set<String> = emptySet()) {
 
     fun toDslTypes(xsdFile: Path): DslTypes =
-            XsdToDesignExecutor(xsdFile, namesToTypeName, onlyItems, excludeItems).toDslTypes()
+            XsdToDesignExecutor(xsdFile, entityNames, externalNameCaseSensitive, implodeTypes, namesToTypeName,
+                    onlyItems, excludeItems).toDslTypes()
 
 }
 
 private class XsdToDesignExecutor(val xsdFile: Path,
+                                  private val entityNames: Set<String>,
+                                  private val externalNameCaseSensitive: Boolean = false,
+                                  private val implodeTypes: Set<String>,
                                   private val namesToTypeName: MutableMap<String, String>,
                                   private val onlyItems: Set<String>,
                                   private val excludeItems: Set<String>) {
@@ -39,6 +48,7 @@ private class XsdToDesignExecutor(val xsdFile: Path,
             "anyType" to "n.Any")
     private val typeToPrimitive = mutableMapOf<String, String>()
     private val parser = XSOMParser(SAXParserFactory.newInstance())
+    private val implodeTypeToPropItem = mutableMapOf<String, Item>()
 
     private val schemas: Collection<XSSchema> by lazy {
         parser.parse(xsdFile.toFile())
@@ -68,57 +78,90 @@ private class XsdToDesignExecutor(val xsdFile: Path,
                     else -> item.baseType.toDslTypeName(item.baseType.name(item.name))
                 }
             }
+
+            //build implode props
+            schema.buildImplodeProps()
+
             when {
-                onlyItems.isNotEmpty() -> {
-                    schema.elementDecls.forEach { name, item ->
-                        if (onlyItems.contains(name)) {
-                            item.toDslValue(name)?.let {
-                                elementsToFill[name] = it
-                            }
-                        }
-                    }
+                onlyItems.isNotEmpty() -> schema.dslTypesOnlyItems()
+                excludeItems.isNotEmpty() -> schema.dslTypesExcludeItems()
+                else -> schema.dslTypesAllItems()
+            }
+        }
+        return DslTypes(xsdFile.toString(), typesToFill, elementsToFill)
+    }
 
-                    schema.complexTypes.forEach { name, item ->
-                        if (onlyItems.contains(name)) {
-                            item.toDslValue(name)?.let {
-                                typesToFill[name] = it
-                            }
-                        }
-                    }
+
+    private fun XSSchema.dslTypesOnlyItems() {
+        elementDecls.forEach { name, item ->
+            if (onlyItems.contains(name)) {
+                item.toDslType(name)?.let {
+                    elementsToFill[name] = it
                 }
-                excludeItems.isNotEmpty() -> {
-                    schema.elementDecls.forEach { name, item ->
-                        if (!excludeItems.contains(name)) {
-                            item.toDslValue(name)?.let {
-                                elementsToFill[name] = it
-                            }
-                        }
-                    }
+            }
+        }
 
-                    schema.complexTypes.forEach { name, item ->
-                        if (!excludeItems.contains(name)) {
-                            item.toDslValue(name)?.let {
-                                typesToFill[name] = it
-                            }
-                        }
-                    }
+        complexTypes.forEach { name, item ->
+            if (onlyItems.contains(name)) {
+                item.toDslType(name)?.let {
+                    typesToFill[name] = it
                 }
-                else -> {
-                    schema.elementDecls.forEach { name, item ->
-                        item.toDslValue(name)?.let {
-                            elementsToFill[name] = it
-                        }
-                    }
+            }
+        }
+    }
 
-                    schema.complexTypes.forEach { name, item ->
-                        item.toDslValue(name)?.let {
-                            typesToFill[name] = it
-                        }
+    private fun XSSchema.dslTypesExcludeItems() {
+        elementDecls.forEach { name, item ->
+            if (!excludeItems.contains(name)) {
+                item.toDslType(name)?.let {
+                    elementsToFill[name] = it
+                }
+            }
+        }
+
+        complexTypes.forEach { name, item ->
+            if (!excludeItems.contains(name)) {
+                item.toDslType(name)?.let {
+                    typesToFill[name] = it
+                }
+            }
+        }
+    }
+
+    private fun XSSchema.dslTypesAllItems() {
+        elementDecls.forEach { name, item ->
+            item.toDslType(name)?.let {
+                elementsToFill[name] = it
+            }
+        }
+
+        complexTypes.forEach { name, item ->
+            item.toDslType(name)?.let {
+                typesToFill[name] = it
+            }
+        }
+    }
+
+    private fun XSSchema.buildImplodeProps() {
+        if (implodeTypes.isNotEmpty()) {
+            complexTypes.forEach { name, item ->
+                if (implodeTypes.contains(name)) {
+                    item.toDslImplodeProp(name)?.let {
+                        implodeTypeToPropItem[name] = it
                     }
                 }
             }
         }
-        return DslTypes(xsdFile.toString(), typesToFill, elementsToFill)
+    }
+
+    private fun XSComplexType.toDslImplodeProp(currentName: String = name): Item? {
+        if (primitiveTypes.containsKey(currentName) || typeToPrimitive.containsKey(currentName)) return null
+
+        val items = collectItems()
+        return if (items.size == 1) items.first() else {
+            log.info("can't implode the {}, because propsCount={} not one", currentName, items.size)
+            null
+        }
     }
 
     private fun XSSimpleType.name(default: String): String = name ?: {
@@ -138,20 +181,41 @@ private class XsdToDesignExecutor(val xsdFile: Path,
         default
     }()
 
-    private fun XSElementDecl.toDslValue(currentName: String = name): String? =
+    private fun XSElementDecl.toDslType(currentName: String = name): String? =
             if (type.isComplexType) {
-                type.asComplexType().toDslValue(currentName)
+                type.asComplexType().toDslType(currentName)
             } else {
                 "//not supported yet, $this"
             }
 
 
-    private fun XSComplexType.toDslValue(currentName: String = name): String? {
-        if (primitiveTypes.containsKey(currentName) || typeToPrimitive.containsKey(currentName)) return null
+    private fun XSComplexType.toDslType(currentName: String = name): String? {
+        if (primitiveTypes.containsKey(currentName) || typeToPrimitive.containsKey(currentName) ||
+                implodeTypeToPropItem.containsKey(currentName)) return null
 
+        val items = collectItems()
+
+        val dslTypeName = currentName.toDslTypeName()
         val superUnit = if (baseType.isComplexType) baseType.asComplexType()?.takeIf { it.name != "anyType" } else null
+        return """
+    object $dslTypeName : ${entityNames.contains(currentName).ifElse("Entity", "Values")}(${if (superUnit != null)
+            "{ superUnit(${superUnit.toDslTypeName()}) }" else ""}) {${
+        items.joinSurroundIfNotEmptyToString(nL, nL) {
+            it.toDslProp()
+        }}
+    }"""
+    }
+
+    private fun XSComplexType.collectItems(): MutableList<Item> {
         val elements = mutableListOf<Item>()
-        if (root != null) elements.addAll(elementDecls.map { Item(it, 0, 1) })
+        if (root != null) elements.addAll(elementDecls.map { it.toItem(0, 1) })
+
+        if (derivationMethod == XSType.EXTENSION &&
+                (!baseType.isComplexType || baseType.asComplexType()?.takeIf { it.name != "anyType" } == null)) {
+            elements.add(baseType.toItem("value"))
+        }
+
+        declaredAttributeUses.forEach { elements.add(it.toItem()) }
 
         contentType?.asParticle()?.let {
             //explicitContent?.asParticle()?.let {
@@ -159,90 +223,84 @@ private class XsdToDesignExecutor(val xsdFile: Path,
                 it.term.flattenTo(elements, it.maxOccurs, it.maxOccurs)
             }
         }
-
-        val dslTypeName = currentName.toDslTypeName()
-        return """
-    object $dslTypeName : Values(${if (superUnit != null)
-            " { superUnit(${superUnit.toDslTypeName()}) }" else ""}) {${
-        if (superUnit == null && derivationMethod == XSType.EXTENSION)
-            "$nL${baseType.toDslProp("value")}" else ""}${
-        declaredAttributeUses.joinToString(nL, nL) { it.toDslProp() }}${
-        elements.joinToString(nL, nL) {
-            it.toDslProp()
-        }}
-    }"""
+        return elements
     }
+
+    private fun XSElementDecl.toItem(min: Int = 0, max: Int = 1, currentName: String = name): Item =
+            Item(currentName, safe(log) { type }?.name ?: "string", min, max, fixedValue?.value, defaultValue?.value)
+
+
+    private fun XSAttributeUse.toItem(currentName: String = decl.name): Item =
+            Item(currentName, safe(log) { decl.type }?.name ?: "string", 0, 1,
+                    fixedValue?.value, defaultValue?.value)
+
+    private fun XSDeclaration.toItem(currentName: String): Item =
+            Item(currentName, safe(log) { name } ?: "string", 0, 1)
 
     private fun XSTerm.flattenTo(toFill: MutableCollection<Item>, min: BigInteger, max: BigInteger) {
         when {
-            isElementDecl ->
-                toFill.add(Item(asElementDecl(), min.toInt(), max.toInt()))
-            isModelGroupDecl ->
-                asModelGroupDecl().modelGroup.toList().forEach {
-                    it.term.flattenTo(toFill, it.maxOccurs, it.maxOccurs)
-                }
-            isModelGroup ->
-                asModelGroup().toList().forEach {
-                    it.term.flattenTo(toFill, it.maxOccurs, it.maxOccurs)
-                }
+            isElementDecl -> toFill.add(asElementDecl().toItem(min.toInt(), max.toInt()))
+            isModelGroupDecl -> asModelGroupDecl().modelGroup.flattenTo(toFill, min, max)
+            isModelGroup -> asModelGroup().flattenTo(toFill, min, max)
         }
     }
 
-    private fun XSDeclaration.toDslProp(currentName: String): String {
-        val nameCamelCase = currentName.toCamelCase().decapitalize()
-
-        val parts = mutableListOf<String>().externalName(currentName, nameCamelCase)
-
-        val type = safe(log) { name }?.toDslTypeName() ?: "n.String"
-        val prop = type.definePropType(parts, 0, 1)
-        //if (!isRequired) parts.add("nullable()")
-
-        return "        val $nameCamelCase = $prop${
-        parts.joinSurroundIfNotEmptyToString(".", " { ", " }", "()") { it }}"
+    private fun XSTerm.toTypeChain(): String = when {
+        isElementDecl -> asElementDecl().toItem().let { "${it.name}.${it.type} " }
+        isModelGroupDecl -> asModelGroupDecl().modelGroup.toTypeChain()
+        isModelGroup -> asModelGroup().toTypeChain()
+        else -> ""
     }
 
-    private fun MutableList<String>.externalName(currentName: String, nameCamelCase: String): MutableList<String> =
-            apply {
-                if (currentName != nameCamelCase) add("externalName(\"$currentName\")")
+    private fun XSModelGroup.toTypeChain(): String {
+        return ""
+    }
+
+    private fun XSModelGroup.flattenTo(toFill: MutableCollection<Item>, min: BigInteger, max: BigInteger) {
+        if (compositor == XSModelGroup.Compositor.CHOICE) {
+            val typeChains = toList().map {
+                it.term.toTypeChain()
             }
-
-    private fun XSAttributeUse.toDslProp(currentName: String = decl.name): String {
-        val nameCamelCase = currentName.toCamelCase().decapitalize()
-
-        val parts = mutableListOf<String>().externalName(currentName, nameCamelCase)
-
-        val type = safe(log) { decl.type }?.toDslTypeName() ?: "n.String"
-        val prop = type.definePropType(parts, if (isRequired) 1 else 0, 1)
-        //if (!isRequired) parts.add("nullable()")
-        defaultValue?.value?.addValue(parts, type)
-        fixedValue?.value?.addValue(parts, type)
-
-        return "        val $nameCamelCase = $prop${
-        parts.joinSurroundIfNotEmptyToString(".", " { ", " }", "()") { it }}"
+            toFill.add(Item("items", "anyType", min.toInt(), max.toInt()))
+        } else {
+            toList().forEach {
+                it.term.flattenTo(toFill, it.maxOccurs, it.maxOccurs)
+            }
+        }
     }
+
 
     private fun String?.addValue(parts: MutableList<String>, type: String) {
         if (this != null && isNotEmpty()) parts.add("value(${convertForType(type)})")
     }
 
-    private fun XSAttGroupDecl.toDslProp(currentName: String = name): String {
-        return attributeUses.joinToString(nL, nL) { it.toDslProp() }
-    }
-
-    private fun Item.toDslProp(currentName: String = element.name): String {
+    private fun Item.toDslProp(currentName: String = name): String {
         val nameCamelCase = currentName.toCamelCase()
 
+        val body = toPropBodyCheckImplode()?.toProp(currentName, nameCamelCase)
+        return "        val $nameCamelCase = $body"
+    }
+
+    private fun Pair<String, List<String>>.toProp(currentName: String, nameCamelCase: String): String {
+        val externalName = if ((externalNameCaseSensitive && currentName != nameCamelCase) ||
+                (!externalNameCaseSensitive && !currentName.equals(nameCamelCase, true)))
+            "externalName(\"$currentName\")." else ""
+        return "$first${
+        second.joinSurroundIfNotEmptyToString(".", " { $externalName", " }", "()") { it }}"
+    }
+
+    private fun Item.toPropBodyCheckImplode(): Pair<String, List<String>>? =
+            (implodeTypeToPropItem[type] ?: this).toPropBody()
+
+    private fun Item.toPropBody(): Pair<String, MutableList<String>> {
         val parts = mutableListOf<String>()
 
-        if (!currentName.equals(nameCamelCase, true)) parts.add("externalName(\"$currentName\")")
-        val type = safe(log) { element.type }?.toDslTypeName(element.type.name ?: "string") ?: "n.String"
-        val prop = type.definePropType(parts, min, max)
+        val dslType = type.toDslTypeName()
+        val prop = dslType.definePropType(parts, min, max)
         //if (!isRequired) parts.add("nullable()")
-        element.defaultValue?.value?.addValue(parts, type)
-        element.fixedValue?.value?.addValue(parts, type)
-
-        return "        val $nameCamelCase = $prop${
-        parts.joinSurroundIfNotEmptyToString(".", " { ", " }", "()") { it }}"
+        defaultValue?.addValue(parts, dslType)
+        fixedValue?.addValue(parts, dslType)
+        return prop to parts
     }
 
     private fun String.convertForType(type: String) = if (type == "n.String") "\"$this\"" else this

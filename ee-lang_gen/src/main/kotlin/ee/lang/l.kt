@@ -72,6 +72,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val mutable = AttributeI { type(n.Boolean).nullable(true) }
         val length = AttributeI { type(n.Int).nullable(true) }
         val inherited = AttributeI { type(n.Boolean).value(false) }
+        val imploded = AttributeI { type(n.Boolean).value(false) }
         val open = AttributeI { type(n.Boolean).value(false) }
         val nonFluent = AttributeI { type(n.String) }
         val externalName = AttributeI { type(n.String) }.nullable(true)

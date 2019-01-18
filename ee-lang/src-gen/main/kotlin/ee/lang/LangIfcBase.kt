@@ -46,6 +46,10 @@ interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
     fun hidden(): B = hidden(true)
     fun notHidden(): B = hidden(false)
 
+    fun imploded(value: Boolean): B
+    fun imploded(): B = imploded(true)
+    fun notImploded(): B = imploded(false)
+
     fun inherited(value: Boolean): B
     fun inherited(): B = inherited(true)
     fun notInherited(): B = inherited(false)
@@ -100,6 +104,8 @@ interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
     fun isFixValue(): Boolean
 
     fun isHidden(): Boolean
+
+    fun isImploded(): Boolean
 
     fun isInherited(): Boolean
 

@@ -87,6 +87,9 @@ open class AttributeB<B : AttributeI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>
     override fun isHidden(): Boolean = attr(hidden, { false })
     override fun hidden(value: Boolean): B = apply { attr(hidden, value) }
 
+    override fun isImploded(): Boolean = attr(imploded, { false })
+    override fun imploded(value: Boolean): B = apply { attr(imploded, value) }
+
     override fun isInherited(): Boolean = attr(inherited, { false })
     override fun inherited(value: Boolean): B = apply { attr(inherited, value) }
 
@@ -130,6 +133,7 @@ open class AttributeB<B : AttributeI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>
         val externalName = "_externalName"
         val fixValue = "_fixValue"
         val hidden = "_hidden"
+        val imploded = "_imploded"
         val inherited = "_inherited"
         val initByDefaultTypeValue = "_initByDefaultTypeValue"
         val key = "_key"

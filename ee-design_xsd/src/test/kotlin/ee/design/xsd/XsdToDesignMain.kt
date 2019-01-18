@@ -9,7 +9,12 @@ object XsdToDesignMain {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val xsd = XsdToDesign(
+        val xsd = XsdToDesign(entityNames = mutableSetOf("UANode", "UAInstance", "UAObject", "UAVariable",
+                "UAMethod", "UAView", "UAType", "UAObjectType", "UAVariableType", "UADataType", "UAReferenceType"),
+                externalNameCaseSensitive = false,
+                implodeTypes = mutableSetOf("ListOfExtensions", "ListOfRolePermissions",
+                        "ListOfReferences", "NodeSetStatusList", "AliasTable", "ModelTable", "UriTable",
+                        "NodesToAdd", "NodesToDelete")
                 //onlyItems = mutableSetOf("UANode")
         )
 
