@@ -46,7 +46,9 @@ open class LangGeneratorFactory {
                         nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
                     listOf(ItemsFragment(items = enums,
                             fragments = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) }),
-                            ItemsFragment(items = compilationUnits, fragments = { listOf(kotlinTemplates.pojo()) }))
+                            ItemsFragment(items = compilationUnits, fragments = {
+                                listOf(kotlinTemplates.pojo(itemNameAsKotlinFileName))
+                            }))
                 }))))
     }
 
@@ -61,6 +63,9 @@ open class LangGeneratorFactory {
         val interfaces: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
             findDownByType(CompilationUnitI::class.java).filter { it.isIfc() }
         }
+        val interfacesNonBlocking: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
+            findDownByType(CompilationUnitI::class.java).filter { it.isIfc() && it.isNonBlocking() }
+        }
         val dataTypes: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
             findDownByType(DataTypeI::class.java).filter { it !is EnumTypeI<*> && !it.isIfc() }
         }
@@ -69,19 +74,46 @@ open class LangGeneratorFactory {
                 GeneratorSimple("IfcBase", contextBuilder = contextBuilder,
                         template = FragmentsTemplate(name = "${fileNamePrefix}IfcBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                            listOf(ItemsFragment(items = interfaces, fragments = { listOf(kotlinTemplates.ifc()) }))
+                            listOf(ItemsFragment(items = interfaces, fragments = {
+                                listOf(kotlinTemplates.ifc(itemNameAsGoFileName))
+                            }))
+                        })),
+                GeneratorSimple("IfcBlockingBase", contextBuilder = contextBuilder,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}IfcBlockingBase",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
+                                listOf(kotlinTemplates.ifcBlocking(itemNameAsKotlinFileName))
+                            }))
                         })),
                 GeneratorSimple("IfcEmpty", contextBuilder = contextBuilder,
                         template = FragmentsTemplate(name = "${fileNamePrefix}IfcEmpty",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                            listOf(ItemsFragment(items = interfaces, fragments = { listOf(kotlinTemplates.ifcEmpty()) }))
+                            listOf(ItemsFragment(items = interfaces, fragments = {
+                                listOf(kotlinTemplates.ifcEmpty(itemNameAsKotlinFileName))
+                            }))
+                        })),
+                GeneratorSimple("IfcBlockingEmpty", contextBuilder = contextBuilder,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}IfcBlockingEmpty",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
+                                listOf(kotlinTemplates.emptyBlocking(itemNameAsKotlinFileName))
+                            }))
+                        })),
+                GeneratorSimple("BlockingWrapper", contextBuilder = contextBuilder,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}BlockingWrapper",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
+                                listOf(kotlinTemplates.blockingWrapper(itemNameAsKotlinFileName))
+                            }))
                         })),
                 GeneratorSimple("ApiBase", contextBuilder = contextBuilder,
                         template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
                             listOf(ItemsFragment(items = enums,
                                     fragments = { listOf(kotlinTemplates.enum(), kotlinTemplates.enumParseMethod()) }),
-                                    ItemsFragment(items = compilationUnits, fragments = { listOf(kotlinTemplates.pojo()) }))
+                                    ItemsFragment(items = compilationUnits, fragments = {
+                                        listOf(kotlinTemplates.pojo(itemNameAsKotlinFileName))
+                                    }))
                         })),
                 GeneratorSimple("BuilderIfcBase", contextBuilder = contextBuilder,
                         template = ItemsTemplate(name = "${fileNamePrefix}BuilderIfcBase",

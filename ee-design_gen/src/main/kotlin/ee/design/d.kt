@@ -47,7 +47,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val enums = prop(l.EnumType).multi(true).nonFluent("enumType")
                 .doc("Enums used special for controller needs, like CommandTypeEnums")
         val values = prop(l.Values).multi(true).nonFluent("valueType").doc("Values used special for controller needs")
-        val basics = prop(l.Basic).multi(true).nonFluent("basic").doc("Baics used special for controller needs")
+        val basics = prop(l.Basic).multi(true).nonFluent("basic").doc("Basics used special for controller needs")
     }
 
     object BusinessController : CompilationUnit({ superUnit(Controller) })

@@ -330,35 +330,48 @@ fun <T : AttributeI<*>> T.toKotlinType(c: GenerationContext, derived: String): S
 fun List<AttributeI<*>>.toKotlinTypes(c: GenerationContext, derived: String): String = joinWrappedToString(
         ", ") { it.toKotlinType(c, derived) }
 
-fun <T : OperationI<*>> T.toKotlinLambda(c: GenerationContext, derived: String): String =
-        """${isSuspend().then("suspend ")}(${params().toKotlinTypes(c, derived)}) -> ${
+fun <T : OperationI<*>> T.toKotlinLambda(c: GenerationContext, derived: String,
+                                         nonBlocking: Boolean = isNonBlocking()): String =
+        """${nonBlocking.then("suspend ")}(${params().toKotlinTypes(c, derived)}) -> ${
         retFirst().toKotlinType(c, derived)}"""
 
 fun <T : OperationI<*>> T.toKotlinLambdaDefault(c: GenerationContext, derived: String): String = """{${
 params().joinWrappedToString(", ", prefix = " ") { "_" }} -> ${retFirst().toKotlinDefault(c, derived)}}"""
 
-fun <T : OperationI<*>> T.toKotlinIfc(c: GenerationContext, derived: String, api: String): String {
+fun <T : OperationI<*>> T.toKotlinIfc(c: GenerationContext, derived: String, api: String,
+                                      nonBlocking: Boolean = isNonBlocking()): String {
     return """
-    ${isSuspend().then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}(${
+    ${nonBlocking.then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}(${
     params().toKotlinSignature(c, derived, api, true, false)})${
     retFirst().isNotEMPTY().then { """ : ${retFirst().toKotlinTypeDef(c, api)}""" }}"""
 }
 
-fun <T : OperationI<*>> T.toKotlinImpl(c: GenerationContext, derived: String, api: String): String {
+fun <T : OperationI<*>> T.toKotlinImpl(c: GenerationContext, derived: String, api: String,
+                                       nonBlocking: Boolean = isNonBlocking()): String {
     return """
-    ${isSuspend().then("suspend ")}${isOpen().then("open ")}fun ${
+    ${nonBlocking.then("suspend ")}${isOpen().then("open ")}fun ${
     toKotlinGenerics(c, derived)}${name()}(${params().toKotlinSignature(c, derived, api)}): ${
     retFirst().toKotlinTypeDef(c, api)} {
         throw IllegalAccessException("Not implemented yet.")
     }"""
 }
 
-fun <T : OperationI<*>> T.toKotlinEMPTY(c: GenerationContext, derived: String, api: String): String {
+fun <T : OperationI<*>> T.toKotlinEMPTY(c: GenerationContext, derived: String, api: String,
+                                        nonBlocking: Boolean = isNonBlocking()): String {
     return """
-    override ${isSuspend().then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}(${
+    override ${nonBlocking.then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}(${
     params().toKotlinSignature(c, derived, api, false, false)})${retFirst().isNotEMPTY().ifElse({
         """: ${retFirst().toKotlinTypeDef(c, api)}${retFirst().toKotlinInit(c, api)}"""
     }, { " {}" })}"""
+}
+
+fun <T : OperationI<*>> T.toKotlinBlockingWrapper(c: GenerationContext, derived: String, api: String): String {
+    return """
+    override fun ${toKotlinGenerics(c, derived)}${name()}(${
+    params().toKotlinSignature(c, derived, api, false, false)}) =
+            ${c.n(k.coroutines.runBlocking)} {
+                nonBlocking.${name()}${toKotlinCall(c, derived)}
+            }"""
 }
 
 fun <T : CompositeI<*>> T.toKotlinIsEmptyExt(c: GenerationContext, derived: String = LangDerivedKind.IMPL,

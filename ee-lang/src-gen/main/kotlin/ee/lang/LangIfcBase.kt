@@ -141,7 +141,13 @@ interface CompilationUnitI<B : CompilationUnitI<B>> : TypeI<B> {
     fun base(value: Boolean): B
     fun base(): B = base(true)
     fun notBase(): B = base(false)
+
+    fun nonBlocking(value: Boolean): B
+    fun nonBlocking(): B = nonBlocking(true)
+    fun notNonBlocking(): B = nonBlocking(false)
     fun isBase(): Boolean
+
+    fun isNonBlocking(): Boolean
 }
 
 
@@ -352,26 +358,26 @@ interface NotPredicateI<B : NotPredicateI<B>> : PredicateI<B> {
 interface OperationI<B : OperationI<B>> : LogicUnitI<B> {
     fun generics(vararg value: GenericI<*>): B
 
+    fun nonBlocking(value: Boolean): B
+    fun nonBlocking(): B = nonBlocking(true)
+    fun notNonBlocking(): B = nonBlocking(false)
+
     fun open(value: Boolean): B
     fun open(): B = open(true)
     fun notOpen(): B = open(false)
 
     fun returns(vararg value: AttributeI<*>): B
-
-    fun suspend(value: Boolean): B
-    fun suspend(): B = suspend(true)
-    fun notSuspend(): B = suspend(false)
     fun generics(): ListMultiHolder<GenericI<*>>
     fun G(value: GenericI<*>): GenericI<*>
     fun G(value: GenericI<*>.() -> Unit = {}): GenericI<*>
+
+    fun isNonBlocking(): Boolean
 
     fun isOpen(): Boolean
 
     fun returns(): ListMultiHolder<AttributeI<*>>
     fun ret(value: AttributeI<*>): AttributeI<*>
     fun ret(value: AttributeI<*>.() -> Unit = {}): AttributeI<*>
-
-    fun isSuspend(): Boolean
 }
 
 

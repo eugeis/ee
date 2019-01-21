@@ -37,34 +37,53 @@ fun String?.to$name(): $name {
 }
 
 fun <T : CompilationUnitI<*>> T.toKotlinIfc(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                            api: String = LangDerivedKind.API): String {
+                                            api: String = LangDerivedKind.API,
+                                            itemName: String = c.n(this, api),
+                                            nonBlocking: Boolean = isNonBlocking()): String {
     return """
-interface ${c.n(this, api)}${toKotlinGenericsClassDef(c, derived)}${superUnits().joinWrappedToString(
-            ", ", prefix = " : ") { "${c.n(it, api)}" }}${operationsWithoutDataTypeOperations()
+interface $itemName${toKotlinGenericsClassDef(c, derived)}${superUnits().joinWrappedToString(
+            ", ", prefix = " : ") { c.n(it, api) }}${operationsWithoutDataTypeOperations()
             .joinSurroundIfNotEmptyToString(nL, prefix = " {$nL", postfix = "$nL}") {
-                it.toKotlinIfc(c, derived, api)
+                it.toKotlinIfc(c, derived, api, nonBlocking || it.isNonBlocking())
             }}"""
 }
 
-fun <T : CompilationUnitI<*>> T.toKotlinIfcEMPTY(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                 api: String = LangDerivedKind.API): String {
+fun <T : CompilationUnitI<*>> T.toKotlinEMPTY(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                              api: String = LangDerivedKind.API,
+                                              itemName: String = c.n(this, derived),
+                                              nonBlocking: Boolean = isNonBlocking()): String {
     return """
-${generics().isEmpty().ifElse({ "object ${c.n(this, derived)}EMPTY" }) {
-        "class ${c.n(this, derived)}EMPTY${
+${generics().isEmpty().ifElse({ "object ${itemName}EMPTY" }) {
+        "class ${itemName}EMPTY${
         toKotlinGenericsClassDef(c, derived)}"
-    }} : ${c.n(this, derived)}${toKotlinGenerics(c, derived)}${operationsWithInherited()
+    }} : $itemName${toKotlinGenerics(c, derived)}${operationsWithInherited()
             .joinSurroundIfNotEmptyToString(nL, prefix = " {$nL", postfix = "$nL}") {
-                it.toKotlinEMPTY(c, derived, api)
+                it.toKotlinEMPTY(c, derived, api, nonBlocking || it.isNonBlocking())
+            }}"""
+}
+
+fun <T : CompilationUnitI<*>> T.toKotlinBlockingWrapper(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                        api: String = LangDerivedKind.API): String {
+    val itemName = c.n(this, derived)
+    return """
+${generics().isEmpty().ifElse({ "class ${itemName}BlockingWrapper" }) {
+        "class ${itemName}BlockingWrapper${
+        toKotlinGenericsClassDef(c, derived)}"
+    }}(private val nonBlocking: $itemName) : ${itemName}Blocking${toKotlinGenerics(c, derived)}${operationsWithInherited()
+            .joinSurroundIfNotEmptyToString(nL, prefix = " {$nL", postfix = "$nL}") {
+                it.toKotlinBlockingWrapper(c, derived, api)
             }}"""
 }
 
 fun <T : CompilationUnitI<*>> T.toKotlinImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                              api: String = LangDerivedKind.API,
+                                             itemName: String = c.n(this, derived),
                                              dataClass: Boolean = this is BasicI<*> &&
-                                                     superUnits().isEmpty() && superUnitFor().isEmpty()): String {
+                                                     superUnits().isEmpty() && superUnitFor().isEmpty(),
+                                             nonBlocking: Boolean = isNonBlocking()): String {
     return """
 ${(isOpen() && !dataClass).then("open ")}${dataClass.then("data ")}class ${
-    toKotlinGenericsClassDef(c, derived)}${c.n(this, derived)}${
+    toKotlinGenericsClassDef(c, derived)}$itemName${
     primaryConstructor().toKotlinPrimary(c, derived, api,
             this)} {${propsWithoutParamsOfPrimaryConstructor().joinSurroundIfNotEmptyToString(nL, prefix = nL,
             postfix = nL) {
@@ -72,7 +91,7 @@ ${(isOpen() && !dataClass).then("open ")}${dataClass.then("data ")}class ${
     }}${otherConstructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toKotlin(c, derived, api)
     }}${operationsWithoutDataTypeOperations().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
-        it.toKotlinImpl(c, derived, api)
+        it.toKotlinImpl(c, derived, api, nonBlocking || it.isNonBlocking())
     }}${toKotlinEmptyObject(c, derived)}
 }"""
 }

@@ -45,6 +45,10 @@ object k : StructureUnit({ name("Kotlin") }) {
         val assertFalse = ExternalType()
         val assertEquals = ExternalType()
     }
+
+    object coroutines : StructureUnit({namespace("kotlinx.coroutines")}) {
+        val runBlocking = ExternalType()
+    }
 }
 
 fun <T : StructureUnitI<*>> T.prepareForKotlinGeneration(): T {

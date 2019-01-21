@@ -175,8 +175,12 @@ open class CompilationUnitB<B : CompilationUnitI<B>>(adapt: B.() -> Unit = {}) :
     override fun isBase(): Boolean = attr(base, { false })
     override fun base(value: Boolean): B = apply { attr(base, value) }
 
+    override fun isNonBlocking(): Boolean = attr(nonBlocking, { false })
+    override fun nonBlocking(value: Boolean): B = apply { attr(nonBlocking, value) }
+
     companion object {
         val base = "_base"
+        val nonBlocking = "_nonBlocking"
     }
 }
 
@@ -704,6 +708,9 @@ open class OperationB<B : OperationI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<
     override fun G(value: GenericI<*>): GenericI<*> = applyAndReturn { generics().addItem(value); value }
     override fun G(value: GenericI<*>.() -> Unit): GenericI<*> = G(Generic(value))
 
+    override fun isNonBlocking(): Boolean = attr(nonBlocking, { false })
+    override fun nonBlocking(value: Boolean): B = apply { attr(nonBlocking, value) }
+
     override fun isOpen(): Boolean = attr(open, { true })
     override fun open(value: Boolean): B = apply { attr(open, value) }
 
@@ -711,9 +718,6 @@ open class OperationB<B : OperationI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<
     override fun returns(vararg value: AttributeI<*>): B = apply { returns().addItems(value.asList()) }
     override fun ret(value: AttributeI<*>): AttributeI<*> = applyAndReturn { returns().addItem(value); value }
     override fun ret(value: AttributeI<*>.() -> Unit): AttributeI<*> = ret(Attribute(value))
-
-    override fun isSuspend(): Boolean = attr(suspend, { false })
-    override fun suspend(value: Boolean): B = apply { attr(suspend, value) }
 
     override fun fillSupportsItems() {
         generics()
@@ -723,9 +727,9 @@ open class OperationB<B : OperationI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<
 
     companion object {
         val generics = "_generics"
+        val nonBlocking = "_nonBlocking"
         val open = "_open"
         val returns = "_returns"
-        val suspend = "_suspend"
     }
 }
 

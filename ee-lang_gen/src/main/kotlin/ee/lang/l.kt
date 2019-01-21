@@ -90,11 +90,12 @@ object l : Composite({ namespace("ee.lang") }) {
         val generics = AttributeI { type(Generic).multi(true).nonFluent("G") }
         val returns = AttributeI { type(Attribute).multi(true).nonFluent("ret") }
         val open = AttributeI { type(n.Boolean).value(true) }
-        val suspend = AttributeI { type(n.Boolean).value(false) }
+        val nonBlocking = AttributeI { type(n.Boolean).value(false) }
     }
 
     object CompilationUnit : Composite({ derivedFrom(Type) }) {
         val base = AttributeI { type(n.Boolean).value(false) }
+        val nonBlocking = AttributeI { type(n.Boolean).value(false) }
     }
 
     object StructureUnit : Composite({ derivedFrom(MacroComposite) }) {
