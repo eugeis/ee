@@ -26,7 +26,7 @@ object XsdToDesignMain {
             xsd.toDslTypes(base.resolve(it))
         }.forEach { buffer.appendTypes(it, alreadyGeneratedTypes) }
         //log.info(buffer.toString())
-        File("/home/ee/mcr/src/mcr-gateway/mcr-des/src/main/kotlin/mcr/UaNodeSet.kt")
+        File("D:/TC_CACHE/mcr/src/mcr-gateway/mcr-des/src/main/kotlin/mcr/UaNodeSet.kt")
                 .writeText(buffer.toString())
     }
 

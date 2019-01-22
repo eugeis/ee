@@ -16,8 +16,9 @@ fun LiteralI<*>.toKotlinIsMethod(): String {
 fun <T : EnumTypeI<*>> T.toKotlinEnum(c: GenerationContext, derived: String = LangDerivedKind.API,
                                       api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
+    val typePrefix = """enum class $name"""
     return """
-enum class $name${primaryOrFirstConstructor().toKotlinPrimary(c, derived, api, this)} {
+$typePrefix${primaryOrFirstConstructor().toKotlinPrimary(c, derived, api, this, typePrefix.length)} {
     ${literals().joinToString(",$nL    ") {
         "${it.toKotlin()}${it.toKotlinCallValue(c, derived)}"
     }};${propsExceptPrimaryConstructor().joinToString(nL) {
@@ -81,11 +82,12 @@ fun <T : CompilationUnitI<*>> T.toKotlinImpl(c: GenerationContext, derived: Stri
                                              dataClass: Boolean = this is BasicI<*> &&
                                                      superUnits().isEmpty() && superUnitFor().isEmpty(),
                                              nonBlocking: Boolean = isNonBlocking()): String {
+    val typePrefix = """${(isOpen() && !dataClass).then("open ")}${dataClass.then("data ")}class ${
+    toKotlinGenericsClassDef(c, derived)}$itemName"""
     return """
-${(isOpen() && !dataClass).then("open ")}${dataClass.then("data ")}class ${
-    toKotlinGenericsClassDef(c, derived)}$itemName${
+$typePrefix${
     primaryConstructor().toKotlinPrimary(c, derived, api,
-            this)} {${propsWithoutParamsOfPrimaryConstructor().joinSurroundIfNotEmptyToString(nL, prefix = nL,
+            this, typePrefix.length)} {${propsWithoutParamsOfPrimaryConstructor().joinSurroundIfNotEmptyToString(nL, prefix = nL,
             postfix = nL) {
         it.toKotlinMember(c, derived, api, false)
     }}${otherConstructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {

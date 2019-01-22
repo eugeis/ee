@@ -243,8 +243,9 @@ fun <T : AttributeI<*>> T.toJsonXmlSupport(c: GenerationContext): String = exter
 }
 
 fun List<AttributeI<*>>.toKotlinSignature(c: GenerationContext, derived: String,
-                                          api: String, initValues: Boolean = true, forceInit: Boolean = true): String =
-        joinWrappedToString(", ") {
+                                          api: String, initValues: Boolean = true, forceInit: Boolean = true,
+                                          wrapIdentWidth: Int = 6): String =
+        joinWrappedToString(", ", wrapIdentWidth.toWrapIdentBlack()) {
             it.toKotlinSignature(c, derived, api, initValues, forceInit)
         }
 
@@ -254,10 +255,10 @@ fun List<AttributeI<*>>.toKotlinMember(c: GenerationContext, derived: String,
 }
 
 fun <T : ConstructorI<*>> T.toKotlinPrimary(c: GenerationContext, derived: String, api: String,
-                                            type: TypeI<*>): String {
+                                            type: TypeI<*>, wrapIdentWidth: Int = 6): String {
     val superUnitParams = superUnit().params()
     return if (isNotEMPTY()) """(${
-    paramsWithOutFixValue().joinWrappedToString(", ", "      ") { param ->
+    paramsWithOutFixValue().joinWrappedToString(", ", wrapIndent = (wrapIdentWidth + 1).toWrapIdentBlack()) { param ->
         if (superUnitParams.find { it.name() == param.name() } == null) {
             param.toKotlinConstructorMember(c, derived, api)
         } else {
@@ -340,17 +341,19 @@ params().joinWrappedToString(", ", prefix = " ") { "_" }} -> ${retFirst().toKotl
 
 fun <T : OperationI<*>> T.toKotlinIfc(c: GenerationContext, derived: String, api: String,
                                       nonBlocking: Boolean = isNonBlocking()): String {
+    val opPrefix = """    ${nonBlocking.then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}("""
     return """
-    ${nonBlocking.then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}(${
-    params().toKotlinSignature(c, derived, api, true, false)})${
+$opPrefix${
+    params().toKotlinSignature(c, derived, api, true, false, opPrefix.length)})${
     retFirst().isNotEMPTY().then { """ : ${retFirst().toKotlinTypeDef(c, api)}""" }}"""
 }
 
 fun <T : OperationI<*>> T.toKotlinImpl(c: GenerationContext, derived: String, api: String,
                                        nonBlocking: Boolean = isNonBlocking()): String {
+    val opPrefix = """    ${nonBlocking.then("suspend ")}${isOpen().then("open ")}fun ${
+    toKotlinGenerics(c, derived)}${name()}("""
     return """
-    ${nonBlocking.then("suspend ")}${isOpen().then("open ")}fun ${
-    toKotlinGenerics(c, derived)}${name()}(${params().toKotlinSignature(c, derived, api)}): ${
+$opPrefix${params().toKotlinSignature(c, derived, api, wrapIdentWidth = opPrefix.length)}): ${
     retFirst().toKotlinTypeDef(c, api)} {
         throw IllegalAccessException("Not implemented yet.")
     }"""
@@ -358,17 +361,20 @@ fun <T : OperationI<*>> T.toKotlinImpl(c: GenerationContext, derived: String, ap
 
 fun <T : OperationI<*>> T.toKotlinEMPTY(c: GenerationContext, derived: String, api: String,
                                         nonBlocking: Boolean = isNonBlocking()): String {
+    val opPrefix = """    override ${nonBlocking.then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}("""
     return """
-    override ${nonBlocking.then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}(${
-    params().toKotlinSignature(c, derived, api, false, false)})${retFirst().isNotEMPTY().ifElse({
+$opPrefix${
+    params().toKotlinSignature(c, derived, api, false, false, opPrefix.length)})${
+    retFirst().isNotEMPTY().ifElse({
         """: ${retFirst().toKotlinTypeDef(c, api)}${retFirst().toKotlinInit(c, api)}"""
     }, { " {}" })}"""
 }
 
 fun <T : OperationI<*>> T.toKotlinBlockingWrapper(c: GenerationContext, derived: String, api: String): String {
+    val opPrefix = "    override fun ${toKotlinGenerics(c, derived)}${name()}("
     return """
-    override fun ${toKotlinGenerics(c, derived)}${name()}(${
-    params().toKotlinSignature(c, derived, api, false, false)}) =
+$opPrefix${
+    params().toKotlinSignature(c, derived, api, false, false, opPrefix.length)}) =
             ${c.n(k.coroutines.runBlocking)} {
                 nonBlocking.${name()}${toKotlinCall(c, derived)}
             }"""
