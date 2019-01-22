@@ -91,8 +91,9 @@ interface ${c.n(this, api)}<B : ${c.n(this, api)}<B, T>, T : ${c.n(this, LangDer
     }}"""
 }
 
-fun <T : ConstructorI<*>> T.toKotlinCallParamsBuilder(c: GenerationContext): String = isNotEMPTY().then {
-    params().joinWrappedToString(", ") {
+fun <T : ConstructorI<*>> T.toKotlinCallParamsBuilder(
+        c: GenerationContext, wrapIdent: String = "                    "): String = isNotEMPTY().then {
+    params().joinWrappedToString(", ", wrapIdent) {
         (it.type() == n.Boolean).ifElse(
                 { "is${it.name().capitalize()}()" },
                 { "${it.name()}()" }
@@ -109,7 +110,8 @@ fun <T : CompilationUnitI<*>> T.toKotlinBuilder(c: GenerationContext, derived: S
     val superUnitExists = superUnit().isNotEMPTY()
     return """
 open class $BT : $B<$BT, $T>() {
-    override fun build(): $T = $T(${primaryOrFirstConstructor().toKotlinCallParamsBuilder(c)})
+    override fun build(): $T =
+            $T(${primaryOrFirstConstructor().toKotlinCallParamsBuilder(c)})
 }
 
 abstract class $B<B : $B<B, T>, T : ${c.n(this, LangDerivedKind.API)}> : ${superUnitExists.then {

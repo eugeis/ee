@@ -5,6 +5,8 @@ import ee.lang.*
 import ee.lang.gen.java.j
 import ee.lang.gen.java.jackson
 
+private const val wrapInitBySize: Int = 20
+
 fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, mutable: Boolean? = null): String {
     val baseType = findDerivedOrThis()
     return when (baseType) {
@@ -197,17 +199,27 @@ fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, m
 }
 
 fun <T : AttributeI<*>> T.toKotlinInit(c: GenerationContext, derived: String,
-                                       mutable: Boolean? = isMutable(), nullable: Boolean = isNullable()): String {
+                                       mutable: Boolean? = isMutable(), nullable: Boolean = isNullable(),
+                                       wrapIdent: String = "$nL            "): String {
     return when {
-        value() != null -> " = ${toKotlinValue(c, derived, mutable)}"
+        value() != null -> {
+            val value = toKotlinValue(c, derived, mutable)
+            if (value.length > wrapInitBySize) " = $wrapIdent$value"
+            else " = $value"
+        }
         nullable -> " = null"
-        isInitByDefaultTypeValue() -> " = ${toKotlinValue(c, derived, mutable)}"
+        isInitByDefaultTypeValue() -> {
+            val value = toKotlinValue(c, derived, mutable)
+            if (value.length > wrapInitBySize) " = $wrapIdent$value"
+            else " = $value"
+        }
         else -> ""
     }
 }
 
 fun <T : AttributeI<*>> T.toKotlinValueInit(c: GenerationContext, derived: String, mutable: Boolean? = isMutable(),
-                                            nullable: Boolean = isNullable()): String {
+                                            nullable: Boolean = isNullable(),
+                                            wrapIdent: String = "$nL            "): String {
     return when {
         value() != null -> toKotlinValue(c, derived, mutable)
         nullable -> "null"
