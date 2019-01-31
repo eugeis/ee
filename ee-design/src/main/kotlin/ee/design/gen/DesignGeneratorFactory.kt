@@ -46,6 +46,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         val components: StructureUnitI<*>.() -> List<CompI<*>> = {
             if (this is CompI<*>) listOf(this) else findDownByType(CompI::class.java)
         }
+
         val modules: StructureUnitI<*>.() -> List<ModuleI<*>> = {
             if (this is ModuleI<*>) listOf(this) else findDownByType(ModuleI::class.java)
         }
@@ -93,7 +94,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         registerGoMacros(goContextFactory)
 
         val moduleGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
-        val ret = GeneratorGroup("eventDrivenGo", listOf(GeneratorGroupItems("swaggerModule",
+        val ret = GeneratorGroup("eventDrivenGo", listOf(GeneratorGroupItems("modulesGenerators",
             items = modules, generators = moduleGenerators),
             Generator("swaggerComponent", contextBuilder = swaggerContextBuilder, items = components,
                 templates = { listOf(swaggerTemplates.model()) })))

@@ -8,13 +8,13 @@ import ee.lang.TemplateI
 import ee.lang.gen.swagger.itemNameAsSwaggerFileName
 
 open class DesignSwaggerTemplates {
-    val defaultNameBuilder: TemplateI<*>.(CompositeI<*>) -> NamesI
+    private val defaultNameBuilder: TemplateI<*>.(CompositeI<*>) -> NamesI
 
     constructor(defaultNameBuilder: TemplateI<*>.(CompositeI<*>) -> NamesI = itemNameAsSwaggerFileName) {
         this.defaultNameBuilder = defaultNameBuilder
     }
 
     open fun model(nameBuilder: TemplateI<CompI<*>>.(CompositeI<*>) -> NamesI = defaultNameBuilder) =
-        Template<CompI<*>>("Model", nameBuilder) { item, c -> item.toSwagger(c) }
+        Template("Model", nameBuilder) { item, c -> item.toSwagger(c) }
 
 }

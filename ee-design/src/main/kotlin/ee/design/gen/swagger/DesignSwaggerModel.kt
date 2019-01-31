@@ -31,7 +31,7 @@ fun <T : EntityI<*>> T.toSwaggerGet(c: GenerationContext, api: String = LangDeri
           schema:
             type: string
             enum: ${finders.toSwaggerLiterals("              ")}${counters.toSwaggerLiterals(
-            "            ")}${exists.toSwaggerLiterals("            ")}
+            "              ")}${exists.toSwaggerLiterals("              ")}
         - name: operationType
           in: query
           required: false

@@ -20,7 +20,7 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerApplyEvent(c: GenerationContext,
     api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val state = findParentMust(ControllerI::class.java).derivedFrom() as StateI<*>
-    val events = state.handlers().map { it.on() }.toSet().toList().sortedBy { it.name() }
+    val events = state.uniqueEvents()
     return """
     ${events.joinSurroundIfNotEmptyToString("", { "switch event.EventType() {" }, {
         """
@@ -41,7 +41,9 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerSetupBody(c: GenerationContext, d
     api: String = DesignDerivedKind.API): String {
     val entity = findParentMust(EntityI::class.java)
     val state = findParentMust(ControllerI::class.java).derivedFrom() as StateI<*>
-    val events = state.handlers().map { it.on() }
+
+    val events = state.uniqueEvents()
+
     val id = entity.id().name().capitalize()
     return events.joinSurroundIfNotEmptyToString("") { item ->
         val handler = c.n(item, DesignDerivedType.Handler).capitalize()
@@ -78,3 +80,5 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerSetupBody(c: GenerationContext, d
     }"""
     }
 }
+
+fun StateI<*>.uniqueEvents() = handlers().map { it.on() }.toSet().toList().sortedBy { it.name() }

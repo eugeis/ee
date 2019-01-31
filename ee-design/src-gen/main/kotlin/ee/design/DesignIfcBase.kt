@@ -406,6 +406,9 @@ interface StateI<B : StateI<B>> : ControllerI<B> {
 
 
 interface StateMachineI<B : StateMachineI<B>> : ControllerI<B> {
+    fun defaultState(): StateI<*>
+    fun defaultState(value: StateI<*>): B
+
     fun stateProp(): AttributeI<*>
     fun stateProp(value: AttributeI<*>): B
 

@@ -172,8 +172,7 @@ private fun EntityI<*>.addStateMachineArtifacts() {
             handlers.add(controller {
                 name("$statePrefix${DesignDerivedType.Handler}")
                     .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(state)
-
-                val events = state.handlers().map { it.on() }.toSet().toList().sortedBy { it.name() }
+                val events = state.uniqueEvents()
                 events.forEach { event ->
                     prop {
                         type(lambda {

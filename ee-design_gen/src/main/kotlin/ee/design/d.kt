@@ -59,6 +59,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
     }
 
     object StateMachine : CompilationUnit({ superUnit(Controller) }) {
+        val defaultState = prop(State)
         val stateProp = prop(l.Attribute)
         val timeoutProp = prop(l.Attribute)
 

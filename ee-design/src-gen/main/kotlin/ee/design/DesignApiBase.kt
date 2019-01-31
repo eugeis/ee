@@ -851,6 +851,9 @@ open class StateMachine(adapt: StateMachine.() -> Unit = {}) : StateMachineB<Sta
 
 open class StateMachineB<B : StateMachineB<B>>(adapt: B.() -> Unit = {}) : ControllerB<B>(adapt), StateMachineI<B> {
 
+    override fun defaultState(): StateI<*> = attr(defaultState, { State.EMPTY })
+    override fun defaultState(value: StateI<*>): B = apply { attr(defaultState, value) }
+
     override fun stateProp(): AttributeI<*> = attr(stateProp, { Attribute.EMPTY })
     override fun stateProp(value: AttributeI<*>): B = apply { attr(stateProp, value) }
 
@@ -877,6 +880,7 @@ open class StateMachineB<B : StateMachineB<B>>(adapt: B.() -> Unit = {}) : Contr
     }
 
     companion object {
+        val defaultState = "_defaultState"
         val stateProp = "_stateProp"
         val timeoutProp = "_timeoutProp"
         val timeout = "_timeout"
