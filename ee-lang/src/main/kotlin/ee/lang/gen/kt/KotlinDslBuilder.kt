@@ -12,7 +12,7 @@ fun <T : AttributeI<*>> T.toKotlinTypeSingleB(c: GenerationContext, api: String)
 
 fun <T : AttributeI<*>> T.toKotlinDslTypeDef(c: GenerationContext, api: String): String {
     return """${isMulti().ifElse({ "${c.n(l.ListMultiHolder, LangDerivedKind.IMPL)}<${toKotlinTypeSingleB(c, api)}>" },
-        { toKotlinTypeSingleB(c, api) })}${isNullable().then("?")}"""
+            { toKotlinTypeSingleB(c, api) })}${isNullable().then("?")}"""
 }
 
 fun <T : AttributeI<*>> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: String): String {
@@ -42,38 +42,38 @@ fun <T : AttributeI<*>> T.toKotlinDslBuilderMethods(c: GenerationContext, derive
     return """${isMulti().ifElse({
         """
     ${override}fun ${name()}(): ${toKotlinDslTypeDef(c,
-            api)} = itemAsList(${name().toUnderscoredUpperCase()}, ${toKotlinTypeSingle(c, api)}::class.java, true)
+                api)} = itemAsList(${name().toUnderscoredUpperCase()}, ${toKotlinTypeSingle(c, api)}::class.java, true)
     ${override}fun ${name()}(vararg $value: ${toKotlinTypeSingleB(c,
-            api)}): B = apply { ${name()}().addItems(value.asList()) }"""
+                api)}): B = apply { ${name()}().addItems(value.asList()) }"""
     }, {
         """
     ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().capitalize()}" }, { name() })}(): ${toKotlinDslTypeDef(c,
-            api)} = attr(${name().toUnderscoredUpperCase()}${isNullable().not().then {
+                api)} = attr(${name().toUnderscoredUpperCase()}${isNullable().not().then {
             ", { ${(value() == null || value().toString().isEmpty()).ifElse(toKotlinEMPTY(c, derived), value())} }"
         }})
     ${override}fun ${name()}($value: ${toKotlinDslTypeDef(c,
-            api)}): B = apply { attr(${name().toUnderscoredUpperCase()}, $value) }"""
+                api)}): B = apply { attr(${name().toUnderscoredUpperCase()}, $value) }"""
     })}${nonFluent().isNotBlank().then {
         """
     ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingleB(c, api)}): ${toKotlinTypeSingleB(c,
-            api)} = applyAndReturn { ${isMulti().ifElse({
+                api)} = applyAndReturn { ${isMulti().ifElse({
             """${name()}().addItem($value); value"""
         }, { """${name()}().value($value)""" })} }
     ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingleB(c, api)}.() -> Unit): ${toKotlinTypeSingleB(c,
-            api)} = ${nonFluent()}(${toKotlinTypeSingle(c, derived)}($value))"""
+                api)} = ${nonFluent()}(${toKotlinTypeSingle(c, derived)}($value))"""
     }}"""
 }
 
 fun <T : CompilationUnitI<*>> T.toKotlinDslBuilderI(c: GenerationContext,
-    derived: String = LangDerivedKind.API): String {
+                                                    derived: String = LangDerivedKind.API): String {
     return """
-interface ${c.n(this, derived)}<B : ${c.n(this, derived)}<B>> : ${c.n(superUnit(), derived)}<B> {${props().joinToString(
-        nL) { it.toKotlinDslBuilderMethodsI(c, derived) }}
+interface ${c.n(this, derived)}<B : ${c.n(this, derived)}<B>> : ${c.n(superUnit(), derived)}<B> {
+${props().joinToString(            nL) { it.toKotlinDslBuilderMethodsI(c, derived) }}
 }"""
 }
 
 fun <T : CompilationUnitI<*>> T.toKotlinDslBuilder(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-    api: String = LangDerivedKind.API): String {
+                                                   api: String = LangDerivedKind.API): String {
     val multiProps = props().filter { it.isMulti() }
     val B = c.n(this, LangDerivedKind.MANUAL)
     val T = c.n(this, derived)
@@ -86,13 +86,13 @@ open class $T(adapt: $T.() -> Unit = {}) : $B<$T>(adapt) {
 }
 
 open class $B<B : $B<B>>(adapt: B.() -> Unit = {}) : ${c.n(superUnit(),
-        LangDerivedKind.MANUAL)}<B>(adapt)${(derived != api).then(
-        { ", ${c.n(this, LangDerivedKind.API)}<B>" })} {${props().joinSurroundIfNotEmptyToString(nL,
-        prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}${multiProps.isNotEmpty().then {
+            LangDerivedKind.MANUAL)}<B>(adapt)${(derived != api).then()
+    { ", ${c.n(this, LangDerivedKind.API)}<B>" }} {${props().joinSurroundIfNotEmptyToString(nL,
+            prefix = nL) { it.toKotlinDslBuilderMethods(c, derived, api) }}${multiProps.isNotEmpty().then {
         """
 
     override fun fillSupportsItems() {${multiProps.joinSurroundIfNotEmptyToString(nL,
-            prefix = nL) { "        ${it.name()}()" }}
+                prefix = nL) { "        ${it.name()}()" }}
         super.fillSupportsItems()
     }"""
     }}${props().isNotEmpty().then {

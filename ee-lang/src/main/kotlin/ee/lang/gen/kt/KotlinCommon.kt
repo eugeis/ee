@@ -44,7 +44,9 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
             } else if (baseType is LambdaI<*>) {
                 baseType.operation().toKotlinLambdaDefault(c, derived)
             } else if (baseType is ExternalTypeI) {
-                (parent() == n).ifElse("\"\"") { "${c.n(this, derived)}()" }
+                (parent() == n).ifElse("\"\"") {
+                    baseType.primaryOrFirstConstructor().toKotlinInstance(c, derived, baseType)
+                }
             } else if (baseType is TypeI<*> && baseType.isIfc()) {
                 (parent() == n).ifElse("\"\"") { "${c.n(this, derived)}EMPTY" }
             } else if (this is GenericI<*>) {
@@ -300,6 +302,9 @@ fun <T : ConstructorI<*>> T.toKotlin(c: GenerationContext, derived: String, api:
 fun <T : ConstructorI<*>> T.toKotlinCall(c: GenerationContext, name: String = "this"): String = isNotEMPTY().then {
     " : $name(${toKotlinCallParams(c)})"
 }
+
+fun <T : ConstructorI<*>> T.toKotlinInstance(c: GenerationContext, derived: String, type: TypeI<*>): String =
+        "${c.n(type, derived)}(${toKotlinCallValue(c, derived)})"
 
 fun <T : ConstructorI<*>> T.toKotlinCallParams(c: GenerationContext): String = isNotEMPTY().then {
     params().joinWrappedToString(", ") { it.name() }

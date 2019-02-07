@@ -56,7 +56,7 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethods(c: GenerationContext, derived: 
     ${override}fun ${name()}(): ${toKotlinTypeDef(c, api)} = ${isNullable().ifElse(
                 { "${name()}.takeUnless { it.isEmpty() }" }, { name() })}
     ${override}fun ${name()}(vararg $value: ${toKotlinTypeGenerics(c, api)
-        }): B = applyB { ${name()}.${type().isOrDerived(n.Map).ifElse("putAll", "addAll")}(value) }"""
+        }): B = applyB { ${name()}.${type().isOrDerived(n.Map).ifElse("putAll", "addAll")}(value.asList()) }"""
     }, {
         """
     ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().capitalize()}" },
@@ -114,8 +114,8 @@ open class $BT : $B<$BT, $T>() {
             $T(${primaryOrFirstConstructor().toKotlinCallParamsBuilder(c)})
 }
 
-abstract class $B<B : $B<B, T>, T : ${c.n(this, LangDerivedKind.API)}> : ${superUnitExists.then {
-        """${c.n(superUnit(), derived)}<B, T>(), """
+abstract class $B<B : $B<B, T>, T : ${c.n(this, LangDerivedKind.API)}> :
+        ${superUnitExists.then {"${c.n(superUnit(), derived)}<B, T>(), "
     }}${c.n(this, api)}<B, T>${props().isNotEmpty().then {
         """ {${props().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
             it.toKotlinMemberBuilder(c, LangDerivedKind.IMPL, LangDerivedKind.API)
