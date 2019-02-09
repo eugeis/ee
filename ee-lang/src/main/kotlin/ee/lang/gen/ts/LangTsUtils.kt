@@ -10,8 +10,8 @@ open class TsContext : GenerationContext {
 
     constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src/app/shared",
         genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.ts".toRegex(),
-        derivedController: DerivedController = DerivedController(DerivedStorage<ItemI<*>>()),
-        macroController: MacroController = MacroController()) : super(namespace, moduleFolder, genFolder,
+        derivedController: DerivedController, macroController: MacroController)
+            : super(namespace, moduleFolder, genFolder,
         genFolderDeletable, genFolderPatternDeletable, derivedController, macroController) {
     }
 

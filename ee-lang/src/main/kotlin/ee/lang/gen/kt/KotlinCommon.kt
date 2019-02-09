@@ -45,7 +45,11 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
                 baseType.operation().toKotlinLambdaDefault(c, derived)
             } else if (baseType is ExternalTypeI) {
                 (parent() == n).ifElse("\"\"") {
-                    baseType.primaryOrFirstConstructor().toKotlinInstance(c, derived, baseType)
+                    val macroEmptyInstance = baseType.macroEmptyInstance()
+                    if (macroEmptyInstance != null)
+                        c.body(macroEmptyInstance, baseType, derived)
+                    else
+                        baseType.primaryOrFirstConstructor().toKotlinInstance(c, derived, baseType)
                 }
             } else if (baseType is TypeI<*> && baseType.isIfc()) {
                 (parent() == n).ifElse("\"\"") { "${c.n(this, derived)}EMPTY" }
@@ -304,7 +308,7 @@ fun <T : ConstructorI<*>> T.toKotlinCall(c: GenerationContext, name: String = "t
 }
 
 fun <T : ConstructorI<*>> T.toKotlinInstance(c: GenerationContext, derived: String, type: TypeI<*>): String =
-        "${c.n(type, derived)}(${toKotlinCallValue(c, derived)})"
+        "${c.n(type, derived)}${toKotlinCallValue(c, derived)}"
 
 fun <T : ConstructorI<*>> T.toKotlinCallParams(c: GenerationContext): String = isNotEMPTY().then {
     params().joinWrappedToString(", ") { it.name() }
@@ -326,15 +330,13 @@ fun <T : LogicUnitI<*>> T.toKotlinCall(c: GenerationContext, derived: String, pr
 
 fun <T : LogicUnitI<*>> T.toKotlinCallValue(c: GenerationContext, derived: String,
                                             externalVariables: Map<String, String> = emptyMap()): String =
-        isNotEMPTY().then {
-            "(${params().joinWrappedToString(", ") {
-                if (externalVariables.containsKey(it.name())) {
-                    externalVariables[it.name()]!!
-                } else {
-                    it.toKotlinValue(c, derived)
-                }
-            }})"
-        }
+        "(${params().joinWrappedToString(", ") {
+            if (externalVariables.containsKey(it.name())) {
+                externalVariables[it.name()]!!
+            } else {
+                it.toKotlinValue(c, derived)
+            }
+        }})"
 
 fun <T : LiteralI<*>> T.toKotlinCallValue(c: GenerationContext, derived: String): String = params().isNotEmpty().then {
     "(${params().joinWrappedToString(", ") {

@@ -218,8 +218,8 @@ open class GoContext : GenerationContext {
 
     constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src/main/go/src",
         genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.go".toRegex(),
-        derivedController: DerivedController = DerivedController(DerivedStorage()),
-        macroController: MacroController = MacroController()) : super(namespace, moduleFolder, genFolder,
+        derivedController: DerivedController, macroController: MacroController)
+            : super(namespace, moduleFolder, genFolder,
         genFolderDeletable, genFolderPatternDeletable, derivedController, macroController) {
         namespaceLastPart = namespace.substringAfterLast(".")
     }

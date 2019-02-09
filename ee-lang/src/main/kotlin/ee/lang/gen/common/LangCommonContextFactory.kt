@@ -8,7 +8,7 @@ open class LangCommonContextFactory {
     val isNotPartOfNativeTypes: ItemI<*>.() -> Boolean = { n != parent() && j != parent() && k != parent() }
     val macroController = MacroController()
 
-    open fun build(): StructureUnitI<*>.() -> GenerationContext {
+    open fun build(): ContextBuilder<StructureUnitI<*>> {
         val derivedController = DerivedController()
         registerForImplOnly(derivedController)
         return contextBuilder(derivedController)
@@ -16,16 +16,16 @@ open class LangCommonContextFactory {
 
     protected open fun registerForImplOnly(derived: DerivedController) {
         derived.registerKinds(listOf(LangDerivedKind.API, LangDerivedKind.IMPL), { buildName(this, it) },
-            isNotPartOfNativeTypes)
+                isNotPartOfNativeTypes)
         //derived.dynamicTransformer = DerivedByTransformer("DYNAMIC", { buildNameDynamic(this, it) }, isNotPartOfNativeTypes)
 
     }
 
-    protected open fun contextBuilder(derived: DerivedController): StructureUnitI<*>.() -> GenerationContext {
-        return {
+    protected open fun contextBuilder(derived: DerivedController): ContextBuilder<StructureUnitI<*>> {
+        return ContextBuilder(CONTEXT_COMMON, macroController) {
             val su = this
             GenerationContext(moduleFolder = su.artifact(), namespace = su.namespace().toLowerCase(),
-                derivedController = derived, macroController = macroController)
+                    derivedController = derived, macroController = macroController)
         }
     }
 
@@ -35,4 +35,8 @@ open class LangCommonContextFactory {
     protected open fun buildNameDynamic(item: ItemI<*>, kind: String): String = "${buildName(item, kind)}$kind"
     protected open fun buildNameForConstructor(item: ConstructorI<*>, kind: String) = buildName(item, kind)
     protected open fun buildNameForOperation(item: OperationI<*>, kind: String) = buildName(item, kind)
+
+    companion object {
+        const val CONTEXT_COMMON = "common"
+    }
 }

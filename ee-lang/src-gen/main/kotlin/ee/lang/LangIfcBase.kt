@@ -438,6 +438,8 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
     fun ifc(): B = ifc(true)
     fun notIfc(): B = ifc(false)
 
+    fun macroEmptyInstance(value: String?): B
+
     fun multi(value: Boolean): B
     fun multi(): B = multi(true)
     fun notMulti(): B = multi(false)
@@ -468,6 +470,8 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
     fun G(value: GenericI<*>.() -> Unit = {}): GenericI<*>
 
     fun isIfc(): Boolean
+
+    fun macroEmptyInstance(): String?
 
     fun isMulti(): Boolean
 

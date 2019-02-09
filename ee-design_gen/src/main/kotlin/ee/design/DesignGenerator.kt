@@ -5,14 +5,14 @@ import ee.lang.gen.kt.prepareForKotlinGeneration
 import ee.lang.integ.eePath
 import java.nio.file.Path
 
-fun main(args: Array<String>) {
+fun main() {
     generate(eePath)
 }
 
 fun generate(target: Path) {
     var model = d.prepareForKotlinGeneration()
     val generatorFactory = LangGeneratorFactory()
-    val generator = generatorFactory.dslKt("Design")
-    generator.delete(target, model)
-    generator.generate(target, model)
+    val generatorContexts = generatorFactory.dslKt("Design")
+    generatorContexts.generator.delete(target, model)
+    generatorContexts.generator.generate(target, model)
 }

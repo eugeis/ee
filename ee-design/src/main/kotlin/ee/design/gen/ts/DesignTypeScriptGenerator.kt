@@ -6,18 +6,14 @@ import ee.lang.StructureUnitI
 import ee.lang.gen.ts.initsForTsGeneration
 import java.nio.file.Path
 
-open class DesignTypeScriptGenerator {
-    val model: StructureUnitI<*>
-
-    constructor(model: StructureUnitI<*>) {
-        this.model = model
-    }
+open class DesignTypeScriptGenerator(val model: StructureUnitI<*>) {
 
     fun generate(target: Path) {
         model.extendForTsGeneration()
 
         val generatorFactory = DesignGeneratorFactory()
-        val generator = generatorFactory.angular()
+        val generatorContexts = generatorFactory.angular()
+        val generator = generatorContexts.generator
         generator.delete(target, model)
         generator.generate(target, model)
     }

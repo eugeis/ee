@@ -3,11 +3,15 @@ package ee.lang.gen
 import ee.common.ext.then
 import ee.lang.*
 
+open class KotlinContextBuilder<M>(name: String, val scope: String, macroController: MacroController,
+                                   builder: M.() -> KotlinContext) : ContextBuilder<M>(name, macroController, builder)
+
 open class KotlinContext : GenerationContext {
     constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src-gen/main/kotlin",
-        genFolderDeletable: Boolean = true, genFolderDeletePattern: Regex? = null,
-        derivedController: DerivedController = DerivedController(DerivedStorage())) : super(namespace, moduleFolder,
-        genFolder, genFolderDeletable, genFolderDeletePattern, derivedController)
+                genFolderDeletable: Boolean = true, genFolderDeletePattern: Regex? = null,
+                derivedController: DerivedController,
+                macroController: MacroController) : super(namespace, moduleFolder,
+            genFolder, genFolderDeletable, genFolderDeletePattern, derivedController, macroController)
 
     override fun complete(content: String, indent: String): String {
         val toImports = toImports(indent)
@@ -24,9 +28,13 @@ open class KotlinContext : GenerationContext {
             val outsideTypes = types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }
             outsideTypes.isNotEmpty().then {
                 "${outsideTypes.map { "${indent}import ${it.namespace()}.${it.name()}" }.toSortedSet().joinToString(
-                    nL)}$nL$nL"
+                        nL)}$nL$nL"
             }
         }
+    }
+
+    companion object {
+        const val CONTEXT_KOTLIN = "kotlin"
     }
 }
 

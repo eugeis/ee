@@ -103,5 +103,5 @@ func (o *complexEnums) ParseComplexEnum(name string) (ret *ComplexEnum, ok bool)
 }"""))
     }
 
-    private fun context() = LangGoContextFactory().buildForImplOnly().invoke(TestModel)
+    private fun context() = LangGoContextFactory().buildForImplOnly().builder.invoke(TestModel)
 }

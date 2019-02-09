@@ -6,10 +6,11 @@ import ee.design.EventI
 import ee.lang.*
 import ee.lang.gen.ts.LangTsContextFactory
 import ee.lang.gen.ts.TsContext
+import ee.lang.gen.ts.TsContextBuilder
 
 open class DesignTsContextFactory : LangTsContextFactory() {
-    override fun contextBuilder(derived: DerivedController): StructureUnitI<*>.() -> TsContext {
-        return {
+    override fun contextBuilder(derived: DerivedController): TsContextBuilder<StructureUnitI<*>> {
+        return TsContextBuilder(CONTEXT_TYPE_SCRIPT, macroController){
             val structureUnit = this
             val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: structureUnit
             TsContext(moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}_ng",

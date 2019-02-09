@@ -5,11 +5,12 @@ import ee.design.CompI
 import ee.design.EventI
 import ee.lang.*
 import ee.lang.gen.go.GoContext
+import ee.lang.gen.go.GoContextBuilder
 import ee.lang.gen.go.LangGoContextFactory
 
 open class DesignGoContextFactory : LangGoContextFactory() {
-    override fun contextBuilder(derived: DerivedController): StructureUnitI<*>.() -> GoContext {
-        return {
+    override fun contextBuilder(derived: DerivedController): GoContextBuilder<StructureUnitI<*>> {
+        return GoContextBuilder(CONTEXT_GO, macroController){
             val structureUnit = this
             val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: structureUnit
 

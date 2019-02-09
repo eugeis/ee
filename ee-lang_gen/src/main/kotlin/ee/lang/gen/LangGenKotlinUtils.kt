@@ -1,6 +1,8 @@
 package ee.lang.gen
 
 import ee.lang.*
+import ee.lang.gen.KotlinContext.Companion.CONTEXT_KOTLIN
+import javax.crypto.Mac
 
 object DerivedNames {
     val API = "API"
@@ -17,9 +19,9 @@ object DerivedNames {
 open class KotlinContextFactory {
     private val isNotPartOfNativeTypes: ItemI<*>.() -> Boolean = { n != this.parent() }
     private val isNotPartOfNativeAndModelTypes: ItemI<*>.() -> Boolean = { n != this.parent() && l != this.parent() }
-
-    fun buildForDslBuilder(namespace: String, moduleFolder: String): CompositeI<*>.() -> KotlinContext {
-        val controller = DerivedController(DerivedStorage<ItemI<*>>())
+    private val macroController: MacroController = MacroController()
+    fun buildForDslBuilder(namespace: String, moduleFolder: String): KotlinContextBuilder<CompositeI<*>> {
+        val controller = DerivedController(DerivedStorage())
 
         controller.registerKind(DerivedNames.API, { "${name()}I" }, isNotPartOfNativeTypes)
         controller.registerKind(DerivedNames.API_BASE, { "${name()}IfcBase" }, isNotPartOfNativeTypes)
@@ -30,9 +32,10 @@ open class KotlinContextFactory {
         controller.registerKind(DerivedNames.EMPTY_CLASS, { "${name()}EmptyClass" }, isNotPartOfNativeTypes)
         controller.registerKind(DerivedNames.DSL_TYPE, { "ItemTypes.${name()}" }, isNotPartOfNativeAndModelTypes)
 
-        val ret = KotlinContext(namespace = namespace, moduleFolder = moduleFolder, genFolder = "src-gen/main/kotlin",
-            genFolderDeletable = true, derivedController = controller)
-        return { ret }
+        return KotlinContextBuilder(CONTEXT_KOTLIN, "main", macroController) {
+            KotlinContext(namespace = namespace, moduleFolder = moduleFolder, genFolder = "src-gen/main/kotlin",
+                    genFolderDeletable = true, derivedController = controller)
+        }
     }
 }
 

@@ -13,17 +13,18 @@ open class LangGenGeneratorFactory {
         this.module = module
     }
 
-    fun dsl(fileNamePrefix: String = ""): GeneratorI<CompositeI<*>> {
-        val contextBuilder = KotlinContextFactory().buildForDslBuilder(namespace = namespace, moduleFolder = module)
+    fun dsl(fileNamePrefix: String = ""): GeneratorContexts<CompositeI<*>> {
+        val ktContextBuilder = KotlinContextFactory().buildForDslBuilder(namespace = namespace, moduleFolder = module)
         val composites: CompositeI<*>.() -> List<CompositeI<*>> = { items().filterIsInstance(CompositeI::class.java) }
 
-        return GeneratorGroup("dsl", listOf(GeneratorSimple("IfcBase", contextBuilder = contextBuilder,
+        val generator = GeneratorGroup("dsl", listOf(GeneratorSimple("IfcBase", contextBuilder = ktContextBuilder,
                 template = ItemsTemplate(name = "${fileNamePrefix}IfcBase", nameBuilder = templateNameAsKotlinFileName,
                         items = composites, fragments = { listOf(kotlinTemplates.dslBuilderI()) })),
-                GeneratorSimple("ApiBase", contextBuilder = contextBuilder,
+                GeneratorSimple("ApiBase", contextBuilder = ktContextBuilder,
                         template = ItemsTemplate(name = "${fileNamePrefix}ApiBase", nameBuilder = templateNameAsKotlinFileName,
                                 items = composites, fragments = { listOf(kotlinTemplates.dslBuilder()) })),
-                GeneratorSimple("ObjectTree", contextBuilder = contextBuilder, template = kotlinTemplates.dslObjectTree())))
+                GeneratorSimple("ObjectTree", contextBuilder = ktContextBuilder, template = kotlinTemplates.dslObjectTree())))
+        return GeneratorContexts(generator, ktContextBuilder)
     }
 
 }

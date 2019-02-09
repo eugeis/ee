@@ -33,15 +33,15 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
     override fun buildSwaggerContextFactory() = DesignSwaggerContextFactory()
     fun buildSwaggerTemplates() = DesignSwaggerTemplates(itemNameAsSwaggerFileName)
 
-    open fun eventDrivenGo(fileNamePrefix: String = ""): GeneratorGroupI<StructureUnitI<*>> {
+    open fun eventDrivenGo(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {
 
         val swaggerTemplates = buildSwaggerTemplates()
         val swaggerContextFactory = buildSwaggerContextFactory()
         val swaggerContextBuilder = swaggerContextFactory.build()
 
         val goTemplates = buildGoTemplates()
-        val goContextFactory = buildGoContextFactory()
-        val goContextBuilder = goContextFactory.buildForImplOnly()
+        val contextFactory = buildGoContextFactory()
+        val goContextBuilder = contextFactory.buildForImplOnly()
 
         val components: StructureUnitI<*>.() -> List<CompI<*>> = {
             if (this is CompI<*>) listOf(this) else findDownByType(CompI::class.java)
@@ -91,10 +91,10 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                 .sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
-        registerGoMacros(goContextFactory)
+        registerGoMacros(contextFactory)
 
         val moduleGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
-        val ret = GeneratorGroup("eventDrivenGo", listOf(GeneratorGroupItems("modulesGenerators",
+        val generator = GeneratorGroup("eventDrivenGo", listOf(GeneratorGroupItems("modulesGenerators",
             items = modules, generators = moduleGenerators),
             Generator("swaggerComponent", contextBuilder = swaggerContextBuilder, items = components,
                 templates = { listOf(swaggerTemplates.model()) })))
@@ -151,10 +151,10 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         }
         moduleGenerators.addAll(derivedTypesGenerators)
 
-        return ret
+        return GeneratorContexts(generator, swaggerContextBuilder, goContextBuilder)
     }
 
-    open fun angular(fileNamePrefix: String = ""): GeneratorGroupI<StructureUnitI<*>> {
+    open fun angular(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {
         val tsTemplates = buildTsTemplates()
         val tsContextFactory = buildTsContextFactory()
         val tsContextBuilder = tsContextFactory.buildForImplOnly()
@@ -202,7 +202,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         }
 
         val moduleGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
-        val ret = GeneratorGroup("angular",
+        val generator = GeneratorGroup("angular",
             listOf(GeneratorGroupItems("angularModules", items = modules, generators = moduleGenerators)))
 
         moduleGenerators.addAll(listOf(GeneratorSimple("ApiBase", contextBuilder = tsContextBuilder,
@@ -216,7 +216,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                             fragments = { listOf(tsTemplates.pojo()) }),
                         ItemsFragment(items = enums, fragments = { listOf(tsTemplates.enum()) }))
                 }))))
-        return ret
+        return GeneratorContexts(generator, tsContextBuilder)
     }
 
     protected fun registerGoMacros(contextFactory: LangCommonContextFactory) {

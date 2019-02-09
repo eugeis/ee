@@ -32,6 +32,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val props = AttributeI { type(Attribute).multi(true).nonFluent("prop") }
         val operations = AttributeI { type(Operation).multi(true).nonFluent("op") }
         val constructors = AttributeI { type(Constructor).multi(true).nonFluent("constr") }
+        val macroEmptyInstance = AttributeI { type(n.String).nullable(true) }
     }
 
     object Generic : Composite({ derivedFrom(Type) }) {

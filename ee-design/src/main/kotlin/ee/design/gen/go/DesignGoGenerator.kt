@@ -17,9 +17,9 @@ open class DesignGoGenerator {
         model.extendForGoGeneration()
 
         val generatorFactory = DesignGeneratorFactory()
-        val generator = generatorFactory.eventDrivenGo()
-        generator.delete(target, model)
-        generator.generate(target, model)
+        val generatorContexts = generatorFactory.eventDrivenGo()
+        generatorContexts.generator.delete(target, model)
+        generatorContexts.generator.generate(target, model)
     }
 
     protected fun StructureUnitI<*>.extendForGoGeneration() {

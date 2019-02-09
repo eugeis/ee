@@ -71,5 +71,5 @@ enum class ComplexEnum(val code: Int) {
 }"""))
     }
 
-    private fun context() = LangKotlinContextFactory().buildForImplOnly().invoke(TestModel)
+    private fun context() = LangKotlinContextFactory().buildForImplOnly().builder.invoke(TestModel)
 }

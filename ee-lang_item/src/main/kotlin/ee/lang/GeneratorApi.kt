@@ -86,7 +86,7 @@ private fun Collection<GeneratorI<*>>.names(name: String): List<String> =
             }
         }
 
-abstract class GeneratorBase<M>(name: String, val contextBuilder: M.() -> GenerationContext) :
+abstract class GeneratorBase<M>(name: String, val contextBuilder: ContextBuilder<M>) :
         AbstractGenerator<M>(name) {
 
     protected open fun prepareNamespace(module: Path, context: GenerationContext): Path {
@@ -99,7 +99,7 @@ abstract class GeneratorBase<M>(name: String, val contextBuilder: M.() -> Genera
     override fun delete(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
         if (shallSkip(model)) return
 
-        val c = model.contextBuilder()
+        val c = contextBuilder.builder.invoke(model)
         if (c.genFolderDeletable) {
             val module = target.resolve(c.moduleFolder)
             val folder = module.resolve(c.genFolder)
@@ -112,13 +112,13 @@ abstract class GeneratorBase<M>(name: String, val contextBuilder: M.() -> Genera
     }
 }
 
-open class GeneratorSimple<M>(name: String, contextBuilder: M.() -> GenerationContext,
+open class GeneratorSimple<M>(name: String, contextBuilder: ContextBuilder<M>,
                               val template: TemplateI<M>) : GeneratorBase<M>(name, contextBuilder) {
 
     override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
         if (shallSkip(model)) return
 
-        val c = model.contextBuilder()
+        val c = contextBuilder.builder.invoke(model)
         val module = target.resolve(c.moduleFolder)
         val metaData = module.loadMetaData()
 
@@ -137,13 +137,13 @@ open class GeneratorSimple<M>(name: String, contextBuilder: M.() -> GenerationCo
     }
 }
 
-open class Generator<M, I>(name: String, contextBuilder: M.() -> GenerationContext, val items: M.() -> Collection<I>,
+open class Generator<M, I>(name: String, contextBuilder: ContextBuilder<M>, val items: M.() -> Collection<I>,
                            val templates: I.() -> Collection<Template<I>>) : GeneratorBase<M>(name, contextBuilder) {
 
     override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
         if (shallSkip(model)) return
 
-        val c = model.contextBuilder()
+        val c = contextBuilder.builder.invoke(model)
         val module = target.resolve(c.moduleFolder)
         val metaData = module.loadMetaData()
 
@@ -283,8 +283,8 @@ open class GenerationContext : Cloneable {
 
     constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "",
                 genFolderDeletable: Boolean = false, genFolderDeletePattern: Regex? = null,
-                derivedController: DerivedController = DerivedController(DerivedStorage()),
-                macroController: MacroController = MacroController()) {
+                derivedController: DerivedController,
+                macroController: MacroController) {
         this.namespace = namespace
         this.moduleFolder = moduleFolder
         this.genFolder = genFolder
@@ -324,6 +324,11 @@ open class GenerationContext : Cloneable {
         return macroController.find<T>(macro).code.invoke(item, this, derivedKind, apiKind)
     }
 }
+
+open class ContextBuilder<M>(val name: String, val macroController: MacroController,
+                             val builder: M.() -> GenerationContext)
+
+open class GeneratorContexts<M>(val generator: GeneratorGroupI<M>, vararg val contexts: ContextBuilder<M>)
 
 open class Macro<T : ItemI<*>> {
     val name: String

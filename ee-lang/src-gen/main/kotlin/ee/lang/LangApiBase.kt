@@ -883,6 +883,9 @@ open class TypeB<B : TypeI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(ad
     override fun isIfc(): Boolean = attr(ifc, { false })
     override fun ifc(value: Boolean): B = apply { attr(ifc, value) }
 
+    override fun macroEmptyInstance(): String? = attr(macroEmptyInstance)
+    override fun macroEmptyInstance(value: String?): B = apply { attr(macroEmptyInstance, value) }
+
     override fun isMulti(): Boolean = attr(multi, { false })
     override fun multi(value: Boolean): B = apply { attr(multi, value) }
 
@@ -923,6 +926,7 @@ open class TypeB<B : TypeI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(ad
         val defaultValue = "_defaultValue"
         val generics = "_generics"
         val ifc = "_ifc"
+        val macroEmptyInstance = "_macroEmptyInstance"
         val multi = "_multi"
         val open = "_open"
         val operations = "_operations"
