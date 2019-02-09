@@ -9,8 +9,8 @@ open class KotlinContextBuilder<M>(name: String, val scope: String, macroControl
 open class KotlinContext : GenerationContext {
     constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src-gen/main/kotlin",
                 genFolderDeletable: Boolean = true, genFolderDeletePattern: Regex? = null,
-                derivedController: DerivedController,
-                macroController: MacroController) : super(namespace, moduleFolder,
+                derivedController: DerivedController = DerivedController(DerivedStorage()),
+                macroController: MacroController = MacroController()) : super(namespace, moduleFolder,
             genFolder, genFolderDeletable, genFolderDeletePattern, derivedController, macroController)
 
     override fun complete(content: String, indent: String): String {
