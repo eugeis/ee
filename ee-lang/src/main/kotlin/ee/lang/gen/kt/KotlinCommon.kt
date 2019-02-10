@@ -282,7 +282,7 @@ fun <T : ConstructorI<*>> T.toKotlinPrimary(c: GenerationContext, derived: Strin
         } else {
             param.toKotlinSignature(c, derived, api)
         }
-    }})${superUnit().toKotlinCall(c, derived, type.toKotlinExtends(c, derived, api),
+    }})${superUnit().toKotlinCall(c, derived, "$nL   ${type.toKotlinExtends(c, derived, api)}",
             paramsWithFixValue())}""" else type.toKotlinExtends(c, derived, api)
 }
 
@@ -318,7 +318,7 @@ fun <T : AttributeI<*>> T.toKotlinAssign(c: GenerationContext): String = "this.$
 
 fun <T : LogicUnitI<*>> T.toKotlinCall(c: GenerationContext, derived: String, prefix: String = "",
                                        values: Map<String, AttributeI<*>> = emptyMap()): String = isNotEMPTY().then {
-    "$prefix(${params().joinWrappedToString(", ") {
+    "$prefix(${params().joinWrappedToString(", ", (prefix.length).toWrapIdentBlack()) {
         if (values.containsKey(it.name())) {
             values[it.name()]!!.toKotlinValue(c, derived)
         } else {
