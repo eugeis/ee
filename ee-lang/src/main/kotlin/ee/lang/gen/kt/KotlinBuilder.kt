@@ -10,6 +10,7 @@ const val derivedBuilder = "BuilderI"
 const val derivedBuilderB = "BuilderB"
 const val derivedBuilderT = "Builder"
 
+
 fun <T : AttributeI<*>> T.toKotlinTypeGenerics(c: GenerationContext, api: String): String =
         if (type().isOrDerived(n.Map)) k.core.Pair.GT(*type().generics().toTypedArray())
                 .toKotlinTypeDef(c, api, false) else
@@ -48,6 +49,7 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethodsI(c: GenerationContext, api: Str
     }}"""
 }
 
+
 fun <T : AttributeI<*>> T.toKotlinBuilderMethods(c: GenerationContext, derived: String, api: String): String {
     val value = (name() == "value").ifElse("aValue", "value")
     val override = (derived != api).ifElse("override ", "")
@@ -56,7 +58,8 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethods(c: GenerationContext, derived: 
     ${override}fun ${name()}(): ${toKotlinTypeDef(c, api)} = ${isNullable().ifElse(
                 { "${name()}.takeUnless { it.isEmpty() }" }, { name() })}
     ${override}fun ${name()}(vararg $value: ${toKotlinTypeGenerics(c, api)
-        }): B = applyB { ${name()}.${type().isOrDerived(n.Map).ifElse("putAll", "addAll")}(value.asList()) }"""
+        }): B = applyB {
+        ${name()}.${type().isOrDerived(n.Map).ifElse("putAll", "addAll")}(value.asList()) }"""
     }, {
         """
     ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().capitalize()}" },

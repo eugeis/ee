@@ -133,12 +133,12 @@ fun <T : TypeI<*>> T.toKotlinIfNative(c: GenerationContext, derived: String,
         n.UByte -> "Byte"
         n.Collection -> "${c.n(
                 (mutable.setAndTrue()).ifElse(k.core.MutableCollection, k.core.Collection),
-                derived)}${toKotlinGenericTypes(c, derived, mutable)}"
+                derived)}${toKotlinGenericTypes(c, derived)}"
         n.List -> "${c.n(
                 (mutable.setAndTrue()).ifElse(k.core.MutableList, k.core.List),
-                derived)}${toKotlinGenericTypes(c, derived, mutable)}"
+                derived)}${toKotlinGenericTypes(c, derived)}"
         n.Map -> "${c.n((mutable.setAndTrue()).ifElse(k.core.MutableMap, k.core.Map),
-                derived)}${toKotlinGenericTypes(c, derived, mutable)}"
+                derived)}${toKotlinGenericTypes(c, derived)}"
         else -> {
             if (this is LambdaI<*>) operation().toKotlinLambda(c, derived) else null
         }
@@ -182,7 +182,7 @@ fun OperationI<*>.toKotlinGenerics(c: GenerationContext, derived: String): Strin
 
 fun <T : TypeI<*>> T.toKotlin(c: GenerationContext, derived: String,
                               mutable: Boolean? = null): String = toKotlinIfNative(c, derived, mutable)
-        ?: "${c.n(this, derived)}${toKotlinGenericTypes(c, derived, mutable)}"
+        ?: "${c.n(this, derived)}${toKotlinGenericTypes(c, derived)}"
 
 
 fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, mutable: Boolean? = isMutable(),
