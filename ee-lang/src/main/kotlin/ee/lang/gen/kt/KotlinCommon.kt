@@ -29,6 +29,10 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
         n.Url -> "${c.n(j.net.URL)}(\"\")"
         n.Byte -> "0"
         n.UByte -> "0"
+        n.Class -> {
+            val g = generics().first().type()
+            "${if(g.isEMPTY()) "Any" else g.name()}::class.java"
+        }
         n.Map -> (mutable.setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
         n.List -> (mutable.setAndTrue()).ifElse("mutableListOf()", "listOf()")
         n.Collection -> (mutable.setAndTrue()).ifElse("mutableListOf()", "listOf()")
@@ -164,25 +168,21 @@ fun TypeI<*>.toKotlinGenericsClassDef(c: GenerationContext, derived: String,
     "${it.name()}${it.type().isNotEMPTY().then { " : ${it.type().toKotlin(c, derived, mutable)}" }}"
 }
 
-fun TypeI<*>.toKotlinGenericsMethodDef(c: GenerationContext, derived: String,
-                                       mutable: Boolean? = null): String = generics().joinWrappedToString(
-        ", ", "", "<", "> ") {
-    "${it.name()}: ${it.type().toKotlin(c, derived, mutable)}"
-}
-
+fun TypeI<*>.toKotlinGenericsMethodDef(c: GenerationContext, derived: String, mutable: Boolean? = null): String =
+        generics().joinWrappedToString(", ", "", "<", "> ") {
+            "${it.name()}: ${it.type().toKotlin(c, derived, mutable)}"
+        }
 
 fun TypeI<*>.toKotlinGenericsStar(context: GenerationContext, derived: String): String =
-        generics().joinWrappedToString(
-                ", ", "", "<", "> ") { "*" }
+        generics().joinWrappedToString(", ", "", "<", "> ") { "*" }
 
 fun OperationI<*>.toKotlinGenerics(c: GenerationContext, derived: String): String = generics().joinWrappedToString(
         ", ", "", "<", "> ") {
     "${it.name()}${it.type().isNotEMPTY().then { " : ${it.type().toKotlin(c, derived)}" }}"
 }
 
-fun <T : TypeI<*>> T.toKotlin(c: GenerationContext, derived: String,
-                              mutable: Boolean? = null): String = toKotlinIfNative(c, derived, mutable)
-        ?: "${c.n(this, derived)}${toKotlinGenericTypes(c, derived)}"
+fun <T : TypeI<*>> T.toKotlin(c: GenerationContext, derived: String, mutable: Boolean? = null): String =
+        toKotlinIfNative(c, derived, mutable) ?: "${c.n(this, derived)}${toKotlinGenericTypes(c, derived)}"
 
 
 fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, mutable: Boolean? = isMutable(),
@@ -234,8 +234,8 @@ fun <T : AttributeI<*>> T.toKotlinValueInit(c: GenerationContext, derived: Strin
     }
 }
 
-fun <T : AttributeI<*>> T.toKotlinInitMember(c: GenerationContext,
-                                             derived: String): String = "this.${name()}${toKotlinInit(c, derived)}"
+fun <T : AttributeI<*>> T.toKotlinInitMember(c: GenerationContext, derived: String): String =
+        "this.${name()}${toKotlinInit(c, derived)}"
 
 fun <T : AttributeI<*>> T.toKotlinSignature(c: GenerationContext, derived: String, api: String,
                                             initValue: Boolean = true, forceInit: Boolean = true): String =
@@ -267,16 +267,16 @@ fun List<AttributeI<*>>.toKotlinSignature(c: GenerationContext, derived: String,
             it.toKotlinSignature(c, derived, api, initValues, forceInit)
         }
 
-fun List<AttributeI<*>>.toKotlinMember(c: GenerationContext, derived: String,
-                                       api: String): String = joinWrappedToString(", ") {
-    it.toKotlinSignature(c, derived, api)
-}
+fun List<AttributeI<*>>.toKotlinMember(c: GenerationContext, derived: String, api: String): String =
+        joinWrappedToString(", ") {
+            it.toKotlinSignature(c, derived, api)
+        }
 
 fun <T : ConstructorI<*>> T.toKotlinPrimary(c: GenerationContext, derived: String, api: String,
                                             type: TypeI<*>, wrapIdentWidth: Int = 6): String {
     val superUnitParams = superUnit().params()
-    return if (isNotEMPTY()) """(${
-    paramsWithOutFixValue().joinWrappedToString(", ", wrapIndent = (wrapIdentWidth + 1).toWrapIdentBlack()) { param ->
+    return if (isNotEMPTY()) """(${paramsWithOutFixValue().joinWrappedToString(", ",
+            wrapIndent = (wrapIdentWidth + 1).toWrapIdentBlack()) { param ->
         if (superUnitParams.find { it.name() == param.name() } == null) {
             param.toKotlinConstructorMember(c, derived, api)
         } else {
@@ -303,9 +303,10 @@ fun <T : ConstructorI<*>> T.toKotlin(c: GenerationContext, derived: String, api:
             }}""" else ""
 }
 
-fun <T : ConstructorI<*>> T.toKotlinCall(c: GenerationContext, name: String = "this"): String = isNotEMPTY().then {
-    " : $name(${toKotlinCallParams(c)})"
-}
+fun <T : ConstructorI<*>> T.toKotlinCall(c: GenerationContext, name: String = "this"): String =
+        isNotEMPTY().then {
+            " : $name(${toKotlinCallParams(c)})"
+        }
 
 fun <T : ConstructorI<*>> T.toKotlinInstance(c: GenerationContext, derived: String, type: TypeI<*>): String =
         "${c.n(type, derived)}${toKotlinCallValue(c, derived)}"

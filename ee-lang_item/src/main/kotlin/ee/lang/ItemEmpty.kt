@@ -57,15 +57,15 @@ open class MultiHolderEmptyClass<I, B : MultiHolderI<I, B>> : ItemEmptyClass<B>(
 }
 
 open class ListMultiHolderEmptyClass<I, B : ListMultiHolderI<I, B>>(private val items: MutableList<I> = ArrayList()) :
-    MultiHolderEmptyClass<I, B>(), ListMultiHolderI<I, B>, MutableList<I> by items
+        MultiHolderEmptyClass<I, B>(), ListMultiHolderI<I, B>, MutableList<I> by items
 
 object CommentEmpty : CommentEmptyClass<CommentEmpty>()
 
 open class CommentEmptyClass<B : CommentI<B>> : ListMultiHolderEmptyClass<String, B>(), CommentI<B>
 
 fun <T : ItemI<*>> T?.isEMPTY(): Boolean =
-    (this == null || this == ItemEmpty || this.javaClass.toString().contains("Empty") || name() ==
-            ItemEmpty.name())
+        (this == null || this == ItemEmpty || this.javaClass.toString().contains("Empty") ||
+                name() == ItemEmpty.name())
 
 fun <T : ItemI<*>> T?.isNotEMPTY(): Boolean = !isEMPTY()
 

@@ -16,7 +16,7 @@ fun ItemI<*>.parentNameAndName(): String = storage.getOrPut(this, "parentNameAnd
     if (parent != null) {
         val regexp = "(\\B[A-Z][a-z]*)".toRegex()
         if (regexp.containsMatchIn(name())) name().replaceFirst(regexp,
-            "$1${parent.name().capitalize()}") else "${parent.name()}${name().capitalize()}"
+                "$1${parent.name().capitalize()}") else "${parent.name()}${name().capitalize()}"
     } else {
         name()
     }
@@ -27,7 +27,7 @@ fun ItemI<*>.nameAndParentName(): String = storage.getOrPut(this, "nameAndParent
     if (parent != null) {
         val regexp = "(\\B[A-Z][a-z]*)".toRegex()
         if (regexp.containsMatchIn(name())) name().replaceFirst(regexp,
-            "${parent.name().capitalize()}\$1") else "${name()}${parent.name().capitalize()}"
+                "${parent.name().capitalize()}\$1") else "${name()}${parent.name().capitalize()}"
     } else {
         name()
     }
@@ -36,20 +36,20 @@ fun ItemI<*>.nameAndParentName(): String = storage.getOrPut(this, "nameAndParent
 fun <T : LogicUnitI<*>> T.findGeneric(name: String): GenericI<*>? = findParent(TypeI::class.java)?.findGeneric(name)
 
 fun <T : LogicUnitI<*>> T.paramsWithOut(
-    superUnit: LogicUnitI<*>) =
-    params().filter { param -> superUnit.params().firstOrNull { it.name() == param.name() } == null }
+        superUnit: LogicUnitI<*>) =
+        params().filter { param -> superUnit.params().firstOrNull { it.name() == param.name() } == null }
 
 fun <T : TypeI<*>> T.findGeneric(name: String): GenericI<*>? = generics().find { it.name() == name } ?: findParent(
-    LogicUnitI::class.java)?.findGeneric(name)
+        LogicUnitI::class.java)?.findGeneric(name)
 
 
 fun ListMultiHolderI<AttributeI<*>, *>.nonDefaultAndWithoutValueAndNonDerived(): List<AttributeI<*>> = storage.getOrPut(
-    this, "nonDefaultAndWithoutValueAndNonDerived") {
+        this, "nonDefaultAndWithoutValueAndNonDerived") {
     filter { (!(it.isDefault() || (it.isAnonymous() && it.type().props().isEmpty()))) && it.derivedAsType().isEmpty() }
 }
 
 fun ListMultiHolderI<AttributeI<*>, *>.defaultOrWithValueAndNonDerived(): List<AttributeI<*>> = storage.getOrPut(this,
-    "defaultOrWithValueAndNonDerived") {
+        "defaultOrWithValueAndNonDerived") {
     filter { (it.isDefault() || it.isAnonymous()) && it.derivedAsType().isEmpty() }
 }
 
@@ -58,7 +58,7 @@ fun TypeI<*>.primaryConstructor(): ConstructorI<*> = storage.getOrPut(this, "pri
 }
 
 fun TypeI<*>.primaryOrFirstConstructor(): ConstructorI<*> = storage.getOrPut(this,
-    "primaryOrFirstConstructor") {
+        "primaryOrFirstConstructor") {
     constructors().find { it.isPrimary() } ?: constructors().firstOrNull() ?: constructorFull()
 }
 
@@ -71,17 +71,17 @@ fun ConstructorI<*>.paramsNotDerived(): List<AttributeI<*>> = storage.getOrPut(t
 }
 
 fun ConstructorI<*>.paramsWithOutValue(): List<AttributeI<*>> = storage.getOrPut(this,
-    "paramsWithOutValue") {
+        "paramsWithOutValue") {
     params().filter { param -> param.value() == null }
 }
 
 fun ConstructorI<*>.paramsWithOutFixValue(): List<AttributeI<*>> = storage.getOrPut(this,
-    "paramsWithOutFixValue") {
+        "paramsWithOutFixValue") {
     params().filter { param -> !param.isFixValue() }
 }
 
 fun ConstructorI<*>.paramsWithFixValue(): Map<String, AttributeI<*>> = storage.getOrPut(this,
-    "paramsWithFixValue") {
+        "paramsWithFixValue") {
     params().filter { param -> param.isFixValue() }.associateBy { it.name() }
 }
 
@@ -96,7 +96,7 @@ fun ConstructorI<*>.paramsForType(): List<AttributeI<*>> = storage.getOrPut(this
 }
 
 fun TypeI<*>.propsExceptPrimaryConstructor(): List<AttributeI<*>> = storage.getOrPut(this,
-    "propsExceptPrimaryConstructor") {
+        "propsExceptPrimaryConstructor") {
     if (primaryConstructor().isNotEMPTY()) props().filter { prop ->
         primaryConstructor().params().find { it.name() == prop.name() } == null
     } else props()
@@ -131,17 +131,17 @@ fun TypeI<*>.propsAll(): List<AttributeI<*>> = storage.getOrPut(this, "propsAll"
 }
 
 fun TypeI<*>.propsAllWithoutMetaAndAnonymousWithoutProps(): List<AttributeI<*>> = storage.getOrPut(this,
-    "propsAllWithoutMetaAndAnonymousWithoutProps") {
+        "propsAllWithoutMetaAndAnonymousWithoutProps") {
     propsAll().filter { !it.isMeta() && !(it.isAnonymous() && !props().isEmpty()) }
 }
 
 fun TypeI<*>.propsWithoutMetaAndAnonymousWithoutProps(): List<AttributeI<*>> = storage.getOrPut(this,
-    "propsWithoutMetaAndAnonymousWithoutProps") {
+        "propsWithoutMetaAndAnonymousWithoutProps") {
     props().filter { !it.isMeta() && !(it.isAnonymous() && !props().isEmpty()) }
 }
 
 fun TypeI<*>.propsWithoutParamsOfPrimaryConstructor(): List<AttributeI<*>> = storage.getOrPut(this,
-    "propsWithoutPrimaryConstructor") {
+        "propsWithoutPrimaryConstructor") {
     val constrParams = primaryConstructor().params()
     if (constrParams.isEmpty()) {
         props()
@@ -167,12 +167,12 @@ fun TypeI<*>.propsNoMetaNoValue(): List<AttributeI<*>> = storage.getOrPut(this, 
 }
 
 fun TypeI<*>.operationsWithoutDataTypeOperations(): List<OperationI<*>> =
-    storage.getOrPut(this, "operationsWithoutDataTypeOperations") {
-        operations().filter { it !is DataTypeOperationI }
-    }
+        storage.getOrPut(this, "operationsWithoutDataTypeOperations") {
+            operations().filter { it !is DataTypeOperationI }
+        }
 
 fun TypeI<*>.operationsWithInherited(): List<OperationI<*>> = storage.getOrPut(this,
-    "operationsWithInherited") {
+        "operationsWithInherited") {
     operations().toMutableSet().apply {
         superUnits().forEach { addAll(it.operationsWithInherited()) }
     }.toList().sortedBy { it.name() }
@@ -320,17 +320,17 @@ fun <T : CompositeI<*>> T.defineConstructorAllPropsForNonConstructors() {
 
 fun <T : CompositeI<*>> T.defineConstructorOwnPropsOnlyForNonConstructors() {
     findDownByType(TypeI::class.java,
-        stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }.extend { constructorOwnPropsOnly() }
+            stopSteppingDownIfFound = false).filter { it.constructors().isEmpty() }.extend { constructorOwnPropsOnly() }
 }
 
 fun <T : CompositeI<*>> T.defineConstructorNoProps(filter: TypeI<*>.() -> Boolean = { constructors().isEmpty() }) {
     findDownByType(TypeI::class.java,
-        stopSteppingDownIfFound = false).filter { it.filter() }.extend { constructorNoProps() }
+            stopSteppingDownIfFound = false).filter { it.filter() }.extend { constructorNoProps() }
 }
 
 fun <T : CompositeI<*>> T.defineSuperUnitsAsAnonymousProps() {
     findDownByType(CompilationUnitI::class.java,
-        stopSteppingDownIfFound = false).filter { it.superUnit().isNotEMPTY() }.extend {
+            stopSteppingDownIfFound = false).filter { it.superUnit().isNotEMPTY() }.extend {
         val item = this
         prop { type(item.superUnit()).anonymous(true).name(item.superUnit().name()) }
     }
@@ -446,6 +446,16 @@ fun <T : TypeI<*>> T.GT(vararg types: TypeI<*>): T {
     }
 }
 
+fun <T : TypeI<*>> T.GTStar(): T {
+    val ret = derive {
+        val derivedGenerics = generics()
+        derivedGenerics.forEach {
+            it.name("*")
+        }
+    }
+    return ret as T
+}
+
 fun TypeI<*>.G(type: TypeI<*>): GenericI<*> = G { type(type) }
 fun TypeI<*>.isNative(): Boolean = parent() == n
 
@@ -458,14 +468,14 @@ fun OperationI<*>.retA(type: TypeI<*>): AttributeI<*> {
 
 fun OperationI<*>.ret(type: TypeI<*>): OperationI<*> = returns(Attribute { type(type).name("ret") })
 fun LogicUnitI<*>.p(name: String, type: TypeI<*> = n.String,
-    adapt: AttributeI<*>.() -> Unit = {}): LogicUnitI<*> = params(Attribute {
+                    adapt: AttributeI<*>.() -> Unit = {}): LogicUnitI<*> = params(Attribute {
     type(type).name(name)
     adapt()
 })
 
 fun ItemI<*>.deriveNamespaceShared(name: String) = (namespace().endsWith(name) ||
         "shared".equals(name, true)).ifElse(
-    namespace()) { "${namespace()}.$name" }
+        namespace()) { "${namespace()}.$name" }
 
 fun ItemI<*>.deriveNamespace(name: String) = (namespace().endsWith(name)).ifElse(namespace())
 { "${namespace()}.$name" }
@@ -528,7 +538,7 @@ fun <T : StructureUnitI<*>> T.initFullNameArtifacts() {
 }
 
 fun <T : MacroCompositeI<*>> T.hasMacros() =
-    macrosBefore().isNotEmpty() || macrosBody().isNotEmpty() || macrosAfter().isNotEmpty()
+        macrosBefore().isNotEmpty() || macrosBody().isNotEmpty() || macrosAfter().isNotEmpty()
 
 fun TypeI<*>.findProp(propToSearch: AttributeI<*>): AttributeI<*> = props().find {
     it == propToSearch || it.derivedFrom() == propToSearch || it.name() == propToSearch.name()
