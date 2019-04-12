@@ -32,6 +32,10 @@ interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
     fun anonymous(): B = anonymous(true)
     fun notAnonymous(): B = anonymous(false)
 
+    fun concurrent(value: Boolean): B
+    fun concurrent(): B = concurrent(true)
+    fun notConcurrent(): B = concurrent(false)
+
     fun default(value: Boolean): B
     fun default(): B = default(true)
     fun notDefault(): B = default(false)
@@ -96,6 +100,8 @@ interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
     fun isAccessible(): Boolean?
 
     fun isAnonymous(): Boolean
+
+    fun isConcurrent(): Boolean
 
     fun isDefault(): Boolean
 

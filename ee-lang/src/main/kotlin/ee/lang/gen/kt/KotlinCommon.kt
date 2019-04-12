@@ -31,7 +31,7 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
         n.UByte -> "0"
         n.Class -> {
             val g = generics().first().type()
-            "${if(g.isEMPTY()) "Any" else g.name()}::class.java"
+            "${if (g.isEMPTY()) "Any" else g.name()}::class.java"
         }
         n.Map -> (mutable.setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
         n.List -> (mutable.setAndTrue()).ifElse("mutableListOf()", "listOf()")
@@ -192,10 +192,13 @@ fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, m
             n.String, n.Text -> "\"$value\""
             n.Boolean, n.Int, n.Long, n.Float, n.Date, n.Path, n.Blob, n.Void -> "$value"
             else -> {
-                if (value is EnumLiteralI<*>) {
-                    "${(value.parent() as EnumTypeI<*>).toKotlin(c, derived, mutable)}.${value.toKotlin()}"
-                } else {
-                    "$value"
+                when (value) {
+                    is EnumLiteralI<*> ->
+                        "${(value.parent() as EnumTypeI<*>).toKotlin(c, derived, mutable)}.${value.toKotlin()}"
+                    is TypeI<*> ->
+                        value.toKotlin(c, derived, mutable)
+                    else ->
+                        "$value"
                 }
             }
         }

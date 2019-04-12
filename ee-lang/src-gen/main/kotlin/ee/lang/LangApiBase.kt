@@ -75,6 +75,9 @@ open class AttributeB<B : AttributeI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>
     override fun isAnonymous(): Boolean = attr(anonymous, { false })
     override fun anonymous(value: Boolean): B = apply { attr(anonymous, value) }
 
+    override fun isConcurrent(): Boolean = attr(concurrent, { false })
+    override fun concurrent(value: Boolean): B = apply { attr(concurrent, value) }
+
     override fun isDefault(): Boolean = attr(default, { false })
     override fun default(value: Boolean): B = apply { attr(default, value) }
 
@@ -129,6 +132,7 @@ open class AttributeB<B : AttributeI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>
     companion object {
         val accessible = "_accessible"
         val anonymous = "_anonymous"
+        val concurrent = "_concurrent"
         val default = "_default"
         val externalName = "_externalName"
         val fixValue = "_fixValue"

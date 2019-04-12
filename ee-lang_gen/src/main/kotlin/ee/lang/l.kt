@@ -75,6 +75,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val inherited = AttributeI { type(n.Boolean).value(false) }
         val imploded = AttributeI { type(n.Boolean).value(false) }
         val open = AttributeI { type(n.Boolean).value(false) }
+        val concurrent = AttributeI { type(n.Boolean).value(false) }
         val nonFluent = AttributeI { type(n.String) }
         val externalName = AttributeI { type(n.String) }.nullable(true)
     }
