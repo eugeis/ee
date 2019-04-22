@@ -122,7 +122,7 @@ fun <T : TypeI<*>> T.toGoIfNative(c: GenerationContext, derived: String): String
         n.Void -> ""
         n.Any -> "interface{}"
         n.Url -> c.n(j.net.URL)
-        n.UUID -> c.n(g.eh.UUID)
+        n.UUID -> c.n(g.google.uuid.UUID)
         n.List -> "[]${generics()[0].toGo(c, derived)}"
         n.Map -> "map(${generics()[0].toGo(c, derived)})${generics()[1].toGo(c, derived)}"
         else -> {

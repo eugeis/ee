@@ -133,7 +133,7 @@ fun <T : OperationI<*>> T.toGoHttpHandlerBody(c: GenerationContext, derived: Str
     return """${queryHandler.params().joinSurroundIfNotEmptyToString("", """
     vars := ${c.n(g.mux.Vars, api)}(r)""") {
         """
-    ${it.nameDecapitalize()} := ${it.isKey().ifElse({ """${c.n(g.eh.UUID, api)}(vars["${it.nameDecapitalize()}"])""" },
+    ${it.nameDecapitalize()}, _ := ${it.isKey().ifElse({ """${c.n(g.google.uuid.Parse, api)}(vars["${it.nameDecapitalize()}"])""" },
             { """vars["${it.nameDecapitalize()}"]""" })}"""
     }}
     ret, err := o.QueryRepository.${queryHandler.toGoCall(c, api, api)}
@@ -147,7 +147,7 @@ fun <T : OperationI<*>> T.toGoHttpHandlerCommandBody(c: GenerationContext, deriv
         val command = derivedFrom() as CommandI<*>
         """
     vars := ${c.n(g.mux.Vars, api)}(r)
-    ${entity.id().name().decapitalize()} := ${c.n(g.eh.UUID, api)}(vars["${entity.id().name().decapitalize()}"])
+    ${entity.id().name().decapitalize()}, _ := ${c.n(g.google.uuid.Parse, api)}(vars["${entity.id().name().decapitalize()}"])
     o.HandleCommand(&${command.nameAndParentName().capitalize()}{${entity.id().name().capitalize()}: ${entity.id().name().decapitalize()}}, w, r)"""
     }
 }
@@ -290,7 +290,7 @@ fun <T : ConstructorI<*>> T.toGoAggregateInitializerBody(c: GenerationContext, d
     entityFactory := func() ${c.n(g.eh.Entity)} { return ${entity.toGoInstance(c, derived, api)} }
     ret = &$name{AggregateInitializer: ${c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer,
         api)}(${entity.name()}${DesignDerivedType.AggregateType},
-        func(id ${c.n(g.eh.UUID)}) ${c.n(g.eh.Aggregate)} {
+        func(id ${c.n(g.google.uuid.UUID)}) ${c.n(g.eh.Aggregate)} {
             return ${c.n(
         g.gee.eh.NewAggregateBase)}(${entity.name()}${DesignDerivedType.AggregateType}, id, commandHandler, eventHandler, entityFactory())
         }, entityFactory,
@@ -350,7 +350,7 @@ fun <T : CommandI<*>> T.toGoCommandImpl(c: GenerationContext, derived: String = 
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api, true)}
-func (o *$name) AggregateID() ${c.n(g.eh.UUID)}            { return o.${entity.id().nameForGoMember()} }
+func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)}            { return o.${entity.id().nameForGoMember()} }
 func (o *$name) AggregateType() ${c.n(
         g.eh.AggregateType)}  { return ${entity.name()}${DesignDerivedType.AggregateType} }
 func (o *$name) CommandType() ${c.n(
@@ -375,6 +375,6 @@ fun <T : EntityI<*>> T.toGoEntityImpl(c: GenerationContext, derived: String = De
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api, true)}
-func (o *$name) EntityID() ${c.n(g.eh.UUID)} { return o.${id().nameForGoMember()} }
+func (o *$name) EntityID() ${c.n(g.google.uuid.UUID)} { return o.${id().nameForGoMember()} }
 """
 }

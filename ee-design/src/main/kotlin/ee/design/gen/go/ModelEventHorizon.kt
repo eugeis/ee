@@ -5,10 +5,7 @@ import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
 import ee.lang.gen.go.retError
-import org.slf4j.LoggerFactory
-
-
-private val log = LoggerFactory.getLogger("DesignGoUtils")
+import ee.lang.gen.go.retTypeAndError
 
 fun StructureUnitI<*>.addEventHorizonArtifacts() {
 
@@ -20,15 +17,16 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
 
     findDownByType(EntityI::class.java).filter { !it.isVirtual() && it.derivedAsType().isEmpty() }.groupBy {
         it.findParentMust(ModuleI::class.java)
-    }.forEach { module, items ->
+    }.forEach { (module, items) ->
         module.extend {
 
             val aggregateInitializer = mutableListOf<ControllerI<*>>()
             val httpRouters = mutableListOf<ControllerI<*>>()
+            val httpClients = mutableListOf<ControllerI<*>>()
 
             items.forEach {
                 it.extend {
-                    addEventHorizonArtifacts(aggregateInitializer, httpRouters, reposFactory)
+                    addEventHorizonArtifacts(aggregateInitializer, httpRouters, httpClients, reposFactory)
                 }
             }
 
@@ -79,12 +77,33 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
                     macrosBeforeBody(ConstructorI<*>::toGoHttpModuleRouterBeforeBody.name)
                 }
             }
+
+            controller {
+                name("${module.name().capitalize()}${DesignDerivedType.HttpClient}").derivedAsType(
+                    DesignDerivedType.Client)
+                val url = propS { name("url") }
+                val client = prop { name("client").type(g.net.http.Client) }
+
+                val httpClientParams = httpClients.map {
+                    prop {
+                        type(it).name("${it.parent().name()}${it.name().capitalize()}")
+                    }
+                }
+
+                constr {
+                    params(url, client, *httpClientParams.map { p(it) { default(true) } }.toTypedArray())
+                    macrosBeforeBody(ConstructorI<*>::toGoHttpModuleClientBeforeBody.name)
+                }
+            }
         }
     }
 }
 
 private fun EntityI<*>.addEventHorizonArtifacts(fillAggregateInitializer: MutableList<ControllerI<*>>,
-    fillHttpRouters: MutableList<ControllerI<*>>, reposFactory: LambdaI<*>) {
+    fillHttpRouters: MutableList<ControllerI<*>>, fillHttpClients: MutableList<ControllerI<*>>,
+    reposFactory: LambdaI<*>) {
+
+    val entity = this
 
     val finders = findDownByType(FindByI::class.java)
     val counters = findDownByType(CountByI::class.java)
@@ -149,6 +168,40 @@ private fun EntityI<*>.addEventHorizonArtifacts(fillAggregateInitializer: Mutabl
                     p { type(queryRepository).default(true).name("queryRepository") },
                     p(queryHandler) { default(true) }, p(commandHandler) { default(true) })
                 macrosBeforeBody(ConstructorI<*>::toGoHttpRouterBeforeBody.name)
+            }
+        }
+    )
+
+    fillHttpClients.add(
+        controller {
+            name(DesignDerivedType.HttpClient).derivedAsType(DesignDerivedType.Client)
+            val url = propS { name("url") }
+            val client = prop { type(g.net.http.Client).name("client") }
+
+            constr {
+                params(url, client)
+                macrosBeforeBody(ConstructorI<*>::toGoHttpClientBeforeBody.name)
+            }
+
+            op {
+                name("importJSON")
+                params(p { name("fileJSON").type(n.String) })
+                retError()
+                macrosBody(OperationI<*>::toGoHttpClientImportJsonBody.name)
+            }
+
+            op {
+                name("Create")
+                params(p { name("items").type(n.List.GT(entity)) })
+                retError()
+                macrosBody(OperationI<*>::toGoHttpClientCreateBody.name)
+            }
+
+            op {
+                name("ReadFileJSON")
+                params(p { name("fileJSON").type(n.String) })
+                retTypeAndError(n.List.GT(entity))
+                macrosBody(OperationI<*>::toGoHttpClientReadFileJsonBody.name)
             }
         }
     )

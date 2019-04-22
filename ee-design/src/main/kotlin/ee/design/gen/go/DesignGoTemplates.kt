@@ -24,5 +24,8 @@ open class DesignGoTemplates : LangGoTemplates {
     open fun stateHandler(nameBuilder: TemplateI<StateI<*>>.(StateI<*>) -> NamesI = defaultNameBuilder) =
         Template("StateHandler", nameBuilder) { item, c -> item.toGoStateHandler(c) }
 
+    open fun <T : EntityI<*>> createTestData(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("CreateTestData", nameBuilder) { item, c -> item.toGoCreateTestData(c) }
+
 
 }

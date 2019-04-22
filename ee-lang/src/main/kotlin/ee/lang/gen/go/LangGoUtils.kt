@@ -20,6 +20,12 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         val New = Operation { ret(error) }
     }
 
+    object io : StructureUnit({ namespace("io") }) {
+        object ioutil : StructureUnit() {
+            val ReadFile = Operation { ret(error) }
+        }
+    }
+
     object time : StructureUnit({ namespace("time") }) {
         val Time = ExternalType()
         val Now = Operation()
@@ -31,6 +37,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
     object net : StructureUnit({ namespace("net") }) {
         object http : StructureUnit() {
+            val Client = ExternalType {}
             val ResponseWriter = ExternalType { ifc(true) }
             val Request = ExternalType()
 
@@ -43,6 +50,8 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             val MethodConnect = Operation()
             val MethodOptions = Operation()
             val MethodTrace = Operation()
+
+
         }
     }
 
@@ -81,6 +90,8 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             val QueryTypeCount = ExternalType()
             val QueryTypeExist = ExternalType()
             val QueryTypeFind = ExternalType()
+
+            val PostById = Operation()
         }
 
         object eh : StructureUnit() {
@@ -134,6 +145,13 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         }
     }
 
+    object google : StructureUnit({ namespace("github.com.google").name("google") }) {
+        object uuid : StructureUnit() {
+            object UUID : ExternalType()
+            object Parse : Operation()
+        }
+    }
+
     object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("eh") }) {
 
         object Aggregate : ExternalType() {}
@@ -184,8 +202,6 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         object Event : ExternalType({ ifc(true) }) {}
 
         object EventType : ExternalType() {}
-
-        object UUID : ExternalType() {}
 
         object ReadRepo : ExternalType({ ifc(true) }) {
 

@@ -124,7 +124,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         ))
 
         val derivedTypes = mutableListOf(DesignDerivedType.Aggregate, DesignDerivedType.Query, DesignDerivedType.Http,
-            DesignDerivedType.StateMachine)
+            DesignDerivedType.Client, DesignDerivedType.StateMachine)
         val derivedTypesGenerators = derivedTypes.map { derivedType ->
             GeneratorSimple("${derivedType}Base", contextBuilder = goContextBuilder,
                 template = FragmentsTemplate<StructureUnitI<*>>(name = "$fileNamePrefix${derivedType}Base",
@@ -248,6 +248,14 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         macros.registerMacro(ConstructorI<*>::toGoHttpModuleRouterBeforeBody.name,
             ConstructorI<*>::toGoHttpModuleRouterBeforeBody)
         macros.registerMacro(OperationI<*>::toGoSetupModuleHttpRouter.name, OperationI<*>::toGoSetupModuleHttpRouter)
+
+        macros.registerMacro(OperationI<*>::toGoHttpClientCreateBody.name, OperationI<*>::toGoHttpClientCreateBody)
+        macros.registerMacro(OperationI<*>::toGoHttpClientImportJsonBody.name, OperationI<*>::toGoHttpClientImportJsonBody)
+        macros.registerMacro(OperationI<*>::toGoHttpClientReadFileJsonBody.name, OperationI<*>::toGoHttpClientReadFileJsonBody)
+        macros.registerMacro(ConstructorI<*>::toGoHttpClientBeforeBody.name, ConstructorI<*>::toGoHttpClientBeforeBody)
+        macros.registerMacro(ConstructorI<*>::toGoHttpModuleClientBeforeBody.name,
+            ConstructorI<*>::toGoHttpModuleClientBeforeBody)
+
         macros.registerMacro(OperationI<*>::toGoFindByBody.name, OperationI<*>::toGoFindByBody)
         macros.registerMacro(OperationI<*>::toGoCountByBody.name, OperationI<*>::toGoCountByBody)
         macros.registerMacro(OperationI<*>::toGoExistByBody.name, OperationI<*>::toGoExistByBody)

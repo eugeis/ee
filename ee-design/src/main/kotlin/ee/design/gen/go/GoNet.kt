@@ -16,7 +16,7 @@ fun <T : CommandI<*>> T.toGoHandler(c: GenerationContext, derived: String = Desi
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api)}
-func (o *$name) AggregateID() ${c.n(g.eh.UUID)}            { return o.${entity.id().nameForGoMember()} }
+func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)}            { return o.${entity.id().nameForGoMember()} }
 func (o *$name) AggregateType() ${c.n(
         g.eh.AggregateType)}  { return ${entity.name()}${DesignDerivedType.AggregateType} }
 func (o *$name) CommandType() ${c.n(
@@ -41,8 +41,9 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext, derived:
         val idParam = it.params().find { it.isKey() }
         val paramsNoId = it.params().filter { !it.isKey() }
         """
-    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
-            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
+    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then {
+            """.Path("/{${idParam!!.name().decapitalize()}}")"""
+        }}.
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()}).
         Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeCount,
             api)}${paramsNoId.joinSurroundIfNotEmptyToString(", ", ", ") {
@@ -52,8 +53,9 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext, derived:
         val idParam = it.params().find { it.isKey() }
         val paramsNoId = it.params().filter { !it.isKey() }
         """
-    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
-            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
+    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then {
+            """.Path("/{${idParam!!.name().decapitalize()}}")"""
+        }}.
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()}).
         Queries(${c.n(g.gee.net.QueryType, api)}, ${c.n(g.gee.net.QueryTypeExist,
             api)}${paramsNoId.joinSurroundIfNotEmptyToString(", ", ", ") {
@@ -63,24 +65,28 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext, derived:
         val idParam = it.params().find { it.isKey() }
         val paramsNoId = it.params().filter { !it.isKey() }
         """
-    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
-            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
-        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()})${paramsNoId.joinSurroundIfNotEmptyToString(
+    router.Methods(${c.n(g.net.http.MethodGet, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then {
+            """.Path("/{${idParam!!.name().decapitalize()}}")"""
+        }}.
+        Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.QueryHandler.${it.name().capitalize()})${
+        paramsNoId.joinSurroundIfNotEmptyToString(
             ", ", ".$nL    Queries(", ")") {
             """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
         }}"""
     }}${commands.joinSurroundIfNotEmptyToString("") {
         val idParam = it.props().find { it.isKey() }
         """
-    router.Methods(${c.n(g.net.http.MethodPost, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
-            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.
+    router.Methods(${c.n(g.net.http.MethodPost, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then {
+            """.Path("/{${idParam!!.name().decapitalize()}}")"""
+        }}.
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}").
         Name("${it.nameAndParentName().capitalize()}").HandlerFunc(o.CommandHandler.${it.name().capitalize()})"""
     }}${creaters.joinSurroundIfNotEmptyToString("") {
         val idParam = it.props().find { it.isKey() }
         """
-    router.Methods(${c.n(g.net.http.MethodPost, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
-            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
+    router.Methods(${c.n(g.net.http.MethodPost, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then {
+            """.Path("/{${idParam!!.name().decapitalize()}}")"""
+        }}.${it.primary().not().then {
             """
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""
         }}
@@ -88,8 +94,9 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext, derived:
     }}${updaters.joinSurroundIfNotEmptyToString("") {
         val idParam = it.props().find { it.isKey() }
         """
-    router.Methods(${c.n(g.net.http.MethodPut, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
-            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
+    router.Methods(${c.n(g.net.http.MethodPut, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then {
+            """.Path("/{${idParam!!.name().decapitalize()}}")"""
+        }}.${it.primary().not().then {
             """
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""
         }}
@@ -97,8 +104,9 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(c: GenerationContext, derived:
     }}${deleters.joinSurroundIfNotEmptyToString("") {
         val idParam = it.props().find { it.isKey() }
         """
-    router.Methods(${c.n(g.net.http.MethodDelete, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then(
-            { """.Path("/{${idParam!!.name().decapitalize()}}")""" })}.${it.primary().not().then {
+    router.Methods(${c.n(g.net.http.MethodDelete, api)}).PathPrefix(o.PathPrefix)${(idParam != null).then {
+            """.Path("/{${idParam!!.name().decapitalize()}}")"""
+        }}.${it.primary().not().then {
             """
         Queries(${c.n(g.gee.net.Command, api)}, "${it.name()}")."""
         }}
@@ -119,6 +127,35 @@ fun <T : OperationI<*>> T.toGoSetupModuleHttpRouter(c: GenerationContext, derive
     }
 }
 
+fun <T : OperationI<*>> T.toGoHttpClientImportJsonBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API): String {
+
+    val entity = findParentMust(EntityI::class.java)
+    return """
+    var items []*${c.n(entity, derived)}
+	if items, err = o.ReadFileJSON(fileJSON); err != nil {
+		return
+	}
+
+	err = o.Create(items)"""
+}
+
+fun <T : OperationI<*>> T.toGoHttpClientCreateBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API): String {
+    return """
+    for _, item := range items {
+		${c.n(g.gee.net.PostById)}(item, item.Id, o.Url, o.Client)
+	}"""
+}
+
+fun <T : OperationI<*>> T.toGoHttpClientReadFileJsonBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API): String {
+    return """
+    jsonBytes, _ := ${c.n(g.io.ioutil.ReadFile)}(fileJSON)
+
+	err = ${c.n(g.encoding.json.Unmarshal)}(jsonBytes, &ret)"""
+}
+
 fun <T : ConstructorI<*>> T.toGoHttpRouterBeforeBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
     api: String = DesignDerivedKind.API): String {
     val item = findParentMust(EntityI::class.java)
@@ -133,4 +170,29 @@ fun <T : ConstructorI<*>> T.toGoHttpModuleRouterBeforeBody(c: GenerationContext,
     val item = findParentMust(StructureUnitI::class.java)
     return """
     pathPrefix = pathPrefix + "/" + "${item.name().decapitalize()}""""
+}
+
+
+///Test Data
+fun <T : ConstructorI<*>> T.toGoHttpModuleClientBeforeBody(c: GenerationContext,
+    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API): String {
+    val item = findParentMust(StructureUnitI::class.java)
+    return """
+    url = url + "/" + "${item.name().decapitalize()}""""
+}
+
+fun <T : EntityI<*>> T.toGoCreateTestData(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API): String {
+    val name = c.n(this, derived)
+    return """
+        ${toGoImpl(c, derived, api, true)}
+func (o *$name) EntityID() ${c.n(g.google.uuid.UUID)} { return o.${id().nameForGoMember()} }
+"""
+}
+
+fun <T : ConstructorI<*>> T.toGoHttpClientBeforeBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API): String {
+    val item = findParentMust(EntityI::class.java)
+    return """
+    url = url + "/" + "${item.name().toPlural().decapitalize()}""""
 }

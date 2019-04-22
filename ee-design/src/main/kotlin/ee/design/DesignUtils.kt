@@ -24,6 +24,8 @@ open class DesignDerivedTypeNames {
     val CommandHandler = "CommandHandler"
     val Http = "Http"
     val HttpRouter = "Router"
+    val Client = "Client"
+    val HttpClient = "Client"
     val QueryRepository = "QueryRepository"
     val HttpQueryHandler = "HttpQueryHandler"
     val HttpCommandHandler = "HttpCommandHandler"
