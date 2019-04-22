@@ -78,6 +78,8 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
     //common libs
     object gee : StructureUnit({ namespace("github.com.go-ee.utils") }) {
+        val PtrTime = Operation()
+
         object enum : StructureUnit() {
             val Literal = ExternalType()
             val EnumBaseJson = ExternalType()
@@ -141,13 +143,14 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             object Projector : ExternalType() {}
 
             object NewProjector : Operation() {}
-
         }
     }
 
     object google : StructureUnit({ namespace("github.com.google").name("google") }) {
         object uuid : StructureUnit() {
             object UUID : ExternalType()
+            object New : Operation()
+            object NewUUID : Operation()
             object Parse : Operation()
         }
     }
@@ -227,6 +230,12 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         }
     }
 
+    object cli : StructureUnit({ namespace("github.com.urfave.cli").name("cli") }) {
+        val Command = ExternalType {ifc(true)}
+        val Context = ExternalType()
+        val NewApp = Operation()
+    }
+
 }
 
 open class GoContext : GenerationContext {
@@ -302,6 +311,9 @@ fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
     defineConstructorNoProps()
     return this
 }
+
+fun OperationI<*>.retType(retType: TypeI<*>): OperationI<*> =
+    returns(Attribute { type(retType).name("ret") })
 
 fun OperationI<*>.retTypeAndError(retType: TypeI<*>): OperationI<*> =
     returns(Attribute { type(retType).name("ret") }, Attribute { type(g.error).name("err") })

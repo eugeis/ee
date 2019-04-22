@@ -1,10 +1,8 @@
 package ee.lang.gen.go
 
-import ee.common.ext.ifElse
-import ee.common.ext.joinSurroundIfNotEmptyToString
-import ee.common.ext.joinWithIndexToString
-import ee.common.ext.setAndTrue
+import ee.common.ext.*
 import ee.lang.*
+import ee.lang.gen.java.j
 
 fun LiteralI<*>.toGo(): String = name().capitalize()
 fun EnumTypeI<*>.toGoAccess(): String = "${name().capitalize()}s"
@@ -161,4 +159,32 @@ type $name struct {${toGoMacrosBeforeBody(c, derived, api)}${currentProps.joinSu
     }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGoImpl(name, c, api)
     }}"""
+}
+
+fun <T : CompilationUnitI<*>> T.toGoNewTestInstance(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+    api: String = LangDerivedKind.API): String {
+
+    val name = c.n(this, derived)
+    val constr = primaryOrFirstConstructor()
+
+    val constrName = "${c.n(constr, derived)}ByPropNames"
+    val constrNames = "${c.n(constr, derived).toPlural()}ByPropNames"
+
+    return """
+func $constrNames(count int) []*$name {
+	items := make([]*$name, count)
+	for i := 0; i < count; i++ {
+		items[i] = $constrName(i)
+	}
+	return items
+}
+
+func $constrName(intSalt int) (ret *$name)  {
+    ret = ${primaryOrFirstConstructor().toGoCall(c, derived, api)}
+    ${propsNoMetaNoValue()
+        .joinSurroundIfNotEmptyToString("\n    ") { prop ->
+            "ret.${prop.name().capitalize()} = ${prop.toGoValueByPropName(c, derived, "intSalt")}"
+        }}
+    return
+}"""
 }

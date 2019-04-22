@@ -81,7 +81,7 @@ fun <T : TypeI<*>> T.toGoDefault(c: GenerationContext, derived: String, attr: At
         n.Int -> "0"
         n.Long -> "0L"
         n.Float -> "0f"
-        n.Date -> "${c.n(j.util.Date)}()"
+        n.Date -> g.time.Now.toGoCall(c, derived, derived)
         n.Path -> "${c.n(j.nio.file.Paths)}.get(\"\")"
         n.Blob -> "ByteArray(0)"
         n.Void -> ""
@@ -103,6 +103,45 @@ fun <T : TypeI<*>> T.toGoDefault(c: GenerationContext, derived: String, attr: At
         }
     }
 }
+
+private val typeToFactoryByPropNames = mutableMapOf<TypeI<*>, OperationI<*>>()
+fun <T : AttributeI<*>> T.toGoValueByPropName(c: GenerationContext, derived: String, saltIntName: String): String {
+    val baseType = type().findDerivedOrThis()
+    return when (baseType) {
+        n.String, n.Text -> "${c.n(g.fmt.Sprintf)}(\"${name().capitalize()} %v\", $saltIntName)"
+        n.Boolean -> "false"
+        n.Int -> saltIntName
+        n.Long -> saltIntName
+        n.Float -> "float64($saltIntName)"
+        n.Date -> "${c.n(g.gee.PtrTime)}(${g.time.Now.toGoCall(c, derived, derived)})"
+        n.Path -> "\"/\""
+        n.Blob -> "[]byte(${c.n(g.fmt.Sprintf)}(\"${name().capitalize()} %v\", $saltIntName))"
+        n.Void -> ""
+        n.Error -> "Throwable()"
+        n.Exception -> "Exception()"
+        n.Url -> "${c.n(j.net.URL)}(\"\")"
+        n.UUID -> g.google.uuid.New.toGoCall(c, derived, derived)
+        n.Map -> (isNotEMPTY() && isMutable().setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
+        n.List -> "[]${type().generics().first().type().toGo(c, derived)}{}"
+        else -> {
+            if (baseType is LiteralI) {
+                baseType.toGoValue(c, derived)
+            } else if (baseType is EnumTypeI) {
+                baseType.literals().first().toGoValue(c, derived)
+            } else if (baseType is ExternalTypeI<*> || type() is ExternalTypeI<*>) {
+                type().primaryOrFirstConstructor().toGoCall(c, derived, derived)
+            } else if (baseType is TypeI<*>) {
+                val factory = typeToFactoryByPropNames.getOrPut(type()) {
+                    Operation { name("New${type().name()}ByPropNames").namespace(type().namespace()) }
+                }
+                "${c.n(factory, derived)}($saltIntName)"
+            } else {
+                (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
+            }
+        }
+    }
+}
+
 
 //"${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI<*>).toGo(c, derived)}s().${baseType.toGo()}()"
 fun <T : LiteralI<*>> T.toGoValue(c: GenerationContext, derived: String): String =

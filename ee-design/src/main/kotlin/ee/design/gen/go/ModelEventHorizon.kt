@@ -5,6 +5,7 @@ import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
 import ee.lang.gen.go.retError
+import ee.lang.gen.go.retType
 import ee.lang.gen.go.retTypeAndError
 
 fun StructureUnitI<*>.addEventHorizonArtifacts() {
@@ -93,6 +94,31 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
                 constr {
                     params(url, client, *httpClientParams.map { p(it) { default(true) } }.toTypedArray())
                     macrosBeforeBody(ConstructorI<*>::toGoHttpModuleClientBeforeBody.name)
+                }
+            }
+
+
+            val clis = mutableListOf<ControllerI<*>>()
+            items.forEach {
+                it.extend {
+                    clis.add(it.addCli())
+                }
+            }
+
+            controller {
+                name("${module.name().capitalize()}${DesignDerivedType.Cli}").derivedAsType(
+                    DesignDerivedType.Cli)
+
+
+                val cliParams = clis.map {
+                    prop {
+                        type(it).name("${it.parent().name()}${it.name().capitalize()}")
+                    }
+                }
+
+                constr {
+                    params(*cliParams.map { p(it) { default(true) } }.toTypedArray())
+                    macrosBeforeBody(ConstructorI<*>::toGoHttpModuleCliBeforeBody.name)
                 }
             }
         }
@@ -279,6 +305,11 @@ private fun EntityI<*>.addStateMachineArtifacts() {
         }
     }
 }
+
+private fun EntityI<*>.addCli(): BusinessControllerI<*> =
+    controller {
+        name(DesignDerivedType.Cli).derivedAsType(DesignDerivedType.Cli)
+    }
 
 private fun EntityI<*>.addHttpQueryHandler(finders: List<FindByI<*>>, counters: List<CountByI<*>>,
     exists: List<ExistByI<*>>, queryRepository: BusinessControllerI<*>): BusinessControllerI<*> {

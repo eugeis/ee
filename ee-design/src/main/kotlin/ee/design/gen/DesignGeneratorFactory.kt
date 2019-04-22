@@ -108,7 +108,16 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
                             fragments = { listOf(goTemplates.pojo()) }),
                         ItemsFragment(items = enums, fragments = { listOf(goTemplates.enum()) }))
-                })), GeneratorSimple("CommandsBase", contextBuilder = goContextBuilder,
+                })),
+            GeneratorSimple("TestBase", contextBuilder = goContextBuilder,
+                template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}TestBase",
+                    nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
+                        listOf(ItemsFragment(items = entities, fragments = { listOf(goTemplates.newTestInstance()) }),
+                            ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = values,
+                                fragments = { listOf(goTemplates.newTestInstance()) }),
+                            ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                fragments = { listOf(goTemplates.newTestInstance()) }))
+                    })), GeneratorSimple("CommandsBase", contextBuilder = goContextBuilder,
             template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}CommandsBase",
                 nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
                     listOf(ItemsFragment(items = entities, fragments = { listOf(goTemplates.commandTypes()) }),
@@ -124,7 +133,7 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         ))
 
         val derivedTypes = mutableListOf(DesignDerivedType.Aggregate, DesignDerivedType.Query, DesignDerivedType.Http,
-            DesignDerivedType.Client, DesignDerivedType.StateMachine)
+            DesignDerivedType.Client, DesignDerivedType.Cli, DesignDerivedType.StateMachine)
         val derivedTypesGenerators = derivedTypes.map { derivedType ->
             GeneratorSimple("${derivedType}Base", contextBuilder = goContextBuilder,
                 template = FragmentsTemplate<StructureUnitI<*>>(name = "$fileNamePrefix${derivedType}Base",
@@ -255,6 +264,8 @@ open class DesignGeneratorFactory : LangGeneratorFactory {
         macros.registerMacro(ConstructorI<*>::toGoHttpClientBeforeBody.name, ConstructorI<*>::toGoHttpClientBeforeBody)
         macros.registerMacro(ConstructorI<*>::toGoHttpModuleClientBeforeBody.name,
             ConstructorI<*>::toGoHttpModuleClientBeforeBody)
+        macros.registerMacro(ConstructorI<*>::toGoHttpModuleCliBeforeBody.name,
+            ConstructorI<*>::toGoHttpModuleCliBeforeBody)
 
         macros.registerMacro(OperationI<*>::toGoFindByBody.name, OperationI<*>::toGoFindByBody)
         macros.registerMacro(OperationI<*>::toGoCountByBody.name, OperationI<*>::toGoCountByBody)
