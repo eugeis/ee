@@ -25,6 +25,15 @@ fun <T : AttributeI<*>> T.toKotlinSignatureBuilder(c: GenerationContext, derived
 fun <T : AttributeI<*>> T.toKotlinSignatureBuilderInit(c: GenerationContext, derived: String): String =
         "        ${name()}${toKotlinInit(c, derived, true, type().isMulti().not() && isNullable())}"
 
+fun <T : AttributeI<*>> T.toKotlinFillFrom(): String =
+        type().isMulti().ifElse({
+            """        ${name()}.${type().isOrDerived(n.Map).ifElse(
+                    "putAll(item.${name()}${isNullable().then(" ?: emptyMap()")})",
+                    "addAll(item.${name()}${isNullable().then(" ?: emptyList()")})")}"""
+        }, {
+            """        ${name()} = item.${name()}"""
+        })
+
 fun <T : AttributeI<*>> T.toKotlinMemberBuilder(c: GenerationContext, derived: String, api: String): String =
         "    protected var ${toKotlinSignatureBuilder(c, derived, api)}"
 
@@ -34,7 +43,8 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethodsI(c: GenerationContext, api: Str
     return """
     fun ${bool.ifElse({ "is${name().capitalize()}" }, { name() })}(): ${toKotlinTypeDef(c, api)}${type().isMulti().ifElse({
         """
-    fun ${name()}(vararg $value: ${toKotlinTypeGenerics(c, api)}): B"""
+    fun ${name()}(vararg $value: ${toKotlinTypeGenerics(c, api)}): B
+    fun clear${name().capitalize()}(): B"""
     }, {
         """
     fun ${name()}($value: ${toKotlinTypeDef(c, api)}): B${bool.then {
@@ -59,7 +69,8 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethods(c: GenerationContext, derived: 
                 { "${name()}.takeUnless { it.isEmpty() }" }, { name() })}
     ${override}fun ${name()}(vararg $value: ${toKotlinTypeGenerics(c, api)
         }): B = applyB {
-        ${name()}.${type().isOrDerived(n.Map).ifElse("putAll", "addAll")}(value.asList()) }"""
+        ${name()}.${type().isOrDerived(n.Map).ifElse("putAll", "addAll")}(value.asList()) }
+    ${override}fun clear${name().capitalize()}(): B = applyB { ${name()}.clear() }"""
     }, {
         """
     ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().capitalize()}" },
@@ -87,6 +98,7 @@ interface ${c.n(this, api)}<B : ${c.n(this, api)}<B, T>, T : ${c.n(this, LangDer
         superUnit().isEMPTY().then {
             """
 
+    fun fillFrom(item: T): B
     fun build(): T
     fun clear(): B"""
         }}
@@ -118,13 +130,22 @@ open class $BT : $B<$BT, $T>() {
 }
 
 abstract class $B<B : $B<B, T>, T : ${c.n(this, LangDerivedKind.API)}> :
-        ${superUnitExists.then {"${c.n(superUnit(), derived)}<B, T>(), "
+        ${superUnitExists.then {
+        "${c.n(superUnit(), derived)}<B, T>(), "
     }}${c.n(this, api)}<B, T>${props().isNotEmpty().then {
         """ {${props().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
             it.toKotlinMemberBuilder(c, LangDerivedKind.IMPL, LangDerivedKind.API)
         }}${props().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
             it.toKotlinBuilderMethods(c, LangDerivedKind.IMPL, LangDerivedKind.API)
         }}
+
+    override fun fillFrom(item: T) = applyB {${superUnitExists.then {
+            """
+        super.fillFrom(item)"""
+        }}${props().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+            it.toKotlinFillFrom()
+        }}
+    }
 
     override fun clear() = applyB {${superUnitExists.then {
             """
