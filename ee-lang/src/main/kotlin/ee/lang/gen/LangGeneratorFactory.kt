@@ -2,6 +2,10 @@ package ee.lang.gen
 
 import ee.lang.*
 import ee.lang.gen.common.LangCommonContextFactory
+import ee.lang.gen.doc.LangMarkdownContextFactory
+import ee.lang.gen.doc.LangMarkdownTemplates
+import ee.lang.gen.doc.itemNameAsMarkdownFileName
+import ee.lang.gen.doc.templateNameAsMarkdownFileName
 import ee.lang.gen.go.LangGoContextFactory
 import ee.lang.gen.go.LangGoTemplates
 import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
@@ -16,6 +20,26 @@ open class LangGeneratorFactory {
 
     constructor(singleModule: Boolean = true) {
         this.singleModule = singleModule
+    }
+
+    open fun devDoc(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {
+        val docTemplates = buildDocTemplates()
+        val docContextFactory = buildDocContextFactory()
+        val docContextBuilder = docContextFactory.build()
+
+        val compilationUnits: StructureUnitI<*>.() -> List<CompilationUnitI<*>> =
+                { items().filterIsInstance(CompilationUnitI::class.java) }
+
+        val generator = GeneratorGroup("documentation", listOf(
+                GeneratorSimple("DevDocBase", contextBuilder = docContextBuilder,
+                        template = ItemsTemplate(name = "${fileNamePrefix}DevDocBase",
+                                nameBuilder = templateNameAsMarkdownFileName,
+                                items = compilationUnits, fragments = { listOf(docTemplates.pojoImpl()) })),
+                GeneratorSimple("DevPlainUmlBase", contextBuilder = docContextBuilder,
+                        template = ItemsTemplate(name = "${fileNamePrefix}DevPlainUmlBase",
+                                nameBuilder = templateNameAsMarkdownFileName,
+                                items = compilationUnits, fragments = { listOf(docTemplates.pojoPlainImpl()) }))))
+        return GeneratorContexts(generator, docContextBuilder)
     }
 
     open fun dslKt(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {
@@ -81,74 +105,74 @@ open class LangGeneratorFactory {
         }
 
         val generator = GeneratorGroup("pojoAndBuildersKt", listOf(
-            GeneratorSimple("IfcBase", contextBuilder = ktContextBuilder,
-                template = FragmentsTemplate(name = "${fileNamePrefix}IfcBase",
-                    nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                        listOf(ItemsFragment(items = interfaces, fragments = {
-                            listOf(ktTemplates.ifc(itemNameAsKotlinFileName))
-                        }))
-                    })),
-            GeneratorSimple("IfcBlockingBase", contextBuilder = ktContextBuilder,
-                template = FragmentsTemplate(name = "${fileNamePrefix}IfcBlockingBase",
-                    nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                        listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
-                            listOf(ktTemplates.ifcBlocking(itemNameAsKotlinFileName))
-                        }))
-                    })),
-            GeneratorSimple("IfcEmpty", contextBuilder = ktContextBuilder,
-                template = FragmentsTemplate(name = "${fileNamePrefix}IfcEmpty",
-                    nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                        listOf(ItemsFragment(items = interfaces, fragments = {
-                            listOf(ktTemplates.ifcEmpty(itemNameAsKotlinFileName))
-                        }))
-                    })),
-            GeneratorSimple("IfcBlockingEmpty", contextBuilder = ktContextBuilder,
-                template = FragmentsTemplate(name = "${fileNamePrefix}IfcBlockingEmpty",
-                    nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                        listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
-                            listOf(ktTemplates.emptyBlocking(itemNameAsKotlinFileName))
-                        }))
-                    })),
-            GeneratorSimple("BlockingWrapper", contextBuilder = ktContextBuilder,
-                template = FragmentsTemplate(name = "${fileNamePrefix}BlockingWrapper",
-                    nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                        listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
-                            listOf(ktTemplates.blockingWrapper(itemNameAsKotlinFileName))
-                        }))
-                    })),
-            GeneratorSimple("ApiBase", contextBuilder = ktContextBuilder,
-                template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
-                    nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                        listOf(ItemsFragment(items = enums,
-                            fragments = { listOf(ktTemplates.enum(), ktTemplates.enumParseMethod()) }),
-                            ItemsFragment(items = compilationUnits, fragments = {
-                                listOf(ktTemplates.pojo(itemNameAsKotlinFileName))
+                GeneratorSimple("IfcBase", contextBuilder = ktContextBuilder,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}IfcBase",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = interfaces, fragments = {
+                                listOf(ktTemplates.ifc(itemNameAsKotlinFileName))
                             }))
-                    })),
-            GeneratorSimple("BuilderIfcBase", contextBuilder = ktContextBuilder,
-                template = ItemsTemplate(name = "${fileNamePrefix}BuilderIfcBase",
-                    nameBuilder = itemAndTemplateNameAsKotlinFileName,
-                    items = dataTypes, fragments = { listOf(ktTemplates.builderI(itemNameAsKotlinFileName)) })),
-            GeneratorSimple("BuilderApiBase", contextBuilder = ktContextBuilder,
-                template = ItemsTemplate(name = "${fileNamePrefix}BuilderApiBase",
-                    nameBuilder = itemAndTemplateNameAsKotlinFileName,
-                    items = dataTypes, fragments = { listOf(ktTemplates.builder(itemNameAsKotlinFileName)) })),
-            GeneratorSimple("ApiTestEnumsBase", contextBuilder = ktContextBuilderTest,
-                template = FragmentsTemplate(name = "${fileNamePrefix}ApiTestEnumsBase",
-                    nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                        listOf(ItemsFragment(items = enums,
-                            fragments = {
-                                listOf(ktTemplates.enumParseAndIsMethodsTestsParseMethodTests())
+                        })),
+                GeneratorSimple("IfcBlockingBase", contextBuilder = ktContextBuilder,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}IfcBlockingBase",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
+                                listOf(ktTemplates.ifcBlocking(itemNameAsKotlinFileName))
                             }))
-                    })),
-            GeneratorSimple("ApiTestBase", contextBuilder = ktContextBuilderTest,
-                template = FragmentsTemplate(name = "${fileNamePrefix}ApiTestBase",
-                    nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                        listOf(ItemsFragment(items = compilationUnits,
-                            fragments = {
-                                listOf(ktTemplates.pojoTest())
+                        })),
+                GeneratorSimple("IfcEmpty", contextBuilder = ktContextBuilder,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}IfcEmpty",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = interfaces, fragments = {
+                                listOf(ktTemplates.ifcEmpty(itemNameAsKotlinFileName))
                             }))
-                    }))
+                        })),
+                GeneratorSimple("IfcBlockingEmpty", contextBuilder = ktContextBuilder,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}IfcBlockingEmpty",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
+                                listOf(ktTemplates.emptyBlocking(itemNameAsKotlinFileName))
+                            }))
+                        })),
+                GeneratorSimple("BlockingWrapper", contextBuilder = ktContextBuilder,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}BlockingWrapper",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
+                                listOf(ktTemplates.blockingWrapper(itemNameAsKotlinFileName))
+                            }))
+                        })),
+                GeneratorSimple("ApiBase", contextBuilder = ktContextBuilder,
+                        template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = enums,
+                                    fragments = { listOf(ktTemplates.enum(), ktTemplates.enumParseMethod()) }),
+                                    ItemsFragment(items = compilationUnits, fragments = {
+                                        listOf(ktTemplates.pojo(itemNameAsKotlinFileName))
+                                    }))
+                        })),
+                GeneratorSimple("BuilderIfcBase", contextBuilder = ktContextBuilder,
+                        template = ItemsTemplate(name = "${fileNamePrefix}BuilderIfcBase",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName,
+                                items = dataTypes, fragments = { listOf(ktTemplates.builderI(itemNameAsKotlinFileName)) })),
+                GeneratorSimple("BuilderApiBase", contextBuilder = ktContextBuilder,
+                        template = ItemsTemplate(name = "${fileNamePrefix}BuilderApiBase",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName,
+                                items = dataTypes, fragments = { listOf(ktTemplates.builder(itemNameAsKotlinFileName)) })),
+                GeneratorSimple("ApiTestEnumsBase", contextBuilder = ktContextBuilderTest,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}ApiTestEnumsBase",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = enums,
+                                    fragments = {
+                                        listOf(ktTemplates.enumParseAndIsMethodsTestsParseMethodTests())
+                                    }))
+                        })),
+                GeneratorSimple("ApiTestBase", contextBuilder = ktContextBuilderTest,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}ApiTestBase",
+                                nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
+                            listOf(ItemsFragment(items = compilationUnits,
+                                    fragments = {
+                                        listOf(ktTemplates.pojoTest())
+                                    }))
+                        }))
         ))
         return GeneratorContexts(generator, ktContextBuilder, ktContextBuilderTest)
     }
@@ -281,6 +305,10 @@ open class LangGeneratorFactory {
     protected open fun buildTsTemplates() = LangTsTemplates()
 
     protected open fun buildSwaggerContextFactory() = LangCommonContextFactory()
+
+    protected open fun buildDocContextFactory() = LangMarkdownContextFactory()
+    protected open fun buildDocTemplates() = LangMarkdownTemplates(itemNameAsMarkdownFileName)
+
 
     companion object {
         const val CONTEXT_KOTLIN = "kotlin"
