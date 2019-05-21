@@ -12,9 +12,15 @@ const val derivedBuilderT = "Builder"
 
 
 fun <T : AttributeI<*>> T.toKotlinTypeGenerics(c: GenerationContext, api: String): String =
-        if (type().isOrDerived(n.Map)) k.core.Pair.GT(*type().generics().toTypedArray())
-                .toKotlinTypeDef(c, api, false) else
-            type().generics().first().type().toKotlinTypeDef(c, api, false)
+        if (type().isOrDerived(n.Map))
+            k.core.Pair.GT(*type().generics().toTypedArray()).toKotlinTypeDef(c, api, false)
+        else {
+            val firstGeneric = type().generics().first()
+            if(firstGeneric.type().isNotEMPTY())
+                firstGeneric.type().toKotlinTypeDef(c, api, false)
+            else
+                firstGeneric.toKotlinTypeDef(c, api, false)
+        }
 
 fun <T : AttributeI<*>> T.toKotlinSignatureBuilder(c: GenerationContext, derived: String, api: String): String =
         "${name()}: ${type().isMulti().ifElse({
@@ -89,8 +95,10 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethods(c: GenerationContext, derived: 
 
 fun <T : CompilationUnitI<*>> T.toKotlinBuilderI(c: GenerationContext,
                                                  api: String = derivedBuilder): String {
+    val followGenerics = toKotlinGenericsClassDefFollow(c, api)
     return """
-interface ${c.n(this, api)}<B : ${c.n(this, api)}<B, T>, T : ${c.n(this, LangDerivedKind.API)}>${
+interface ${c.n(this, api)}<B : ${c.n(this, api)}<B, T$followGenerics>, T : ${
+    c.n(this, LangDerivedKind.API)}${toKotlinGenericsClassDef(c, api)}$followGenerics>${
     superUnit().isNotEMPTY().then {
         """ : ${c.n(superUnit(), api)}<B, T>"""
     }}${props().isNotEmpty().then {
@@ -118,21 +126,22 @@ fun <T : ConstructorI<*>> T.toKotlinCallParamsBuilder(
 
 fun <T : CompilationUnitI<*>> T.toKotlinBuilder(c: GenerationContext, derived: String = derivedBuilderB,
                                                 api: String = derivedBuilder): String {
-    val multiProps = props().filter { it.isMulti() }
     val B = c.n(this, derived)
     val BT = c.n(this, derivedBuilderT)
     val T = c.n(this, LangDerivedKind.API)
     val superUnitExists = superUnit().isNotEMPTY()
+    val followGenerics = toKotlinGenericsClassDefFollow(c, api)
+    val generics = toKotlinGenericsClassDef(c, api)
     return """
-open class $BT : $B<$BT, $T>() {
-    override fun build(): $T =
+open class $BT$generics : $B<$BT$generics, $T$generics$followGenerics>() {
+    override fun build(): $T$generics =
             $T(${primaryOrFirstConstructor().toKotlinCallParamsBuilder(c)})
 }
 
-abstract class $B<B : $B<B, T>, T : ${c.n(this, LangDerivedKind.API)}> :
+abstract class $B<B : $B<B, T$followGenerics>, T : ${c.n(this, LangDerivedKind.API)}$generics$followGenerics> :
         ${superUnitExists.then {
-        "${c.n(superUnit(), derived)}<B, T>(), "
-    }}${c.n(this, api)}<B, T>${props().isNotEmpty().then {
+        "${c.n(superUnit(), derived)}$generics<B, T$generics$followGenerics>(), "
+    }}${c.n(this, api)}<B, T$followGenerics>${props().isNotEmpty().then {
         """ {${props().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
             it.toKotlinMemberBuilder(c, LangDerivedKind.IMPL, LangDerivedKind.API)
         }}${props().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
@@ -157,7 +166,7 @@ abstract class $B<B : $B<B, T>, T : ${c.n(this, LangDerivedKind.API)}> :
             """
 
     @Suppress("UNCHECKED_CAST")
-    protected inline fun applyB(block: $B<B, T>.() -> Unit): B = apply(block) as B"""
+    protected inline fun applyB(block: $B<B, T$followGenerics>.() -> Unit): B = apply(block) as B"""
         }}
 }"""
     }}"""

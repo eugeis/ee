@@ -68,6 +68,9 @@ fun <T : CompilationUnitI<*>> T.toKotlinFieldTest(c: GenerationContext, derived:
                                                   api: String = LangDerivedKind.API,
                                                   dataClass: Boolean = this is BasicI<*> &&
                                                           superUnits().isEmpty() && superUnitFor().isEmpty()): String {
+    if(generics().isNotEmpty())
+        return ""
+
     val name = c.n(this, derived).capitalize()
     val timeProps = primaryConstructor().params().filter {
         it.type() == n.Date

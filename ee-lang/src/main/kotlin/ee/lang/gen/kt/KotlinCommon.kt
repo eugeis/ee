@@ -34,8 +34,8 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
             "${if (g.isEMPTY()) "Any" else g.name()}::class.java"
         }
         n.Map -> (mutable.setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
-        n.List -> (mutable.setAndTrue()).ifElse("mutableListOf()", "listOf()")
-        n.Collection -> (mutable.setAndTrue()).ifElse("mutableListOf()", "listOf()")
+        n.List -> (mutable.setAndTrue()).ifElse("mutableListOf()", "emptyList()")
+        n.Collection -> (mutable.setAndTrue()).ifElse("mutableListOf()", "emptyList()")
         else -> {
             if (baseType is EnumLiteralI) {
                 "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI<*>).toKotlin(c, derived,
@@ -88,10 +88,13 @@ fun <T : TypeI<*>> T.toKotlinTypeDef(c: GenerationContext, api: String, nullable
         """${toKotlin(c, api, mutable)}${nullable.then("?")}"""
 
 fun <T : CompilationUnitI<*>> T.toKotlinEmptyObject(c: GenerationContext, derived: String): String {
-    return """
+    return if (generics().isEmpty())
+        """
     companion object {
         val EMPTY by lazy { ${c.n(this, derived)}() }
     }"""
+    else
+        ""
 }
 
 fun <T : AttributeI<*>> T.toKotlinCompanionObjectName(c: GenerationContext): String {
@@ -165,6 +168,12 @@ fun TypeI<*>.toKotlinGenerics(c: GenerationContext, derived: String,
 fun TypeI<*>.toKotlinGenericsClassDef(c: GenerationContext, derived: String,
                                       mutable: Boolean? = null): String = generics().joinWrappedToString(
         ", ", "", "<", ">") {
+    "${it.name()}${it.type().isNotEMPTY().then { " : ${it.type().toKotlin(c, derived, mutable)}" }}"
+}
+
+fun TypeI<*>.toKotlinGenericsClassDefFollow(c: GenerationContext, derived: String,
+                                      mutable: Boolean? = null): String = generics().joinWrappedToString(
+        ", ", "", ", ", "") {
     "${it.name()}${it.type().isNotEMPTY().then { " : ${it.type().toKotlin(c, derived, mutable)}" }}"
 }
 
@@ -250,7 +259,7 @@ fun <T : AttributeI<*>> T.toKotlinConstructorMember(c: GenerationContext, derive
                                                     initValues: Boolean = true, forceInit: Boolean = true): String =
         "${(isKey() && findParent(EnumType::class.java) != null).then { "@${c.n(jackson.json.JsonValue)} " }}${
         toJsonXmlSupport(c)}${isReplaceable().setAndTrue().ifElse("var ", "val ")}${
-        toKotlinSignature(c, derived, api, initValues, forceInit)}"
+        toKotlinSignature(c, derived, api, initValues, forceInit && type() !is GenericI)}"
 
 fun <T : AttributeI<*>> T.toKotlinMember(c: GenerationContext, derived: String, api: String,
                                          initValues: Boolean = true, forceInit: Boolean = true): String =

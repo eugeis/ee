@@ -82,13 +82,12 @@ fun <T : CompilationUnitI<*>> T.toKotlinImpl(c: GenerationContext, derived: Stri
                                              dataClass: Boolean = this is BasicI<*> &&
                                                      superUnits().isEmpty() && superUnitFor().isEmpty(),
                                              nonBlocking: Boolean = isNonBlocking()): String {
-    val typePrefix = """${(isOpen() && !dataClass).then("open ")}${dataClass.then("data ")}class ${
-    toKotlinGenericsClassDef(c, derived)}$itemName"""
+    val typePrefix = """${(isOpen() && !dataClass).then("open ")}${dataClass.then("data ")}class $itemName${
+    toKotlinGenericsClassDef(c, derived)}"""
     return """
 $typePrefix${
-    primaryConstructor().toKotlinPrimary(c, derived, api,
-            this, typePrefix.length)} {${propsWithoutParamsOfPrimaryConstructor().joinSurroundIfNotEmptyToString(nL, prefix = nL,
-            postfix = nL) {
+    primaryConstructor().toKotlinPrimary(c, derived, api, this, typePrefix.length)} {${
+    propsWithoutParamsOfPrimaryConstructor().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toKotlinMember(c, derived, api, false)
     }}${otherConstructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toKotlin(c, derived, api)
