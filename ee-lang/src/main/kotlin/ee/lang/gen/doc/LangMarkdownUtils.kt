@@ -46,7 +46,7 @@ val itemAndTemplateNameAsMkFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
 }
 
 val templateNameAsMarkdownFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("$name.mk")
+    Names("$name.puml")
 }
 
 val itemNameAsMarkdownFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
