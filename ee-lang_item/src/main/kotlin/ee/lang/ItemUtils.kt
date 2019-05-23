@@ -31,7 +31,11 @@ fun <T : ItemI<*>> T.extend(code: T.() -> Unit = {}) {
     }
 }
 
-fun <B : ItemI<*>> B.doc(comment: String): B = apply { doc(Comment { name(comment) }) }
+fun <B : ItemI<*>> B.doc(comment: String): B = apply {
+    val ret = Comment()
+    ret.name(comment)
+    doc(ret)
+}
 
 fun <B : ItemI<B>> List<B>.derive(adapt: B.() -> Unit = {}): List<B> {
     return map { it.derive(adapt) }
