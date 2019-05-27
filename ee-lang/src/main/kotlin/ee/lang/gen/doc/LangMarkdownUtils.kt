@@ -42,7 +42,7 @@ open class MkContext : GenerationContext {
 }
 
 val itemAndTemplateNameAsMkFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${it.name().capitalize()}${name.capitalize()}.mk")
+    Names("${it.name().capitalize()}${name.capitalize()}.puml")
 }
 
 val templateNameAsMarkdownFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
@@ -50,5 +50,5 @@ val templateNameAsMarkdownFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
 }
 
 val itemNameAsMarkdownFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${it.name()}.mk")
+    Names("${it.name()}.puml")
 }
