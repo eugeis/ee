@@ -28,7 +28,7 @@ fun <T : CompilationUnitI<*>> T.toMarkdownClassImpl(c: GenerationContext, derive
 ## PlantUml diagram
     ```plantuml
 
-        ${toPlainUmlClassImpl(c, startStopUmpl = true)}
+        ${toPlainUmlClassImpl(c, startStopUml = true)}
     ```
         """
 }
@@ -44,53 +44,53 @@ fun OperationI<*>.toPlainOperUml(c: GenerationContext, genOperations:Boolean = t
    // "${it.name()}: ${it.type()}
     "${c.n(this)}"
 }
-
+fun <T : ConstructorI<*>> T.toPlainUmlConstructor(c: GenerationContext,genConstr:Boolean = true): String = (genConstr && isNotEMPTY()).then {
+    "${c.n(this)}$nL --"
+}
 fun <T : CompilationUnitI<*>> T.toPlainUmlOpenclassImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                         api: String = LangDerivedKind.API,
                                                         itemName: String = c.n(this, derived),
                                                         dataClass: Boolean = this is BasicI<*> &&
                                                                 superUnits().isEmpty() && superUnitFor().isEmpty(),
-                                                        nonBlocking: Boolean = isNonBlocking()): String {
-    return """
-        ${(isOpen() && !dataClass).then("open ")}${dataClass.then("data ")}class $nL ..
-    """
+                                                        nonBlocking: Boolean = isNonBlocking(),genOpenClass:Boolean = true): String = (genOpenClass && isNotEMPTY()).then {
+    "${(isOpen() && !dataClass).then("open ")}${dataClass.then("data ")}class $nL .."
 }
 
+
+
 fun <T : CompilationUnitI<*>> T.toPlainUmlClassImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                    generateComments: Boolean=false, startStopUmpl: Boolean = true): String {
+                                                    generateComments: Boolean=false, startStopUml: Boolean = true): String {
     return """
-           ${startUml(startStopUmpl)}
+           ${startUml(startStopUml)}
            package ${namespace()} <<Folder>> {
           ${toPlainUmlTemplateClassImpl(c, startStopUml = false)}
           ${doc().toPlainUml(c, generateComments)}
           }
-
-        ${stopUml(startStopUmpl)}"""
+        ${stopUml(startStopUml)}"""
 
 }
 
 fun <T : CompilationUnitI<*>> T.toPlainUmlTemplateClassImpl(c: GenerationContext,generateComments: Boolean=false,
-                                                               startStopUml: Boolean = true,
+                                                               startStopUml: Boolean = false,
                                                                genOperations: Boolean = true,
-                                                               genProps: Boolean = true) :String {
-          return """
+                                                               genProps: Boolean = true,
+                                                               genConstr:Boolean =false) :String {
+    return """
             ${startUml(startStopUml)}
-                title ${parent().name()}
-                ${isIfc().ifElse("interface ", "class")} ${name()} {
-                  {field}${toPlainUmlOpenclassImpl(c)}
+                  title ${parent().name()}
+                 ${isIfc().ifElse("interface ", "class")}  ${name()} {
+                  {field}${toPlainUmlOpenclassImpl(c,genOpenClass = false)}
+                  {field}${constructors().joinSurroundIfNotEmptyToString(nL, prefix = "", postfix = ""){it.toPlainUmlConstructor(c,genConstr)}}
                   {field} ${props().joinSurroundIfNotEmptyToString(nL, prefix = "", postfix = "") {it.toPlainUmlMember(c, genProps) }}
                   {method} ${operations().joinSurroundIfNotEmptyToString(nL, prefix = "", postfix = "")
                   {it.toPlainOperUml(c,genOperations)}}
-                }
-
-
+                   }
             ${stopUml(startStopUml)}
         """
-}
+    }
 
 
 private fun stopUml(startStopUml: Boolean) = startStopUml.then("@enduml")
-
 private fun startUml(startStopUml: Boolean) = startStopUml.then("@startuml")
-private fun startNoteUml(startNoteUml: Boolean) = startNoteUml.then("note right:")
+private fun startNoteUml(startNoteUml: Boolean) = startNoteUml.then("note top:")
 
