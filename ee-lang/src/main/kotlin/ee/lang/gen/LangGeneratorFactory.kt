@@ -33,7 +33,7 @@ open class LangGeneratorFactory {
         val generator = GeneratorGroup("documentation", listOf(
                 GeneratorSimple("DevDocBase", contextBuilder = docContextBuilder,
                         template = ItemsTemplate(name = "${fileNamePrefix}DevDocBase",
-                                nameBuilder = templateNameAsMarkdownFileName,
+                                nameBuilder = itemNameAsMarkdownFileName,
                                 items = compilationUnits, fragments = { listOf(docTemplates.pojoImpl()) })),
                 GeneratorSimple("DevPlainUmlBase", contextBuilder = docContextBuilder,
                         template = ItemsTemplate(name = "${fileNamePrefix}DevPlainUmlBase",

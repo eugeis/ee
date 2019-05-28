@@ -11,13 +11,28 @@ fun <T : CompilationUnitI<*>> T.toMarkdownClassImpl(c: GenerationContext, derive
                                                      superUnits().isEmpty() && superUnitFor().isEmpty(),
                                              nonBlocking: Boolean = isNonBlocking()): String {
     return """
-        ${name()} -> ${props().size}: count of properties is
+# ${parent().name()}
+       ${parent().name()}is a module and artifact mcr-opcua
+
+## ${namespace()}
+          ${namespace()} is a package
+## Properties
+          ${props().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+        it.toPlainUmlMember(c, genProps = true) }}
+## Operations
+          ${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL)
+    {it.toPlainOperUml(c,genOperations = true)}}
+
+## PlantUml diagram
+    ```plantuml
+    ${toPlainUmlClassImpl(c,startStopUmpl = true)}
+    ```
         """
 }
 
-fun <T : CommentI<*>> T.toPlainUml(c: GenerationContext, generateComments: Boolean): String =
+fun <T : CommentI<*>> T.toPlainUml(c: GenerationContext, generateComments: Boolean,startNoteUml:Boolean = true): String =
         (generateComments && isNotEMPTY()).then {
-            "note right:${name()}"
+            "${startNoteUml(startNoteUml)} ${name()}"
         }
 
 fun <T : AttributeI<*>> T.toPlainUmlMember(c: GenerationContext, genProps: Boolean = true): String =
@@ -33,7 +48,10 @@ fun <T : CompilationUnitI<*>> T.toPlainUmlClassImpl(c: GenerationContext, derive
                                                     generateComments: Boolean=false, startStopUmpl: Boolean = true): String {
     return """
            ${startUml(startStopUmpl)}
+           package ${namespace()} <<Folder>> {
           ${toPlainUmlTemplateClassImpl(c, startStopUml = false)}
+          ${doc().toPlainUml(c, generateComments)}
+          }
         ${stopUml(startStopUmpl)}"""
 
 }
@@ -44,7 +62,6 @@ fun <T : CompilationUnitI<*>> T.toPlainUmlTemplateClassImpl(c: GenerationContext
                                                                genProps: Boolean = true) :String {
           return """
             ${startUml(startStopUml)}
-            package ${namespace()} <<Folder>> {
                 title ${parent().name()}
                 ${isIfc().ifElse("interface ", "class")} ${name()} {
                   {field} ${props().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
@@ -52,8 +69,7 @@ fun <T : CompilationUnitI<*>> T.toPlainUmlTemplateClassImpl(c: GenerationContext
                   {method} ${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL)
                   {it.toPlainOperUml(c,genOperations)}}
                 }
-                 ${doc().toPlainUml(c, generateComments)}
-            }
+
             ${stopUml(startStopUml)}
         """
 }
@@ -61,4 +77,5 @@ fun <T : CompilationUnitI<*>> T.toPlainUmlTemplateClassImpl(c: GenerationContext
 private fun stopUml(startStopUml: Boolean) = startStopUml.then("@enduml")
 
 private fun startUml(startStopUml: Boolean) = startStopUml.then("@startuml")
+private fun startNoteUml(startNoteUml: Boolean) = startNoteUml.then("note right:")
 

@@ -50,5 +50,5 @@ val templateNameAsMarkdownFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
 }
 
 val itemNameAsMarkdownFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${it.name()}.puml")
+    Names("${it.name()}.md")
 }
