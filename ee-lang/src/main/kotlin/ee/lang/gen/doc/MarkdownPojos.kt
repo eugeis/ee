@@ -69,26 +69,35 @@ fun <T : CompilationUnitI<*>> T.toPlainUmlClassImpl(c: GenerationContext, derive
         ${stopUml(startStopUml)}"""
 
 }
+fun <T : TypeI<*>> T.toPlainUmlExtends(c: GenerationContext,genExtend: Boolean = false): String = (genExtend && isNotEMPTY()).then {
+   "  <|--  ${name()}"
+
+}
 
 fun <T : CompilationUnitI<*>> T.toPlainUmlTemplateClassImpl(c: GenerationContext,generateComments: Boolean=false,
                                                                startStopUml: Boolean = false,
                                                                genOperations: Boolean = true,
                                                                genProps: Boolean = true,
                                                                genConstr:Boolean =false) :String {
+    if(this is BasicI<*>) {
+
+    }
     return """
             ${startUml(startStopUml)}
+
                   title ${parent().name()}
                  ${isIfc().ifElse("interface ", "class")}  ${name()} {
                   {field}${toPlainUmlOpenclassImpl(c,genOpenClass = false)}
                   {field}${constructors().joinSurroundIfNotEmptyToString(nL, prefix = "", postfix = ""){it.toPlainUmlConstructor(c,genConstr)}}
-                  {field} ${props().joinSurroundIfNotEmptyToString(nL, prefix = "", postfix = "") {it.toPlainUmlMember(c, genProps) }}
+                  {field} ** Properties **${nL} ${props().joinSurroundIfNotEmptyToString(nL, prefix = "", postfix = "") {it.toPlainUmlMember(c, genProps) }}
                   {method} ${operations().joinSurroundIfNotEmptyToString(nL, prefix = "", postfix = "")
                   {it.toPlainOperUml(c,genOperations)}}
                    }
+                   ${superUnit().isNotEMPTY().then {"""${name()}  ${superUnit().toPlainUmlExtends(c,genExtend = true)}"""}}
+
             ${stopUml(startStopUml)}
         """
     }
-
 
 private fun stopUml(startStopUml: Boolean) = startStopUml.then("@enduml")
 private fun startUml(startStopUml: Boolean) = startStopUml.then("@startuml")
