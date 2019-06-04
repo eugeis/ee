@@ -38,7 +38,11 @@ open class LangGeneratorFactory {
                 GeneratorSimple("DevPlainUmlBase", contextBuilder = docContextBuilder,
                         template = ItemsTemplate(name = "${fileNamePrefix}DevPlainUmlBase",
                                 nameBuilder = templateNameAsMarkdownFileName,
-                                items = compilationUnits, fragments = { listOf(docTemplates.pojoPlainImplWithComments()) }))))
+                                items = compilationUnits, fragments = { listOf(docTemplates.pojoPlainImplWithComments()) })),
+                GeneratorSimple("DevPlainUmlClass", contextBuilder = docContextBuilder,
+                        template = ItemsTemplate(name = "${fileNamePrefix}DevPlainUmlClass",
+                                nameBuilder = templateNameAsMarkdownFileName,
+                                items = compilationUnits, fragments = { listOf(docTemplates.pojoPlainImplClass()) }))))
         return GeneratorContexts(generator, docContextBuilder)
     }
 

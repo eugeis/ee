@@ -14,9 +14,9 @@ open class LangMarkdownTemplates {
             nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
             Template("PojoImpl", nameBuilder) { item, c -> item.toMarkdownClassImpl(c) }
 
-    open fun pojoPlainImpl(
+    open fun pojoPlainImplClass(
             nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
-            Template("PojoPlainImpl", nameBuilder) { item, c -> item.toPlainUmlClassImpl(c,
+            Template("pojoPlainImplClass", nameBuilder) { item, c -> item.toPlainUmlClassNative(c,
                     generateComments = false) }
 
     open fun pojoPlainImplWithComments(

@@ -154,6 +154,10 @@ fun TypeI<*>.propsAllNoMeta(): List<AttributeI<*>> = storage.getOrPut(this, "pro
     propsAll().filter { !it.isMeta() }
 }
 
+fun TypeI<*>.propsNoNativeType(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoNativeType") {
+    propsAll().filter { !it.type().isNative() }
+}
+
 fun TypeI<*>.propsNoMeta(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoMeta") {
     props().filter { !it.isMeta() }
 }
