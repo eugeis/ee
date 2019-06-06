@@ -243,6 +243,13 @@ fun StructureUnitI<*>.addIdPropToEventsAndCommands() {
     }
 }
 
+fun StructureUnitI<*>.setReplaceableConfigProps() {
+    findDownByType(ConfigI::class.java).forEach { item ->
+        item.props().forEach {
+            it.replaceable()
+        }
+    }
+}
 
 fun StructureUnitI<*>.setOptionalTagToEventsAndCommandsProps() {
     val allProps = hashSetOf<AttributeI<*>>()
