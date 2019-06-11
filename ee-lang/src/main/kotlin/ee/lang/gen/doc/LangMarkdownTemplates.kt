@@ -1,7 +1,6 @@
 package ee.lang.gen.doc
 
 import ee.lang.*
-import ee.lang.gen.itemNameAsKotlinFileName
 
 open class LangMarkdownTemplates {
     private val defaultNameBuilder: TemplateI<*>.(CompilationUnitI<*>) -> NamesI
@@ -16,12 +15,13 @@ open class LangMarkdownTemplates {
 
     open fun pojoPlainImplClass(
             nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
-            Template("pojoPlainImplClass", nameBuilder) { item, c -> item.toPlainUmlClassNative(c,
-                    generateComments = false) }
+            Template("pojoPlainImplClass", nameBuilder) { item, c -> item.toPlainUmlClassImpl(c) }
 
     open fun pojoPlainImplWithComments(
             nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
             Template("PojoPlainImplWithComments", nameBuilder) { item, c -> item.toPlainUmlClassImpl(c,
                     generateComments = true) }
+
+
 
 }

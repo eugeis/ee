@@ -2,14 +2,10 @@ package ee.lang.gen.doc
 
 import ee.common.ext.*
 import ee.lang.*
-import ee.lang.gen.kt.*
+import ee.lang.gen.kt.k
+import java.util.stream.Collectors
 
-fun <T : CompilationUnitI<*>> T.toMarkdownClassImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                    api: String = LangDerivedKind.API,
-                                                    itemName: String = c.n(this, derived),
-                                                    dataClass: Boolean = this is BasicI<*> &&
-                                                            superUnits().isEmpty() && superUnitFor().isEmpty(),
-                                                    nonBlocking: Boolean = isNonBlocking()): String {
+fun <T : CompilationUnitI<*>> T.toMarkdownClassImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL): String {
     return """
 # ${parent().name()}
 
@@ -48,83 +44,46 @@ fun OperationI<*>.toPlainOperUml(c: GenerationContext, genOperations: Boolean = 
     "${c.n(this)}"
 }
 
-fun <T : ConstructorI<*>> T.toPlainUmlConstructor(c: GenerationContext, genConstr: Boolean = true): String = (genConstr && isNotEMPTY()).then {
-    "${c.n(this)}$nL --"
+fun <T : AttributeI<*>> T.toPlainUmlNotNative(c: GenerationContext, genNative: Boolean = true): String = (genNative && isNotEMPTY()).then {
+    "${c.n(name())}"
 }
-
-fun <T : CompilationUnitI<*>> T.toPlainUmlOpenclassImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                        api: String = LangDerivedKind.API,
-                                                        itemName: String = c.n(this, derived),
-                                                        dataClass: Boolean = this is BasicI<*> &&
-                                                                superUnits().isEmpty() && superUnitFor().isEmpty(),
-                                                        nonBlocking: Boolean = isNonBlocking(), genOpenClass: Boolean = true): String = (genOpenClass && isNotEMPTY()).then {
-    "${(isOpen() && !dataClass).then("open ")}${dataClass.then("data ")}class $nL .."
+fun <T : AttributeI<*>> T.toPlainUmlNotNativeType(c: GenerationContext, genNative: Boolean = true): String = (genNative && isNotEMPTY()).then {
+    "${c.n(type())}"
+}
+fun <T : ItemI<*>> T.toKotlinPacketOperation(c: GenerationContext, genOperations: Boolean = true): String = (genOperations && isNotEMPTY()).then {
+    "${c.n(name())}"
 }
 
 
 fun <T : CompilationUnitI<*>> T.toPlainUmlClassImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                    generateComments: Boolean = false, startStopUml: Boolean = true): String {
+                                                    startStopUml: Boolean = true, genProps: Boolean = true, generateComments:Boolean=true, genOperations: Boolean =true, genNoNative:Boolean=true): String {
     return """
-           ${startUml(startStopUml)}
-           package ${namespace()} <<Folder>> {
-          ${toPlainUmlTemplateClassImpl(c, startStopUml = false)}
-          ${doc().toPlainUml(c, generateComments)}
-          }
-        ${stopUml(startStopUml)}"""
-
-}
-
-fun <T : TypeI<*>> T.toPlainUmlExtends(c: GenerationContext, genExtend: Boolean = false): String = (genExtend && isNotEMPTY()).then {
-    "  <|--  ${name()}"
-}
-
-fun <T : AttributeI<*>> T.toPlainUmlNotNative(c: GenerationContext, derived: String, genNative: Boolean = true, mutable: Boolean? = null): String = (genNative && isNotEMPTY()).then {
-    "${c.n(name())}"
-}
-
-fun <T : CompilationUnitI<*>> T.toPlainUmlTemplateClassImpl(c: GenerationContext, generateComments: Boolean = false,
-                                                            startStopUml: Boolean = false,
-                                                            genOperations: Boolean = true,
-                                                            genProps: Boolean = true,
-                                                            genConstr: Boolean = false): String {
-    return """
-            ${startUml(startStopUml)}
-
-                  title ${parent().name()}
-                 ${isIfc().ifElse("interface ", "class")}  ${name()} {
-                  {field}${toPlainUmlOpenclassImpl(c, genOpenClass = false)}
-                  {field}${constructors().joinSurroundIfNotEmptyToString(nL, prefix = "", postfix = "") { it.toPlainUmlConstructor(c, genConstr) }}
-                  {field} ** Properties **${nL} ${props().joinSurroundIfNotEmptyToString(nL, prefix = "", postfix = "") { it.toPlainUmlMember(c, genProps) }}
-                  {method} ${operations().joinSurroundIfNotEmptyToString(nL, prefix = "", postfix = "")
-    { it.toPlainOperUml(c, genOperations) }}
-                   }
-                   ${superUnit().isNotEMPTY().then { """${name()}  ${superUnit().toPlainUmlExtends(c, genExtend = true)}""" }}
-
-            ${stopUml(startStopUml)}
-        """
-}
-
-
-fun <T : CompilationUnitI<*>> T.toPlainUmlClassNative(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                      generateComments: Boolean = false, startStopUml: Boolean = true, genProps: Boolean = true): String {
-    return """
-        ${propsNoNativeType().isNotEmpty().then {
-        """
         ${startUml(startStopUml)}
-
-        class ${name()}
-       ${propsNoNativeType().joinSurroundIfNotEmptyToString(nL, prefix = " ", postfix = "") {
-            "${name()} --> ${it.toPlainUmlNotNative(c, derived)} : ${it.toPlainUmlNotNative(c, derived)}"
+        package ${namespace()}{
+        class ${name()}{
+        {method} ${nL} ${operations().joinSurroundIfNotEmptyToString(nL, prefix = " ", postfix = ""){" ${it.toKotlinPacketOperation(c,genOperations = true)}()"
         }}
 
-        ${stopUml(startStopUml)}"""
-    }}
-           """
+        {field}  ${nL} ${props().joinSurroundIfNotEmptyToString(nL, prefix = "", postfix = "") { it.toPlainUmlMember(c, genProps) }}
+
+        }
+         ${doc().toPlainUml(c, generateComments)}
+       ${propsNoNativeType(genNoNative = true).joinSurroundIfNotEmptyToString(nL, prefix = " ", postfix = "") {
+            "${nL}${name()} -- ${it.toPlainUmlNotNativeType(c).isEmpty().then { """${it.toPlainUmlNotNative(c)}""" }} ${it.toPlainUmlNotNativeType(c,genOperations)} : ${it.toPlainUmlNotNative(c,genOperations)} ${nL}"
+
+        }
+    }
+        ${stopUml(startStopUml)}
+        """
 
 }
+
+
+
 
 
 private fun stopUml(startStopUml: Boolean) = startStopUml.then("@enduml")
 private fun startUml(startStopUml: Boolean) = startStopUml.then("@startuml")
 private fun startNoteUml(startNoteUml: Boolean) = startNoteUml.then("note top:")
+
 
