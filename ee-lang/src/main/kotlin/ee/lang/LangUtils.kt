@@ -155,7 +155,7 @@ fun TypeI<*>.propsAllNoMeta(): List<AttributeI<*>> = storage.getOrPut(this, "pro
     propsAll().filter { !it.isMeta() && it.type().isNative()}
 }
 
-fun TypeI<*>.propsNoNativeType(genNoNative:Boolean= true): List<AttributeI<*>> = storage.getOrPut(this, "propsNoNativeType") {
+fun TypeI<*>.propsNoNativeType(genNoNative:Boolean= true,genproperty:Boolean=true): List<AttributeI<*>> = storage.getOrPut(this, "propsNoNativeType") {
     propsAll().filter { !it.type().isNative()}
 }
 
