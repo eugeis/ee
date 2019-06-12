@@ -63,7 +63,7 @@ fun <T : CompilationUnitI<*>> T.toPlainUmlClassImpl(c: GenerationContext, derive
     return """
         ${startUml(startStopUml)}
         package ${namespace()}{
-        class ${name()}{
+        ${isIfc().ifElse("interface ", "class")}  ${name()} {
         {method} ${nL} ${operations().joinSurroundIfNotEmptyToString(nL, prefix = " ", postfix = ""){" ${it.toKotlinPacketOperation(c,genOperations = true)}()"
         }}
 
@@ -81,6 +81,34 @@ fun <T : CompilationUnitI<*>> T.toPlainUmlClassImpl(c: GenerationContext, derive
 
 }
 
+
+fun <T : CompilationUnitI<*>> T.toPlainUmlClassDetails(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                    startStopUml: Boolean = true, genProps: Boolean = true, generateComments:Boolean=true, genOperations: Boolean =true, genNoNative:Boolean=true): String {
+    return """
+        ${startUml(startStopUml)}
+        package ${namespace()}{
+        ${isIfc().ifElse("interface ", "class")}  ${name()} {
+        {method} ${nL} ${operations().joinSurroundIfNotEmptyToString(nL, prefix = " ", postfix = ""){" ${it.toKotlinPacketOperation(c,genOperations = true)}()"
+    }}
+
+        {field}  ${nL} ${props().joinSurroundIfNotEmptyToString(nL, prefix = "", postfix = "") { it.toPlainUmlMember(c, genProps) }}
+
+        }
+         ${doc().toPlainUml(c, generateComments)}
+       ${propsNoNativeType(genNoNative = true).joinSurroundIfNotEmptyToString(nL, prefix = " ", postfix = "") {
+        "class  ${it.toPlainUmlNotNativeType(c).isEmpty().then { """${it.toPlainUmlNotNative(c)}""" }} ${it.toPlainUmlNotNativeType(c,genOperations)} { ${nL}{field}" +
+                "${props().joinSurroundIfNotEmptyToString(nL, prefix = "", postfix = "") { it.toPlainUmlMember(c, genProps) }} ${nL}}"
+    }
+    }
+       ${propsNoNativeType(genNoNative = true).joinSurroundIfNotEmptyToString(nL, prefix = " ", postfix = "") {
+        "${nL}${name()} -- ${it.toPlainUmlNotNativeType(c).isEmpty().then { """${it.toPlainUmlNotNative(c)}""" }} ${it.toPlainUmlNotNativeType(c,genOperations)} : ${it.toPlainUmlNotNative(c,genOperations)} ${nL}"
+
+    }
+    }
+        ${stopUml(startStopUml)}
+        """
+
+}
 
 
 

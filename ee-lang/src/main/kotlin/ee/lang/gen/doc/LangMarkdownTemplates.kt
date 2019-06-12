@@ -19,7 +19,7 @@ open class LangMarkdownTemplates {
 
     open fun pojoPlainImplWithComments(
             nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
-            Template("PojoPlainImplWithComments", nameBuilder) { item, c -> item.toPlainUmlClassImpl(c,
+            Template("PojoPlainImplWithComments", nameBuilder) { item, c -> item.toPlainUmlClassDetails(c,
                     generateComments = true) }
 
 
