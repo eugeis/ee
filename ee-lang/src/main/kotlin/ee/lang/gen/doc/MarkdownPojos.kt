@@ -48,7 +48,10 @@ fun <T : AttributeI<*>> T.toPlainUmlNotNative(c: GenerationContext, genNative: B
     "${c.n(name())}"
 }
 fun <T : AttributeI<*>> T.toPlainUmlNotNativeType(c: GenerationContext, genNative: Boolean = true): String = (genNative && isNotEMPTY()).then {
-    "${c.n(type())}"
+    if ("${c.n(type())}" == "Map") {
+        "${c.n(type().isMulti().ifElse("${c.n(type().generics().first().name())}ey" ,"${c.n(type().generics().last().name())}alue"))} "
+    }else
+    "${c.n(type().isMulti().ifElse("T_List" ,"T_Collection"))} "
 }
 fun <T : ItemI<*>> T.toKotlinPacketOperation(c: GenerationContext, genOperations: Boolean = true): String = (genOperations && isNotEMPTY()).then {
     "${c.n(name())}"
