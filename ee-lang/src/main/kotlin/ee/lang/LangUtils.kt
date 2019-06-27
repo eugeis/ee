@@ -132,7 +132,6 @@ fun TypeI<*>.propsAll(): List<AttributeI<*>> = storage.getOrPut(this, "propsAll"
 
 fun TypeI<*>.propsAllWithoutMetaAndAnonymousWithoutProps(): List<AttributeI<*>> = storage.getOrPut(this,
         "propsAllWithoutMetaAndAnonymousWithoutProps") {
-    val isNotNative = propsNoNativeType()
     propsAll().filter { !it.isMeta() && !(it.isAnonymous() && !props().isEmpty()) }
 }
 
@@ -147,12 +146,12 @@ fun TypeI<*>.propsWithoutParamsOfPrimaryConstructor(): List<AttributeI<*>> = sto
     if (constrParams.isEmpty()) {
         props()
     } else {
-        props().filter { param -> constrParams.find { param.name() == it.name() } ==null }
+        props().filter { param -> constrParams.find { param.name() == it.name() } == null }
     }
 }
 
 fun TypeI<*>.propsAllNoMeta(): List<AttributeI<*>> = storage.getOrPut(this, "propsAllNoMeta") {
-    propsAll().filter { !it.isMeta() && it.type().isNative()}
+    propsAll().filter { !it.isMeta() }
 }
 
 fun TypeI<*>.propsNoNativeType(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoNativeType") {
