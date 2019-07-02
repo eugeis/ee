@@ -17,10 +17,15 @@ open class LangMarkdownTemplates {
             nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
             Template("pojoPlainImplClass", nameBuilder) { item, c -> item.toPlainUmlClassImpl(c) }
 
+    open fun pojoPlainSuperClass(
+            nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
+            Template("pojoPlainImplClass", nameBuilder) { item, c -> item.toPlainUmlSuperClass(c) }
+
     open fun pojoPlainImplWithComments(
             nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
             Template("PojoPlainImplWithComments", nameBuilder) { item, c -> item.toPlainUmlClassDetails(c,
                     generateComments = true) }
+
 
 
 
