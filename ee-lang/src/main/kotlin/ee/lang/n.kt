@@ -49,7 +49,7 @@ object n : StructureUnit({ name("native") }) {
     }
 
     object Map : NativeType({ multi(true) }) {
-        val Key = G { type(String) }
+        val K = G { type(String) }
         val V = G { type(String) }
     }
 
