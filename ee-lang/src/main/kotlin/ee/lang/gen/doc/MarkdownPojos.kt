@@ -2,9 +2,6 @@ package ee.lang.gen.doc
 
 import ee.common.ext.*
 import ee.lang.*
-import ee.lang.TypeB.Companion.props
-import ee.lang.gen.kt.k
-import java.util.stream.Collectors
 
 fun <T : CompilationUnitI<*>> T.toMarkdownClassImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL): String {
     return """
@@ -95,7 +92,7 @@ fun <T : CompilationUnitI<*>> T.toPlainUmlClassDetails(
         startStopUml: Boolean = true, genProps: Boolean = true, genproperty:Boolean=true, generateComments:Boolean=true,
         genOperations: Boolean =true, genNoNative:Boolean=true): String {
 
-    val propTypes = propsNoNativeType().map { it.type() }.filterIsInstance(CompilationUnitI::class.java).toSet()
+    val propTypes = propsNoNative().map { it.type() }.filterIsInstance(CompilationUnitI::class.java).toSet()
 
     return """
         ${startUml(startStopUml)}
@@ -113,7 +110,7 @@ fun <T : CompilationUnitI<*>> T.toPlainUmlClassDetails(
         it.toPlainUmlClassImpl(c, derived, false)
     }}
 
-       ${propsNoNativeType().joinSurroundIfNotEmptyToString(nL, prefix = " ", postfix = "") {
+       ${propsNoNative().joinSurroundIfNotEmptyToString(nL, prefix = " ", postfix = "") {
 
         "${nL} ${it.toPlainUmlNotNativeType(c).isNotEmpty().then { " ${name()} -- ${it.toPlainUmlNotNativeType(c,genOperations)} : ${it.toPlainUmlNotNative(c,genOperations)} ${nL}" }} "
     }
@@ -129,7 +126,7 @@ fun <T : CompilationUnitI<*>> T.toPlainUmlSuperClass(
     return """
       ${ if (superUnit().name() == "@@EMPTY@@") {""}else "${startUml(startStopUml)}"}
 
-              ${propsNoNativeType().joinSurroundIfNotEmptyToString(nL, prefix = " ", postfix = "") {
+              ${propsNoNative().joinSurroundIfNotEmptyToString(nL, prefix = " ", postfix = "") {
                 if (superUnit().name()== "@@EMPTY@@") {""}else "${it.toPlainUmlNotNativeType(c).isNotEmpty().then { "${superUnit().name()} <|-- ${it.toPlainUmlNotNativeType(c, genOperations)} : ${it.toPlainUmlNotNative(c, genOperations)}"
         }}"
 

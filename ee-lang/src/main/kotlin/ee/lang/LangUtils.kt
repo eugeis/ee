@@ -2,6 +2,7 @@ package ee.lang
 
 import ee.common.ext.ifElse
 import ee.common.ext.setAndTrue
+import org.slf4j.LoggerFactory
 
 open class LangDerivedKindNames {
     val API = "Api"
@@ -150,12 +151,28 @@ fun TypeI<*>.propsWithoutParamsOfPrimaryConstructor(): List<AttributeI<*>> = sto
     }
 }
 
+fun TypeI<*>.propsAllNotNullableGeneric(): List<AttributeI<*>> =
+        storage.getOrPut(this, "propsAllNotNullableGeneric") {
+            propsAll().filter {
+                it.isNotNullableNoNativeGeneric()
+            }
+        }
+
+private fun AttributeI<*>.isNotNullableNoNativeGeneric() = !isNullable() && type() is GenericI<*>
+
+fun TypeI<*>.propsWithoutNotNullableGeneric(): List<AttributeI<*>> =
+        storage.getOrPut(this, "propsWithoutNotNullableGeneric") {
+            props().filter {
+                !it.isNotNullableNoNativeGeneric()
+            }
+        }
+
 fun TypeI<*>.propsAllNoMeta(): List<AttributeI<*>> = storage.getOrPut(this, "propsAllNoMeta") {
     propsAll().filter { !it.isMeta() }
 }
 
-fun TypeI<*>.propsNoNativeType(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoNativeType") {
-    propsAll().filter { !it.type().isNative()}
+fun TypeI<*>.propsNoNative(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoNative") {
+    propsAll().filter { !it.type().isNative() }
 }
 
 
