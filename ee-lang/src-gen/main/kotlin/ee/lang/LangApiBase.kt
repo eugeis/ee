@@ -787,6 +787,36 @@ open class PredicateB<B : PredicateI<B>>(adapt: B.() -> Unit = {}) : ExpressionB
 
 
 
+open class PropsRef(adapt: PropsRef.() -> Unit = {}) : PropsRefB<PropsRef>(adapt) {
+
+    companion object {
+        val EMPTY = PropsRef { name(ItemEmpty.name()) }.apply<PropsRef> { init() }
+    }
+}
+
+open class PropsRefB<B : PropsRefI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(adapt), PropsRefI<B> {
+
+    override fun isAll(): Boolean = attr(all, { false })
+    override fun all(value: Boolean): B = apply { attr(all, value) }
+
+    override fun props(): ListMultiHolder<AttributeI<*>> = itemAsList(props, AttributeI::class.java, true)
+    override fun props(vararg value: AttributeI<*>): B = apply { props().addItems(value.asList()) }
+    override fun prop(value: AttributeI<*>): AttributeI<*> = applyAndReturn { props().addItem(value); value }
+    override fun prop(value: AttributeI<*>.() -> Unit): AttributeI<*> = prop(Attribute(value))
+
+    override fun fillSupportsItems() {
+        props()
+        super.fillSupportsItems()
+    }
+
+    companion object {
+        val all = "_all"
+        val props = "_props"
+    }
+}
+
+
+
 open class RemainderAssignAction(adapt: RemainderAssignAction.() -> Unit = {}) : RemainderAssignActionB<RemainderAssignAction>(adapt) {
 
     companion object {
@@ -879,6 +909,9 @@ open class TypeB<B : TypeI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(ad
     override fun defaultValue(): Any? = attr(defaultValue)
     override fun defaultValue(value: Any?): B = apply { attr(defaultValue, value) }
 
+    override fun equalsProps(): PropsRefI<*> = attr(equalsProps, { PropsRef() })
+    override fun equalsProps(value: PropsRefI<*>): B = apply { attr(equalsProps, value) }
+
     override fun generics(): ListMultiHolder<GenericI<*>> = itemAsList(generics, GenericI::class.java, true)
     override fun generics(vararg value: GenericI<*>): B = apply { generics().addItems(value.asList()) }
     override fun G(value: GenericI<*>): GenericI<*> = applyAndReturn { generics().addItem(value); value }
@@ -912,6 +945,9 @@ open class TypeB<B : TypeI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(ad
     override fun superUnits(): ListMultiHolder<TypeI<*>> = itemAsList(superUnits, TypeI::class.java, true)
     override fun superUnits(vararg value: TypeI<*>): B = apply { superUnits().addItems(value.asList()) }
 
+    override fun toStringProps(): PropsRefI<*> = attr(toStringProps, { PropsRef() })
+    override fun toStringProps(value: PropsRefI<*>): B = apply { attr(toStringProps, value) }
+
     override fun isVirtual(): Boolean = attr(virtual, { false })
     override fun virtual(value: Boolean): B = apply { attr(virtual, value) }
 
@@ -928,6 +964,7 @@ open class TypeB<B : TypeI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(ad
     companion object {
         val constructors = "_constructors"
         val defaultValue = "_defaultValue"
+        val equalsProps = "_equalsProps"
         val generics = "_generics"
         val ifc = "_ifc"
         val macroEmptyInstance = "_macroEmptyInstance"
@@ -937,6 +974,7 @@ open class TypeB<B : TypeI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(ad
         val props = "_props"
         val superUnitFor = "__superUnitFor"
         val superUnits = "__superUnits"
+        val toStringProps = "_toStringProps"
         val virtual = "_virtual"
     }
 }

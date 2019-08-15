@@ -403,6 +403,20 @@ interface PredicateI<B : PredicateI<B>> : ExpressionI<B> {
 }
 
 
+interface PropsRefI<B : PropsRefI<B>> : MacroCompositeI<B> {
+    fun all(value: Boolean): B
+    fun all(): B = all(true)
+    fun notAll(): B = all(false)
+
+    fun props(vararg value: AttributeI<*>): B
+    fun isAll(): Boolean
+
+    fun props(): ListMultiHolder<AttributeI<*>>
+    fun prop(value: AttributeI<*>): AttributeI<*>
+    fun prop(value: AttributeI<*>.() -> Unit = {}): AttributeI<*>
+}
+
+
 interface RemainderAssignActionI<B : RemainderAssignActionI<B>> : ApplyActionI<B> {
 }
 
@@ -438,6 +452,8 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
 
     fun defaultValue(value: Any?): B
 
+    fun equalsProps(value: PropsRefI<*>): B
+
     fun generics(vararg value: GenericI<*>): B
 
     fun ifc(value: Boolean): B
@@ -462,6 +478,8 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
 
     fun superUnits(vararg value: TypeI<*>): B
 
+    fun toStringProps(value: PropsRefI<*>): B
+
     fun virtual(value: Boolean): B
     fun virtual(): B = virtual(true)
     fun notVirtual(): B = virtual(false)
@@ -470,6 +488,8 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
     fun constr(value: ConstructorI<*>.() -> Unit = {}): ConstructorI<*>
 
     fun defaultValue(): Any?
+
+    fun equalsProps(): PropsRefI<*>
 
     fun generics(): ListMultiHolder<GenericI<*>>
     fun G(value: GenericI<*>): GenericI<*>
@@ -494,6 +514,8 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
     fun superUnitFor(): ListMultiHolder<TypeI<*>>
 
     fun superUnits(): ListMultiHolder<TypeI<*>>
+
+    fun toStringProps(): PropsRefI<*>
 
     fun isVirtual(): Boolean
 }

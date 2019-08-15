@@ -87,14 +87,79 @@ fun <T : TypeI<*>> T.toKotlinTypeDef(c: GenerationContext, api: String, nullable
                                      mutable: Boolean? = null): String =
         """${toKotlin(c, api, mutable)}${nullable.then("?")}"""
 
-fun <T : CompilationUnitI<*>> T.toKotlinEmptyObject(c: GenerationContext, derived: String): String {
-    return if (generics().isEmpty())
+fun <T : CompilationUnitI<*>> T.toKotlinToString(c: GenerationContext, derived: String): String {
+    val useProps = if (toStringProps().isAll()) propsAllNoMeta() else toStringProps().props()
+    return if (useProps.isNotEmpty()) {
         """
+    
+    override fun toString(): String {
+        val ret = StringBuffer()
+        
+        ${useProps.toKotlinToString()}
+        
+        return ret.toString()
+    }"""
+    } else {
+        ""
+    }
+}
+
+fun <T : CompilationUnitI<*>> T.toKotlinEqualsHashcode(c: GenerationContext, derived: String): String {
+    val useProps = if (equalsProps().isAll()) propsAllNoMeta() else toStringProps().props()
+    return if (useProps.isNotEmpty()) {
+        """
+    
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ${c.n(this, derived)}
+
+        ${useProps.toKotlinEquals()}
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = 0
+        
+        ${useProps.toKotlinHashcode()}
+        
+        return result
+    }"""
+    } else {
+        ""
+    }
+}
+
+fun List<AttributeI<*>>.toKotlinToString(): String =
+        joinToString(".append(\",\")$nL        ") {
+            if (it.isMulti()) {
+                "ret.append(\"${it.name()}.size=\${${it.name()}.size()}\")"
+            } else {
+                "ret.append(\"${it.name()}=\$${it.name()}\")"
+            }
+        }
+
+fun List<AttributeI<*>>.toKotlinEquals(): String =
+        joinToString("$nL        ") { "if (${it.name()} != other.${it.name()}) return false" }
+
+fun List<AttributeI<*>>.toKotlinHashcode(): String =
+        joinToString("$nL        ") {
+            """result = 31 * result + ${it.isNullable().ifElse("(${
+            it.name()}?.hashCode() ?: 0)", "${it.name()}.hashCode()")}"""
+        }
+
+fun <T : CompilationUnitI<*>> T.toKotlinEmptyObject(c: GenerationContext, derived: String): String {
+    return if (generics().isEmpty()) {
+        """
+    
     companion object {
         val EMPTY by lazy { ${c.n(this, derived)}() }
     }"""
-    else
+    } else {
         ""
+    }
 }
 
 fun <T : AttributeI<*>> T.toKotlinCompanionObjectName(c: GenerationContext): String {
@@ -237,8 +302,7 @@ fun <T : AttributeI<*>> T.toKotlinInit(c: GenerationContext, derived: String,
 }
 
 fun <T : AttributeI<*>> T.toKotlinValueInit(c: GenerationContext, derived: String, mutable: Boolean? = isMutable(),
-                                            nullable: Boolean = isNullable(),
-                                            wrapIdent: String = "$nL            "): String {
+                                            nullable: Boolean = isNullable()): String {
     return when {
         value() != null -> toKotlinValue(c, derived, mutable)
         nullable -> "null"
@@ -251,27 +315,37 @@ fun <T : AttributeI<*>> T.toKotlinInitMember(c: GenerationContext, derived: Stri
         "this.${name()}${toKotlinInit(c, derived)}"
 
 fun <T : AttributeI<*>> T.toKotlinSignature(c: GenerationContext, derived: String, api: String,
-                                            initValue: Boolean = true, forceInit: Boolean = true): String =
-        "${name()}: ${toKotlinTypeDef(c, api)}${(forceInit || (initValue && value() != null)).then {
+                                            initValue: Boolean = true, forceInit: Boolean = true,
+                                            ident: String = "        "): String =
+        "$ident${name()}: ${toKotlinTypeDef(c, api)}${(forceInit || (initValue && value() != null)).then {
             toKotlinInit(c, derived)
         }}"
 
 fun <T : AttributeI<*>> T.toKotlinConstructorMember(c: GenerationContext, derived: String, api: String,
-                                                    initValues: Boolean = true, forceInit: Boolean = true): String =
-        "${(isKey() && findParent(EnumType::class.java) != null).then { "@${c.n(jackson.json.JsonValue)} " }}${
-        toJsonXmlSupport(c)}${isReplaceable().setAndTrue().ifElse("var ", "val ")}${
-        toKotlinSignature(c, derived, api, initValues, forceInit && type() !is GenericI)}"
+                                                    initValues: Boolean = true, forceInit: Boolean = true,
+                                                    ident: String = "        "): String =
+        "${toKotlinConstructorDoc(ident)}${(isKey() && findParent(EnumType::class.java) != null).then {
+            "$ident@${c.n(jackson.json.JsonValue)} "
+        }}${
+        toJsonXmlSupport(c, ident)}$ident${isReplaceable().setAndTrue().ifElse("var ", "val ")}${
+        toKotlinSignature(c, derived, api, initValues, forceInit && type() !is GenericI, "")}"
 
 fun <T : AttributeI<*>> T.toKotlinMember(c: GenerationContext, derived: String, api: String,
-                                         initValues: Boolean = true, forceInit: Boolean = true): String =
-        "    ${toJsonXmlSupport(c)}${isReplaceable().setAndTrue().ifElse("var ", "val ")}${
-        toKotlinSignature(c, derived, api, initValues, forceInit)}"
+                                         initValues: Boolean = true, forceInit: Boolean = true,
+                                         ident: String = "    "): String =
+        "${toKotlinDoc(ident)}${toJsonXmlSupport(c, ident)}$ident${
+        isReplaceable().setAndTrue().ifElse("var ", "val ")}${
+        toKotlinSignature(c, derived, api, initValues, forceInit, "")}"
 
-fun <T : AttributeI<*>> T.toJsonXmlSupport(c: GenerationContext): String = externalName().isNullOrEmpty().not().then {
-    "${
-    c.jsonSupport.then { "@${c.n(jackson.json.JsonProperty)}(\"${externalName()}\") " }}${
-    c.xmlSupport.then { "@${c.n(jackson.xml.JacksonXmlProperty)}(localName = \\\"${externalName()}\\\") \" }" }}"
-}
+fun <T : AttributeI<*>> T.toJsonXmlSupport(c: GenerationContext, ident: String): String =
+        externalName().isNullOrEmpty().not().then {
+            "${
+            c.jsonSupport.then { "$ident@${c.n(jackson.json.JsonProperty)}(\"${externalName()}\")$nL" }}${
+            c.xmlSupport.then {
+                "$ident@${c.n(jackson.xml.JacksonXmlProperty)}(localName = \\\"${
+                externalName()}\\\")$nL \" }"
+            }}"
+        }
 
 fun List<AttributeI<*>>.toKotlinSignature(c: GenerationContext, derived: String,
                                           api: String, initValues: Boolean = true, forceInit: Boolean = true,
@@ -286,19 +360,18 @@ fun List<AttributeI<*>>.toKotlinMember(c: GenerationContext, derived: String, ap
         }
 
 fun <T : ConstructorI<*>> T.toKotlinPrimary(c: GenerationContext, derived: String, api: String,
-                                            type: TypeI<*>, wrapIdentWidth: Int = 6): String {
+                                            type: TypeI<*>): String {
     val superUnitParams = superUnit().params()
     return if (isNotEMPTY()) """(${paramsWithOutFixValue().toKotlinSignaturePrimary(c, derived, api,
-            superUnitParams, wrapIdentWidth)})${
+            superUnitParams)})${
     superUnit().toKotlinCall(c, derived, "$nL   ${type.toKotlinExtends(c, derived, api)}",
             paramsWithFixValue())}""" else type.toKotlinExtends(c, derived, api)
 }
 
 fun List<AttributeI<*>>.toKotlinSignaturePrimary(
         c: GenerationContext, derived: String, api: String,
-        superUnitParams: List<AttributeI<*>> = emptyList(), wrapIdentWidth: Int = 6): String {
-    return joinWrappedToString(", ",
-            wrapIndent = (wrapIdentWidth + 1).toWrapIdentBlack()) { param ->
+        superUnitParams: List<AttributeI<*>> = emptyList()): String {
+    return joinToString(",$nL", nL) { param ->
         if (superUnitParams.containsByName(param)) {
             param.toKotlinSignature(c, derived, api)
         } else {
@@ -389,7 +462,7 @@ params().joinWrappedToString(", ", prefix = " ") { "_" }} -> ${retFirst().toKotl
 fun <T : OperationI<*>> T.toKotlinIfc(c: GenerationContext, derived: String, api: String,
                                       nonBlocking: Boolean = isNonBlocking()): String {
     val opPrefix = """    ${nonBlocking.then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}("""
-    return """
+    return """${toKotlinDoc()}
 $opPrefix${
     params().toKotlinSignature(c, derived, api, true, false, opPrefix.length)})${
     retFirst().isNotEMPTY().then { """ : ${retFirst().toKotlinTypeDef(c, api)}""" }}"""
@@ -399,7 +472,7 @@ fun <T : OperationI<*>> T.toKotlinImpl(c: GenerationContext, derived: String, ap
                                        nonBlocking: Boolean = isNonBlocking()): String {
     val opPrefix = """    ${nonBlocking.then("suspend ")}${isOpen().then("open ")}fun ${
     toKotlinGenerics(c, derived)}${name()}("""
-    return """
+    return """${toKotlinDoc()}
 $opPrefix${params().toKotlinSignature(c, derived, api, wrapIdentWidth = opPrefix.length)}): ${
     retFirst().toKotlinTypeDef(c, api)} {
         throw IllegalAccessException("Not implemented yet.")
@@ -432,4 +505,48 @@ fun <T : CompositeI<*>> T.toKotlinIsEmptyExt(c: GenerationContext, derived: Stri
     return """
 fun ${c.n(this, api)}?.isEMPTY(): Boolean = (this == null || this == ${c.n(this, derived)}.EMPTY)
 fun ${c.n(this, api)}?.isNotEMPTY(): Boolean = !isEMPTY()"""
+}
+
+fun <T : OperationI<*>> T.toKotlinDoc(ident: String = "    "): String {
+    return if (doc().isNotEMPTY()) {
+        """$ident/**
+$ident${doc().name()}       
+$ident*/
+"""
+    } else {
+        ""
+    }
+}
+
+fun <T : AttributeI<*>> T.toKotlinConstructorDoc(ident: String = "        "): String {
+    return if (doc().isNotEMPTY()) {
+        """$ident/**
+$ident${doc().name()}       
+$ident */
+"""
+    } else {
+        ""
+    }
+}
+
+fun <T : AttributeI<*>> T.toKotlinDoc(ident: String = "    "): String {
+    return if (doc().isNotEMPTY()) {
+        """$ident/**
+$ident${doc().name()}       
+$ident */
+"""
+    } else {
+        ""
+    }
+}
+
+fun <T : TypeI<*>> T.toKotlinDoc(ident: String = ""): String {
+    return if (doc().isNotEMPTY()) {
+        """$ident/**
+$ident${doc().name()}       
+$ident */
+"""
+    } else {
+        ""
+    }
 }

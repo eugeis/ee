@@ -20,6 +20,11 @@ object l : Composite({ namespace("ee.lang") }) {
         val tags = AttributeI { type(n.String).multi(true) }
     }
 
+    object PropsRef : Composite({ derivedFrom(MacroComposite) }) {
+        val all = AttributeI { type(n.Boolean).value(false) }
+        val props = AttributeI { type(Attribute).multi(true).nonFluent("prop") }
+    }
+
     object Type : Composite({ derivedFrom(MacroComposite) }) {
         val ifc = AttributeI { type(n.Boolean).value(false) }
         val generics = AttributeI { type(Generic).multi(true).nonFluent("G") }
@@ -33,6 +38,13 @@ object l : Composite({ namespace("ee.lang") }) {
         val operations = AttributeI { type(Operation).multi(true).nonFluent("op") }
         val constructors = AttributeI { type(Constructor).multi(true).nonFluent("constr") }
         val macroEmptyInstance = AttributeI { type(n.String).nullable(true) }
+
+        val toStringProps = AttributeI {
+            type(PropsRef).value("PropsRef()").doc("Props used to build toString() method")
+        }
+        val equalsProps = AttributeI {
+            type(PropsRef).value("PropsRef()").doc("Props used to build equals() method")
+        }
     }
 
     object Generic : Composite({ derivedFrom(Type) }) {
@@ -116,6 +128,7 @@ object l : Composite({ namespace("ee.lang") }) {
     object EnumType : Composite({ derivedFrom(DataType) }) {
         val literals = AttributeI { type(EnumLiteral).multi(true).nonFluent("lit") }
     }
+
     object Basic : Composite({ derivedFrom(DataType) })
     object Values : Composite({ derivedFrom(DataType) })
 

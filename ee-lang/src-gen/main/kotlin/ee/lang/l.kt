@@ -48,6 +48,7 @@ object l : StructureUnit({ namespace("ee.lang") }) {
     val PlusAssignAction = CompilationUnit { derivedFrom(ApplyAction) }
     val PlusExpression = CompilationUnit { derivedFrom(LeftRightLiteral) }
     val Predicate = CompilationUnit { derivedFrom(Expression) }
+    val PropsRef = CompilationUnit { derivedFrom(MacroComposite) }
     val RemainderAssignAction = CompilationUnit { derivedFrom(ApplyAction) }
     val RemainderExpression = CompilationUnit { derivedFrom(LeftRightLiteral) }
     val StructureUnit = CompilationUnit { derivedFrom(MacroComposite) }
