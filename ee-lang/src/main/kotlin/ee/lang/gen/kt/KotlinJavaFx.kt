@@ -7,7 +7,7 @@ fun <T : CompilationUnitI<*>> T.toKotlinFxPojo(c: GenerationContext, derived: St
     api: String = LangDerivedKind.API) : String {
     val itemName = c.n(this, derived)
     val typePrefix = """${isOpen().then("open ")}class ${
-    toKotlinGenericsClassDef(c, derived)}$itemName"""
+    toKotlinGenerics(c, derived)}$itemName"""
     return """
 $typePrefix${""
 

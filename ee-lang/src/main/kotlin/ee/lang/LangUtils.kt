@@ -188,6 +188,22 @@ fun TypeI<*>.propsNoMetaNoValue(): List<AttributeI<*>> = storage.getOrPut(this, 
     props().filter { !it.isMeta() && it.value() == null }
 }
 
+
+fun TypeI<*>.genericsAll(): List<GenericI<*>> = storage.getOrPut(this, "genericsAll") {
+    if (superUnit().isNotEMPTY()) {
+        val ret = mutableListOf<GenericI<*>>()
+        ret.addAll(generics())
+        superUnit().genericsAll().forEach { suGeneric ->
+            if (ret.find { it.name() != suGeneric.name() } == null) {
+                ret.add(suGeneric)
+            }
+        }
+        ret
+    } else {
+        generics()
+    }
+}
+
 fun TypeI<*>.operationsWithoutDataTypeOperations(): List<OperationI<*>> =
         storage.getOrPut(this, "operationsWithoutDataTypeOperations") {
             operations().filter { it !is DataTypeOperationI }

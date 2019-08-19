@@ -114,7 +114,7 @@ fun <T : CompilationUnitI<*>> T.toKotlinBuilderI(c: GenerationContext,
     val followGenerics = toKotlinGenericsClassDefFollow(c, api)
     return """
 interface ${c.n(this, api)}<B : ${c.n(this, api)}<B, T$followGenerics>, T : ${
-    c.n(this, LangDerivedKind.API)}${toKotlinGenericsClassDef(c, api)}$followGenerics>${
+    c.n(this, LangDerivedKind.API)}${toKotlinGenerics(c, api)}$followGenerics>${
     superUnit().isNotEMPTY().then {
         """ : ${c.n(superUnit(), api)}<B, T>"""
     }}${props().isNotEmpty().then {
@@ -151,7 +151,7 @@ fun <T : CompilationUnitI<*>> T.toKotlinBuilder(c: GenerationContext, derived: S
     val T = c.n(this, LangDerivedKind.API)
     val superUnitExists = superUnit().isNotEMPTY()
     val followGenerics = toKotlinGenericsClassDefFollow(c, api)
-    val generics = toKotlinGenericsClassDef(c, api)
+    val generics = toKotlinGenerics(c, api)
     val propsAllNotNullableGeneric = propsAllNotNullableGeneric()
     val propsWithoutNotNullableGeneric = propsWithoutNotNullableGeneric()
 
