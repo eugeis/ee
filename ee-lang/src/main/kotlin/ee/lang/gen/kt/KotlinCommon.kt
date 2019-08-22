@@ -107,7 +107,7 @@ fun <T : CompilationUnitI<*>> T.toKotlinToString(c: GenerationContext): String {
 }
 
 fun <T : CompilationUnitI<*>> T.toKotlinEqualsHashcode(c: GenerationContext, derived: String): String {
-    val useProps = if (equalsProps().isAll()) propsAllNoMeta() else toStringProps().props()
+    val useProps = if (equalsProps().isAll()) propsAllNoMeta() else equalsProps().props()
     return if (useProps.isNotEmpty()) {
         """
     
