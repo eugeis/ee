@@ -89,7 +89,7 @@ fun <T : TypeI<*>> T.toKotlinTypeDef(c: GenerationContext, api: String, nullable
 
 fun Boolean.toKotlinNullable() = then("?")
 
-fun <T : CompilationUnitI<*>> T.toKotlinToString(c: GenerationContext): String {
+fun <T : CompilationUnitI<*>> T.toKotlinToString(itemName: String): String {
     val useProps = if (toStringProps().isAll()) propsAllNoMeta() else toStringProps().props()
     return if (useProps.isNotEmpty()) {
         """
@@ -97,7 +97,10 @@ fun <T : CompilationUnitI<*>> T.toKotlinToString(c: GenerationContext): String {
     override fun toString(): String {
         val ret = StringBuffer()
         
+        ret.append(javaClass.simpleName).append("@").append(hashCode())
+        ret.append("[")
         ${useProps.toKotlinToString()}
+        ret.append("]")
         
         return ret.toString()
     }"""
@@ -136,8 +139,8 @@ fun <T : CompilationUnitI<*>> T.toKotlinEqualsHashcode(c: GenerationContext, der
 
 fun List<AttributeI<*>>.toKotlinToString(): String =
         joinToString(".append(\",\")$nL        ") {
-            if (it.isMulti()) {
-                "ret.append(\"${it.name()}.size=\${${it.name()}.size()}\")"
+            if (it.isMulti() || it.type().isMulti()) {
+                "ret.append(\"${it.name()}.size=\${${it.name()}.size}\")"
             } else {
                 "ret.append(\"${it.name()}=\$${it.name()}\")"
             }

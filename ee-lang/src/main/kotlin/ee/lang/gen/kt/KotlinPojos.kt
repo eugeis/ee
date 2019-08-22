@@ -95,6 +95,6 @@ $typePrefix${
         it.toKotlin(c, derived, api)
     }}${operationsWithoutDataTypeOperations().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         it.toKotlinImpl(c, derived, api, nonBlocking || it.isNonBlocking())
-    }}${toKotlinEqualsHashcode(c, derived)}${toKotlinToString(c)}${toKotlinEmptyObject(c, derived)}
+    }}${toKotlinEqualsHashcode(c, derived)}${toKotlinToString(itemName)}${toKotlinEmptyObject(c, derived)}
 }"""
 }
