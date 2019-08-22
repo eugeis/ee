@@ -34,17 +34,27 @@ infix fun LiteralI<*>.gte(value: Long): GtePredicate = gte(Literal { value(value
 
 infix fun LiteralI<*>.compareTo(value: LiteralI<*>): GtePredicate = GtePredicate { left(this@compareTo).right(value) }
 
-operator fun LiteralI<*>.plus(value: LiteralI<*>): LiteralI<*> = PlusExpression { left(this@plus).left(value) }
+operator fun LiteralI<*>.plus(value: LiteralI<*>): LiteralI<*> = PlusExpression { left(this@plus).right(value) }
 operator fun LiteralI<*>.plus(value: Long): LiteralI<*> = plus(Literal { value(value).type(n.Long) })
 operator fun LiteralI<*>.plus(value: Int): LiteralI<*> = plus(Literal { value(value).type(n.Int) })
 operator fun LiteralI<*>.plus(value: Float): LiteralI<*> = plus(Literal { value(value).type(n.Float) })
 
-operator fun LiteralI<*>.minus(value: LiteralI<*>): LiteralI<*> = MinusExpression { left(this@minus).left(value) }
+operator fun LiteralI<*>.minus(value: LiteralI<*>): LiteralI<*> = MinusExpression { left(this@minus).right(value) }
 operator fun LiteralI<*>.minus(value: Long): LiteralI<*> = minus(Literal { value(value).type(n.Long) })
 operator fun LiteralI<*>.minus(value: Int): LiteralI<*> = minus(Literal { value(value).type(n.Int) })
 operator fun LiteralI<*>.minus(value: Float): LiteralI<*> = minus(Literal { value(value).type(n.Float) })
 
 operator fun LiteralI<*>.inc(): LiteralI<*> = IncrementExpression { value(this@inc) }
 operator fun LiteralI<*>.dec(): LiteralI<*> = DecrementExpression { value(this@dec) }
+
+operator fun LiteralI<*>.times(value: LiteralI<*>): LiteralI<*> = TimesExpression { left(this@times).right(value) }
+operator fun LiteralI<*>.times(value: Long): LiteralI<*> = times(Literal { value(value).type(n.Long) })
+operator fun LiteralI<*>.times(value: Int): LiteralI<*> = times(Literal { value(value).type(n.Int) })
+operator fun LiteralI<*>.times(value: Float): LiteralI<*> = times(Literal { value(value).type(n.Float) })
+
+operator fun LiteralI<*>.div(value: LiteralI<*>): LiteralI<*> = DivideExpression { left(this@div).right(value) }
+operator fun LiteralI<*>.div(value: Long): LiteralI<*> = div(Literal { value(value).type(n.Long) })
+operator fun LiteralI<*>.div(value: Int): LiteralI<*> = div(Literal { value(value).type(n.Int) })
+operator fun LiteralI<*>.div(value: Float): LiteralI<*> = div(Literal { value(value).type(n.Float) })
 
 fun AttributeI<*>.assign(value: LiteralI<*>): ActionI<*> = AssignAction { target(this@assign).value(value) }

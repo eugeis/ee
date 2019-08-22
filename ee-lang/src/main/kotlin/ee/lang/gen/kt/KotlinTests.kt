@@ -68,7 +68,7 @@ fun <T : CompilationUnitI<*>> T.toKotlinFieldTest(c: GenerationContext, derived:
                                                   api: String = LangDerivedKind.API,
                                                   dataClass: Boolean = this is BasicI<*> &&
                                                           superUnits().isEmpty() && superUnitFor().isEmpty()): String {
-    if(generics().isNotEmpty())
+    if (generics().isNotEmpty())
         return ""
 
     val name = c.n(this, derived).capitalize()
@@ -84,10 +84,12 @@ class ${name}FieldTests {
     fun test${name}_Normal() {${timeProps.values.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         "        val $it = Date()"
     }}
-        val item = $name${primaryConstructor().toKotlinCallValue(c, derived, externalVariables = timeProps)}${
+        val item = $name${primaryConstructor().toKotlinCallValue(c, derived,
+            externalVariables = timeProps, resolveLiteralValue = true)}${
     props().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         "        ${c.n(k.test.assertEquals, derived)}(${
-        it.toKotlinValue(c, derived, value = timeProps[it.name()] ?: it.value())}, item.${it.name()})"
+        it.toKotlinValue(c, derived, value = timeProps[it.name()] ?: it.value(), 
+                resolveLiteralValue = true)}, item.${it.name()})"
     }}
     }
 
@@ -96,12 +98,12 @@ class ${name}FieldTests {
         val item = $name.EMPTY${
     props().joinSurroundIfNotEmptyToString(nL, prefix = nL,
             postfix = nL) {
-        if (!it.isNullable() &&  it.type() == n.Date) {
+        if (!it.isNullable() && it.type() == n.Date) {
             "        ${c.n(k.test.assertTrue, derived)}(${
             it.toKotlinValueInit(c, derived)}.time - item.${it.name()}.time <= 5000)"
         } else {
             "        ${c.n(k.test.assertEquals, derived)}(${
-            it.toKotlinValueInit(c, derived)}, item.${it.name()})"
+            it.toKotlinValueInit(c, derived, resolveLiteralValue = true)}, item.${it.name()})"
         }
     }}
     }

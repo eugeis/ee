@@ -287,26 +287,79 @@ fun <T : TypeI<*>> T.toKotlin(c: GenerationContext, derived: String, mutable: Bo
 
 
 fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, mutable: Boolean? = isMutable(),
-                                        value: Any? = value()): String {
-    return if (value != null) {
-        when (type()) {
-            n.String, n.Text -> "\"$value\""
-            n.Boolean, n.Int, n.Long, n.Float, n.Date, n.Path, n.Blob, n.Void -> "$value"
+                                        value: Any? = value(), resolveLiteralValue: Boolean = false): String =
+        value?.toKotlinValue(c, derived, type(), mutable, resolveLiteralValue) ?: toKotlinDefault(c, derived, mutable)
+
+fun Any?.toKotlinValueOrDefault(
+        c: GenerationContext, derived: String, type: TypeI<*>, mutable: Boolean?,
+        resolveLiteralValue: Boolean): String =
+        if (this != null) {
+            toKotlinValue(c, derived, type, mutable, resolveLiteralValue)
+        } else {
+            type.toKotlinDefault(c, derived, mutable)
+        }
+
+fun Any.toKotlinValue(c: GenerationContext, derived: String, type: TypeI<*>, mutable: Boolean?,
+                      resolveLiteralValue: Boolean): String {
+    val value = this
+    return if (value is LiteralI<*>) {
+        val literal: LiteralI<*> = value
+        val literalValue = value.value()
+        when (literal) {
+            is TimesExpressionI<*> ->
+                literal.toKotlinValue(c, derived, literal.type(), mutable, resolveLiteralValue, "*")
+            is DivideExpressionI<*> ->
+                literal.toKotlinValue(c, derived, literal.type(), mutable, resolveLiteralValue, "/")
+            is MinusExpressionI<*> ->
+                literal.toKotlinValue(c, derived, literal.type(), mutable, resolveLiteralValue, "-")
+            is PlusExpressionI<*> ->
+                literal.toKotlinValue(c, derived, literal.type(), mutable, resolveLiteralValue, "-")
+            is IncrementExpressionI<*> ->
+                "${literalValue?.toKotlinValueOrDefault(c, derived, value.type(), mutable, resolveLiteralValue)}++"
+            is DecrementExpressionI<*> ->
+                "${literalValue?.toKotlinValueOrDefault(c, derived, value.type(), mutable, resolveLiteralValue)}--"
+            is EnumLiteralI<*> ->
+                if (literal.parent().parent() == n) {
+                    "${(literal.parent() as EnumTypeI<*>).toKotlin(c, derived, mutable)}.${
+                    literal.toKotlin().toUpperCase()}"
+                } else {
+                    "${(literal.parent() as EnumTypeI<*>).toKotlin(c, derived, mutable)}.${literal.toKotlin()}"
+                }
             else -> {
-                when (value) {
-                    is EnumLiteralI<*> ->
-                        "${(value.parent() as EnumTypeI<*>).toKotlin(c, derived, mutable)}.${value.toKotlin()}"
-                    is TypeI<*> ->
-                        value.toKotlin(c, derived, mutable)
-                    else ->
-                        "$value"
+                if (resolveLiteralValue || literal.name().isEmpty()) {
+                    literalValue?.toKotlinValue(c, derived, literal.type(), mutable, resolveLiteralValue)
+                            ?: literal.name()
+                } else {
+                    literal.name()
                 }
             }
         }
     } else {
-        toKotlinDefault(c, derived, mutable)
+        toKotlinValueForType(c, derived, type, mutable)
     }
 }
+
+fun Any.toKotlinValueForType(c: GenerationContext, derived: String, type: TypeI<*>, mutable: Boolean?): String {
+    val value = this
+    return when (type) {
+        n.String, n.Text -> "\"$value\""
+        n.Boolean, n.Int, n.Long, n.Float, n.Date, n.Path, n.Blob, n.Void -> "$value"
+        else -> {
+            when (value) {
+                is TypeI<*> ->
+                    value.toKotlin(c, derived, mutable)
+                else ->
+                    "$value"
+            }
+        }
+    }
+}
+
+fun LeftRightLiteralI<*>.toKotlinValue(
+        c: GenerationContext, derived: String, type: TypeI<*>, mutable: Boolean?,
+        resolveLiteralValue: Boolean, operator: String): String =
+        "${left().toKotlinValue(c, derived, type, mutable, resolveLiteralValue)} $operator ${
+        right().toKotlinValue(c, derived, type, mutable, resolveLiteralValue)}"
 
 fun <T : AttributeI<*>> T.toKotlinInit(c: GenerationContext, derived: String,
                                        nullable: Boolean = isNullable(), mutable: Boolean? = isMutable(),
@@ -325,12 +378,13 @@ fun <T : AttributeI<*>> T.toKotlinInit(c: GenerationContext, derived: String,
     }
 }
 
-fun <T : AttributeI<*>> T.toKotlinValueInit(c: GenerationContext, derived: String, mutable: Boolean? = isMutable(),
-                                            nullable: Boolean = isNullable()): String {
+fun <T : AttributeI<*>> T.toKotlinValueInit(
+        c: GenerationContext, derived: String, mutable: Boolean? = isMutable(), nullable: Boolean = isNullable(),
+        resolveLiteralValue: Boolean = false): String {
     return when {
-        value() != null -> toKotlinValue(c, derived, mutable)
+        value() != null -> toKotlinValue(c, derived, mutable, resolveLiteralValue = resolveLiteralValue)
         nullable -> "null"
-        isInitByDefaultTypeValue() -> toKotlinValue(c, derived, mutable)
+        isInitByDefaultTypeValue() -> toKotlinValue(c, derived, mutable, resolveLiteralValue = resolveLiteralValue)
         else -> ""
     }
 }
@@ -451,13 +505,14 @@ fun <T : LogicUnitI<*>> T.toKotlinCall(c: GenerationContext, derived: String, pr
 }
 
 
-fun <T : LogicUnitI<*>> T.toKotlinCallValue(c: GenerationContext, derived: String,
-                                            externalVariables: Map<String, String> = emptyMap()): String =
+fun <T : LogicUnitI<*>> T.toKotlinCallValue(
+        c: GenerationContext, derived: String, externalVariables: Map<String, String> = emptyMap(),
+        resolveLiteralValue: Boolean = false): String =
         "(${params().joinWrappedToString(", ") {
             if (externalVariables.containsKey(it.name())) {
                 externalVariables[it.name()]!!
             } else {
-                it.toKotlinValue(c, derived)
+                it.toKotlinValue(c, derived, resolveLiteralValue = resolveLiteralValue)
             }
         }})"
 
