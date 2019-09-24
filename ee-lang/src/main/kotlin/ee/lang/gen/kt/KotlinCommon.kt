@@ -548,18 +548,18 @@ params().joinWrappedToString(", ", prefix = " ") { "_" }} -> ${retFirst().toKotl
 fun <T : OperationI<*>> T.toKotlinIfc(c: GenerationContext, derived: String, api: String,
                                       nonBlock: Boolean): String {
     val opPrefix = """    ${nonBlock.then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}("""
-    return """${toKotlinDoc()}
-$opPrefix${
+    return """
+${toKotlinDoc()}$opPrefix${
     params().toKotlinSignature(c, derived, api, initValues = true, forceInit = false)})${
-    retFirst().isNotEMPTY().then { """ : ${retFirst().toKotlinTypeDef(c, api)}""" }}"""
+    retFirst().isNotEMPTY().then { """: ${retFirst().toKotlinTypeDef(c, api)}""" }}"""
 }
 
 fun <T : OperationI<*>> T.toKotlinImpl(c: GenerationContext, derived: String, api: String,
                                        nonBlock: Boolean): String {
     val opPrefix = """    ${nonBlock.then("suspend ")}${isOpen().then("open ")}fun ${
     toKotlinGenerics(c, derived)}${name()}("""
-    return """${toKotlinDoc()}
-$opPrefix${params().toKotlinSignature(c, derived, api)}): ${
+    return """
+${toKotlinDoc()}$opPrefix${params().toKotlinSignature(c, derived, api)}): ${
     retFirst().toKotlinTypeDef(c, api)} {
         throw IllegalAccessException("Not implemented yet.")
     }"""
@@ -599,7 +599,7 @@ fun <T : OperationI<*>> T.toKotlinDoc(ident: String = "    "): String {
     return if (doc().isNotEMPTY()) {
         """$ident/**
 $ident${doc().name()}       
-$ident*/
+$ident */
 """
     } else {
         ""
