@@ -94,6 +94,14 @@ interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
     fun replaceable(): B = replaceable(true)
     fun notReplaceable(): B = replaceable(false)
 
+    fun toEquals(value: Boolean?): B
+    fun toEquals(): B = toEquals(true)
+    fun notToEquals(): B = toEquals(false)
+
+    fun toStr(value: Boolean?): B
+    fun toStr(): B = toStr(true)
+    fun notToStr(): B = toStr(false)
+
     fun unique(value: Boolean): B
     fun unique(): B = unique(true)
     fun notUnique(): B = unique(false)
@@ -135,6 +143,10 @@ interface AttributeI<B : AttributeI<B>> : LiteralI<B> {
 
     fun isReplaceable(): Boolean?
 
+    fun isToEquals(): Boolean?
+
+    fun isToStr(): Boolean?
+
     fun isUnique(): Boolean
 }
 
@@ -147,13 +159,7 @@ interface CompilationUnitI<B : CompilationUnitI<B>> : TypeI<B> {
     fun base(value: Boolean): B
     fun base(): B = base(true)
     fun notBase(): B = base(false)
-
-    fun nonBlocking(value: Boolean): B
-    fun nonBlocking(): B = nonBlocking(true)
-    fun notNonBlocking(): B = nonBlocking(false)
     fun isBase(): Boolean
-
-    fun isNonBlocking(): Boolean
 }
 
 
@@ -364,9 +370,9 @@ interface NotPredicateI<B : NotPredicateI<B>> : PredicateI<B> {
 interface OperationI<B : OperationI<B>> : LogicUnitI<B> {
     fun generics(vararg value: GenericI<*>): B
 
-    fun nonBlocking(value: Boolean): B
-    fun nonBlocking(): B = nonBlocking(true)
-    fun notNonBlocking(): B = nonBlocking(false)
+    fun nonBlock(value: Boolean?): B
+    fun nonBlock(): B = nonBlock(true)
+    fun notNonBlock(): B = nonBlock(false)
 
     fun open(value: Boolean): B
     fun open(): B = open(true)
@@ -377,7 +383,7 @@ interface OperationI<B : OperationI<B>> : LogicUnitI<B> {
     fun G(value: GenericI<*>): GenericI<*>
     fun G(value: GenericI<*>.() -> Unit = {}): GenericI<*>
 
-    fun isNonBlocking(): Boolean
+    fun isNonBlock(): Boolean?
 
     fun isOpen(): Boolean
 
@@ -452,8 +458,6 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
 
     fun defaultValue(value: Any?): B
 
-    fun equalsProps(value: PropsRefI<*>): B
-
     fun generics(vararg value: GenericI<*>): B
 
     fun ifc(value: Boolean): B
@@ -465,6 +469,10 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
     fun multi(value: Boolean): B
     fun multi(): B = multi(true)
     fun notMulti(): B = multi(false)
+
+    fun nonBlock(value: Boolean): B
+    fun nonBlock(): B = nonBlock(true)
+    fun notNonBlock(): B = nonBlock(false)
 
     fun open(value: Boolean): B
     fun open(): B = open(true)
@@ -478,7 +486,13 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
 
     fun superUnits(vararg value: TypeI<*>): B
 
-    fun toStringProps(value: PropsRefI<*>): B
+    fun toEqualsAll(value: Boolean): B
+    fun toEqualsAll(): B = toEqualsAll(true)
+    fun notToEqualsAll(): B = toEqualsAll(false)
+
+    fun toStrAll(value: Boolean): B
+    fun toStrAll(): B = toStrAll(true)
+    fun notToStrAll(): B = toStrAll(false)
 
     fun virtual(value: Boolean): B
     fun virtual(): B = virtual(true)
@@ -489,8 +503,6 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
 
     fun defaultValue(): Any?
 
-    fun equalsProps(): PropsRefI<*>
-
     fun generics(): ListMultiHolder<GenericI<*>>
     fun G(value: GenericI<*>): GenericI<*>
     fun G(value: GenericI<*>.() -> Unit = {}): GenericI<*>
@@ -500,6 +512,8 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
     fun macroEmptyInstance(): String?
 
     fun isMulti(): Boolean
+
+    fun isNonBlock(): Boolean
 
     fun isOpen(): Boolean
 
@@ -515,7 +529,9 @@ interface TypeI<B : TypeI<B>> : MacroCompositeI<B> {
 
     fun superUnits(): ListMultiHolder<TypeI<*>>
 
-    fun toStringProps(): PropsRefI<*>
+    fun isToEqualsAll(): Boolean
+
+    fun isToStrAll(): Boolean
 
     fun isVirtual(): Boolean
 }

@@ -2,7 +2,6 @@ package ee.lang
 
 import ee.common.ext.ifElse
 import ee.common.ext.setAndTrue
-import org.slf4j.LoggerFactory
 
 open class LangDerivedKindNames {
     val API = "Api"
@@ -169,6 +168,14 @@ fun TypeI<*>.propsWithoutNotNullableGeneric(): List<AttributeI<*>> =
 
 fun TypeI<*>.propsAllNoMeta(): List<AttributeI<*>> = storage.getOrPut(this, "propsAllNoMeta") {
     propsAll().filter { !it.isMeta() }
+}
+
+fun TypeI<*>.propsToString(): List<AttributeI<*>> = storage.getOrPut(this, "propsToString") {
+    if (isToStrAll()) propsAllNoMeta() else propsAllNoMeta().filter { it.isToStr().notNullValueOrFalse() }
+}
+
+fun TypeI<*>.propsEquals(): List<AttributeI<*>> = storage.getOrPut(this, "propsEquals") {
+    if (isToEqualsAll()) propsAllNoMeta() else propsAllNoMeta().filter { it.isToEquals().notNullValueOrFalse() }
 }
 
 fun TypeI<*>.propsNoNative(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoNative") {
@@ -585,3 +592,9 @@ fun TypeI<*>.findProp(propToSearch: AttributeI<*>): AttributeI<*> = props().find
 fun EnumType.litFirstParam(firstParam: Any, value: LiteralI<*>.() -> Unit) {
     lit(value)
 }
+
+fun TypeI<*>.isNonBlock(op: OperationI<*>) =
+    op.isNonBlock().notNullValueElse {
+        val parent = op.parent()
+        if (parent is TypeI<*>) parent.isNonBlock() else isNonBlock()
+    }

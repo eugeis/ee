@@ -101,35 +101,35 @@ fun <T> MultiHolderI<*, *>.findAllByType(type: Class<T>): List<T> {
 }
 
 fun <T> ItemI<*>.findUpByType(type: Class<T>, destination: MutableList<T> = mutableListOf(),
-    alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(), stopSteppingUpIfFound: Boolean = true): List<T> =
-    findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound) { listOf(parent()) }
+                              alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(), stopSteppingUpIfFound: Boolean = true): List<T> =
+        findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound) { listOf(parent()) }
 
 fun <T> ItemI<*>.findAcrossByType(type: Class<T>, destination: MutableList<T> = mutableListOf(),
-    alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true,
-    acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>): List<T> = findAcross({
+                                  alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true,
+                                  acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>): List<T> = findAcross({
     @Suppress("UNCHECKED_CAST")
     if (type.isInstance(this)) this as T else null
 }, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
 
 @Suppress("UNCHECKED_CAST")
 fun <T> MultiHolderI<*, *>.findDownByType(type: Class<T>, destination: MutableList<T> = mutableListOf(),
-    alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(), stopSteppingDownIfFound: Boolean = true): List<T> =
-    findAcrossByType(type, destination, alreadyHandled, stopSteppingDownIfFound) {
-        if (this is MultiHolderI<*, *> && this.supportsItemType(
-                ItemI::class.java)) this.items() as Collection<ItemI<*>> else emptyList()
-    }
+                                          alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(), stopSteppingDownIfFound: Boolean = true): List<T> =
+        findAcrossByType(type, destination, alreadyHandled, stopSteppingDownIfFound) {
+            if (this is MultiHolderI<*, *> && this.supportsItemType(
+                            ItemI::class.java)) this.items() as Collection<ItemI<*>> else emptyList()
+        }
 
 @Suppress("UNCHECKED_CAST")
 fun <T> ItemI<*>.findDown(select: ItemI<*>.() -> T?, destination: MutableList<T> = mutableListOf(),
-    alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true): List<T> =
-    findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound) {
-        if (this is MultiHolderI<*, *> && this.supportsItemType(
-                ItemI::class.java)) this.items() as Collection<ItemI<*>> else emptyList()
-    }
+                          alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true): List<T> =
+        findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound) {
+            if (this is MultiHolderI<*, *> && this.supportsItemType(
+                            ItemI::class.java)) this.items() as Collection<ItemI<*>> else emptyList()
+        }
 
 fun <T> ItemI<*>.findAcross(select: ItemI<*>.() -> T?, destination: MutableList<T> = mutableListOf(),
-    alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true,
-    acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>): List<T> {
+                            alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true,
+                            acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>): List<T> {
     acrossSelector().forEach { acrossItem ->
         if (!alreadyHandled.contains(acrossItem)) {
             alreadyHandled.add(acrossItem)
@@ -137,7 +137,7 @@ fun <T> ItemI<*>.findAcross(select: ItemI<*>.() -> T?, destination: MutableList<
             if (selected != null && !destination.contains(selected)) {
                 destination.add(selected)
                 if (!stopSteppingAcrossIfFound) acrossItem.findAcross(select, destination, alreadyHandled,
-                    stopSteppingAcrossIfFound, acrossSelector)
+                        stopSteppingAcrossIfFound, acrossSelector)
             } else {
                 acrossItem.findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
             }
@@ -160,9 +160,11 @@ fun <B : MultiHolderI<I, *>, I> B.initObjectTree(deriveNamespace: ItemI<*>.() ->
     for (f in javaClass.declaredFields) {
         try {
             val name = f.name
-            val getter = javaClass.declaredMethods.find { it.name == "get${name.capitalize()}" ||
-                    //isXy getters
-                    it.name == name}
+            val getter = javaClass.declaredMethods.find {
+                it.name == "get${name.capitalize()}" ||
+                        //isXy getters
+                        it.name == name
+            }
             if (getter != null) {
                 val child = getter.invoke(this)
                 if (child is ItemI<*>) {
@@ -227,3 +229,12 @@ fun ItemI<*>.initBlackName() {
 fun ItemI<*>.initIfNotInitialized() {
     if (!isInitialized()) init()
 }
+
+
+fun Boolean?.notNullValueOrTrue(): Boolean = notNullValueElse(false)
+fun Boolean?.notNullValueOrFalse(): Boolean = notNullValueElse(false)
+fun Boolean?.notNullValueElse(valueIfNull: () -> Boolean): Boolean =
+        if (this == null) valueIfNull() else this
+
+fun Boolean?.notNullValueElse(valueIfNull: Boolean): Boolean =
+        if (this == null) valueIfNull else this

@@ -46,7 +46,7 @@ open class LangKotlinTemplates {
 
     open fun ifcBlocking(nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
             Template("ifcBlocking", nameBuilder) { item, c ->
-                item.toKotlinIfc(c, LangDerivedKind.API, itemName = c.n(item, "Blocking"), nonBlocking = false)
+                item.toKotlinIfc(c, LangDerivedKind.API, itemName = c.n(item, "Blocking"), nonBlock = false)
             }
 
     open fun ifcEmpty(nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
@@ -54,7 +54,7 @@ open class LangKotlinTemplates {
 
     open fun emptyBlocking(nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
             Template("IfcEmptyBlocking", nameBuilder) { item, c ->
-                item.toKotlinEMPTY(c, LangDerivedKind.API, itemName = c.n(item, "Blocking"), nonBlocking = false)
+                item.toKotlinEMPTY(c, LangDerivedKind.API, itemName = c.n(item, "Blocking"), nonBlock = false)
             }
 
     open fun blockingWrapper(nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
@@ -67,7 +67,7 @@ open class LangKotlinTemplates {
 
     open fun pojoBlocking(nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
             Template("PojoBlocking", nameBuilder) { item, c ->
-                item.toKotlinIfc(c, LangDerivedKind.API, itemName = c.n(item, "Blocking"), nonBlocking = false)
+                item.toKotlinIfc(c, LangDerivedKind.API, itemName = c.n(item, "Blocking"), nonBlock = false)
             }
 
     open fun pojoTest(nameBuilder: TemplateI<CompilationUnitI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =

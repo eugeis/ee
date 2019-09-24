@@ -29,7 +29,7 @@ object l : Composite({ namespace("ee.lang") }) {
         val ifc = AttributeI { type(n.Boolean).value(false) }
         val generics = AttributeI { type(Generic).multi(true).nonFluent("G") }
         val multi = AttributeI { type(n.Boolean).value(false) }
-        val defaultValue = AttributeI { type(n.Any).nullable(true) }
+        val defaultValue = AttributeI { type(n.Any).nullable() }
         val open = AttributeI { type(n.Boolean).value(true) }
         val virtual = AttributeI { type(n.Boolean).value(false) }
         val superUnitFor = AttributeI { type(Type).multi(true) }
@@ -37,14 +37,11 @@ object l : Composite({ namespace("ee.lang") }) {
         val props = AttributeI { type(Attribute).multi(true).nonFluent("prop") }
         val operations = AttributeI { type(Operation).multi(true).nonFluent("op") }
         val constructors = AttributeI { type(Constructor).multi(true).nonFluent("constr") }
-        val macroEmptyInstance = AttributeI { type(n.String).nullable(true) }
+        val macroEmptyInstance = AttributeI { type(n.String).nullable() }
 
-        val toStringProps = AttributeI {
-            type(PropsRef).value("PropsRef()").doc("Props used to build toString() method")
-        }
-        val equalsProps = AttributeI {
-            type(PropsRef).value("PropsRef()").doc("Props used to build equals() method")
-        }
+        val nonBlock = AttributeI { type(n.Boolean).value(false) }
+        val toStrAll = AttributeI { type(n.Boolean).value(false) }
+        val toEqualsAll = AttributeI { type(n.Boolean).value(false) }
     }
 
     object Generic : Composite({ derivedFrom(Type) }) {
@@ -63,7 +60,7 @@ object l : Composite({ namespace("ee.lang") }) {
 
     object Literal : Composite({ derivedFrom(Expression) }) {
         val type = AttributeI { type(Type).value("n.Void") }
-        val value = AttributeI { type(n.Any).nullable(true) }
+        val value = AttributeI { type(n.Any).nullable() }
         val params = AttributeI { type(Attribute).multi(true) }
     }
 
@@ -75,21 +72,24 @@ object l : Composite({ namespace("ee.lang") }) {
         val initByDefaultTypeValue = AttributeI { type(n.Boolean).value(true) }
         val nullable = AttributeI { type(n.Boolean).value(false) }
         val anonymous = AttributeI { type(n.Boolean).value(false) }
-        val accessible = AttributeI { type(n.Boolean).nullable(true) }
-        val replaceable = AttributeI { type(n.Boolean).nullable(true) }
+        val accessible = AttributeI { type(n.Boolean).nullable() }
+        val replaceable = AttributeI { type(n.Boolean).nullable() }
         val meta = AttributeI { type(n.Boolean).value(false) }
         val default = AttributeI { type(n.Boolean).value(false) }
         val fixValue = AttributeI { type(n.Boolean).value(false) }
         val multi = AttributeI { type(n.Boolean).value(false) }
         val hidden = AttributeI { type(n.Boolean).value(false) }
-        val mutable = AttributeI { type(n.Boolean).nullable(true) }
-        val length = AttributeI { type(n.Int).nullable(true) }
+        val mutable = AttributeI { type(n.Boolean).nullable() }
+        val length = AttributeI { type(n.Int).nullable() }
         val inherited = AttributeI { type(n.Boolean).value(false) }
         val imploded = AttributeI { type(n.Boolean).value(false) }
         val open = AttributeI { type(n.Boolean).value(false) }
         val concurrent = AttributeI { type(n.Boolean).value(false) }
         val nonFluent = AttributeI { type(n.String) }
-        val externalName = AttributeI { type(n.String) }.nullable(true)
+        val externalName = AttributeI { type(n.String) }.nullable()
+
+        val toStr = AttributeI { type(n.Boolean).nullable() }
+        val toEquals = AttributeI { type(n.Boolean).nullable() }
     }
 
     object LogicUnit : Composite({ derivedFrom(Expression) }) {
@@ -104,12 +104,11 @@ object l : Composite({ namespace("ee.lang") }) {
         val generics = AttributeI { type(Generic).multi(true).nonFluent("G") }
         val returns = AttributeI { type(Attribute).multi(true).nonFluent("ret") }
         val open = AttributeI { type(n.Boolean).value(true) }
-        val nonBlocking = AttributeI { type(n.Boolean).value(false) }
+        val nonBlock = AttributeI { type(n.Boolean).nullable() }
     }
 
     object CompilationUnit : Composite({ derivedFrom(Type) }) {
         val base = AttributeI { type(n.Boolean).value(false) }
-        val nonBlocking = AttributeI { type(n.Boolean).value(false) }
     }
 
     object StructureUnit : Composite({ derivedFrom(MacroComposite) }) {

@@ -4,8 +4,8 @@ package ee.lang
 object CompilationUnitEmpty : TypeB<CompilationUnitEmpty>(), CompilationUnitI<CompilationUnitEmpty> {
     override fun isBase(): Boolean = false
     override fun base(value: Boolean): CompilationUnitEmpty = this
-    override fun isNonBlocking(): Boolean = false
-    override fun nonBlocking(value: Boolean): CompilationUnitEmpty = this
+    override fun isNonBlock(): Boolean = false
+    override fun nonBlock(value: Boolean): CompilationUnitEmpty = this
     override fun isOpen(): Boolean = false
     override fun open(value: Boolean): CompilationUnitEmpty = this
     override fun isVirtual(): Boolean = false

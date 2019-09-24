@@ -50,10 +50,13 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
             } else if (baseType is ExternalTypeI) {
                 (parent() == n).ifElse("\"\"") {
                     val macroEmptyInstance = baseType.macroEmptyInstance()
-                    if (macroEmptyInstance != null)
+                    if (macroEmptyInstance != null) {
                         c.body(macroEmptyInstance, baseType, derived)
-                    else
+                    } else if (!baseType.isIfc()) {
                         baseType.primaryOrFirstConstructor().toKotlinInstance(c, derived, baseType)
+                    } else {
+                        baseType.toKotlinInstanceEMPTY(c, derived, derived)
+                    }
                 }
             } else if (baseType is TypeI<*> && baseType.isIfc()) {
                 (parent() == n).ifElse("\"\"") { c.n(this, "EMPTY") }
@@ -89,9 +92,8 @@ fun <T : TypeI<*>> T.toKotlinTypeDef(c: GenerationContext, api: String, nullable
 
 fun Boolean.toKotlinNullable() = then("?")
 
-fun <T : CompilationUnitI<*>> T.toKotlinToString(itemName: String): String {
-    val useProps = if (toStringProps().isAll()) propsAllNoMeta() else toStringProps().props()
-    return if (useProps.isNotEmpty()) {
+fun <T : CompilationUnitI<*>> T.toKotlinToString(): String {
+    return if (propsToString().isNotEmpty()) {
         """
     
     override fun toString(): String {
@@ -99,7 +101,7 @@ fun <T : CompilationUnitI<*>> T.toKotlinToString(itemName: String): String {
         
         ret.append(javaClass.simpleName).append("@").append(hashCode())
         ret.append("[")
-        ${useProps.toKotlinToString()}
+        ${propsToString().toKotlinToString()}
         ret.append("]")
         
         return ret.toString()
@@ -110,8 +112,7 @@ fun <T : CompilationUnitI<*>> T.toKotlinToString(itemName: String): String {
 }
 
 fun <T : CompilationUnitI<*>> T.toKotlinEqualsHashcode(c: GenerationContext, derived: String): String {
-    val useProps = if (equalsProps().isAll()) propsAllNoMeta() else equalsProps().props()
-    return if (useProps.isNotEmpty()) {
+    return if (propsEquals().isNotEmpty()) {
         """
     
     override fun equals(other: Any?): Boolean {
@@ -120,7 +121,7 @@ fun <T : CompilationUnitI<*>> T.toKotlinEqualsHashcode(c: GenerationContext, der
 
         other as ${c.n(this, derived)}
 
-        ${useProps.toKotlinEquals()}
+        ${propsEquals().toKotlinEquals()}
 
         return true
     }
@@ -128,7 +129,7 @@ fun <T : CompilationUnitI<*>> T.toKotlinEqualsHashcode(c: GenerationContext, der
     override fun hashCode(): Int {
         var result = 0
         
-        ${useProps.toKotlinHashcode()}
+        ${propsEquals().toKotlinHashcode()}
         
         return result
     }"""
@@ -196,10 +197,10 @@ fun <T : TypeI<*>> T.toKotlinExtendsEMPTY(c: GenerationContext, derived: String,
    } else {
        return ""
    }
-}
+}coroutineScope
  */
-fun <T : TypeI<*>> T.toKotlinIfNative(c: GenerationContext, derived: String,
-                                      mutable: Boolean? = null): String? {
+fun <T : TypeI<*>> T.toKotlinIfNative(
+        c: GenerationContext, derived: String, mutable: Boolean? = null): String? {
     val baseType = findDerivedOrThis()
     return when (baseType) {
         n.String -> "String"
@@ -232,7 +233,11 @@ fun <T : TypeI<*>> T.toKotlinIfNative(c: GenerationContext, derived: String,
         n.Map -> "${c.n((mutable.setAndTrue()).ifElse(k.core.MutableMap, k.core.Map),
                 derived)}${toKotlinGenericTypes(c, derived)}"
         else -> {
-            if (this is LambdaI<*>) operation().toKotlinLambda(c, derived) else null
+            if (this is LambdaI<*>) {
+                operation().toKotlinLambda(c, derived, operation().isNonBlock().notNullValueElse(isNonBlock()))
+            } else {
+                null
+            }
         }
     }
 }
@@ -532,8 +537,8 @@ fun List<AttributeI<*>>.toKotlinTypes(c: GenerationContext, derived: String): St
         ", ") { it.toKotlinType(c, derived) }
 
 fun <T : OperationI<*>> T.toKotlinLambda(c: GenerationContext, derived: String,
-                                         nonBlocking: Boolean = isNonBlocking()): String =
-        """${nonBlocking.then("suspend ")}(${params().toKotlinSignature(c, derived, derived,
+                                         nonBlock: Boolean): String =
+        """${nonBlock.then("suspend ")}(${params().toKotlinSignature(c, derived, derived,
                 initValues = false, forceInit = false)}) -> ${
         retFirst().toKotlinType(c, derived)}"""
 
@@ -541,8 +546,8 @@ fun <T : OperationI<*>> T.toKotlinLambdaDefault(c: GenerationContext, derived: S
 params().joinWrappedToString(", ", prefix = " ") { "_" }} -> ${retFirst().toKotlinDefault(c, derived)}}"""
 
 fun <T : OperationI<*>> T.toKotlinIfc(c: GenerationContext, derived: String, api: String,
-                                      nonBlocking: Boolean = isNonBlocking()): String {
-    val opPrefix = """    ${nonBlocking.then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}("""
+                                      nonBlock: Boolean): String {
+    val opPrefix = """    ${nonBlock.then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}("""
     return """${toKotlinDoc()}
 $opPrefix${
     params().toKotlinSignature(c, derived, api, initValues = true, forceInit = false)})${
@@ -550,8 +555,8 @@ $opPrefix${
 }
 
 fun <T : OperationI<*>> T.toKotlinImpl(c: GenerationContext, derived: String, api: String,
-                                       nonBlocking: Boolean = isNonBlocking()): String {
-    val opPrefix = """    ${nonBlocking.then("suspend ")}${isOpen().then("open ")}fun ${
+                                       nonBlock: Boolean): String {
+    val opPrefix = """    ${nonBlock.then("suspend ")}${isOpen().then("open ")}fun ${
     toKotlinGenerics(c, derived)}${name()}("""
     return """${toKotlinDoc()}
 $opPrefix${params().toKotlinSignature(c, derived, api)}): ${
@@ -561,8 +566,8 @@ $opPrefix${params().toKotlinSignature(c, derived, api)}): ${
 }
 
 fun <T : OperationI<*>> T.toKotlinEMPTY(c: GenerationContext, derived: String, api: String,
-                                        nonBlocking: Boolean = isNonBlocking()): String {
-    val opPrefix = """    override ${nonBlocking.then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}("""
+                                        nonBlock: Boolean): String {
+    val opPrefix = """    override ${nonBlock.then("suspend ")}fun ${toKotlinGenerics(c, derived)}${name()}("""
     return """
 $opPrefix${
     params().toKotlinSignature(c, derived, api, initValues = false, forceInit = false)})${
@@ -571,14 +576,16 @@ $opPrefix${
     }, { " {}" })}"""
 }
 
-fun <T : OperationI<*>> T.toKotlinBlockingWrapper(c: GenerationContext, derived: String, api: String): String {
+fun <T : OperationI<*>> T.toKotlinBlockingWrapper(
+        c: GenerationContext, derived: String, api: String, nonBlock: Boolean): String {
     val opPrefix = "    override fun ${toKotlinGenerics(c, derived)}${name()}("
     return """
 $opPrefix${
-    params().toKotlinSignature(c, derived, api, false, false)}) =
-            ${c.n(k.coroutines.runBlocking)} {
-                nonBlocking.${name()}${toKotlinCall(c, derived)}
-            }"""
+    params().toKotlinSignature(c, derived, api, initValues = false, forceInit = false)}) = ${nonBlock.ifElse({
+        """${c.n(k.coroutines.runBlocking)}(scope.coroutineContext) {
+        api.${name()}${toKotlinCall(c, derived)}
+    }"""
+    }, { """api.${name()}${toKotlinCall(c, derived)}""" })}"""
 }
 
 fun <T : CompositeI<*>> T.toKotlinIsEmptyExt(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
@@ -630,4 +637,12 @@ $ident */
     } else {
         ""
     }
+}
+
+fun <T : TypeI<*>> T.toKotlinInstanceEMPTY(c: GenerationContext, derived: String, api: String): String {
+    return c.n(this, "EMPTY")
+}
+
+fun <T : TypeI<*>> T.toKotlinInstanceDotEMPTY(c: GenerationContext, derived: String, api: String): String {
+    return "${c.n(this)}.EMPTY"
 }

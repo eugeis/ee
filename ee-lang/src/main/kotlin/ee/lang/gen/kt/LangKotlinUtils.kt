@@ -48,6 +48,9 @@ object k : StructureUnit({ name("Kotlin") }) {
 
     object coroutines : StructureUnit({namespace("kotlinx.coroutines")}) {
         val runBlocking = ExternalType()
+        val CoroutineScope = ExternalType()
+        val GlobalScope = ExternalType()
+        val CoroutineContext = ExternalType().namespace("kotlin.coroutines")
     }
 }
 

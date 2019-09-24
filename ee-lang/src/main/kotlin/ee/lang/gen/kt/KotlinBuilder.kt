@@ -38,8 +38,9 @@ fun <T : AttributeI<*>> T.toKotlinFillFrom(): String =
             """        ${name()} = item.${name()}"""
         })
 
-fun <T : AttributeI<*>> T.toKotlinMemberBuilder(c: GenerationContext, derived: String, api: String): String =
-        "    protected var ${toKotlinSignatureBuilder(c, derived, api)}"
+fun <T : AttributeI<*>> T.toKotlinMemberBuilder(
+        c: GenerationContext, derived: String, api: String, visibility: String = "private"): String =
+        "    $visibility var ${toKotlinSignatureBuilder(c, derived, api)}"
 
 
 fun List<AttributeI<*>>.toKotlinSignaturePrimaryBuilder(
@@ -59,20 +60,20 @@ fun <T : AttributeI<*>> T.toKotlinConstructorMemberBuilder(c: GenerationContext,
         "protected var ${toKotlinSignatureBuilder(c, derived, api)}"
 
 
-fun <T : AttributeI<*>> T.toKotlinBuilderMethodsI(c: GenerationContext, api: String): String {
+fun <T : AttributeI<*>> T.toKotlinBuilderMethodsI(c: GenerationContext, api: String, builderType: String = "B"): String {
     val value = (name() == "value").ifElse("aValue", "value")
     val bool = (type() == n.Boolean)
     return """
     fun ${bool.ifElse({ "is${name().capitalize()}" }, { name() })}(): ${toKotlinTypeDef(c, api)}${type().isMulti().ifElse({
         """
-    fun ${name()}(vararg $value: ${toKotlinTypeGenerics(c, api)}): B
-    fun clear${name().capitalize()}(): B"""
+    fun ${name()}(vararg $value: ${toKotlinTypeGenerics(c, api)}): $builderType
+    fun clear${name().capitalize()}(): $builderType"""
     }, {
         """
-    fun ${name()}($value: ${toKotlinTypeDef(c, api)}): B${bool.then {
+    fun ${name()}($value: ${toKotlinTypeDef(c, api)}): $builderType${bool.then {
             """
-    fun ${name()}(): B = ${name()}(true)
-    fun not${name().capitalize()}(): B = ${name()}(false)"""
+    fun ${name()}(): $builderType = ${name()}(true)
+    fun not${name().capitalize()}(): $builderType = ${name()}(false)"""
         }}"""
     })}${nonFluent().isNotBlank().then {
         """
@@ -82,7 +83,8 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethodsI(c: GenerationContext, api: Str
 }
 
 
-fun <T : AttributeI<*>> T.toKotlinBuilderMethods(c: GenerationContext, derived: String, api: String): String {
+fun <T : AttributeI<*>> T.toKotlinBuilderMethods(
+        c: GenerationContext, derived: String, api: String, B: String = "B", applyB: String = "applyB"): String {
     val value = (name() == "value").ifElse("aValue", "value")
     val override = (derived != api).ifElse("override ", "")
     return """${type().isMulti().ifElse({
@@ -90,14 +92,14 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethods(c: GenerationContext, derived: 
     ${override}fun ${name()}(): ${toKotlinTypeDef(c, api)} = ${isNullable().ifElse(
                 { "${name()}.takeUnless { it.isEmpty() }" }, { name() })}
     ${override}fun ${name()}(vararg $value: ${toKotlinTypeGenerics(c, api)
-        }): B = applyB {
+        }): $B = $applyB {
         ${name()}.${type().isOrDerived(n.Map).ifElse("putAll", "addAll")}(value.asList()) }
-    ${override}fun clear${name().capitalize()}(): B = applyB { ${name()}.clear() }"""
+    ${override}fun clear${name().capitalize()}(): $B = $applyB { ${name()}.clear() }"""
     }, {
         """
     ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().capitalize()}" },
                 { name() })}(): ${toKotlinTypeDef(c, api)} = ${name()}
-    ${override}fun ${name()}($value: ${toKotlinTypeDef(c, api)}): B = applyB { ${name()} = $value }"""
+    ${override}fun ${name()}($value: ${toKotlinTypeDef(c, api)}): $B = $applyB { ${name()} = $value }"""
     })}${nonFluent().isNotBlank().then {
         """
     ${override}fun ${nonFluent()}($value: ${toKotlinTypeSingleB(c, api)}): ${toKotlinTypeSingleB(c,
@@ -111,23 +113,45 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethods(c: GenerationContext, derived: 
 
 fun <T : CompilationUnitI<*>> T.toKotlinBuilderI(c: GenerationContext,
                                                  api: String = derivedBuilder): String {
+    val superUnitExists = superUnit().isNotEMPTY()
+    val subTypeAllowed = isKotlinBuilderSubTypeAllowed()
     val followGenerics = toKotlinGenericsClassDefFollow(c, api)
-    return """
-interface ${c.n(this, api)}<B : ${c.n(this, api)}<B, T$followGenerics>, T : ${
-    c.n(this, LangDerivedKind.API)}${toKotlinGenerics(c, api)}$followGenerics>${
-    superUnit().isNotEMPTY().then {
-        """ : ${c.n(superUnit(), api)}<B, T>"""
-    }}${props().isNotEmpty().then {
-        """ {${props().joinToString(nL) { it.toKotlinBuilderMethodsI(c, LangDerivedKind.API) }}${
-        superUnit().isEMPTY().then {
-            """
+
+    val builderName = c.n(this, api)
+    val B = if(subTypeAllowed || superUnitExists) "B" else builderName
+    val typeName = c.n(this, LangDerivedKind.API)
+    return subTypeAllowed.ifElse({
+        """
+interface $builderName<B : $builderName<B, T$followGenerics>, T : $typeName${toKotlinGenerics(c, api)}$followGenerics>${
+        superUnitExists.then {
+            """ : ${c.n(superUnit(), api)}<B, T>"""
+        }}${propsNoMeta().isNotEmpty().then {
+            """ {${propsNoMeta().joinToString(nL) { it.toKotlinBuilderMethodsI(c, LangDerivedKind.API) }}${
+            superUnitExists.not().then {
+                """
 
     fun fillFrom(item: T): B
     fun build(): T
     fun clear(): B"""
-        }}
+            }}
 }"""
-    }}"""
+        }}"""
+    }, {
+        """${superUnitExists.ifElse({"""
+interface $builderName<B : $builderName<B>>$followGenerics : ${c.n(superUnit(), api)}<B, $typeName$followGenerics>"""}, 
+                {"""
+interface $builderName$followGenerics"""})}${props().isNotEmpty().then {
+            """ {${props().joinToString(nL) { it.toKotlinBuilderMethodsI(c, LangDerivedKind.API, B) }}${
+            superUnitExists.not().then {
+                """
+
+    fun fillFrom(item: $typeName$followGenerics): $B
+    fun build(): $typeName$followGenerics
+    fun clear(): $B"""
+            }}
+}"""
+        }}"""
+    })
 }
 
 fun <T : ConstructorI<*>> T.toKotlinCallParamsBuilder(
@@ -146,14 +170,14 @@ fun List<AttributeI<*>>.toKotlinCallParamsBuilder(
 
 fun <T : CompilationUnitI<*>> T.toKotlinBuilder(c: GenerationContext, derived: String = derivedBuilderB,
                                                 api: String = derivedBuilder): String {
-    val B = c.n(this, derived)
+    val subTypeAllowed = isKotlinBuilderSubTypeAllowed()
     val BT = c.n(this, derivedBuilderT)
     val T = c.n(this, LangDerivedKind.API)
+
     val superUnitExists = superUnit().isNotEMPTY()
     val followGenerics = toKotlinGenericsClassDefFollow(c, api)
     val generics = toKotlinGenerics(c, api)
     val propsAllNotNullableGeneric = propsAllNotNullableGeneric()
-    val propsWithoutNotNullableGeneric = propsWithoutNotNullableGeneric()
 
     var primConstr = ""
     var primConstrAbstr = ""
@@ -165,42 +189,82 @@ fun <T : CompilationUnitI<*>> T.toKotlinBuilder(c: GenerationContext, derived: S
         primConstrCall = propsAllNotNullableGeneric.toKotlinCallParams(c)
     }
 
-    return """
-open class $BT$generics$primConstr : $B<$BT$generics, $T$generics$followGenerics>($primConstrCall) {
+
+    return subTypeAllowed.ifElse({
+        val B = c.n(this, derived)
+
+        """
+open class $BT$generics$primConstr :
+        $B<$BT$generics, $T$generics$followGenerics>($primConstrCall) {
     override fun build(): $T$generics =
             $T(${primaryOrFirstConstructor().toKotlinCallParamsBuilder(c)})
 }
 
 abstract class $B<B : $B<B, T$followGenerics>, T : ${c.n(this, LangDerivedKind.API)}$generics$followGenerics>$primConstrAbstr :
         ${superUnitExists.then {
-        "${c.n(superUnit(), derived)}$generics<B, T$generics$followGenerics>(), "
-    }}${c.n(this, api)}<B, T$followGenerics>${props().isNotEmpty().then {
-        """ {${propsWithoutNotNullableGeneric().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-            it.toKotlinMemberBuilder(c, LangDerivedKind.IMPL, LangDerivedKind.API)
-        }}${propsAllNoMeta().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-            it.toKotlinBuilderMethods(c, LangDerivedKind.IMPL, LangDerivedKind.API)
-        }}
+            "${c.n(superUnit(), derived)}$generics<B, T$generics$followGenerics>(), "
+        }}${c.n(this, api)}<B, T$followGenerics>${props().isNotEmpty().then {
+            """ {${propsWithoutNotNullableGeneric().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+                it.toKotlinMemberBuilder(c, LangDerivedKind.IMPL, LangDerivedKind.API)
+            }}${propsNoMeta().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+                it.toKotlinBuilderMethods(c, LangDerivedKind.IMPL, LangDerivedKind.API)
+            }}
 
     override fun fillFrom(item: T) = applyB {${superUnitExists.then {
-            """
+                """
         super.fillFrom(item)"""
-        }}${props().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-            it.toKotlinFillFrom()
-        }}
+            }}${props().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+                it.toKotlinFillFrom()
+            }}
     }
 
     override fun clear() = applyB {${superUnitExists.then {
-            """
+                """
         super.clear()"""
-        }}${propsWithoutNotNullableGeneric().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-            it.toKotlinSignatureBuilderInit(c, LangDerivedKind.IMPL)
-        }}
+            }}${propsWithoutNotNullableGeneric().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+                it.toKotlinSignatureBuilderInit(c, LangDerivedKind.IMPL)
+            }}
     }${superUnitExists.not().then {
-            """
+                """
 
     @Suppress("UNCHECKED_CAST")
     protected inline fun applyB(block: $B<B, T$followGenerics>.() -> Unit): B = apply(block) as B"""
-        }}
+            }}
 }"""
-    }}"""
+        }}"""
+    }, {
+        """
+class $BT$generics$followGenerics$primConstrAbstr :${superUnitExists.ifElse( { """
+        ${c.n(superUnit(), derived)}$generics<$BT, $T$generics$followGenerics>(), 
+        ${c.n(this, api)}<$BT>"""
+        },{" ${c.n(this, api)}$followGenerics"})}${props().isNotEmpty().then {
+            """ {${propsWithoutNotNullableGeneric().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+                it.toKotlinMemberBuilder(c, LangDerivedKind.IMPL, LangDerivedKind.API, "private")
+            }}${propsNoMeta().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+                it.toKotlinBuilderMethods(c, LangDerivedKind.IMPL, LangDerivedKind.API, BT, "apply")
+            }}
+
+    override fun build(): $T$generics =
+            $T(${primaryOrFirstConstructor().toKotlinCallParamsBuilder(c)})
+
+    override fun fillFrom(item: $T$generics) = apply {${superUnitExists.then {
+                """
+        super.fillFrom(item)"""
+            }}${props().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+                it.toKotlinFillFrom()
+            }}
+    }
+
+    override fun clear() = apply {${superUnitExists.then {
+                """
+        super.clear()"""
+            }}${propsWithoutNotNullableGeneric().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+                it.toKotlinSignatureBuilderInit(c, LangDerivedKind.IMPL)
+            }}
+    }
+}"""
+        }}"""
+    })
 }
+
+private fun <T : CompilationUnitI<*>> T.isKotlinBuilderSubTypeAllowed() = isOpen() && this !is Basic

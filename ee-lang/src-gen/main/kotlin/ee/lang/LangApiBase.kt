@@ -126,6 +126,12 @@ open class AttributeB<B : AttributeI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>
     override fun isReplaceable(): Boolean? = attr(replaceable)
     override fun replaceable(value: Boolean?): B = apply { attr(replaceable, value) }
 
+    override fun isToEquals(): Boolean? = attr(toEquals)
+    override fun toEquals(value: Boolean?): B = apply { attr(toEquals, value) }
+
+    override fun isToStr(): Boolean? = attr(toStr)
+    override fun toStr(value: Boolean?): B = apply { attr(toStr, value) }
+
     override fun isUnique(): Boolean = attr(unique, { false })
     override fun unique(value: Boolean): B = apply { attr(unique, value) }
 
@@ -149,6 +155,8 @@ open class AttributeB<B : AttributeI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>
         val nullable = "_nullable"
         val open = "_open"
         val replaceable = "_replaceable"
+        val toEquals = "_toEquals"
+        val toStr = "_toStr"
         val unique = "_unique"
     }
 }
@@ -179,12 +187,8 @@ open class CompilationUnitB<B : CompilationUnitI<B>>(adapt: B.() -> Unit = {}) :
     override fun isBase(): Boolean = attr(base, { false })
     override fun base(value: Boolean): B = apply { attr(base, value) }
 
-    override fun isNonBlocking(): Boolean = attr(nonBlocking, { false })
-    override fun nonBlocking(value: Boolean): B = apply { attr(nonBlocking, value) }
-
     companion object {
         val base = "_base"
-        val nonBlocking = "_nonBlocking"
     }
 }
 
@@ -712,8 +716,8 @@ open class OperationB<B : OperationI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<
     override fun G(value: GenericI<*>): GenericI<*> = applyAndReturn { generics().addItem(value); value }
     override fun G(value: GenericI<*>.() -> Unit): GenericI<*> = G(Generic(value))
 
-    override fun isNonBlocking(): Boolean = attr(nonBlocking, { false })
-    override fun nonBlocking(value: Boolean): B = apply { attr(nonBlocking, value) }
+    override fun isNonBlock(): Boolean? = attr(nonBlock)
+    override fun nonBlock(value: Boolean?): B = apply { attr(nonBlock, value) }
 
     override fun isOpen(): Boolean = attr(open, { true })
     override fun open(value: Boolean): B = apply { attr(open, value) }
@@ -731,7 +735,7 @@ open class OperationB<B : OperationI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<
 
     companion object {
         val generics = "_generics"
-        val nonBlocking = "_nonBlocking"
+        val nonBlock = "_nonBlock"
         val open = "_open"
         val returns = "_returns"
     }
@@ -909,9 +913,6 @@ open class TypeB<B : TypeI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(ad
     override fun defaultValue(): Any? = attr(defaultValue)
     override fun defaultValue(value: Any?): B = apply { attr(defaultValue, value) }
 
-    override fun equalsProps(): PropsRefI<*> = attr(equalsProps, { PropsRef() })
-    override fun equalsProps(value: PropsRefI<*>): B = apply { attr(equalsProps, value) }
-
     override fun generics(): ListMultiHolder<GenericI<*>> = itemAsList(generics, GenericI::class.java, true)
     override fun generics(vararg value: GenericI<*>): B = apply { generics().addItems(value.asList()) }
     override fun G(value: GenericI<*>): GenericI<*> = applyAndReturn { generics().addItem(value); value }
@@ -925,6 +926,9 @@ open class TypeB<B : TypeI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(ad
 
     override fun isMulti(): Boolean = attr(multi, { false })
     override fun multi(value: Boolean): B = apply { attr(multi, value) }
+
+    override fun isNonBlock(): Boolean = attr(nonBlock, { false })
+    override fun nonBlock(value: Boolean): B = apply { attr(nonBlock, value) }
 
     override fun isOpen(): Boolean = attr(open, { true })
     override fun open(value: Boolean): B = apply { attr(open, value) }
@@ -945,8 +949,11 @@ open class TypeB<B : TypeI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(ad
     override fun superUnits(): ListMultiHolder<TypeI<*>> = itemAsList(superUnits, TypeI::class.java, true)
     override fun superUnits(vararg value: TypeI<*>): B = apply { superUnits().addItems(value.asList()) }
 
-    override fun toStringProps(): PropsRefI<*> = attr(toStringProps, { PropsRef() })
-    override fun toStringProps(value: PropsRefI<*>): B = apply { attr(toStringProps, value) }
+    override fun isToEqualsAll(): Boolean = attr(toEqualsAll, { false })
+    override fun toEqualsAll(value: Boolean): B = apply { attr(toEqualsAll, value) }
+
+    override fun isToStrAll(): Boolean = attr(toStrAll, { false })
+    override fun toStrAll(value: Boolean): B = apply { attr(toStrAll, value) }
 
     override fun isVirtual(): Boolean = attr(virtual, { false })
     override fun virtual(value: Boolean): B = apply { attr(virtual, value) }
@@ -964,17 +971,18 @@ open class TypeB<B : TypeI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(ad
     companion object {
         val constructors = "_constructors"
         val defaultValue = "_defaultValue"
-        val equalsProps = "_equalsProps"
         val generics = "_generics"
         val ifc = "_ifc"
         val macroEmptyInstance = "_macroEmptyInstance"
         val multi = "_multi"
+        val nonBlock = "_nonBlock"
         val open = "_open"
         val operations = "_operations"
         val props = "_props"
         val superUnitFor = "__superUnitFor"
         val superUnits = "__superUnits"
-        val toStringProps = "_toStringProps"
+        val toEqualsAll = "_toEqualsAll"
+        val toStrAll = "_toStrAll"
         val virtual = "_virtual"
     }
 }

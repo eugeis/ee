@@ -7,6 +7,7 @@ val storage = DerivedStorage<ItemI<*>>()
 class DerivedStorage<I>(val itemToStorage: MutableMap<I, MutableMap<String, Any>> = HashMap()) {
     fun <T, S : I> getOrPut(item: S, key: String, init: S.(String) -> T): T {
         val itemStorage = itemToStorage.getOrPut(item, { HashMap() })
+        @Suppress("UNCHECKED_CAST")
         return itemStorage.getOrPut(key, {
             item.init(key) as Any
         }) as T
@@ -69,6 +70,7 @@ open class DerivedController {
                 kind = DerivedKind(kindName, dynamicTransformer.support, dynamicTransformer.init)
                 nameToDerivedKind[kindName] = kind
             }
+            @Suppress("UNCHECKED_CAST")
             return derive(item, kind as DerivedKind<T>)
         } else {
             return item

@@ -86,7 +86,7 @@ class ${name}FieldTests {
     }}
         val item = $name${primaryConstructor().toKotlinCallValue(c, derived,
             externalVariables = timeProps, resolveLiteralValue = true)}${
-    props().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+    propsAll().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         "        ${c.n(k.test.assertEquals, derived)}(${
         it.toKotlinValue(c, derived, value = timeProps[it.name()] ?: it.value(), 
                 resolveLiteralValue = true)}, item.${it.name()})"
@@ -96,7 +96,7 @@ class ${name}FieldTests {
     @${c.n(junit.Test, derived)}
     fun test${name}_Default() {
         val item = $name.EMPTY${
-    props().joinSurroundIfNotEmptyToString(nL, prefix = nL,
+    propsAll().joinSurroundIfNotEmptyToString(nL, prefix = nL,
             postfix = nL) {
         if (!it.isNullable() && it.type() == n.Date) {
             "        ${c.n(k.test.assertTrue, derived)}(${

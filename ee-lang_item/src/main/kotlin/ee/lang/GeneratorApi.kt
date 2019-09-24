@@ -181,17 +181,9 @@ interface TemplateI<I> : FragmentI<I> {
     fun name(item: I): NamesI
 }
 
-open class Template<I> : TemplateI<I> {
-    override val name: String
-    val generate: TemplateI<I>.(I, GenerationContext) -> String
-    val nameBuilder: TemplateI<I>.(I) -> NamesI
-
-    constructor(name: String, nameBuilder: TemplateI<I>.(I) -> NamesI,
-                generate: TemplateI<I>.(item: I, context: GenerationContext) -> String) {
-        this.name = name
-        this.nameBuilder = nameBuilder
-        this.generate = generate
-    }
+open class Template<I>(
+        override val name: String, val nameBuilder: TemplateI<I>.(I) -> NamesI,
+        val generate: TemplateI<I>.(item: I, context: GenerationContext) -> String) : TemplateI<I> {
 
     override fun generate(item: I, context: GenerationContext): String = generate(this, item, context)
 
@@ -200,21 +192,14 @@ open class Template<I> : TemplateI<I> {
     }
 }
 
-open class FragmentsTemplate<M> : TemplateI<M> {
-    override val name: String
-    val fragments: M.() -> Collection<FragmentI<M>>
-    val nameBuilder: TemplateI<M>.(M) -> NamesI
+open class FragmentsTemplate<M>(
+        override val name: String,
+        val fragments: M.() -> Collection<FragmentI<M>>, val nameBuilder: TemplateI<M>.(M) -> NamesI) : TemplateI<M> {
 
-    constructor(name: String, fragments: M.() -> Collection<FragmentI<M>>, nameBuilder: TemplateI<M>.(M) -> NamesI) {
-        this.name = name
-        this.nameBuilder = nameBuilder
-        this.fragments = fragments
-    }
-
-    override fun generate(model: M, context: GenerationContext): String {
+    override fun generate(item: M, context: GenerationContext): String {
         val buffer = StringBuffer()
-        model.fragments().forEach { fragment ->
-            buffer.appendln(fragment.generate(model, context))
+        item.fragments().forEach { fragment ->
+            buffer.appendln(fragment.generate(item, context))
             buffer.appendln()
         }
         return buffer.toString()
@@ -225,22 +210,15 @@ open class FragmentsTemplate<M> : TemplateI<M> {
     }
 }
 
-open class ItemsFragment<M, I> : FragmentI<M> {
-    override val name: String
-    val items: M.() -> Collection<I>
-    val fragments: I.() -> Collection<FragmentI<I>>
+open class ItemsFragment<M, I>(
+        override val name: String = "",
+        val items: M.() -> Collection<I>, val fragments: I.() -> Collection<FragmentI<I>>) : FragmentI<M> {
 
-    constructor(name: String = "", items: M.() -> Collection<I>, fragments: I.() -> Collection<FragmentI<I>>) {
-        this.name = name
-        this.items = items
-        this.fragments = fragments
-    }
-
-    override fun generate(model: M, context: GenerationContext): String {
+    override fun generate(item: M, context: GenerationContext): String {
         val buffer = StringBuffer()
-        model.items().forEach { item ->
-            item.fragments().forEach { fragment ->
-                buffer.appendln(fragment.generate(item, context))
+        item.items().forEach { childItem ->
+            childItem.fragments().forEach { fragment ->
+                buffer.appendln(fragment.generate(childItem, context))
                 buffer.appendln()
             }
         }
@@ -248,13 +226,9 @@ open class ItemsFragment<M, I> : FragmentI<M> {
     }
 }
 
-open class ItemsTemplate<M, I> : ItemsFragment<M, I>, TemplateI<M> {
-    val nameBuilder: TemplateI<M>.(M) -> NamesI
-
-    constructor(name: String, items: M.() -> Collection<I>, fragments: I.() -> Collection<FragmentI<I>>,
-                nameBuilder: TemplateI<M>.(M) -> NamesI) : super(name, items, fragments) {
-        this.nameBuilder = nameBuilder
-    }
+open class ItemsTemplate<M, I>(
+        name: String, items: M.() -> Collection<I>, fragments: I.() -> Collection<FragmentI<I>>,
+        val nameBuilder: TemplateI<M>.(M) -> NamesI) : ItemsFragment<M, I>(name, items, fragments), TemplateI<M> {
 
     override fun name(item: M): NamesI {
         return nameBuilder(this, item)
@@ -262,13 +236,12 @@ open class ItemsTemplate<M, I> : ItemsFragment<M, I>, TemplateI<M> {
 }
 
 
-open class GenerationContext : Cloneable {
-    val namespace: String
+open class GenerationContext(
+        val namespace: String = "", val moduleFolder: String = "", val genFolder: String = "",
+        val genFolderDeletable: Boolean = false, val genFolderDeletePattern: Regex? = null,
+        val derivedController: DerivedController,
+        val macroController: MacroController) : Cloneable {
 
-    val moduleFolder: String
-    val genFolder: String
-    val genFolderDeletable: Boolean
-    val genFolderDeletePattern: Regex?
 
     var header: String = ""
     var footer: String = ""
@@ -276,23 +249,7 @@ open class GenerationContext : Cloneable {
     var xmlSupport: Boolean = false
     var jsonSupport: Boolean = true
 
-    val derivedController: DerivedController
-    val macroController: MacroController
-
     val types: MutableSet<ItemI<*>> = hashSetOf()
-
-    constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "",
-                genFolderDeletable: Boolean = false, genFolderDeletePattern: Regex? = null,
-                derivedController: DerivedController,
-                macroController: MacroController) {
-        this.namespace = namespace
-        this.moduleFolder = moduleFolder
-        this.genFolder = genFolder
-        this.genFolderDeletable = genFolderDeletable
-        this.genFolderDeletePattern = genFolderDeletePattern
-        this.derivedController = derivedController
-        this.macroController = macroController
-    }
 
     open fun toHeader(indent: String = ""): String {
         return header.isEmpty().ifElse("") { "$indent$header$nL" }
@@ -330,14 +287,8 @@ open class ContextBuilder<M>(val name: String, val macroController: MacroControl
 
 open class GeneratorContexts<M>(val generator: GeneratorGroupI<M>, vararg val contexts: ContextBuilder<M>)
 
-open class Macro<T : ItemI<*>> {
-    val name: String
-    val code: T.(c: GenerationContext, derivedKind: String, api: String) -> String
-
-    constructor(name: String, template: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
-        this.name = name
-        this.code = template
-    }
+open class Macro<T : ItemI<*>>(
+        val name: String, val code: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
 
     companion object {
         val EMPTY = Macro<ItemI<*>>("EMPTY") { _, _, _ -> "" }
@@ -345,11 +296,11 @@ open class Macro<T : ItemI<*>> {
 }
 
 open class MacroController {
-    val nameToMacro = hashMapOf<String, Macro<*>>()
+    private val nameToMacro = hashMapOf<String, Macro<*>>()
 
     open fun <T : ItemI<*>> registerMacro(
             name: String, template: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
-        nameToMacro[name] = Macro(name = name, template = template)
+        nameToMacro[name] = Macro(name = name, code = template)
     }
 
     open fun <T : ItemI<*>> find(name: String): Macro<T> {
@@ -358,6 +309,7 @@ open class MacroController {
             log.warn("No macro '$name' found, return EMPTY.")
             ret = Macro.EMPTY
         }
+        @Suppress("UNCHECKED_CAST")
         return ret as Macro<T>
     }
 }
@@ -398,6 +350,6 @@ fun GenerationMetaData.store(path: Path, name: String = "ee.json") {
 
 private fun jsonMapper(): ObjectMapper {
     val mapper = ObjectMapper().registerModule(KotlinModule())
-    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    mapper.enable(SerializationFeature.INDENT_OUTPUT)
     return mapper
 }

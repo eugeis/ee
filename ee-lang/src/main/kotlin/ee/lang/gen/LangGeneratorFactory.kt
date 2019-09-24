@@ -12,6 +12,8 @@ import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
 import ee.lang.gen.go.itemNameAsGoFileName
 import ee.lang.gen.kt.LangKotlinContextFactory
 import ee.lang.gen.kt.LangKotlinTemplates
+import ee.lang.gen.kt.toKotlinInstanceDotEMPTY
+import ee.lang.gen.kt.toKotlinInstanceEMPTY
 import ee.lang.gen.ts.LangTsContextFactory
 import ee.lang.gen.ts.LangTsTemplates
 
@@ -82,7 +84,7 @@ open class LangGeneratorFactory {
         }
 
         val generator = GeneratorGroup("pojoKt", listOf(GeneratorSimple("ApiBase", contextBuilder = ktContextBuilder,
-                template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
+                template = FragmentsTemplate(name = "${fileNamePrefix}ApiBase",
                         nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
                     listOf(ItemsFragment(items = enums,
                             fragments = { listOf(ktTemplates.enum(), ktTemplates.enumParseMethod()) }),
@@ -108,12 +110,18 @@ open class LangGeneratorFactory {
         val interfaces: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
             findDownByType(CompilationUnitI::class.java).filter { it.isIfc() }
         }
-        val interfacesNonBlocking: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
-            findDownByType(CompilationUnitI::class.java).filter { it.isIfc() && it.isNonBlocking() }
+        val interfacesNonBlock: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
+            findDownByType(CompilationUnitI::class.java).filter { type ->
+                type.isIfc() && (type.isNonBlock() || type.operations().find {
+                    it.isNonBlock().notNullValueElse(type.isNonBlock())
+                } != null)
+            }
         }
         val dataTypes: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
             findDownByType(DataTypeI::class.java).filter { it !is EnumTypeI<*> && !it.isIfc() }
         }
+
+        registerKtMacros(ktContextFactory)
 
         val generator = GeneratorGroup("pojoAndBuildersKt", listOf(
                 GeneratorSimple("IfcBase", contextBuilder = ktContextBuilder,
@@ -126,7 +134,7 @@ open class LangGeneratorFactory {
                 GeneratorSimple("IfcBlockingBase", contextBuilder = ktContextBuilder,
                         template = FragmentsTemplate(name = "${fileNamePrefix}IfcBlockingBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                            listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
+                            listOf(ItemsFragment(items = interfacesNonBlock, fragments = {
                                 listOf(ktTemplates.ifcBlocking(itemNameAsKotlinFileName))
                             }))
                         })),
@@ -140,14 +148,14 @@ open class LangGeneratorFactory {
                 GeneratorSimple("IfcBlockingEmpty", contextBuilder = ktContextBuilder,
                         template = FragmentsTemplate(name = "${fileNamePrefix}IfcBlockingEmpty",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                            listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
+                            listOf(ItemsFragment(items = interfacesNonBlock, fragments = {
                                 listOf(ktTemplates.emptyBlocking(itemNameAsKotlinFileName))
                             }))
                         })),
                 GeneratorSimple("BlockingWrapper", contextBuilder = ktContextBuilder,
                         template = FragmentsTemplate(name = "${fileNamePrefix}BlockingWrapper",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                            listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
+                            listOf(ItemsFragment(items = interfacesNonBlock, fragments = {
                                 listOf(ktTemplates.blockingWrapper(itemNameAsKotlinFileName))
                             }))
                         })),
@@ -203,8 +211,8 @@ open class LangGeneratorFactory {
         val interfaces: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
             findDownByType(CompilationUnitI::class.java).filter { it.isIfc() }
         }
-        val interfacesNonBlocking: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
-            findDownByType(CompilationUnitI::class.java).filter { it.isIfc() && it.isNonBlocking() }
+        val interfacesNonBlock: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
+            findDownByType(CompilationUnitI::class.java).filter { it.isIfc() && it.isNonBlock() }
         }
         val dataTypes: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
             findDownByType(DataTypeI::class.java).filter { it !is EnumTypeI<*> && !it.isIfc() }
@@ -221,7 +229,7 @@ open class LangGeneratorFactory {
                 GeneratorSimple("IfcBlockingBase", contextBuilder = ktContextBuilder,
                         template = FragmentsTemplate(name = "${fileNamePrefix}IfcBlockingBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                            listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
+                            listOf(ItemsFragment(items = interfacesNonBlock, fragments = {
                                 listOf(ktTemplates.ifcBlocking(itemNameAsKotlinFileName))
                             }))
                         })),
@@ -235,14 +243,14 @@ open class LangGeneratorFactory {
                 GeneratorSimple("IfcBlockingEmpty", contextBuilder = ktContextBuilder,
                         template = FragmentsTemplate(name = "${fileNamePrefix}IfcBlockingEmpty",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                            listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
+                            listOf(ItemsFragment(items = interfacesNonBlock, fragments = {
                                 listOf(ktTemplates.emptyBlocking(itemNameAsKotlinFileName))
                             }))
                         })),
                 GeneratorSimple("BlockingWrapper", contextBuilder = ktContextBuilder,
                         template = FragmentsTemplate(name = "${fileNamePrefix}BlockingWrapper",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
-                            listOf(ItemsFragment(items = interfacesNonBlocking, fragments = {
+                            listOf(ItemsFragment(items = interfacesNonBlock, fragments = {
                                 listOf(ktTemplates.blockingWrapper(itemNameAsKotlinFileName))
                             }))
                         })),
@@ -320,6 +328,12 @@ open class LangGeneratorFactory {
     protected open fun buildDocContextFactory() = LangMarkdownContextFactory()
     protected open fun buildDocTemplates() = LangMarkdownTemplates(itemNameAsMarkdownFileName)
 
+
+    protected fun registerKtMacros(contextFactory: LangCommonContextFactory) {
+        val macros = contextFactory.macroController
+        macros.registerMacro(TypeI<*>::toKotlinInstanceEMPTY.name, TypeI<*>::toKotlinInstanceEMPTY)
+        macros.registerMacro(TypeI<*>::toKotlinInstanceDotEMPTY.name, TypeI<*>::toKotlinInstanceDotEMPTY)
+    }
 
     companion object {
         const val CONTEXT_KOTLIN = "kotlin"
