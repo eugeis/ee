@@ -32,10 +32,10 @@ $typePrefix${primaryOrFirstConstructor().toKotlinPrimaryAndExtends(c, derived, a
 fun <T : EnumTypeI<*>> T.toKotlinEnumParseMethod(c: GenerationContext, derived: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
     return """
-fun String?.to$name(): $name {
+fun String?.to$name(orInstance: $name = $name.${literals().first().toKotlin()}): $name {
     return $name.values().find { 
         this == null || it.name.equals(this, true) 
-    } ?: $name.${literals().first().toKotlin()}
+    } ?: orInstance
 }"""
 }
 
