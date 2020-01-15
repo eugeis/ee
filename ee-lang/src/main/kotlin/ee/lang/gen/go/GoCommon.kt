@@ -112,7 +112,8 @@ fun <T : AttributeI<*>> T.toGoValueByPropName(c: GenerationContext, derived: Str
         n.Boolean -> "false"
         n.Int -> saltIntName
         n.Long -> saltIntName
-        n.Float -> "float64($saltIntName)"
+        n.Float -> "float32($saltIntName)"
+        n.Double -> "float64($saltIntName)"
         n.Date -> "${c.n(g.gee.PtrTime)}(${g.time.Now.toGoCall(c, derived, derived)})"
         n.Path -> "\"/\""
         n.Blob -> "[]byte(${c.n(g.fmt.Sprintf)}(\"${name().capitalize()} %v\", $saltIntName))"
@@ -153,7 +154,8 @@ fun <T : TypeI<*>> T.toGoIfNative(c: GenerationContext, derived: String): String
         n.String, n.Path, n.Text -> "string"
         n.Boolean -> "bool"
         n.Int, n.Long -> "int"
-        n.Float -> "float64"
+        n.Float -> "float32"
+        n.Double -> "float64"
         n.Date -> g.time.Time.toGo(c, derived)
         n.TimeUnit -> g.time.Time.toGo(c, derived)
         n.Blob -> "[]byte"
@@ -163,7 +165,7 @@ fun <T : TypeI<*>> T.toGoIfNative(c: GenerationContext, derived: String): String
         n.Url -> c.n(j.net.URL)
         n.UUID -> c.n(g.google.uuid.UUID)
         n.List -> "[]${generics()[0].toGo(c, derived)}"
-        n.Map -> "map(${generics()[0].toGo(c, derived)})${generics()[1].toGo(c, derived)}"
+        n.Map -> "map[${generics()[0].toGo(c, derived)}]${generics()[1].toGo(c, derived)}"
         else -> {
             if (this is LambdaI<*>) operation().toGoLambda(c, derived) else null
         }

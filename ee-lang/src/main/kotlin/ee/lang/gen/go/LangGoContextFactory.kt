@@ -7,7 +7,7 @@ import ee.lang.gen.common.LangCommonContextFactory
 open class GoContextBuilder<M>(name: String, macroController: MacroController, builder: M.() -> GoContext)
     : ContextBuilder<M>(name, macroController, builder)
 
-open class LangGoContextFactory : LangCommonContextFactory() {
+open class LangGoContextFactory(val singleModule: Boolean = true) : LangCommonContextFactory() {
 
     open fun buildForImplOnly(): ContextBuilder<StructureUnitI<*>> {
         val derivedController = DerivedController()
@@ -34,7 +34,7 @@ open class LangGoContextFactory : LangCommonContextFactory() {
     }
 
     override fun buildNameForConstructor(item: ConstructorI<*>, kind: String) =
-            item.name().equals(item.parent().name()).ifElse({ "New${buildNameCommon(item, kind).capitalize()}" }, {
+            (item.name() == item.parent().name()).ifElse({ "New${buildNameCommon(item, kind).capitalize()}" }, {
                 "New${buildNameCommon(item.parent(), kind).capitalize()}${buildNameCommon(item, kind).capitalize()}"
             })
 

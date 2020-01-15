@@ -6,12 +6,7 @@ import ee.lang.gen.KotlinContext
 import ee.lang.gen.KotlinContextBuilder
 import ee.lang.gen.common.LangCommonContextFactory
 
-open class LangKotlinContextFactory : LangCommonContextFactory {
-    protected val singleModule: Boolean
-
-    constructor(singleModule: Boolean = true) {
-        this.singleModule = singleModule
-    }
+open class LangKotlinContextFactory(val singleModule: Boolean = true) : LangCommonContextFactory() {
 
     open fun buildForImplOnly(scope: String = "main"): ContextBuilder<StructureUnitI<*>> {
         val controller = DerivedController()

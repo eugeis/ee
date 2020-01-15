@@ -17,12 +17,7 @@ import ee.lang.gen.kt.toKotlinInstanceEMPTY
 import ee.lang.gen.ts.LangTsContextFactory
 import ee.lang.gen.ts.LangTsTemplates
 
-open class LangGeneratorFactory {
-    protected val singleModule: Boolean
-
-    constructor(singleModule: Boolean = true) {
-        this.singleModule = singleModule
-    }
+open class LangGeneratorFactory(protected val singleModule: Boolean = true) {
 
     open fun devDoc(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {
         val docTemplates = buildDocTemplates()

@@ -370,7 +370,9 @@ fun <T : CompositeI<*>> T.defineConstructorOwnPropsOnlyForNonConstructors() {
 
 fun <T : CompositeI<*>> T.defineConstructorNoProps(filter: TypeI<*>.() -> Boolean = { constructors().isEmpty() }) {
     findDownByType(TypeI::class.java,
-            stopSteppingDownIfFound = false).filter { it.filter() }.extend { constructorNoProps() }
+            stopSteppingDownIfFound = false).filter { it.filter() }.extend {
+        constructorNoProps()
+    }
 }
 
 fun <T : CompositeI<*>> T.defineSuperUnitsAsAnonymousProps() {
@@ -414,6 +416,7 @@ fun <T : TypeI<*>> T.constructorFull(adapt: ConstructorI<*>.() -> Unit = {}): Co
         val primary = constructors().isEmpty()
         storage.reset(this)
         constr {
+            name("Full")
             parent(this@constructorFull)
             primary(primary).params(*propsAllNoMeta().toTypedArray())
             namespace(namespace())
@@ -431,6 +434,7 @@ fun <T : TypeI<*>> T.constructorNoProps(adapt: ConstructorI<*>.() -> Unit = {}):
         storage.reset(this)
         val parent = this
         constr {
+            name("Default")
             parent(parent)
             primary(true).params(*constrProps.toTypedArray())
             namespace(parent.namespace())
@@ -594,7 +598,7 @@ fun EnumType.litFirstParam(firstParam: Any, value: LiteralI<*>.() -> Unit) {
 }
 
 fun TypeI<*>.isNonBlock(op: OperationI<*>) =
-    op.isNonBlock().notNullValueElse {
-        val parent = op.parent()
-        if (parent is TypeI<*>) parent.isNonBlock() else isNonBlock()
-    }
+        op.isNonBlock().notNullValueElse {
+            val parent = op.parent()
+            if (parent is TypeI<*>) parent.isNonBlock() else isNonBlock()
+        }

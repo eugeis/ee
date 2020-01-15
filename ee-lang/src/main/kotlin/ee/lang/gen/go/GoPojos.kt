@@ -108,7 +108,7 @@ type $literals struct {
 }
 
 var _$literals = &$literals{values: []*$name${literals().joinWithIndexToString(",$nL    ", "{$nL    ",
-        "},") { i, item ->
+            "},") { i, item ->
         item.toGoInitVariables(i, c, api)
     }}
 }
@@ -141,28 +141,29 @@ func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {
 }
 
 fun <T : CompilationUnitI<*>> T.toGoImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-    api: String = LangDerivedKind.API, excludePropsWithValue: Boolean = false): String {
+                                         api: String = LangDerivedKind.API, excludePropsWithValue: Boolean = false): String {
     val name = c.n(this, derived)
     val currentProps = excludePropsWithValue.ifElse({ props().filter { it.value() == null } }, props())
     return """${toGoMacrosBefore(c, derived, api)}
 type $name struct {${toGoMacrosBeforeBody(c, derived, api)}${currentProps.joinSurroundIfNotEmptyToString(nL,
-        prefix = nL) { "${it.toGoMember(c, api)}${it.toGoJsonTags()}" }}${toGoMacrosAfterBody(c, derived, api)}
+            prefix = nL) { "${it.toGoMember(c, api)}${it.toGoJsonTags()}" }}${toGoMacrosAfterBody(c, derived, api)}
 }${toGoMacrosAfter(c, derived, api)}${constructors().filter {
         it.derivedAsType().isEmpty()
     }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-            it.toGo(c, derived, api)
-        }}${currentProps.filter { it.isAccessible().setAndTrue() && !it.isMutable().setAndTrue() }.joinSurroundIfNotEmptyToString(
-        nL, prefix = nL) {
-        it.toGoGetMethod(name, c, derived)
-    }}${currentProps.filter { it.type().isOrDerived(n.List) }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-        it.toGoAddMethod(name, c, derived)
-    }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+        it.toGo(c, derived, api)
+    }}${currentProps.filter { it.isAccessible().setAndTrue() && !it.isMutable().setAndTrue() }
+            .joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+                it.toGoGetMethod(name, c, derived)
+            }}${currentProps.filter { it.type().isOrDerived(n.List) }
+            .joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+                it.toGoAddMethod(name, c, derived)
+            }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toGoImpl(name, c, api)
     }}"""
 }
 
 fun <T : CompilationUnitI<*>> T.toGoNewTestInstance(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-    api: String = LangDerivedKind.API): String {
+                                                    api: String = LangDerivedKind.API): String {
 
     val name = c.n(this, derived)
     val constr = primaryOrFirstConstructor()
@@ -182,9 +183,9 @@ func $constrNames(count int) []*$name {
 func $constrName(intSalt int) (ret *$name)  {
     ret = ${primaryOrFirstConstructor().toGoCall(c, derived, api)}
     ${propsNoMetaNoValue()
-        .joinSurroundIfNotEmptyToString("\n    ") { prop ->
-            "ret.${prop.name().capitalize()} = ${prop.toGoValueByPropName(c, derived, "intSalt")}"
-        }}
+            .joinSurroundIfNotEmptyToString("\n    ") { prop ->
+                "ret.${prop.name().capitalize()} = ${prop.toGoValueByPropName(c, derived, "intSalt")}"
+            }}
     return
 }"""
 }
