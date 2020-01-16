@@ -17,7 +17,7 @@ fun <T : EnumTypeI<*>> T.toKotlinEnum(c: GenerationContext, derived: String = La
     val name = c.n(this, derived)
     val typePrefix = """enum class $name"""
     return """${toKotlinDoc()}
-$typePrefix${primaryOrFirstConstructor().toKotlinPrimaryAndExtends(c, derived, api, this)} {
+$typePrefix${primaryOrFirstConstructorOrFull().toKotlinPrimaryAndExtends(c, derived, api, this)} {
     ${literals().joinToString(",$nL    ") {
         "${it.toKotlin()}${it.toKotlinCallValue(c, derived)}"
     }};${propsExceptPrimaryConstructor().joinToString(nL) {

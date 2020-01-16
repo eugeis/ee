@@ -2,7 +2,6 @@ package ee.lang.gen.go
 
 import ee.common.ext.*
 import ee.lang.*
-import ee.lang.gen.java.j
 
 fun LiteralI<*>.toGo(): String = name().capitalize()
 fun EnumTypeI<*>.toGoAccess(): String = "${name().capitalize()}s"
@@ -44,9 +43,10 @@ fun LiteralI<*>.toGoCase(): String {
 }
 
 fun LiteralI<*>.toGoInitVariables(index: Int, c: GenerationContext, derived: String): String {
-    return """{name: "${this.name()}", ordinal: $index${this.params().joinSurroundIfNotEmptyToString(", ", ", ") {
-        it.toGoInitForConstructor(c, derived)
-    }}}"""
+    return """{name: "${this.name()}", ordinal: $index${this.params()
+            .joinSurroundIfNotEmptyToString(", ", ", ") {
+                it.toGoInitForConstructorEnum(c, derived)
+            }}}"""
 }
 
 fun <T : EnumTypeI<*>> T.toGoEnum(c: GenerationContext, api: String = LangDerivedKind.API): String {
@@ -65,7 +65,10 @@ func (o *$name) Name() string {
 
 func (o *$name) Ordinal() int {
     return o.ordinal
-}
+}${props().joinSurroundIfNotEmptyToString("", nL) { it.toGoGetMethod(name, c, api) }}
+${literals().joinSurroundIfNotEmptyToString(nL) { item ->
+        item.toGoIsMethod(name, literals)
+    }}${operations().joinToString(nL) { it.toGoImpl(name, c, api) }}
 
 func (o $name) MarshalJSON() (ret []byte, err error) {
 	return ${c.n(g.encoding.json.Marshal, api)}(&${c.n(g.gee.enum.EnumBaseJson, api)}{Name: o.name})
@@ -97,10 +100,7 @@ func (o *$name) SetBSON(raw ${c.n(g.mgo2.bson.Raw, api)}) (err error) {
         }
     }
     return
-}${props().joinSurroundIfNotEmptyToString("", nL) { it.toGoGetMethod(name, c, api) }}
-${literals().joinSurroundIfNotEmptyToString(nL) { item ->
-        item.toGoIsMethod(name, literals)
-    }}${operations().joinToString(nL) { it.toGoImpl(name, c, api) }}
+}
 
 type $literals struct {
 	values []*$name
@@ -140,8 +140,10 @@ func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {
 }"""
 }
 
-fun <T : CompilationUnitI<*>> T.toGoImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                         api: String = LangDerivedKind.API, excludePropsWithValue: Boolean = false): String {
+fun <T : CompilationUnitI<*>> T.toGoImpl(
+        c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+        api: String = LangDerivedKind.API, excludePropsWithValue: Boolean = false): String {
+
     val name = c.n(this, derived)
     val currentProps = excludePropsWithValue.ifElse({ props().filter { it.value() == null } }, props())
     return """${toGoMacrosBefore(c, derived, api)}
@@ -162,11 +164,17 @@ type $name struct {${toGoMacrosBeforeBody(c, derived, api)}${currentProps.joinSu
     }}"""
 }
 
-fun <T : CompilationUnitI<*>> T.toGoNewTestInstance(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                    api: String = LangDerivedKind.API): String {
+fun <T : CompilationUnitI<*>> T.toGoNewTestInstance(
+        c: GenerationContext, derived: String = LangDerivedKind.IMPL, api: String = LangDerivedKind.API): String {
 
+    return constructors().joinToString(nL) {
+        toGoNewTestInstance(c, derived, api, it)
+    }
+}
+
+private fun <T : CompilationUnitI<*>> T.toGoNewTestInstance(
+        c: GenerationContext, derived: String, api: String, constr: ConstructorI<*>): String {
     val name = c.n(this, derived)
-    val constr = primaryOrFirstConstructor()
 
     val constrName = "${c.n(constr, derived)}ByPropNames"
     val constrNames = "${c.n(constr, derived).toPlural()}ByPropNames"
@@ -181,11 +189,11 @@ func $constrNames(count int) []*$name {
 }
 
 func $constrName(intSalt int) (ret *$name)  {
-    ret = ${primaryOrFirstConstructor().toGoCall(c, derived, api)}
-    ${propsNoMetaNoValue()
-            .joinSurroundIfNotEmptyToString("\n    ") { prop ->
-                "ret.${prop.name().capitalize()} = ${prop.toGoValueByPropName(c, derived, "intSalt")}"
-            }}
+    ret = ${findByNameOrPrimaryOrFirstConstructorFull(constr.name())
+            .toGoCallValueByPropName(c, derived, api, "intSalt", constr.name())}
+    ${propsNoMetaNoValue().joinSurroundIfNotEmptyToString("\n    ") { prop ->
+        "ret.${prop.name().capitalize()} = ${prop.toGoValueByPropName(c, derived, "intSalt", constr.name())}"
+    }}
     return
 }"""
 }

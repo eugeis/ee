@@ -200,7 +200,7 @@ fun <T : CompilationUnitI<*>> T.toKotlinBuilder(c: GenerationContext, derived: S
 open class $BT$generics$primConstr :
         $B<$BT$generics, $T$generics$followGenerics>($primConstrCall) {
     override fun build(): $T$generics =
-            $T(${primaryOrFirstConstructor().toKotlinCallParamsBuilder(c)})
+            $T(${primaryOrFirstConstructorOrFull().toKotlinCallParamsBuilder(c)})
 }
 
 abstract class $B<B : $B<B, T$followGenerics>, T : ${c.n(this, LangDerivedKind.API)}$generics$followGenerics>$primConstrAbstr :
@@ -250,7 +250,7 @@ class $B$primConstrAbstr :${superUnitExists.ifElse( { """
             }}
 
     override fun build(): $T$generics =
-            $T(${primaryOrFirstConstructor().toKotlinCallParamsBuilder(c)})
+            $T(${primaryOrFirstConstructorOrFull().toKotlinCallParamsBuilder(c)})
 
     override fun fillFrom(item: $T$generics) = apply {${superUnitExists.then {
                 """

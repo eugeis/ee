@@ -6,27 +6,27 @@ import ee.lang.gen.java.j
 
 
 fun <T : MacroCompositeI<*>> T.toGoMacrosBefore(c: GenerationContext, derived: String, api: String): String =
-    macrosBefore().joinToString("$nL        ") { c.body(it, this, derived, api) }
+        macrosBefore().joinToString("$nL        ") { c.body(it, this, derived, api) }
 
 fun <T : MacroCompositeI<*>> T.toGoMacrosBeforeBody(c: GenerationContext, derived: String, api: String): String =
-    macrosBeforeBody().joinToString("$nL        ") { c.body(it, this, derived, api) }
+        macrosBeforeBody().joinToString("$nL        ") { c.body(it, this, derived, api) }
 
 fun <T : MacroCompositeI<*>> T.toGoMacrosBody(c: GenerationContext, derived: String, api: String): String =
-    macrosBody().joinToString("$nL        ") { c.body(it, this, derived, api) }
+        macrosBody().joinToString("$nL        ") { c.body(it, this, derived, api) }
 
 fun <T : MacroCompositeI<*>> T.toGoMacrosAfterBody(c: GenerationContext, derived: String, api: String): String =
-    macrosAfterBody().joinToString("$nL        ") { c.body(it, this, derived, api) }
+        macrosAfterBody().joinToString("$nL        ") { c.body(it, this, derived, api) }
 
 
 fun <T : MacroCompositeI<*>> T.toGoMacrosAfter(c: GenerationContext, derived: String, api: String): String =
-    macrosAfter().joinToString("$nL        ") { c.body(it, this, derived, api) }
+        macrosAfter().joinToString("$nL        ") { c.body(it, this, derived, api) }
 
-fun AttributeI<*>.toGoInitVariables(c: GenerationContext, derived: String): String {
+fun AttributeI<*>.toGoInitVariables(c: GenerationContext, derived: String, parentConstrName: String = ""): String {
     val name = "${name().decapitalize()} := "
     return name + if (isDefault() || value() != null) {
-        toGoValue(c, derived)
+        toGoValue(c, derived, parentConstrName)
     } else if (isAnonymous()) {
-        type().toGoInstance(c, derived, derived)
+        type().toGoInstance(c, derived, derived, parentConstrName)
     } else {
         name()
     }
@@ -34,10 +34,12 @@ fun AttributeI<*>.toGoInitVariables(c: GenerationContext, derived: String): Stri
 
 fun TypeI<*>.toGoCall(c: GenerationContext, api: String): String = c.n(this, api).substringAfterLast(".")
 
-fun <T : AttributeI<*>> T.toGoDefault(c: GenerationContext, derived: String): String =
-    isNullable().ifElse({ "nil" }, { type().toGoDefault(c, derived, this) })
+fun <T : AttributeI<*>> T.toGoDefault(c: GenerationContext, derived: String, parentConstrName: String = ""): String =
+        isNullable().ifElse({ "nil" }, {
+            type().toGoDefault(c, derived, this, parentConstrName)
+        })
 
-fun <T : AttributeI<*>> T.toGoValue(c: GenerationContext, derived: String): String {
+fun <T : AttributeI<*>> T.toGoValue(c: GenerationContext, derived: String, parentConstrName: String = ""): String {
     return if (value() != null) {
         when (type()) {
             n.String, n.Text -> "\"${value()}\""
@@ -52,7 +54,7 @@ fun <T : AttributeI<*>> T.toGoValue(c: GenerationContext, derived: String): Stri
             }
         }
     } else {
-        toGoDefault(c, derived)
+        toGoDefault(c, derived, parentConstrName)
     }
 }
 
@@ -67,13 +69,25 @@ fun AttributeI<*>.toGoInitForConstructor(c: GenerationContext, derived: String):
     }
 }
 
+fun AttributeI<*>.toGoInitForConstructorEnum(c: GenerationContext, derived: String): String {
+    val name = "${isAnonymous().ifElse({ type().toGoCall(c, derived) }, { nameForGoMember().decapitalize() })}: "
+    return name + if (isDefault() || value() != null) {
+        toGoValue(c, derived)
+    } else if (isAnonymous()) {
+        type().toGoInstance(c, derived, derived)
+    } else {
+        name()
+    }
+}
+
 fun AttributeI<*>.toGoInitForConstructorFunc(c: GenerationContext, derived: String): String =
-    "${isAnonymous().ifElse({ type().toGoCall(c, derived) }, { nameForGoMember() })}: ${name().decapitalize()}"
+        "${isAnonymous().ifElse({ type().toGoCall(c, derived) }, { nameForGoMember() })}: ${name().decapitalize()}"
 
 fun <T : AttributeI<*>> T.toGoTypeDef(c: GenerationContext, api: String): String =
-    "${type().toGo(c, api)}${toGoMacrosAfterBody(c, api, api)}"
+        "${type().toGo(c, api)}${toGoMacrosAfterBody(c, api, api)}"
 
-fun <T : TypeI<*>> T.toGoDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
+fun <T : TypeI<*>> T.toGoDefault(
+        c: GenerationContext, derived: String, attr: AttributeI<*>, parentConstrName: String = ""): String {
     val baseType = findDerivedOrThis()
     return when (baseType) {
         n.String, n.Text -> "\"\""
@@ -96,7 +110,7 @@ fun <T : TypeI<*>> T.toGoDefault(c: GenerationContext, derived: String, attr: At
             } else if (baseType is EnumTypeI) {
                 "${c.n(this, derived)}.${baseType.literals().first().toGoValue(c, derived)}"
             } else if (baseType is TypeI<*>) {
-                toGoInstance(c, derived, derived)
+                toGoInstance(c, derived, derived, parentConstrName)
             } else {
                 (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
             }
@@ -104,11 +118,29 @@ fun <T : TypeI<*>> T.toGoDefault(c: GenerationContext, derived: String, attr: At
     }
 }
 
+
+fun <T : LogicUnitI<*>> T.toGoCallValueByPropName(
+        c: GenerationContext, derived: String, api: String,
+        saltIntName: String, parentConstrName: String = ""): String =
+        if (isNotEMPTY()) {
+            val logicUnitName = c.n(this, derived)
+            """$logicUnitName(${params().nonDefaultAndWithoutValueAndNonDerived()
+                    .toGoCallValueByPropName(c, api, saltIntName, parentConstrName)})"""
+        } else ""
+
+fun List<AttributeI<*>>.toGoCallValueByPropName(
+        c: GenerationContext, api: String, saltIntName: String, parentConstrName: String = ""): String =
+
+        joinWrappedToString(", ", "        ") {
+            it.toGoValueByPropName(c, api, saltIntName, parentConstrName)
+        }
+
 private val typeToFactoryByPropNames = mutableMapOf<TypeI<*>, OperationI<*>>()
-fun <T : AttributeI<*>> T.toGoValueByPropName(c: GenerationContext, derived: String, saltIntName: String): String {
+fun <T : AttributeI<*>> T.toGoValueByPropName(
+        c: GenerationContext, derived: String, saltIntName: String, parentConstrName: String = ""): String {
     val baseType = type().findDerivedOrThis()
-    return when (baseType) {
-        n.String, n.Text -> "${c.n(g.fmt.Sprintf)}(\"${name().capitalize()} %v\", $saltIntName)"
+    val ret = when (baseType) {
+        n.String, n.Text, n.Any -> "${c.n(g.fmt.Sprintf)}(\"${name().capitalize()} %v\", $saltIntName)"
         n.Boolean -> "false"
         n.Int -> saltIntName
         n.Long -> saltIntName
@@ -122,31 +154,28 @@ fun <T : AttributeI<*>> T.toGoValueByPropName(c: GenerationContext, derived: Str
         n.Exception -> "Exception()"
         n.Url -> "${c.n(j.net.URL)}(\"\")"
         n.UUID -> g.google.uuid.New.toGoCall(c, derived, derived)
-        n.Map -> (isNotEMPTY() && isMutable().setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
+        n.Map -> "make(map[${type().generics()[0].toGo(c, derived)}]${type().generics()[1].toGo(c, derived)})"
         n.List -> "[]${type().generics().first().type().toGo(c, derived)}{}"
         else -> {
             if (baseType is LiteralI) {
                 baseType.toGoValue(c, derived)
             } else if (baseType is EnumTypeI) {
                 baseType.literals().first().toGoValue(c, derived)
-            } else if (baseType is ExternalTypeI<*> || type() is ExternalTypeI<*>) {
-                type().primaryOrFirstConstructor().toGoCall(c, derived, derived)
             } else if (baseType is TypeI<*>) {
-                val factory = typeToFactoryByPropNames.getOrPut(type()) {
-                    Operation { name("New${type().name()}ByPropNames").namespace(type().namespace()) }
-                }
-                "${c.n(factory, derived)}($saltIntName)"
+                type().findByNameOrPrimaryOrFirstConstructorFull(parentConstrName)
+                        .toGoCallValueByPropName(c, derived, derived, saltIntName, parentConstrName)
             } else {
                 (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
             }
         }
     }
+    return ret
 }
 
 
 //"${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI<*>).toGo(c, derived)}s().${baseType.toGo()}()"
 fun <T : LiteralI<*>> T.toGoValue(c: GenerationContext, derived: String): String =
-    "${(findParentMust(EnumTypeI::class.java).toGoCall(c, derived))}s().${toGo()}()"
+        "${(findParentMust(EnumTypeI::class.java).toGoCall(c, derived))}s().${toGo()}()"
 
 fun <T : TypeI<*>> T.toGoIfNative(c: GenerationContext, derived: String): String? {
     val baseType = findDerivedOrThis()
@@ -185,30 +214,30 @@ fun <T : TypeI<*>> T.toGoNilOrEmpty(c: GenerationContext): String? {
 fun GenericI<*>.toGo(c: GenerationContext, derived: String): String = type().toGo(c, derived)
 
 fun <T : TypeI<*>> T.toGo(c: GenerationContext, derived: String): String =
-    toGoIfNative(c, derived) ?: "${(isIfc()).not().then("*")}${c.n(this, derived)}"
+        toGoIfNative(c, derived) ?: "${(isIfc()).not().then("*")}${c.n(this, derived)}"
 
 fun <T : AttributeI<*>> T.toGoSignature(c: GenerationContext, api: String): String =
-    isAnonymous().ifElse({ type().props().filter { !it.isMeta() }.toGoSignature(c, api) }, {
-        "${name()} ${toGoTypeDef(c, api)}"
-    })
+        isAnonymous().ifElse({ type().props().filter { !it.isMeta() }.toGoSignature(c, api) }, {
+            "${name()} ${toGoTypeDef(c, api)}"
+        })
 
 fun <T : AttributeI<*>> T.toGoCall(c: GenerationContext, api: String): String =
-    isAnonymous().ifElse({ type().props().filter { !it.isMeta() }.toGoCall(c, api) }, {
-        name()
-    })
+        isAnonymous().ifElse({ type().props().filter { !it.isMeta() }.toGoCall(c, api) }, {
+            name()
+        })
 
 fun <T : AttributeI<*>> T.toGoMember(c: GenerationContext, api: String): String =
-    isAnonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameForGoMember()} ${toGoTypeDef(c, api)}" })
+        isAnonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameForGoMember()} ${toGoTypeDef(c, api)}" })
 
 fun <T : AttributeI<*>> T.toGoJsonTags(): String =
-    isAnonymous().ifElse({ "" }, { """ `json:"${name().decapitalize()}" eh:"optional"`""" })
+        isAnonymous().ifElse({ "" }, { """ `json:"${name().decapitalize()}" eh:"optional"`""" })
 
 fun <T : AttributeI<*>> T.toGoEnumMember(c: GenerationContext, api: String): String =
-    isAnonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameDecapitalize()} ${toGoTypeDef(c, api)}" })
+        isAnonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameDecapitalize()} ${toGoTypeDef(c, api)}" })
 
 
 fun List<AttributeI<*>>.toGoSignature(c: GenerationContext, api: String): String =
-    joinWrappedToString(", ") { it.toGoSignature(c, api) }
+        joinWrappedToString(", ") { it.toGoSignature(c, api) }
 
 fun OperationI<*>.toGoReturns(c: GenerationContext, api: String): String = returns().isNotEmpty().then {
     returns().joinSurroundIfNotEmptyToString(", ", "(", ") ") {
@@ -217,14 +246,14 @@ fun OperationI<*>.toGoReturns(c: GenerationContext, api: String): String = retur
 }
 
 fun List<AttributeI<*>>.toGoCall(c: GenerationContext, api: String): String =
-    joinWrappedToString(", ") { it.toGoCall(c, api) }
+        joinWrappedToString(", ") { it.toGoCall(c, api) }
 
 fun <T : ConstructorI<*>> T.toGo(c: GenerationContext, derived: String, api: String): String {
     val type = findParentMust(CompilationUnitI::class.java)
     val name = c.n(type, derived)
     return if (isNotEMPTY()) """${toGoMacrosBefore(c, derived, api)}
 func ${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().joinWrappedToString(", ",
-        "                ") {
+            "                ") {
         it.toGoSignature(c, api)
     }}) (ret *$name) {${toGoMacrosBeforeBody(c, derived, api)}${macrosBody().isNotEmpty().ifElse({
         """
@@ -232,10 +261,10 @@ func ${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().j
     }, {
         """${params().defaultOrWithValueAndNonDerived().joinSurroundIfNotEmptyToString("") {
             """
-    ${it.toGoInitVariables(c, derived)}"""
+    ${it.toGoInitVariables(c, derived, name())}"""
         }}
     ret = &$name{${paramsForType().joinSurroundIfNotEmptyToString(
-            ",$nL        ", "$nL        ", ",$nL    ") {
+                ",$nL        ", "$nL        ", ",$nL    ") {
             it.toGoInitForConstructorFunc(c, derived)
         }}}"""
     })}${toGoMacrosAfterBody(c, derived, api)}
@@ -244,14 +273,15 @@ func ${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().j
 }
 
 fun <T : AttributeI<*>> T.toGoAssign(o: String): String =
-    "$o.${isMutable().setAndTrue().ifElse({ name().capitalize() }, { name().decapitalize() })} = ${name()}"
+        "$o.${isMutable().setAndTrue().ifElse({ name().capitalize() }, { name().decapitalize() })} = ${name()}"
 
 fun <T : LogicUnitI<*>> T.toGoCall(c: GenerationContext, derived: String, api: String): String =
-    if (isNotEMPTY()) """${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().toGoCall(c,
-        api)})""" else ""
+        if (isNotEMPTY()) """${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().toGoCall(c,
+                api)})""" else ""
 
-fun <T : TypeI<*>> T.toGoInstance(c: GenerationContext, derived: String, api: String): String {
-    val constructor = primaryOrFirstConstructor()
+fun <T : TypeI<*>> T.toGoInstance(
+        c: GenerationContext, derived: String, api: String, parentConstrName: String = ""): String {
+    val constructor = findByNameOrPrimaryOrFirstConstructorFull(parentConstrName)
     return if (constructor.isNotEMPTY()) {
         constructor.toGoCall(c, derived, api)
     } else {
@@ -262,10 +292,10 @@ fun <T : TypeI<*>> T.toGoInstance(c: GenerationContext, derived: String, api: St
 fun <T : AttributeI<*>> T.toGoType(c: GenerationContext, derived: String): String = type().toGo(c, derived)
 
 fun List<AttributeI<*>>.toGoTypes(c: GenerationContext, derived: String): String =
-    joinWrappedToString(", ") { it.toGoType(c, derived) }
+        joinWrappedToString(", ") { it.toGoType(c, derived) }
 
 fun <T : OperationI<*>> T.toGoLambda(c: GenerationContext, derived: String): String =
-    """func (${params().toGoTypes(c, derived)}) ${toGoReturns(c, derived)}"""
+        """func (${params().toGoTypes(c, derived)}) ${toGoReturns(c, derived)}"""
 
 fun <T : LogicUnitI<*>> T.toGoName(): String = isVisible().ifElse({ name().capitalize() }, { name().decapitalize() })
 
@@ -273,7 +303,7 @@ fun <T : OperationI<*>> T.toGoImpl(o: String, c: GenerationContext, api: String)
     return hasMacros().then {
         """${toGoMacrosBefore(c, api, api)}
 func (o *$o) ${toGoName()}(${params().toGoSignature(c, api)}) ${toGoReturns(c, api)}{${toGoMacrosBeforeBody(c, api,
-            api)}${toGoMacrosBody(c, api, api)}${toGoMacrosAfterBody(c, api, api)}${returns().isNotEmpty().then {
+                api)}${toGoMacrosBody(c, api, api)}${toGoMacrosAfterBody(c, api, api)}${returns().isNotEmpty().then {
             """
     return"""
         }}

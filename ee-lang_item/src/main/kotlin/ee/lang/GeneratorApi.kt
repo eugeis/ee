@@ -39,14 +39,18 @@ open class GeneratorGroup<M>(name: String, val generators: Collection<GeneratorI
     override fun delete(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
         if (shallSkip(model)) return
         log.debug("delete in $target for $model")
-        generators.forEach { it.delete(target, model, shallSkip) }
+        generators.forEach {
+            it.delete(target, model, shallSkip)
+        }
     }
 
     override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
         if (shallSkip(model)) return
 
         log.debug("generate ${names()} in $target for $model")
-        generators.forEach { it.generate(target, model, shallSkip) }
+        generators.forEach {
+            it.generate(target, model, shallSkip)
+        }
     }
 
     override fun names(prefix: String): List<String> = generators.names("$prefix$name")

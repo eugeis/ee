@@ -53,7 +53,7 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
                     if (macroEmptyInstance != null) {
                         c.body(macroEmptyInstance, baseType, derived)
                     } else if (!baseType.isIfc()) {
-                        baseType.primaryOrFirstConstructor().toKotlinInstance(c, derived, baseType)
+                        baseType.primaryOrFirstConstructorOrFull().toKotlinInstance(c, derived, baseType)
                     } else {
                         baseType.toKotlinInstanceEMPTY(c, derived, derived)
                     }

@@ -231,23 +231,21 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     }
 
     object cli : StructureUnit({ namespace("github.com.urfave.cli").name("cli") }) {
-        val Command = ExternalType {ifc(true)}
+        val Command = ExternalType { ifc(true) }
         val Context = ExternalType()
         val NewApp = Operation()
     }
 
 }
 
-open class GoContext : GenerationContext {
-    val namespaceLastPart: String
-
-    constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src/main/go/src",
+open class GoContext(
+        namespace: String = "", moduleFolder: String = "", genFolder: String = "src",
         genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.go".toRegex(),
         derivedController: DerivedController, macroController: MacroController)
-            : super(namespace, moduleFolder, genFolder,
-        genFolderDeletable, genFolderPatternDeletable, derivedController, macroController) {
-        namespaceLastPart = namespace.substringAfterLast(".")
-    }
+    : GenerationContext(namespace, moduleFolder, genFolder, genFolderDeletable,
+        genFolderPatternDeletable, derivedController, macroController) {
+
+    val namespaceLastPart: String = namespace.substringAfterLast(".")
 
     override fun complete(content: String, indent: String): String {
         return "${toHeader(indent)}${toPackage(indent)}${toImports(indent)}$content${toFooter(indent)}"
@@ -259,21 +257,25 @@ open class GoContext : GenerationContext {
 
     private fun toImports(indent: String): String {
         return types.isNotEmpty().then {
-            val outsideTypes = types.filter { it.namespace().isNotEmpty() && !it.namespace().equals(namespace, true) }
+            val outsideTypes = types.filter {
+                it.namespace().isNotEmpty() && !it.namespace().equals(namespace, true)
+            }
             outsideTypes.isNotEmpty().then {
-                outsideTypes.sortedBy { it.namespace() }.map { "$indent${it.namespace()}" }.toSortedSet()
-                    .joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
-                        if (it.startsWith("ee.")) {
-                            """    "${it.toLowerCase().toDotsAsPath()
-                                .replace("ee/", "github.com/go-ee/")
-                                .replace("github/com", "github.com")
-                                .replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
-                        } else {
-                            """    "${it.toLowerCase().toDotsAsPath()
-                                .replace("github/com", "github.com")
-                                .replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
+                outsideTypes.sortedBy {
+                    it.namespace()
+                }.map { "$indent${it.namespace()}" }.toSortedSet()
+                        .joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
+                            if (it.startsWith("ee.")) {
+                                """    "${it.toLowerCase().toDotsAsPath()
+                                        .replace("ee/", "github.com/go-ee/")
+                                        .replace("github/com", "github.com")
+                                        .replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
+                            } else {
+                                """    "${it.toLowerCase().toDotsAsPath()
+                                        .replace("github/com", "github.com")
+                                        .replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
+                            }
                         }
-                    }
             }
         }
     }
@@ -313,10 +315,10 @@ fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
 }
 
 fun OperationI<*>.retType(retType: TypeI<*>): OperationI<*> =
-    returns(Attribute { type(retType).name("ret") })
+        returns(Attribute { type(retType).name("ret") })
 
 fun OperationI<*>.retTypeAndError(retType: TypeI<*>): OperationI<*> =
-    returns(Attribute { type(retType).name("ret") }, Attribute { type(g.error).name("err") })
+        returns(Attribute { type(retType).name("ret") }, Attribute { type(g.error).name("err") })
 
 fun OperationI<*>.retError(): OperationI<*> = returns(Attribute { type(g.error).name("err") })
 
@@ -325,13 +327,13 @@ fun AttributeI<*>.nameForGoMember(): String = storage.getOrPut(this, "nameForGoM
 })
 
 val itemAndTemplateNameAsGoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${it.name().capitalize()}${name.capitalize()}.go")
+    Names("${it.name().decapitalize()}${name.capitalize()}.go")
 }
 
 val templateNameAsGoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("$name.go")
+    Names("${name.decapitalize()}.go")
 }
 
 val itemNameAsGoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${it.name()}.go")
+    Names("${it.name().decapitalize()}.go")
 }

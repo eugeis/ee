@@ -346,18 +346,21 @@ fun <T, A : Appendable> Collection<T>.joinWithIndexToString(buffer: A, separator
 
 fun Int.toWrapIdentBlack() = "".padEnd(this, ' ')
 
-fun <T> Collection<T>.joinWrappedToString(separator: CharSequence = ", ", wrapIndent: CharSequence = "",
-                                          prefix: CharSequence = "", postfix: CharSequence = "",
-                                          wrapWith: Int = wrap_with,
-                                          emptyString: String = "", transform: ((T) -> CharSequence)? = null): String {
-    return joinWrappedTo(StringBuilder(), separator, wrapIndent, prefix, postfix, wrapWith, emptyString,
-            transform).toString()
+fun <T> Collection<T>.joinWrappedToString(
+        separator: CharSequence = ", ", wrapIndent: CharSequence = "",
+        prefix: CharSequence = "", postfix: CharSequence = "",
+        wrapWith: Int = wrap_with,
+        emptyString: String = "", transform: ((T) -> CharSequence)? = null): String {
+    return joinWrappedTo(
+            StringBuilder(), separator, wrapIndent, prefix, postfix, wrapWith, emptyString, transform).toString()
 }
 
-fun <T, A : Appendable> Collection<T>.joinWrappedTo(buffer: A, separator: CharSequence = ", ",
-                                                    wrapIndent: CharSequence = "", prefix: CharSequence = "",
-                                                    postfix: CharSequence = "", wrapWidth: Int = wrap_with,
-                                                    emptyString: String = "", transform: ((T) -> CharSequence)? = null): A {
+fun <T, A : Appendable> Collection<T>.joinWrappedTo(
+        buffer: A, separator: CharSequence = ", ",
+        wrapIndent: CharSequence = "", prefix: CharSequence = "",
+        postfix: CharSequence = "", wrapWidth: Int = wrap_with,
+        emptyString: String = "", transform: ((T) -> CharSequence)? = null): A {
+
     if (size > 0) {
         buffer.append(prefix)
         var currentWidth = wrapIndent.length

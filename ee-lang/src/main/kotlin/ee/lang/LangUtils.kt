@@ -57,8 +57,14 @@ fun TypeI<*>.primaryConstructor(): ConstructorI<*> = storage.getOrPut(this, "pri
     constructors().find { it.isPrimary() } ?: Constructor.EMPTY
 }
 
-fun TypeI<*>.primaryOrFirstConstructor(): ConstructorI<*> = storage.getOrPut(this,
-        "primaryOrFirstConstructor") {
+fun TypeI<*>.findByNameOrPrimaryOrFirstConstructorFull(constrName: String = ""): ConstructorI<*> {
+    return constructors().find {
+        it.name() == constrName
+    } ?: primaryOrFirstConstructorOrFull()
+}
+
+fun TypeI<*>.primaryOrFirstConstructorOrFull(): ConstructorI<*> = storage.getOrPut(this,
+        "primaryOrFirstConstructorOrFull") {
     constructors().find { it.isPrimary() } ?: constructors().firstOrNull() ?: constructorFull()
 }
 
@@ -406,7 +412,7 @@ fun <T : TypeI<*>> T.constructorOwnPropsOnly(adapt: ConstructorI<*>.() -> Unit =
         parent(parent)
         primary(primary).params(*propsNoMeta().toTypedArray())
         namespace(this@constructorOwnPropsOnly.namespace())
-        superUnit(parent.superUnit().primaryOrFirstConstructor())
+        superUnit(parent.superUnit().primaryOrFirstConstructorOrFull())
         adapt()
     }
 }
@@ -420,7 +426,7 @@ fun <T : TypeI<*>> T.constructorFull(adapt: ConstructorI<*>.() -> Unit = {}): Co
             parent(this@constructorFull)
             primary(primary).params(*propsAllNoMeta().toTypedArray())
             namespace(namespace())
-            superUnit(this@constructorFull.superUnit().primaryOrFirstConstructor())
+            superUnit(this@constructorFull.superUnit().primaryOrFirstConstructorOrFull())
             adapt()
         }
     } else Constructor.EMPTY
@@ -438,7 +444,7 @@ fun <T : TypeI<*>> T.constructorNoProps(adapt: ConstructorI<*>.() -> Unit = {}):
             parent(parent)
             primary(true).params(*constrProps.toTypedArray())
             namespace(parent.namespace())
-            superUnit(parent.superUnit().primaryOrFirstConstructor())
+            superUnit(parent.superUnit().primaryOrFirstConstructorOrFull())
             adapt()
         }
     } else Constructor.EMPTY
@@ -456,7 +462,7 @@ fun <T : LogicUnitI<*>> T.deriveReplaceParams(vararg newParams: AttributeI<*>): 
 }
 
 fun <T : TypeI<*>> T.constrSuper(vararg newParams: AttributeI<*>) {
-    constr(superUnit().primaryOrFirstConstructor().deriveReplaceParams(*newParams))
+    constr(superUnit().primaryOrFirstConstructorOrFull().deriveReplaceParams(*newParams))
 }
 
 

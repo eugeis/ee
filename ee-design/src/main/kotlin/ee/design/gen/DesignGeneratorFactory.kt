@@ -44,33 +44,42 @@ open class DesignGeneratorFactory(singleModule: Boolean = true) : LangGeneratorF
         }
 
         val modules: StructureUnitI<*>.() -> List<ModuleI<*>> = {
-            if (this is ModuleI<*>) listOf(this) else findDownByType(ModuleI::class.java)
+            val ret = if (this is ModuleI<*>) listOf(this) else findDownByType(ModuleI::class.java)
+            ret
         }
 
         val enums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
-            findDownByType(EnumTypeI::class.java).filter {
+            val ret = findDownByType(EnumTypeI::class.java).filter {
                 it.parent() is StructureUnitI<*> && it.derivedAsType().isEmpty()
             }.sortedBy { it.name() }
+            ret
         }
 
         val values: StructureUnitI<*>.() -> List<ValuesI<*>> = {
-            findDownByType(ValuesI::class.java).filter { it.derivedAsType().isEmpty() }
-                    .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            val ret = findDownByType(ValuesI::class.java).filter {
+                it.derivedAsType().isEmpty()
+            }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            ret
         }
 
         val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
-            findDownByType(BasicI::class.java).filter { it.derivedAsType().isEmpty() }
-                    .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            val ret = findDownByType(BasicI::class.java).filter {
+                it.derivedAsType().isEmpty()
+            }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            ret
         }
 
         val entities: StructureUnitI<*>.() -> List<EntityI<*>> = {
-            findDownByType(EntityI::class.java).filter { it.derivedAsType().isEmpty() }
-                    .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            val ret = findDownByType(EntityI::class.java).filter {
+                it.derivedAsType().isEmpty()
+            }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            ret
         }
 
         val states: StructureUnitI<*>.() -> List<StateI<*>> = {
-            findDownByType(StateI::class.java).filter { it.derivedAsType().isEmpty() }
-                    .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            findDownByType(StateI::class.java).filter {
+                it.derivedAsType().isEmpty()
+            }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
         registerGoMacros(contextFactory)

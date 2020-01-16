@@ -32,9 +32,9 @@ open class DesignGoContextFactory(singleModule: Boolean = true) : LangGoContextF
     private fun StructureUnitI<*>.computeModuleFolder(): String {
         val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: this
         return if (singleModule) {
-            compOrStructureUnit.artifact()
+            "${compOrStructureUnit.artifact()}/go"
         } else {
-            "${compOrStructureUnit.artifact()}/${artifact()}"
+            "${compOrStructureUnit.artifact()}/${artifact()}-go"
         }
     }
 
