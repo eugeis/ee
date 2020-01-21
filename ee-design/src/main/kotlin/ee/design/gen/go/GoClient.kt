@@ -33,7 +33,9 @@ fun <T : OperationI<*>> T.toGoHttpClientCreateBody(c: GenerationContext, derived
     api: String = DesignDerivedKind.API): String {
     return """
     for _, item := range items {
-		${c.n(g.gee.net.PostById)}(item, item.Id, o.Url, o.Client)
+		if err = ${c.n(g.gee.net.PostById)}(item, item.Id, o.Url, o.Client); err != nil {
+            return
+        }
 	}"""
 }
 

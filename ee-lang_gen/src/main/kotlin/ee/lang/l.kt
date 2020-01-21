@@ -103,6 +103,7 @@ object l : Composite({ namespace("ee.lang") }) {
     object Operation : Composite({ derivedFrom(LogicUnit) }) {
         val generics = AttributeI { type(Generic).multi(true).nonFluent("G") }
         val returns = AttributeI { type(Attribute).multi(true).nonFluent("ret") }
+        val err = AttributeI { type(n.Boolean).value(true).doc("error possible") }
         val open = AttributeI { type(n.Boolean).value(true) }
         val nonBlock = AttributeI { type(n.Boolean).nullable() }
     }

@@ -71,18 +71,19 @@ ${literals().joinSurroundIfNotEmptyToString(nL) { item ->
     }}${operations().joinToString(nL) { it.toGoImpl(name, c, api) }}
 
 func (o $name) MarshalJSON() (ret []byte, err error) {
-	return ${c.n(g.encoding.json.Marshal, api)}(&${c.n(g.gee.enum.EnumBaseJson, api)}{Name: o.name})
+    ret = []byte(${c.n(g.fmt.Sprintf, api)}("\"%v\"", o.name))
+	return
 }
 
 func (o *$name) UnmarshalJSON(data []byte) (err error) {
-	lit := ${c.n(g.gee.enum.EnumBaseJson, api)}{}
-	if err = ${c.n(g.encoding.json.Unmarshal, api)}(data, &lit); err == nil {
-		if v, ok := $enums().Parse$name(lit.Name); ok {
-            *o = *v
-        } else {
-            err = ${c.n(g.fmt.Errorf, api)}("invalid $name %q", lit.Name)
-        }
-	}
+	name := string(data)
+    //remove quotes
+    name = name[1 : len(name)-1]
+    if v, ok := $enums().Parse$name(name); ok {
+        *o = *v
+    } else {
+        err = ${c.n(g.fmt.Errorf, api)}("invalid $name %q", name)
+    }
 	return
 }
 
@@ -138,6 +139,23 @@ func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {
 	}
 	return
 }"""
+}
+
+fun List<OperationI<*>>.toGoIfc(c: GenerationContext, api: String): String =
+        joinSurroundIfNotEmptyToString(nL) {
+            it.toGoIfc(c, api)
+        }
+
+fun <T : CompilationUnitI<*>> T.toGoIfc(
+        c: GenerationContext, derived: String = LangDerivedKind.API, api: String = LangDerivedKind.API): String {
+
+    val name = c.n(this, derived)
+    return """${toGoMacrosBefore(c, derived, api)}
+type $name interface {${toGoMacrosBeforeBody(c, derived, api)}${superUnits().joinSurroundIfNotEmptyToString(nL) {
+        it.operations().toGoIfc(c, api)
+    }}${
+    operations().toGoIfc(c, api)}${toGoMacrosAfterBody(c, derived, api)}
+}${toGoMacrosAfter(c, derived, api)}"""
 }
 
 fun <T : CompilationUnitI<*>> T.toGoImpl(

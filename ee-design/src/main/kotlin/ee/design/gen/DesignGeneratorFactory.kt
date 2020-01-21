@@ -13,6 +13,7 @@ import ee.lang.gen.LangGeneratorFactory
 import ee.lang.gen.common.LangCommonContextFactory
 import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
 import ee.lang.gen.go.itemNameAsGoFileName
+import ee.lang.gen.itemAndTemplateNameAsKotlinFileName
 import ee.lang.gen.itemNameAsKotlinFileName
 import ee.lang.gen.swagger.itemNameAsSwaggerFileName
 import ee.lang.gen.ts.itemAndTemplateNameAsTsFileName
@@ -55,6 +56,10 @@ open class DesignGeneratorFactory(singleModule: Boolean = true) : LangGeneratorF
             ret
         }
 
+        val interfaces: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
+            findDownByType(CompilationUnitI::class.java).filter { it.isIfc() }
+        }
+
         val values: StructureUnitI<*>.() -> List<ValuesI<*>> = {
             val ret = findDownByType(ValuesI::class.java).filter {
                 it.derivedAsType().isEmpty()
@@ -88,7 +93,13 @@ open class DesignGeneratorFactory(singleModule: Boolean = true) : LangGeneratorF
         val generator = GeneratorGroup("go", listOf(GeneratorGroupItems("modulesGenerators",
                 items = modules, generators = moduleGenerators)))
 
-        moduleGenerators.addAll(listOf(GeneratorSimple("ApiBase", contextBuilder = goContextBuilder,
+        moduleGenerators.addAll(listOf(GeneratorSimple("IfcBase", contextBuilder = goContextBuilder,
+                template = FragmentsTemplate(name = "${fileNamePrefix}IfcBase",
+                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
+                    listOf(ItemsFragment(items = interfaces, fragments = {
+                        listOf(goTemplates.ifc())
+                    }))
+                })), GeneratorSimple("ApiBase", contextBuilder = goContextBuilder,
                 template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
                         nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
                     listOf(ItemsFragment(items = entities, fragments = { listOf(goTemplates.entity()) }),
@@ -141,7 +152,7 @@ open class DesignGeneratorFactory(singleModule: Boolean = true) : LangGeneratorF
         return GeneratorContexts(generator, goContextBuilder)
     }
 
-    open fun eventDrivenGo(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {
+    open fun goEventDriven(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {
 
         val swaggerTemplates = buildSwaggerTemplates()
         val swaggerContextFactory = buildSwaggerContextFactory()
@@ -179,6 +190,10 @@ open class DesignGeneratorFactory(singleModule: Boolean = true) : LangGeneratorF
             }.sortedBy { it.name() }
         }
 
+        val interfaces: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
+            findDownByType(CompilationUnitI::class.java).filter { it.isIfc() }
+        }
+
         val values: StructureUnitI<*>.() -> List<ValuesI<*>> = {
             findDownByType(ValuesI::class.java).filter { it.derivedAsType().isEmpty() }
                     .sortedBy { "${it.javaClass.simpleName} ${name()}" }
@@ -207,7 +222,13 @@ open class DesignGeneratorFactory(singleModule: Boolean = true) : LangGeneratorF
                 Generator("swaggerComponent", contextBuilder = swaggerContextBuilder, items = components,
                         templates = { listOf(swaggerTemplates.model()) })))
 
-        moduleGenerators.addAll(listOf(GeneratorSimple("ApiBase", contextBuilder = goContextBuilder,
+        moduleGenerators.addAll(listOf(GeneratorSimple("IfcBase", contextBuilder = goContextBuilder,
+                template = FragmentsTemplate(name = "${fileNamePrefix}IfcBase",
+                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
+                    listOf(ItemsFragment(items = interfaces, fragments = {
+                        kotlin.collections.listOf(goTemplates.ifc())
+                    }))
+                })), GeneratorSimple("ApiBase", contextBuilder = goContextBuilder,
                 template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
                         nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
                     listOf(ItemsFragment(items = entities, fragments = { listOf(goTemplates.entity()) }),

@@ -267,8 +267,8 @@ interface TypedAttributeI<T : TypeI<*>, B : TypedAttributeI<T, B>> : AttributeI<
     fun typeT(value: T): B
 }
 
-open class TypedAttribute<T : TypeI<*>> : AttributeB<TypedAttribute<T>>, TypedAttributeI<T, TypedAttribute<T>> {
-    constructor(value: TypedAttribute<*>.() -> Unit = {}) : super(value)
+open class TypedAttribute<T : TypeI<*>>(value: TypedAttribute<*>.() -> Unit = {})
+    : AttributeB<TypedAttribute<T>>(value), TypedAttributeI<T, TypedAttribute<T>> {
 
     override fun type(): T {
         return super.type() as T

@@ -82,7 +82,6 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
         object enum : StructureUnit() {
             val Literal = ExternalType()
-            val EnumBaseJson = ExternalType()
         }
 
         object net : StructureUnit() {
@@ -184,7 +183,6 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             object SetAggregate : Operation() {
                 val aggregateType = p()
                 val cmdType = p()
-                val ret = retError()
             }
         }
 
@@ -313,14 +311,6 @@ fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
     defineConstructorNoProps()
     return this
 }
-
-fun OperationI<*>.retType(retType: TypeI<*>): OperationI<*> =
-        returns(Attribute { type(retType).name("ret") })
-
-fun OperationI<*>.retTypeAndError(retType: TypeI<*>): OperationI<*> =
-        returns(Attribute { type(retType).name("ret") }, Attribute { type(g.error).name("err") })
-
-fun OperationI<*>.retError(): OperationI<*> = returns(Attribute { type(g.error).name("err") })
 
 fun AttributeI<*>.nameForGoMember(): String = storage.getOrPut(this, "nameForGoMember", {
     isReplaceable().notSetOrTrue().ifElse({ name().capitalize() }, { name().decapitalize() })

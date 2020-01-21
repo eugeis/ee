@@ -368,6 +368,10 @@ interface NotPredicateI<B : NotPredicateI<B>> : PredicateI<B> {
 
 
 interface OperationI<B : OperationI<B>> : LogicUnitI<B> {
+    fun err(value: Boolean): B
+    fun err(): B = err(true)
+    fun notErr(): B = err(false)
+
     fun generics(vararg value: GenericI<*>): B
 
     fun nonBlock(value: Boolean?): B
@@ -379,6 +383,8 @@ interface OperationI<B : OperationI<B>> : LogicUnitI<B> {
     fun notOpen(): B = open(false)
 
     fun returns(vararg value: AttributeI<*>): B
+    fun isErr(): Boolean
+
     fun generics(): ListMultiHolder<GenericI<*>>
     fun G(value: GenericI<*>): GenericI<*>
     fun G(value: GenericI<*>.() -> Unit = {}): GenericI<*>

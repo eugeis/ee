@@ -216,6 +216,16 @@ fun GenericI<*>.toGo(c: GenerationContext, derived: String): String = type().toG
 fun <T : TypeI<*>> T.toGo(c: GenerationContext, derived: String): String =
         toGoIfNative(c, derived) ?: "${(isIfc()).not().then("*")}${c.n(this, derived)}"
 
+fun OperationI<*>.toGoIfc(c: GenerationContext, api: String = LangDerivedKind.API): String {
+    return """
+	${name().capitalize()}(${params().toGoSignature(c, api)}) ${toGoReturns(c, api)}"""
+}
+
+fun List<AttributeI<*>>.toGoSignature(c: GenerationContext, api: String): String =
+        joinWrappedToString(", ") {
+            it.toGoSignature(c, api)
+        }
+
 fun <T : AttributeI<*>> T.toGoSignature(c: GenerationContext, api: String): String =
         isAnonymous().ifElse({ type().props().filter { !it.isMeta() }.toGoSignature(c, api) }, {
             "${name()} ${toGoTypeDef(c, api)}"
@@ -230,20 +240,25 @@ fun <T : AttributeI<*>> T.toGoMember(c: GenerationContext, api: String): String 
         isAnonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameForGoMember()} ${toGoTypeDef(c, api)}" })
 
 fun <T : AttributeI<*>> T.toGoJsonTags(): String =
-        isAnonymous().ifElse({ "" }, { """ `json:"${name().decapitalize()}" eh:"optional"`""" })
+        isAnonymous().ifElse({ "" }, { """ `json:"${externalName() ?: name().decapitalize()}" eh:"optional"`""" })
 
 fun <T : AttributeI<*>> T.toGoEnumMember(c: GenerationContext, api: String): String =
         isAnonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameDecapitalize()} ${toGoTypeDef(c, api)}" })
 
-
-fun List<AttributeI<*>>.toGoSignature(c: GenerationContext, api: String): String =
-        joinWrappedToString(", ") { it.toGoSignature(c, api) }
-
-fun OperationI<*>.toGoReturns(c: GenerationContext, api: String): String = returns().isNotEmpty().then {
-    returns().joinSurroundIfNotEmptyToString(", ", "(", ") ") {
-        it.toGoSignature(c, api)
-    }
-}
+fun OperationI<*>.toGoReturns(c: GenerationContext, api: String = LangDerivedKind.API): String =
+        if (returns().isNotEmpty()) {
+            if (isErr()) {
+                returns().joinSurroundIfNotEmptyToString(", ", "(", ", err error)") {
+                    it.toGoSignature(c, api)
+                }
+            } else {
+                returns().joinSurroundIfNotEmptyToString(", ", "(", ")") {
+                    it.toGoSignature(c, api)
+                }
+            }
+        } else {
+            if (isErr()) "(err error)" else ""
+        }
 
 fun List<AttributeI<*>>.toGoCall(c: GenerationContext, api: String): String =
         joinWrappedToString(", ") { it.toGoCall(c, api) }
@@ -303,7 +318,8 @@ fun <T : OperationI<*>> T.toGoImpl(o: String, c: GenerationContext, api: String)
     return hasMacros().then {
         """${toGoMacrosBefore(c, api, api)}
 func (o *$o) ${toGoName()}(${params().toGoSignature(c, api)}) ${toGoReturns(c, api)}{${toGoMacrosBeforeBody(c, api,
-                api)}${toGoMacrosBody(c, api, api)}${toGoMacrosAfterBody(c, api, api)}${returns().isNotEmpty().then {
+                api)}${toGoMacrosBody(c, api, api)}${toGoMacrosAfterBody(c, api, api)}${
+        (returns().isNotEmpty() || isErr()).then {
             """
     return"""
         }}

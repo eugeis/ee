@@ -711,6 +711,9 @@ open class Operation(adapt: Operation.() -> Unit = {}) : OperationB<Operation>(a
 
 open class OperationB<B : OperationI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<B>(adapt), OperationI<B> {
 
+    override fun isErr(): Boolean = attr(err, { true })
+    override fun err(value: Boolean): B = apply { attr(err, value) }
+
     override fun generics(): ListMultiHolder<GenericI<*>> = itemAsList(generics, GenericI::class.java, true)
     override fun generics(vararg value: GenericI<*>): B = apply { generics().addItems(value.asList()) }
     override fun G(value: GenericI<*>): GenericI<*> = applyAndReturn { generics().addItem(value); value }
@@ -734,6 +737,7 @@ open class OperationB<B : OperationI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<
     }
 
     companion object {
+        val err = "_err"
         val generics = "_generics"
         val nonBlock = "_nonBlock"
         val open = "_open"

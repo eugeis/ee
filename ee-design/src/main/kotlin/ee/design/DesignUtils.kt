@@ -4,7 +4,6 @@ import ee.common.ext.ifElse
 import ee.common.ext.then
 import ee.design.gen.go.toGoPropOptionalAfterBody
 import ee.lang.*
-import ee.lang.gen.go.retTypeAndError
 import org.slf4j.LoggerFactory
 
 open class DesignDerivedKindNames : LangDerivedKindNames() {
@@ -51,17 +50,17 @@ private val log = LoggerFactory.getLogger("DesignUtils")
 
 fun EntityI<*>.findBy(vararg params: AttributeI<*>) = findBy {
     params(*params)
-    retTypeAndError(this@findBy)
+    ret(this@findBy)
 }
 
 fun EntityI<*>.existBy(vararg params: AttributeI<*>) = existBy {
     params(*params)
-    retTypeAndError(n.Boolean)
+    ret(n.Boolean)
 }
 
 fun EntityI<*>.countBy(vararg params: AttributeI<*>) = countBy {
     params(*params)
-    retTypeAndError(n.Int)
+    ret(n.Int)
 }
 
 fun CreateByI<*>.primary() =
@@ -152,30 +151,30 @@ fun StructureUnitI<*>.addQueriesForAggregates() {
 
         findBy {
             name("FindAll")
-            retTypeAndError(n.List.GT(item))
+            ret(n.List.GT(item))
         }
         findBy {
             name("FindById")
             params(id())
-            retTypeAndError(item)
+            ret(item)
         }
         countBy {
             name("CountAll")
-            retTypeAndError(n.Long)
+            ret(n.Long)
         }
         countBy {
             name("CountById")
             params(id())
-            retTypeAndError(n.Long)
+            ret(n.Long)
         }
         existBy {
             name("ExistAll")
-            retTypeAndError(n.Boolean)
+            ret(n.Boolean)
         }
         existBy {
             name("ExistById")
             params(id())
-            retTypeAndError(n.Boolean)
+            ret(n.Boolean)
         }
     }
 }
@@ -183,18 +182,18 @@ fun StructureUnitI<*>.addQueriesForAggregates() {
 fun StructureUnitI<*>.addDefaultReturnValuesForQueries() {
     findDownByType(FindByI::class.java).filter { it.returns().isEmpty() }.extend {
         if (isMultiResult()) {
-            retTypeAndError(n.List.GT(findParentMust(TypeI::class.java)))
+            ret(n.List.GT(findParentMust(TypeI::class.java)))
         } else {
-            retTypeAndError(findParentMust(TypeI::class.java))
+            ret(findParentMust(TypeI::class.java))
         }
     }
 
     findDownByType(CountByI::class.java).filter { it.returns().isEmpty() }.extend {
-        retTypeAndError(n.Long)
+        ret(n.Long)
     }
 
     findDownByType(ExistByI::class.java).filter { it.returns().isEmpty() }.extend {
-        retTypeAndError(n.Boolean)
+        ret(n.Boolean)
     }
 }
 
