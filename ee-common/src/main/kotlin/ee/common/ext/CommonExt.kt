@@ -143,21 +143,33 @@ fun String.toConvertUmlauts(): String = Umlauts.replaceUmlauts(this)
 
 fun String.toKey(): String = toConvertUmlauts().replace("[^a-zA-Z0-9.]".toRegex(), "_").replace("_+".toRegex(), "_")
 
-fun String.toUrlKey(): String = toConvertUmlauts().toLowerCase().replace("[^a-z0-9]".toRegex(), "-").replace(
-        "_+".toRegex(), "-")
+fun String.toUrlKey(): String = toConvertUmlauts().toLowerCase().replace("[^a-z0-9]".toRegex(), "-")
+        .replace("_+".toRegex(), "-")
 
+val allBig = "[A-Z]*".toRegex()
+val allSmall = "[A-Z]*".toRegex()
 val bigsBigSmall = "([A-Z]+)([A-Z].*)".toRegex()
+
 val strToCamelCase = WeakHashMap<String, String>()
 fun String.toCamelCase(): String = strToCamelCase.getOrPut(this) {
-    val parts = split('_')
-    val item = if (parts.size > 1) parts.joinToString("") {
-        it.toLowerCase().capitalize()
-    } else this
-    val ps = bigsBigSmall.matchEntire(item)
-    return if (ps != null) {
-        "${ps.groupValues[1].toLowerCase()}${ps.groupValues[2]}"
+    return if (allBig.matches(this)) {
+        toLowerCase()
+    } else if (allSmall.matches(this)) {
+        this
     } else {
-        item.decapitalize()
+        val parts = split('_')
+        val item = if (parts.size > 1) parts.joinToString("") {
+            it.toLowerCase().capitalize()
+        } else {
+            this
+        }
+
+        val ps = bigsBigSmall.matchEntire(item)
+        if (ps != null) {
+            "${ps.groupValues[1].toLowerCase()}${ps.groupValues[2]}"
+        } else {
+            item.decapitalize()
+        }
     }
 }
 
