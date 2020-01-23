@@ -150,8 +150,8 @@ fun <T : AttributeI<*>> T.toGoValueByPropName(
         n.Path -> "\"/\""
         n.Blob -> "[]byte(${c.n(g.fmt.Sprintf)}(\"${name().capitalize()} %v\", $saltIntName))"
         n.Void -> ""
-        n.Error -> "Throwable()"
-        n.Exception -> "Exception()"
+        n.Error -> "nil"
+        n.Exception -> "nil"
         n.Url -> "${c.n(j.net.URL)}(\"\")"
         n.UUID -> g.google.uuid.New.toGoCall(c, derived, derived)
         n.Map -> "make(map[${type().generics()[0].toGo(c, derived)}]${type().generics()[1].toGo(c, derived)})"

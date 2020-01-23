@@ -43,7 +43,7 @@ fun LiteralI<*>.toGoCase(): String {
 }
 
 fun LiteralI<*>.toGoInitVariables(index: Int, c: GenerationContext, derived: String): String {
-    return """{name: "${this.name()}", ordinal: $index${this.params()
+    return """{name: "${value() ?: name()}", ordinal: $index${this.params()
             .joinSurroundIfNotEmptyToString(", ", ", ") {
                 it.toGoInitForConstructorEnum(c, derived)
             }}}"""

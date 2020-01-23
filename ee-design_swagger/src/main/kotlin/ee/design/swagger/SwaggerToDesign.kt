@@ -1,9 +1,6 @@
 package ee.design.swagger
 
-import ee.common.ext.ifElse
-import ee.common.ext.joinSurroundIfNotEmptyToString
-import ee.common.ext.then
-import ee.common.ext.toCamelCase
+import ee.common.ext.*
 import ee.design.Module
 import ee.lang.*
 import io.swagger.models.ArrayModel
@@ -120,9 +117,8 @@ object ${name.toDslTypeName()} : Values(${description.toDslDoc("{ ", " }")}) {${
 
     private fun io.swagger.models.properties.StringProperty.toDslEnum(name: String): String {
         return """
-object $name : EnumType() {
-    val value = prop { type(n.String).key() }${enum.joinToString(nL, nL) {
-            "    val ${it.toCamelCase()} = lit(value, \"$it\")"
+object $name : EnumType() {${enum.joinToString(nL, nL) {
+            "    val ${it.toUnderscoredUpperCase()} = lit { value(\"$it\") }"
         }}
 }"""
     }
@@ -235,6 +231,7 @@ object $name : Values(${description.toDslDoc("{", "}")}) {${properties.toDslProp
                 swagger.parameters[prop.simpleRef]!!.toDslTypeName(name)
             }
             else -> {
+                log.warn("can't find type for {}, use n.String", prop)
                 "n.String"
             }
         }
