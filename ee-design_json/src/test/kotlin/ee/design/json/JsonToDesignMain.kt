@@ -1,27 +1,23 @@
-package ee.design.swagger
+package ee.design.json
 
 import org.slf4j.LoggerFactory
 import java.nio.file.Paths
 
-object SwaggerToDesignMain {
+object JsonToDesignMain {
     private val log = LoggerFactory.getLogger(javaClass)
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val swagger = SwaggerToDesign(mutableMapOf(),
+        val json = JsonToDesign(mutableMapOf(),
                 mutableMapOf("rel.self" to "Link", "Href" to "Link", "AspectId" to "n.String", "ETag" to "n.String",
                         "Errors" to "n.String", "TenantId" to "n.String", "TypeId" to "n.String"),
                 mutableSetOf("AspectId", "ETag", "Errors", "TenantId", "TypeId"))
 
-        val base = Paths.get("ee/ee-design_swagger/src/test/resources").toRealPath()
-
         val alreadyGeneratedTypes = mutableMapOf<String, String>()
         val buffer = StringBuffer()
-        listOf("assetmanagement-v3.yaml").map {
-            swagger.toDslTypes(base.resolve(it))
-        }.forEach {
-            buffer.appendTypes(it, alreadyGeneratedTypes)
-        }
+
+        val dslTypes = json.toDslTypes(Paths.get("/home/z000ru5y/dev/s2r/cdm/cdm_schema.json"))
+        buffer.appendTypes(dslTypes, alreadyGeneratedTypes)
 
         log.info(buffer.toString())
     }

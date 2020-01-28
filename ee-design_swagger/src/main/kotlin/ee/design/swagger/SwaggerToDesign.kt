@@ -77,6 +77,12 @@ private class SwaggerToDesignExecutor(swaggerFile: Path,
                 { this!!.entries.joinToString(nL, nL) { it.value.toDslProp(it.key) } }, { "" })
     }
 
+    private fun io.swagger.models.properties.Property.toDslProp(name: String): String {
+        val nameCamelCase = name.toCamelCase()
+        return "    val $nameCamelCase = prop { ${(name != nameCamelCase)
+                .then { "externalName(\"$name\")." }}${toDslInit(nameCamelCase)} }"
+    }
+
     private fun Property.toDslPropValue(name: String, suffix: String = "", prefix: String = ""): String {
         return ((this is StringProperty && default.isNullOrEmpty().not())).ifElse({
             "${suffix}value(${(this as StringProperty).enum.isNotEmpty().ifElse({ "$name.$default" },
@@ -127,12 +133,6 @@ object $name : EnumType() {${enum.joinToString(nL, nL) {
         return """
 object $name : Values(${description.toDslDoc("{", "}")}) {${properties.toDslProperties()}
 }"""
-    }
-
-    private fun io.swagger.models.properties.Property.toDslProp(name: String): String {
-        val nameCamelCase = name.toCamelCase()
-        return "    val $nameCamelCase = prop { ${(name != nameCamelCase)
-                .then { "externalName(\"$name\")." }}${toDslInit(nameCamelCase)} }"
     }
 
     private fun io.swagger.models.properties.Property.toDslTypeName(name: String): String {
