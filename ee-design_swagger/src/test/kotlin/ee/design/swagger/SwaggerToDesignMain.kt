@@ -1,5 +1,6 @@
 package ee.design.swagger
 
+import ee.design.appendTypes
 import org.slf4j.LoggerFactory
 import java.nio.file.Paths
 
@@ -19,26 +20,10 @@ object SwaggerToDesignMain {
         val buffer = StringBuffer()
         listOf("assetmanagement-v3.yaml").map {
             swagger.toDslTypes(base.resolve(it))
-        }.forEach {
-            buffer.appendTypes(it, alreadyGeneratedTypes)
+        }.forEach { dslTypes ->
+            buffer.appendTypes(log, dslTypes, alreadyGeneratedTypes)
         }
 
         log.info(buffer.toString())
     }
-
-    private fun StringBuffer.appendTypes(types: DslTypes, keyToTypes: MutableMap<String, String>): StringBuffer =
-            apply {
-                appendln("//${types.name}")
-                types.types.forEach { (k, v) ->
-                    if (keyToTypes.containsKey(k)) {
-                        if (keyToTypes[k] != v) {
-                            log.warn("different type definitions in {}, with same name {} first:{} second {}",
-                                    types.name, k, keyToTypes[k], v)
-                        }
-                    } else {
-                        keyToTypes[k] = v
-                        appendln(v)
-                    }
-                }
-            }
 }

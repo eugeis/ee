@@ -3,9 +3,10 @@ package ee.lang.gen.kt
 import ee.common.ext.ifElse
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
+import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 
-fun LiteralI<*>.toKotlin(): String = name().capitalize()
+fun LiteralI<*>.toKotlin(): String = name().toUnderscoredUpperCase()
 
 fun LiteralI<*>.toKotlinIsMethod(): String {
     return """

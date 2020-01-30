@@ -178,15 +178,16 @@ val bAZ = "(\\B[A-Z])".toRegex()
 
 val strToUnderscoredUpper = WeakHashMap<String, String>()
 fun String.toUnderscoredUpperCase(): String = strToUnderscoredUpper.getOrPut(this) {
-    if (smallLetters.matches(this)) {
-        replace(bAZ, "_$1").toUpperCase()
-    } else this
+    toUnderscoredLowerCase().toUpperCase()
 }
 
 val strToUnderscoredLower = WeakHashMap<String, String>()
 fun String.toUnderscoredLowerCase(): String = strToUnderscoredLower.getOrPut(this) {
-    if (smallLetters.matches(this)) replace(bAZ, "_$1").toLowerCase()
-    else this.toLowerCase()
+    if (smallLetters.matches(this)) {
+        replace(bAZ, "_$1").toLowerCase()
+    } else {
+        toLowerCase()
+    }
 }
 
 fun String.toHyphenLowerCase(): String = strToUnderscoredLower.getOrPut(this) {

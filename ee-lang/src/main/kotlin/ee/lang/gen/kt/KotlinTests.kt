@@ -2,6 +2,7 @@ package ee.lang.gen.kt
 
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
+import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 import ee.lang.gen.java.junit
 
@@ -45,18 +46,18 @@ class ${name}EnumParseAndIsMethodsTests {
         ${c.n(k.test.assertSame, derived)}("$@%".to$name(), $name.${literals().first().toKotlin()})
     }${literals().joinToString(nL) {
 
-        val litCap = it.name().capitalize()
-        val prevCap = prev.name().capitalize()
+        val litCap = it.name().toUnderscoredUpperCase()
+        val prevCap = prev.name().toUnderscoredUpperCase()
         prev = it
 
         """
     @${c.n(junit.Test, derived)}
     fun testIs${it.toKotlin()}() {
         //normal
-        ${c.n(k.test.assertTrue, derived)}($name.$litCap.is$litCap())
+        ${c.n(k.test.assertTrue, derived)}($name.$litCap.is${it.name().capitalize()}())
 
         //wrong
-        ${c.n(k.test.assertFalse, derived)}($name.$prevCap.is$litCap())
+        ${c.n(k.test.assertFalse, derived)}($name.$prevCap.is${it.name().capitalize()}())
     }
 """
     }}

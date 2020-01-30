@@ -1,6 +1,7 @@
 package ee.design.json
 
 import ee.common.ext.*
+import ee.design.DslTypes
 import ee.lang.nL
 import org.everit.json.schema.*
 import org.everit.json.schema.loader.SchemaLoader
@@ -12,8 +13,6 @@ import java.nio.file.Path
 import java.util.*
 
 private val log = LoggerFactory.getLogger("JsonToDesign")
-
-data class DslTypes(val name: String, val desc: String, val types: Map<String, String>)
 
 class JsonToDesign(private val pathsToEntityNames: MutableMap<String, String> = mutableMapOf(),
                    private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
@@ -98,20 +97,20 @@ private class JsonToDesignExecutor(swaggerFile: Path, val rootTypeName: String,
 
     private fun EnumSchema.toDslType(name: String): String {
         return """
-object $name : EnumType(${description.toDslDoc("{", "}")}) {${toDslLiterals()}
-}"""
+    object $name : EnumType(${description.toDslDoc("{", "}")}) {${toDslLiterals()}
+    }"""
     }
 
     private fun EnumSchema.toDslLiterals(): String {
         return possibleValuesAsList.joinToString(nL, nL) {
-            "    val ${it.toString().toCamelCase()} = lit()"
+            "        val ${it.toString().toCamelCase()} = lit()"
         }
     }
 
     private fun ObjectSchema.toDslType(name: String): String {
         return """
-object $name : Values(${description.toDslDoc("{", "}")}) {${toDslProperties()}
-}"""
+    object $name : Values(${description.toDslDoc("{", "}")}) {${toDslProperties()}
+    }"""
     }
 
     private fun ObjectSchema.toDslProperties(): String {
@@ -124,9 +123,9 @@ object $name : Values(${description.toDslDoc("{", "}")}) {${toDslProperties()}
         val objectSchemas = subschemas.filterIsInstance<ObjectSchema>()
         return if (objectSchemas.isNotEmpty()) {
             """
-object $name : Values(${description.toDslDoc("{", "}")}) {${
+    object $name : Values(${description.toDslDoc("{", "}")}) {${
             objectSchemas.joinToString(nL) { it.toDslProperties() }}
-}"""
+    }"""
         } else {
             val enumSchemas = subschemas.filterIsInstance<EnumSchema>()
             enumSchemas.firstOrNull()?.toDslType(name) ?: ""
@@ -140,7 +139,7 @@ object $name : Values(${description.toDslDoc("{", "}")}) {${
 
     private fun Schema.toDslProp(name: String, required: Boolean = false): String {
         val nameCamelCase = name.toCamelCase()
-        return "    val $nameCamelCase = prop { ${(name != nameCamelCase)
+        return "        val $nameCamelCase = prop { ${(name != nameCamelCase)
                 .then { "externalName(\"$name\")." }}${toDslInit(required)} }"
     }
 

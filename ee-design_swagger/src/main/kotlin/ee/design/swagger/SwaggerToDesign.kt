@@ -1,6 +1,7 @@
 package ee.design.swagger
 
 import ee.common.ext.*
+import ee.design.DslTypes
 import ee.design.Module
 import ee.lang.*
 import io.swagger.models.ArrayModel
@@ -18,20 +19,20 @@ import java.util.*
 
 private val log = LoggerFactory.getLogger("SwaggerToDesign")
 
-data class DslTypes(val name: String, val types: Map<String, String>)
-
-class SwaggerToDesign(private val pathsToEntityNames: MutableMap<String, String> = mutableMapOf(),
-                      private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
-                      private val ignoreTypes: MutableSet<String> = mutableSetOf()) {
+class SwaggerToDesign(
+        private val pathsToEntityNames: MutableMap<String, String> = mutableMapOf(),
+        private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
+        private val ignoreTypes: MutableSet<String> = mutableSetOf()) {
 
     fun toDslTypes(swaggerFile: Path): DslTypes =
             SwaggerToDesignExecutor(swaggerFile, namesToTypeName, ignoreTypes).toDslTypes()
 
 }
 
-private class SwaggerToDesignExecutor(swaggerFile: Path,
-                                      private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
-                                      private val ignoreTypes: MutableSet<String> = mutableSetOf()) {
+private class SwaggerToDesignExecutor(
+        swaggerFile: Path,
+        private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
+        private val ignoreTypes: MutableSet<String> = mutableSetOf()) {
     private val primitiveTypes = mapOf("integer" to "n.Int", "string" to "n.String")
     private val typeToPrimitive = mutableMapOf<String, String>()
 
@@ -42,7 +43,7 @@ private class SwaggerToDesignExecutor(swaggerFile: Path,
         extractTypeDefsFromPrimitiveAliases().forEach {
             it.value.toDslValues(it.key.toDslTypeName())
         }
-        return DslTypes(name = swagger.info?.title ?: "", types = typesToFill)
+        return DslTypes(name = swagger.info?.title ?: "", desc = "", types = typesToFill)
     }
 
     private fun extractTypeDefsFromPrimitiveAliases(): Map<String, io.swagger.models.Model> {

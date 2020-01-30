@@ -1,5 +1,6 @@
 package ee.design.json
 
+import ee.design.appendTypes
 import org.slf4j.LoggerFactory
 import java.nio.file.Paths
 
@@ -17,24 +18,9 @@ object JsonToDesignMain {
         val buffer = StringBuffer()
 
         val dslTypes = json.toDslTypes(Paths.get("/home/z000ru5y/dev/s2r/cdm/cdm_schema.json"))
-        buffer.appendTypes(dslTypes, alreadyGeneratedTypes)
+        buffer.appendTypes(log, dslTypes, alreadyGeneratedTypes)
 
         log.info(buffer.toString())
     }
 
-    private fun StringBuffer.appendTypes(types: DslTypes, keyToTypes: MutableMap<String, String>): StringBuffer =
-            apply {
-                appendln("//${types.name}")
-                types.types.forEach { (k, v) ->
-                    if (keyToTypes.containsKey(k)) {
-                        if (keyToTypes[k] != v) {
-                            log.warn("different type definitions in {}, with same name {} first:{} second {}",
-                                    types.name, k, keyToTypes[k], v)
-                        }
-                    } else {
-                        keyToTypes[k] = v
-                        appendln(v)
-                    }
-                }
-            }
 }
