@@ -20,10 +20,14 @@ open class DesignKotlinContextFactory : LangKotlinContextFactory {
 
     private fun StructureUnitI<*>.computeModuleFolder(): String {
         val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: this
-        return if (singleModule) {
-            "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}"
+        return if(compOrStructureUnit == this) {
+            artifact()
         } else {
-            "${compOrStructureUnit.artifact()}/${artifact()}"
+            if (singleModule) {
+                "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}"
+            } else {
+                "${compOrStructureUnit.artifact()}/${artifact()}"
+            }
         }
     }
 }

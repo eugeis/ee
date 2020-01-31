@@ -101,9 +101,12 @@ private class SwaggerToDesignExecutor(
     private fun io.swagger.models.Model.toDslValues(name: String) {
         if (this is ComposedModel) {
             typesToFill[name] = """
-object ${name.toDslTypeName()} : Values({ ${interfaces.joinSurroundIfNotEmptyToString(",", "superUnit(", ")") {
+object ${name.toDslTypeName()} : Values({ ${
+            interfaces.joinSurroundIfNotEmptyToString(",", "superUnit(", ")") {
                 it.simpleRef.toDslTypeName()
-            }}${description.toDslDoc()} }) {${allOf.filterNot { interfaces.contains(it) }.joinToString("") {
+            }}${description.toDslDoc()} }) {${allOf.filterNot {
+                interfaces.contains(it)
+            }.joinToString("") {
                 it.properties.toDslProperties()
             }}
 }"""
@@ -117,15 +120,21 @@ object ${name.toDslTypeName()} : Values({ ${interfaces.joinSurroundIfNotEmptyToS
             }
         } else {
             typesToFill[name] = """
-object ${name.toDslTypeName()} : Values(${description.toDslDoc("{ ", " }")}) {${properties.toDslProperties()}
+object ${name.toDslTypeName()} : Values(${
+            description.toDslDoc("{ ", " }")}) {${
+            properties.toDslProperties()}
 }"""
         }
     }
 
     private fun io.swagger.models.properties.StringProperty.toDslEnum(name: String): String {
         return """
-object $name : EnumType() {${enum.joinToString(nL, nL) {
-            "    val ${it.toUnderscoredUpperCase()} = lit { value(\"$it\") }"
+object $name : EnumType(${description.toDslDoc("{", "}")}) {${
+        enum.joinToString(nL, nL) {
+            val externalName = it.toString()
+            val literalName = externalName.toCamelCase()
+            val init = if(literalName != externalName) " { externalName(\"$externalName\") }" else "()"
+            "        val $literalName = lit$init"
         }}
 }"""
     }

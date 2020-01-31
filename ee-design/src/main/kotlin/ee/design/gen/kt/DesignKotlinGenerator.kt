@@ -21,7 +21,7 @@ open class DesignKotlinGenerator(val model: StructureUnitI<*>, singleModule: Boo
                  shallSkip: GeneratorI<*>.(model: Any?) -> Boolean = { false }) {
         val generator = generatorContexts.generator
         log.info("generate ${generator.names()} to $target for ${model.name()}")
-        val modules = model.findDownByType(ModuleI::class.java)
+        val modules = if (model is ModuleI) listOf(model) else model.findDownByType(ModuleI::class.java)
         modules.forEach { module ->
             generator.delete(target, module, shallSkip)
         }

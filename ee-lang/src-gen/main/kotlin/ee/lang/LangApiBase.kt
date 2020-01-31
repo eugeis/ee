@@ -34,15 +34,15 @@ open class ApplyAction(adapt: ApplyAction.() -> Unit = {}) : ApplyActionB<ApplyA
 
 open class ApplyActionB<B : ApplyActionI<B>>(adapt: B.() -> Unit = {}) : ActionB<B>(adapt), ApplyActionI<B> {
 
-    override fun target(): AttributeI<*> = attr(target, { Attribute.EMPTY })
-    override fun target(value: AttributeI<*>): B = apply { attr(target, value) }
+    override fun target(): AttributeI<*> = attr(TARGET, { Attribute.EMPTY })
+    override fun target(value: AttributeI<*>): B = apply { attr(TARGET, value) }
 
-    override fun value(): LiteralI<*> = attr(value, { Literal.EMPTY })
-    override fun value(aValue: LiteralI<*>): B = apply { attr(value, aValue) }
+    override fun value(): LiteralI<*> = attr(VALUE, { Literal.EMPTY })
+    override fun value(aValue: LiteralI<*>): B = apply { attr(VALUE, aValue) }
 
     companion object {
-        val target = "_target"
-        val value = "_value"
+        val TARGET = "_target"
+        val VALUE = "_value"
     }
 }
 
@@ -69,95 +69,95 @@ open class Attribute(adapt: Attribute.() -> Unit = {}) : AttributeB<Attribute>(a
 
 open class AttributeB<B : AttributeI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>(adapt), AttributeI<B> {
 
-    override fun isAccessible(): Boolean? = attr(accessible)
-    override fun accessible(value: Boolean?): B = apply { attr(accessible, value) }
+    override fun isAccessible(): Boolean? = attr(ACCESSIBLE)
+    override fun accessible(value: Boolean?): B = apply { attr(ACCESSIBLE, value) }
 
-    override fun isAnonymous(): Boolean = attr(anonymous, { false })
-    override fun anonymous(value: Boolean): B = apply { attr(anonymous, value) }
+    override fun isAnonymous(): Boolean = attr(ANONYMOUS, { false })
+    override fun anonymous(value: Boolean): B = apply { attr(ANONYMOUS, value) }
 
-    override fun isConcurrent(): Boolean = attr(concurrent, { false })
-    override fun concurrent(value: Boolean): B = apply { attr(concurrent, value) }
+    override fun isConcurrent(): Boolean = attr(CONCURRENT, { false })
+    override fun concurrent(value: Boolean): B = apply { attr(CONCURRENT, value) }
 
-    override fun isDefault(): Boolean = attr(default, { false })
-    override fun default(value: Boolean): B = apply { attr(default, value) }
+    override fun isDefault(): Boolean = attr(DEFAULT, { false })
+    override fun default(value: Boolean): B = apply { attr(DEFAULT, value) }
 
-    override fun externalName(): String? = attr(externalName)
-    override fun externalName(value: String?): B = apply { attr(externalName, value) }
+    override fun externalName(): String? = attr(EXTERNALNAME)
+    override fun externalName(value: String?): B = apply { attr(EXTERNALNAME, value) }
 
-    override fun isFixValue(): Boolean = attr(fixValue, { false })
-    override fun fixValue(value: Boolean): B = apply { attr(fixValue, value) }
+    override fun isFixValue(): Boolean = attr(FIXVALUE, { false })
+    override fun fixValue(value: Boolean): B = apply { attr(FIXVALUE, value) }
 
-    override fun isHidden(): Boolean = attr(hidden, { false })
-    override fun hidden(value: Boolean): B = apply { attr(hidden, value) }
+    override fun isHidden(): Boolean = attr(HIDDEN, { false })
+    override fun hidden(value: Boolean): B = apply { attr(HIDDEN, value) }
 
-    override fun isImploded(): Boolean = attr(imploded, { false })
-    override fun imploded(value: Boolean): B = apply { attr(imploded, value) }
+    override fun isImploded(): Boolean = attr(IMPLODED, { false })
+    override fun imploded(value: Boolean): B = apply { attr(IMPLODED, value) }
 
-    override fun isInherited(): Boolean = attr(inherited, { false })
-    override fun inherited(value: Boolean): B = apply { attr(inherited, value) }
+    override fun isInherited(): Boolean = attr(INHERITED, { false })
+    override fun inherited(value: Boolean): B = apply { attr(INHERITED, value) }
 
-    override fun isInitByDefaultTypeValue(): Boolean = attr(initByDefaultTypeValue, { true })
-    override fun initByDefaultTypeValue(value: Boolean): B = apply { attr(initByDefaultTypeValue, value) }
+    override fun isInitByDefaultTypeValue(): Boolean = attr(INITBYDEFAULTTYPEVALUE, { true })
+    override fun initByDefaultTypeValue(value: Boolean): B = apply { attr(INITBYDEFAULTTYPEVALUE, value) }
 
-    override fun isKey(): Boolean = attr(key, { false })
-    override fun key(value: Boolean): B = apply { attr(key, value) }
+    override fun isKey(): Boolean = attr(KEY, { false })
+    override fun key(value: Boolean): B = apply { attr(KEY, value) }
 
-    override fun length(): Int? = attr(length)
-    override fun length(value: Int?): B = apply { attr(length, value) }
+    override fun length(): Int? = attr(LENGTH)
+    override fun length(value: Int?): B = apply { attr(LENGTH, value) }
 
-    override fun isMeta(): Boolean = attr(meta, { false })
-    override fun meta(value: Boolean): B = apply { attr(meta, value) }
+    override fun isMeta(): Boolean = attr(META, { false })
+    override fun meta(value: Boolean): B = apply { attr(META, value) }
 
-    override fun isMulti(): Boolean = attr(multi, { false })
-    override fun multi(value: Boolean): B = apply { attr(multi, value) }
+    override fun isMulti(): Boolean = attr(MULTI, { false })
+    override fun multi(value: Boolean): B = apply { attr(MULTI, value) }
 
-    override fun isMutable(): Boolean? = attr(mutable)
-    override fun mutable(value: Boolean?): B = apply { attr(mutable, value) }
+    override fun isMutable(): Boolean? = attr(MUTABLE)
+    override fun mutable(value: Boolean?): B = apply { attr(MUTABLE, value) }
 
-    override fun nonFluent(): String = attr(nonFluent, { "" })
-    override fun nonFluent(value: String): B = apply { attr(nonFluent, value) }
+    override fun nonFluent(): String = attr(NONFLUENT, { "" })
+    override fun nonFluent(value: String): B = apply { attr(NONFLUENT, value) }
 
-    override fun isNullable(): Boolean = attr(nullable, { false })
-    override fun nullable(value: Boolean): B = apply { attr(nullable, value) }
+    override fun isNullable(): Boolean = attr(NULLABLE, { false })
+    override fun nullable(value: Boolean): B = apply { attr(NULLABLE, value) }
 
-    override fun isOpen(): Boolean = attr(open, { false })
-    override fun open(value: Boolean): B = apply { attr(open, value) }
+    override fun isOpen(): Boolean = attr(OPEN, { false })
+    override fun open(value: Boolean): B = apply { attr(OPEN, value) }
 
-    override fun isReplaceable(): Boolean? = attr(replaceable)
-    override fun replaceable(value: Boolean?): B = apply { attr(replaceable, value) }
+    override fun isReplaceable(): Boolean? = attr(REPLACEABLE)
+    override fun replaceable(value: Boolean?): B = apply { attr(REPLACEABLE, value) }
 
-    override fun isToEquals(): Boolean? = attr(toEquals)
-    override fun toEquals(value: Boolean?): B = apply { attr(toEquals, value) }
+    override fun isToEquals(): Boolean? = attr(TOEQUALS)
+    override fun toEquals(value: Boolean?): B = apply { attr(TOEQUALS, value) }
 
-    override fun isToStr(): Boolean? = attr(toStr)
-    override fun toStr(value: Boolean?): B = apply { attr(toStr, value) }
+    override fun isToStr(): Boolean? = attr(TOSTR)
+    override fun toStr(value: Boolean?): B = apply { attr(TOSTR, value) }
 
-    override fun isUnique(): Boolean = attr(unique, { false })
-    override fun unique(value: Boolean): B = apply { attr(unique, value) }
+    override fun isUnique(): Boolean = attr(UNIQUE, { false })
+    override fun unique(value: Boolean): B = apply { attr(UNIQUE, value) }
 
     companion object {
-        val accessible = "_accessible"
-        val anonymous = "_anonymous"
-        val concurrent = "_concurrent"
-        val default = "_default"
-        val externalName = "_externalName"
-        val fixValue = "_fixValue"
-        val hidden = "_hidden"
-        val imploded = "_imploded"
-        val inherited = "_inherited"
-        val initByDefaultTypeValue = "_initByDefaultTypeValue"
-        val key = "_key"
-        val length = "_length"
-        val meta = "_meta"
-        val multi = "_multi"
-        val mutable = "_mutable"
-        val nonFluent = "_nonFluent"
-        val nullable = "_nullable"
-        val open = "_open"
-        val replaceable = "_replaceable"
-        val toEquals = "_toEquals"
-        val toStr = "_toStr"
-        val unique = "_unique"
+        val ACCESSIBLE = "_accessible"
+        val ANONYMOUS = "_anonymous"
+        val CONCURRENT = "_concurrent"
+        val DEFAULT = "_default"
+        val EXTERNALNAME = "_externalName"
+        val FIXVALUE = "_fixValue"
+        val HIDDEN = "_hidden"
+        val IMPLODED = "_imploded"
+        val INHERITED = "_inherited"
+        val INITBYDEFAULTTYPEVALUE = "_initByDefaultTypeValue"
+        val KEY = "_key"
+        val LENGTH = "_length"
+        val META = "_meta"
+        val MULTI = "_multi"
+        val MUTABLE = "_mutable"
+        val NONFLUENT = "_nonFluent"
+        val NULLABLE = "_nullable"
+        val OPEN = "_open"
+        val REPLACEABLE = "_replaceable"
+        val TOEQUALS = "_toEquals"
+        val TOSTR = "_toStr"
+        val UNIQUE = "_unique"
     }
 }
 
@@ -184,11 +184,11 @@ open class CompilationUnit(adapt: CompilationUnit.() -> Unit = {}) : Compilation
 
 open class CompilationUnitB<B : CompilationUnitI<B>>(adapt: B.() -> Unit = {}) : TypeB<B>(adapt), CompilationUnitI<B> {
 
-    override fun isBase(): Boolean = attr(base, { false })
-    override fun base(value: Boolean): B = apply { attr(base, value) }
+    override fun isBase(): Boolean = attr(BASE, { false })
+    override fun base(value: Boolean): B = apply { attr(BASE, value) }
 
     companion object {
-        val base = "_base"
+        val BASE = "_base"
     }
 }
 
@@ -203,11 +203,11 @@ open class Constructor(adapt: Constructor.() -> Unit = {}) : ConstructorB<Constr
 
 open class ConstructorB<B : ConstructorI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<B>(adapt), ConstructorI<B> {
 
-    override fun isPrimary(): Boolean = attr(primary, { false })
-    override fun primary(value: Boolean): B = apply { attr(primary, value) }
+    override fun isPrimary(): Boolean = attr(PRIMARY, { false })
+    override fun primary(value: Boolean): B = apply { attr(PRIMARY, value) }
 
     companion object {
-        val primary = "_primary"
+        val PRIMARY = "_primary"
     }
 }
 
@@ -281,6 +281,13 @@ open class EnumLiteral(adapt: EnumLiteral.() -> Unit = {}) : EnumLiteralB<EnumLi
 }
 
 open class EnumLiteralB<B : EnumLiteralI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>(adapt), EnumLiteralI<B> {
+
+    override fun externalName(): String? = attr(EXTERNALNAME)
+    override fun externalName(value: String?): B = apply { attr(EXTERNALNAME, value) }
+
+    companion object {
+        val EXTERNALNAME = "_externalName"
+    }
 }
 
 
@@ -294,7 +301,7 @@ open class EnumType(adapt: EnumType.() -> Unit = {}) : EnumTypeB<EnumType>(adapt
 
 open class EnumTypeB<B : EnumTypeI<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adapt), EnumTypeI<B> {
 
-    override fun literals(): ListMultiHolder<EnumLiteralI<*>> = itemAsList(literals, EnumLiteralI::class.java, true)
+    override fun literals(): ListMultiHolder<EnumLiteralI<*>> = itemAsList(LITERALS, EnumLiteralI::class.java, true)
     override fun literals(vararg value: EnumLiteralI<*>): B = apply { literals().addItems(value.asList()) }
     override fun lit(value: EnumLiteralI<*>): EnumLiteralI<*> = applyAndReturn { literals().addItem(value); value }
     override fun lit(value: EnumLiteralI<*>.() -> Unit): EnumLiteralI<*> = lit(EnumLiteral(value))
@@ -305,7 +312,7 @@ open class EnumTypeB<B : EnumTypeI<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(
     }
 
     companion object {
-        val literals = "_literals"
+        val LITERALS = "_literals"
     }
 }
 
@@ -356,11 +363,11 @@ open class Generic(adapt: Generic.() -> Unit = {}) : GenericB<Generic>(adapt) {
 
 open class GenericB<B : GenericI<B>>(adapt: B.() -> Unit = {}) : TypeB<B>(adapt), GenericI<B> {
 
-    override fun type(): TypeI<*> = attr(type, { Type.EMPTY })
-    override fun type(value: TypeI<*>): B = apply { attr(type, value) }
+    override fun type(): TypeI<*> = attr(TYPE, { Type.EMPTY })
+    override fun type(value: TypeI<*>): B = apply { attr(TYPE, value) }
 
     companion object {
-        val type = "__type"
+        val TYPE = "__type"
     }
 }
 
@@ -411,11 +418,11 @@ open class Lambda(adapt: Lambda.() -> Unit = {}) : LambdaB<Lambda>(adapt) {
 
 open class LambdaB<B : LambdaI<B>>(adapt: B.() -> Unit = {}) : TypeB<B>(adapt), LambdaI<B> {
 
-    override fun operation(): OperationI<*> = attr(operation, { Operation.EMPTY })
-    override fun operation(value: OperationI<*>): B = apply { attr(operation, value) }
+    override fun operation(): OperationI<*> = attr(OPERATION, { Operation.EMPTY })
+    override fun operation(value: OperationI<*>): B = apply { attr(OPERATION, value) }
 
     companion object {
-        val operation = "_operation"
+        val OPERATION = "_operation"
     }
 }
 
@@ -430,15 +437,15 @@ open class LeftRightLiteral(adapt: LeftRightLiteral.() -> Unit = {}) : LeftRight
 
 open class LeftRightLiteralB<B : LeftRightLiteralI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>(adapt), LeftRightLiteralI<B> {
 
-    override fun left(): LiteralI<*> = attr(left, { Literal.EMPTY })
-    override fun left(value: LiteralI<*>): B = apply { attr(left, value) }
+    override fun left(): LiteralI<*> = attr(LEFT, { Literal.EMPTY })
+    override fun left(value: LiteralI<*>): B = apply { attr(LEFT, value) }
 
-    override fun right(): LiteralI<*> = attr(right, { Literal.EMPTY })
-    override fun right(value: LiteralI<*>): B = apply { attr(right, value) }
+    override fun right(): LiteralI<*> = attr(RIGHT, { Literal.EMPTY })
+    override fun right(value: LiteralI<*>): B = apply { attr(RIGHT, value) }
 
     companion object {
-        val left = "_left"
-        val right = "_right"
+        val LEFT = "_left"
+        val RIGHT = "_right"
     }
 }
 
@@ -453,15 +460,15 @@ open class LeftRightPredicate(adapt: LeftRightPredicate.() -> Unit = {}) : LeftR
 
 open class LeftRightPredicateB<B : LeftRightPredicateI<B>>(adapt: B.() -> Unit = {}) : PredicateB<B>(adapt), LeftRightPredicateI<B> {
 
-    override fun left(): LiteralI<*> = attr(left, { Literal.EMPTY })
-    override fun left(value: LiteralI<*>): B = apply { attr(left, value) }
+    override fun left(): LiteralI<*> = attr(LEFT, { Literal.EMPTY })
+    override fun left(value: LiteralI<*>): B = apply { attr(LEFT, value) }
 
-    override fun right(): LiteralI<*> = attr(right, { Literal.EMPTY })
-    override fun right(value: LiteralI<*>): B = apply { attr(right, value) }
+    override fun right(): LiteralI<*> = attr(RIGHT, { Literal.EMPTY })
+    override fun right(value: LiteralI<*>): B = apply { attr(RIGHT, value) }
 
     companion object {
-        val left = "_left"
-        val right = "_right"
+        val LEFT = "_left"
+        val RIGHT = "_right"
     }
 }
 
@@ -476,15 +483,15 @@ open class LeftRightPredicatesPredicate(adapt: LeftRightPredicatesPredicate.() -
 
 open class LeftRightPredicatesPredicateB<B : LeftRightPredicatesPredicateI<B>>(adapt: B.() -> Unit = {}) : PredicateB<B>(adapt), LeftRightPredicatesPredicateI<B> {
 
-    override fun left(): PredicateI<*> = attr(left, { Predicate.EMPTY })
-    override fun left(value: PredicateI<*>): B = apply { attr(left, value) }
+    override fun left(): PredicateI<*> = attr(LEFT, { Predicate.EMPTY })
+    override fun left(value: PredicateI<*>): B = apply { attr(LEFT, value) }
 
-    override fun right(): PredicateI<*> = attr(right, { Predicate.EMPTY })
-    override fun right(value: PredicateI<*>): B = apply { attr(right, value) }
+    override fun right(): PredicateI<*> = attr(RIGHT, { Predicate.EMPTY })
+    override fun right(value: PredicateI<*>): B = apply { attr(RIGHT, value) }
 
     companion object {
-        val left = "_left"
-        val right = "_right"
+        val LEFT = "_left"
+        val RIGHT = "_right"
     }
 }
 
@@ -499,14 +506,14 @@ open class Literal(adapt: Literal.() -> Unit = {}) : LiteralB<Literal>(adapt) {
 
 open class LiteralB<B : LiteralI<B>>(adapt: B.() -> Unit = {}) : ExpressionB<B>(adapt), LiteralI<B> {
 
-    override fun params(): ListMultiHolder<AttributeI<*>> = itemAsList(params, AttributeI::class.java, true)
+    override fun params(): ListMultiHolder<AttributeI<*>> = itemAsList(PARAMS, AttributeI::class.java, true)
     override fun params(vararg value: AttributeI<*>): B = apply { params().addItems(value.asList()) }
 
-    override fun type(): TypeI<*> = attr(type, { n.Void })
-    override fun type(value: TypeI<*>): B = apply { attr(type, value) }
+    override fun type(): TypeI<*> = attr(TYPE, { n.Void })
+    override fun type(value: TypeI<*>): B = apply { attr(TYPE, value) }
 
-    override fun value(): Any? = attr(value)
-    override fun value(aValue: Any?): B = apply { attr(value, aValue) }
+    override fun value(): Any? = attr(VALUE)
+    override fun value(aValue: Any?): B = apply { attr(VALUE, aValue) }
 
     override fun fillSupportsItems() {
         params()
@@ -514,9 +521,9 @@ open class LiteralB<B : LiteralI<B>>(adapt: B.() -> Unit = {}) : ExpressionB<B>(
     }
 
     companion object {
-        val params = "_params"
-        val type = "__type"
-        val value = "_value"
+        val PARAMS = "_params"
+        val TYPE = "__type"
+        val VALUE = "_value"
     }
 }
 
@@ -531,20 +538,20 @@ open class LogicUnit(adapt: LogicUnit.() -> Unit = {}) : LogicUnitB<LogicUnit>(a
 
 open class LogicUnitB<B : LogicUnitI<B>>(adapt: B.() -> Unit = {}) : ExpressionB<B>(adapt), LogicUnitI<B> {
 
-    override fun isErrorHandling(): Boolean = attr(errorHandling, { true })
-    override fun errorHandling(value: Boolean): B = apply { attr(errorHandling, value) }
+    override fun isErrorHandling(): Boolean = attr(ERRORHANDLING, { true })
+    override fun errorHandling(value: Boolean): B = apply { attr(ERRORHANDLING, value) }
 
-    override fun params(): ListMultiHolder<AttributeI<*>> = itemAsList(params, AttributeI::class.java, true)
+    override fun params(): ListMultiHolder<AttributeI<*>> = itemAsList(PARAMS, AttributeI::class.java, true)
     override fun params(vararg value: AttributeI<*>): B = apply { params().addItems(value.asList()) }
 
-    override fun superUnit(): LogicUnitI<*> = attr(superUnit, { LogicUnit.EMPTY })
-    override fun superUnit(value: LogicUnitI<*>): B = apply { attr(superUnit, value) }
+    override fun superUnit(): LogicUnitI<*> = attr(SUPERUNIT, { LogicUnit.EMPTY })
+    override fun superUnit(value: LogicUnitI<*>): B = apply { attr(SUPERUNIT, value) }
 
-    override fun isVirtual(): Boolean = attr(virtual, { false })
-    override fun virtual(value: Boolean): B = apply { attr(virtual, value) }
+    override fun isVirtual(): Boolean = attr(VIRTUAL, { false })
+    override fun virtual(value: Boolean): B = apply { attr(VIRTUAL, value) }
 
-    override fun isVisible(): Boolean = attr(visible, { true })
-    override fun visible(value: Boolean): B = apply { attr(visible, value) }
+    override fun isVisible(): Boolean = attr(VISIBLE, { true })
+    override fun visible(value: Boolean): B = apply { attr(VISIBLE, value) }
 
     override fun fillSupportsItems() {
         params()
@@ -552,11 +559,11 @@ open class LogicUnitB<B : LogicUnitI<B>>(adapt: B.() -> Unit = {}) : ExpressionB
     }
 
     companion object {
-        val errorHandling = "_errorHandling"
-        val params = "_params"
-        val superUnit = "__superUnit"
-        val virtual = "_virtual"
-        val visible = "_visible"
+        val ERRORHANDLING = "_errorHandling"
+        val PARAMS = "_params"
+        val SUPERUNIT = "__superUnit"
+        val VIRTUAL = "_virtual"
+        val VISIBLE = "_visible"
     }
 }
 
@@ -595,22 +602,22 @@ open class MacroComposite(adapt: MacroComposite.() -> Unit = {}) : MacroComposit
 
 open class MacroCompositeB<B : MacroCompositeI<B>>(adapt: B.() -> Unit = {}) : CompositeB<B>(adapt), MacroCompositeI<B> {
 
-    override fun macrosAfter(): ListMultiHolder<String> = itemAsList(macrosAfter, String::class.java, true)
+    override fun macrosAfter(): ListMultiHolder<String> = itemAsList(MACROSAFTER, String::class.java, true)
     override fun macrosAfter(vararg value: String): B = apply { macrosAfter().addItems(value.asList()) }
 
-    override fun macrosAfterBody(): ListMultiHolder<String> = itemAsList(macrosAfterBody, String::class.java, true)
+    override fun macrosAfterBody(): ListMultiHolder<String> = itemAsList(MACROSAFTERBODY, String::class.java, true)
     override fun macrosAfterBody(vararg value: String): B = apply { macrosAfterBody().addItems(value.asList()) }
 
-    override fun macrosBefore(): ListMultiHolder<String> = itemAsList(macrosBefore, String::class.java, true)
+    override fun macrosBefore(): ListMultiHolder<String> = itemAsList(MACROSBEFORE, String::class.java, true)
     override fun macrosBefore(vararg value: String): B = apply { macrosBefore().addItems(value.asList()) }
 
-    override fun macrosBeforeBody(): ListMultiHolder<String> = itemAsList(macrosBeforeBody, String::class.java, true)
+    override fun macrosBeforeBody(): ListMultiHolder<String> = itemAsList(MACROSBEFOREBODY, String::class.java, true)
     override fun macrosBeforeBody(vararg value: String): B = apply { macrosBeforeBody().addItems(value.asList()) }
 
-    override fun macrosBody(): ListMultiHolder<String> = itemAsList(macrosBody, String::class.java, true)
+    override fun macrosBody(): ListMultiHolder<String> = itemAsList(MACROSBODY, String::class.java, true)
     override fun macrosBody(vararg value: String): B = apply { macrosBody().addItems(value.asList()) }
 
-    override fun tags(): ListMultiHolder<String> = itemAsList(tags, String::class.java, true)
+    override fun tags(): ListMultiHolder<String> = itemAsList(TAGS, String::class.java, true)
     override fun tags(vararg value: String): B = apply { tags().addItems(value.asList()) }
 
     override fun fillSupportsItems() {
@@ -624,12 +631,12 @@ open class MacroCompositeB<B : MacroCompositeI<B>>(adapt: B.() -> Unit = {}) : C
     }
 
     companion object {
-        val macrosAfter = "_macrosAfter"
-        val macrosAfterBody = "_macrosAfterBody"
-        val macrosBefore = "_macrosBefore"
-        val macrosBeforeBody = "_macrosBeforeBody"
-        val macrosBody = "_macrosBody"
-        val tags = "_tags"
+        val MACROSAFTER = "_macrosAfter"
+        val MACROSAFTERBODY = "_macrosAfterBody"
+        val MACROSBEFORE = "_macrosBefore"
+        val MACROSBEFOREBODY = "_macrosBeforeBody"
+        val MACROSBODY = "_macrosBody"
+        val TAGS = "_tags"
     }
 }
 
@@ -692,11 +699,11 @@ open class NotPredicate(adapt: NotPredicate.() -> Unit = {}) : NotPredicateB<Not
 
 open class NotPredicateB<B : NotPredicateI<B>>(adapt: B.() -> Unit = {}) : PredicateB<B>(adapt), NotPredicateI<B> {
 
-    override fun value(): PredicateI<*> = attr(value, { Predicate.EMPTY })
-    override fun value(aValue: PredicateI<*>): B = apply { attr(value, aValue) }
+    override fun value(): PredicateI<*> = attr(VALUE, { Predicate.EMPTY })
+    override fun value(aValue: PredicateI<*>): B = apply { attr(VALUE, aValue) }
 
     companion object {
-        val value = "_value"
+        val VALUE = "_value"
     }
 }
 
@@ -711,21 +718,21 @@ open class Operation(adapt: Operation.() -> Unit = {}) : OperationB<Operation>(a
 
 open class OperationB<B : OperationI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<B>(adapt), OperationI<B> {
 
-    override fun isErr(): Boolean = attr(err, { true })
-    override fun err(value: Boolean): B = apply { attr(err, value) }
+    override fun isErr(): Boolean = attr(ERR, { true })
+    override fun err(value: Boolean): B = apply { attr(ERR, value) }
 
-    override fun generics(): ListMultiHolder<GenericI<*>> = itemAsList(generics, GenericI::class.java, true)
+    override fun generics(): ListMultiHolder<GenericI<*>> = itemAsList(GENERICS, GenericI::class.java, true)
     override fun generics(vararg value: GenericI<*>): B = apply { generics().addItems(value.asList()) }
     override fun G(value: GenericI<*>): GenericI<*> = applyAndReturn { generics().addItem(value); value }
     override fun G(value: GenericI<*>.() -> Unit): GenericI<*> = G(Generic(value))
 
-    override fun isNonBlock(): Boolean? = attr(nonBlock)
-    override fun nonBlock(value: Boolean?): B = apply { attr(nonBlock, value) }
+    override fun isNonBlock(): Boolean? = attr(NONBLOCK)
+    override fun nonBlock(value: Boolean?): B = apply { attr(NONBLOCK, value) }
 
-    override fun isOpen(): Boolean = attr(open, { true })
-    override fun open(value: Boolean): B = apply { attr(open, value) }
+    override fun isOpen(): Boolean = attr(OPEN, { true })
+    override fun open(value: Boolean): B = apply { attr(OPEN, value) }
 
-    override fun returns(): ListMultiHolder<AttributeI<*>> = itemAsList(returns, AttributeI::class.java, true)
+    override fun returns(): ListMultiHolder<AttributeI<*>> = itemAsList(RETURNS, AttributeI::class.java, true)
     override fun returns(vararg value: AttributeI<*>): B = apply { returns().addItems(value.asList()) }
     override fun ret(value: AttributeI<*>): AttributeI<*> = applyAndReturn { returns().addItem(value); value }
     override fun ret(value: AttributeI<*>.() -> Unit): AttributeI<*> = ret(Attribute(value))
@@ -737,11 +744,11 @@ open class OperationB<B : OperationI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<
     }
 
     companion object {
-        val err = "_err"
-        val generics = "_generics"
-        val nonBlock = "_nonBlock"
-        val open = "_open"
-        val returns = "_returns"
+        val ERR = "_err"
+        val GENERICS = "_generics"
+        val NONBLOCK = "_nonBlock"
+        val OPEN = "_open"
+        val RETURNS = "_returns"
     }
 }
 
@@ -804,10 +811,10 @@ open class PropsRef(adapt: PropsRef.() -> Unit = {}) : PropsRefB<PropsRef>(adapt
 
 open class PropsRefB<B : PropsRefI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(adapt), PropsRefI<B> {
 
-    override fun isAll(): Boolean = attr(all, { false })
-    override fun all(value: Boolean): B = apply { attr(all, value) }
+    override fun isAll(): Boolean = attr(ALL, { false })
+    override fun all(value: Boolean): B = apply { attr(ALL, value) }
 
-    override fun props(): ListMultiHolder<AttributeI<*>> = itemAsList(props, AttributeI::class.java, true)
+    override fun props(): ListMultiHolder<AttributeI<*>> = itemAsList(PROPS, AttributeI::class.java, true)
     override fun props(vararg value: AttributeI<*>): B = apply { props().addItems(value.asList()) }
     override fun prop(value: AttributeI<*>): AttributeI<*> = applyAndReturn { props().addItem(value); value }
     override fun prop(value: AttributeI<*>.() -> Unit): AttributeI<*> = prop(Attribute(value))
@@ -818,8 +825,8 @@ open class PropsRefB<B : PropsRefI<B>>(adapt: B.() -> Unit = {}) : MacroComposit
     }
 
     companion object {
-        val all = "_all"
-        val props = "_props"
+        val ALL = "_all"
+        val PROPS = "_props"
     }
 }
 
@@ -858,19 +865,19 @@ open class StructureUnit(adapt: StructureUnit.() -> Unit = {}) : StructureUnitB<
 
 open class StructureUnitB<B : StructureUnitI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(adapt), StructureUnitI<B> {
 
-    override fun artifact(): String = attr(artifact, { "" })
-    override fun artifact(value: String): B = apply { attr(artifact, value) }
+    override fun artifact(): String = attr(ARTIFACT, { "" })
+    override fun artifact(value: String): B = apply { attr(ARTIFACT, value) }
 
-    override fun fullName(): String = attr(fullName, { "" })
-    override fun fullName(value: String): B = apply { attr(fullName, value) }
+    override fun fullName(): String = attr(FULLNAME, { "" })
+    override fun fullName(value: String): B = apply { attr(FULLNAME, value) }
 
-    override fun key(): String = attr(key, { "" })
-    override fun key(value: String): B = apply { attr(key, value) }
+    override fun key(): String = attr(KEY, { "" })
+    override fun key(value: String): B = apply { attr(KEY, value) }
 
     companion object {
-        val artifact = "_artifact"
-        val fullName = "_fullName"
-        val key = "_key"
+        val ARTIFACT = "_artifact"
+        val FULLNAME = "_fullName"
+        val KEY = "_key"
     }
 }
 
@@ -909,58 +916,58 @@ open class Type(adapt: Type.() -> Unit = {}) : TypeB<Type>(adapt) {
 
 open class TypeB<B : TypeI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(adapt), TypeI<B> {
 
-    override fun constructors(): ListMultiHolder<ConstructorI<*>> = itemAsList(constructors, ConstructorI::class.java, true)
+    override fun constructors(): ListMultiHolder<ConstructorI<*>> = itemAsList(CONSTRUCTORS, ConstructorI::class.java, true)
     override fun constructors(vararg value: ConstructorI<*>): B = apply { constructors().addItems(value.asList()) }
     override fun constr(value: ConstructorI<*>): ConstructorI<*> = applyAndReturn { constructors().addItem(value); value }
     override fun constr(value: ConstructorI<*>.() -> Unit): ConstructorI<*> = constr(Constructor(value))
 
-    override fun defaultValue(): Any? = attr(defaultValue)
-    override fun defaultValue(value: Any?): B = apply { attr(defaultValue, value) }
+    override fun defaultValue(): Any? = attr(DEFAULTVALUE)
+    override fun defaultValue(value: Any?): B = apply { attr(DEFAULTVALUE, value) }
 
-    override fun generics(): ListMultiHolder<GenericI<*>> = itemAsList(generics, GenericI::class.java, true)
+    override fun generics(): ListMultiHolder<GenericI<*>> = itemAsList(GENERICS, GenericI::class.java, true)
     override fun generics(vararg value: GenericI<*>): B = apply { generics().addItems(value.asList()) }
     override fun G(value: GenericI<*>): GenericI<*> = applyAndReturn { generics().addItem(value); value }
     override fun G(value: GenericI<*>.() -> Unit): GenericI<*> = G(Generic(value))
 
-    override fun isIfc(): Boolean = attr(ifc, { false })
-    override fun ifc(value: Boolean): B = apply { attr(ifc, value) }
+    override fun isIfc(): Boolean = attr(IFC, { false })
+    override fun ifc(value: Boolean): B = apply { attr(IFC, value) }
 
-    override fun macroEmptyInstance(): String? = attr(macroEmptyInstance)
-    override fun macroEmptyInstance(value: String?): B = apply { attr(macroEmptyInstance, value) }
+    override fun macroEmptyInstance(): String? = attr(MACROEMPTYINSTANCE)
+    override fun macroEmptyInstance(value: String?): B = apply { attr(MACROEMPTYINSTANCE, value) }
 
-    override fun isMulti(): Boolean = attr(multi, { false })
-    override fun multi(value: Boolean): B = apply { attr(multi, value) }
+    override fun isMulti(): Boolean = attr(MULTI, { false })
+    override fun multi(value: Boolean): B = apply { attr(MULTI, value) }
 
-    override fun isNonBlock(): Boolean = attr(nonBlock, { false })
-    override fun nonBlock(value: Boolean): B = apply { attr(nonBlock, value) }
+    override fun isNonBlock(): Boolean = attr(NONBLOCK, { false })
+    override fun nonBlock(value: Boolean): B = apply { attr(NONBLOCK, value) }
 
-    override fun isOpen(): Boolean = attr(open, { true })
-    override fun open(value: Boolean): B = apply { attr(open, value) }
+    override fun isOpen(): Boolean = attr(OPEN, { true })
+    override fun open(value: Boolean): B = apply { attr(OPEN, value) }
 
-    override fun operations(): ListMultiHolder<OperationI<*>> = itemAsList(operations, OperationI::class.java, true)
+    override fun operations(): ListMultiHolder<OperationI<*>> = itemAsList(OPERATIONS, OperationI::class.java, true)
     override fun operations(vararg value: OperationI<*>): B = apply { operations().addItems(value.asList()) }
     override fun op(value: OperationI<*>): OperationI<*> = applyAndReturn { operations().addItem(value); value }
     override fun op(value: OperationI<*>.() -> Unit): OperationI<*> = op(Operation(value))
 
-    override fun props(): ListMultiHolder<AttributeI<*>> = itemAsList(props, AttributeI::class.java, true)
+    override fun props(): ListMultiHolder<AttributeI<*>> = itemAsList(PROPS, AttributeI::class.java, true)
     override fun props(vararg value: AttributeI<*>): B = apply { props().addItems(value.asList()) }
     override fun prop(value: AttributeI<*>): AttributeI<*> = applyAndReturn { props().addItem(value); value }
     override fun prop(value: AttributeI<*>.() -> Unit): AttributeI<*> = prop(Attribute(value))
 
-    override fun superUnitFor(): ListMultiHolder<TypeI<*>> = itemAsList(superUnitFor, TypeI::class.java, true)
+    override fun superUnitFor(): ListMultiHolder<TypeI<*>> = itemAsList(SUPERUNITFOR, TypeI::class.java, true)
     override fun superUnitFor(vararg value: TypeI<*>): B = apply { superUnitFor().addItems(value.asList()) }
 
-    override fun superUnits(): ListMultiHolder<TypeI<*>> = itemAsList(superUnits, TypeI::class.java, true)
+    override fun superUnits(): ListMultiHolder<TypeI<*>> = itemAsList(SUPERUNITS, TypeI::class.java, true)
     override fun superUnits(vararg value: TypeI<*>): B = apply { superUnits().addItems(value.asList()) }
 
-    override fun isToEqualsAll(): Boolean = attr(toEqualsAll, { false })
-    override fun toEqualsAll(value: Boolean): B = apply { attr(toEqualsAll, value) }
+    override fun isToEqualsAll(): Boolean = attr(TOEQUALSALL, { false })
+    override fun toEqualsAll(value: Boolean): B = apply { attr(TOEQUALSALL, value) }
 
-    override fun isToStrAll(): Boolean = attr(toStrAll, { false })
-    override fun toStrAll(value: Boolean): B = apply { attr(toStrAll, value) }
+    override fun isToStrAll(): Boolean = attr(TOSTRALL, { false })
+    override fun toStrAll(value: Boolean): B = apply { attr(TOSTRALL, value) }
 
-    override fun isVirtual(): Boolean = attr(virtual, { false })
-    override fun virtual(value: Boolean): B = apply { attr(virtual, value) }
+    override fun isVirtual(): Boolean = attr(VIRTUAL, { false })
+    override fun virtual(value: Boolean): B = apply { attr(VIRTUAL, value) }
 
     override fun fillSupportsItems() {
         constructors()
@@ -973,21 +980,21 @@ open class TypeB<B : TypeI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(ad
     }
 
     companion object {
-        val constructors = "_constructors"
-        val defaultValue = "_defaultValue"
-        val generics = "_generics"
-        val ifc = "_ifc"
-        val macroEmptyInstance = "_macroEmptyInstance"
-        val multi = "_multi"
-        val nonBlock = "_nonBlock"
-        val open = "_open"
-        val operations = "_operations"
-        val props = "_props"
-        val superUnitFor = "__superUnitFor"
-        val superUnits = "__superUnits"
-        val toEqualsAll = "_toEqualsAll"
-        val toStrAll = "_toStrAll"
-        val virtual = "_virtual"
+        val CONSTRUCTORS = "_constructors"
+        val DEFAULTVALUE = "_defaultValue"
+        val GENERICS = "_generics"
+        val IFC = "_ifc"
+        val MACROEMPTYINSTANCE = "_macroEmptyInstance"
+        val MULTI = "_multi"
+        val NONBLOCK = "_nonBlock"
+        val OPEN = "_open"
+        val OPERATIONS = "_operations"
+        val PROPS = "_props"
+        val SUPERUNITFOR = "__superUnitFor"
+        val SUPERUNITS = "__superUnits"
+        val TOEQUALSALL = "_toEqualsAll"
+        val TOSTRALL = "_toStrAll"
+        val VIRTUAL = "_virtual"
     }
 }
 

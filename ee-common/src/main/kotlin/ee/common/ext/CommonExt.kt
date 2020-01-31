@@ -195,6 +195,8 @@ fun String.toHyphenLowerCase(): String = strToUnderscoredLower.getOrPut(this) {
     else this.toLowerCase()
 }
 
+fun String.quotes() = "\"$this\""
+
 val sqlKeywords = mapOf("group" to "group_")
 val strToSql = WeakHashMap<String, String>()
 fun String.toSql(limit: Int = 64): String = strToSql.getOrPut(this) {
@@ -283,14 +285,16 @@ fun Path.lastModified(): Date = Date(toFile().lastModified())
 
 // Collections
 
-fun <T> Collection<T>.joinSurroundIfNotEmptyToString(separator: CharSequence = ", ", prefix: CharSequence = "",
-                                                     postfix: CharSequence = "", emptyString: String = "",
-                                                     transform: ((T) -> CharSequence)? = null): String = joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix,
+fun <T> Collection<T>.joinSurroundIfNotEmptyToString(
+        separator: CharSequence = ", ", prefix: CharSequence = "",
+        postfix: CharSequence = "", emptyString: String = "",
+        transform: ((T) -> CharSequence)? = null): String = joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix,
         postfix, emptyString, transform).toString()
 
-fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(buffer: A, separator: CharSequence = ", ",
-                                                               prefix: CharSequence = "", postfix: CharSequence = "", emptyString: String = "",
-                                                               transform: ((T) -> CharSequence)? = null): A {
+fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(
+        buffer: A, separator: CharSequence = ", ",
+        prefix: CharSequence = "", postfix: CharSequence = "", emptyString: String = "",
+        transform: ((T) -> CharSequence)? = null): A {
     if (size > 0) {
         buffer.append(prefix)
         forEachIndexed { index, item ->

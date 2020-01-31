@@ -407,12 +407,12 @@ fun <T : AttributeI<*>> T.toKotlinSignature(c: GenerationContext, derived: Strin
             toKotlinInit(c, derived)
         }}"
 
-fun <T : AttributeI<*>> T.toKotlinConstructorMember(c: GenerationContext, derived: String, api: String,
-                                                    initValues: Boolean = true, forceInit: Boolean = true,
-                                                    ident: String = "        "): String =
-        "${toKotlinConstructorDoc(ident)}${(isKey() && findParent(EnumType::class.java) != null).then {
-            "$ident@${c.n(jackson.json.JsonValue)} "
-        }}${
+fun <T : AttributeI<*>> T.toKotlinConstructorMember(
+        c: GenerationContext, derived: String, api: String,
+        initValues: Boolean = true, forceInit: Boolean = true,
+        ident: String = "        "): String =
+
+        "${toKotlinConstructorDoc(ident)}${
         toJsonXmlSupport(c, ident)}$ident${isReplaceable().setAndTrue().ifElse("var ", "val ")}${
         toKotlinSignature(c, derived, api, initValues, forceInit && type() !is GenericI, "")}"
 
@@ -423,25 +423,45 @@ fun <T : AttributeI<*>> T.toKotlinMember(c: GenerationContext, derived: String, 
         isReplaceable().setAndTrue().ifElse("var ", "val ")}${
         toKotlinSignature(c, derived, api, initValues, forceInit, "")}"
 
-fun <T : AttributeI<*>> T.toJsonXmlSupport(c: GenerationContext, ident: String): String =
-        externalName().isNullOrEmpty().not().then {
-            "${
-            c.jsonSupport.then { "$ident@${c.n(jackson.json.JsonProperty)}(\"${externalName()}\")$nL" }}${
-            c.xmlSupport.then {
-                "$ident@${c.n(jackson.xml.JacksonXmlProperty)}(localName = \\\"${
-                externalName()}\\\")$nL \" }"
-            }}"
-        }
+fun <T : AttributeI<*>> T.toJsonXmlSupport(c: GenerationContext, ident: String): String {
+    val jsonXmlProperties = externalName().isNullOrEmpty().not().then {
+        "${
+        c.jsonSupport.then { "$ident@${c.n(jackson.json.JsonProperty)}(${externalName()?.quotes()})$nL" }}${
+        c.xmlSupport.then {
+            "$ident@${c.n(jackson.xml.JacksonXmlProperty)}(localName = \\\"${
+            externalName()}\\\")$nL \" }"
+        }}"
+    }
+    val jsonValue = (isKey() && c.jsonSupport).then {
+        "$ident@${c.n(jackson.json.JsonValue)}$nL"
+    }
+    return "$jsonXmlProperties$jsonValue"
+}
 
-fun List<AttributeI<*>>.toKotlinSignature(c: GenerationContext, derived: String,
-                                          api: String, initValues: Boolean = true, forceInit: Boolean = true,
-                                          ident: String = "            "): String =
+fun List<AttributeI<*>>.toKotlinSignature(
+        c: GenerationContext, derived: String, api: String,
+        initValues: Boolean = true, forceInit: Boolean = true, ident: String = "            "): String =
+
         joinSurroundIfNotEmptyToString(",$nL", nL) {
             it.toKotlinSignature(c, derived, api, initValues, forceInit, ident)
         }
 
-fun <T : ConstructorI<*>> T.toKotlinPrimaryAndExtends(c: GenerationContext, derived: String, api: String,
-                                                      type: TypeI<*>): String {
+
+fun <T : ConstructorI<*>> T.toKotlinEnum(
+        c: GenerationContext, derived: String, api: String): String {
+
+    return if (isNotEMPTY()) {
+        params().joinSurroundIfNotEmptyToString(",$nL", prefix = "($nL", postfix = ")") { param ->
+            param.toKotlinConstructorMember(c, derived, api, initValues = false, forceInit = false)
+        }
+    } else {
+        ""
+    }
+}
+
+fun <T : ConstructorI<*>> T.toKotlinPrimaryAndExtends(
+        c: GenerationContext, derived: String, api: String, type: TypeI<*>): String {
+
     val superUnitParams = superUnit().params()
     return if (isNotEMPTY()) {
         """${paramsWithOutFixValue().toKotlinSignaturePrimary(c, derived, api, superUnitParams)}${
@@ -455,6 +475,7 @@ fun <T : ConstructorI<*>> T.toKotlinPrimaryAndExtends(c: GenerationContext, deri
 fun List<AttributeI<*>>.toKotlinSignaturePrimary(
         c: GenerationContext, derived: String, api: String,
         superUnitParams: List<AttributeI<*>> = emptyList()): String {
+
     return joinSurroundIfNotEmptyToString(",$nL", prefix = "($nL", postfix = ")") { param ->
         if (superUnitParams.containsByName(param)) {
             param.toKotlinSignature(c, derived, api)
@@ -524,11 +545,14 @@ fun <T : LogicUnitI<*>> T.toKotlinCallValue(
             }
         }})"
 
-fun <T : LiteralI<*>> T.toKotlinCallValue(c: GenerationContext, derived: String): String = params().isNotEmpty().then {
-    "(${params().joinWrappedToString(", ") {
-        it.toKotlinValue(c, derived)
-    }})"
-}
+fun <T : LiteralI<*>> T.toKotlinCallValue(
+        c: GenerationContext, derived: String, params: List<AttributeI<*>> = params()): String =
+
+        params.isNotEmpty().then {
+            "(${params.joinWrappedToString(", ") {
+                it.toKotlinValue(c, derived)
+            }})"
+        }
 
 fun <T : AttributeI<*>> T.toKotlinType(c: GenerationContext, derived: String): String =
         "${type().toKotlin(c, derived, isMutable())}${isNullable().toKotlinNullable()}"

@@ -192,6 +192,8 @@ interface DivideExpressionI<B : DivideExpressionI<B>> : LeftRightLiteralI<B> {
 
 
 interface EnumLiteralI<B : EnumLiteralI<B>> : LiteralI<B> {
+    fun externalName(value: String?): B
+    fun externalName(): String?
 }
 
 

@@ -97,14 +97,14 @@ private class JsonToDesignExecutor(swaggerFile: Path, val rootTypeName: String,
 
     private fun EnumSchema.toDslType(name: String): String {
         return """
-    object $name : EnumType(${description.toDslDoc("{", "}")}) {${toDslLiterals()}
+    object $name : EnumType(${description.toDslDoc("{", "}")}) {${
+        possibleValuesAsList.joinToString(nL, nL) {
+            val externalName = it.toString()
+            val literalName = externalName.toCamelCase()
+            val init = if(literalName != externalName) " { externalName(\"$externalName\") }" else "()"
+            "        val $literalName = lit$init"
+        }}
     }"""
-    }
-
-    private fun EnumSchema.toDslLiterals(): String {
-        return possibleValuesAsList.joinToString(nL, nL) {
-            "        val ${it.toString().toCamelCase()} = lit()"
-        }
     }
 
     private fun ObjectSchema.toDslType(name: String): String {

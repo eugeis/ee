@@ -64,7 +64,9 @@ object l : Composite({ namespace("ee.lang") }) {
         val params = AttributeI { type(Attribute).multi(true) }
     }
 
-    object EnumLiteral : Composite({ derivedFrom(Literal) })
+    object EnumLiteral : Composite({ derivedFrom(Literal) }) {
+        val externalName = AttributeI { type(n.String) }.nullable()
+    }
 
     object Attribute : Composite({ derivedFrom(Literal) }) {
         val key = AttributeI { type(n.Boolean).value(false) }
