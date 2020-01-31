@@ -592,6 +592,17 @@ fun <T : StructureUnitI<*>> T.initFullNameArtifacts() {
     }
 }
 
+fun <T : StructureUnitI<*>> T.markAllPropsReplaceable(): T {
+    findDownByType(TypeI::class.java).forEach { type ->
+        if (type !is EnumTypeI) {
+            type.props().forEach { prop ->
+                prop.replaceable()
+            }
+        }
+    }
+    return this
+}
+
 fun <T : MacroCompositeI<*>> T.hasMacros() =
         macrosBefore().isNotEmpty() || macrosBody().isNotEmpty() || macrosAfter().isNotEmpty()
 
