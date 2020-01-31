@@ -4,6 +4,7 @@ import ee.common.ext.*
 import ee.design.DslTypes
 import ee.design.Module
 import ee.lang.*
+import ee.lang.gen.kt.toDslDoc
 import io.swagger.models.ArrayModel
 import io.swagger.models.ComposedModel
 import io.swagger.models.ModelImpl
@@ -88,13 +89,6 @@ private class SwaggerToDesignExecutor(
         return ((this is StringProperty && default.isNullOrEmpty().not())).ifElse({
             "${suffix}value(${(this as StringProperty).enum.isNotEmpty().ifElse({ "$name.$default" },
                     { "\"$name.$default\"" })})$prefix"
-        }, { "" })
-    }
-
-    private fun String?.toDslDoc(suffix: String = "", prefix: String = ""): String {
-        return (this != null).ifElse({
-            "${suffix}doc(${(this!!.contains("\"") || contains("\n") || contains("\\")).ifElse(
-                    "\"\"\"$this\"\"\"", "\"$this\"")})$prefix"
         }, { "" })
     }
 

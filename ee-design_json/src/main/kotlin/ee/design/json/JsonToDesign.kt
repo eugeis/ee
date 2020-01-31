@@ -2,6 +2,7 @@ package ee.design.json
 
 import ee.common.ext.*
 import ee.design.DslTypes
+import ee.lang.gen.kt.toDslDoc
 import ee.lang.nL
 import org.everit.json.schema.*
 import org.everit.json.schema.loader.SchemaLoader
@@ -250,12 +251,5 @@ private class JsonToDesignExecutor(swaggerFile: Path, val rootTypeName: String,
 
     private fun String.toDslTypeName(): String {
         return typeToPrimitive[this] ?: namesToTypeName.getOrPut(this) { toCamelCase().capitalize() }
-    }
-
-    private fun String?.toDslDoc(suffix: String = "", prefix: String = ""): String {
-        return (this != null).ifElse({
-            "${suffix}doc(${(this!!.contains("\"") || contains("\n") || contains("\\")).ifElse(
-                    "\"\"\"$this\"\"\"", "\"$this\"")})$prefix"
-        }, { "" })
     }
 }

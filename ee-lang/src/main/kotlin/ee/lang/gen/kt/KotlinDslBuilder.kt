@@ -68,7 +68,7 @@ fun <T : CompilationUnitI<*>> T.toKotlinDslBuilderI(c: GenerationContext,
                                                     derived: String = LangDerivedKind.API): String {
     return """
 interface ${c.n(this, derived)}<B : ${c.n(this, derived)}<B>> : ${c.n(superUnit(), derived)}<B> {
-${props().joinToString(            nL) { it.toKotlinDslBuilderMethodsI(c, derived) }}
+${props().joinToString(nL) { it.toKotlinDslBuilderMethodsI(c, derived) }}
 }"""
 }
 
@@ -103,3 +103,9 @@ open class $B<B : $B<B>>(adapt: B.() -> Unit = {}) : ${c.n(superUnit(),
     }}
 }"""
 }
+
+fun String?.toDslDoc(suffix: String = "", prefix: String = ""): String =
+        if (this != null) {
+            "${suffix}doc(${(this!!.contains("\"") || contains("\n") || contains("\\")).ifElse(
+                    "\"\"\"$this\"\"\"", "\"$this\"")})$prefix"
+        } else ""
