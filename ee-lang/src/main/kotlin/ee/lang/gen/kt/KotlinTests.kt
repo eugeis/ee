@@ -6,8 +6,10 @@ import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 import ee.lang.gen.java.junit
 
-fun <T : EnumTypeI<*>> T.toKotlinEnumParseAndIsMethodsTests(c: GenerationContext, derived: String = LangDerivedKind.API): String {
+fun <T : EnumTypeI<*>> T.toKotlinEnumParseAndIsMethodsTests(
+        c: GenerationContext, derived: String = LangDerivedKind.API): String {
     val name = c.n(this, derived).capitalize()
+    val toByName = "to${name}ByName"
     var prev = literals().last()
 
     return """
@@ -16,7 +18,7 @@ class ${name}EnumParseAndIsMethodsTests {
     fun testStringTo${name}_Normal() {
         $name.values().forEach { item ->
             //check normal
-            ${c.n(k.test.assertSame, derived)}(item, item.name.to$name())
+            ${c.n(k.test.assertSame, derived)}(item, item.name.$toByName())
         }
     }
 
@@ -24,26 +26,26 @@ class ${name}EnumParseAndIsMethodsTests {
     fun testStringTo${name}_CaseNotSensitive() {
         $name.values().forEach { item ->
             //check case not sensitive
-            ${c.n(k.test.assertSame, derived)}(item, item.name.toLowerCase().to$name())
-            ${c.n(k.test.assertSame, derived)}(item, item.name.toUpperCase().to$name())
+            ${c.n(k.test.assertSame, derived)}(item, item.name.toLowerCase().$toByName())
+            ${c.n(k.test.assertSame, derived)}(item, item.name.toUpperCase().$toByName())
         }
         //check null to default value
-        ${c.n(k.test.assertSame, derived)}(null.to$name(), $name.${literals().first().toKotlin()})
+        ${c.n(k.test.assertSame, derived)}(null.$toByName(), $name.${literals().first().toKotlin()})
 
         //check unknown to default value
-        ${c.n(k.test.assertSame, derived)}("".to$name(), $name.${literals().first().toKotlin()})
+        ${c.n(k.test.assertSame, derived)}("".$toByName(), $name.${literals().first().toKotlin()})
     }
 
     @${c.n(junit.Test, derived)}
     fun testStringTo${name}_NullOrWrongToDefault() {
         //check null to default value
-        ${c.n(k.test.assertSame, derived)}(null.to$name(), $name.${literals().first().toKotlin()})
+        ${c.n(k.test.assertSame, derived)}(null.$toByName(), $name.${literals().first().toKotlin()})
 
         //check empty to default value
-        ${c.n(k.test.assertSame, derived)}("".to$name(), $name.${literals().first().toKotlin()})
+        ${c.n(k.test.assertSame, derived)}("".$toByName(), $name.${literals().first().toKotlin()})
 
         //check unknown to default value
-        ${c.n(k.test.assertSame, derived)}("$@%".to$name(), $name.${literals().first().toKotlin()})
+        ${c.n(k.test.assertSame, derived)}("$@%".$toByName(), $name.${literals().first().toKotlin()})
     }${literals().joinToString(nL) {
 
         val litCap = it.name().toUnderscoredUpperCase()
@@ -65,10 +67,9 @@ class ${name}EnumParseAndIsMethodsTests {
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toKotlinFieldTest(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                  api: String = LangDerivedKind.API,
-                                                  dataClass: Boolean = this is BasicI<*> &&
-                                                          superUnits().isEmpty() && superUnitFor().isEmpty()): String {
+fun <T : CompilationUnitI<*>> T.toKotlinFieldTest(
+        c: GenerationContext, derived: String = LangDerivedKind.IMPL, api: String = LangDerivedKind.API,
+        dataClass: Boolean = this is BasicI<*> && superUnits().isEmpty() && superUnitFor().isEmpty()): String {
     if (generics().isNotEmpty())
         return ""
 
@@ -89,7 +90,7 @@ class ${name}FieldTests {
             externalVariables = timeProps, resolveLiteralValue = true)}${
     propsAll().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         "        ${c.n(k.test.assertEquals, derived)}(${
-        it.toKotlinValue(c, derived, value = timeProps[it.name()] ?: it.value(), 
+        it.toKotlinValue(c, derived, value = timeProps[it.name()] ?: it.value(),
                 resolveLiteralValue = true)}, item.${it.name()})"
     }}
     }

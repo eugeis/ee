@@ -131,8 +131,12 @@ open class GeneratorSimple<M>(name: String, contextBuilder: ContextBuilder<M>,
         val relative = target.relativize(path).toString()
         if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
             log.debug("generate $path for $model")
-            path.toFile().writeText(c.complete(template.generate(model, c)))
-            metaData.track(relative, path.lastModified())
+            val body = template.generate(model, c)
+            if (body.isNotBlank()) {
+                val text = c.complete(body)
+                path.toFile().writeText(text)
+                metaData.track(relative, path.lastModified())
+            }
             c.clear()
             metaData.store(module)
         } else {

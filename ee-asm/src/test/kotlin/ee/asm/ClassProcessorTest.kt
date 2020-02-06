@@ -5,7 +5,7 @@ import javafx.application.Application
 import org.junit.jupiter.api.Test
 
 class ClassProcessorTest {
-    @Test
+    //@Test
     fun test() {
 
         val jxFile = Application::class.java.location().toFile()

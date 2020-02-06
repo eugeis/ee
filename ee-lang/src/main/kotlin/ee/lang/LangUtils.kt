@@ -357,7 +357,7 @@ fun AttributeI<*>.nameDecapitalize(): String = storage.getOrPut(this, "nameDecap
 }
 
 fun AttributeI<*>.asParam(paramValue: Any): AttributeI<*> = derive { value(paramValue) }
-fun EnumTypeI<*>.lit(prop: AttributeI<*>, paramValue: Any): LiteralI<*> = lit {
+fun EnumTypeI<*>.lit(prop: AttributeI<*>, paramValue: Any): EnumLiteralI<*> = lit {
     params(prop.asParam(paramValue))
 }
 

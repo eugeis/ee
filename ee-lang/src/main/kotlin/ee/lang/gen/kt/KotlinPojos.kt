@@ -80,13 +80,14 @@ fun <T : EnumTypeI<*>> T.toKotlinEnumParseMethod(
 fun <T : EnumTypeI<*>> T.toKotlinEnumParseMethodByProp(
         c: GenerationContext, derived: String = LangDerivedKind.API, prop: AttributeI<*>): String {
     val name = c.n(this, derived)
-    return """fun ${prop.type().toKotlin(c, derived)}?.to${name}By${
-    prop.name().capitalize()}(orInstance: $name = $name.${literals().first().toKotlin()}): $name {
+    return """fun ${prop.type().toKotlin(c, derived)}?.to${name}${prop.toByName()}(orInstance: $name = $name.${literals().first().toKotlin()}): $name {
     return $name.values().find { 
         this == null || it.${prop.name()}.equals(this, true) 
     } ?: orInstance
 }"""
 }
+
+fun AttributeI<*>.toByName() = """By${name().capitalize()}"""
 
 fun <T : CompilationUnitI<*>> T.toKotlinIfc(
         c: GenerationContext, derived: String = LangDerivedKind.IMPL,
