@@ -33,10 +33,6 @@ open class LangKotlinTemplates {
     open fun enum(nameBuilder: TemplateI<EnumTypeI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
             Template("Enum", nameBuilder) { item, c -> item.toKotlinEnum(c) }
 
-    open fun enumParseMethod(
-            nameBuilder: TemplateI<EnumTypeI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
-            Template("EnumParseMethod", nameBuilder) { item, c -> item.toKotlinEnumParseMethod(c) }
-
     open fun enumParseAndIsMethodsTestsParseMethodTests(
             nameBuilder: TemplateI<EnumTypeI<*>>.(CompilationUnitI<*>) -> NamesI = defaultNameBuilder) =
             Template("EnumParseMethodTests", nameBuilder) { item, c -> item.toKotlinEnumParseAndIsMethodsTests(c) }

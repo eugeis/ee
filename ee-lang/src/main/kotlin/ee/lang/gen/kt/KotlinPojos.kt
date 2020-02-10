@@ -40,9 +40,11 @@ $typePrefix${enumConst.toKotlinEnum(c, derived, api)} {
     ${literals().joinToString(",$nL    ") { lit ->
         "${lit.toKotlin()}${
         if (externalNameNeeded) {
-            lit.toKotlinCallValue(c, derived, mutableListOf(p(externalNameProp) {
+            val paramsWithExternalName = mutableListOf(p(externalNameProp) {
                 value(lit.externalName() ?: lit.name())
-            }))
+            })
+            paramsWithExternalName.addAll(lit.params())
+            lit.toKotlinCallValue(c, derived, paramsWithExternalName)
         } else {
             lit.toKotlinCallValue(c, derived)
         }}"
@@ -52,19 +54,41 @@ $typePrefix${enumConst.toKotlinEnum(c, derived, api)} {
         it.toKotlinImpl(c, derived, api, isNonBlock(it))
     }}${
     literals().joinToString("", nL) { it.toKotlinIsMethod() }}
-}"""
+
+    companion object {${
+    toKotlinEnumFindByMethods(c, derived)}
+    }    
 }
 
-fun propExternalName() = p("externalName").key().init()
+${toKotlinEnumParseMethods(c, derived)}
+"""
+}
 
-fun <T : EnumTypeI<*>> T.isKotlinExternalNameNeeded() =
-        literals().find {
-            val literName = it.toKotlin()
-            val externalName = it.externalName()
-            literName != it.name() || (externalName != null && externalName != literName)
-        } != null
+fun <T : EnumTypeI<*>> T.toKotlinEnumFindByMethods(
+        c: GenerationContext, derived: String = LangDerivedKind.API): String {
 
-fun <T : EnumTypeI<*>> T.toKotlinEnumParseMethod(
+    val externalNameParse = if (isKotlinExternalNameNeeded()) {
+        "$nL$nL${toKotlinEnumFindByMethod(c, derived, propExternalName())}"
+    } else ""
+
+    return """$nL${toKotlinEnumFindByMethod(c, derived, p("name").init())}${
+    externalNameParse}${props().joinSurroundIfNotEmptyToString(nL, "$nL$nL") {
+        toKotlinEnumFindByMethod(c, derived, it)
+    }}"""
+}
+
+fun <T : EnumTypeI<*>> T.toKotlinEnumFindByMethod(
+        c: GenerationContext, derived: String = LangDerivedKind.API, prop: AttributeI<*>): String {
+    val name = c.n(this, derived)
+    val byName = prop.toByName()
+    val propName = prop.name()
+    return """        fun findBy$byName($propName: ${
+    prop.type().toKotlin(c, derived)}?, orInstance: $name = $name.${literals().first().toKotlin()}): $name {
+            return $propName.to${name}$byName(orInstance)
+        }"""
+}
+
+fun <T : EnumTypeI<*>> T.toKotlinEnumParseMethods(
         c: GenerationContext, derived: String = LangDerivedKind.API): String {
 
     val externalNameParse = if (isKotlinExternalNameNeeded()) {
@@ -80,12 +104,31 @@ fun <T : EnumTypeI<*>> T.toKotlinEnumParseMethod(
 fun <T : EnumTypeI<*>> T.toKotlinEnumParseMethodByProp(
         c: GenerationContext, derived: String = LangDerivedKind.API, prop: AttributeI<*>): String {
     val name = c.n(this, derived)
-    return """fun ${prop.type().toKotlin(c, derived)}?.to${name}${prop.toByName()}(orInstance: $name = $name.${literals().first().toKotlin()}): $name {
-    return $name.values().find { 
-        this == null || it.${prop.name()}.equals(this, true) 
-    } ?: orInstance
+    return """fun ${prop.type().toKotlin(c, derived)}?.to${name}${
+    prop.toByName()}(orInstance: $name = $name.${literals().first().toKotlin()}): $name {
+    val found = $name.values().find { 
+        this != null && it.${prop.name()}${(prop.type()==n.String).ifElse(".equals(this, true)", " == this")} 
+    }
+    return found ?: orInstance
 }"""
 }
+
+fun propExternalName() = p("externalName").key().init()
+
+fun <T : EnumTypeI<*>> T.isKotlinExternalNameNeeded(): Boolean {
+    val atLeastOneWithExternalNameNeeded = literals().find {
+        val literName = it.toKotlin()
+        val externalName = it.externalName()
+        if (externalName != null) {
+            externalName != literName
+        } else {
+            literName != it.name()
+        }
+    }
+    return atLeastOneWithExternalNameNeeded != null
+}
+
+
 
 fun AttributeI<*>.toByName() = """By${name().capitalize()}"""
 

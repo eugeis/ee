@@ -94,7 +94,7 @@ open class LangGeneratorFactory(protected val singleModule: Boolean = true) {
                         template = FragmentsTemplate(name = "${fileNamePrefix}ApiBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
                             listOf(ItemsFragment(items = enums,
-                                    fragments = { listOf(ktTemplates.enum(), ktTemplates.enumParseMethod()) }),
+                                    fragments = { listOf(ktTemplates.enum()) }),
                                     ItemsFragment(items = compilationUnits, fragments = {
                                         listOf(ktTemplates.pojo(itemNameAsKotlinFileName))
                                     }))
@@ -193,7 +193,7 @@ open class LangGeneratorFactory(protected val singleModule: Boolean = true) {
                         template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
                             listOf(ItemsFragment(items = enums,
-                                    fragments = { listOf(ktTemplates.enum(), ktTemplates.enumParseMethod()) }),
+                                    fragments = { listOf(ktTemplates.enum()) }),
                                     ItemsFragment(items = compilationUnits, fragments = {
                                         listOf(ktTemplates.pojo(itemNameAsKotlinFileName))
                                     }))
@@ -288,7 +288,7 @@ open class LangGeneratorFactory(protected val singleModule: Boolean = true) {
                         template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
                             listOf(ItemsFragment(items = enums,
-                                    fragments = { listOf(ktTemplates.enum(), ktTemplates.enumParseMethod()) }),
+                                    fragments = { listOf(ktTemplates.enum()) }),
                                     ItemsFragment(items = compilationUnits, fragments = {
                                         listOf(ktTemplates.pojo(itemNameAsKotlinFileName))
                                     }))

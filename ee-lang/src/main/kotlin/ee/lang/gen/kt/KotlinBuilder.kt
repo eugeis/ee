@@ -198,9 +198,9 @@ fun <T : CompilationUnitI<*>> T.toKotlinBuilder(c: GenerationContext, derived: S
 
         """
 open class $BT$generics$primConstr :
-        $B<$BT$generics, $T$generics$followGenerics>($primConstrCall) {
+        $B<$BT$generics, $T$generics$followGenerics>($primConstrCall) {${props().isNotEmpty().then {"""
     override fun build(): $T$generics =
-            $T(${primaryOrFirstConstructorOrFull().toKotlinCallParamsBuilder(c)})
+            $T(${primaryOrFirstConstructorOrFull().toKotlinCallParamsBuilder(c)})"""}}
 }
 
 abstract class $B<B : $B<B, T$followGenerics>, T : ${c.n(this, LangDerivedKind.API)}$generics$followGenerics>$primConstrAbstr :
