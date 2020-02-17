@@ -238,12 +238,12 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
 open class GoContext(
         namespace: String = "", moduleFolder: String = "", genFolder: String = "src",
-        genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.go".toRegex(),
+        genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*_base.go".toRegex(),
         derivedController: DerivedController, macroController: MacroController)
     : GenerationContext(namespace, moduleFolder, genFolder, genFolderDeletable,
         genFolderPatternDeletable, derivedController, macroController) {
 
-    val namespaceLastPart: String = namespace.substringAfterLast(".")
+    private val namespaceLastPart: String = namespace.substringAfterLast(".")
 
     override fun complete(content: String, indent: String): String {
         return "${toHeader(indent)}${toPackage(indent)}${toImports(indent)}$content${toFooter(indent)}"
@@ -317,13 +317,13 @@ fun AttributeI<*>.nameForGoMember(): String = storage.getOrPut(this, "nameForGoM
 })
 
 val itemAndTemplateNameAsGoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${it.name().decapitalize()}${name.capitalize()}.go")
+    Names("${it.name().toUnderscoredLowerCase()}_${name.toUnderscoredLowerCase()}.go")
 }
 
 val templateNameAsGoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${name.decapitalize()}.go")
+    Names("${name.toUnderscoredLowerCase()}.go")
 }
 
 val itemNameAsGoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${it.name().decapitalize()}.go")
+    Names("${it.name().toUnderscoredLowerCase()}.go")
 }

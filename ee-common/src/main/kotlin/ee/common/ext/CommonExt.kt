@@ -173,8 +173,9 @@ fun String.toCamelCase(): String = strToCamelCase.getOrPut(this) {
     }
 }
 
-val smallLetters = Regex("[a-z]")
-val bAZ = "(\\B[A-Z])".toRegex()
+val smallLettersOrNumbers = Regex("[a-z0-9]+")
+val bigLettersOrNumbers = Regex("[A-Z0-9]+")
+val bAZ = "(\\b[A-Z])".toRegex()
 
 val strToUnderscoredUpper = WeakHashMap<String, String>()
 fun String.toUnderscoredUpperCase(): String = strToUnderscoredUpper.getOrPut(this) {
@@ -183,16 +184,28 @@ fun String.toUnderscoredUpperCase(): String = strToUnderscoredUpper.getOrPut(thi
 
 val strToUnderscoredLower = WeakHashMap<String, String>()
 fun String.toUnderscoredLowerCase(): String = strToUnderscoredLower.getOrPut(this) {
-    if (smallLetters.matches(this)) {
-        replace(bAZ, "_$1").toLowerCase()
-    } else {
+    val ret = if (smallLettersOrNumbers.matches(this)) {
+        this
+    } else if (bigLettersOrNumbers.matches(this)) {
         toLowerCase()
+    } else {
+        var underscored = replace(bAZ, "_$1")
+        if(underscored.startsWith("_")) {
+            underscored = underscored.substring(1)
+        }
+        underscored.toLowerCase()
     }
+    ret
 }
 
 fun String.toHyphenLowerCase(): String = strToUnderscoredLower.getOrPut(this) {
-    if (smallLetters.matches(this)) replace(bAZ, "-$1").toLowerCase()
-    else this.toLowerCase()
+    if (smallLettersOrNumbers.matches(this)) {
+        this
+    } else if (bigLettersOrNumbers.matches(this)) {
+        toLowerCase()
+    } else {
+        replace(bAZ, "-$1").toLowerCase()
+    }
 }
 
 fun String.quotes() = "\"$this\""
@@ -311,15 +324,17 @@ fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(
     return buffer
 }
 
-fun <T> Collection<T>.joinSurroundIfNotEmptyToString(separator: CharSequence = ", ",
-                                                     prefix: () -> String, postfix: () -> String, emptyString: (() -> String)? = null,
-                                                     transform: ((T) -> CharSequence)? = null): String = joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix,
+fun <T> Collection<T>.joinSurroundIfNotEmptyToString(
+        separator: CharSequence = ", ",
+        prefix: () -> String, postfix: () -> String, emptyString: (() -> String)? = null,
+        transform: ((T) -> CharSequence)? = null): String = joinSurroundIfNotEmptyTo(StringBuilder(), separator, prefix,
         postfix, emptyString, transform).toString()
 
 
-fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(buffer: A, separator: CharSequence = ", ",
-                                                               prefix: () -> String, postfix: () -> String, emptyString: (() -> String)?,
-                                                               transform: ((T) -> CharSequence)? = null): A {
+fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(
+        buffer: A, separator: CharSequence = ", ",
+        prefix: () -> String, postfix: () -> String, emptyString: (() -> String)?,
+        transform: ((T) -> CharSequence)? = null): A {
     if (size > 0) {
         buffer.append(prefix())
         forEachIndexed { index, item ->
@@ -336,15 +351,17 @@ fun <T, A : Appendable> Collection<T>.joinSurroundIfNotEmptyTo(buffer: A, separa
     return buffer
 }
 
-fun <T> Collection<T>.joinWithIndexToString(separator: CharSequence = ", ", prefix: CharSequence = "",
-                                            postfix: CharSequence = "", emptyString: String = "",
-                                            transform: ((Int, T) -> CharSequence)? = null): String = joinWithIndexToString(StringBuilder(), separator, prefix,
+fun <T> Collection<T>.joinWithIndexToString(
+        separator: CharSequence = ", ", prefix: CharSequence = "",
+        postfix: CharSequence = "", emptyString: String = "",
+        transform: ((Int, T) -> CharSequence)? = null): String = joinWithIndexToString(StringBuilder(), separator, prefix,
         postfix, emptyString, transform).toString()
 
 
-fun <T, A : Appendable> Collection<T>.joinWithIndexToString(buffer: A, separator: CharSequence = ", ",
-                                                            prefix: CharSequence = "", postfix: CharSequence = "", emptyString: String = "",
-                                                            transform: ((Int, T) -> CharSequence)? = null): A {
+fun <T, A : Appendable> Collection<T>.joinWithIndexToString(
+        buffer: A, separator: CharSequence = ", ",
+        prefix: CharSequence = "", postfix: CharSequence = "", emptyString: String = "",
+        transform: ((Int, T) -> CharSequence)? = null): A {
     if (size > 0) {
         buffer.append(prefix)
         forEachIndexed { index, item ->

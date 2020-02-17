@@ -7,17 +7,18 @@ import ee.lang.gen.go.initsForGoGeneration
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
-open class DesignGoGenerator(val model: StructureUnitI<*>, singleModule: Boolean = false) {
+open class DesignGoGenerator(val model: StructureUnitI<*>, targetAsSingleModule: Boolean = true) {
     private val log = LoggerFactory.getLogger(javaClass)
-    val generatorFactory = DesignGeneratorFactory(singleModule)
+    val generatorFactory = DesignGeneratorFactory(targetAsSingleModule)
 
     init {
         model.extendForGoGeneration()
     }
 
-    fun generate(target: Path,
-                 generatorContexts: GeneratorContexts<StructureUnitI<*>> = generatorFactory.go(),
-                 shallSkip: GeneratorI<*>.(model: Any?) -> Boolean = { false }) {
+    fun generate(
+            target: Path,
+            generatorContexts: GeneratorContexts<StructureUnitI<*>> = generatorFactory.go(),
+            shallSkip: GeneratorI<*>.(model: Any?) -> Boolean = { false }) {
         //val generatorContexts = generatorFactory.go()
         //generatorContexts.generator.delete(target, model)
         //generatorContexts.generator.generate(target, model)

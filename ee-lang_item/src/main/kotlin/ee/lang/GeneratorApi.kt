@@ -94,8 +94,7 @@ abstract class GeneratorBase<M>(name: String, val contextBuilder: ContextBuilder
         AbstractGenerator<M>(name) {
 
     protected open fun prepareNamespace(module: Path, context: GenerationContext): Path {
-        val folder = module.resolve(context.genFolder)
-        val ret = folder.resolve(context.namespace.toDotsAsPath())
+        val ret = context.resolveFolder(module)
         ret.mkdirs()
         return ret
     }
@@ -116,8 +115,9 @@ abstract class GeneratorBase<M>(name: String, val contextBuilder: ContextBuilder
     }
 }
 
-open class GeneratorSimple<M>(name: String, contextBuilder: ContextBuilder<M>,
-                              val template: TemplateI<M>) : GeneratorBase<M>(name, contextBuilder) {
+open class GeneratorSimple<M>(
+        name: String, contextBuilder: ContextBuilder<M>,
+        val template: TemplateI<M>) : GeneratorBase<M>(name, contextBuilder) {
 
     override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
         if (shallSkip(model)) return
@@ -258,6 +258,11 @@ open class GenerationContext(
     var jsonSupport: Boolean = true
 
     val types: MutableSet<ItemI<*>> = hashSetOf()
+
+    open fun resolveFolder(base: Path): Path {
+        val folder = base.resolve(genFolder)
+        return folder.resolve(namespace.toDotsAsPath())
+    }
 
     open fun toHeader(indent: String = ""): String {
         return header.isEmpty().ifElse("") { "$indent$header$nL" }

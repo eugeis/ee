@@ -17,7 +17,7 @@ import ee.lang.gen.kt.toKotlinInstanceEMPTY
 import ee.lang.gen.ts.LangTsContextFactory
 import ee.lang.gen.ts.LangTsTemplates
 
-open class LangGeneratorFactory(protected val singleModule: Boolean = true) {
+open class LangGeneratorFactory(protected val targetAsSingleModule: Boolean = true) {
 
     open fun devDoc(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {
         val docTemplates = buildDocTemplates()
@@ -190,7 +190,7 @@ open class LangGeneratorFactory(protected val singleModule: Boolean = true) {
                             }))
                         })),
                 GeneratorSimple("ApiBase", contextBuilder = ktContextBuilder,
-                        template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
+                        template = FragmentsTemplate(name = "${fileNamePrefix}ApiBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
                             listOf(ItemsFragment(items = enums,
                                     fragments = { listOf(ktTemplates.enum()) }),
@@ -285,7 +285,7 @@ open class LangGeneratorFactory(protected val singleModule: Boolean = true) {
                             }))
                         })),
                 GeneratorSimple("ApiBase", contextBuilder = ktContextBuilder,
-                        template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
+                        template = FragmentsTemplate(name = "${fileNamePrefix}ApiBase",
                                 nameBuilder = itemAndTemplateNameAsKotlinFileName, fragments = {
                             listOf(ItemsFragment(items = enums,
                                     fragments = { listOf(ktTemplates.enum()) }),
@@ -335,19 +335,19 @@ open class LangGeneratorFactory(protected val singleModule: Boolean = true) {
             findDownByType(CompilationUnitI::class.java).filter { it !is EnumTypeI<*> }
         }
 
-        val generator = GeneratorGroup("pojoGo", listOf(GeneratorSimple("ApiBase", contextBuilder = goContextBuilder,
-                template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}ApiBase",
-                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
-                    listOf(ItemsFragment(items = enums, fragments = { listOf(goTemplates.enum()) }),
-                            ItemsFragment(items = compilationUnits, fragments = { listOf(goTemplates.pojo()) }))
-                }))))
+        val generator = GeneratorGroup("pojoGo", listOf(GeneratorSimple("ApiBase",
+                contextBuilder = goContextBuilder, template = FragmentsTemplate(name = "${fileNamePrefix}ApiBase",
+                nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
+            listOf(ItemsFragment(items = enums, fragments = { listOf(goTemplates.enum()) }),
+                    ItemsFragment(items = compilationUnits, fragments = { listOf(goTemplates.pojo()) }))
+        }))))
         return GeneratorContexts(generator, goContextBuilder)
     }
 
-    protected open fun buildKotlinContextFactory() = LangKotlinContextFactory()
+    protected open fun buildKotlinContextFactory() = LangKotlinContextFactory(targetAsSingleModule)
     protected open fun buildKotlinTemplates() = LangKotlinTemplates(itemNameAsKotlinFileName)
 
-    protected open fun buildGoContextFactory() = LangGoContextFactory()
+    protected open fun buildGoContextFactory() = LangGoContextFactory(targetAsSingleModule)
     protected open fun buildGoTemplates() = LangGoTemplates(itemNameAsGoFileName)
 
     protected open fun buildTsContextFactory() = LangTsContextFactory()
@@ -355,7 +355,7 @@ open class LangGeneratorFactory(protected val singleModule: Boolean = true) {
 
     protected open fun buildSwaggerContextFactory() = LangCommonContextFactory()
 
-    protected open fun buildDocContextFactory() = LangMarkdownContextFactory()
+    protected open fun buildDocContextFactory() = LangMarkdownContextFactory(targetAsSingleModule)
     protected open fun buildDocTemplates() = LangMarkdownTemplates(itemNameAsMarkdownFileName)
 
 

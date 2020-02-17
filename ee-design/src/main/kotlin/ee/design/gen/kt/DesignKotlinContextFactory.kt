@@ -8,8 +8,7 @@ import ee.lang.gen.KotlinContext
 import ee.lang.gen.KotlinContextBuilder
 import ee.lang.gen.kt.LangKotlinContextFactory
 
-open class DesignKotlinContextFactory : LangKotlinContextFactory {
-    constructor(singleModule: Boolean) : super(singleModule)
+open class DesignKotlinContextFactory(targetAsSingleModule: Boolean) : LangKotlinContextFactory(targetAsSingleModule) {
 
     override fun contextBuilder(controller: DerivedController, scope: String): KotlinContextBuilder<StructureUnitI<*>> {
         return KotlinContextBuilder(KotlinContext.CONTEXT_KOTLIN, scope, macroController){
@@ -18,12 +17,12 @@ open class DesignKotlinContextFactory : LangKotlinContextFactory {
         }
     }
 
-    private fun StructureUnitI<*>.computeModuleFolder(): String {
-        val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: this
+    override fun StructureUnitI<*>.computeModuleFolder(): String {
+        val compOrStructureUnit = findThisOrParentUnsafe(CompI::class.java) ?: this
         return if(compOrStructureUnit == this) {
             artifact()
         } else {
-            if (singleModule) {
+            if (targetAsSingleModule) {
                 "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}"
             } else {
                 "${compOrStructureUnit.artifact()}/${artifact()}"

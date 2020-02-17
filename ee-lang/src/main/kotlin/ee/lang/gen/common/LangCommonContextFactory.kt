@@ -1,10 +1,13 @@
 package ee.lang.gen.common
 
 import ee.lang.*
+import ee.lang.gen.go.GoContext
+import ee.lang.gen.go.GoContextBuilder
+import ee.lang.gen.go.LangGoContextFactory
 import ee.lang.gen.java.j
 import ee.lang.gen.kt.k
 
-open class LangCommonContextFactory {
+open class LangCommonContextFactory(val targetAsSingleModule: Boolean = true) {
     val isNotPartOfNativeTypes: ItemI<*>.() -> Boolean = { n != parent() && j != parent() && k != parent() }
     val macroController = MacroController()
 
@@ -23,11 +26,14 @@ open class LangCommonContextFactory {
 
     protected open fun contextBuilder(derived: DerivedController): ContextBuilder<StructureUnitI<*>> {
         return ContextBuilder(CONTEXT_COMMON, macroController) {
-            val su = this
-            GenerationContext(moduleFolder = su.artifact(), namespace = su.namespace().toLowerCase(),
+            GenerationContext(
+                    namespace = namespace().toLowerCase(),
+                    moduleFolder = computeModuleFolder(),
                     derivedController = derived, macroController = macroController)
         }
     }
+
+    protected open fun StructureUnitI<*>.computeModuleFolder(): String = artifact()
 
     protected open fun buildName(item: ItemI<*>, kind: String): String = buildNameCommon(item, kind)
 

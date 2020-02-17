@@ -8,9 +8,9 @@ import ee.lang.gen.kt.prepareForKotlinGeneration
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
-open class DesignDocGenerator(val model: StructureUnitI<*>, singleModule: Boolean = false) {
+open class DesignDocGenerator(val model: StructureUnitI<*>, targetAsSingleModule: Boolean = false) {
     private val log = LoggerFactory.getLogger(javaClass)
-    val generatorFactory = DesignGeneratorFactory(singleModule)
+    val generatorFactory = DesignGeneratorFactory(targetAsSingleModule)
 
     init {
         model.extendForKotlinGeneration()

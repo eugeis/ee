@@ -4,20 +4,24 @@ import ee.design.CommandI
 import ee.design.CompI
 import ee.design.EventI
 import ee.lang.*
-import ee.lang.gen.KotlinContext
-import ee.lang.gen.KotlinContextBuilder
-import ee.lang.gen.common.LangCommonContextFactory
 import ee.lang.gen.go.GoContext
 import ee.lang.gen.go.GoContextBuilder
 import ee.lang.gen.go.LangGoContextFactory
 
-open class DesignGoContextFactory(singleModule: Boolean = true) : LangGoContextFactory(singleModule) {
+open class DesignGoContextFactory(targetAsSingleModule: Boolean = true) : LangGoContextFactory(targetAsSingleModule) {
     override fun contextBuilder(derived: DerivedController): GoContextBuilder<StructureUnitI<*>> {
         return GoContextBuilder(CONTEXT_GO, macroController) {
-            GoContext(namespace = namespace().toLowerCase(),
-                    moduleFolder = computeModuleFolder(),
-                    derivedController = derived,
-                    macroController = macroController)
+            GoContext(namespace = namespace().toLowerCase(), moduleFolder = computeModuleFolder(),
+                    derivedController = derived, macroController = macroController)
+        }
+    }
+
+    override fun StructureUnitI<*>.computeModuleFolder(): String {
+        val compOrStructureUnit = findThisOrParentUnsafe(CompI::class.java) ?: this
+        return if (targetAsSingleModule) {
+            "${compOrStructureUnit.artifact()}/go"
+        } else {
+            "${compOrStructureUnit.artifact()}/${artifact()}-go"
         }
     }
 
@@ -26,15 +30,6 @@ open class DesignGoContextFactory(singleModule: Boolean = true) : LangGoContextF
             is CommandI<*> -> buildNameForCommand(item, kind)
             is EventI<*> -> buildNameForEvent(item, kind)
             else -> super.buildName(item, kind)
-        }
-    }
-
-    private fun StructureUnitI<*>.computeModuleFolder(): String {
-        val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: this
-        return if (singleModule) {
-            "${compOrStructureUnit.artifact()}/go"
-        } else {
-            "${compOrStructureUnit.artifact()}/${artifact()}-go"
         }
     }
 

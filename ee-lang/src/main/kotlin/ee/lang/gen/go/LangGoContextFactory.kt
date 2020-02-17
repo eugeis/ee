@@ -7,20 +7,23 @@ import ee.lang.gen.common.LangCommonContextFactory
 open class GoContextBuilder<M>(name: String, macroController: MacroController, builder: M.() -> GoContext)
     : ContextBuilder<M>(name, macroController, builder)
 
-open class LangGoContextFactory(val singleModule: Boolean = true) : LangCommonContextFactory() {
+open class LangGoContextFactory(targetAsSingleModule: Boolean) : LangCommonContextFactory(targetAsSingleModule) {
+
+    override fun contextBuilder(derived: DerivedController): GoContextBuilder<StructureUnitI<*>> {
+        return GoContextBuilder(CONTEXT_GO, macroController) {
+            val structureUnit = this
+            GoContext(
+                    moduleFolder = structureUnit.artifact(),
+                    namespace = structureUnit.namespace().toLowerCase(),
+                    derivedController = derived,
+                    macroController = macroController)
+        }
+    }
 
     open fun buildForImplOnly(): ContextBuilder<StructureUnitI<*>> {
         val derivedController = DerivedController()
         registerForImplOnly(derivedController)
         return contextBuilder(derivedController)
-    }
-
-    override fun contextBuilder(derived: DerivedController): GoContextBuilder<StructureUnitI<*>> {
-        return GoContextBuilder(CONTEXT_GO, macroController) {
-            val structureUnit = this
-            GoContext(moduleFolder = structureUnit.artifact(), namespace = structureUnit.namespace().toLowerCase(),
-                    derivedController = derived, macroController = macroController)
-        }
     }
 
     override fun buildName(item: ItemI<*>, kind: String): String {
