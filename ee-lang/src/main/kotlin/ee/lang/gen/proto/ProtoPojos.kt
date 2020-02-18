@@ -32,9 +32,9 @@ fun <T : CompilationUnitI<*>> T.toProtoImpl(
     return """${toProtoMacrosBefore(c, derived, api)}
 message $name {${toProtoMacrosBeforeBody(c, derived, api)}${currentProps.joinWithIndexToString(nL,
             prefix = nL) { idx, prop ->
-        "${prop.toProtoMember(c, api)} = $idx;"
+        "${prop.toProtoMember(c, api)} = ${idx + 1};"
     }}${toProtoMacrosAfterBody(c, derived, api)}
-}${toProtoMacrosAfter(c, derived, api)}"""
+};${toProtoMacrosAfter(c, derived, api)}"""
 }
 
 
@@ -49,7 +49,7 @@ fun <T : EnumTypeI<*>> T.toProtoEnum(
 $typePrefix {
     ${literals().joinWithIndexToString("$nL    ") { idx, lit ->
         "${lit.toProto()} = $idx;"
-    }}    
+    }}
 };
 """
 }

@@ -61,8 +61,8 @@ open class ProtoContext(
 
     private fun toPackage(indent: String): String {
         return namespace.isNotEmpty().then {
-            """${indent}package ${namespace.toUnderscoredUpperCase()};$nL${
-            indent}option java_package = ${namespace.quotes()};$nL$nL"""
+            """${indent}package ${namespace.toProtoPackage()};$nL${
+            indent}option java_package = "$namespace.proto";$nL$nL"""
         }
     }
 
@@ -75,8 +75,8 @@ open class ProtoContext(
                 outsideTypes.sortedBy {
                     it.namespace()
                 }.map { "$indent${it.namespace().substringAfterLast(".")}" }.toSortedSet()
-                        .joinSurroundIfNotEmptyToString(nL) {
-                            """import "${it.toLowerCase()}_base.proto";"""
+                        .joinSurroundIfNotEmptyToString("") {
+                            """import "${it.toLowerCase()}_base.proto";$nL"""
                         }
             }
         }
@@ -84,10 +84,10 @@ open class ProtoContext(
 
     override fun n(item: ItemI<*>, derivedKind: String): String {
         val derived = types.addReturn(derivedController.derive(item, derivedKind))
-        if (derived.namespace().isEmpty() || derived.namespace().equals(namespace, true)) {
-            return derived.name()
+        return if (derived.namespace().isEmpty() || derived.namespace().equals(namespace, true)) {
+            derived.name()
         } else {
-            return """${derived.namespace().substringAfterLast(".").toLowerCase()}.${derived.name()}"""
+            "${derived.namespace().toProtoPackage()}.${derived.name()}"
         }
     }
 }
@@ -111,9 +111,6 @@ val itemNameAsProtoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
 object proto : StructureUnit({ namespace("").name("Proto") }) {
     val error = ExternalType { ifc(true) }
 
-    object fmt : StructureUnit({ namespace("fmt") }) {
-    }
-
     object errors : StructureUnit({ namespace("errors") }) {
         val New = Operation { ret(error) }
     }
@@ -133,40 +130,15 @@ object proto : StructureUnit({ namespace("").name("Proto") }) {
     object net : StructureUnit({ namespace("net") }) {
         object http : StructureUnit() {
             val Client = ExternalType {}
-
-            val MethodGet = Operation()
-            val MethodHead = Operation()
-            val MethodPost = Operation()
-            val MethodPut = Operation()
-            val MethodPatch = Operation()
-            val MethodDelete = Operation()
-            val MethodConnect = Operation()
-            val MethodOptions = Operation()
-            val MethodTrace = Operation()
-
-
         }
     }
 
     object encoding : StructureUnit({ namespace("encoding") }) {
         object json : StructureUnit() {
-            val NewDecoder = Operation()
+        }            val NewDecoder = Operation()
             val Decoder = ExternalType()
             val Marshal = Operation()
             val Unmarshal = Operation()
-        }
-    }
-
-    object mux : StructureUnit({ namespace("github.com.gorilla.mux") }) {
-        object Router : ExternalType() {}
-
-        object Vars : ExternalType() {}
-    }
-
-    object mgo2 : StructureUnit({ namespace("gopkg.in.mgo.v2.bson") }) {
-        object bson : StructureUnit() {
-            object Raw : ExternalType()
-        }
     }
 
     //common libs
@@ -179,62 +151,6 @@ object proto : StructureUnit({ namespace("").name("Proto") }) {
 
         object net : StructureUnit() {
             val Command = ExternalType()
-
-            val QueryType = ExternalType()
-            val QueryTypeCount = ExternalType()
-            val QueryTypeExist = ExternalType()
-            val QueryTypeFind = ExternalType()
-
-            val PostById = Operation()
-        }
-
-        object eh : StructureUnit() {
-            object AggregateInitializer : ExternalType() {
-                val RegisterForAllEvents = Operation()
-                val RegisterForEvent = Operation()
-                val NewAggregateInitializer = Operation()
-            }
-
-            object DelegateCommandHandler : ExternalType({ ifc(true) })
-
-            object DelegateEventHandler : ExternalType({ ifc(true) })
-
-            object AggregateStoreEvent : ExternalType({ ifc(true) })
-
-            object AggregateBase : ExternalType()
-
-            object NewAggregateBase : Operation()
-
-            object EventHandlerNotImplemented : Operation()
-
-            object CommandHandlerNotImplemented : Operation()
-
-            object QueryNotImplemented : Operation()
-
-            object EntityAlreadyExists : Operation()
-
-            object EntityNotExists : Operation()
-
-            object IdsDismatch : Operation()
-
-            object ValidateIdsMatch : Operation()
-
-            object ValidateNewId : Operation()
-
-            object HttpCommandHandler : ExternalType() {
-                val context = ee.lang.gen.go.g.gee.eh.HttpCommandHandler.prop { type(proto.context.Context) }
-                val commandBus = ee.lang.gen.go.g.gee.eh.HttpCommandHandler.prop { type(proto.eh.CommandHandler) }
-
-                val ignore = constructorFull()
-            }
-
-            object HttpQueryHandler : ExternalType() {
-                val ignore = constructorFull()
-            }
-
-            object Projector : ExternalType() {}
-
-            object NewProjector : Operation() {}
         }
     }
 
@@ -242,89 +158,13 @@ object proto : StructureUnit({ namespace("").name("Proto") }) {
         object uuid : StructureUnit() {
             object UUID : ExternalType()
             object New : Operation()
-            object NewUUID : Operation()
-            object Parse : Operation()
         }
     }
 
     object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("eh") }) {
 
-        object Aggregate : ExternalType() {}
-
-        object AggregateBase : ExternalType() {}
-
-        object NewAggregateBase : Operation() {}
-
-        object RegisterEventData : Operation() {}
-
-        object EventData : ExternalType({ ifc(true) }) {}
-
-        object AggregateType : ExternalType() {}
-
         object Command : ExternalType({ ifc(true) }) {}
 
-        object CommandHandler : ExternalType({ ifc(true) })
-
-        object CommandBus : ExternalType({
-            name("CommandHandler")
-            namespace("github.com.looplab.eventhorizon.commandhandler.bus")
-        }) {}
-
-        object CommandType : ExternalType() {}
-
-        object AggregateCommandHandler : ExternalType({ ifc(true) }) {
-            object SetAggregate : Operation() {
-                val aggregateType = p()
-                val cmdType = p()
-            }
-        }
-
         object Entity : ExternalType({ ifc(true) }) {}
-
-        object EventStore : ExternalType({ ifc(true) }) {
-            object Save : Operation() {
-                val ctx = p()
-            }
-        }
-
-        object EventBus : ExternalType({ ifc(true) }) {}
-
-        object EventPublisher : ExternalType({ ifc(true) }) {}
-
-        object EventHandler : ExternalType({ ifc(true) }) {}
-
-        object Event : ExternalType({ ifc(true) }) {}
-
-        object EventType : ExternalType() {}
-
-        object ReadRepo : ExternalType({ ifc(true) }) {
-
-        }
-
-        object WriteRepo : ExternalType({ ifc(true) }) {
-
-        }
-
-        object ReadWriteRepo : ExternalType({ ifc(true) }) {
-
-        }
-
-        object Projector : ExternalType({ namespace("github.com.looplab.eventhorizon.eventhandler.projector") }) {}
     }
-
-
-    object mapset : StructureUnit({ namespace("github.com.deckarep.golang-set.mapset").name("mapset") }) {
-        val NewSet = Operation()
-
-        object Set : Type() {
-            val Add = Operation()
-        }
-    }
-
-    object cli : StructureUnit({ namespace("github.com.urfave.cli").name("cli") }) {
-        val Command = ExternalType { ifc(true) }
-        val Context = ExternalType()
-        val NewApp = Operation()
-    }
-
 }

@@ -4,6 +4,9 @@ import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
 
+fun String.toProtoPackage(): String {
+    return toUnderscoredUpperCase().replace(".", "_")
+}
 
 fun <T : MacroCompositeI<*>> T.toProtoMacrosBefore(c: GenerationContext, derived: String, api: String): String =
         macrosBefore().joinToString("$nL        ") { c.body(it, this, derived, api) }
@@ -21,45 +24,13 @@ fun <T : MacroCompositeI<*>> T.toProtoMacrosAfterBody(c: GenerationContext, deri
 fun <T : MacroCompositeI<*>> T.toProtoMacrosAfter(c: GenerationContext, derived: String, api: String): String =
         macrosAfter().joinToString("$nL        ") { c.body(it, this, derived, api) }
 
-fun AttributeI<*>.toProtoInitVariables(c: GenerationContext, derived: String, parentConstrName: String = ""): String {
-    val name = "${name().decapitalize()} := "
-    return name + if (isDefault() || value() != null) {
-        toProtoValue(c, derived, parentConstrName)
-    } else if (isAnonymous()) {
-        type().toProtoInstance(c, derived, derived, parentConstrName)
-    } else {
-        name()
-    }
-}
-
-fun TypeI<*>.toProtoCall(c: GenerationContext, api: String): String = c.n(this, api).substringAfterLast(".")
+fun TypeI<*>.toProtoCall(c: GenerationContext, api: String): String =
+        c.n(this, api).substringAfterLast(".")
 
 fun <T : AttributeI<*>> T.toProtoDefault(c: GenerationContext, derived: String, parentConstrName: String = ""): String =
         isNullable().ifElse({ "nil" }, {
             type().toProtoDefault(c, derived, this, parentConstrName)
         })
-
-fun <T : AttributeI<*>> T.toProtoValue(c: GenerationContext, derived: String, parentConstrName: String = ""): String {
-    return if (value() != null) {
-        when (type()) {
-            n.String, n.Text -> "\"${value()}\""
-            n.Boolean, n.Int, n.Long, n.Float, n.Date, n.Path, n.Blob, n.Void -> "${value()}"
-            else -> {
-                if (value() is LiteralI<*>) {
-                    val lit = value() as LiteralI<*>
-                    lit.toProtoValue(c, derived)
-                } else {
-                    "${value()}"
-                }
-            }
-        }
-    } else {
-        toProtoDefault(c, derived, parentConstrName)
-    }
-}
-
-fun AttributeI<*>.toProtoInitForConstructorFunc(c: GenerationContext, derived: String): String =
-        "${isAnonymous().ifElse({ type().toProtoCall(c, derived) }, { nameForProtoMember() })}: ${name().decapitalize()}"
 
 fun <T : AttributeI<*>> T.toProtoTypeDef(c: GenerationContext, api: String): String =
         "${type().toProto(c, api)}${toProtoMacrosAfterBody(c, api, api)}"
@@ -157,10 +128,10 @@ fun <T : TypeI<*>> T.toProtoIfNative(c: GenerationContext, derived: String): Str
     return when (baseType) {
         n.String, n.Path, n.Text -> "string"
         n.Boolean -> "bool"
-        n.Int -> "int"
+        n.Int -> "int32"
         n.Long -> "int64"
         n.UInt -> "uint32"
-        n.Long -> "uint64"
+        n.ULong -> "uint64"
         n.Float -> "float"
         n.Double -> "double"
         n.Date -> proto.time.Time.toProto(c, derived)
@@ -219,33 +190,6 @@ fun OperationI<*>.toProtoReturns(c: GenerationContext, api: String = LangDerived
 
 fun List<AttributeI<*>>.toProtoCall(c: GenerationContext, api: String): String =
         joinWrappedToString(", ") { it.toProtoCall(c, api) }
-
-fun <T : ConstructorI<*>> T.toProto(c: GenerationContext, derived: String, api: String): String {
-    val type = findParentMust(CompilationUnitI::class.java)
-    val name = c.n(type, derived)
-    return if (isNotEMPTY()) """${toProtoMacrosBefore(c, derived, api)}
-func ${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().joinWrappedToString(", ",
-            "                ") {
-        it.toProtoSignature(c, api)
-    }}) (ret *$name) {${toProtoMacrosBeforeBody(c, derived, api)}${macrosBody().isNotEmpty().ifElse({
-        """
-    ${toProtoMacrosBody(c, derived, api)}"""
-    }, {
-        """${params().defaultOrWithValueAndNonDerived().joinSurroundIfNotEmptyToString("") {
-            """
-    ${it.toProtoInitVariables(c, derived, name())}"""
-        }}
-    ret = &$name{${paramsForType().joinSurroundIfNotEmptyToString(
-                ",$nL        ", "$nL        ", ",$nL    ") {
-            it.toProtoInitForConstructorFunc(c, derived)
-        }}}"""
-    })}${toProtoMacrosAfterBody(c, derived, api)}
-    return
-}${toProtoMacrosAfter(c, derived, api)}""" else ""
-}
-
-fun <T : AttributeI<*>> T.toProtoAssign(o: String): String =
-        "$o.${isMutable().setAndTrue().ifElse({ name().capitalize() }, { name().decapitalize() })} = ${name()}"
 
 fun <T : LogicUnitI<*>> T.toProtoCall(c: GenerationContext, derived: String, api: String): String =
         if (isNotEMPTY()) """${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().toProtoCall(c,
