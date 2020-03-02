@@ -6,14 +6,15 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.slf4j.Logger
 
-object TestModel : StructureUnit() {
-    object SimpleEnum : EnumType({ namespace("ee.lang.test") }) {
+object TestModel : StructureUnit({ namespace("ee.lang.test") }) {
+    object SimpleEnum : EnumType() {
         val LitName1 = lit()
         val LitName2 = lit()
     }
 
-    object ComplexEnum : EnumType({}) {
+    object ComplexEnum : EnumType() {
         val code = prop(n.Int)
 
         val LitName1 = lit { params(p(code) { value(1) }) }
@@ -46,30 +47,101 @@ class KotlinPojosTest {
     @Test
     fun simpleEnumTest() {
         val out = TestModel.SimpleEnum.toKotlinEnum(context())
-        //log.info(out)
+        log.infoBeforeAfter(out)
         assertThat(out, `is`("""
-enum class SimpleEnum {
-    LIT_NAME1,
-    LIT_NAME2;
+enum class SimpleEnum(
+        @JsonValue
+        val externalName: String) {
+    LIT_NAME1("LitName1"),
+    LIT_NAME2("LitName2");
 
-    fun isLitName1() : Boolean = this == LIT_NAME1
-    fun isLitName2() : Boolean = this == LIT_NAME2
-}"""))
+    fun isLitName1(): Boolean = this == LIT_NAME1
+    fun isLitName2(): Boolean = this == LIT_NAME2
+
+    companion object {
+        fun findByByName(name: String?, orInstance: SimpleEnum = LIT_NAME1): SimpleEnum {
+            return name.toSimpleEnumByName(orInstance)
+        }
+
+        fun findByByExternalName(externalName: String?, orInstance: SimpleEnum = LIT_NAME1): SimpleEnum {
+            return externalName.toSimpleEnumByExternalName(orInstance)
+        }
+    }    
+}
+
+fun String?.toSimpleEnumByName(orInstance: SimpleEnum = SimpleEnum.LIT_NAME1): SimpleEnum {
+    val found = SimpleEnum.values().find { 
+        this != null && it.name.equals(this, true) 
+    }
+    return found ?: orInstance
+}
+
+fun String?.toSimpleEnumByExternalName(orInstance: SimpleEnum = SimpleEnum.LIT_NAME1): SimpleEnum {
+    val found = SimpleEnum.values().find { 
+        this != null && it.externalName.equals(this, true) 
+    }
+    return found ?: orInstance
+}
+"""))
     }
 
     @Test
     fun complexEnumTest() {
         val out = TestModel.ComplexEnum.toKotlinEnum(context())
-        //log.info(out)
+        log.infoBeforeAfter(out)
         assertThat(out, `is`("""
-enum class ComplexEnum(val code: Int) {
-    LIT_NAME1(1),
-    LIT_NAME2(2);
+enum class ComplexEnum(
+        @JsonValue
+        val externalName: String,
+        val code: Int) {
+    LIT_NAME1("LitName1", 1),
+    LIT_NAME2("LitName2", 2);
 
-    fun isLitName1() : Boolean = this == LIT_NAME1
-    fun isLitName2() : Boolean = this == LIT_NAME2
-}"""))
+    fun isLitName1(): Boolean = this == LIT_NAME1
+    fun isLitName2(): Boolean = this == LIT_NAME2
+
+    companion object {
+        fun findByByName(name: String?, orInstance: ComplexEnum = LIT_NAME1): ComplexEnum {
+            return name.toComplexEnumByName(orInstance)
+        }
+
+        fun findByByExternalName(externalName: String?, orInstance: ComplexEnum = LIT_NAME1): ComplexEnum {
+            return externalName.toComplexEnumByExternalName(orInstance)
+        }
+
+        fun findByByCode(code: Int?, orInstance: ComplexEnum = LIT_NAME1): ComplexEnum {
+            return code.toComplexEnumByCode(orInstance)
+        }
+    }    
+}
+
+fun String?.toComplexEnumByName(orInstance: ComplexEnum = ComplexEnum.LIT_NAME1): ComplexEnum {
+    val found = ComplexEnum.values().find { 
+        this != null && it.name.equals(this, true) 
     }
+    return found ?: orInstance
+}
 
-    private fun context() = LangKotlinContextFactory().buildForImplOnly().builder.invoke(TestModel)
+fun String?.toComplexEnumByExternalName(orInstance: ComplexEnum = ComplexEnum.LIT_NAME1): ComplexEnum {
+    val found = ComplexEnum.values().find { 
+        this != null && it.externalName.equals(this, true) 
+    }
+    return found ?: orInstance
+}
+
+fun Int?.toComplexEnumByCode(orInstance: ComplexEnum = ComplexEnum.LIT_NAME1): ComplexEnum {
+    val found = ComplexEnum.values().find { 
+        this != null && it.code == this 
+    }
+    return found ?: orInstance
+}
+"""))
+    }
+    private fun context() = LangKotlinContextFactory(true).buildForImplOnly().builder.invoke(TestModel)
+}
+
+fun Logger.infoBeforeAfter(out: String) {
+    info("before")
+    info(out)
+    info("after")
 }

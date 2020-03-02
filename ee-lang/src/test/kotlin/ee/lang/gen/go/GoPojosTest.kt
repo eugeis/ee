@@ -2,6 +2,7 @@ package ee.lang.gen.go
 
 import ee.common.ext.logger
 import ee.lang.gen.kt.TestModel
+import ee.lang.gen.kt.infoBeforeAfter
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -18,7 +19,7 @@ class GoPojosTest {
     @Test
     fun simplePojoTest() {
         val out = TestModel.Trace.toGoImpl(context())
-        log.info(out)
+        log.infoBeforeAfter(out)
         assertThat(out, `is`("""
 type Trace struct {
     createdAt time.Time
@@ -39,7 +40,7 @@ func NewTrace(createdAt time.Time, updatedAt time.Time, modifiedBy string) (ret 
     @Test
     fun complexPojoTest() {
         val out = TestModel.Login.toGoImpl(context())
-        log.info(out)
+        log.infoBeforeAfter(out)
         assertThat(out, `is`("""
 type ComplexEnum struct {
 	name  string
@@ -103,5 +104,5 @@ func (o *complexEnums) ParseComplexEnum(name string) (ret *ComplexEnum, ok bool)
 }"""))
     }
 
-    private fun context() = LangGoContextFactory().buildForImplOnly().builder.invoke(TestModel)
+    private fun context() = LangGoContextFactory(true).buildForImplOnly().builder.invoke(TestModel)
 }

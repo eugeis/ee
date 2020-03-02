@@ -175,7 +175,7 @@ fun String.toCamelCase(): String = strToCamelCase.getOrPut(this) {
 
 val smallLettersOrNumbers = Regex("[a-z0-9]+")
 val bigLettersOrNumbers = Regex("[A-Z0-9]+")
-val bAZ = "(\\b[A-Z])".toRegex()
+val bAZ = "(\\B[A-Z])".toRegex()
 
 val strToUnderscoredUpper = WeakHashMap<String, String>()
 fun String.toUnderscoredUpperCase(): String = strToUnderscoredUpper.getOrPut(this) {
@@ -190,9 +190,9 @@ fun String.toUnderscoredLowerCase(): String = strToUnderscoredLower.getOrPut(thi
         toLowerCase()
     } else {
         var underscored = replace(bAZ, "_$1")
-        if(underscored.startsWith("_")) {
-            underscored = underscored.substring(1)
-        }
+        //if(underscored.startsWith("_")) {
+        //    underscored = underscored.substring(1)
+        //}
         underscored.toLowerCase()
     }
     ret

@@ -10,8 +10,7 @@
             <level>INFO</level>
         </filter>
         <encoder>
-            <pattern>%d{dd.MM.yyyy HH:mm:ss.SSSZ} %-5level [%X{transactionId}] [%logger{35}] [%thread] -
-                %msg%exception%n
+            <pattern>%d{dd.MM.yyyy HH:mm:ss.SSSZ} %-5level [%X{transactionId}] [%logger{35}] [%thread] - %msg%exception%n
             </pattern>
         </encoder>
     </appender>
@@ -30,8 +29,7 @@
         </triggeringPolicy>
 
         <encoder>
-            <pattern>%d{dd.MM.yyyy HH:mm:ss.SSSZ} %-5level [%X{transactionId}] [%logger{35}] [%thread] -
-                %msg%exception%n
+            <pattern>%d{dd.MM.yyyy HH:mm:ss.SSSZ} %-5level [%X{transactionId}] [%logger{35}] [%thread] - %msg%exception%n
             </pattern>
         </encoder>
     </appender>

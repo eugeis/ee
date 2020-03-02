@@ -1,16 +1,13 @@
 package ee.lang.gen.kt
 
-import ee.common.ext.ifElse
-import ee.common.ext.joinSurroundIfNotEmptyToString
-import ee.common.ext.then
-import ee.common.ext.toUnderscoredUpperCase
+import ee.common.ext.*
 import ee.lang.*
 
 fun LiteralI<*>.toKotlin(): String = name().toUnderscoredUpperCase()
 
 fun LiteralI<*>.toKotlinIsMethod(): String {
     return """
-    fun is${name().capitalize()}(): Boolean = this == ${toKotlin()}"""
+    fun is${name().toCamelCase().capitalize()}(): Boolean = this == ${toKotlin()}"""
 }
 
 fun <T : EnumTypeI<*>> T.toKotlinEnum(
@@ -83,7 +80,7 @@ fun <T : EnumTypeI<*>> T.toKotlinEnumFindByMethod(
     val byName = prop.toByName()
     val propName = prop.name()
     return """        fun findBy$byName($propName: ${
-    prop.type().toKotlin(c, derived)}?, orInstance: $name = $name.${literals().first().toKotlin()}): $name {
+    prop.type().toKotlin(c, derived)}?, orInstance: $name = ${literals().first().toKotlin()}): $name {
             return $propName.to${name}$byName(orInstance)
         }"""
 }
