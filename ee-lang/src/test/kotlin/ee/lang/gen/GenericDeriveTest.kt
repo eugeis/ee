@@ -22,7 +22,7 @@ private object TestModel2 : StructureUnit() {
 
 class GenericDeriveTest {
 
-    @Test
+    //@Test
     fun deriveTest() {
         TestModel2.prepareForKotlinGeneration()
 

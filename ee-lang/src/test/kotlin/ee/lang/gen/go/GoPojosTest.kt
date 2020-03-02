@@ -22,17 +22,13 @@ class GoPojosTest {
         log.infoBeforeAfter(out)
         assertThat(out, `is`("""
 type Trace struct {
-    createdAt time.Time
-    updatedAt time.Time
-    modifiedBy string
+    CreatedAt *time.Time `json:"createdAt" eh:"optional"`
+    UpdatedAt *time.Time `json:"updatedAt" eh:"optional"`
+    ModifiedBy  `json:"modifiedBy" eh:"optional"`
 }
 
-func NewTrace(createdAt time.Time, updatedAt time.Time, modifiedBy string) (ret Trace, err error) {
-    ret = Trace{
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        modifiedBy: modifiedBy,
-    }
+func NewTraceDefault() (ret *Trace) {
+    ret = &Trace{}
     return
 }"""))
     }
@@ -42,64 +38,16 @@ func NewTrace(createdAt time.Time, updatedAt time.Time, modifiedBy string) (ret 
         val out = TestModel.Login.toGoImpl(context())
         log.infoBeforeAfter(out)
         assertThat(out, `is`("""
-type ComplexEnum struct {
-	name  string
-	ordinal int
-    code int
+type Login struct {
+    Principal  `json:"principal" eh:"optional"`
+    Password  `json:"password" eh:"optional"`
+    Disabled bool `json:"disabled" eh:"optional"`
+    LastLoginAt *time.Time `json:"lastLoginAt" eh:"optional"`
+    Trace *Trace `json:"trace" eh:"optional"`
 }
 
-func (o *ComplexEnum) Name() string {
-    return o.name
-}
-
-func (o *ComplexEnum) Ordinal() int {
-    return o.ordinal
-}
-
-func (o *ComplexEnum) Code() int {
-    return o.code
-}
-
-func (o *ComplexEnum) IsLitName1() bool {
-    return o == _complexEnums.LitName1()
-}
-
-func (o *ComplexEnum) IsLitName2() bool {
-    return o == _complexEnums.LitName2()
-}
-
-type complexEnums struct {
-	values []*ComplexEnum
-}
-
-var _complexEnums = &complexEnums{values: []*ComplexEnum{
-    {name: "LitName1", ordinal: 0, code: 1},
-    {name: "LitName2", ordinal: 1, code: 2}},
-}
-
-func ComplexEnums() *complexEnums {
-	return _complexEnums
-}
-
-func (o *complexEnums) Values() []*ComplexEnum {
-	return o.values
-}
-
-func (o *complexEnums) LitName1() *ComplexEnum {
-    return _complexEnums.values[0]
-}
-
-func (o *complexEnums) LitName2() *ComplexEnum {
-    return _complexEnums.values[1]
-}
-
-func (o *complexEnums) ParseComplexEnum(name string) (ret *ComplexEnum, ok bool) {
-    switch name {
-      case "LitName1":
-        ret = o.LitName1()
-      case "LitName2":
-        ret = o.LitName2()
-    }
+func NewLoginDefault() (ret *Login) {
+    ret = &Login{}
     return
 }"""))
     }
