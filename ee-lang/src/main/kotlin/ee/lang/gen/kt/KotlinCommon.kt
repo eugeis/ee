@@ -69,8 +69,8 @@ fun <T : TypeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String, muta
     }
 }
 
-fun <T : AttributeI<*>> T.toKotlinDefault(c: GenerationContext, derived: String,
-                                          mutable: Boolean? = isMutable()): String {
+fun <T : AttributeI<*>> T.toKotlinDefault(
+        c: GenerationContext, derived: String, mutable: Boolean? = isMutable()): String {
     return type().toKotlinDefault(c, derived, mutable)
 }
 
@@ -294,8 +294,10 @@ fun <T : TypeI<*>> T.toKotlin(c: GenerationContext, derived: String, mutable: Bo
         toKotlinIfNative(c, derived, mutable) ?: "${c.n(this, derived)}${toKotlinGenericTypes(c, derived)}"
 
 
-fun <T : AttributeI<*>> T.toKotlinValue(c: GenerationContext, derived: String, mutable: Boolean? = isMutable(),
-                                        value: Any? = value(), resolveLiteralValue: Boolean = false): String =
+fun <T : AttributeI<*>> T.toKotlinValue(
+        c: GenerationContext, derived: String, mutable: Boolean? = isMutable(),
+        value: Any? = value(), resolveLiteralValue: Boolean = false): String =
+
         value?.toKotlinValue(c, derived, type(), mutable, resolveLiteralValue) ?: toKotlinDefault(c, derived, mutable)
 
 fun Any?.toKotlinValueOrDefault(
@@ -387,10 +389,10 @@ fun <T : AttributeI<*>> T.toKotlinInit(c: GenerationContext, derived: String,
 }
 
 fun <T : AttributeI<*>> T.toKotlinValueInit(
-        c: GenerationContext, derived: String, mutable: Boolean? = isMutable(), nullable: Boolean = isNullable(),
-        resolveLiteralValue: Boolean = false): String {
+        c: GenerationContext, derived: String, mutable: Boolean? = isMutable(),
+        value: Any? = value(), nullable: Boolean = isNullable(), resolveLiteralValue: Boolean = false): String {
     return when {
-        value() != null -> toKotlinValue(c, derived, mutable, resolveLiteralValue = resolveLiteralValue)
+        value != null -> toKotlinValue(c, derived, mutable, resolveLiteralValue = resolveLiteralValue)
         nullable -> "null"
         isInitByDefaultTypeValue() -> toKotlinValue(c, derived, mutable, resolveLiteralValue = resolveLiteralValue)
         else -> ""
@@ -541,7 +543,7 @@ fun <T : LogicUnitI<*>> T.toKotlinCallValue(
             if (externalVariables.containsKey(it.name())) {
                 externalVariables[it.name()]!!
             } else {
-                it.toKotlinValue(c, derived, resolveLiteralValue = resolveLiteralValue)
+                it.toKotlinValueInit(c, derived, resolveLiteralValue = resolveLiteralValue)
             }
         }})"
 

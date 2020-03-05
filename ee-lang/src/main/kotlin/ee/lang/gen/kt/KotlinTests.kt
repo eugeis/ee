@@ -1,7 +1,6 @@
 package ee.lang.gen.kt
 
 import ee.common.ext.joinSurroundIfNotEmptyToString
-import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 import ee.lang.gen.java.junit
@@ -46,20 +45,20 @@ class ${name}EnumParseAndIsMethodsTests {
 
         //check unknown to default value
         ${c.n(k.test.assertSame, derived)}("$@%".$toByName(), $name.${literals().first().toKotlin()})
-    }${literals().joinToString(nL) {
+    }${literals().joinToString(nL) { lit ->
 
-        val litCap = it.name().toUnderscoredUpperCase()
-        val prevCap = prev.name().toUnderscoredUpperCase()
-        prev = it
+        val litCap = lit.toKotlin()
+        val prevCap = prev.toKotlin()
+        prev = lit
 
         """
     @${c.n(junit.Test, derived)}
-    fun testIs${it.toKotlin()}() {
+    fun testIs${lit.toKotlin()}() {
         //normal
-        ${c.n(k.test.assertTrue, derived)}($name.$litCap.is${it.name().capitalize()}())
+        ${c.n(k.test.assertTrue, derived)}($name.$litCap.${lit.toKotlinIsMethod()})
 
         //wrong
-        ${c.n(k.test.assertFalse, derived)}($name.$prevCap.is${it.name().capitalize()}())
+        ${c.n(k.test.assertFalse, derived)}($name.$prevCap.${lit.toKotlinIsMethod()})
     }
 """
     }}
@@ -90,7 +89,8 @@ class ${name}FieldTests {
             externalVariables = timeProps, resolveLiteralValue = true)}${
     propsAll().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
         "        ${c.n(k.test.assertEquals, derived)}(${
-        it.toKotlinValue(c, derived, value = timeProps[it.name()] ?: it.value(),
+        
+        it.toKotlinValueInit(c, derived, value = timeProps[it.name()] ?: it.value(),
                 resolveLiteralValue = true)}, item.${it.name()})"
     }}
     }

@@ -6,8 +6,12 @@ import ee.lang.*
 fun LiteralI<*>.toKotlin(): String = name().toUnderscoredUpperCase()
 
 fun LiteralI<*>.toKotlinIsMethod(): String {
+    return "is${name().toCamelCase().capitalize()}()"
+}
+
+fun LiteralI<*>.toKotlinIsMethodDef(): String {
     return """
-    fun is${name().toCamelCase().capitalize()}(): Boolean = this == ${toKotlin()}"""
+    fun ${toKotlinIsMethod()}: Boolean = this == ${toKotlin()}"""
 }
 
 fun <T : EnumTypeI<*>> T.toKotlinEnum(
@@ -50,7 +54,7 @@ $typePrefix${enumConst.toKotlinEnum(c, derived, api)} {
     }}${operationsWithoutDataTypeOperations().joinToString(nL) {
         it.toKotlinImpl(c, derived, api, isNonBlock(it))
     }}${
-    literals().joinToString("", nL) { it.toKotlinIsMethod() }}
+    literals().joinToString("", nL) { it.toKotlinIsMethodDef() }}
 
     companion object {${
     toKotlinEnumFindByMethods(c, derived)}

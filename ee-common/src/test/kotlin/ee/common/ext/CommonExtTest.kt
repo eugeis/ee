@@ -99,6 +99,30 @@ class CommonExtTest {
     }
 
     @Test
+    fun testStringUnderscoreToUnderscored() {
+        val toUnderscoredUpperCase = "AXLE_LOAD_A".toUnderscoredUpperCase()
+        assertEquals("AXLE_LOAD_A", toUnderscoredUpperCase)
+    }
+
+    @Test
+    fun testStringBigToUnderscored() {
+        val toUnderscoredUpperCase = "AXLE".toUnderscoredUpperCase()
+        assertEquals("AXLE", toUnderscoredUpperCase)
+    }
+
+    @Test
+    fun testStringCamelCaseToUnderscored() {
+        val toUnderscoredUpperCase = "AxleLoadA".toUnderscoredUpperCase()
+        assertEquals("AXLE_LOAD_A", toUnderscoredUpperCase)
+    }
+
+    @Test
+    fun testStringCamelCaseSmallStartToUnderscored() {
+        val toUnderscoredUpperCase = "axleLoadA".toUnderscoredUpperCase()
+        assertEquals("AXLE_LOAD_A", toUnderscoredUpperCase)
+    }
+
+    @Test
     fun testStringAsClass() {
         assertEquals(Date::class.java, "Date".asClass<Date>("java.util"))
     }
