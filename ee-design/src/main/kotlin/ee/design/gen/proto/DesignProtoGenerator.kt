@@ -49,12 +49,12 @@ open class DesignProtoContextFactory(targetAsSingleModule: Boolean) : LangProtoC
     override fun StructureUnitI<*>.computeModuleFolder(): String {
         val compOrStructureUnit = findThisOrParentUnsafe(CompI::class.java) ?: this
         return if (compOrStructureUnit == this) {
-            "${artifact()}-proto"
+            "${artifact()}/proto"
         } else {
             return if (targetAsSingleModule) {
                 "${compOrStructureUnit.artifact()}/proto"
             } else {
-                "${compOrStructureUnit.artifact()}/${artifact()}-proto"
+                "${compOrStructureUnit.artifact()}/${artifact()}/proto"
             }
         }
     }

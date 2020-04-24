@@ -128,10 +128,10 @@ fun <T : TypeI<*>> T.toProtoIfNative(c: GenerationContext, derived: String): Str
     return when (baseType) {
         n.String, n.Path, n.Text -> "string"
         n.Boolean -> "bool"
-        n.Int -> "int32"
-        n.Long -> "int64"
+        n.Int -> "sint32"
+        n.Long -> "sfixed64"
         n.UInt -> "uint32"
-        n.ULong -> "uint64"
+        n.ULong -> "fixed64"
         n.Float -> "float"
         n.Double -> "double"
         n.Date -> proto.time.Time.toProto(c, derived)

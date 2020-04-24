@@ -50,6 +50,8 @@ open class ProtoContext(
     : GenerationContext(namespace, moduleFolder, genFolder, genFolderDeletable,
         genFolderPatternDeletable, derivedController, macroController) {
 
+    private val namespaceLastPart: String = namespace.substringAfterLast(".")
+
     override fun resolveFolder(base: Path): Path {
         return base.resolve(genFolder)
     }
@@ -62,7 +64,8 @@ open class ProtoContext(
     private fun toPackage(indent: String): String {
         return namespace.isNotEmpty().then {
             """${indent}package ${namespace.toProtoPackage()};$nL${
-            indent}option java_package = "$namespace.proto";$nL$nL"""
+            indent}option java_package = "$namespace.proto";$nL${
+            indent}option go_package = "$namespaceLastPart";$nL$nL"""
         }
     }
 
