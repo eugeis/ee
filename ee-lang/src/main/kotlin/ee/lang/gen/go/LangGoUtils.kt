@@ -4,7 +4,7 @@ import ee.common.ext.*
 import ee.lang.*
 
 object g : StructureUnit({ namespace("").name("Go") }) {
-    val error = ExternalType { ifc(true) }
+    val error = ExternalType { ifc() }
 
     object fmt : StructureUnit({ namespace("fmt") }) {
         val Sprintf = Operation()
@@ -32,13 +32,13 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     }
 
     object context : StructureUnit({ namespace("context") }) {
-        val Context = ExternalType { ifc(true) }
+        val Context = ExternalType { ifc() }
     }
 
     object net : StructureUnit({ namespace("net") }) {
         object http : StructureUnit() {
             val Client = ExternalType {}
-            val ResponseWriter = ExternalType { ifc(true) }
+            val ResponseWriter = ExternalType { ifc() }
             val Request = ExternalType()
 
             val MethodGet = Operation()
@@ -102,11 +102,11 @@ object g : StructureUnit({ namespace("").name("Go") }) {
                 val NewAggregateInitializer = Operation()
             }
 
-            object DelegateCommandHandler : ExternalType({ ifc(true) })
+            object DelegateCommandHandler : ExternalType({ ifc() })
 
-            object DelegateEventHandler : ExternalType({ ifc(true) })
+            object DelegateEventHandler : ExternalType({ ifc() })
 
-            object AggregateStoreEvent : ExternalType({ ifc(true) })
+            object AggregateStoreEvent : ExternalType({ ifc() })
 
             object AggregateBase : ExternalType()
 
@@ -164,13 +164,13 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
         object RegisterEventData : Operation() {}
 
-        object EventData : ExternalType({ ifc(true) }) {}
+        object EventData : ExternalType({ ifc() }) {}
 
         object AggregateType : ExternalType() {}
 
-        object Command : ExternalType({ ifc(true) }) {}
+        object Command : ExternalType({ ifc() }) {}
 
-        object CommandHandler : ExternalType({ ifc(true) })
+        object CommandHandler : ExternalType({ ifc() })
 
         object CommandBus : ExternalType({
             name("CommandHandler")
@@ -179,40 +179,40 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
         object CommandType : ExternalType() {}
 
-        object AggregateCommandHandler : ExternalType({ ifc(true) }) {
+        object AggregateCommandHandler : ExternalType({ ifc() }) {
             object SetAggregate : Operation() {
                 val aggregateType = p()
                 val cmdType = p()
             }
         }
 
-        object Entity : ExternalType({ ifc(true) }) {}
+        object Entity : ExternalType({ ifc() }) {}
 
-        object EventStore : ExternalType({ ifc(true) }) {
+        object EventStore : ExternalType({ ifc() }) {
             object Save : Operation() {
                 val ctx = p()
             }
         }
 
-        object EventBus : ExternalType({ ifc(true) }) {}
+        object EventBus : ExternalType({ ifc() }) {}
 
-        object EventPublisher : ExternalType({ ifc(true) }) {}
+        object EventPublisher : ExternalType({ ifc() }) {}
 
-        object EventHandler : ExternalType({ ifc(true) }) {}
+        object EventHandler : ExternalType({ ifc() }) {}
 
-        object Event : ExternalType({ ifc(true) }) {}
+        object Event : ExternalType({ ifc() }) {}
 
         object EventType : ExternalType() {}
 
-        object ReadRepo : ExternalType({ ifc(true) }) {
+        object ReadRepo : ExternalType({ ifc() }) {
 
         }
 
-        object WriteRepo : ExternalType({ ifc(true) }) {
+        object WriteRepo : ExternalType({ ifc() }) {
 
         }
 
-        object ReadWriteRepo : ExternalType({ ifc(true) }) {
+        object ReadWriteRepo : ExternalType({ ifc() }) {
 
         }
 
@@ -229,9 +229,13 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     }
 
     object cli : StructureUnit({ namespace("github.com.urfave.cli").name("cli") }) {
-        val Command = ExternalType { ifc(true) }
+        val Command = ExternalType { ifc() }
         val Context = ExternalType()
         val NewApp = Operation()
+    }
+
+    object logrus : StructureUnit({ namespace("github.com.sirupsen.logrus") }) {
+        val Entry = ExternalType()
     }
 
 }
@@ -313,7 +317,11 @@ fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
 }
 
 fun AttributeI<*>.nameForGoMember(): String = storage.getOrPut(this, "nameForGoMember", {
-    isReplaceable().notSetOrTrue().ifElse({ name().capitalize() }, { name().decapitalize() })
+    isReplaceable().notSetOrTrue().ifElse({
+        name().capitalize()
+    }, {
+        name().decapitalize()
+    })
 })
 
 val itemAndTemplateNameAsGoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {

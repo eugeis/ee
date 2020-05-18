@@ -62,29 +62,36 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
         val values: StructureUnitI<*>.() -> List<ValuesI<*>> = {
             val ret = findDownByType(ValuesI::class.java).filter {
-                it.derivedAsType().isEmpty()
+                !it.isIfc() && it.derivedAsType().isEmpty()
             }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
             ret
         }
 
         val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
             val ret = findDownByType(BasicI::class.java).filter {
-                it.derivedAsType().isEmpty()
+                !it.isIfc() && it.derivedAsType().isEmpty()
             }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
             ret
         }
 
         val entities: StructureUnitI<*>.() -> List<EntityI<*>> = {
             val ret = findDownByType(EntityI::class.java).filter {
-                it.derivedAsType().isEmpty()
+                !it.isIfc() && it.derivedAsType().isEmpty()
             }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
             ret
         }
 
         val states: StructureUnitI<*>.() -> List<StateI<*>> = {
             findDownByType(StateI::class.java).filter {
-                it.derivedAsType().isEmpty()
+                !it.isIfc() && it.derivedAsType().isEmpty()
             }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+
+        val controllers: StructureUnitI<*>.() -> List<ControllerI<*>> = {
+            val ret = findDownByType(ControllerI::class.java).filter {
+                !it.isIfc() && it.derivedAsType().isEmpty()
+            }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            ret
         }
 
         registerGoMacros(contextFactory)
@@ -107,7 +114,8 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                     fragments = { listOf(goTemplates.pojo()) }),
                             ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
                                     fragments = { listOf(goTemplates.pojo()) }),
-                            ItemsFragment(items = enums, fragments = { listOf(goTemplates.enum()) }))
+                            ItemsFragment(items = enums, fragments = { listOf(goTemplates.enum()) }),
+                            ItemsFragment(items = controllers, fragments = { listOf(goTemplates.pojo()) }))
                 })),
                 GeneratorSimple("_test_base", contextBuilder = goContextBuilder,
                         template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}test_base",

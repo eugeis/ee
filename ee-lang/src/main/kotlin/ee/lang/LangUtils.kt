@@ -382,10 +382,13 @@ fun <T : CompositeI<*>> T.defineConstructorNoProps(filter: TypeI<*>.() -> Boolea
 }
 
 fun <T : CompositeI<*>> T.defineSuperUnitsAsAnonymousProps() {
-    findDownByType(CompilationUnitI::class.java,
-            stopSteppingDownIfFound = false).filter { it.superUnit().isNotEMPTY() }.extend {
+    findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter {
+        !it.superUnit().isIfc() && it.superUnit().isNotEMPTY()
+    }.extend {
         val item = this
-        prop { type(item.superUnit()).anonymous(true).name(item.superUnit().name()) }
+        prop {
+            type(item.superUnit()).anonymous(true).name(item.superUnit().name())
+        }
     }
 }
 

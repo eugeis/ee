@@ -151,8 +151,8 @@ fun <T : CompilationUnitI<*>> T.toGoIfc(
 
     val name = c.n(this, derived)
     return """${toGoMacrosBefore(c, derived, api)}
-type $name interface {${toGoMacrosBeforeBody(c, derived, api)}${superUnits().joinSurroundIfNotEmptyToString(nL) {
-        it.operations().toGoIfc(c, api)
+type $name interface {${toGoMacrosBeforeBody(c, derived, api)}${superUnits().joinSurroundIfNotEmptyToString(nL, nL) {
+        "    ${c.n(it, derived)}"
     }}${
     operations().toGoIfc(c, api)}${toGoMacrosAfterBody(c, derived, api)}
 }${toGoMacrosAfter(c, derived, api)}"""
