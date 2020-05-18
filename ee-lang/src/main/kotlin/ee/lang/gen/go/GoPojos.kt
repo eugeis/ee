@@ -210,7 +210,13 @@ func $constrName(intSalt int) (ret *$name)  {
     ret = ${findByNameOrPrimaryOrFirstConstructorFull(constr.name())
             .toGoCallValueByPropName(c, derived, api, "intSalt", constr.name())}
     ${propsNoMetaNoValue().joinSurroundIfNotEmptyToString("\n    ") { prop ->
-        "ret.${prop.name().capitalize()} = ${prop.toGoValueByPropName(c, derived, "intSalt", constr.name())}"
+        if (!prop.isAnonymous()) {
+            "ret.${prop.name().capitalize()} = ${
+            prop.toGoValueByPropName(c, derived, "intSalt", constr.name())}"
+        } else {
+            "ret.${prop.type().name()} = ${
+            prop.toGoValueByPropName(c, derived, "intSalt", constr.name())}"
+        }
     }}
     return
 }"""
