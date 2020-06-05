@@ -13,7 +13,6 @@ import ee.lang.gen.LangGeneratorFactory
 import ee.lang.gen.common.LangCommonContextFactory
 import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
 import ee.lang.gen.go.itemNameAsGoFileName
-import ee.lang.gen.itemAndTemplateNameAsKotlinFileName
 import ee.lang.gen.itemNameAsKotlinFileName
 import ee.lang.gen.swagger.itemNameAsSwaggerFileName
 import ee.lang.gen.ts.itemAndTemplateNameAsTsFileName
@@ -38,7 +37,8 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
         val goTemplates = buildGoTemplates()
         val contextFactory = buildGoContextFactory()
-        val goContextBuilder = contextFactory.buildForImplOnly()
+        val goContextBuilderIfcOrImplOnly = contextFactory.buildForImplOnly()
+        val goContextBuilderIfcAndImpl = contextFactory.buildForIfcAndImpl()
 
         val components: StructureUnitI<*>.() -> List<CompI<*>> = {
             if (this is CompI<*>) listOf(this) else findDownByType(CompI::class.java)
@@ -87,9 +87,16 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
-        val controllers: StructureUnitI<*>.() -> List<ControllerI<*>> = {
+        val controllersWithOutOps: StructureUnitI<*>.() -> List<ControllerI<*>> = {
             val ret = findDownByType(ControllerI::class.java).filter {
-                !it.isIfc() && it.derivedAsType().isEmpty()
+                !it.isIfc() && it.derivedAsType().isEmpty() && it.operations().isEmpty()
+            }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            ret
+        }
+
+        val controllersWithOps: StructureUnitI<*>.() -> List<ControllerI<*>> = {
+            val ret = findDownByType(ControllerI::class.java).filter {
+                !it.isIfc() && it.derivedAsType().isEmpty() && it.operations().isNotEmpty()
             }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
             ret
         }
@@ -100,27 +107,43 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         val generator = GeneratorGroup("go", listOf(GeneratorGroupItems("modulesGenerators",
                 items = modules, generators = moduleGenerators)))
 
-        moduleGenerators.addAll(listOf(GeneratorSimple("ifc_base", contextBuilder = goContextBuilder,
-                template = FragmentsTemplate(name = "${fileNamePrefix}ifc_base",
-                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
-                    listOf(ItemsFragment(items = interfaces, fragments = {
-                        listOf(goTemplates.ifc())
-                    }))
-                })), GeneratorSimple("_api_base", contextBuilder = goContextBuilder,
-                template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}api_base",
-                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
-                    listOf(ItemsFragment(items = entities, fragments = { listOf(goTemplates.entity()) }),
-                            ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = values,
-                                    fragments = { listOf(goTemplates.pojo()) }),
-                            ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                    fragments = { listOf(goTemplates.pojo()) }),
-                            ItemsFragment(items = enums, fragments = { listOf(goTemplates.enum()) }),
-                            ItemsFragment(items = controllers, fragments = { listOf(goTemplates.pojo()) }))
-                })),
-                GeneratorSimple("_test_base", contextBuilder = goContextBuilder,
+        moduleGenerators.addAll(listOf(
+                GeneratorSimple("ifc_base", contextBuilder = goContextBuilderIfcOrImplOnly,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}ifc_base",
+                                nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
+                            listOf(ItemsFragment(items = interfaces, fragments = {
+                                listOf(goTemplates.ifc())
+                            }))
+                        })),
+                GeneratorSimple("_api_base", contextBuilder = goContextBuilderIfcOrImplOnly,
+                        template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}api_base",
+                                nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
+                            listOf(
+                                    ItemsFragment(items = entities, fragments = { listOf(goTemplates.entity()) }),
+                                    ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = values,
+                                            fragments = { listOf(goTemplates.pojo()) }),
+                                    ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                            fragments = { listOf(goTemplates.pojo()) }),
+                                    ItemsFragment(items = enums, fragments = { listOf(goTemplates.enum()) }),
+                                    ItemsFragment(items = controllersWithOutOps, fragments = { listOf(goTemplates.pojo()) }))
+                        })),
+                GeneratorSimple("ifc_api_base", contextBuilder = goContextBuilderIfcAndImpl,
+                        template = FragmentsTemplate(name = "${fileNamePrefix}ifc_api_base",
+                                nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
+                            listOf(
+                                    ItemsFragment(items = controllersWithOps, fragments = {
+                                        listOf(goTemplates.ifc())
+                                    }),
+                                    ItemsFragment(items = controllersWithOps, fragments = {
+                                        listOf(goTemplates.pojo())
+                                    })
+                            )
+                        })),
+                GeneratorSimple("_test_base", contextBuilder = goContextBuilderIfcOrImplOnly,
                         template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}test_base",
                                 nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
-                            listOf(ItemsFragment(items = entities, fragments = { listOf(goTemplates.newTestInstance()) }),
+                            listOf(
+                                    ItemsFragment(items = entities, fragments = { listOf(goTemplates.newTestInstance()) }),
                                     ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = values,
                                             fragments = { listOf(goTemplates.newTestInstance()) }),
                                     ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
@@ -132,22 +155,25 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         //        DesignDerivedType.Client, DesignDerivedType.Cli, DesignDerivedType.StateMachine)
         val derivedTypes: List<String> = emptyList()
         val derivedTypesGenerators = derivedTypes.map { derivedType ->
-            GeneratorSimple("${derivedType}_base", contextBuilder = goContextBuilder,
+            GeneratorSimple("${derivedType}_base", contextBuilder = goContextBuilderIfcOrImplOnly,
                     template = FragmentsTemplate<StructureUnitI<*>>(name = "${fileNamePrefix}${derivedType}_base",
                             nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
-                        listOf(ItemsFragment<StructureUnitI<*>, ControllerI<*>>(items = {
-                            findDownByType(ControllerI::class.java).filter {
-                                it.derivedAsType().equals(derivedType, true)
-                            }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
-                        }, fragments = { listOf(goTemplates.pojo()) }), ItemsFragment(items = {
-                            findDownByType(ValuesI::class.java).filter {
-                                it.derivedAsType().equals(derivedType, true)
-                            }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
-                        }, fragments = { listOf(goTemplates.pojo()) }), ItemsFragment(items = {
-                            findDownByType(BasicI::class.java).filter {
-                                it.derivedAsType().equals(derivedType, true)
-                            }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
-                        }, fragments = { listOf(goTemplates.pojo()) }),
+                        listOf(
+                                ItemsFragment<StructureUnitI<*>, ControllerI<*>>(items = {
+                                    findDownByType(ControllerI::class.java).filter {
+                                        it.derivedAsType().equals(derivedType, true)
+                                    }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+                                }, fragments = { listOf(goTemplates.pojo()) }),
+                                ItemsFragment(items = {
+                                    findDownByType(ValuesI::class.java).filter {
+                                        it.derivedAsType().equals(derivedType, true)
+                                    }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+                                }, fragments = { listOf(goTemplates.pojo()) }),
+                                ItemsFragment(items = {
+                                    findDownByType(BasicI::class.java).filter {
+                                        it.derivedAsType().equals(derivedType, true)
+                                    }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+                                }, fragments = { listOf(goTemplates.pojo()) }),
                                 ItemsFragment<StructureUnitI<*>, EnumTypeI<*>>(items = {
                                     findDownByType(EnumTypeI::class.java).filter {
                                         it.derivedAsType().equals(derivedType, true)
@@ -157,7 +183,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         }
         moduleGenerators.addAll(derivedTypesGenerators)
 
-        return GeneratorContexts(generator, goContextBuilder)
+        return GeneratorContexts(generator, goContextBuilderIfcOrImplOnly)
     }
 
     open fun goEventDriven(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {

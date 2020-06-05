@@ -26,6 +26,12 @@ open class LangGoContextFactory(targetAsSingleModule: Boolean) : LangCommonConte
         return contextBuilder(derivedController)
     }
 
+    open fun buildForIfcAndImpl(): ContextBuilder<StructureUnitI<*>> {
+        val derivedController = DerivedController()
+        registerForIfcAndImpl(derivedController)
+        return contextBuilder(derivedController)
+    }
+
     override fun buildName(item: ItemI<*>, kind: String): String {
         return if (item is ConstructorI) {
             buildNameForConstructor(item, kind)

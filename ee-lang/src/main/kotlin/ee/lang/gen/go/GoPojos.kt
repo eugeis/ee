@@ -166,7 +166,8 @@ fun <T : CompilationUnitI<*>> T.toGoImpl(
     val currentProps = excludePropsWithValue.ifElse({ props().filter { it.value() == null } }, props())
     return """${toGoMacrosBefore(c, derived, api)}
 type $name struct {${toGoMacrosBeforeBody(c, derived, api)}${currentProps.joinSurroundIfNotEmptyToString(nL,
-            prefix = nL) { "${it.toGoMember(c, api)}${it.toGoJsonTags()}" }}${toGoMacrosAfterBody(c, derived, api)}
+            prefix = nL) { "${it.toGoMember(c, api)}${(this is DataTypeI<*>).then { it.toGoJsonTags() }}" }}${
+    toGoMacrosAfterBody(c, derived, api)}
 }${toGoMacrosAfter(c, derived, api)}${constructors().filter {
         it.derivedAsType().isEmpty()
     }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {

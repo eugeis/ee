@@ -317,10 +317,11 @@ fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
 }
 
 fun AttributeI<*>.nameForGoMember(): String = storage.getOrPut(this, "nameForGoMember", {
+    val name = name()
     isReplaceable().notSetOrTrue().ifElse({
-        name().capitalize()
+        name.capitalize()
     }, {
-        name().decapitalize()
+        name.decapitalize()
     })
 })
 

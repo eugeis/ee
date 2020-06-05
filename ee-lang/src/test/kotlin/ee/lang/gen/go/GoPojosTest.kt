@@ -22,9 +22,9 @@ class GoPojosTest {
         log.infoBeforeAfter(out)
         assertThat(out, `is`("""
 type Trace struct {
-    CreatedAt *time.Time `json:"createdAt" eh:"optional"`
-    UpdatedAt *time.Time `json:"updatedAt" eh:"optional"`
-    ModifiedBy  `json:"modifiedBy" eh:"optional"`
+    CreatedAt *time.Time
+    UpdatedAt *time.Time
+    ModifiedBy 
 }
 
 func NewTraceDefault() (ret *Trace) {
@@ -39,11 +39,11 @@ func NewTraceDefault() (ret *Trace) {
         log.infoBeforeAfter(out)
         assertThat(out, `is`("""
 type Login struct {
-    Principal  `json:"principal" eh:"optional"`
-    Password  `json:"password" eh:"optional"`
-    Disabled bool `json:"disabled" eh:"optional"`
-    LastLoginAt *time.Time `json:"lastLoginAt" eh:"optional"`
-    Trace *Trace `json:"trace" eh:"optional"`
+    Principal 
+    Password 
+    Disabled bool
+    LastLoginAt *time.Time
+    Trace *Trace
 }
 
 func NewLoginDefault() (ret *Login) {

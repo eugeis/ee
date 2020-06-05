@@ -25,6 +25,15 @@ fun AttributeI<*>.toGoInitVariables(c: GenerationContext, derived: String, paren
     val name = "${name().decapitalize()} := "
     return name + if (isDefault() || value() != null) {
         toGoValue(c, derived, parentConstrName)
+    } else {
+        name()
+    }
+}
+
+fun AttributeI<*>.toGoInitVariablesExplodedAnonymous(c: GenerationContext, derived: String, parentConstrName: String = ""): String {
+    val name = "${name().decapitalize()} := "
+    return name + if (isDefault() || value() != null) {
+        toGoValue(c, derived, parentConstrName)
     } else if (isAnonymous()) {
         type().toGoInstance(c, derived, derived, parentConstrName)
     } else {
@@ -183,6 +192,9 @@ fun <T : TypeI<*>> T.toGoIfNative(c: GenerationContext, derived: String): String
         n.String, n.Path, n.Text -> "string"
         n.Boolean -> "bool"
         n.Int, n.Long -> "int"
+        n.UShort -> "ushort"
+        n.UInt -> "uint32"
+        n.ULong -> "uint64"
         n.Float -> "float32"
         n.Double -> "float64"
         n.Date -> g.time.Time.toGo(c, derived)
@@ -226,21 +238,30 @@ fun List<AttributeI<*>>.toGoSignature(c: GenerationContext, api: String): String
             it.toGoSignature(c, api)
         }
 
-fun <T : AttributeI<*>> T.toGoSignature(c: GenerationContext, api: String): String =
+fun <T : AttributeI<*>> T.toGoSignatureExplodeAnonymous(c: GenerationContext, api: String): String =
         isAnonymous().ifElse({ type().props().filter { !it.isMeta() }.toGoSignature(c, api) }, {
             "${name()} ${toGoTypeDef(c, api)}"
         })
 
-fun <T : AttributeI<*>> T.toGoCall(c: GenerationContext, api: String): String =
+fun <T : AttributeI<*>> T.toGoSignature(c: GenerationContext, api: String): String =
+        "${name()} ${toGoTypeDef(c, api)}"
+
+fun <T : AttributeI<*>> T.toGoCallExplodeAnonymous(c: GenerationContext, api: String): String =
         isAnonymous().ifElse({ type().props().filter { !it.isMeta() }.toGoCall(c, api) }, {
             name()
         })
 
+fun <T : AttributeI<*>> T.toGoCall(c: GenerationContext, api: String): String =
+        name()
+
 fun <T : AttributeI<*>> T.toGoMember(c: GenerationContext, api: String): String =
         isAnonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameForGoMember()} ${toGoTypeDef(c, api)}" })
 
-fun <T : AttributeI<*>> T.toGoJsonTags(): String =
-        isAnonymous().ifElse({ "" }, { """ `json:"${externalName() ?: name().decapitalize()}" eh:"optional"`""" })
+fun <T : AttributeI<*>> T.toGoJsonTags(): String {
+    val replaceable = isReplaceable()
+    return (isAnonymous() || (replaceable != null && !replaceable)).ifElse({ "" },
+            { """ `json:"${externalName() ?: name().decapitalize()}" eh:"optional"`""" })
+}
 
 fun <T : AttributeI<*>> T.toGoEnumMember(c: GenerationContext, api: String): String =
         isAnonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameDecapitalize()} ${toGoTypeDef(c, api)}" })

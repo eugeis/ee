@@ -2,14 +2,7 @@ package ee.design.gen.proto
 
 import ee.design.CompI
 import ee.design.ModuleI
-import ee.design.gen.DesignGeneratorFactory
-import ee.design.renameControllersAccordingParentType
-import ee.design.setReplaceableConfigProps
 import ee.lang.*
-import ee.lang.gen.KotlinContext
-import ee.lang.gen.KotlinContextBuilder
-import ee.lang.gen.kt.LangKotlinContextFactory
-import ee.lang.gen.kt.prepareForKotlinGeneration
 import ee.lang.gen.proto.LangProtoContextFactory
 import ee.lang.gen.proto.LangProtoGeneratorFactory
 import ee.lang.gen.proto.LangProtoTemplates

@@ -45,12 +45,12 @@ fun <T : TypeI<*>> T.findGeneric(name: String): GenericI<*>? = generics().find {
 
 fun ListMultiHolderI<AttributeI<*>, *>.nonDefaultAndWithoutValueAndNonDerived(): List<AttributeI<*>> = storage.getOrPut(
         this, "nonDefaultAndWithoutValueAndNonDerived") {
-    filter { (!(it.isDefault() || (it.isAnonymous() && it.type().props().isEmpty()))) && it.derivedAsType().isEmpty() }
+    filter { (!(it.isDefault())) && it.derivedAsType().isEmpty() }
 }
 
 fun ListMultiHolderI<AttributeI<*>, *>.defaultOrWithValueAndNonDerived(): List<AttributeI<*>> = storage.getOrPut(this,
         "defaultOrWithValueAndNonDerived") {
-    filter { (it.isDefault() || it.isAnonymous()) && it.derivedAsType().isEmpty() }
+    filter { (it.isDefault()) }
 }
 
 fun TypeI<*>.primaryConstructor(): ConstructorI<*> = storage.getOrPut(this, "primaryConstructor") {
@@ -329,7 +329,9 @@ fun TypeI<*>.propDT(adapt: AttributeI<*>.() -> Unit = {}): AttributeI<*> = prop(
 })
 
 fun <T : TypeI<*>> TypeI<*>.prop(type: T): TypedAttributeI<T, *> {
-    val ret = TypedAttribute<T>({ type(type) })
+    val ret = TypedAttribute<T> {
+        type(type)
+    }
     props(ret)
     return ret
 }
@@ -593,17 +595,6 @@ fun <T : StructureUnitI<*>> T.initFullNameArtifacts() {
             it.items().filterIsInstance(StructureUnitI::class.java).forEach { it.initFullNameArtifacts() }
         }
     }
-}
-
-fun <T : StructureUnitI<*>> T.markAllPropsReplaceable(): T {
-    findDownByType(TypeI::class.java).forEach { type ->
-        if (type !is EnumTypeI) {
-            type.props().forEach { prop ->
-                prop.replaceable()
-            }
-        }
-    }
-    return this
 }
 
 fun <T : MacroCompositeI<*>> T.hasMacros() =

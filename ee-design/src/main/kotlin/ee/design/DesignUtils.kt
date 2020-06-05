@@ -64,13 +64,13 @@ fun EntityI<*>.countBy(vararg params: AttributeI<*>) = countBy {
 }
 
 fun CreateByI<*>.primary() =
-    findParentMust(EntityI::class.java).createBys().size == 1 || name().startsWith("create", true)
+        findParentMust(EntityI::class.java).createBys().size == 1 || name().startsWith("create", true)
 
 fun UpdateByI<*>.primary() =
-    findParentMust(EntityI::class.java).updateBys().size == 1 || name().startsWith("update", true)
+        findParentMust(EntityI::class.java).updateBys().size == 1 || name().startsWith("update", true)
 
 fun DeleteByI<*>.primary() =
-    findParentMust(EntityI::class.java).countBys().size == 1 || name().startsWith("delete", true)
+        findParentMust(EntityI::class.java).countBys().size == 1 || name().startsWith("delete", true)
 
 fun CompilationUnitI<*>.op(vararg params: AttributeI<*>, body: OperationI<*>.() -> Unit = {}) = op {
     params(*params)
@@ -92,7 +92,7 @@ fun EntityI<*>.deleted(vararg params: AttributeI<*>) = deleted { props(*params) 
 val consonants = ".*[wrtzpsdfghklxcvbnm]".toRegex()
 
 fun CommandI<*>.deriveEventName() = name().endsWith("gin").ifElse({ name().capitalize().replace("gin", "gged") },
-    { "${name().capitalize()}${consonants.matches(name()).then("e")}d" })
+        { "${name().capitalize()}${consonants.matches(name()).then("e")}d" })
 
 fun CommandI<*>.deriveEvent(): EventI<*> {
     val entity = findParentMust(EntityI::class.java)
@@ -128,7 +128,7 @@ fun CommandI<*>.deriveEvent(): EventI<*> {
 fun EntityI<*>.hasNoQueries() = findBys().isEmpty() && countBys().isEmpty() && existBys().isEmpty()
 fun EntityI<*>.hasNoEvents() = events().isEmpty() && created().isEmpty() && updated().isEmpty() && deleted().isEmpty()
 fun EntityI<*>.hasNoCommands() =
-    commands().isEmpty() && createBys().isEmpty() && updateBys().isEmpty() && deleteBys().isEmpty()
+        commands().isEmpty() && createBys().isEmpty() && updateBys().isEmpty() && deleteBys().isEmpty()
 
 fun StructureUnitI<*>.renameControllersAccordingParentType() {
     findDownByType(ControllerI::class.java).forEach { item ->
@@ -214,7 +214,8 @@ fun StructureUnitI<*>.addCommandsAndEventsForAggregates() {
 
 fun StructureUnitI<*>.addAggregateHandler() {
     findDownByType(EntityI::class.java).filter { !it.isVirtual() && it.handlers().isEmpty() }.extend {
-        handler { name("Handler")
+        handler {
+            name("Handler")
             val initial = state { name("initial") }
         }
     }
@@ -242,12 +243,25 @@ fun StructureUnitI<*>.addIdPropToEventsAndCommands() {
     }
 }
 
-fun StructureUnitI<*>.setReplaceableConfigProps() {
+fun StructureUnitI<*>.markReplaceableConfigProps() {
     findDownByType(ConfigI::class.java).forEach { item ->
         item.props().forEach {
             it.replaceable()
         }
     }
+}
+
+fun <T : StructureUnitI<*>> T.markTypesPropsReplaceable(): T {
+    findDownByType(TypeI::class.java).forEach { item ->
+        if (item !is EnumTypeI && item !is ControllerI) {
+            item.props().forEach { prop ->
+                if (prop.isReplaceable() == null) {
+                    prop.replaceable()
+                }
+            }
+        }
+    }
+    return this
 }
 
 fun StructureUnitI<*>.setOptionalTagToEventsAndCommandsProps() {

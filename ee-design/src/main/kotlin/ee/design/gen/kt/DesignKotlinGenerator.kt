@@ -3,7 +3,7 @@ package ee.design.gen.kt
 import ee.design.ModuleI
 import ee.design.gen.DesignGeneratorFactory
 import ee.design.renameControllersAccordingParentType
-import ee.design.setReplaceableConfigProps
+import ee.design.markReplaceableConfigProps
 import ee.lang.*
 import ee.lang.gen.kt.prepareForKotlinGeneration
 import org.slf4j.LoggerFactory
@@ -36,6 +36,6 @@ open class DesignKotlinGenerator(val model: StructureUnitI<*>, targetAsSingleMod
         //define names for data type controllers
         renameControllersAccordingParentType()
 
-        setReplaceableConfigProps()
+        markReplaceableConfigProps()
     }
 }
