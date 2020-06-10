@@ -151,8 +151,13 @@ fun <T : AttributeI<*>> T.toGoValueByPropName(
     val ret = when (baseType) {
         n.String, n.Text, n.Any -> "${c.n(g.fmt.Sprintf)}(\"${name().capitalize()} %v\", $saltIntName)"
         n.Boolean -> "false"
+        n.Byte -> saltIntName
         n.Int -> saltIntName
         n.Long -> saltIntName
+        n.Short -> saltIntName
+        n.UShort -> "ushort($saltIntName)"
+        n.UInt -> "uint32($saltIntName)"
+        n.ULong -> "uint64($saltIntName)"
         n.Float -> "float32($saltIntName)"
         n.Double -> "float64($saltIntName)"
         n.Date -> "${c.n(g.gee.PtrTime)}(${g.time.Now.toGoCall(c, derived, derived)})"

@@ -7,22 +7,32 @@ import ee.lang.gen.go.initsForGoGeneration
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
-open class DesignGoGenerator(val model: StructureUnitI<*>, targetAsSingleModule: Boolean = true) {
+open class DesignGoGenerator(val models: List<StructureUnitI<*>>, targetAsSingleModule: Boolean = true) {
     private val log = LoggerFactory.getLogger(javaClass)
     val generatorFactory = DesignGeneratorFactory(targetAsSingleModule)
 
     init {
-        model.extendForGoGeneration()
+        models.extendForGoGeneration()
     }
+
+    constructor(model: StructureUnitI<*>, targetAsSingleModule: Boolean = true) :
+            this(listOf(model), targetAsSingleModule)
 
     fun generate(
             target: Path,
             generatorContexts: GeneratorContexts<StructureUnitI<*>> = generatorFactory.go(),
             shallSkip: GeneratorI<*>.(model: Any?) -> Boolean = { false }) {
-        //val generatorContexts = generatorFactory.go()
-        //generatorContexts.generator.delete(target, model)
-        //generatorContexts.generator.generate(target, model)
 
+        models.forEach {
+            it.generate(target, generatorContexts, shallSkip)
+        }
+    }
+
+    fun StructureUnitI<*>.generate(
+            target: Path, generatorContexts: GeneratorContexts<StructureUnitI<*>> = generatorFactory.go(),
+            shallSkip: GeneratorI<*>.(model: Any?) -> Boolean = { false }) {
+
+        val model = this
         val generator = generatorContexts.generator
         log.info("generate ${generator.names()} to $target for ${model.name()}")
         val modules = if (model is ModuleI) listOf(model) else model.findDownByType(ModuleI::class.java)
@@ -31,6 +41,12 @@ open class DesignGoGenerator(val model: StructureUnitI<*>, targetAsSingleModule:
         }
         modules.forEach { module ->
             generator.generate(target, module, shallSkip)
+        }
+    }
+
+    protected fun List<StructureUnitI<*>>.extendForGoGeneration() {
+        forEach {
+            it.extendForGoGeneration()
         }
     }
 

@@ -10,24 +10,36 @@ import ee.lang.gen.proto.itemNameAsProtoFileName
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
-open class DesignProtoGenerator(val model: StructureUnitI<*>, targetAsSingleModule: Boolean = true) {
+open class DesignProtoGenerator(val models: List<StructureUnitI<*>>, targetAsSingleModule: Boolean = true) {
     private val log = LoggerFactory.getLogger(javaClass)
     val generatorFactory = DesignProtoGeneratorFactory(targetAsSingleModule)
 
     init {
-        model.initObjectTrees()
+        models.initObjectTrees()
     }
+
+    constructor(model: StructureUnitI<*>, targetAsSingleModule: Boolean = true) :
+            this(listOf(model), targetAsSingleModule)
 
     fun generate(target: Path, generatorContexts: GeneratorContexts<StructureUnitI<*>> = generatorFactory.pojoProto(),
                  shallSkip: GeneratorI<*>.(model: Any?) -> Boolean = { false }) {
+        models.forEach {
+            it.generate(target, generatorContexts, shallSkip)
+        }
+    }
+
+    fun StructureUnitI<*>.generate(
+            target: Path, generatorContexts: GeneratorContexts<StructureUnitI<*>> = generatorFactory.pojoProto(),
+            shallSkip: GeneratorI<*>.(model: Any?) -> Boolean = { false }) {
+        val model = this
         val generator = generatorContexts.generator
         log.info("generate ${generator.names()} to $target for ${model.name()}")
-        val modules = if (model is ModuleI) listOf(model) else model.findDownByType(ModuleI::class.java)
+        val modules = if (model is ModuleI) listOf(models) else model.findDownByType(ModuleI::class.java)
         modules.forEach { module ->
-            generator.delete(target, module, shallSkip)
+            generator.delete(target, model, shallSkip)
         }
         modules.forEach { module ->
-            generator.generate(target, module, shallSkip)
+            generator.generate(target, model, shallSkip)
         }
     }
 }

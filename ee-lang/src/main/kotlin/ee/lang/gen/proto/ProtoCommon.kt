@@ -143,7 +143,7 @@ fun <T : TypeI<*>> T.toProtoIfNative(c: GenerationContext, derived: String): Str
         n.Url -> c.n(j.net.URL)
         n.UUID -> c.n(proto.google.uuid.UUID)
         n.List -> "repeated ${generics()[0].toProto(c, derived)}"
-        n.Map -> "map[${generics()[0].toProto(c, derived)}]${generics()[1].toProto(c, derived)}"
+        n.Map -> "map<${generics()[0].toProto(c, derived)}, ${generics()[1].toProto(c, derived)}>"
         else -> {
             if (this is LambdaI<*>) operation().toProtoLambda(c, derived) else null
         }

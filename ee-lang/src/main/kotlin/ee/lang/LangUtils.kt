@@ -548,6 +548,15 @@ fun <T : StructureUnitI<*>> T.extendModel(): T {
     return ret
 }
 
+fun <T : StructureUnitI<*>> List<T>.initObjectTrees(): List<T> {
+    n.initObjectTree()
+    l.initObjectTree()
+    forEach {
+        it.initObjectTree()
+    }
+    return this
+}
+
 fun <T : StructureUnitI<*>> T.initObjectTrees(): T {
     n.initObjectTree()
     l.initObjectTree()

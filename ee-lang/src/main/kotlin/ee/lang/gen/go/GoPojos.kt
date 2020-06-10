@@ -33,7 +33,7 @@ func (o *$o) AddTo${name().capitalize()}(item $type) $type {
 fun LiteralI<*>.toGoLitMethod(index: Int, enum: String, literals: String): String {
     return """
 func (o *$literals) ${name().capitalize()}() *$enum {
-    return _$literals.values[$index]
+    return o.values[$index]
 }"""
 }
 
