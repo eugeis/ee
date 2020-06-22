@@ -5,10 +5,7 @@ import ee.design.DslTypes
 import ee.design.Module
 import ee.lang.*
 import ee.lang.gen.kt.toDslDoc
-import io.swagger.models.ArrayModel
-import io.swagger.models.ComposedModel
-import io.swagger.models.ModelImpl
-import io.swagger.models.Swagger
+import io.swagger.models.*
 import io.swagger.models.parameters.Parameter
 import io.swagger.models.parameters.RefParameter
 import io.swagger.models.parameters.SerializableParameter
@@ -34,6 +31,9 @@ private class SwaggerToDesignExecutor(
         swaggerFile: Path,
         private val namesToTypeName: MutableMap<String, String> = mutableMapOf(),
         private val ignoreTypes: MutableSet<String> = mutableSetOf()) {
+
+    private val log = LoggerFactory.getLogger(javaClass)
+
     private val primitiveTypes = mapOf("integer" to "n.Int", "string" to "n.String")
     private val typeToPrimitive = mutableMapOf<String, String>()
 
@@ -50,19 +50,23 @@ private class SwaggerToDesignExecutor(
     private fun extractTypeDefsFromPrimitiveAliases(): Map<String, io.swagger.models.Model> {
         val ret = mutableMapOf<String, io.swagger.models.Model>()
 
-        swagger.definitions?.entries?.forEach {
-            if (!ignoreTypes.contains(it.key)) {
-                val def = it.value
-                if (def is ModelImpl && primitiveTypes.containsKey(def.type)) {
-                    typeToPrimitive[it.key] = primitiveTypes[def.type]!!
-                    typeToPrimitive[it.key.toDslTypeName()] = primitiveTypes[def.type]!!
+        swagger.definitions?.entries?.forEach { (defName, def) ->
+            if (!ignoreTypes.contains(defName)) {
+                if (def is ModelImpl && def.isPrimitive()) {
+                    typeToPrimitive[defName] = primitiveTypes[def.type]!!
+                    typeToPrimitive[defName.toDslTypeName()] = primitiveTypes[def.type]!!
                 } else {
-                    ret[it.key] = def
+                    ret[defName] = def
                 }
+            } else {
+                log.debug("ignore type ")
             }
         }
         return ret
     }
+
+    private fun Model.isPrimitive() =
+            this is ModelImpl && (enum == null || enum.isEmpty()) && primitiveTypes.containsKey(type)
 
     private fun Swagger.toModule(): Module {
         return Module {
@@ -81,21 +85,22 @@ private class SwaggerToDesignExecutor(
 
     private fun io.swagger.models.properties.Property.toDslProp(name: String): String {
         val nameCamelCase = name.toCamelCase()
-        return "    val $nameCamelCase = prop { ${(name != nameCamelCase)
+        return "        val $nameCamelCase = prop { ${(name != nameCamelCase)
                 .then { "externalName(\"$name\")." }}${toDslInit(nameCamelCase)} }"
     }
 
     private fun Property.toDslPropValue(name: String, suffix: String = "", prefix: String = ""): String {
         return ((this is StringProperty && default.isNullOrEmpty().not())).ifElse({
-            "${suffix}value(${(this as StringProperty).enum.isNotEmpty().ifElse({ "$name.$default" },
-                    { "\"$name.$default\"" })})$prefix"
+            "${suffix}value(${(this as StringProperty).enum.isNotEmpty().ifElse({
+                "$name.${default.toUnderscoredUpperCase()}"
+            }, { "\"$name.$default\"" })})$prefix"
         }, { "" })
     }
 
     private fun io.swagger.models.Model.toDslValues(name: String) {
         if (this is ComposedModel) {
             typesToFill[name] = """
-object ${name.toDslTypeName()} : Values({ ${
+    object ${name.toDslTypeName()} : Values({ ${
             interfaces.joinSurroundIfNotEmptyToString(",", "superUnit(", ")") {
                 it.simpleRef.toDslTypeName()
             }}${description.toDslDoc()} }) {${allOf.filterNot {
@@ -103,7 +108,7 @@ object ${name.toDslTypeName()} : Values({ ${
             }.joinToString("") {
                 it.properties.toDslProperties()
             }}
-}"""
+    }"""
         } else if (this is ArrayModel) {
             val prop = items
             if (prop is ObjectProperty) {
@@ -112,31 +117,41 @@ object ${name.toDslTypeName()} : Values({ ${
             } else {
                 log.info("not supported yet {} {}", this, prop)
             }
+        } else if (this is ModelImpl && this.enum != null && this.enum.isNotEmpty()) {
+            typesToFill[name] = """
+    object $name : EnumType(${description.toDslDoc("{", "}")}) {${
+            enum.joinToString(nL, nL) {
+                val externalName = it.toString()
+                val literalName = externalName.toUnderscoredUpperCase()
+                val init = if (literalName != externalName) " { externalName(\"$externalName\") }" else "()"
+                "        val $literalName = lit$init"
+            }}
+    }"""
         } else {
             typesToFill[name] = """
-object ${name.toDslTypeName()} : Values(${
+    object ${name.toDslTypeName()} : Values(${
             description.toDslDoc("{ ", " }")}) {${
             properties.toDslProperties()}
-}"""
+    }"""
         }
     }
 
     private fun io.swagger.models.properties.StringProperty.toDslEnum(name: String): String {
         return """
-object $name : EnumType(${description.toDslDoc("{", "}")}) {${
+    object $name : EnumType(${description.toDslDoc("{", "}")}) {${
         enum.joinToString(nL, nL) {
             val externalName = it.toString()
-            val literalName = externalName.toCamelCase()
-            val init = if(literalName != externalName) " { externalName(\"$externalName\") }" else "()"
+            val literalName = externalName.toUnderscoredUpperCase()
+            val init = if (literalName != externalName) " { externalName(\"$externalName\") }" else "()"
             "        val $literalName = lit$init"
         }}
-}"""
+    }"""
     }
 
     private fun io.swagger.models.properties.ObjectProperty.toDslType(name: String): String {
         return """
-object $name : Values(${description.toDslDoc("{", "}")}) {${properties.toDslProperties()}
-}"""
+    object $name : Values(${description.toDslDoc("{", "}")}) {${properties.toDslProperties()}
+    }"""
     }
 
     private fun io.swagger.models.properties.Property.toDslTypeName(name: String): String {

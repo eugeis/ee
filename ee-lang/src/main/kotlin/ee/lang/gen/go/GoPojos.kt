@@ -10,7 +10,7 @@ fun EnumTypeI<*>.toGoLiterals(): String = toGoAccess().decapitalize()
 fun LiteralI<*>.toGoIsMethod(o: String, literals: String): String {
     return """
 func (o *$o) Is${name().capitalize()}() bool {
-    return o == _$literals.${toGo()}()
+    return o.name == _$literals.${toGo()}().name
 }"""
 }
 
@@ -30,20 +30,20 @@ func (o *$o) AddTo${name().capitalize()}(item $type) $type {
 }"""
 }
 
-fun LiteralI<*>.toGoLitMethod(index: Int, enum: String, literals: String): String {
+fun EnumLiteralI<*>.toGoLitMethod(index: Int, enum: String, literals: String): String {
     return """
 func (o *$literals) ${name().capitalize()}() *$enum {
     return o.values[$index]
 }"""
 }
 
-fun LiteralI<*>.toGoCase(): String {
+fun EnumLiteralI<*>.toGoCase(): String {
     return """  case o.${this.toGo()}().Name():
         ret = o.${this.toGo()}()"""
 }
 
-fun LiteralI<*>.toGoInitVariables(index: Int, c: GenerationContext, derived: String): String {
-    return """{name: "${value() ?: name()}", ordinal: $index${this.params()
+fun EnumLiteralI<*>.toGoInitVariables(index: Int, c: GenerationContext, derived: String): String {
+    return """{name: "${externalName() ?: name()}", ordinal: $index${this.params()
             .joinSurroundIfNotEmptyToString(", ", ", ") {
                 it.toGoInitForConstructorEnum(c, derived)
             }}}"""
@@ -70,7 +70,7 @@ ${literals().joinSurroundIfNotEmptyToString(nL) { item ->
         item.toGoIsMethod(name, literals)
     }}${operations().joinToString(nL) { it.toGoImpl(name, c, api) }}
 
-func (o $name) MarshalJSON() (ret []byte, err error) {
+func (o *$name) MarshalJSON() (ret []byte, err error) {
     ret = []byte(${c.n(g.fmt.Sprintf, api)}("\"%v\"", o.name))
 	return
 }
@@ -87,7 +87,7 @@ func (o *$name) UnmarshalJSON(data []byte) (err error) {
 	return
 }
 
-func (o $name) GetBSON() (ret interface{}, err error) {
+func (o *$name) GetBSON() (ret interface{}, err error) {
 	return o.name, nil
 }
 
@@ -105,7 +105,6 @@ func (o *$name) SetBSON(raw ${c.n(g.mgo2.bson.Raw, api)}) (err error) {
 
 type $literals struct {
 	values []*$name
-    literals []${c.n(g.gee.enum.Literal)}
 }
 
 var _$literals = &$literals{values: []*$name${literals().joinWithIndexToString(",$nL    ", "{$nL    ",
@@ -121,23 +120,15 @@ func $enums() *$literals {
 func (o *$literals) Values() []*$name {
 	return o.values
 }
-
-func (o *$literals) Literals() []${c.n(g.gee.enum.Literal)} {
-	if o.literals == nil {
-		o.literals = make([]${c.n(g.gee.enum.Literal)}, len(o.values))
-		for i, item := range o.values {
-			o.literals[i] = item
-		}
-	}
-	return o.literals
-}
 ${literals().joinWithIndexToString(nL) { i, item -> item.toGoLitMethod(i, name, literals) }}
 
 func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {
-	if item, ok := enum.Parse(name, o.Literals()); ok {
-		return item.(*$name), ok
+	for _, lit := range o.Values() {
+		if ${c.n(g.strings.EqualFold)}(lit.Name(), name) {
+			return lit, true
+		}
 	}
-	return
+	return nil, false
 }"""
 }
 

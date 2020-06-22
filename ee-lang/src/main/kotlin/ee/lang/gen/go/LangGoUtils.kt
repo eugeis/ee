@@ -55,6 +55,10 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         }
     }
 
+    object strings : StructureUnit({ namespace("strings") }) {
+        val EqualFold = Operation()
+    }
+
     object encoding : StructureUnit({ namespace("encoding") }) {
         object json : StructureUnit() {
             val NewDecoder = Operation()

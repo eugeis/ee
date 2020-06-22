@@ -265,7 +265,7 @@ fun <T : AttributeI<*>> T.toGoMember(c: GenerationContext, api: String): String 
 fun <T : AttributeI<*>> T.toGoJsonTags(): String {
     val replaceable = isReplaceable()
     return (isAnonymous() || (replaceable != null && !replaceable)).ifElse({ "" },
-            { """ `json:"${externalName() ?: name().decapitalize()}" eh:"optional"`""" })
+            { """ `json:"${externalName() ?: name().decapitalize()},omitempty" eh:"optional"`""" })
 }
 
 fun <T : AttributeI<*>> T.toGoEnumMember(c: GenerationContext, api: String): String =
