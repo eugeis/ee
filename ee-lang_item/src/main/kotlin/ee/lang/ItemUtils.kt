@@ -217,7 +217,7 @@ fun <B : MultiHolderI<I, *>, I> B.initObjectTree(deriveNamespace: ItemI<*>.() ->
             child.parent(this)
             if (!containsItem(child as I)) {
                 addItem(child)
-                if (child is MultiHolderI<*, *>) child.initObjectTree<B, I>(deriveNamespace)
+                if (child is MultiHolderI<*, *>) (child as B).initObjectTree<B, I>(deriveNamespace)
             }
         }
     }

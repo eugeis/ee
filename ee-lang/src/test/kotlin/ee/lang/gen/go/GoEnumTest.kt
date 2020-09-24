@@ -35,14 +35,14 @@ func (o *SimpleEnum) Ordinal() int {
 }
 
 func (o *SimpleEnum) IsLitName1() bool {
-    return o == _simpleEnums.LitName1()
+    return o.name == _simpleEnums.LitName1().name
 }
 
 func (o *SimpleEnum) IsLitName2() bool {
-    return o == _simpleEnums.LitName2()
+    return o.name == _simpleEnums.LitName2().name
 }
 
-func (o SimpleEnum) MarshalJSON() (ret []byte, err error) {
+func (o *SimpleEnum) MarshalJSON() (ret []byte, err error) {
     ret = []byte(fmt.Sprintf("\"%v\"", o.name))
 	return
 }
@@ -59,7 +59,7 @@ func (o *SimpleEnum) UnmarshalJSON(data []byte) (err error) {
 	return
 }
 
-func (o SimpleEnum) GetBSON() (ret interface{}, err error) {
+func (o *SimpleEnum) GetBSON() (ret interface{}, err error) {
 	return o.name, nil
 }
 
@@ -77,7 +77,6 @@ func (o *SimpleEnum) SetBSON(raw bson.Raw) (err error) {
 
 type simpleEnums struct {
 	values []*SimpleEnum
-    literals []enum.Literal
 }
 
 var _simpleEnums = &simpleEnums{values: []*SimpleEnum{
@@ -93,30 +92,23 @@ func (o *simpleEnums) Values() []*SimpleEnum {
 	return o.values
 }
 
-func (o *simpleEnums) Literals() []enum.Literal {
-	if o.literals == nil {
-		o.literals = make([]enum.Literal, len(o.values))
-		for i, item := range o.values {
-			o.literals[i] = item
-		}
-	}
-	return o.literals
-}
-
 func (o *simpleEnums) LitName1() *SimpleEnum {
-    return _simpleEnums.values[0]
+    return o.values[0]
 }
 
 func (o *simpleEnums) LitName2() *SimpleEnum {
-    return _simpleEnums.values[1]
+    return o.values[1]
 }
 
 func (o *simpleEnums) ParseSimpleEnum(name string) (ret *SimpleEnum, ok bool) {
-	if item, ok := enum.Parse(name, o.Literals()); ok {
-		return item.(*SimpleEnum), ok
+	for _, lit := range o.Values() {
+		if strings.EqualFold(lit.Name(), name) {
+			return lit, true
+		}
 	}
-	return
-}"""))
+	return nil, false
+}
+"""))
     }
 
     @Test

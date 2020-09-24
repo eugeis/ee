@@ -409,7 +409,7 @@ fun <T, A : Appendable> Collection<T>.joinWrappedTo(
             }
             val str = if (transform != null) transform(item) else item?.toString() ?: ""
             if (currentWidth + str.length > wrapWidth) {
-                buffer.appendln().append(wrapIndent)
+                buffer.appendLine().append(wrapIndent)
                 currentWidth = wrapIndent.length
             }
             currentWidth += str.length

@@ -34,12 +34,12 @@ open class DesignProtoGenerator(val models: List<StructureUnitI<*>>, targetAsSin
         val model = this
         val generator = generatorContexts.generator
         log.info("generate ${generator.names()} to $target for ${model.name()}")
-        val modules = if (model is ModuleI) listOf(models) else model.findDownByType(ModuleI::class.java)
+        val modules = if (model is ModuleI) listOf(model) else model.findDownByType(ModuleI::class.java)
         modules.forEach { module ->
-            generator.delete(target, model, shallSkip)
+            generator.delete(target, module, shallSkip)
         }
         modules.forEach { module ->
-            generator.generate(target, model, shallSkip)
+            generator.generate(target, module, shallSkip)
         }
     }
 }

@@ -139,7 +139,7 @@ fun <T : TypeI<*>> T.toProtoIfNative(c: GenerationContext, derived: String): Str
         n.Blob -> "bytes"
         n.Exception, n.Error -> "error"
         n.Void -> ""
-        n.Any -> "interface{}"
+        n.Any -> "bytes"
         n.Url -> c.n(j.net.URL)
         n.UUID -> c.n(proto.google.uuid.UUID)
         n.List -> "repeated ${generics()[0].toProto(c, derived)}"
