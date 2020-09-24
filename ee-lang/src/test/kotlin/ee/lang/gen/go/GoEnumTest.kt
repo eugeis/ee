@@ -1,15 +1,15 @@
 package ee.lang.gen.go
 
-import ee.common.ext.logger
+//import ee.common.ext.logger
 import ee.lang.gen.kt.TestModel
-import ee.lang.gen.kt.infoBeforeAfter
+//import ee.lang.gen.kt.infoBeforeAfter
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class GoEnumTest {
-    val log = logger()
+    //val log = logger()
 
     @BeforeEach
     fun beforeGoPojosTest() {
@@ -19,7 +19,7 @@ class GoEnumTest {
     @Test
     fun simpleEnumTest() {
         val out = TestModel.SimpleEnum.toGoEnum(context())
-        log.infoBeforeAfter(out)
+        //log.infoBeforeAfter(out)
         assertThat(out, `is`("""
 type SimpleEnum struct {
 	name  string
@@ -107,14 +107,13 @@ func (o *simpleEnums) ParseSimpleEnum(name string) (ret *SimpleEnum, ok bool) {
 		}
 	}
 	return nil, false
-}
-"""))
+}"""))
     }
 
     @Test
     fun complexEnumTest() {
         val out = TestModel.ComplexEnum.toGoEnum(context())
-        log.infoBeforeAfter(out)
+        //log.infoBeforeAfter(out)
         assertThat(out, `is`("""
 type ComplexEnum struct {
 	name  string
@@ -135,14 +134,14 @@ func (o *ComplexEnum) Code() int {
 }
 
 func (o *ComplexEnum) IsLitName1() bool {
-    return o == _complexEnums.LitName1()
+    return o.name == _complexEnums.LitName1().name
 }
 
 func (o *ComplexEnum) IsLitName2() bool {
-    return o == _complexEnums.LitName2()
+    return o.name == _complexEnums.LitName2().name
 }
 
-func (o ComplexEnum) MarshalJSON() (ret []byte, err error) {
+func (o *ComplexEnum) MarshalJSON() (ret []byte, err error) {
     ret = []byte(fmt.Sprintf("\"%v\"", o.name))
 	return
 }
@@ -159,7 +158,7 @@ func (o *ComplexEnum) UnmarshalJSON(data []byte) (err error) {
 	return
 }
 
-func (o ComplexEnum) GetBSON() (ret interface{}, err error) {
+func (o *ComplexEnum) GetBSON() (ret interface{}, err error) {
 	return o.name, nil
 }
 
@@ -177,7 +176,6 @@ func (o *ComplexEnum) SetBSON(raw bson.Raw) (err error) {
 
 type complexEnums struct {
 	values []*ComplexEnum
-    literals []enum.Literal
 }
 
 var _complexEnums = &complexEnums{values: []*ComplexEnum{
@@ -193,29 +191,21 @@ func (o *complexEnums) Values() []*ComplexEnum {
 	return o.values
 }
 
-func (o *complexEnums) Literals() []enum.Literal {
-	if o.literals == nil {
-		o.literals = make([]enum.Literal, len(o.values))
-		for i, item := range o.values {
-			o.literals[i] = item
-		}
-	}
-	return o.literals
-}
-
 func (o *complexEnums) LitName1() *ComplexEnum {
-    return _complexEnums.values[0]
+    return o.values[0]
 }
 
 func (o *complexEnums) LitName2() *ComplexEnum {
-    return _complexEnums.values[1]
+    return o.values[1]
 }
 
 func (o *complexEnums) ParseComplexEnum(name string) (ret *ComplexEnum, ok bool) {
-	if item, ok := enum.Parse(name, o.Literals()); ok {
-		return item.(*ComplexEnum), ok
+	for _, lit := range o.Values() {
+		if strings.EqualFold(lit.Name(), name) {
+			return lit, true
+		}
 	}
-	return
+	return nil, false
 }"""))
     }
 
