@@ -178,7 +178,7 @@ private fun EntityI<*>.addEventHorizonArtifacts(fillAggregateInitializer: Mutabl
                 name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
                 val pathPrefix = propS { name("pathPrefix") }
                 val queryHandler = prop { type(httpQueryHandler).name("queryHandler") }
-                val commandHandler = prop { type(httpCommandHandler).name("commandHandler") }
+                val commandH = prop { type(httpCommandHandler).name("commandHandler") }
 
                 op {
                     name("Setup")
@@ -186,11 +186,13 @@ private fun EntityI<*>.addEventHorizonArtifacts(fillAggregateInitializer: Mutabl
                     macrosBody(OperationI<*>::toGoSetupHttpRouterBody.name)
                 }
                 constr {
-                    params(pathPrefix, p { type(g.context.Context).name("context") },
+                    params(pathPrefix,
+                            p { type(g.context.Context).name("context") },
                             p { type(g.eh.CommandHandler).name("commandBus") },
                             p { type(reposFactory).name("readRepos") },
                             p { type(queryRepository).default(true).name("queryRepository") },
-                            p(queryHandler) { default(true) }, p(commandHandler) { default(true) })
+                            p(queryHandler) { default(true) },
+                            p(commandH) { default(true) })
                     macrosBeforeBody(ConstructorI<*>::toGoHttpRouterBeforeBody.name)
                 }
             }
@@ -313,7 +315,8 @@ private fun EntityI<*>.addHttpQueryHandler(finders: List<FindByI<*>>, counters: 
                                            exists: List<ExistByI<*>>, queryRepository: BusinessControllerI<*>): BusinessControllerI<*> {
     return controller {
         name(DesignDerivedType.HttpQueryHandler).derivedAsType(DesignDerivedType.Http)
-        prop { type(g.gee.eh.HttpQueryHandler).anonymous(true).name("HttpQueryHandler") }
+        prop { type(g.gee.eh.HttpQueryHandler)
+                .anonymous(true).name(DesignDerivedType.HttpQueryHandler.decapitalize()) }
         prop { type(queryRepository).name("queryRepository") }
         //queries
         finders.forEach {
@@ -383,7 +386,8 @@ private fun EntityI<*>.addHttpCommandHandler(
     return controller {
         name(DesignDerivedType.HttpCommandHandler).derivedAsType(DesignDerivedType.Http)
         prop {
-            type(g.gee.eh.HttpCommandHandler).anonymous(true).name("HttpCommandHandler")
+            type(g.gee.eh.HttpCommandHandler)
+                    .anonymous(true).name(DesignDerivedType.HttpCommandHandler.decapitalize())
         }
 
         //commands

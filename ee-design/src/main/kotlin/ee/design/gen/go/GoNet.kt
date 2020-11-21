@@ -130,7 +130,10 @@ fun <T : ConstructorI<*>> T.toGoHttpRouterBeforeBody(c: GenerationContext, deriv
     return """
     pathPrefix = pathPrefix + "/" + "${item.name().toPlural().decapitalize()}"
     entityFactory := func() ${c.n(g.eh.Entity)} { return ${item.toGoInstance(c, derived, api)} }
-    repo := readRepos(string(${item.name()}${DesignDerivedType.AggregateType}), entityFactory)"""
+    repo := readRepos(string(${item.name()}${DesignDerivedType.AggregateType}), entityFactory)
+    httpQueryHandler := eh.NewHttpQueryHandlerFull()
+    httpCommandHandler := eh.NewHttpCommandHandlerFull(context, commandBus)
+    """
 }
 
 fun <T : ConstructorI<*>> T.toGoHttpModuleRouterBeforeBody(c: GenerationContext,

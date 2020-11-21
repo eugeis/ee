@@ -133,7 +133,8 @@ fun <T : OperationI<*>> T.toGoHttpHandlerBody(c: GenerationContext, derived: Str
     return """${queryHandler.params().joinSurroundIfNotEmptyToString("", """
     vars := ${c.n(g.mux.Vars, api)}(r)""") {
         """
-    ${it.nameDecapitalize()}, _ := ${it.isKey().ifElse({ """${c.n(g.google.uuid.Parse, api)}(vars["${it.nameDecapitalize()}"])""" },
+    ${it.nameDecapitalize()}, _ := ${it.isKey().ifElse({ """${c.n(
+                g.google.uuid.Parse, api)}(vars["${it.nameDecapitalize()}"])""" },
             { """vars["${it.nameDecapitalize()}"]""" })}"""
     }}
     ret, err := o.QueryRepository.${queryHandler.toGoCall(c, api, api)}
@@ -147,8 +148,10 @@ fun <T : OperationI<*>> T.toGoHttpHandlerCommandBody(c: GenerationContext, deriv
         val command = derivedFrom() as CommandI<*>
         """
     vars := ${c.n(g.mux.Vars, api)}(r)
-    ${entity.id().name().decapitalize()}, _ := ${c.n(g.google.uuid.Parse, api)}(vars["${entity.id().name().decapitalize()}"])
-    o.HandleCommand(&${command.nameAndParentName().capitalize()}{${entity.id().name().capitalize()}: ${entity.id().name().decapitalize()}}, w, r)"""
+    ${entity.id().name().decapitalize()}, _ := ${c.n(g.google.uuid.Parse, api)}(vars["${
+        entity.id().name().decapitalize()}"])
+    o.HandleCommand(&${command.nameAndParentName().capitalize()}{${
+        entity.id().name().capitalize()}: ${entity.id().name().decapitalize()}}, w, r)"""
     }
 }
 
@@ -164,7 +167,7 @@ fun <T : OperationI<*>> T.toGoHttpHandlerIdBasedBody(c: GenerationContext, deriv
 
 fun <T : CommandI<*>> T.toGoStoreEvent(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
     api: String = DesignDerivedKind.API): String {
-    return """store.StoreEvent(${event().parentNameAndName()}${DesignDerivedType.Event}, &${c.n(event(),
+    return """store.AppendEvent(${event().parentNameAndName()}${DesignDerivedType.Event}, &${c.n(event(),
         api)}{${propsNoMetaNoValue().joinSurroundIfNotEmptyToString("") { prop ->
         """
                 ${prop.name().capitalize()}: command.${prop.name().capitalize()},"""
@@ -292,11 +295,14 @@ fun <T : ConstructorI<*>> T.toGoAggregateInitializerBody(c: GenerationContext, d
         api)}(${entity.name()}${DesignDerivedType.AggregateType},
         func(id ${c.n(g.google.uuid.UUID)}) ${c.n(g.eh.Aggregate)} {
             return ${c.n(
-        g.gee.eh.NewAggregateBase)}(${entity.name()}${DesignDerivedType.AggregateType}, id, commandHandler, eventHandler, entityFactory())
+        g.gee.eh.NewAggregateBase)}(${entity.name()}${
+            DesignDerivedType.AggregateType}, id, commandHandler, eventHandler, entityFactory())
         }, entityFactory,
         ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(), eventHandler,
         []func() error{commandHandler.SetupCommandHandler, eventHandler.SetupEventHandler},
-        eventStore, eventBus, commandBus, readRepos), ${entity.name()}${DesignDerivedType.CommandHandler}: commandHandler, ${entity.name()}${DesignDerivedType.EventHandler}: eventHandler, ProjectorHandler: eventHandler,
+        eventStore, eventBus, commandBus, readRepos), ${entity.name()}${
+            DesignDerivedType.CommandHandler}: commandHandler, ${entity.name()}${
+                DesignDerivedType.EventHandler}: eventHandler, ProjectorHandler: eventHandler,
     }
 """
 }
@@ -324,7 +330,8 @@ fun <T : ConstructorI<*>> T.toGoEventhorizonInitializerBody(c: GenerationContext
     return """
 	ret = &$name{eventStore: eventStore, eventBus: eventBus,
             commandBus: commandBus, ${entities.joinSurroundIfNotEmptyToString(",$nL    ", "$nL    ") {
-        """${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}: New${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}(eventStore, eventBus, commandBus)"""
+        """${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}: New${
+            it.name().capitalize()}${DesignDerivedType.AggregateInitializer}(eventStore, eventBus, commandBus)"""
     }}}
 """
 }
@@ -363,7 +370,8 @@ fun <T : OperationI<*>> T.toGoAggregateInitializerRegisterCommands(c: Generation
     val entity = findParentMust(EntityI::class.java)
     //TODO find a way to get correct name for xxxAggregateType
     return """${c.n(
-        g.gee.eh.AggregateInitializer.RegisterForAllEvents)}(handler, $ { c.n(entity, api) } AggregateType, ${entity.name()} CommandTypes ().Literals())"""
+        g.gee.eh.AggregateInitializer.RegisterForAllEvents)}(handler, $ { c.n(entity, api) } AggregateType, ${
+            entity.name()} CommandTypes ().Literals())"""
 }
 
 fun <T : AttributeI<*>> T.toGoPropOptionalAfterBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,

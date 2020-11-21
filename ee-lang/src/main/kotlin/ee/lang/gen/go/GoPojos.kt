@@ -105,6 +105,7 @@ func (o *$name) SetBSON(raw ${c.n(g.mgo2.bson.Raw, api)}) (err error) {
 
 type $literals struct {
 	values []*$name
+    valuesAsLiterals []${c.n(g.gee.enum.Literal)}
 }
 
 var _$literals = &$literals{values: []*$name${literals().joinWithIndexToString(",$nL    ", "{$nL    ",
@@ -129,6 +130,17 @@ func (o *$literals) Parse$name(name string) (ret *$name, ok bool) {
 		}
 	}
 	return nil, false
+}
+
+// we have to convert the instances to Literal interface, because it is not a other way in Go
+func (o *$literals) Literals() []${c.n(g.gee.enum.Literal)} {
+	if o.valuesAsLiterals == nil {
+		o.valuesAsLiterals = make([]${c.n(g.gee.enum.Literal)}, len(o.values))
+		for i, item := range o.values {
+			o.valuesAsLiterals[i] = item
+		}
+	}
+	return o.valuesAsLiterals
 }"""
 }
 
