@@ -133,7 +133,7 @@ fun <T : LogicUnitI<*>> T.toGoCallValueByPropName(
         saltIntName: String, parentConstrName: String = ""): String =
         if (isNotEMPTY()) {
             val logicUnitName = c.n(this, derived)
-            """$logicUnitName(${params().nonDefaultAndWithoutValueAndNonDerived()
+            """$logicUnitName(${params().nonDefaultAndNonDerived()
                     .toGoCallValueByPropName(c, api, saltIntName, parentConstrName)})"""
         } else ""
 
@@ -293,14 +293,14 @@ fun <T : ConstructorI<*>> T.toGo(c: GenerationContext, derived: String, api: Str
     val type = findParentMust(CompilationUnitI::class.java)
     val name = c.n(type, derived)
     return if (isNotEMPTY()) """${toGoMacrosBefore(c, derived, api)}
-func ${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().joinWrappedToString(", ",
+func ${c.n(this, derived)}(${params().nonDefaultAndNonDerived().joinWrappedToString(", ",
             "                ") {
         it.toGoSignature(c, api)
     }}) (ret *$name) {${toGoMacrosBeforeBody(c, derived, api)}${macrosBody().isNotEmpty().ifElse({
         """
     ${toGoMacrosBody(c, derived, api)}"""
     }, {
-        """${params().defaultOrWithValueAndNonDerived().joinSurroundIfNotEmptyToString("") {
+        """${params().defaultAndValueOrInit().joinSurroundIfNotEmptyToString("") {
             """
     ${it.toGoInitVariables(c, derived, name())}"""
         }}
@@ -317,7 +317,7 @@ fun <T : AttributeI<*>> T.toGoAssign(o: String): String =
         "$o.${isMutable().setAndTrue().ifElse({ name().capitalize() }, { name().decapitalize() })} = ${name()}"
 
 fun <T : LogicUnitI<*>> T.toGoCall(c: GenerationContext, derived: String, api: String): String =
-        if (isNotEMPTY()) """${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().toGoCall(c,
+        if (isNotEMPTY()) """${c.n(this, derived)}(${params().nonDefaultAndNonDerived().toGoCall(c,
                 api)})""" else ""
 
 fun <T : TypeI<*>> T.toGoInstance(

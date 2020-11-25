@@ -63,15 +63,6 @@ fun EntityI<*>.countBy(vararg params: AttributeI<*>) = countBy {
     ret(n.Int)
 }
 
-fun CreateByI<*>.primary() =
-        findParentMust(EntityI::class.java).createBys().size == 1 || name().startsWith("create", true)
-
-fun UpdateByI<*>.primary() =
-        findParentMust(EntityI::class.java).updateBys().size == 1 || name().startsWith("update", true)
-
-fun DeleteByI<*>.primary() =
-        findParentMust(EntityI::class.java).countBys().size == 1 || name().startsWith("delete", true)
-
 fun CompilationUnitI<*>.op(vararg params: AttributeI<*>, body: OperationI<*>.() -> Unit = {}) = op {
     params(*params)
     body()
@@ -91,8 +82,42 @@ fun EntityI<*>.deleted(vararg params: AttributeI<*>) = deleted { props(*params) 
 //TODO provide customizable solution for event name derivation from command
 val consonants = ".*[wrtzpsdfghklxcvbnm]".toRegex()
 
-fun CommandI<*>.deriveEventName() = name().endsWith("gin").ifElse({ name().capitalize().replace("gin", "gged") },
-        { "${name().capitalize()}${consonants.matches(name()).then("e")}d" })
+fun OperationI<*>.findParamKey() = params().find { it.isKey() }
+fun OperationI<*>.findParamsNoKeys() = params().filter { !it.isKey() }
+fun CompilationUnitI<*>.findPropKey() = props().find { it.isKey() }
+fun CompilationUnitI<*>.findPropsNoKeys() = props().filter { !it.isKey() }
+
+fun <T : OperationI<*>> List<T>.filterOpsWithKey(): List<T> =
+    filter { item -> item.params().find { it.isKey() } != null }
+
+fun <T : OperationI<*>> List<T>.filterOpsWithoutKey(): List<T> =
+    filter { item -> item.params().find { it.isKey() } == null }
+
+fun <T : CommandI<*>> List<T>.filterCommandsWithKey(): List<T> =
+    filter { item -> item.props().find { it.isKey() } != null }
+
+fun <T : CommandI<*>> List<T>.filterCommandsWithoutKey(): List<T> =
+    filter { item -> item.props().find { it.isKey() } == null }
+
+
+fun CommandI<*>.deriveEventName(): String {
+    var ret = name().capitalize()
+    when {
+        ret.contains("Send") -> {
+            ret = ret.replace("Send", "Sent")
+        }
+        name().contains("send") -> {
+            ret = ret.replace("send", "sent")
+        }
+        name().endsWith("gin") -> {
+            ret = ret.replace("gin", "gged")
+        }
+        else -> {
+            ret = "$ret${consonants.matches(ret).then("e")}d"
+        }
+    }
+    return ret
+}
 
 fun CommandI<*>.deriveEvent(): EventI<*> {
     val entity = findParentMust(EntityI::class.java)
@@ -128,7 +153,7 @@ fun CommandI<*>.deriveEvent(): EventI<*> {
 fun EntityI<*>.hasNoQueries() = findBys().isEmpty() && countBys().isEmpty() && existBys().isEmpty()
 fun EntityI<*>.hasNoEvents() = events().isEmpty() && created().isEmpty() && updated().isEmpty() && deleted().isEmpty()
 fun EntityI<*>.hasNoCommands() =
-        commands().isEmpty() && createBys().isEmpty() && updateBys().isEmpty() && deleteBys().isEmpty()
+    commands().isEmpty() && createBys().isEmpty() && updateBys().isEmpty() && deleteBys().isEmpty()
 
 fun StructureUnitI<*>.renameControllersAccordingParentType() {
     findDownByType(ControllerI::class.java).forEach { item ->

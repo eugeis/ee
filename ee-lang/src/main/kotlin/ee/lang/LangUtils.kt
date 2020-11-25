@@ -14,9 +14,12 @@ object LangDerivedKind : LangDerivedKindNames()
 fun ItemI<*>.parentNameAndName(): String = storage.getOrPut(this, "parentNameAndName") {
     val parent = findParent(DataTypeI::class.java)
     if (parent != null) {
+       /*
         val regexp = "(\\B[A-Z][a-z]*)".toRegex()
         if (regexp.containsMatchIn(name())) name().replaceFirst(regexp,
                 "$1${parent.name().capitalize()}") else "${parent.name()}${name().capitalize()}"
+        */
+        "${parent.name()}${name().capitalize()}"
     } else {
         name()
     }
@@ -25,9 +28,12 @@ fun ItemI<*>.parentNameAndName(): String = storage.getOrPut(this, "parentNameAnd
 fun ItemI<*>.nameAndParentName(): String = storage.getOrPut(this, "nameAndParentName") {
     val parent = findParent(DataTypeI::class.java)
     if (parent != null) {
+        /*
         val regexp = "(\\B[A-Z][a-z]*)".toRegex()
         if (regexp.containsMatchIn(name())) name().replaceFirst(regexp,
                 "${parent.name().capitalize()}\$1") else "${name()}${parent.name().capitalize()}"
+         */
+        "${name()}${parent.name().capitalize()}"
     } else {
         name()
     }
@@ -43,14 +49,14 @@ fun <T : TypeI<*>> T.findGeneric(name: String): GenericI<*>? = generics().find {
         LogicUnitI::class.java)?.findGeneric(name)
 
 
-fun ListMultiHolderI<AttributeI<*>, *>.nonDefaultAndWithoutValueAndNonDerived(): List<AttributeI<*>> = storage.getOrPut(
-        this, "nonDefaultAndWithoutValueAndNonDerived") {
+fun ListMultiHolderI<AttributeI<*>, *>.nonDefaultAndNonDerived(): List<AttributeI<*>> = storage.getOrPut(
+        this, "nonDefaultAndNonDerived") {
     filter { (!(it.isDefault())) && it.derivedAsType().isEmpty() }
 }
 
-fun ListMultiHolderI<AttributeI<*>, *>.defaultOrWithValueAndNonDerived(): List<AttributeI<*>> = storage.getOrPut(this,
-        "defaultOrWithValueAndNonDerived") {
-    filter { (it.isDefault()) }
+fun ListMultiHolderI<AttributeI<*>, *>.defaultAndValueOrInit(): List<AttributeI<*>> = storage.getOrPut(this,
+        "defaultAndValue") {
+    filter { (it.isDefault() && (it.value() != null || it.isInitByDefaultTypeValue())) }
 }
 
 fun TypeI<*>.primaryConstructor(): ConstructorI<*> = storage.getOrPut(this, "primaryConstructor") {

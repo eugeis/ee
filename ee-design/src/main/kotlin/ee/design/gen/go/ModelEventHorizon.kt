@@ -34,7 +34,7 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
 
             controller {
                 name("${module.name().capitalize()}${DesignDerivedType.EventhorizonInitializer}")
-                        .derivedAsType(DesignDerivedType.Aggregate)
+                    .derivedAsType(DesignDerivedType.Aggregate)
                 val eventStore = prop { type(g.eh.EventStore).replaceable(false).name("eventStore") }
                 val eventBus = prop { type(g.eh.EventBus).replaceable(false).name("eventBus") }
                 val commandBus = prop { type(g.eh.CommandBus).replaceable(false).name("commandBus") }
@@ -46,8 +46,10 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
                     }
                 }
                 constr {
-                    params(eventStore, eventBus, commandBus, readRepos,
-                            *aggregateInitializerProps.map { p(it) { default(true) } }.toTypedArray())
+                    params(
+                        eventStore, eventBus, commandBus, readRepos,
+                        *aggregateInitializerProps.map { p(it) { default(true) } }.toTypedArray()
+                    )
                 }
                 op {
                     name("Setup")
@@ -57,7 +59,8 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
 
             controller {
                 name("${module.name().capitalize()}${DesignDerivedType.HttpRouter}").derivedAsType(
-                        DesignDerivedType.Http)
+                    DesignDerivedType.Http
+                )
                 val pathPrefix = propS { name("pathPrefix") }
                 val httpRouterParams = httpRouters.map {
                     prop {
@@ -66,21 +69,23 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
                 }
                 op {
                     name("Setup")
-                    params(prop { type(g.mux.Router).name("router") })
+                    p("router", g.mux.Router)
                     macrosBody(OperationI<*>::toGoSetupModuleHttpRouter.name)
                 }
                 constr {
                     params(pathPrefix, p { type(g.context.Context).name("context") },
-                            p { type(g.eh.CommandBus).name("commandBus") }, p {
-                        type(reposFactory).name("readRepos")
-                    }, *httpRouterParams.map { p(it) { default(true) } }.toTypedArray())
+                        p { type(g.eh.CommandBus).name("commandBus") }, p {
+                            type(reposFactory).name("readRepos")
+                        }, *httpRouterParams.map { p(it) { default(true) } }.toTypedArray()
+                    )
                     macrosBeforeBody(ConstructorI<*>::toGoHttpModuleRouterBeforeBody.name)
                 }
             }
 
             controller {
                 name("${module.name().capitalize()}${DesignDerivedType.HttpClient}").derivedAsType(
-                        DesignDerivedType.Client)
+                    DesignDerivedType.Client
+                )
                 val url = propS { name("url") }
                 val client = prop { name("client").type(g.net.http.Client) }
 
@@ -106,7 +111,8 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
 
             controller {
                 name("${module.name().capitalize()}${DesignDerivedType.Cli}").derivedAsType(
-                        DesignDerivedType.Cli)
+                    DesignDerivedType.Cli
+                )
 
 
                 val cliParams = clis.map {
@@ -124,9 +130,11 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
     }
 }
 
-private fun EntityI<*>.addEventHorizonArtifacts(fillAggregateInitializer: MutableList<ControllerI<*>>,
-                                                fillHttpRouters: MutableList<ControllerI<*>>, fillHttpClients: MutableList<ControllerI<*>>,
-                                                reposFactory: LambdaI<*>) {
+private fun EntityI<*>.addEventHorizonArtifacts(
+    fillAggregateInitializer: MutableList<ControllerI<*>>,
+    fillHttpRouters: MutableList<ControllerI<*>>, fillHttpClients: MutableList<ControllerI<*>>,
+    reposFactory: LambdaI<*>
+) {
 
     val entity = this
 
@@ -146,90 +154,93 @@ private fun EntityI<*>.addEventHorizonArtifacts(fillAggregateInitializer: Mutabl
     val queryRepository = addQueryRepository(finders, counters, exists)
 
     fillAggregateInitializer.add(
-            //fillAggregateInitializer
-            controller {
-                name(DesignDerivedType.AggregateInitializer).derivedAsType(DesignDerivedType.Aggregate)
-                prop {
-                    type(g.gee.eh.AggregateInitializer)
-                            .anonymous(true).name("fillAggregateInitializer")
-                }
-                prop { type(commandHandler).anonymous(true).name("commandHandler") }
-                prop { type(eventHandler).anonymous(true).name("eventHandler") }
-                prop { type(eventHandler).name("projectorHandler") }
+        //fillAggregateInitializer
+        controller {
+            name(DesignDerivedType.AggregateInitializer).derivedAsType(DesignDerivedType.Aggregate)
+            prop {
+                type(g.gee.eh.AggregateInitializer)
+                    .anonymous(true).name("fillAggregateInitializer")
+            }
+            prop { type(commandHandler).anonymous(true).name("commandHandler") }
+            prop { type(eventHandler).anonymous(true).name("eventHandler") }
+            prop { type(eventHandler).name("projectorHandler") }
 
-                macrosBefore(CompilationUnitI<*>::toGoAggregateInitializerConst.name)
-                macrosAfter(CompilationUnitI<*>::toGoAggregateInitializerRegisterForEvents.name)
+            macrosBefore(CompilationUnitI<*>::toGoAggregateInitializerConst.name)
+            macrosAfter(CompilationUnitI<*>::toGoAggregateInitializerRegisterForEvents.name)
 
-                constr {
-                    params(p { type(g.eh.EventStore).name("eventStore") },
-                            p { type(g.eh.EventBus).name("eventBus") },
-                            p { type(g.eh.CommandBus).name("commandBus") },
-                            p { type(reposFactory).name("readRepos") })
-                    macrosBody(ConstructorI<*>::toGoAggregateInitializerBody.name)
-                }
-            })
+            constr {
+                params(p { type(g.eh.EventStore).name("eventStore") },
+                    p { type(g.eh.EventBus).name("eventBus") },
+                    p { type(g.eh.CommandBus).name("commandBus") },
+                    p { type(reposFactory).name("readRepos") })
+                macrosBody(ConstructorI<*>::toGoAggregateInitializerBody.name)
+            }
+        })
 
     val httpQueryHandler = addHttpQueryHandler(finders, counters, exists, queryRepository)
 
     val httpCommandHandler = addHttpCommandHandler(creaters, updaters, deleters, businessCommands)
 
     fillHttpRouters.add(
-            controller {
-                name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
-                val pathPrefix = propS { name("pathPrefix") }
-                val queryHandler = prop { type(httpQueryHandler).name("queryHandler") }
-                val commandH = prop { type(httpCommandHandler).name("commandHandler") }
+        controller {
+            name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
+            val pathPrefix = propS { name("pathPrefix") }
+            val pathPrefixIdBased = propS { name("pathPrefixIdBased") }
+            val queryHandler = prop { type(httpQueryHandler).name("queryHandler") }
+            val commandH = prop { type(httpCommandHandler).name("commandHandler") }
 
-                op {
-                    name("Setup")
-                    params(prop { type(g.mux.Router).name("router") })
-                    macrosBody(OperationI<*>::toGoSetupHttpRouterBody.name)
-                }
-                constr {
-                    params(pathPrefix,
-                            p { type(g.context.Context).name("context") },
-                            p { type(g.eh.CommandHandler).name("commandBus") },
-                            p { type(reposFactory).name("readRepos") },
-                            p { type(queryRepository).default(true).name("queryRepository") },
-                            p(queryHandler) { default(true) },
-                            p(commandH) { default(true) })
-                    macrosBeforeBody(ConstructorI<*>::toGoHttpRouterBeforeBody.name)
-                }
+            op {
+                name("Setup")
+                p("router", g.mux.Router)
+                macrosBody(OperationI<*>::toGoSetupHttpRouterBody.name)
             }
+            constr {
+                params(
+                    pathPrefix,
+                    p(pathPrefixIdBased) { default().notInitByDefaultTypeValue() },
+                    p { type(g.context.Context).name("context") },
+                    p { type(g.eh.CommandHandler).name("commandBus") },
+                    p { type(reposFactory).name("readRepos") },
+                    p { type(queryRepository).default().name("queryRepository") },
+                    p(queryHandler) { default().initByDefaultTypeValue() },
+                    p(commandH) { default().initByDefaultTypeValue() })
+                macrosBeforeBody(ConstructorI<*>::toGoHttpRouterBeforeBody.name)
+            }
+        }
     )
 
     fillHttpClients.add(
-            controller {
-                name(DesignDerivedType.HttpClient).derivedAsType(DesignDerivedType.Client)
-                val url = propS { name("url") }
-                val client = prop { type(g.net.http.Client).name("client") }
+        controller {
+            name(DesignDerivedType.HttpClient).derivedAsType(DesignDerivedType.Client)
+            val url = propS { name("url") }
+            val client = prop { type(g.net.http.Client).name("client") }
 
-                constr {
-                    params(url, client)
-                    macrosBeforeBody(ConstructorI<*>::toGoHttpClientBeforeBody.name)
-                }
-
-                op {
-                    name("importJSON")
-                    params(p { name("fileJSON").type(n.String) })
-
-                    macrosBody(OperationI<*>::toGoHttpClientImportJsonBody.name)
-                }
-
-                op {
-                    name("Create")
-                    params(p { name("items").type(n.List.GT(entity)) })
-
-                    macrosBody(OperationI<*>::toGoHttpClientCreateBody.name)
-                }
-
-                op {
-                    name("ReadFileJSON")
-                    params(p { name("fileJSON").type(n.String) })
-                    ret(n.List.GT(entity))
-                    macrosBody(OperationI<*>::toGoHttpClientReadFileJsonBody.name)
-                }
+            constr {
+                params(url, client)
+                macrosBeforeBody(ConstructorI<*>::toGoHttpClientBeforeBody.name)
             }
+
+            op {
+                name("importJSON")
+                params(p { name("fileJSON").type(n.String) })
+
+                macrosBody(OperationI<*>::toGoHttpClientImportJsonBody.name)
+            }
+
+            op {
+                name("Create")
+                params(p { name("items").type(n.List.GT(entity)) })
+
+                macrosBody(OperationI<*>::toGoHttpClientCreateBody.name)
+            }
+
+            op {
+                name("ReadFileJSON")
+                params(p { name("fileJSON").type(n.String) })
+                ret(n.List.GT(entity))
+                macrosBody(OperationI<*>::toGoHttpClientReadFileJsonBody.name)
+            }
+        }
     )
 
     addStateMachineArtifacts()
@@ -250,7 +261,7 @@ private fun EntityI<*>.addStateMachineArtifacts() {
             //add event handler
             handlers.add(controller {
                 name("$statePrefix${DesignDerivedType.Handler}")
-                        .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(state)
+                    .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(state)
                 val events = state.uniqueEvents()
                 events.forEach { event ->
                     prop {
@@ -280,14 +291,14 @@ private fun EntityI<*>.addStateMachineArtifacts() {
             //add executor
             executors.add(controller {
                 name("$statePrefix${DesignDerivedType.Executor}")
-                        .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(state)
+                    .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(state)
             })
         }
 
         //add state machine handlers
         controller {
             name("$prefix${DesignDerivedType.Handlers}")
-                    .derivedAsType(DesignDerivedType.StateMachine)
+                .derivedAsType(DesignDerivedType.StateMachine)
             handlers.forEach {
                 prop { type(it).name(it.derivedFrom().name().decapitalize()).default() }
             }
@@ -297,7 +308,7 @@ private fun EntityI<*>.addStateMachineArtifacts() {
         //add state machine executors
         controller {
             name("$prefix${DesignDerivedType.Executors}")
-                    .derivedAsType(DesignDerivedType.StateMachine)
+                .derivedAsType(DesignDerivedType.StateMachine)
             executors.forEach {
                 prop { type(it).name(it.derivedFrom().name().decapitalize()).default() }
             }
@@ -307,16 +318,20 @@ private fun EntityI<*>.addStateMachineArtifacts() {
 }
 
 private fun EntityI<*>.addCli(): BusinessControllerI<*> =
-        controller {
-            name(DesignDerivedType.Cli).derivedAsType(DesignDerivedType.Cli)
-        }
+    controller {
+        name(DesignDerivedType.Cli).derivedAsType(DesignDerivedType.Cli)
+    }
 
-private fun EntityI<*>.addHttpQueryHandler(finders: List<FindByI<*>>, counters: List<CountByI<*>>,
-                                           exists: List<ExistByI<*>>, queryRepository: BusinessControllerI<*>): BusinessControllerI<*> {
+private fun EntityI<*>.addHttpQueryHandler(
+    finders: List<FindByI<*>>, counters: List<CountByI<*>>,
+    exists: List<ExistByI<*>>, queryRepository: BusinessControllerI<*>
+): BusinessControllerI<*> {
     return controller {
         name(DesignDerivedType.HttpQueryHandler).derivedAsType(DesignDerivedType.Http)
-        prop { type(g.gee.eh.HttpQueryHandler)
-                .anonymous(true).name(DesignDerivedType.HttpQueryHandler.decapitalize()) }
+        prop {
+            type(g.gee.eh.HttpQueryHandler)
+                .anonymous(true).name(DesignDerivedType.HttpQueryHandler.decapitalize())
+        }
         prop { type(queryRepository).name("queryRepository") }
         //queries
         finders.forEach {
@@ -353,9 +368,11 @@ private fun EntityI<*>.addHttpQueryHandler(finders: List<FindByI<*>>, counters: 
     }
 }
 
-private fun EntityI<*>.addQueryRepository(finders: List<FindByI<*>>,
-                                          counters: List<CountByI<*>>,
-                                          exists: List<ExistByI<*>>): BusinessControllerI<*> {
+private fun EntityI<*>.addQueryRepository(
+    finders: List<FindByI<*>>,
+    counters: List<CountByI<*>>,
+    exists: List<ExistByI<*>>
+): BusinessControllerI<*> {
     return controller {
         name(DesignDerivedType.QueryRepository).derivedAsType(DesignDerivedType.Query)
         prop(g.eh.ReadRepo).replaceable(false).name("repo")
@@ -379,15 +396,16 @@ private fun EntityI<*>.addQueryRepository(finders: List<FindByI<*>>,
 }
 
 private fun EntityI<*>.addHttpCommandHandler(
-        creaters: List<CreateByI<*>>,
-        updaters: List<UpdateByI<*>>,
-        deleters: List<DeleteByI<*>>,
-        businessCommands: List<BusinessCommandI<*>>): BusinessControllerI<*> {
+    creaters: List<CreateByI<*>>,
+    updaters: List<UpdateByI<*>>,
+    deleters: List<DeleteByI<*>>,
+    businessCommands: List<BusinessCommandI<*>>
+): BusinessControllerI<*> {
     return controller {
         name(DesignDerivedType.HttpCommandHandler).derivedAsType(DesignDerivedType.Http)
         prop {
             type(g.gee.eh.HttpCommandHandler)
-                    .anonymous(true).name(DesignDerivedType.HttpCommandHandler.decapitalize())
+                .anonymous(true).name(DesignDerivedType.HttpCommandHandler.decapitalize())
         }
 
         //commands

@@ -73,7 +73,7 @@ fun <T : LogicUnitI<*>> T.toProtoCallValueByPropName(
         saltIntName: String, parentConstrName: String = ""): String =
         if (isNotEMPTY()) {
             val logicUnitName = c.n(this, derived)
-            """$logicUnitName(${params().nonDefaultAndWithoutValueAndNonDerived()
+            """$logicUnitName(${params().nonDefaultAndNonDerived()
                     .toProtoCallValueByPropName(c, api, saltIntName, parentConstrName)})"""
         } else ""
 
@@ -192,7 +192,7 @@ fun List<AttributeI<*>>.toProtoCall(c: GenerationContext, api: String): String =
         joinWrappedToString(", ") { it.toProtoCall(c, api) }
 
 fun <T : LogicUnitI<*>> T.toProtoCall(c: GenerationContext, derived: String, api: String): String =
-        if (isNotEMPTY()) """${c.n(this, derived)}(${params().nonDefaultAndWithoutValueAndNonDerived().toProtoCall(c,
+        if (isNotEMPTY()) """${c.n(this, derived)}(${params().nonDefaultAndNonDerived().toProtoCall(c,
                 api)})""" else ""
 
 fun <T : TypeI<*>> T.toProtoInstance(
