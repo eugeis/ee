@@ -4,6 +4,7 @@ import ee.common.ext.then
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
+import ee.lang.gen.go.toGoCall
 
 fun StructureUnitI<*>.addEsArtifacts() {
 
@@ -22,9 +23,9 @@ fun StructureUnitI<*>.addEsArtifacts() {
     }.forEach { (module, items) ->
         module.extend {
 
-            val aggregateInitializer = mutableListOf<ControllerI<*>>()
-            val httpRouters = mutableListOf<ControllerI<*>>()
-            val httpClients = mutableListOf<ControllerI<*>>()
+            val aggregateInitializer = mutableMapOf<String, ControllerI<*>>()
+            val httpRouters = mutableMapOf<String, ControllerI<*>>()
+            val httpClients = mutableMapOf<String, ControllerI<*>>()
 
             items.forEach {
                 it.extend {
@@ -39,7 +40,7 @@ fun StructureUnitI<*>.addEsArtifacts() {
                 val commandBus = prop { type(g.eh.CommandBus).replaceable(false).name("commandBus") }
                 val readRepos = p { type(reposFactory).name("readRepos") }
 
-                val aggregateInitializerProps = aggregateInitializer.map { item ->
+                val aggregateInitializerProps = aggregateInitializer.map { (_, item) ->
                     prop {
                         type(item).name("${item.parent().name()}${item.name().capitalize()}")
                     }
@@ -59,9 +60,9 @@ fun StructureUnitI<*>.addEsArtifacts() {
             controller {
                 name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
                 val pathPrefix = propS { name("pathPrefix") }
-                val httpRouterParams = httpRouters.map {
+                val httpRouterParams = httpRouters.map { (_, item) ->
                     prop {
-                        type(it).name("${it.parent().name()}${it.name().capitalize()}")
+                        type(item).name("${item.parent().name()}${item.name().capitalize()}")
                     }
                 }
                 op {
@@ -79,45 +80,52 @@ fun StructureUnitI<*>.addEsArtifacts() {
                 }
             }
 
-            controller {
+            val client = controller {
                 name(DesignDerivedType.HttpClient).derivedAsType(DesignDerivedType.Client)
                 val url = propS { name("url") }
                 val client = prop { name("client").type(g.net.http.Client) }
 
-                val httpClientParams = httpClients.map {
+                val httpClientParams = httpClients.mapValues { (_, item) ->
                     prop {
-                        type(it).name("${it.parent().name()}${it.name().capitalize()}")
+                        type(item).name("${item.parent().name()}${item.name().capitalize()}")
                     }
                 }
 
                 constr {
-                    params(url, client, *httpClientParams.map { p(it) { default(true) } }.toTypedArray())
+                    params(url, client, *httpClientParams.map { (_, it) ->
+                        p(it) { default() }
+                    }.toTypedArray())
                     macrosBeforeBody(ConstructorI<*>::toGoHttpModuleClientBeforeBody.name)
                 }
             }
 
 
-            val clis = mutableListOf<ControllerI<*>>()
-            items.forEach {
-                it.extend {
-                    clis.add(it.addControllers())
+            val entityClis = mutableMapOf<String, ControllerI<*>>()
+            items.forEach { entity ->
+                entity.extend {
+                    entityClis[entity.name()] = entity.addCli(httpClients[entity.name()]!!)
                 }
             }
 
             controller {
-                name("${module.name().capitalize()}${DesignDerivedType.Cli}").derivedAsType(
-                    DesignDerivedType.Cli
-                )
+                name(DesignDerivedType.Cli).derivedAsType(DesignDerivedType.Cli)
+                prop { name("client").type(client) }
 
-
-                val cliParams = clis.map {
+                val cliParams = entityClis.mapValues { (_, item) ->
                     prop {
-                        type(it).name("${it.parent().name()}${it.name().capitalize()}")
+                        type(item).name("${item.parent().name()}${item.name().capitalize()}")
                     }
                 }
 
                 constr {
-                    params(*cliParams.map { p(it) { default(true) } }.toTypedArray())
+                    params(p { name("url").type(n.String) }, p { name("httpClient").type(g.net.http.Client) },
+                        p { name("client").type(client).default().notInitByDefaultTypeValue() },
+
+                        *cliParams.map { (entityName, it) ->
+                            val entityClient = httpClients[entityName]!!
+                            p(it) { default().value("New${it.name()}(client.${entityClient.parentNameAndName()})") }
+                        }.toTypedArray()
+                    )
                     macrosBeforeBody(ConstructorI<*>::toGoHttpModuleCliBeforeBody.name)
                 }
             }
@@ -126,8 +134,8 @@ fun StructureUnitI<*>.addEsArtifacts() {
 }
 
 private fun EntityI<*>.addEsArtifacts(
-    fillAggregateInitializer: MutableList<ControllerI<*>>,
-    fillHttpRouters: MutableList<ControllerI<*>>, fillHttpClients: MutableList<ControllerI<*>>,
+    fillAggregateInitializer: MutableMap<String, ControllerI<*>>,
+    fillHttpRouters: MutableMap<String, ControllerI<*>>, fillHttpClients: MutableMap<String, ControllerI<*>>,
     reposFactory: LambdaI<*>
 ) {
 
@@ -148,8 +156,8 @@ private fun EntityI<*>.addEsArtifacts(
 
     val queryRepository = addQueryRepository(finders, counters, exists)
 
-    fillAggregateInitializer.add(
-        //fillAggregateInitializer
+    fillAggregateInitializer[entity.name()] =
+            //fillAggregateInitializer
         controller {
             name(DesignDerivedType.AggregateInitializer).derivedAsType(DesignDerivedType.Aggregate)
             prop {
@@ -170,13 +178,13 @@ private fun EntityI<*>.addEsArtifacts(
                     p { type(reposFactory).name("readRepos") })
                 macrosBody(ConstructorI<*>::toGoAggregateInitializerBody.name)
             }
-        })
+        }
 
     val httpQueryHandler = addHttpQueryHandler(finders, counters, exists, queryRepository)
 
     val httpCommandHandler = addHttpCommandHandler(creaters, updaters, deleters, businessCommands)
 
-    fillHttpRouters.add(
+    fillHttpRouters[entity.name()] =
         controller {
             name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
             val pathPrefix = propS { name("pathPrefix") }
@@ -202,16 +210,17 @@ private fun EntityI<*>.addEsArtifacts(
                 macrosBeforeBody(ConstructorI<*>::toGoHttpRouterBeforeBody.name)
             }
         }
-    )
 
-    fillHttpClients.add(
+    fillHttpClients[entity.name()] =
         controller {
             name(DesignDerivedType.HttpClient).derivedAsType(DesignDerivedType.Client)
+
+            val urlIdBased = propS { name("urlIdBased") }
             val url = propS { name("url") }
             val client = prop { type(g.net.http.Client).name("client") }
 
             constr {
-                params(url, client)
+                params(p(urlIdBased).default().notInitByDefaultTypeValue(), url, client)
                 macrosBeforeBody(ConstructorI<*>::toGoHttpClientBeforeBody.name)
             }
 
@@ -223,10 +232,30 @@ private fun EntityI<*>.addEsArtifacts(
             }
 
             op {
-                name("Create")
+                name("CreateItems")
                 params(p { name("items").type(n.List.GT(entity)) })
 
-                macrosBody(OperationI<*>::toGoHttpClientCreateBody.name)
+                macrosBody(OperationI<*>::toGoHttpClientCreateItemsBody.name)
+            }
+
+            op {
+                name("DeleteItems")
+                params(p { name("items").type(n.List.GT(entity)) })
+
+                macrosBody(OperationI<*>::toGoHttpClientDeleteItemsBody.name)
+            }
+
+            op {
+                name("DeleteById")
+                params(p { name("itemId").type(g.google.uuid.UUID) })
+
+                macrosBody(OperationI<*>::toGoHttpClientDeleteByIdBody.name)
+            }
+
+            op {
+                name("FindAll")
+                ret(n.List.GT(entity))
+                macrosBody(OperationI<*>::toGoHttpClientFindAllBody.name)
             }
 
             op {
@@ -236,7 +265,6 @@ private fun EntityI<*>.addEsArtifacts(
                 macrosBody(OperationI<*>::toGoHttpClientReadFileJsonBody.name)
             }
         }
-    )
 
     addStateMachineArtifacts()
 }
@@ -312,9 +340,14 @@ private fun EntityI<*>.addStateMachineArtifacts() {
     }
 }
 
-private fun EntityI<*>.addControllers(): BusinessControllerI<*> =
+private fun EntityI<*>.addCli(client: ControllerI<*>): BusinessControllerI<*> =
     controller {
         name(DesignDerivedType.Cli).derivedAsType(DesignDerivedType.Cli)
+        val entityClient = prop { type(client).name("client") }
+
+        constr {
+            params(entityClient)
+        }
     }
 
 private fun EntityI<*>.addHttpQueryHandler(

@@ -99,6 +99,8 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             val QueryTypeFind = ExternalType()
 
             val PostById = Operation()
+            val DeleteById = Operation()
+            val GetItems = Operation()
         }
 
         object eh : StructureUnit({ namespace("$geeUtils.eh") }) {

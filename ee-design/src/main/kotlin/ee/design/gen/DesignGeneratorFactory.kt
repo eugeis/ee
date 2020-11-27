@@ -11,7 +11,6 @@ import ee.design.gen.ts.DesignTsTemplates
 import ee.lang.*
 import ee.lang.gen.LangGeneratorFactory
 import ee.lang.gen.common.LangCommonContextFactory
-import ee.lang.gen.go.g
 import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
 import ee.lang.gen.go.itemNameAsGoFileName
 import ee.lang.gen.itemNameAsKotlinFileName
@@ -510,7 +509,10 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         )
         macros.registerMacro(OperationI<*>::toGoSetupModuleHttpRouter.name, OperationI<*>::toGoSetupModuleHttpRouter)
 
-        macros.registerMacro(OperationI<*>::toGoHttpClientCreateBody.name, OperationI<*>::toGoHttpClientCreateBody)
+        macros.registerMacro(OperationI<*>::toGoHttpClientCreateItemsBody.name, OperationI<*>::toGoHttpClientCreateItemsBody)
+        macros.registerMacro(OperationI<*>::toGoHttpClientDeleteItemsBody.name, OperationI<*>::toGoHttpClientDeleteItemsBody)
+        macros.registerMacro(OperationI<*>::toGoHttpClientDeleteByIdBody.name, OperationI<*>::toGoHttpClientDeleteByIdBody)
+        macros.registerMacro(OperationI<*>::toGoHttpClientFindAllBody.name, OperationI<*>::toGoHttpClientFindAllBody)
         macros.registerMacro(
             OperationI<*>::toGoHttpClientImportJsonBody.name,
             OperationI<*>::toGoHttpClientImportJsonBody
