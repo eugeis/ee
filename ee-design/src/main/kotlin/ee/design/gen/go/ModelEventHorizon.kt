@@ -1,10 +1,10 @@
 package ee.design.gen.go
 
 import ee.common.ext.then
+import ee.common.ext.toPlural
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
-import ee.lang.gen.go.toGoCall
 
 fun StructureUnitI<*>.addEsArtifacts() {
 
@@ -126,7 +126,7 @@ fun StructureUnitI<*>.addEsArtifacts() {
                             p(it) { default().value("New${it.name()}(client.${entityClient.parentNameAndName()})") }
                         }.toTypedArray()
                     )
-                    macrosBeforeBody(ConstructorI<*>::toGoHttpModuleCliBeforeBody.name)
+                    macrosBeforeBody(ConstructorI<*>::toGoCliBeforeBody.name)
                 }
             }
         }
@@ -140,6 +140,8 @@ private fun EntityI<*>.addEsArtifacts(
 ) {
 
     val entity = this
+
+    val propId = entity.propId()
 
     val finders = findDownByType(FindByI::class.java)
     val counters = findDownByType(CountByI::class.java)
@@ -232,6 +234,20 @@ private fun EntityI<*>.addEsArtifacts(
             }
 
             op {
+                name("exportJSON")
+                params(p { name("targetFileJSON").type(n.String) })
+
+                macrosBody(OperationI<*>::toGoHttpClientExportJsonBody.name)
+            }
+
+            op {
+                name("Create")
+                params(p { name("item").type(entity) })
+
+                macrosBody(OperationI<*>::toGoHttpClientCreateBody.name)
+            }
+
+            op {
                 name("CreateItems")
                 params(p { name("items").type(n.List.GT(entity)) })
 
@@ -239,14 +255,14 @@ private fun EntityI<*>.addEsArtifacts(
             }
 
             op {
-                name("DeleteItems")
-                params(p { name("items").type(n.List.GT(entity)) })
+                name("DeleteBy${propId.name().toPlural().capitalize()}")
+                params(p { name("itemIds").type(n.List.GT(entity.propId().type())) })
 
-                macrosBody(OperationI<*>::toGoHttpClientDeleteItemsBody.name)
+                macrosBody(OperationI<*>::toGoHttpClientDeleteByIdsBody.name)
             }
 
             op {
-                name("DeleteById")
+                name("DeleteBy${propId.name().capitalize()}")
                 params(p { name("itemId").type(g.google.uuid.UUID) })
 
                 macrosBody(OperationI<*>::toGoHttpClientDeleteByIdBody.name)
@@ -340,15 +356,50 @@ private fun EntityI<*>.addStateMachineArtifacts() {
     }
 }
 
-private fun EntityI<*>.addCli(client: ControllerI<*>): BusinessControllerI<*> =
-    controller {
+private fun EntityI<*>.addCli(client: ControllerI<*>): BusinessControllerI<*> {
+
+    val propId = propId()
+
+    return controller {
         name(DesignDerivedType.Cli).derivedAsType(DesignDerivedType.Cli)
         val entityClient = prop { type(client).name("client") }
 
         constr {
             params(entityClient)
         }
+
+        op {
+            name("BuildCommands")
+            ret(n.List.GT(g.cli.Command)).notErr()
+
+            macrosBody(OperationI<*>::toGoCliBuildCommands.name)
+        }
+
+        op {
+            name("BuildCommandImportJSON")
+            ret(g.cli.Command).notErr()
+            macrosBody(OperationI<*>::toGoCliImportJsonBody.name)
+        }
+
+        op {
+            name("BuildCommandExportJSON")
+            ret(g.cli.Command).notErr()
+            macrosBody(OperationI<*>::toGoCliExportJsonBody.name)
+        }
+
+        op {
+            name("BuildCommandDeleteBy${propId.name().toPlural().capitalize()}")
+            ret(g.cli.Command).notErr()
+            macrosBody(OperationI<*>::toGoCliDeleteByIdsBody.name)
+        }
+
+        op {
+            name("BuildCommandDeleteBy${propId.name().capitalize()}")
+            ret(g.cli.Command).notErr()
+            macrosBody(OperationI<*>::toGoCliDeleteByIdBody.name)
+        }
     }
+}
 
 private fun EntityI<*>.addHttpQueryHandler(
     finders: List<FindByI<*>>, counters: List<CountByI<*>>,

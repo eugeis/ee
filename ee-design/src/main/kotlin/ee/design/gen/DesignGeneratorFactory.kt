@@ -509,14 +509,29 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         )
         macros.registerMacro(OperationI<*>::toGoSetupModuleHttpRouter.name, OperationI<*>::toGoSetupModuleHttpRouter)
 
-        macros.registerMacro(OperationI<*>::toGoHttpClientCreateItemsBody.name, OperationI<*>::toGoHttpClientCreateItemsBody)
-        macros.registerMacro(OperationI<*>::toGoHttpClientDeleteItemsBody.name, OperationI<*>::toGoHttpClientDeleteItemsBody)
-        macros.registerMacro(OperationI<*>::toGoHttpClientDeleteByIdBody.name, OperationI<*>::toGoHttpClientDeleteByIdBody)
+        macros.registerMacro(OperationI<*>::toGoHttpClientCreateBody.name, OperationI<*>::toGoHttpClientCreateBody)
+        macros.registerMacro(
+            OperationI<*>::toGoHttpClientCreateItemsBody.name,
+            OperationI<*>::toGoHttpClientCreateItemsBody
+        )
+        macros.registerMacro(
+            OperationI<*>::toGoHttpClientDeleteByIdsBody.name,
+            OperationI<*>::toGoHttpClientDeleteByIdsBody
+        )
+        macros.registerMacro(
+            OperationI<*>::toGoHttpClientDeleteByIdBody.name,
+            OperationI<*>::toGoHttpClientDeleteByIdBody
+        )
         macros.registerMacro(OperationI<*>::toGoHttpClientFindAllBody.name, OperationI<*>::toGoHttpClientFindAllBody)
         macros.registerMacro(
             OperationI<*>::toGoHttpClientImportJsonBody.name,
             OperationI<*>::toGoHttpClientImportJsonBody
         )
+        macros.registerMacro(
+            OperationI<*>::toGoHttpClientExportJsonBody.name,
+            OperationI<*>::toGoHttpClientExportJsonBody
+        )
+
         macros.registerMacro(
             OperationI<*>::toGoHttpClientReadFileJsonBody.name,
             OperationI<*>::toGoHttpClientReadFileJsonBody
@@ -526,10 +541,14 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             ConstructorI<*>::toGoHttpModuleClientBeforeBody.name,
             ConstructorI<*>::toGoHttpModuleClientBeforeBody
         )
-        macros.registerMacro(
-            ConstructorI<*>::toGoHttpModuleCliBeforeBody.name,
-            ConstructorI<*>::toGoHttpModuleCliBeforeBody
-        )
+
+        macros.registerMacro(ConstructorI<*>::toGoCliBeforeBody.name, ConstructorI<*>::toGoCliBeforeBody)
+
+        macros.registerMacro(OperationI<*>::toGoCliBuildCommands.name, OperationI<*>::toGoCliBuildCommands)
+        macros.registerMacro(OperationI<*>::toGoCliDeleteByIdBody.name, OperationI<*>::toGoCliDeleteByIdBody)
+        macros.registerMacro(OperationI<*>::toGoCliDeleteByIdsBody.name, OperationI<*>::toGoCliDeleteByIdsBody)
+        macros.registerMacro(OperationI<*>::toGoCliImportJsonBody.name, OperationI<*>::toGoCliImportJsonBody)
+        macros.registerMacro(OperationI<*>::toGoCliExportJsonBody.name, OperationI<*>::toGoCliExportJsonBody)
 
         macros.registerMacro(OperationI<*>::toGoFindByBody.name, OperationI<*>::toGoFindByBody)
         macros.registerMacro(OperationI<*>::toGoCountByBody.name, OperationI<*>::toGoCountByBody)

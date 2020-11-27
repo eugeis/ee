@@ -57,6 +57,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
     object strings : StructureUnit({ namespace("strings") }) {
         val EqualFold = Operation()
+        val Split = Operation()
     }
 
     object encoding : StructureUnit({ namespace("encoding") }) {
