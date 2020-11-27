@@ -44,7 +44,7 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerSetupBody(c: GenerationContext, d
 
     val events = state.uniqueEvents()
 
-    val id = entity.id().name().capitalize()
+    val id = entity.propId().name().capitalize()
     return events.joinSurroundIfNotEmptyToString("") { item ->
         val handler = c.n(item, DesignDerivedType.Handler).capitalize()
         val aggregateType = c.n(entity, DesignDerivedType.AggregateType).capitalize()

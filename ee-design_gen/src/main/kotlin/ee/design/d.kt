@@ -33,7 +33,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val moduleGroups = prop(ModuleGroup).multi(true)
     }
 
-    object Event : CompilationUnit({ superUnit(l.CompilationUnit) }) {}
+    object Event : CompilationUnit({ superUnit(l.DataType) }) {}
 
     object BusinessEvent : CompilationUnit({ superUnit(Event) })
 
@@ -52,7 +52,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
 
     object BusinessController : CompilationUnit({ superUnit(Controller) })
 
-    object Command : CompilationUnit({ superUnit(l.CompilationUnit) }) {
+    object Command : CompilationUnit({ superUnit(l.DataType) }) {
         val httpMethod = propS()
         val affectMulti = prop(n.Boolean).value(false)
         val event = prop(Event).doc("Default target/to be produced event")

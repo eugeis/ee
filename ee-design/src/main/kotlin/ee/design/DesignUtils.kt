@@ -1,6 +1,5 @@
 package ee.design
 
-import ee.common.ext.ifElse
 import ee.common.ext.then
 import ee.design.gen.go.toGoPropOptionalAfterBody
 import ee.lang.*
@@ -31,7 +30,7 @@ open class DesignDerivedTypeNames {
     val HttpCommandHandler = "HttpCommandHandler"
     val Event = "Event"
     val EventHandler = "EventHandler"
-    val EventhorizonInitializer = "EventhorizonInitializer"
+    val EsInitializer = "EsInitializer"
     val Handler = "Handler"
     val Handlers = "Handlers"
     val Executor = "Executor"
@@ -180,7 +179,7 @@ fun StructureUnitI<*>.addQueriesForAggregates() {
         }
         findBy {
             name("FindById")
-            params(id())
+            params(propId())
             ret(item)
         }
         countBy {
@@ -189,7 +188,7 @@ fun StructureUnitI<*>.addQueriesForAggregates() {
         }
         countBy {
             name("CountById")
-            params(id())
+            params(propId())
             ret(n.Long)
         }
         existBy {
@@ -198,7 +197,7 @@ fun StructureUnitI<*>.addQueriesForAggregates() {
         }
         existBy {
             name("ExistById")
-            params(id())
+            params(propId())
             ret(n.Boolean)
         }
     }
@@ -248,23 +247,23 @@ fun StructureUnitI<*>.addAggregateHandler() {
 
 fun StructureUnitI<*>.addIdPropToEntities() {
     findDownByType(EntityI::class.java).filter { !it.isVirtual() && it.props().find { it.isKey() } == null }.extend {
-        val id = buildId()
+        val id = propId()
     }
 }
 
 fun StructureUnitI<*>.addIdPropToEventsAndCommands() {
     findDownByType(EntityI::class.java).filter { !it.isVirtual() }.extend {
-        created().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
-        updated().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
-        deleted().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
+        created().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
+        updated().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
+        deleted().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
 
-        events().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
+        events().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
 
-        createBys().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
-        updateBys().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
-        deleteBys().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
+        createBys().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
+        updateBys().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
+        deleteBys().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
 
-        commands().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(id()) }
+        commands().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
     }
 }
 
@@ -340,16 +339,40 @@ fun <T : CompilationUnitI<*>> T.propagateItemToSubtypes(item: CompilationUnitI<*
     }
 }
 
-fun EntityI<*>.buildId(): AttributeI<*> = prop { key(true).type(n.UUID).name("id") }
+fun EntityI<*>.addPropId(): AttributeI<*> {
+    return prop {
+        key(true).type(n.UUID).name("id")
+    }
+}
 
-fun EntityI<*>.id(): AttributeI<*> = storage.getOrPut(this, "id") {
+fun EntityI<*>.propId(): AttributeI<*> = storage.getOrPut(this, "propId") {
     initIfNotInitialized()
     var ret = props().find { it.isKey() }
     if (ret == null && superUnit() is EntityI<*>) {
-        ret = (superUnit() as EntityI<*>).id()
+        ret = (superUnit() as EntityI<*>).propId()
     } else if (ret == null) {
-        log.debug("Id can't be found for '$this', build isDefault one")
-        ret = buildId()
+        log.debug("prop 'id' can't be found for '$this', build default one")
+        ret = addPropId()
+    }
+    ret
+}
+
+const val PROP_DELETED_AT="deletedAt"
+
+fun EntityI<*>.addPropDeletedAt(): AttributeI<*> {
+    return prop {
+        key(true).type(n.Date).name(PROP_DELETED_AT)
+    }
+}
+
+fun EntityI<*>.propDeletedAt(): AttributeI<*> = storage.getOrPut(this, "propDeletedAt") {
+    initIfNotInitialized()
+    var ret = props().find { it.name() == PROP_DELETED_AT }
+    if (ret == null && superUnit() is EntityI<*>) {
+        ret = (superUnit() as EntityI<*>).propDeletedAt()
+    } else if (ret == null) {
+        log.debug("prop 'deleted' can't be found for '$this', build default one")
+        ret = addPropDeletedAt()
     }
     ret
 }
@@ -378,7 +401,7 @@ fun EntityI<*>.update(): CommandI<*> = storage.getOrPut(this, "update") {
 fun EntityI<*>.delete(): CommandI<*> = storage.getOrPut(this, "delete") {
     deleteBy {
         name("delete")
-        props(id())
+        props(propId())
         constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
     }
 }

@@ -1,6 +1,7 @@
 package ee.lang
 
 import ee.common.ext.buildLabel
+import ee.common.ext.ifElse
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -101,56 +102,61 @@ fun <T> MultiHolderI<*, *>.findAllByType(type: Class<T>): List<T> {
 }
 
 fun <T> ItemI<*>.findUpByType(
-        type: Class<T>, destination: MutableList<T> = mutableListOf(),
-        alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(), stopSteppingUpIfFound: Boolean = true): List<T> =
+    type: Class<T>, destination: MutableList<T> = mutableListOf(),
+    alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(), stopSteppingUpIfFound: Boolean = true
+): List<T> =
 
-        findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound) { listOf(parent()) }
+    findAcrossByType(type, destination, alreadyHandled, stopSteppingUpIfFound) { listOf(parent()) }
 
 fun <T> ItemI<*>.findAcrossByType(
-        type: Class<T>, destination: MutableList<T> = mutableListOf(),
-        alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true,
-        acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>): List<T> =
+    type: Class<T>, destination: MutableList<T> = mutableListOf(),
+    alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true,
+    acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>
+): List<T> =
 
-        findAcross({
-            @Suppress("UNCHECKED_CAST")
-            if (type.isInstance(this)) this as T else null
-        }, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
+    findAcross({
+        @Suppress("UNCHECKED_CAST")
+        if (type.isInstance(this)) this as T else null
+    }, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
 
 @Suppress("UNCHECKED_CAST")
 fun <T> MultiHolderI<*, *>.findDownByType(
-        type: Class<T>, destination: MutableList<T> = mutableListOf(),
-        alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(), stopSteppingDownIfFound: Boolean = true): List<T> =
+    type: Class<T>, destination: MutableList<T> = mutableListOf(),
+    alreadyHandled: MutableSet<ItemI<*>> = hashSetOf(), stopSteppingDownIfFound: Boolean = true
+): List<T> =
 
-        findAcrossByType(type, destination, alreadyHandled, stopSteppingDownIfFound) {
-            val ret = if (this is MultiHolderI<*, *> && supportsItemType(ItemI::class.java)) {
-                (items() as Collection<ItemI<*>>).filter {
-                    !it.name().startsWith("__")
-                }
-            } else {
-                emptyList()
+    findAcrossByType(type, destination, alreadyHandled, stopSteppingDownIfFound) {
+        val ret = if (this is MultiHolderI<*, *> && supportsItemType(ItemI::class.java)) {
+            (items() as Collection<ItemI<*>>).filter {
+                !it.name().startsWith("__")
             }
-            ret
+        } else {
+            emptyList()
         }
+        ret
+    }
 
 @Suppress("UNCHECKED_CAST")
 fun <T> ItemI<*>.findDown(
-        select: ItemI<*>.() -> T?, destination: MutableList<T> = mutableListOf(),
-        alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true): List<T> =
+    select: ItemI<*>.() -> T?, destination: MutableList<T> = mutableListOf(),
+    alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true
+): List<T> =
 
-        findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound) {
-            if (this is MultiHolderI<*, *> && supportsItemType(ItemI::class.java)) {
-                (items() as Collection<ItemI<*>>).filter {
-                    !it.name().startsWith("__")
-                }
-            } else {
-                emptyList()
+    findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound) {
+        if (this is MultiHolderI<*, *> && supportsItemType(ItemI::class.java)) {
+            (items() as Collection<ItemI<*>>).filter {
+                !it.name().startsWith("__")
             }
+        } else {
+            emptyList()
         }
+    }
 
 fun <T> ItemI<*>.findAcross(
-        select: ItemI<*>.() -> T?, destination: MutableList<T> = mutableListOf(),
-        alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true,
-        acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>): List<T> {
+    select: ItemI<*>.() -> T?, destination: MutableList<T> = mutableListOf(),
+    alreadyHandled: MutableSet<ItemI<*>> = HashSet(), stopSteppingAcrossIfFound: Boolean = true,
+    acrossSelector: ItemI<*>.() -> Collection<ItemI<*>>
+): List<T> {
 
     val items = acrossSelector()
     items.forEach { acrossItem ->
@@ -160,7 +166,13 @@ fun <T> ItemI<*>.findAcross(
             if (selected != null && !destination.contains(selected)) {
                 destination.add(selected)
                 if (!stopSteppingAcrossIfFound) {
-                    acrossItem.findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
+                    acrossItem.findAcross(
+                        select,
+                        destination,
+                        alreadyHandled,
+                        stopSteppingAcrossIfFound,
+                        acrossSelector
+                    )
                 }
             } else {
                 acrossItem.findAcross(select, destination, alreadyHandled, stopSteppingAcrossIfFound, acrossSelector)
@@ -171,9 +183,11 @@ fun <T> ItemI<*>.findAcross(
 }
 
 
-fun <B : MultiHolderI<I, *>, I> B.initObjectTree(deriveNamespace: ItemI<*>.() -> String = {
-    parent().namespace()
-}): B {
+fun <B : MultiHolderI<I, *>, I> B.initObjectTree(
+    deriveNamespace: ItemI<*>.() -> String = {
+        parent().namespace()
+    }
+): B {
     initIfNotInitialized()
     if (name().isBlank()) {
         name(buildLabel().name)
@@ -199,7 +213,9 @@ fun <B : MultiHolderI<I, *>, I> B.initObjectTree(deriveNamespace: ItemI<*>.() ->
                     if (!containsItem(child as I)) {
                         addItem(child)
                     }
-                    if (child.namespace().isBlank()) child.namespace(child.deriveNamespace())
+                    if (child.namespace().isBlank()) {
+                        child.namespace(child.deriveNamespace())
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -258,7 +274,15 @@ fun ItemI<*>.initIfNotInitialized() {
 fun Boolean?.notNullValueOrTrue(): Boolean = notNullValueElse(false)
 fun Boolean?.notNullValueOrFalse(): Boolean = notNullValueElse(false)
 fun Boolean?.notNullValueElse(valueIfNull: () -> Boolean): Boolean =
-        if (this == null) valueIfNull() else this
+    if (this == null) valueIfNull() else this
 
 fun Boolean?.notNullValueElse(valueIfNull: Boolean): Boolean =
-        if (this == null) valueIfNull else this
+    if (this == null) valueIfNull else this
+
+fun ItemI<*>.deriveNamespace(name: String) = (namespace().endsWith(name)).ifElse(namespace())
+{ "${namespace()}.$name" }
+
+fun ItemI<*>.deriveNamespaceShared(name: String) = (namespace().endsWith(name) ||
+        "shared".equals(name, true)).ifElse(
+    namespace()
+) { "${namespace()}.$name" }

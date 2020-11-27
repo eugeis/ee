@@ -5,7 +5,7 @@ import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
 
-fun StructureUnitI<*>.addEventHorizonArtifacts() {
+fun StructureUnitI<*>.addEsArtifacts() {
 
     val reposFactory = lambda {
         notErr()
@@ -28,13 +28,12 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
 
             items.forEach {
                 it.extend {
-                    addEventHorizonArtifacts(aggregateInitializer, httpRouters, httpClients, reposFactory)
+                    addEsArtifacts(aggregateInitializer, httpRouters, httpClients, reposFactory)
                 }
             }
 
             controller {
-                name("${module.name().capitalize()}${DesignDerivedType.EventhorizonInitializer}")
-                    .derivedAsType(DesignDerivedType.Aggregate)
+                name(DesignDerivedType.EsInitializer).derivedAsType(DesignDerivedType.Aggregate)
                 val eventStore = prop { type(g.eh.EventStore).replaceable(false).name("eventStore") }
                 val eventBus = prop { type(g.eh.EventBus).replaceable(false).name("eventBus") }
                 val commandBus = prop { type(g.eh.CommandBus).replaceable(false).name("commandBus") }
@@ -53,14 +52,12 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
                 }
                 op {
                     name("Setup")
-                    macrosBody(OperationI<*>::toGoEventhorizonInitializerSetupBody.name)
+                    macrosBody(OperationI<*>::toGoEhInitializerSetupBody.name)
                 }
             }
 
             controller {
-                name("${module.name().capitalize()}${DesignDerivedType.HttpRouter}").derivedAsType(
-                    DesignDerivedType.Http
-                )
+                name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
                 val pathPrefix = propS { name("pathPrefix") }
                 val httpRouterParams = httpRouters.map {
                     prop {
@@ -83,9 +80,7 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
             }
 
             controller {
-                name("${module.name().capitalize()}${DesignDerivedType.HttpClient}").derivedAsType(
-                    DesignDerivedType.Client
-                )
+                name(DesignDerivedType.HttpClient).derivedAsType(DesignDerivedType.Client)
                 val url = propS { name("url") }
                 val client = prop { name("client").type(g.net.http.Client) }
 
@@ -102,10 +97,10 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
             }
 
 
-            val clis = mutableListOf<ControllerI<*>>()
+            val controllers = mutableListOf<ControllerI<*>>()
             items.forEach {
                 it.extend {
-                    clis.add(it.addCli())
+                    controllers.add(it.addControllers())
                 }
             }
 
@@ -115,7 +110,7 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
                 )
 
 
-                val cliParams = clis.map {
+                val cliParams = controllers.map {
                     prop {
                         type(it).name("${it.parent().name()}${it.name().capitalize()}")
                     }
@@ -130,7 +125,7 @@ fun StructureUnitI<*>.addEventHorizonArtifacts() {
     }
 }
 
-private fun EntityI<*>.addEventHorizonArtifacts(
+private fun EntityI<*>.addEsArtifacts(
     fillAggregateInitializer: MutableList<ControllerI<*>>,
     fillHttpRouters: MutableList<ControllerI<*>>, fillHttpClients: MutableList<ControllerI<*>>,
     reposFactory: LambdaI<*>
@@ -317,7 +312,7 @@ private fun EntityI<*>.addStateMachineArtifacts() {
     }
 }
 
-private fun EntityI<*>.addCli(): BusinessControllerI<*> =
+private fun EntityI<*>.addControllers(): BusinessControllerI<*> =
     controller {
         name(DesignDerivedType.Cli).derivedAsType(DesignDerivedType.Cli)
     }

@@ -65,7 +65,7 @@ open class DesignGoGenerator(val models: List<StructureUnitI<*>>, targetAsSingle
 
         addIdPropToEventsAndCommands()
 
-        addEventHorizonArtifacts()
+        addEsArtifacts()
 
         renameControllersAccordingParentType()
 

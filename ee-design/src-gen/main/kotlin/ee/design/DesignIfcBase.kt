@@ -16,28 +16,34 @@ import ee.lang.ValuesI
 
 
 interface AggregateHandlerI<B : AggregateHandlerI<B>> : StateMachineI<B> {
+
 }
 
 
 interface BundleI<B : BundleI<B>> : StructureUnitI<B> {
+
     fun units(): ListMultiHolder<StructureUnitI<*>>
     fun units(vararg value: StructureUnitI<*>): B
 }
 
 
 interface BusinessCommandI<B : BusinessCommandI<B>> : CommandI<B> {
+
 }
 
 
 interface BusinessControllerI<B : BusinessControllerI<B>> : ControllerI<B> {
+
 }
 
 
 interface BusinessEventI<B : BusinessEventI<B>> : EventI<B> {
+
 }
 
 
-interface CommandI<B : CommandI<B>> : CompilationUnitI<B> {
+interface CommandI<B : CommandI<B>> : DataTypeI<B> {
+
     fun httpMethod(): String
     fun httpMethod(value: String): B
 
@@ -52,24 +58,28 @@ interface CommandI<B : CommandI<B>> : CompilationUnitI<B> {
 
 
 interface CompI<B : CompI<B>> : ModuleGroupI<B> {
+
     fun moduleGroups(): ListMultiHolder<ModuleGroupI<*>>
     fun moduleGroups(vararg value: ModuleGroupI<*>): B
 }
 
 
 interface CompositeCommandI<B : CompositeCommandI<B>> : CompilationUnitI<B> {
+
     fun commands(): ListMultiHolder<CommandI<*>>
     fun commands(vararg value: CommandI<*>): B
 }
 
 
 interface ConfigI<B : ConfigI<B>> : ValuesI<B> {
+
     fun prefix(): String
     fun prefix(value: String): B
 }
 
 
 interface ControllerI<B : ControllerI<B>> : CompilationUnitI<B> {
+
     fun enums(): ListMultiHolder<EnumTypeI<*>>
     fun enums(vararg value: EnumTypeI<*>): B
     fun enumType(value: EnumTypeI<*>): EnumTypeI<*>
@@ -88,26 +98,32 @@ interface ControllerI<B : ControllerI<B>> : CompilationUnitI<B> {
 
 
 interface CountByI<B : CountByI<B>> : DataTypeOperationI<B> {
+
 }
 
 
 interface CreateByI<B : CreateByI<B>> : CommandI<B> {
+
 }
 
 
 interface CreatedI<B : CreatedI<B>> : EventI<B> {
+
 }
 
 
 interface DeleteByI<B : DeleteByI<B>> : CommandI<B> {
+
 }
 
 
 interface DeletedI<B : DeletedI<B>> : EventI<B> {
+
 }
 
 
 interface DynamicStateI<B : DynamicStateI<B>> : StateI<B> {
+
     fun ifTrue(): ListMultiHolder<PredicateI<*>>
     fun ifTrue(vararg value: PredicateI<*>): B
     fun ifT(value: PredicateI<*>): PredicateI<*>
@@ -121,6 +137,7 @@ interface DynamicStateI<B : DynamicStateI<B>> : StateI<B> {
 
 
 interface EntityI<B : EntityI<B>> : DataTypeI<B> {
+
     fun isDefaultEvents(): Boolean
     fun defaultEvents(value: Boolean): B
     fun defaultEvents(): B = defaultEvents(true)
@@ -229,11 +246,13 @@ interface EntityI<B : EntityI<B>> : DataTypeI<B> {
 }
 
 
-interface EventI<B : EventI<B>> : CompilationUnitI<B> {
+interface EventI<B : EventI<B>> : DataTypeI<B> {
+
 }
 
 
 interface ExecutorI<B : ExecutorI<B>> : LogicUnitI<B> {
+
     fun on(): CommandI<*>
     fun on(value: CommandI<*>): B
 
@@ -260,20 +279,24 @@ interface ExecutorI<B : ExecutorI<B>> : LogicUnitI<B> {
 
 
 interface ExistByI<B : ExistByI<B>> : DataTypeOperationI<B> {
+
 }
 
 
 interface ExternalModuleI<B : ExternalModuleI<B>> : ModuleI<B> {
+
     fun externalTypes(): ListMultiHolder<ExternalTypeI<*>>
     fun externalTypes(vararg value: ExternalTypeI<*>): B
 }
 
 
 interface FacetI<B : FacetI<B>> : ModuleGroupI<B> {
+
 }
 
 
 interface FindByI<B : FindByI<B>> : DataTypeOperationI<B> {
+
     fun isMultiResult(): Boolean
     fun multiResult(value: Boolean): B
     fun multiResult(): B = multiResult(true)
@@ -282,6 +305,7 @@ interface FindByI<B : FindByI<B>> : DataTypeOperationI<B> {
 
 
 interface HandlerI<B : HandlerI<B>> : LogicUnitI<B> {
+
     fun on(): EventI<*>
     fun on(value: EventI<*>): B
 
@@ -311,6 +335,7 @@ interface HandlerI<B : HandlerI<B>> : LogicUnitI<B> {
 
 
 interface ModelI<B : ModelI<B>> : StructureUnitI<B> {
+
     fun models(): ListMultiHolder<ModelI<*>>
     fun models(vararg value: ModelI<*>): B
 
@@ -320,6 +345,7 @@ interface ModelI<B : ModelI<B>> : StructureUnitI<B> {
 
 
 interface ModuleI<B : ModuleI<B>> : StructureUnitI<B> {
+
     fun isParentNamespace(): Boolean
     fun parentNamespace(value: Boolean): B
     fun parentNamespace(): B = parentNamespace(true)
@@ -366,20 +392,24 @@ interface ModuleI<B : ModuleI<B>> : StructureUnitI<B> {
 
 
 interface ModuleGroupI<B : ModuleGroupI<B>> : StructureUnitI<B> {
+
     fun modules(): ListMultiHolder<ModuleI<*>>
     fun modules(vararg value: ModuleI<*>): B
 }
 
 
 interface ProcessManagerI<B : ProcessManagerI<B>> : StateMachineI<B> {
+
 }
 
 
 interface ProjectorI<B : ProjectorI<B>> : StateMachineI<B> {
+
 }
 
 
 interface StateI<B : StateI<B>> : ControllerI<B> {
+
     fun timeout(): Long
     fun timeout(value: Long): B
 
@@ -406,6 +436,7 @@ interface StateI<B : StateI<B>> : ControllerI<B> {
 
 
 interface StateMachineI<B : StateMachineI<B>> : ControllerI<B> {
+
     fun defaultState(): StateI<*>
     fun defaultState(value: StateI<*>): B
 
@@ -431,13 +462,16 @@ interface StateMachineI<B : StateMachineI<B>> : ControllerI<B> {
 
 
 interface UpdateByI<B : UpdateByI<B>> : CommandI<B> {
+
 }
 
 
 interface UpdatedI<B : UpdatedI<B>> : EventI<B> {
+
 }
 
 
 interface WidgetI<B : WidgetI<B>> : CompilationUnitI<B> {
+
 }
 

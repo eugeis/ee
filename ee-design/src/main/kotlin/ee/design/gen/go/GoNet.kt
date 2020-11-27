@@ -13,7 +13,7 @@ fun <T : CommandI<*>> T.toGoHandler(
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api)}
-func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)}            { return o.${entity.id().nameForGoMember()} }
+func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)}            { return o.${entity.propId().nameForGoMember()} }
 func (o *$name) AggregateType() ${
         c.n(
             g.eh.AggregateType
@@ -86,16 +86,10 @@ fun Collection<CommandI<*>>.routerCommandsWithKey(httpMethod: String) =
     joinWithIndexSurroundIfNotEmptyToString("") { index, item ->
         """
     router.Methods($httpMethod).PathPrefix(o.PathPrefixIdBased).Path("${
-        item.buildHttpPathKey(index, item.findPropKey()!!)}").
+            item.buildHttpPathKey(index, item.findPropKey()!!)
+        }").
         Name("${item.nameAndParentName().capitalize()}").
-        HandlerFunc(o.CommandHandler.${item.name().capitalize()})${
-            item.findPropsNoKeys().joinSurroundIfNotEmptyToString(
-                separator = ", ",
-                prefix = ".$nL        Queries(", postfix = ")"
-            ) {
-                """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
-            }
-        }"""
+        HandlerFunc(o.CommandHandler.${item.name().capitalize()})"""
     }
 
 fun Collection<DataTypeOperationI<*>>.routerQueriesWithKeyGet(c: GenerationContext, api: String) =
@@ -105,16 +99,10 @@ fun Collection<DataTypeOperationI<*>>.routerQueriesWithKey(httpMethod: String) =
     joinWithIndexSurroundIfNotEmptyToString("") { index, item ->
         """
     router.Methods($httpMethod).PathPrefix(o.PathPrefixIdBased).Path("${
-        item.buildHttpPathKey(index, item.findParamKey()!!)}").
+            item.buildHttpPathKey(index, item.findParamKey()!!)
+        }").
         Name("${item.parentNameAndName().capitalize()}").
-        HandlerFunc(o.QueryHandler.${item.name().capitalize()})${
-            item.findParamsNoKeys().joinSurroundIfNotEmptyToString(
-                separator = ", ",
-                prefix = ".$nL        Queries(", postfix = ")"
-            ) {
-                """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
-            }
-        }"""
+        HandlerFunc(o.QueryHandler.${item.name().capitalize()})"""
     }
 
 
@@ -131,16 +119,10 @@ fun Collection<CommandI<*>>.routerCommands(httpMethod: String) =
     joinWithIndexSurroundIfNotEmptyToString("") { index, item ->
         """
     router.Methods($httpMethod).PathPrefix(o.PathPrefix).Path("${
-        item.buildHttpPath(index)}").
+            item.buildHttpPath(index)
+        }").
         Name("${item.nameAndParentName().capitalize()}").
-        HandlerFunc(o.CommandHandler.${item.name().capitalize()})${
-            item.findPropsNoKeys().joinSurroundIfNotEmptyToString(
-                separator = ", ",
-                prefix = ".$nL        Queries(", postfix = ")"
-            ) {
-                """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
-            }
-        }"""
+        HandlerFunc(o.CommandHandler.${item.name().capitalize()})"""
     }
 
 fun Collection<DataTypeOperationI<*>>.routerQueriesGet(c: GenerationContext, api: String) =
@@ -151,14 +133,7 @@ fun Collection<DataTypeOperationI<*>>.routerQueries(httpMethod: String) =
         """
     router.Methods($httpMethod).PathPrefix(o.PathPrefix).Path("${item.buildHttpPath(index)}").
         Name("${item.parentNameAndName().capitalize()}").
-        HandlerFunc(o.QueryHandler.${item.name().capitalize()})${
-            item.params().joinSurroundIfNotEmptyToString(
-                separator = ", ",
-                prefix = ".$nL        Queries(", postfix = ")"
-            ) {
-                """"${it.name().decapitalize()}", "{${it.name().decapitalize()}}""""
-            }
-        }"""
+        HandlerFunc(o.QueryHandler.${item.name().capitalize()})"""
     }
 
 private fun ItemI<*>.buildHttpPathKey(index: Int, keyParam: AttributeI<*>) =
@@ -173,8 +148,7 @@ fun String.removeSuffixById(): String = removeSuffix("ById")
 fun String.removeSuffixAll(): String = removeSuffix("All")
 
 fun <T : OperationI<*>> T.toGoSetupModuleHttpRouter(
-    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
     val httpRouters = findParentMust(CompilationUnitI::class.java).props().filter {
         it.type() is ControllerI<*> && it.name().endsWith(DesignDerivedType.HttpRouter)

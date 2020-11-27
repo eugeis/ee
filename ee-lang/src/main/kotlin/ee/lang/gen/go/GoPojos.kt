@@ -196,8 +196,8 @@ fun <T : CompilationUnitI<*>> T.toGoNewTestInstance(
 
 private fun <T : CompilationUnitI<*>> T.toGoNewTestInstance(
         c: GenerationContext, derived: String, api: String, constr: ConstructorI<*>): String {
-    val name = c.n(this, derived)
 
+    val name = c.n(this, derived)
     val constrName = "${c.n(constr, derived)}ByPropNames"
     val constrNames = "${c.n(constr, derived).toPlural()}ByPropNames"
 

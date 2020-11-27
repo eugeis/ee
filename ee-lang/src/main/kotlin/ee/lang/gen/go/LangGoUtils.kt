@@ -21,13 +21,13 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     }
 
     object io : StructureUnit({ namespace("io") }) {
-        object ioutil : StructureUnit() {
+        object ioutil : StructureUnit({ namespace("io.ioutil") }) {
             val ReadFile = Operation { ret(error) }
         }
     }
 
     object time : StructureUnit({ namespace("time") }) {
-        val Time = ExternalType()
+        val Time = ExternalType {}
         val Now = Operation()
     }
 
@@ -36,7 +36,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     }
 
     object net : StructureUnit({ namespace("net") }) {
-        object http : StructureUnit() {
+        object http : StructureUnit({ namespace("net.http") }) {
             val Client = ExternalType {}
             val ResponseWriter = ExternalType { ifc() }
             val Request = ExternalType()
@@ -81,14 +81,16 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     }
 
     //common libs
-    object gee : StructureUnit({ namespace("github.com.go-ee.utils") }) {
+    val geeUtils = "github.com.go-ee.utils"
+
+    object gee : StructureUnit({ namespace("$geeUtils") }) {
         val PtrTime = Operation()
 
-        object enum : StructureUnit() {
+        object enum : StructureUnit({ namespace("$geeUtils.enum") }) {
             val Literal = ExternalType()
         }
 
-        object net : StructureUnit() {
+        object net : StructureUnit({ namespace("$geeUtils.net") }) {
             val Command = ExternalType()
 
             val QueryType = ExternalType()
@@ -99,7 +101,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             val PostById = Operation()
         }
 
-        object eh : StructureUnit() {
+        object eh : StructureUnit({ namespace("$geeUtils.eh") }) {
             object AggregateInitializer : ExternalType() {
                 val RegisterForAllEvents = Operation()
                 val RegisterForEvent = Operation()
@@ -113,6 +115,14 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             object AggregateStoreEvent : ExternalType({ ifc() })
 
             object AggregateBase : ExternalType()
+
+            object Entity : ExternalType({
+                namespace("$geeUtils.eh")
+                constructorNoProps()
+            }) {
+                val id = prop(n.UUID).key()
+                val deleted = prop(n.Date)
+            }
 
             object NewAggregateBase : Operation()
 
@@ -132,15 +142,12 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
             object ValidateNewId : Operation()
 
-            object HttpCommandHandler : ExternalType() {
+            object HttpCommandHandler : ExternalType({ constructorFull() }) {
                 val context = prop { type(g.context.Context) }
                 val commandBus = prop { type(g.eh.CommandHandler) }
-
-                val ignore = constructorFull()
             }
 
-            object HttpQueryHandler : ExternalType() {
-                val ignore = constructorFull()
+            object HttpQueryHandler : ExternalType({ constructorFull() }) {
             }
 
             object Projector : ExternalType() {}
@@ -245,11 +252,13 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 }
 
 open class GoContext(
-        namespace: String = "", moduleFolder: String = "", genFolder: String = "src",
-        genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*_base.go".toRegex(),
-        derivedController: DerivedController, macroController: MacroController)
-    : GenerationContext(namespace, moduleFolder, genFolder, genFolderDeletable,
-        genFolderPatternDeletable, derivedController, macroController) {
+    namespace: String = "", moduleFolder: String = "", genFolder: String = "src",
+    genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*_base.go".toRegex(),
+    derivedController: DerivedController, macroController: MacroController
+) : GenerationContext(
+    namespace, moduleFolder, genFolder, genFolderDeletable,
+    genFolderPatternDeletable, derivedController, macroController
+) {
 
     private val namespaceLastPart: String = namespace.substringAfterLast(".")
 
@@ -270,18 +279,22 @@ open class GoContext(
                 outsideTypes.sortedBy {
                     it.namespace()
                 }.map { "$indent${it.namespace()}" }.toSortedSet()
-                        .joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
-                            if (it.startsWith("ee.")) {
-                                """    "${it.toLowerCase().toDotsAsPath()
-                                        .replace("ee/", "github.com/go-ee/")
-                                        .replace("github/com", "github.com")
-                                        .replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
-                            } else {
-                                """    "${it.toLowerCase().toDotsAsPath()
-                                        .replace("github/com", "github.com")
-                                        .replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")}""""
-                            }
+                    .joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
+                        if (it.startsWith("ee.")) {
+                            """    "${
+                                it.toLowerCase().toDotsAsPath()
+                                    .replace("ee/", "github.com/go-ee/")
+                                    .replace("github/com", "github.com")
+                                    .replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")
+                            }""""
+                        } else {
+                            """    "${
+                                it.toLowerCase().toDotsAsPath()
+                                    .replace("github/com", "github.com")
+                                    .replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")
+                            }""""
                         }
+                    }
             }
         }
     }
