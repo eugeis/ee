@@ -97,10 +97,10 @@ fun StructureUnitI<*>.addEsArtifacts() {
             }
 
 
-            val controllers = mutableListOf<ControllerI<*>>()
+            val clis = mutableListOf<ControllerI<*>>()
             items.forEach {
                 it.extend {
-                    controllers.add(it.addControllers())
+                    clis.add(it.addControllers())
                 }
             }
 
@@ -110,7 +110,7 @@ fun StructureUnitI<*>.addEsArtifacts() {
                 )
 
 
-                val cliParams = controllers.map {
+                val cliParams = clis.map {
                     prop {
                         type(it).name("${it.parent().name()}${it.name().capitalize()}")
                     }
