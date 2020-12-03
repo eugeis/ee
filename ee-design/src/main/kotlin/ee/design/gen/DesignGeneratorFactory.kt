@@ -351,8 +351,14 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         )
 
         val derivedTypes = mutableListOf(
-            DesignDerivedType.Aggregate, DesignDerivedType.Query, DesignDerivedType.Http,
-            DesignDerivedType.Client, DesignDerivedType.Cli, DesignDerivedType.StateMachine
+            DesignDerivedType.Aggregate,
+            DesignDerivedType.AggregateEvents,
+            DesignDerivedType.AggregateCommands,
+            DesignDerivedType.Query,
+            DesignDerivedType.Http,
+            DesignDerivedType.Client,
+            DesignDerivedType.Cli,
+            DesignDerivedType.StateMachine
         )
         val derivedTypesGenerators = derivedTypes.map { derivedType ->
             GeneratorSimple(

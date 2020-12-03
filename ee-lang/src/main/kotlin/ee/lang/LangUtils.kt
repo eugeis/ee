@@ -228,6 +228,10 @@ fun TypeI<*>.propsNoMetaNoValue(): List<AttributeI<*>> = storage.getOrPut(this, 
     props().filter { !it.isMeta() && it.value() == null }
 }
 
+fun TypeI<*>.propsNoMetaNoValueNoId(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoMetaNoValueNoId") {
+    props().filter { !it.isMeta() && it.value() == null && !it.isKey() }
+}
+
 
 fun TypeI<*>.genericsAll(): List<GenericI<*>> = storage.getOrPut(this, "genericsAll") {
     if (superUnit().isNotEMPTY()) {

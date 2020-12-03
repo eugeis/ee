@@ -317,7 +317,8 @@ private fun EntityI<*>.addStateMachineArtifacts() {
                 events.forEach { event ->
                     prop {
                         type(lambda {
-                            p(event.name(), event)
+                            p(event.name(), g.eh.Event)
+                            p("${event.name()}Data", event)
                             p("entity", entity)
 
                         }).name("${event.name()}${DesignDerivedType.Handler}")
@@ -549,11 +550,12 @@ private fun EntityI<*>.addEventHandler(): BusinessControllerI<*> {
     val item = this
     val events = findDownByType(EventI::class.java).sortedBy { it.name() }
     return controller {
-        name(DesignDerivedType.EventHandler).derivedAsType(DesignDerivedType.Aggregate).derivedFrom(item)
+        name(DesignDerivedType.EventHandler).derivedAsType(DesignDerivedType.AggregateEvents).derivedFrom(item)
         events.forEach { event ->
             prop {
                 type(lambda {
-                    p(event.name(), event)
+                    p(event.name(), g.eh.Event)
+                    p("${event.name()}Data", event)
                     p("entity", item)
 
                 }).name("${event.name()}${DesignDerivedType.Handler}")
@@ -588,7 +590,7 @@ private fun EntityI<*>.addCommandHandler(): BusinessControllerI<*> {
     val item = this
     val commands = findDownByType(CommandI::class.java)
     return controller {
-        name(DesignDerivedType.CommandHandler).derivedAsType(DesignDerivedType.Aggregate).derivedFrom(item)
+        name(DesignDerivedType.CommandHandler).derivedAsType(DesignDerivedType.AggregateCommands).derivedFrom(item)
         commands.forEach { command ->
             prop {
                 type(lambda {

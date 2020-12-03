@@ -31,7 +31,7 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerApplyEvent(c: GenerationContext,
     }) {
         """
     case ${it.parentNameAndName().capitalize()}Event:
-        err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(event.Data().(${it.toGo(c,
+        err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(event, event.Data().(${it.toGo(c,
             api)}), entity.(${entity.toGo(c, api)}))"""
     }}"""
 }
@@ -56,22 +56,16 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerSetupBody(c: GenerationContext, d
 	})
 
     //default handler implementation
-    o.$handler = func(event ${item.toGo(c, api)}, entity ${entity.toGo(c,
+    o.$handler = func(event ${c.n(g.eh.Event, api)}, eventData ${item.toGo(c, api)}, entity ${entity.toGo(c,
             api)}) (err error) {${if (item is CreatedI<*>) {
             """
-        if err = ${c.n(g.gee.eh.ValidateNewId,
-                api)}(entity.$id, event.$id, $aggregateType); err == nil {${item.toGoApplyEvent(c, derived)}
-        }"""
+		entity.$id = event.AggregateID()${
+                item.toGoApplyEvent(c, derived)}"""
         } else if (item is UpdatedI<*>) {
-            """
-        if err = ${c.n(g.gee.eh.ValidateIdsMatch,
-                api)}(entity.$id, event.$id, $aggregateType); err == nil {${item.toGoApplyEventNoKeys(c, derived)}
-        }"""
+            item.toGoApplyEventNoKeys(c, derived)
         } else if (item is DeletedI<*>) {
             """
-        if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, event.$id, $aggregateType); err == nil {
-            *entity = *${entity.toGoInstance(c, derived, api)}
-        }"""
+        *entity = *${entity.toGoInstance(c, derived, api)}"""
         } else {
             """
         //err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"""

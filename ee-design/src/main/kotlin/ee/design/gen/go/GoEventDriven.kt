@@ -168,7 +168,7 @@ fun <T : OperationI<*>> T.toGoHttpHandlerIdBasedBody(c: GenerationContext, deriv
 fun <T : CommandI<*>> T.toGoStoreEvent(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
     api: String = DesignDerivedKind.API): String {
     return """store.AppendEvent(${event().parentNameAndName()}${DesignDerivedType.Event}, &${c.n(event(),
-        api)}{${propsNoMetaNoValue().joinSurroundIfNotEmptyToString(", ") { prop ->
+        api)}{${propsNoMetaNoValueNoId().joinSurroundIfNotEmptyToString(", ") { prop ->
         """
                 ${prop.name().capitalize()}: command.${prop.name().capitalize()}"""
     }}}, ${g.time.Now.toGoCall(c, derived, api)})"""
@@ -181,8 +181,8 @@ fun <T : EventI<*>> T.toGoApplyEventNoKeys(c: GenerationContext, derived: String
     propsNoMetaNoKey().joinSurroundIfNotEmptyToString("") { it.toGoApplyEventProp(c, derived) }
 
 fun <T : AttributeI<*>> T.toGoApplyEventProp(c: GenerationContext, derived: String): String = """
-            entity.${name().capitalize()} = ${(value() != null).ifElse({ toGoValue(c, derived) },
-    { "event.${name().capitalize()}" })}"""
+		entity.${name().capitalize()} = ${(value() != null).ifElse({ toGoValue(c, derived) },
+    { "eventData.${name().capitalize()}" })}"""
 
 
 fun <T : OperationI<*>> T.toGoCommandHandlerSetupBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
@@ -228,7 +228,7 @@ fun <T : OperationI<*>> T.toGoEventHandlerApplyEvent(c: GenerationContext, deriv
 	}""") {
         """
     case ${it.parentNameAndName().capitalize()}Event:
-        err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(event.Data().(${it.toGo(c,
+        err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(event, event.Data().(${it.toGo(c,
             api)}), entity.(${entity.toGo(c, api)}))"""
     }}"""
 }
@@ -249,22 +249,16 @@ fun <T : OperationI<*>> T.toGoEventHandlerSetupBody(c: GenerationContext, derive
 	})
 
     //default handler implementation
-    o.$handler = func(event ${item.toGo(c, api)}, entity ${entity.toGo(c,
+    o.$handler = func(event ${c.n(g.eh.Event, api)}, eventData ${item.toGo(c, api)}, entity ${entity.toGo(c,
             api)}) (err error) {${if (item is CreatedI<*>) {
             """
-        if err = ${c.n(g.gee.eh.ValidateNewId,
-                api)}(entity.$id, event.$id, $aggregateType); err == nil {${item.toGoApplyEvent(c, derived)}
-        }"""
+		entity.$id = event.AggregateID()${
+		    item.toGoApplyEvent(c, derived)}"""
         } else if (item is UpdatedI<*>) {
-            """
-        if err = ${c.n(g.gee.eh.ValidateIdsMatch,
-                api)}(entity.$id, event.$id, $aggregateType); err == nil {${item.toGoApplyEventNoKeys(c, derived)}
-        }"""
+            item.toGoApplyEventNoKeys(c, derived)
         } else if (item is DeletedI<*>) {
             """
-        if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, event.$id, $aggregateType); err == nil {
-            entity.DeletedAt = ${c.n(g.gee.PtrTime, api)}(${g.time.Now.toGoCall(c, derived, api)})
-        }"""
+		entity.DeletedAt = ${c.n(g.gee.PtrTime, api)}(${g.time.Now.toGoCall(c, derived, api)})"""
         } else {
             """
         //err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"""

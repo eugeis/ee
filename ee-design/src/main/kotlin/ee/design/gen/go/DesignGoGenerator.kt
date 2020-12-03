@@ -63,7 +63,7 @@ open class DesignGoGenerator(val models: List<StructureUnitI<*>>, targetAsSingle
 
         addDefaultReturnValuesForQueries()
 
-        addIdPropToEventsAndCommands()
+        addIdPropToCommands()
 
         addEsArtifacts()
 

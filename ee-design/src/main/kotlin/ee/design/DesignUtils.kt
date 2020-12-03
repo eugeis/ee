@@ -15,8 +15,10 @@ open class DesignDerivedKindNames : LangDerivedKindNames() {
 object DesignDerivedKind : DesignDerivedKindNames()
 
 open class DesignDerivedTypeNames {
-    val Aggregate = "Aggregate"
-    val AggregateInitializer = "AggregateInitializer"
+    val Aggregate = "Aggr"
+    val AggregateCommands = "AggrCommands"
+    val AggregateEvents = "AggrEvents"
+    val AggregateInitializer = "AggrInitializer"
     val AggregateType = "AggregateType"
     val Command = "Command"
     val CommandHandler = "CommandHandler"
@@ -246,8 +248,19 @@ fun StructureUnitI<*>.addAggregateHandler() {
 }
 
 fun StructureUnitI<*>.addIdPropToEntities() {
-    findDownByType(EntityI::class.java).filter { !it.isVirtual() && it.props().find { it.isKey() } == null }.extend {
-        val id = propId()
+    findDownByType(EntityI::class.java).filter { item -> !item.isVirtual() && item.props().find { it.isKey() } == null }
+        .extend {
+            val id = propId()
+        }
+}
+
+fun StructureUnitI<*>.addIdPropToCommands() {
+    findDownByType(EntityI::class.java).filter { !it.isVirtual() }.extend {
+        createBys().filter { item -> item.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
+        updateBys().filter { item -> item.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
+        deleteBys().filter { item -> item.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
+
+        commands().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
     }
 }
 
@@ -259,9 +272,9 @@ fun StructureUnitI<*>.addIdPropToEventsAndCommands() {
 
         events().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
 
-        createBys().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
-        updateBys().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
-        deleteBys().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
+        createBys().filter { item -> item.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
+        updateBys().filter { item -> item.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
+        deleteBys().filter { item -> item.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
 
         commands().filter { it.props().find { it.isKey() } == null }.forEach { it.prop(propId()) }
     }
@@ -357,7 +370,7 @@ fun EntityI<*>.propId(): AttributeI<*> = storage.getOrPut(this, "propId") {
     ret
 }
 
-const val PROP_DELETED_AT="deletedAt"
+const val PROP_DELETED_AT = "deletedAt"
 
 fun EntityI<*>.addPropDeletedAt(): AttributeI<*> {
     return prop {
@@ -401,7 +414,6 @@ fun EntityI<*>.update(): CommandI<*> = storage.getOrPut(this, "update") {
 fun EntityI<*>.delete(): CommandI<*> = storage.getOrPut(this, "delete") {
     deleteBy {
         name("delete")
-        props(propId())
         constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
     }
 }
