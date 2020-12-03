@@ -40,7 +40,9 @@ open class DesignDerivedTypeNames {
 
     val Projector = "Projector"
     val Query = "Query"
-    val StateMachine = "StateMachine"
+    val StateMachine = "State"
+    val StateMachineEvents = "StateEvents"
+    val StateMachineCommands = "StateCommands"
 
 }
 
@@ -441,3 +443,4 @@ fun StateI<*>.executeAndProduce(command: CommandI<*>): ExecutorI<*> {
     return ret
 }
 
+fun EventI<*>.hasData(): Boolean = propsNoMetaNoValueNoId().isNotEmpty()

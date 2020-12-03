@@ -233,6 +233,9 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         }
 
         val events: StructureUnitI<*>.() -> List<EventI<*>> = { findDownByType(EventI::class.java) }
+        val eventsWithData: StructureUnitI<*>.() -> List<EventI<*>> = {
+            findDownByType(EventI::class.java).filter { it.props().isNotEmpty() }
+        }
         val eventEnums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
             findDownByType(EnumTypeI::class.java).filter {
                 it.parent() is ControllerI<*> && it.name().endsWith("EventType")
@@ -341,7 +344,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                             listOf(
                                 ItemsFragment(items = entities, fragments = { listOf(goTemplates.eventTypes()) }),
                                 ItemsFragment(
-                                    items = events,
+                                    items = eventsWithData,
                                     fragments = { listOf(goTemplates.pojoExcludePropsWithValue()) }),
                                 ItemsFragment(items = eventEnums, fragments = { listOf(goTemplates.enum()) })
                             )
@@ -358,8 +361,11 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             DesignDerivedType.Http,
             DesignDerivedType.Client,
             DesignDerivedType.Cli,
-            DesignDerivedType.StateMachine
+            DesignDerivedType.StateMachine,
+            DesignDerivedType.StateMachineEvents,
+            DesignDerivedType.StateMachineCommands,
         )
+
         val derivedTypesGenerators = derivedTypes.map { derivedType ->
             GeneratorSimple(
                 "${derivedType}Base", contextBuilder = goContextBuilder,

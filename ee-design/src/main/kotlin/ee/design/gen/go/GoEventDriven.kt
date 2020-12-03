@@ -10,45 +10,68 @@ import ee.lang.gen.go.*
 fun <T : EntityI<*>> T.toGoCommandTypes(c: GenerationContext): String {
     val items = findDownByType(CommandI::class.java)
     return items.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
-        """     ${it.nameAndParentName().capitalize()}${DesignDerivedType.Command} ${c.n(
-            g.eh.CommandType)} = "${it.nameAndParentName().capitalize()}""""
+        """     ${it.nameAndParentName().capitalize()}${DesignDerivedType.Command} ${
+            c.n(
+                g.eh.CommandType
+            )
+        } = "${it.nameAndParentName().capitalize()}""""
     }
 }
 
 fun <T : EntityI<*>> T.toGoEventTypes(c: GenerationContext): String {
     val items = findDownByType(EventI::class.java)
     return items.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
-        """     ${it.parentNameAndName().capitalize()}${DesignDerivedType.Event} ${c.n(
-            g.eh.EventType)} = "${it.parentNameAndName().capitalize()}""""
+        """     ${it.parentNameAndName().capitalize()}${DesignDerivedType.Event} ${
+            c.n(
+                g.eh.EventType
+            )
+        } = "${it.parentNameAndName().capitalize()}""""
     }
 }
 
-fun <T : OperationI<*>> T.toGoCommandHandlerExecuteCommandBody(c: GenerationContext,
-    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API): String {
+fun <T : OperationI<*>> T.toGoCommandHandlerExecuteCommandBody(
+    c: GenerationContext,
+    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
+): String {
     val entity = findParentMust(EntityI::class.java)
     val items = entity.findDownByType(CommandI::class.java)
     return """
-    ${items.joinSurroundIfNotEmptyToString("", "switch cmd.CommandType() {") {
-        """
+    ${
+        items.joinSurroundIfNotEmptyToString("", "switch cmd.CommandType() {") {
+            """
     case ${it.nameAndParentName().capitalize()}Command:
-        err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${it.toGo(c, api)}), entity.(${entity.toGo(c,
-            api)}), store)"""
-    }}
+        err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${it.toGo(c, api)}), entity.(${
+                entity.toGo(
+                    c,
+                    api
+                )
+            }), store)"""
+        }
+    }
     default:
-		err = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf,
-        api)}("Not supported command type '%v' for entity '%v", cmd.CommandType(), entity))
+		err = ${c.n(g.errors.New, api)}(${
+        c.n(
+            g.fmt.Sprintf,
+            api
+        )
+    }("Not supported command type '%v' for entity '%v", cmd.CommandType(), entity))
 	}"""
 }
 
-fun <T : OperationI<*>> T.toGoCommandHandlerAddPreparerBody(c: GenerationContext,
-    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API): String {
+fun <T : OperationI<*>> T.toGoCommandHandlerAddPreparerBody(
+    c: GenerationContext,
+    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
+): String {
     val entity = findParentMust(EntityI::class.java)
     val command = derivedFrom()
     val handlerName = c.n(command, DesignDerivedType.Handler).capitalize()
     return """
     prevHandler := o.$handlerName
-	o.$handlerName = func(command *${c.n(command, api)}, entity *${c.n(entity, api)}, store ${c.n(
-        g.gee.eh.AggregateStoreEvent, api)}) (err error) {
+	o.$handlerName = func(command *${c.n(command, api)}, entity *${c.n(entity, api)}, store ${
+        c.n(
+            g.gee.eh.AggregateStoreEvent, api
+        )
+    }) (err error) {
 		if err = preparer(command, entity); err == nil {
 			err = prevHandler(command, entity, store)
 		}
@@ -56,8 +79,10 @@ fun <T : OperationI<*>> T.toGoCommandHandlerAddPreparerBody(c: GenerationContext
 	}"""
 }
 
-fun <T : OperationI<*>> T.toGoFindByBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API): String {
+fun <T : OperationI<*>> T.toGoFindByBody(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String {
     val entity = findParentMust(EntityI::class.java)
     return params().isEmpty().ifElse({
         """
@@ -82,8 +107,10 @@ fun <T : OperationI<*>> T.toGoFindByBody(c: GenerationContext, derived: String =
     })
 }
 
-fun <T : OperationI<*>> T.toGoExistByBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API): String {
+fun <T : OperationI<*>> T.toGoExistByBody(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String {
     return params().isEmpty().ifElse({
         """
     var result int
@@ -104,8 +131,10 @@ fun <T : OperationI<*>> T.toGoExistByBody(c: GenerationContext, derived: String 
     })
 }
 
-fun <T : OperationI<*>> T.toGoCountByBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API): String {
+fun <T : OperationI<*>> T.toGoCountByBody(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String {
     val entity = findParentMust(EntityI::class.java)
     return params().isEmpty().ifElse({
         """
@@ -127,66 +156,98 @@ fun <T : OperationI<*>> T.toGoCountByBody(c: GenerationContext, derived: String 
     })
 }
 
-fun <T : OperationI<*>> T.toGoHttpHandlerBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API): String {
+fun <T : OperationI<*>> T.toGoHttpHandlerBody(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String {
     val queryHandler = derivedFrom() as OperationI<*>
-    return """${queryHandler.params().joinSurroundIfNotEmptyToString("", """
-    vars := ${c.n(g.mux.Vars, api)}(r)""") {
-        """
-    ${it.nameDecapitalize()}, _ := ${it.isKey().ifElse({ """${c.n(
-                g.google.uuid.Parse, api)}(vars["${it.nameDecapitalize()}"])""" },
-            { """vars["${it.nameDecapitalize()}"]""" })}"""
-    }}
+    return """${
+        queryHandler.params().joinSurroundIfNotEmptyToString(
+            "", """
+    vars := ${c.n(g.mux.Vars, api)}(r)"""
+        ) {
+            """
+    ${it.nameDecapitalize()}, _ := ${
+                it.isKey().ifElse({
+                    """${
+                        c.n(
+                            g.google.uuid.Parse, api
+                        )
+                    }(vars["${it.nameDecapitalize()}"])"""
+                },
+                    { """vars["${it.nameDecapitalize()}"]""" })
+            }"""
+        }
+    }
     ret, err := o.QueryRepository.${queryHandler.toGoCall(c, api, api)}
     o.HandleResult(ret, err, "${parentNameAndName()}", w, r)"""
 }
 
-fun <T : OperationI<*>> T.toGoHttpHandlerCommandBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API): String {
+fun <T : OperationI<*>> T.toGoHttpHandlerCommandBody(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String {
     return (derivedFrom() is CommandI<*>).then {
         val entity = findParentMust(EntityI::class.java)
         val command = derivedFrom() as CommandI<*>
         """
     vars := ${c.n(g.mux.Vars, api)}(r)
     ${entity.propId().name().decapitalize()}, _ := ${c.n(g.google.uuid.Parse, api)}(vars["${
-        entity.propId().name().decapitalize()}"])
+            entity.propId().name().decapitalize()
+        }"])
     o.HandleCommand(&${command.nameAndParentName().capitalize()}{${
-        entity.propId().name().capitalize()}: ${entity.propId().name().decapitalize()}}, w, r)"""
+            entity.propId().name().capitalize()
+        }: ${entity.propId().name().decapitalize()}}, w, r)"""
     }
 }
 
-fun <T : OperationI<*>> T.toGoHttpHandlerIdBasedBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API): String {
+fun <T : OperationI<*>> T.toGoHttpHandlerIdBasedBody(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String {
     val entity = findParentMust(EntityI::class.java)
     return """
     vars := ${c.n(g.mux.Vars, api)}(r)
     id := vars["${entity.propId().name().decapitalize()}"]
-    ${c.n(g.fmt.Fprintf, api)}(w, "id=%v, %q from ${parentNameAndName()}", id, ${c.n(g.html.EscapeString,
-        api)}(r.URL.Path))"""
+    ${c.n(g.fmt.Fprintf, api)}(w, "id=%v, %q from ${parentNameAndName()}", id, ${
+        c.n(
+            g.html.EscapeString,
+            api
+        )
+    }(r.URL.Path))"""
 }
 
-fun <T : CommandI<*>> T.toGoStoreEvent(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API): String {
-    return """store.AppendEvent(${event().parentNameAndName()}${DesignDerivedType.Event}, &${c.n(event(),
-        api)}{${propsNoMetaNoValueNoId().joinSurroundIfNotEmptyToString(", ") { prop ->
-        """
+fun <T : CommandI<*>> T.toGoStoreEvent(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String {
+
+    return """store.AppendEvent(${event().parentNameAndName()}${DesignDerivedType.Event}, ${
+        event().hasData().ifElse(
+            """&${c.n(event(), api)}{${
+                propsNoMetaNoValueNoId().joinSurroundIfNotEmptyToString(", ") { prop ->
+                    """
                 ${prop.name().capitalize()}: command.${prop.name().capitalize()}"""
-    }}}, ${g.time.Now.toGoCall(c, derived, api)})"""
+                }
+            }}""", "nil"
+        )
+    }, ${g.time.Now.toGoCall(c, derived, api)})"""
 }
 
 fun <T : EventI<*>> T.toGoApplyEvent(c: GenerationContext, derived: String): String =
     props().joinSurroundIfNotEmptyToString("") { it.toGoApplyEventProp(c, derived) }
 
-fun <T : EventI<*>> T.toGoApplyEventNoKeys(c: GenerationContext, derived: String): String =
-    propsNoMetaNoKey().joinSurroundIfNotEmptyToString("") { it.toGoApplyEventProp(c, derived) }
-
 fun <T : AttributeI<*>> T.toGoApplyEventProp(c: GenerationContext, derived: String): String = """
-		entity.${name().capitalize()} = ${(value() != null).ifElse({ toGoValue(c, derived) },
-    { "eventData.${name().capitalize()}" })}"""
+		entity.${name().capitalize()} = ${
+    (value() != null).ifElse({ toGoValue(c, derived) },
+        { "eventData.${name().capitalize()}" })
+}"""
 
 
-fun <T : OperationI<*>> T.toGoCommandHandlerSetupBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API): String {
+fun <T : OperationI<*>> T.toGoCommandHandlerSetupBody(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String {
     val entity = findParentMust(EntityI::class.java)
     val commands = entity.findDownByType(CommandI::class.java)
     val id = entity.propId().name().capitalize()
@@ -194,82 +255,106 @@ fun <T : OperationI<*>> T.toGoCommandHandlerSetupBody(c: GenerationContext, deri
         val handler = c.n(item, DesignDerivedType.Handler).capitalize()
         val aggregateType = c.n(entity, DesignDerivedType.AggregateType).capitalize()
         """
-    o.$handler = func(command ${item.toGo(c, api)}, entity ${entity.toGo(c,
-            api)}, store ${g.gee.eh.AggregateStoreEvent.toGo(c,
-            api)}) (err error) {${if (item is CreateByI<*> && item.event().isNotEMPTY()) {
-            """
+    o.$handler = func(command ${item.toGo(c, api)}, entity ${
+            entity.toGo(
+                c,
+                api
+            )
+        }, store ${
+            g.gee.eh.AggregateStoreEvent.toGo(
+                c,
+                api
+            )
+        }) (err error) {${
+            if (item is CreateByI<*> && item.event().isNotEMPTY()) {
+                """
         if err = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, command.$id, $aggregateType); err == nil {
             ${item.toGoStoreEvent(c, derived, api)}
         }"""
-        } else if ((item is UpdateByI<*> || item is DeleteByI<*> || !item.isAffectMulti()) && item.event().isNotEMPTY()) {
-            """
+            } else if ((item is UpdateByI<*> || item is DeleteByI<*> || !item.isAffectMulti()) && item.event()
+                    .isNotEMPTY()
+            ) {
+                """
         if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, command.$id, $aggregateType); err == nil {
             ${item.toGoStoreEvent(c, derived, api)}
         }"""
-        } else {
-            """
+            } else {
+                """
         err = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Command})"""
-        }}
+            }
+        }
         return
     }"""
     }
 }
 
-
-fun <T : OperationI<*>> T.toGoEventHandlerApplyEvent(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API): String {
+fun <T : OperationI<*>> T.toGoEventHandlerApplyEvent(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String {
     val entity = findParentMust(EntityI::class.java)
     val events = entity.findDownByType(EventI::class.java)
     return """
-    ${events.joinSurroundIfNotEmptyToString("", "switch event.EventType() {", """
+    ${
+        events.joinSurroundIfNotEmptyToString(
+            "", "switch event.EventType() {", """
     default:
-		err = ${c.n(g.errors.New, api)}(${c.n(g.fmt.Sprintf,
-        api)}("Not supported event type '%v' for entity '%v", event.EventType(), entity))
-	}""") {
-        """
-    case ${it.parentNameAndName().capitalize()}Event:
-        err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(event, event.Data().(${it.toGo(c,
-            api)}), entity.(${entity.toGo(c, api)}))"""
-    }}"""
+		err = ${c.n(g.errors.New, api)}(${
+                c.n(g.fmt.Sprintf, api)
+            }("Not supported event type '%v' for entity '%v", event.EventType(), entity))
+	}"""
+        ) { event ->
+            """
+    case ${event.parentNameAndName().capitalize()}Event:
+        err = o.${event.name().capitalize()}${DesignDerivedType.Handler}(event, ${
+                event.hasData().then("event.Data().(${event.toGo(c, api)}), ")
+            }entity.(${entity.toGo(c, api)}))"""
+        }
+    }"""
 }
 
-fun <T : OperationI<*>> T.toGoEventHandlerSetupBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API): String {
+fun <T : OperationI<*>> T.toGoEventHandlerSetupBody(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String {
     val entity = findParentMust(EntityI::class.java)
     val events = entity.findDownByType(EventI::class.java)
     val id = entity.propId().name().capitalize()
-    return events.joinSurroundIfNotEmptyToString("") { item ->
-        val handler = c.n(item, DesignDerivedType.Handler).capitalize()
-        val aggregateType = c.n(entity, DesignDerivedType.AggregateType).capitalize()
-        """
-
-    //register event object factory
-    ${c.n(g.eh.RegisterEventData, api)}(${c.n(item, api)}Event, func() ${c.n(g.eh.EventData, api)} {
-		return &${c.n(item, derived)}{}
-	})
-
+    return events.joinSurroundIfNotEmptyToString("") { event ->
+        val handler = c.n(event, DesignDerivedType.Handler).capitalize()
+        """${event.toGoRegisterEventData(c, api, derived)}
     //default handler implementation
-    o.$handler = func(event ${c.n(g.eh.Event, api)}, eventData ${item.toGo(c, api)}, entity ${entity.toGo(c,
-            api)}) (err error) {${if (item is CreatedI<*>) {
-            """
+    o.$handler = func(event ${c.n(g.eh.Event, api)}, ${
+            event.hasData().then(
+                "eventData ${event.toGo(c, api)}, "
+            )
+        }entity ${entity.toGo(c, api)}) (err error) {${
+            if (event is CreatedI<*>) {
+                """
 		entity.$id = event.AggregateID()${
-		    item.toGoApplyEvent(c, derived)}"""
-        } else if (item is UpdatedI<*>) {
-            item.toGoApplyEventNoKeys(c, derived)
-        } else if (item is DeletedI<*>) {
-            """
-		entity.DeletedAt = ${c.n(g.gee.PtrTime, api)}(${g.time.Now.toGoCall(c, derived, api)})"""
-        } else {
-            """
-        //err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Event})"""
-        }}
+                    event.toGoApplyEvent(c, derived)
+                }"""
+            } else if (event is UpdatedI<*>) {
+                event.toGoApplyEvent(c, derived)
+            } else if (event is DeletedI<*>) {
+                """
+		entity.DeletedAt = ${c.n(g.gee.PtrTime, api)}(${g.time.Now.toGoCall(c, derived, api)})${
+                    event.toGoApplyEvent(c, derived)
+                }"""
+            } else {
+                """
+        err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(event, api)}${DesignDerivedType.Event})"""
+            }
+        }
         return
     }"""
     }
 }
 
-fun <T : CompilationUnitI<*>> T.toGoAggregateInitializerConst(c: GenerationContext,
-    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API): String {
+fun <T : CompilationUnitI<*>> T.toGoAggregateInitializerConst(
+    c: GenerationContext,
+    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
+): String {
     val entity = findParentMust(EntityI::class.java)
     val name = c.n(entity, api)
     return """
@@ -277,105 +362,146 @@ const ${entity.name()}${DesignDerivedType.AggregateType} ${c.n(g.eh.AggregateTyp
 """
 }
 
-fun <T : ConstructorI<*>> T.toGoAggregateInitializerBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API): String {
+fun <T : ConstructorI<*>> T.toGoAggregateInitializerBody(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String {
     val entity = findParentMust(EntityI::class.java)
     val name = c.n(findParentMust(CompilationUnitI::class.java), api)
     return """
     commandHandler := &${entity.name()}${DesignDerivedType.CommandHandler}{}
     eventHandler := &${entity.name()}${DesignDerivedType.EventHandler}{}
     entityFactory := func() ${c.n(g.eh.Entity)} { return ${entity.toGoInstance(c, derived, api)} }
-    ret = &$name{AggregateInitializer: ${c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer,
-        api)}(${entity.name()}${DesignDerivedType.AggregateType},
+    ret = &$name{AggregateInitializer: ${
+        c.n(
+            g.gee.eh.AggregateInitializer.NewAggregateInitializer,
+            api
+        )
+    }(${entity.name()}${DesignDerivedType.AggregateType},
         func(id ${c.n(g.google.uuid.UUID)}) ${c.n(g.eh.Aggregate)} {
-            return ${c.n(
-        g.gee.eh.NewAggregateBase)}(${entity.name()}${
-            DesignDerivedType.AggregateType}, id, commandHandler, eventHandler, entityFactory())
+            return ${
+        c.n(
+            g.gee.eh.NewAggregateBase
+        )
+    }(${entity.name()}${
+        DesignDerivedType.AggregateType
+    }, id, commandHandler, eventHandler, entityFactory())
         }, entityFactory,
         ${entity.name()}CommandTypes().Literals(), ${entity.name()}EventTypes().Literals(), eventHandler,
         []func() error{commandHandler.SetupCommandHandler, eventHandler.SetupEventHandler},
         eventStore, eventBus, commandBus, readRepos), ${entity.name()}${
-            DesignDerivedType.CommandHandler}: commandHandler, ${entity.name()}${
-                DesignDerivedType.EventHandler}: eventHandler, ProjectorHandler: eventHandler,
+        DesignDerivedType.CommandHandler
+    }: commandHandler, ${entity.name()}${
+        DesignDerivedType.EventHandler
+    }: eventHandler, ProjectorHandler: eventHandler,
     }
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toGoAggregateInitializerRegisterForEvents(c: GenerationContext,
-    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API): String {
+fun <T : CompilationUnitI<*>> T.toGoAggregateInitializerRegisterForEvents(
+    c: GenerationContext,
+    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
+): String {
     val name = c.n(this, api)
     val entity = findParentMust(EntityI::class.java)
     val events = entity.events().findDownByType(EventI::class.java)
     return """
-${events.joinSurroundIfNotEmptyToString(nL, nL) {
-        """
+${
+        events.joinSurroundIfNotEmptyToString(nL, nL) {
+            """
 func (o *$name) RegisterFor${it.name().capitalize()}(handler ${c.n(g.eh.EventHandler)}) error {
     return o.RegisterForEvent(handler, ${entity.name()}EventTypes().${it.parentNameAndName().capitalize()}())
 }"""
-    }}
+        }
+    }
 """
 }
 
-fun <T : ConstructorI<*>> T.toGoEhInitializerBody(c: GenerationContext,
-                                                  derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API): String {
+fun <T : ConstructorI<*>> T.toGoEhInitializerBody(
+    c: GenerationContext,
+    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
+): String {
     val name = c.n(findParent(CompilationUnitI::class.java), derived)
     val module = findParentMust(ModuleI::class.java)
     val entities = module.entities().filter { it.belongsToAggregate().isEMPTY() }
     return """
 	ret = &$name{eventStore: eventStore, eventBus: eventBus,
-            commandBus: commandBus, ${entities.joinSurroundIfNotEmptyToString(",$nL    ", "$nL    ") {
-        """${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}: New${
-            it.name().capitalize()}${DesignDerivedType.AggregateInitializer}(eventStore, eventBus, commandBus)"""
-    }}}
-"""
-}
-
-
-fun <T : OperationI<*>> T.toGoEhInitializerSetupBody(c: GenerationContext,
-                                                     derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API): String {
-    val module = findParentMust(ModuleI::class.java)
-    val entities = module.entities().filter { it.belongsToAggregate().isEMPTY() }
-    return """${entities.joinSurroundIfNotEmptyToString("$nL    ", "$nL    ") {
-        """
-    if err = o.${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}.Setup(); err != nil {
-        return
-    }"""
+            commandBus: commandBus, ${
+        entities.joinSurroundIfNotEmptyToString(",$nL    ", "$nL    ") {
+            """${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}: New${
+                it.name().capitalize()
+            }${DesignDerivedType.AggregateInitializer}(eventStore, eventBus, commandBus)"""
+        }
     }}
 """
 }
 
 
+fun <T : OperationI<*>> T.toGoEhInitializerSetupBody(
+    c: GenerationContext,
+    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
+): String {
+    val module = findParentMust(ModuleI::class.java)
+    val entities = module.entities().filter { it.belongsToAggregate().isEMPTY() }
+    return """${
+        entities.joinSurroundIfNotEmptyToString("$nL    ", "$nL    ") {
+            """
+    if err = o.${it.name().capitalize()}${DesignDerivedType.AggregateInitializer}.Setup(); err != nil {
+        return
+    }"""
+        }
+    }
+"""
+}
+
+
 fun <T : CommandI<*>> T.toGoCommandImpl(
-    c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API): String {
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
+): String {
 
     val entity = findParentMust(EntityI::class.java)
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api, true)}
 func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)}            { return o.${entity.propId().nameForGoMember()} }
-func (o *$name) AggregateType() ${c.n(
-        g.eh.AggregateType)}  { return ${entity.name()}${DesignDerivedType.AggregateType} }
-func (o *$name) CommandType() ${c.n(
-        g.eh.CommandType)}      { return ${nameAndParentName().capitalize()}${DesignDerivedType.Command} }
+func (o *$name) AggregateType() ${
+        c.n(
+            g.eh.AggregateType
+        )
+    }  { return ${entity.name()}${DesignDerivedType.AggregateType} }
+func (o *$name) CommandType() ${
+        c.n(
+            g.eh.CommandType
+        )
+    }      { return ${nameAndParentName().capitalize()}${DesignDerivedType.Command} }
 """
 }
 
 fun <T : OperationI<*>> T.toGoAggregateInitializerRegisterCommands(
-    c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API): String {
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
+): String {
 
     val entity = findParentMust(EntityI::class.java)
     //TODO find a way to get correct name for xxxAggregateType
-    return """${c.n(
-        g.gee.eh.AggregateInitializer.RegisterForAllEvents)}(handler, $ { c.n(entity, api) } AggregateType, ${
-            entity.name()} CommandTypes ().Literals())"""
+    return """${
+        c.n(
+            g.gee.eh.AggregateInitializer.RegisterForAllEvents
+        )
+    }(handler, $ { c.n(entity, api) } AggregateType, ${
+        entity.name()
+    } CommandTypes ().Literals())"""
 }
 
-fun <T : AttributeI<*>> T.toGoPropOptionalAfterBody(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API): String = """`eh:"optional"`"""
+fun <T : AttributeI<*>> T.toGoPropOptionalAfterBody(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String = """`eh:"optional"`"""
 
 
-fun <T : EntityI<*>> T.toGoEntityImpl(c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API): String {
+fun <T : EntityI<*>> T.toGoEntityImpl(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String {
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api, true)}

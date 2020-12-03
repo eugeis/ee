@@ -312,13 +312,15 @@ private fun EntityI<*>.addStateMachineArtifacts() {
             //add event handler
             handlers.add(controller {
                 name("$statePrefix${DesignDerivedType.Handler}")
-                    .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(state)
+                    .derivedAsType(DesignDerivedType.StateMachineEvents).derivedFrom(state)
                 val events = state.uniqueEvents()
                 events.forEach { event ->
                     prop {
                         type(lambda {
                             p(event.name(), g.eh.Event)
-                            p("${event.name()}Data", event)
+                            if (event.hasData()) {
+                                p("${event.name()}Data", event)
+                            }
                             p("entity", entity)
 
                         }).name("${event.name()}${DesignDerivedType.Handler}")
@@ -343,7 +345,7 @@ private fun EntityI<*>.addStateMachineArtifacts() {
             //add executor
             executors.add(controller {
                 name("$statePrefix${DesignDerivedType.Executor}")
-                    .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(state)
+                    .derivedAsType(DesignDerivedType.StateMachineCommands).derivedFrom(state)
             })
         }
 
@@ -555,7 +557,9 @@ private fun EntityI<*>.addEventHandler(): BusinessControllerI<*> {
             prop {
                 type(lambda {
                     p(event.name(), g.eh.Event)
-                    p("${event.name()}Data", event)
+                    if (event.hasData()) {
+                        p("${event.name()}Data", event)
+                    }
                     p("entity", item)
 
                 }).name("${event.name()}${DesignDerivedType.Handler}")
