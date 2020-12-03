@@ -146,7 +146,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             object ValidateNewId : Operation()
 
             object HttpCommandHandler : ExternalType({ constructorFull() }) {
-                val context = prop { type(g.context.Context) }
+                val ctx = prop { type(context.Context) }
                 val commandBus = prop { type(g.eh.CommandHandler) }
             }
 

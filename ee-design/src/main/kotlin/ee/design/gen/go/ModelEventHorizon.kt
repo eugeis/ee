@@ -71,7 +71,13 @@ fun StructureUnitI<*>.addEsArtifacts() {
                     macrosBody(OperationI<*>::toGoSetupModuleHttpRouter.name)
                 }
                 constr {
-                    params(pathPrefix, p { type(g.context.Context).name("context") },
+                    params(pathPrefix, p {
+                        type(lambda {
+                            p("namespace")
+                            notErr()
+                            ret(g.context.Context)
+                        }).name("newContext")
+                    },
                         p { type(g.eh.CommandBus).name("commandBus") }, p {
                             type(reposFactory).name("readRepos")
                         }, *httpRouterParams.map { p(it) { default(true) } }.toTypedArray()
@@ -203,7 +209,13 @@ private fun EntityI<*>.addEsArtifacts(
                 params(
                     pathPrefix,
                     p(pathPrefixIdBased) { default().notInitByDefaultTypeValue() },
-                    p { type(g.context.Context).name("context") },
+                    p {
+                        type(lambda {
+                            p("namespace")
+                            notErr()
+                            ret(g.context.Context)
+                        }).name("newContext")
+                    },
                     p { type(g.eh.CommandHandler).name("commandBus") },
                     p { type(reposFactory).name("readRepos") },
                     p { type(queryRepository).default().name("queryRepository") },
@@ -455,7 +467,7 @@ private fun EntityI<*>.addQueryRepository(
     return controller {
         name(DesignDerivedType.QueryRepository).derivedAsType(DesignDerivedType.Query)
         prop(g.eh.ReadRepo).replaceable(false).name("repo")
-        prop(g.context.Context).replaceable(false).name("context")
+        prop(g.context.Context).replaceable(false).name("ctx")
 
         //queries
         finders.forEach {
