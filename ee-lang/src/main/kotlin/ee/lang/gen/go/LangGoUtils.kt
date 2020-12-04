@@ -84,7 +84,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     //common libs
     val geeUtils = "github.com.go-ee.utils"
 
-    object gee : StructureUnit({ namespace("$geeUtils") }) {
+    object gee : StructureUnit({ namespace(geeUtils) }) {
         val PtrTime = Operation()
 
         object enum : StructureUnit({ namespace("$geeUtils.enum") }) {
@@ -156,6 +156,10 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             object Projector : ExternalType() {}
 
             object NewProjector : Operation() {}
+
+            // errors
+            object CommandError : ExternalType()
+            object ErrAggregateDeleted : ExternalType()
         }
     }
 

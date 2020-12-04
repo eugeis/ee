@@ -595,6 +595,23 @@ private fun EntityI<*>.addCommandHandler(): BusinessControllerI<*> {
     val commands = findDownByType(CommandI::class.java)
     return controller {
         name(DesignDerivedType.CommandHandler).derivedAsType(DesignDerivedType.AggregateCommands).derivedFrom(item)
+        prop {
+            name("commandsPreparer").type(lambda {
+                p("cmd", g.eh.Command)
+                p("entity", item)
+            })
+        }
+
+        op {
+            name("AddCommandsPreparer").notErr()
+            p("preparer", lambda {
+                p("cmd", g.eh.Command)
+                p("entity", g.eh.Entity)
+                p("store", g.gee.eh.AggregateStoreEvent)
+            })
+            macrosBody(OperationI<*>::toGoCommandHandlerAddCommandsPreparerBody.name)
+        }
+
         commands.forEach { command ->
             prop {
                 type(lambda {
@@ -613,7 +630,7 @@ private fun EntityI<*>.addCommandHandler(): BusinessControllerI<*> {
 
                 })
                 derivedFrom(command)
-                macrosBody(OperationI<*>::toGoCommandHandlerAddPreparerBody.name)
+                macrosBody(OperationI<*>::toGoCommandHandlerAddCommandPreparerBody.name)
             }
         }
 

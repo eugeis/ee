@@ -11,9 +11,7 @@ fun <T : EntityI<*>> T.toGoCommandTypes(c: GenerationContext): String {
     val items = findDownByType(CommandI::class.java)
     return items.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
         """     ${it.nameAndParentName().capitalize()}${DesignDerivedType.Command} ${
-            c.n(
-                g.eh.CommandType
-            )
+            c.n(g.eh.CommandType)
         } = "${it.nameAndParentName().capitalize()}""""
     }
 }
@@ -22,9 +20,7 @@ fun <T : EntityI<*>> T.toGoEventTypes(c: GenerationContext): String {
     val items = findDownByType(EventI::class.java)
     return items.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
         """     ${it.parentNameAndName().capitalize()}${DesignDerivedType.Event} ${
-            c.n(
-                g.eh.EventType
-            )
+            c.n(g.eh.EventType)
         } = "${it.parentNameAndName().capitalize()}""""
     }
 }
@@ -35,30 +31,27 @@ fun <T : OperationI<*>> T.toGoCommandHandlerExecuteCommandBody(
 ): String {
     val entity = findParentMust(EntityI::class.java)
     val items = entity.findDownByType(CommandI::class.java)
+    val entityParamName = entity.name().decapitalize()
     return """
-    ${
-        items.joinSurroundIfNotEmptyToString("", "switch cmd.CommandType() {") {
+    $entityParamName := entity.(${entity.toGo(c, api)})
+    if err = o.CommandsPreparer(cmd, $entityParamName); err != nil {
+        return
+    }
+    
+    ${items.joinSurroundIfNotEmptyToString("", "switch cmd.CommandType() {") {
             """
     case ${it.nameAndParentName().capitalize()}Command:
-        err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${it.toGo(c, api)}), entity.(${
-                entity.toGo(
-                    c,
-                    api
-                )
-            }), store)"""
+        err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${it.toGo(c, api)}), $entityParamName, store)"""
         }
     }
     default:
 		err = ${c.n(g.errors.New, api)}(${
-        c.n(
-            g.fmt.Sprintf,
-            api
-        )
+        c.n(g.fmt.Sprintf, api)
     }("Not supported command type '%v' for entity '%v", cmd.CommandType(), entity))
 	}"""
 }
 
-fun <T : OperationI<*>> T.toGoCommandHandlerAddPreparerBody(
+fun <T : OperationI<*>> T.toGoCommandHandlerAddCommandPreparerBody(
     c: GenerationContext,
     derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
@@ -74,6 +67,27 @@ fun <T : OperationI<*>> T.toGoCommandHandlerAddPreparerBody(
     }) (err error) {
 		if err = preparer(command, entity); err == nil {
 			err = prevHandler(command, entity, store)
+		}
+		return
+	}"""
+}
+
+fun <T : OperationI<*>> T.toGoCommandHandlerAddCommandsPreparerBody(
+    c: GenerationContext,
+    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
+): String {
+    val entity = findParentMust(EntityI::class.java)
+    val handlerName = "CommandsPreparer"
+    return """
+    prevHandler := o.$handlerName
+	o.$handlerName = func(cmd ${c.n(g.eh.Command, api)}, entity *${
+        c.n(
+            entity,
+            api
+        )
+    }, store ${c.n(g.gee.eh.AggregateStoreEvent, api)}) (err error) {
+		if err = preparer(cmd, entity); err == nil {
+			err = prevHandler(cmd, entity, store)
 		}
 		return
 	}"""
@@ -170,9 +184,7 @@ fun <T : OperationI<*>> T.toGoHttpHandlerBody(
     ${it.nameDecapitalize()}, _ := ${
                 it.isKey().ifElse({
                     """${
-                        c.n(
-                            g.google.uuid.Parse, api
-                        )
+                        c.n(g.google.uuid.Parse, api)
                     }(vars["${it.nameDecapitalize()}"])"""
                 },
                     { """vars["${it.nameDecapitalize()}"]""" })
@@ -247,12 +259,25 @@ fun <T : OperationI<*>> T.toGoCommandHandlerSetupBody(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
     val entity = findParentMust(EntityI::class.java)
+
+    val commandsPreparer = """
+    o.CommandsPreparer = func(cmd ${c.n(g.eh.Command)}, entity ${entity.toGo(c, api)}) (err error) {
+        if entity.DeletedAt != nil {
+            err = ${c.n(g.gee.eh.CommandError)}{Err: ${c.n(g.gee.eh.ErrAggregateDeleted)}, Cmd: cmd, Entity: entity}
+        }
+        return
+    }
+    """
+
     val commands = entity.findDownByType(CommandI::class.java)
-    return commands.joinSurroundIfNotEmptyToString("") { item ->
+    return commandsPreparer + commands.joinSurroundIfNotEmptyToString("") { item ->
         val handler = c.n(item, DesignDerivedType.Handler).capitalize()
         """
     o.$handler = func(command ${item.toGo(c, api)}, entity ${
-            entity.toGo(c, api)
+            entity.toGo(
+                c,
+                api
+            )
         }, store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (err error) {${
             if (item is CreateByI<*> && item.event().isNotEMPTY()) {
                 """
@@ -356,16 +381,11 @@ fun <T : ConstructorI<*>> T.toGoAggregateInitializerBody(
     eventHandler := &${entity.name()}${DesignDerivedType.EventHandler}{}
     entityFactory := func() ${c.n(g.eh.Entity)} { return ${entity.toGoInstance(c, derived, api)} }
     ret = &$name{AggregateInitializer: ${
-        c.n(
-            g.gee.eh.AggregateInitializer.NewAggregateInitializer,
-            api
-        )
+        c.n(g.gee.eh.AggregateInitializer.NewAggregateInitializer, api)
     }(${entity.name()}${DesignDerivedType.AggregateType},
         func(id ${c.n(g.google.uuid.UUID)}) ${c.n(g.eh.Aggregate)} {
             return ${
-        c.n(
-            g.gee.eh.NewAggregateBase
-        )
+        c.n(g.gee.eh.NewAggregateBase)
     }(${entity.name()}${
         DesignDerivedType.AggregateType
     }, id, commandHandler, eventHandler, entityFactory())
@@ -446,17 +466,9 @@ fun <T : CommandI<*>> T.toGoCommandImpl(
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api, true)}
-func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)}            { return o.${entity.propId().nameForGoMember()} }
-func (o *$name) AggregateType() ${
-        c.n(
-            g.eh.AggregateType
-        )
-    }  { return ${entity.name()}${DesignDerivedType.AggregateType} }
-func (o *$name) CommandType() ${
-        c.n(
-            g.eh.CommandType
-        )
-    }      { return ${nameAndParentName().capitalize()}${DesignDerivedType.Command} }
+func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)} { return o.${entity.propId().nameForGoMember()} }
+func (o *$name) AggregateType() ${c.n(g.eh.AggregateType)} { return ${entity.name()}${DesignDerivedType.AggregateType} }
+func (o *$name) CommandType() ${c.n(g.eh.CommandType)} { return ${nameAndParentName().capitalize()}${DesignDerivedType.Command} }
 """
 }
 
@@ -466,13 +478,9 @@ fun <T : OperationI<*>> T.toGoAggregateInitializerRegisterCommands(
 
     val entity = findParentMust(EntityI::class.java)
     //TODO find a way to get correct name for xxxAggregateType
-    return """${
-        c.n(
-            g.gee.eh.AggregateInitializer.RegisterForAllEvents
-        )
-    }(handler, $ { c.n(entity, api) } AggregateType, ${
+    return """${c.n(g.gee.eh.AggregateInitializer.RegisterForAllEvents)}(handler, ${c.n(entity, api)} AggregateType, ${
         entity.name()
-    } CommandTypes ().Literals())"""
+    } CommandTypes().Literals())"""
 }
 
 fun <T : AttributeI<*>> T.toGoPropOptionalAfterBody(

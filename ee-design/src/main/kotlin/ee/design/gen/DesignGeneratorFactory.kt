@@ -566,8 +566,8 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         macros.registerMacro(OperationI<*>::toGoCountByBody.name, OperationI<*>::toGoCountByBody)
         macros.registerMacro(OperationI<*>::toGoExistByBody.name, OperationI<*>::toGoExistByBody)
         macros.registerMacro(
-            OperationI<*>::toGoCommandHandlerAddPreparerBody.name,
-            OperationI<*>::toGoCommandHandlerAddPreparerBody
+            OperationI<*>::toGoCommandHandlerAddCommandPreparerBody.name,
+            OperationI<*>::toGoCommandHandlerAddCommandPreparerBody
         )
 
         macros.registerMacro(
