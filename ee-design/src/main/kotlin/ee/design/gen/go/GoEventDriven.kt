@@ -218,8 +218,7 @@ fun <T : OperationI<*>> T.toGoHttpHandlerIdBasedBody(
 }
 
 fun <T : CommandI<*>> T.toGoStoreEvent(
-    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
 
     return """store.AppendEvent(${event().parentNameAndName()}${DesignDerivedType.Event}, ${
@@ -245,39 +244,24 @@ fun <T : AttributeI<*>> T.toGoApplyEventProp(c: GenerationContext, derived: Stri
 
 
 fun <T : OperationI<*>> T.toGoCommandHandlerSetupBody(
-    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
     val entity = findParentMust(EntityI::class.java)
     val commands = entity.findDownByType(CommandI::class.java)
-    val id = entity.propId().name().capitalize()
     return commands.joinSurroundIfNotEmptyToString("") { item ->
         val handler = c.n(item, DesignDerivedType.Handler).capitalize()
-        val aggregateType = c.n(entity, DesignDerivedType.AggregateType).capitalize()
         """
     o.$handler = func(command ${item.toGo(c, api)}, entity ${
-            entity.toGo(
-                c,
-                api
-            )
-        }, store ${
-            g.gee.eh.AggregateStoreEvent.toGo(
-                c,
-                api
-            )
-        }) (err error) {${
+            entity.toGo(c, api)
+        }, store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (err error) {${
             if (item is CreateByI<*> && item.event().isNotEMPTY()) {
                 """
-        if err = ${c.n(g.gee.eh.ValidateNewId, api)}(entity.$id, command.$id, $aggregateType); err == nil {
-            ${item.toGoStoreEvent(c, derived, api)}
-        }"""
+        ${item.toGoStoreEvent(c, derived, api)}"""
             } else if ((item is UpdateByI<*> || item is DeleteByI<*> || !item.isAffectMulti()) && item.event()
                     .isNotEMPTY()
             ) {
                 """
-        if err = ${c.n(g.gee.eh.ValidateIdsMatch, api)}(entity.$id, command.$id, $aggregateType); err == nil {
-            ${item.toGoStoreEvent(c, derived, api)}
-        }"""
+        ${item.toGoStoreEvent(c, derived, api)}"""
             } else {
                 """
         err = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Command})"""
@@ -289,8 +273,7 @@ fun <T : OperationI<*>> T.toGoCommandHandlerSetupBody(
 }
 
 fun <T : OperationI<*>> T.toGoEventHandlerApplyEvent(
-    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
-    api: String = DesignDerivedKind.API
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
     val entity = findParentMust(EntityI::class.java)
     val events = entity.findDownByType(EventI::class.java)

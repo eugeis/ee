@@ -329,7 +329,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                         })
                 ), GeneratorSimple(
                     "CommandsBase", contextBuilder = goContextBuilder,
-                    template = FragmentsTemplate(name = "${fileNamePrefix}CommandsBase",
+                    template = FragmentsTemplate(name = "${fileNamePrefix}EsCommandsBase",
                         nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
                             listOf(
                                 ItemsFragment(items = entities, fragments = { listOf(goTemplates.commandTypes()) }),
@@ -339,7 +339,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                         })
                 ), GeneratorSimple(
                     "EventsBase", contextBuilder = goContextBuilder,
-                    template = FragmentsTemplate(name = "${fileNamePrefix}EventsBase",
+                    template = FragmentsTemplate(name = "${fileNamePrefix}EsEventsBase",
                         nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
                             listOf(
                                 ItemsFragment(items = entities, fragments = { listOf(goTemplates.eventTypes()) }),
