@@ -232,7 +232,6 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             }
         }
 
-        val events: StructureUnitI<*>.() -> List<EventI<*>> = { findDownByType(EventI::class.java) }
         val eventsWithData: StructureUnitI<*>.() -> List<EventI<*>> = {
             findDownByType(EventI::class.java).filter { it.props().isNotEmpty() }
         }
@@ -270,11 +269,6 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                 it.propDeletedAt()
             }
             retEntities
-        }
-
-        val states: StructureUnitI<*>.() -> List<StateI<*>> = {
-            findDownByType(StateI::class.java).filter { it.derivedAsType().isEmpty() }
-                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
         registerGoMacros(contextFactory)
@@ -565,11 +559,31 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         macros.registerMacro(OperationI<*>::toGoFindByBody.name, OperationI<*>::toGoFindByBody)
         macros.registerMacro(OperationI<*>::toGoCountByBody.name, OperationI<*>::toGoCountByBody)
         macros.registerMacro(OperationI<*>::toGoExistByBody.name, OperationI<*>::toGoExistByBody)
+
+        macros.registerMacro(
+            OperationI<*>::toGoStateCommandHandlerSetupBody.name,
+            OperationI<*>::toGoStateCommandHandlerSetupBody
+        )
+
+        macros.registerMacro(
+            OperationI<*>::toGoStateCommandHandlerAddCommandPreparerBody.name,
+            OperationI<*>::toGoStateCommandHandlerAddCommandPreparerBody
+        )
+
+        macros.registerMacro(
+            OperationI<*>::toGoStateCommandHandlerAddCommandsPreparerBody.name,
+            OperationI<*>::toGoStateCommandHandlerAddCommandsPreparerBody
+        )
+
         macros.registerMacro(
             OperationI<*>::toGoCommandHandlerAddCommandPreparerBody.name,
             OperationI<*>::toGoCommandHandlerAddCommandPreparerBody
         )
 
+        macros.registerMacro(
+            OperationI<*>::toGoStateCommandHandlerExecuteCommandBody.name,
+            OperationI<*>::toGoStateCommandHandlerExecuteCommandBody
+        )
         macros.registerMacro(
             OperationI<*>::toGoStateEventHandlerApplyEvent.name,
             OperationI<*>::toGoStateEventHandlerApplyEvent

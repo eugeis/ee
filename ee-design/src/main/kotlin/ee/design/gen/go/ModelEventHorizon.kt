@@ -309,11 +309,13 @@ private fun EntityI<*>.addStateMachineArtifacts() {
 
         stateMachine.states().forEach { state ->
             val statePrefix = "$prefix${state.name()}"
+            val events = state.uniqueEvents()
+            val commands = state.uniqueCommands()
+
             //add event handler
             handlers.add(controller {
                 name("$statePrefix${DesignDerivedType.Handler}")
                     .derivedAsType(DesignDerivedType.StateMachineEvents).derivedFrom(state)
-                val events = state.uniqueEvents()
                 events.forEach { event ->
                     prop {
                         type(lambda {
@@ -346,6 +348,59 @@ private fun EntityI<*>.addStateMachineArtifacts() {
             executors.add(controller {
                 name("$statePrefix${DesignDerivedType.Executor}")
                     .derivedAsType(DesignDerivedType.StateMachineCommands).derivedFrom(state)
+
+                prop {
+                    name("commandsPreparer").type(lambda {
+                        p("cmd", g.eh.Command)
+                        p("entity", entity)
+                    })
+                }
+
+                op {
+                    name("AddCommandsPreparer").notErr()
+                    p("preparer", lambda {
+                        p("cmd", g.eh.Command)
+                        p("entity", entity)
+                    })
+                    macrosBody(OperationI<*>::toGoStateCommandHandlerAddCommandsPreparerBody.name)
+                }
+
+                commands.forEach { command ->
+                    prop {
+                        type(lambda {
+                            p(command.name(), command)
+                            p("entity", entity)
+                            p("store", g.gee.eh.AggregateStoreEvent)
+
+                        }).name("${command.name()}${DesignDerivedType.Handler}")
+                    }
+
+                    op {
+                        name("Add${command.name().capitalize()}Preparer").notErr()
+                        p("preparer", lambda {
+                            p("cmd", command)
+                            p("entity", entity)
+
+                        })
+                        derivedFrom(command)
+                        macrosBody(OperationI<*>::toGoStateCommandHandlerAddCommandPreparerBody.name)
+                    }
+                }
+
+                op {
+                    name("Execute")
+                    p("cmd", g.eh.Command)
+                    p("entity", g.eh.Entity)
+                    p("store", g.gee.eh.AggregateStoreEvent)
+
+                    macrosBody(OperationI<*>::toGoStateCommandHandlerExecuteCommandBody.name)
+                }
+
+                op {
+                    name("SetupCommandHandler")
+
+                    macrosBody(OperationI<*>::toGoStateCommandHandlerSetupBody.name)
+                }
             })
         }
 
@@ -361,8 +416,7 @@ private fun EntityI<*>.addStateMachineArtifacts() {
 
         //add state machine executors
         controller {
-            name("$prefix${DesignDerivedType.Executors}")
-                .derivedAsType(DesignDerivedType.StateMachine)
+            name("$prefix${DesignDerivedType.Executors}").derivedAsType(DesignDerivedType.StateMachine)
             executors.forEach {
                 prop { type(it).name(it.derivedFrom().name().decapitalize()).default() }
             }
@@ -606,8 +660,7 @@ private fun EntityI<*>.addCommandHandler(): BusinessControllerI<*> {
             name("AddCommandsPreparer").notErr()
             p("preparer", lambda {
                 p("cmd", g.eh.Command)
-                p("entity", g.eh.Entity)
-                p("store", g.gee.eh.AggregateStoreEvent)
+                p("entity", item)
             })
             macrosBody(OperationI<*>::toGoCommandHandlerAddCommandsPreparerBody.name)
         }
