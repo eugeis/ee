@@ -178,22 +178,22 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                 template = FragmentsTemplate(name = "${fileNamePrefix}${derivedType}_base",
                     nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
                         listOf(
-                            ItemsFragment<StructureUnitI<*>, ControllerI<*>>(items = {
+                            ItemsFragment(items = {
                                 findDownByType(ControllerI::class.java).filter {
                                     it.derivedAsType().equals(derivedType, true)
                                 }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
-                            }, fragments = { listOf(goTemplates.pojo()) }),
+                            }, fragments = { listOf(goTemplates.ifcOrPojo()) }),
                             ItemsFragment(items = {
                                 findDownByType(ValuesI::class.java).filter {
                                     it.derivedAsType().equals(derivedType, true)
                                 }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
-                            }, fragments = { listOf(goTemplates.pojo()) }),
+                            }, fragments = { listOf(goTemplates.ifcOrPojo()) }),
                             ItemsFragment(items = {
                                 findDownByType(BasicI::class.java).filter {
                                     it.derivedAsType().equals(derivedType, true)
                                 }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
-                            }, fragments = { listOf(goTemplates.pojo()) }),
-                            ItemsFragment<StructureUnitI<*>, EnumTypeI<*>>(items = {
+                            }, fragments = { listOf(goTemplates.ifcOrPojo()) }),
+                            ItemsFragment(items = {
                                 findDownByType(EnumTypeI::class.java).filter {
                                     it.derivedAsType().equals(derivedType, true)
                                 }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
@@ -225,52 +225,6 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             if (this is ModuleI<*>) listOf(this) else findDownByType(ModuleI::class.java)
         }
 
-        val commands: StructureUnitI<*>.() -> List<CommandI<*>> = { findDownByType(CommandI::class.java) }
-        val commandEnums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
-            findDownByType(EnumTypeI::class.java).filter {
-                it.parent() is ControllerI<*> && it.name().endsWith("CommandType")
-            }
-        }
-
-        val eventsWithData: StructureUnitI<*>.() -> List<EventI<*>> = {
-            findDownByType(EventI::class.java).filter { it.props().isNotEmpty() }
-        }
-        val eventEnums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
-            findDownByType(EnumTypeI::class.java).filter {
-                it.parent() is ControllerI<*> && it.name().endsWith("EventType")
-            }
-        }
-
-        val enums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
-            findDownByType(EnumTypeI::class.java).filter {
-                it.parent() is StructureUnitI<*> && it.derivedAsType().isEmpty()
-            }.sortedBy { it.name() }
-        }
-
-        val interfaces: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
-            findDownByType(CompilationUnitI::class.java).filter { it.isIfc() }
-        }
-
-        val values: StructureUnitI<*>.() -> List<ValuesI<*>> = {
-            findDownByType(ValuesI::class.java).filter { it.derivedAsType().isEmpty() }
-                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
-        }
-
-        val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
-            findDownByType(BasicI::class.java).filter { it.derivedAsType().isEmpty() }
-                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
-        }
-
-        val entities: StructureUnitI<*>.() -> List<EntityI<*>> = {
-            val retEntities = findDownByType(EntityI::class.java).filter { it.derivedAsType().isEmpty() }
-                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
-            retEntities.forEach {
-                it.propId()
-                it.propDeletedAt()
-            }
-            retEntities
-        }
-
         registerGoMacros(contextFactory)
 
         val moduleGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
@@ -287,67 +241,12 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
         moduleGenerators.addAll(
             listOf(
-                GeneratorSimple(
-                    "IfcBase", contextBuilder = goContextBuilder,
-                    template = FragmentsTemplate(name = "${fileNamePrefix}IfcBase",
-                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
-                            listOf(ItemsFragment(items = interfaces, fragments = {
-                                listOf(goTemplates.ifc())
-                            }))
-                        })
-                ), GeneratorSimple(
-                    "ApiBase", contextBuilder = goContextBuilder,
-                    template = FragmentsTemplate(name = "${fileNamePrefix}ApiBase",
-                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
-                            listOf(
-                                ItemsFragment(items = entities, fragments = { listOf(goTemplates.entity()) }),
-                                ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = values,
-                                    fragments = { listOf(goTemplates.pojo()) }),
-                                ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                    fragments = { listOf(goTemplates.pojo()) }),
-                                ItemsFragment(items = enums, fragments = { listOf(goTemplates.enum()) })
-                            )
-                        })
-                ),
-                GeneratorSimple(
-                    "TestBase", contextBuilder = goContextBuilder,
-                    template = FragmentsTemplate(name = "${fileNamePrefix}TestBase",
-                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
-                            listOf(
-                                ItemsFragment(items = entities, fragments = { listOf(goTemplates.newTestInstance()) }),
-                                ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = values,
-                                    fragments = { listOf(goTemplates.newTestInstance()) }),
-                                ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                    fragments = { listOf(goTemplates.newTestInstance()) })
-                            )
-                        })
-                ), GeneratorSimple(
-                    "CommandsBase", contextBuilder = goContextBuilder,
-                    template = FragmentsTemplate(name = "${fileNamePrefix}EsCommandsBase",
-                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
-                            listOf(
-                                ItemsFragment(items = entities, fragments = { listOf(goTemplates.commandTypes()) }),
-                                ItemsFragment(items = commands, fragments = { listOf(goTemplates.command()) }),
-                                ItemsFragment(items = commandEnums, fragments = { listOf(goTemplates.enum()) })
-                            )
-                        })
-                ), GeneratorSimple(
-                    "EventsBase", contextBuilder = goContextBuilder,
-                    template = FragmentsTemplate(name = "${fileNamePrefix}EsEventsBase",
-                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
-                            listOf(
-                                ItemsFragment(items = entities, fragments = { listOf(goTemplates.eventTypes()) }),
-                                ItemsFragment(
-                                    items = eventsWithData,
-                                    fragments = { listOf(goTemplates.pojoExcludePropsWithValue()) }),
-                                ItemsFragment(items = eventEnums, fragments = { listOf(goTemplates.enum()) })
-                            )
-                        })
-                )
+
             )
         )
 
         val derivedTypes = mutableListOf(
+            "",
             DesignDerivedType.Aggregate,
             DesignDerivedType.AggregateEvents,
             DesignDerivedType.AggregateCommands,
@@ -360,34 +259,134 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             DesignDerivedType.StateMachineCommands,
         )
 
-        val derivedTypesGenerators = derivedTypes.map { derivedType ->
-            GeneratorSimple(
-                "${derivedType}Base", contextBuilder = goContextBuilder,
-                template = FragmentsTemplate(name = "$fileNamePrefix${derivedType}Base",
-                    nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
-                        listOf(ItemsFragment(items = {
-                            findDownByType(ControllerI::class.java).filter {
-                                it.derivedAsType().equals(derivedType, true)
-                            }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
-                        }, fragments = { listOf(goTemplates.pojo()) }), ItemsFragment(items = {
-                            findDownByType(ValuesI::class.java).filter {
-                                it.derivedAsType().equals(derivedType, true)
-                            }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
-                        }, fragments = { listOf(goTemplates.pojo()) }), ItemsFragment(items = {
-                            findDownByType(BasicI::class.java).filter {
-                                it.derivedAsType().equals(derivedType, true)
-                            }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
-                        }, fragments = { listOf(goTemplates.pojo()) }),
-                            ItemsFragment(items = {
-                                findDownByType(EnumTypeI::class.java).filter {
-                                    it.derivedAsType().equals(derivedType, true)
-                                }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
-                            }, fragments = { listOf(goTemplates.enum()) })
-                        )
-                    })
+        derivedTypes.forEach { derivedType ->
+
+            val controllers: StructureUnitI<*>.() -> Collection<ControllerI<*>> = {
+                findDownByType(type = ControllerI::class.java, stopSteppingDownIfFound = false).filter {
+                    !it.isIfc() && it.derivedAsType().equals(derivedType, true)
+                }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            }
+
+            val commands: StructureUnitI<*>.() -> List<CommandI<*>> = {
+                findDownByType(CommandI::class.java).filter {
+                    it.derivedAsType().equals(derivedType, true)
+                }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            }
+
+            val eventsWithData: StructureUnitI<*>.() -> List<EventI<*>> = {
+                findDownByType(EventI::class.java).filter {
+                    it.props().isNotEmpty() && it.derivedAsType().equals(derivedType, true)
+                }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            }
+
+            val enums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
+                findDownByType(EnumTypeI::class.java).filter {
+                    it.derivedAsType().equals(derivedType, true)
+                }.sortedBy { it.name() }
+            }
+
+            val interfaces: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
+                findDownByType(CompilationUnitI::class.java, stopSteppingDownIfFound = false).filter {
+                    it.isIfc() && it.derivedAsType().equals(derivedType, true)
+                }.sortedBy { it.name() }
+            }
+
+            val values: StructureUnitI<*>.() -> List<ValuesI<*>> = {
+                findDownByType(ValuesI::class.java).filter {
+                    it.derivedAsType().equals(derivedType, true)
+                }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            }
+
+            val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
+                findDownByType(BasicI::class.java).filter {
+                    it.derivedAsType().equals(derivedType, true)
+                }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+            }
+
+            val entities: StructureUnitI<*>.() -> List<EntityI<*>> = {
+                val retEntities = findDownByType(EntityI::class.java).filter {
+                    it.derivedAsType().equals(derivedType, true)
+                }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
+                retEntities.forEach {
+                    it.propId()
+                    it.propDeletedAt()
+                }
+                retEntities
+            }
+
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "IfcBase", contextBuilder = goContextBuilder,
+                    template = FragmentsTemplate(name = "${fileNamePrefix}${derivedType}IfcBase",
+                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
+                            listOf(ItemsFragment(items = interfaces, fragments = {
+                                listOf(goTemplates.ifc())
+                            }))
+                        })
+                )
+            )
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "ApiBase", contextBuilder = goContextBuilder,
+                    template = FragmentsTemplate(name = "${fileNamePrefix}${derivedType}ApiBase",
+                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
+                            listOf(
+                                ItemsFragment(items = entities, fragments = { listOf(goTemplates.entity()) }),
+                                ItemsFragment(items = controllers, fragments = { listOf(goTemplates.pojo()) }),
+                                ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = values,
+                                    fragments = { listOf(goTemplates.pojo()) }),
+                                ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                    fragments = { listOf(goTemplates.pojo()) }),
+                                ItemsFragment(items = enums, fragments = { listOf(goTemplates.enum()) })
+                            )
+                        })
+                )
+            )
+
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "TestBase", contextBuilder = goContextBuilder,
+                    template = FragmentsTemplate(name = "${fileNamePrefix}${derivedType}TestBase",
+                        nameBuilder = itemAndTemplateNameAsGoFileName,
+                        fragments = {
+                            listOf(
+                                ItemsFragment(items = entities,
+                                    fragments = { listOf(goTemplates.newTestInstance()) }),
+                                ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = values,
+                                    fragments = { listOf(goTemplates.newTestInstance()) }),
+                                ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                    fragments = { listOf(goTemplates.newTestInstance()) })
+                            )
+                        })
+                )
+            )
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "CommandsBase", contextBuilder = goContextBuilder,
+                    template = FragmentsTemplate(name = "${fileNamePrefix}${derivedType}EsCommandsBase",
+                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
+                            listOf(
+                                ItemsFragment(items = entities, fragments = { listOf(goTemplates.commandTypes()) }),
+                                ItemsFragment(items = commands, fragments = { listOf(goTemplates.command()) }),
+                            )
+                        })
+                )
+            )
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "EventsBase", contextBuilder = goContextBuilder,
+                    template = FragmentsTemplate(name = "${fileNamePrefix}${derivedType}EsEventsBase",
+                        nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
+                            listOf(
+                                ItemsFragment(items = entities, fragments = { listOf(goTemplates.eventTypes()) }),
+                                ItemsFragment(
+                                    items = eventsWithData,
+                                    fragments = { listOf(goTemplates.pojoExcludePropsWithValue()) }),
+                            )
+                        })
+                )
             )
         }
-        moduleGenerators.addAll(derivedTypesGenerators)
 
         return GeneratorContexts(generator, swaggerContextBuilder, goContextBuilder)
     }
@@ -470,29 +469,35 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
     protected fun registerGoMacros(contextFactory: LangCommonContextFactory) {
         val macros = contextFactory.macroController
         macros.registerMacro(
-            OperationI<*>::toGoAggregateInitializerRegisterCommands.name,
-            OperationI<*>::toGoAggregateInitializerRegisterCommands
+            OperationI<*>::toGoAggregateEngineRegisterCommands.name,
+            OperationI<*>::toGoAggregateEngineRegisterCommands
         )
         macros.registerMacro(
-            CompilationUnitI<*>::toGoAggregateInitializerConst.name,
-            CompilationUnitI<*>::toGoAggregateInitializerConst
+            CompilationUnitI<*>::toGoAggregateEngineConst.name,
+            CompilationUnitI<*>::toGoAggregateEngineConst
         )
         macros.registerMacro(
-            CompilationUnitI<*>::toGoAggregateInitializerRegisterForEvents.name,
-            CompilationUnitI<*>::toGoAggregateInitializerRegisterForEvents
+            CompilationUnitI<*>::toGoAggregateEngineRegisterForEvents.name,
+            CompilationUnitI<*>::toGoAggregateEngineRegisterForEvents
         )
+
         macros.registerMacro(
-            ConstructorI<*>::toGoAggregateInitializerBody.name,
-            ConstructorI<*>::toGoAggregateInitializerBody
+            ConstructorI<*>::toGoAggregateEngineBody.name,
+            ConstructorI<*>::toGoAggregateEngineBody
         )
+
         macros.registerMacro(
-            ConstructorI<*>::toGoEhInitializerBody.name,
-            ConstructorI<*>::toGoEhInitializerBody
+            OperationI<*>::toGoAggregateEngineSetupBody.name,
+            OperationI<*>::toGoAggregateEngineSetupBody
         )
+
         macros.registerMacro(
-            OperationI<*>::toGoEhInitializerSetupBody.name,
-            OperationI<*>::toGoEhInitializerSetupBody
+            OperationI<*>::toGoAggregateApplyEventBody.name,
+            OperationI<*>::toGoAggregateApplyEventBody
         )
+
+        macros.registerMacro(ConstructorI<*>::toGoEhEngineBody.name, ConstructorI<*>::toGoEhEngineBody)
+        macros.registerMacro(OperationI<*>::toGoEhEngineSetupBody.name, OperationI<*>::toGoEhEngineSetupBody)
         macros.registerMacro(AttributeI<*>::toGoPropOptionalAfterBody.name, AttributeI<*>::toGoPropOptionalAfterBody)
         macros.registerMacro(
             OperationI<*>::toGoCommandHandlerExecuteCommandBody.name,
@@ -502,6 +507,15 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             OperationI<*>::toGoCommandHandlerSetupBody.name,
             OperationI<*>::toGoCommandHandlerSetupBody
         )
+        macros.registerMacro(
+            OperationI<*>::toGoStatesCommandHandlerSetupBody.name,
+            OperationI<*>::toGoStatesCommandHandlerSetupBody
+        )
+        macros.registerMacro(
+            OperationI<*>::toGoStatesCommandHandlerExecute.name,
+            OperationI<*>::toGoStatesCommandHandlerExecute
+        )
+
         macros.registerMacro(OperationI<*>::toGoEventHandlerApplyEvent.name, OperationI<*>::toGoEventHandlerApplyEvent)
         macros.registerMacro(OperationI<*>::toGoEventHandlerSetupBody.name, OperationI<*>::toGoEventHandlerSetupBody)
         macros.registerMacro(OperationI<*>::toGoHttpHandlerBody.name, OperationI<*>::toGoHttpHandlerBody)
@@ -571,8 +585,8 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         )
 
         macros.registerMacro(
-            OperationI<*>::toGoStateCommandHandlerAddCommandsPreparerBody.name,
-            OperationI<*>::toGoStateCommandHandlerAddCommandsPreparerBody
+            OperationI<*>::toGoStateAddCommandsPreparerBody.name,
+            OperationI<*>::toGoStateAddCommandsPreparerBody
         )
 
         macros.registerMacro(
@@ -581,17 +595,48 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         )
 
         macros.registerMacro(
-            OperationI<*>::toGoStateCommandHandlerExecuteCommandBody.name,
-            OperationI<*>::toGoStateCommandHandlerExecuteCommandBody
+            OperationI<*>::toGoCommandHandlerAddCommandsPreparerBody.name,
+            OperationI<*>::toGoCommandHandlerAddCommandsPreparerBody
         )
+
+        macros.registerMacro(
+            OperationI<*>::toGoStateCommandHandlerExecuteBody.name,
+            OperationI<*>::toGoStateCommandHandlerExecuteBody
+        )
+
+        macros.registerMacro(
+            OperationI<*>::toGoStateEventType.name,
+            OperationI<*>::toGoStateEventType
+        )
+
+        macros.registerMacro(
+            OperationI<*>::toGoStateEventHandlersPreparerBody.name,
+            OperationI<*>::toGoStateEventHandlersPreparerBody
+        )
+
         macros.registerMacro(
             OperationI<*>::toGoStateEventHandlerApplyEvent.name,
             OperationI<*>::toGoStateEventHandlerApplyEvent
         )
+
         macros.registerMacro(
             OperationI<*>::toGoStateEventHandlerSetupBody.name,
             OperationI<*>::toGoStateEventHandlerSetupBody
         )
 
+        macros.registerMacro(
+            OperationI<*>::toGoStatesEventHandlerSetupBody.name,
+            OperationI<*>::toGoStatesEventHandlerSetupBody
+        )
+
+        macros.registerMacro(
+            OperationI<*>::toGoStatesEventHandlerApplyEvent.name,
+            OperationI<*>::toGoStatesEventHandlerApplyEvent
+        )
+
+        macros.registerMacro(
+            OperationI<*>::toGoAggregateHandleCommand.name,
+            OperationI<*>::toGoAggregateHandleCommand
+        )
     }
 }

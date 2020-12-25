@@ -144,7 +144,6 @@ fun List<AttributeI<*>>.toGoCallValueByPropName(
             it.toGoValueByPropName(c, api, saltIntName, parentConstrName)
         }
 
-private val typeToFactoryByPropNames = mutableMapOf<TypeI<*>, OperationI<*>>()
 fun <T : AttributeI<*>> T.toGoValueByPropName(
         c: GenerationContext, derived: String, saltIntName: String, parentConstrName: String = ""): String {
     val baseType = type().findDerivedOrThis()
@@ -296,7 +295,8 @@ fun <T : ConstructorI<*>> T.toGo(c: GenerationContext, derived: String, api: Str
 func ${c.n(this, derived)}(${params().nonDefaultAndNonDerived().joinWrappedToString(", ",
             "                ") {
         it.toGoSignature(c, api)
-    }}) (ret *$name) {${toGoMacrosBeforeBody(c, derived, api)}${macrosBody().isNotEmpty().ifElse({
+    }}) (ret *$name${isErrorHandling().then(", err error")}) {${toGoMacrosBeforeBody(c, derived, api)}${
+        macrosBody().isNotEmpty().ifElse({
         """
     ${toGoMacrosBody(c, derived, api)}"""
     }, {

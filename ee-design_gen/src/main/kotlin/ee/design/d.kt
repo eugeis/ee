@@ -21,7 +21,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val values = prop(l.Values).multi(true).nonFluent("valueType")
         val basics = prop(l.Basic).multi(true).nonFluent("basic")
         val controllers = prop(BusinessController).multi(true).nonFluent("controller")
-        val processManagers = prop(ProcessManager).multi(true).nonFluent("processManager")
+        val sagas = prop(Saga).multi(true).nonFluent("saga")
         val projectors = prop(Projector).multi(true).nonFluent("projector")
     }
 
@@ -45,7 +45,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
 
     object Controller : CompilationUnit({ superUnit(l.CompilationUnit) }) {
         val enums = prop(l.EnumType).multi(true).nonFluent("enumType")
-                .doc("Enums used special for controller needs, like CommandTypeEnums")
+            .doc("Enums used special for controller needs, like CommandTypeEnums")
         val values = prop(l.Values).multi(true).nonFluent("valueType").doc("Values used special for controller needs")
         val basics = prop(l.Basic).multi(true).nonFluent("basic").doc("Basics used special for controller needs")
     }
@@ -66,9 +66,11 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val timeout = propL()
         val states = prop(State).multi(true).nonFluent("state")
         val checks = prop(l.Predicate).multi(true).nonFluent("check")
+
+        val controllers = prop(BusinessController).multi(true).nonFluent("controller")
     }
 
-    object ProcessManager : CompilationUnit({ superUnit(StateMachine) }) {}
+    object Saga : CompilationUnit({ superUnit(StateMachine) }) {}
 
     object Projector : CompilationUnit({ superUnit(StateMachine) }) {}
 
@@ -80,6 +82,8 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val exitActions = prop(l.Action).multi(true).nonFluent("exit")
         val executors = prop(Executor).multi(true).nonFluent("execute")
         val handlers = prop(Handler).multi(true).nonFluent("handle")
+
+        val controllers = prop(BusinessController).multi(true).nonFluent("controller")
     }
 
     object DynamicState : CompilationUnit({ superUnit(State) }) {
@@ -152,11 +156,11 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val checks = prop(l.Predicate).multi(true).nonFluent("check")
         val handlers = prop(AggregateHandler).multi(true).nonFluent("handler")
         val projectors = prop(Projector).multi(true).nonFluent("projector")
-        val processManager = prop(ProcessManager).multi(true).nonFluent("processManager")
+        val saga = prop(Saga).multi(true).nonFluent("saga")
     }
 
     object Config : CompilationUnit({ superUnit(l.Values) }) {
-        val prefix = propS({ doc("Prefix of all properties in global configuration") })
+        val prefix = propS { doc("Prefix of all properties in global configuration") }
     }
 
     object Widget : CompilationUnit({ superUnit(l.CompilationUnit) })

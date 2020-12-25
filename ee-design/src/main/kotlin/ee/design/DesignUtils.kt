@@ -15,10 +15,10 @@ open class DesignDerivedKindNames : LangDerivedKindNames() {
 object DesignDerivedKind : DesignDerivedKindNames()
 
 open class DesignDerivedTypeNames {
-    val Aggregate = "Aggr"
-    val AggregateCommands = "AggrCommands"
-    val AggregateEvents = "AggrEvents"
-    val AggregateInitializer = "AggrInitializer"
+    val Aggregate = "Aggregate"
+    val AggregateCommands = "AggregateCommands"
+    val AggregateEvents = "AggregateEvents"
+    val AggregateEngine = "AggregateEngine"
     val AggregateType = "AggregateType"
     val Command = "Command"
     val CommandHandler = "CommandHandler"
@@ -32,11 +32,12 @@ open class DesignDerivedTypeNames {
     val HttpCommandHandler = "HttpCommandHandler"
     val Event = "Event"
     val EventHandler = "EventHandler"
-    val EsInitializer = "EsInitializer"
+    val EsEngine = "EsEngine"
     val Handler = "Handler"
     val Handlers = "Handlers"
     val Executor = "Executor"
     val Executors = "Executors"
+    val Logic = "Logic"
 
     val Projector = "Projector"
     val Query = "Query"

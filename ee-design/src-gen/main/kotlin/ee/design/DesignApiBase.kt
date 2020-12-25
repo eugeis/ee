@@ -411,10 +411,10 @@ open class EntityB<B : EntityB<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adap
     override fun projector(value: ProjectorI<*>): ProjectorI<*> = applyAndReturn { projectors().addItem(value); value }
     override fun projector(value: ProjectorI<*>.() -> Unit): ProjectorI<*> = projector(Projector(value))
 
-    override fun processManager(): ListMultiHolder<ProcessManagerI<*>> = itemAsList(PROCESS_MANAGER, ProcessManagerI::class.java, true)
-    override fun processManager(vararg value: ProcessManagerI<*>): B = apply { processManager().addItems(value.asList()) }
-    override fun processManager(value: ProcessManagerI<*>): ProcessManagerI<*> = applyAndReturn { processManager().addItem(value); value }
-    override fun processManager(value: ProcessManagerI<*>.() -> Unit): ProcessManagerI<*> = processManager(ProcessManager(value))
+    override fun saga(): ListMultiHolder<SagaI<*>> = itemAsList(SAGA, SagaI::class.java, true)
+    override fun saga(vararg value: SagaI<*>): B = apply { saga().addItems(value.asList()) }
+    override fun saga(value: SagaI<*>): SagaI<*> = applyAndReturn { saga().addItem(value); value }
+    override fun saga(value: SagaI<*>.() -> Unit): SagaI<*> = saga(Saga(value))
 
     override fun fillSupportsItems() {
         aggregateFor()
@@ -434,7 +434,7 @@ open class EntityB<B : EntityB<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adap
         checks()
         handlers()
         projectors()
-        processManager()
+        saga()
         super.fillSupportsItems()
     }
 
@@ -460,7 +460,7 @@ open class EntityB<B : EntityB<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adap
         val CHECKS = "_checks"
         val HANDLERS = "_handlers"
         val PROJECTORS = "_projectors"
-        val PROCESS_MANAGER = "_processManager"
+        val SAGA = "_saga"
     }
 }
 
@@ -711,10 +711,10 @@ open class ModuleB<B : ModuleB<B>>(adapt: B.() -> Unit = {}) : StructureUnitB<B>
     override fun controller(value: BusinessControllerI<*>): BusinessControllerI<*> = applyAndReturn { controllers().addItem(value); value }
     override fun controller(value: BusinessControllerI<*>.() -> Unit): BusinessControllerI<*> = controller(BusinessController(value))
 
-    override fun processManagers(): ListMultiHolder<ProcessManagerI<*>> = itemAsList(PROCESS_MANAGERS, ProcessManagerI::class.java, true)
-    override fun processManagers(vararg value: ProcessManagerI<*>): B = apply { processManagers().addItems(value.asList()) }
-    override fun processManager(value: ProcessManagerI<*>): ProcessManagerI<*> = applyAndReturn { processManagers().addItem(value); value }
-    override fun processManager(value: ProcessManagerI<*>.() -> Unit): ProcessManagerI<*> = processManager(ProcessManager(value))
+    override fun sagas(): ListMultiHolder<SagaI<*>> = itemAsList(SAGAS, SagaI::class.java, true)
+    override fun sagas(vararg value: SagaI<*>): B = apply { sagas().addItems(value.asList()) }
+    override fun saga(value: SagaI<*>): SagaI<*> = applyAndReturn { sagas().addItem(value); value }
+    override fun saga(value: SagaI<*>.() -> Unit): SagaI<*> = saga(Saga(value))
 
     override fun projectors(): ListMultiHolder<ProjectorI<*>> = itemAsList(PROJECTORS, ProjectorI::class.java, true)
     override fun projectors(vararg value: ProjectorI<*>): B = apply { projectors().addItems(value.asList()) }
@@ -728,7 +728,7 @@ open class ModuleB<B : ModuleB<B>>(adapt: B.() -> Unit = {}) : StructureUnitB<B>
         values()
         basics()
         controllers()
-        processManagers()
+        sagas()
         projectors()
         super.fillSupportsItems()
     }
@@ -741,7 +741,7 @@ open class ModuleB<B : ModuleB<B>>(adapt: B.() -> Unit = {}) : StructureUnitB<B>
         val VALUES = "_values"
         val BASICS = "_basics"
         val CONTROLLERS = "_controllers"
-        val PROCESS_MANAGERS = "_processManagers"
+        val SAGAS = "_sagas"
         val PROJECTORS = "_projectors"
     }
 }
@@ -770,17 +770,6 @@ open class ModuleGroupB<B : ModuleGroupB<B>>(adapt: B.() -> Unit = {}) : Structu
 }
 
 
-open class ProcessManager(adapt: ProcessManager.() -> Unit = {}) : ProcessManagerB<ProcessManager>(adapt) {
-
-    companion object {
-        val EMPTY = ProcessManager { name(ItemEmpty.name()) }.apply<ProcessManager> { init() }
-    }
-}
-
-open class ProcessManagerB<B : ProcessManagerB<B>>(adapt: B.() -> Unit = {}) : StateMachineB<B>(adapt), ProcessManagerI<B> {
-}
-
-
 open class Projector(adapt: Projector.() -> Unit = {}) : ProjectorB<Projector>(adapt) {
 
     companion object {
@@ -789,6 +778,17 @@ open class Projector(adapt: Projector.() -> Unit = {}) : ProjectorB<Projector>(a
 }
 
 open class ProjectorB<B : ProjectorB<B>>(adapt: B.() -> Unit = {}) : StateMachineB<B>(adapt), ProjectorI<B> {
+}
+
+
+open class Saga(adapt: Saga.() -> Unit = {}) : SagaB<Saga>(adapt) {
+
+    companion object {
+        val EMPTY = Saga { name(ItemEmpty.name()) }.apply<Saga> { init() }
+    }
+}
+
+open class SagaB<B : SagaB<B>>(adapt: B.() -> Unit = {}) : StateMachineB<B>(adapt), SagaI<B> {
 }
 
 
@@ -824,11 +824,17 @@ open class StateB<B : StateB<B>>(adapt: B.() -> Unit = {}) : ControllerB<B>(adap
     override fun handle(value: HandlerI<*>): HandlerI<*> = applyAndReturn { handlers().addItem(value); value }
     override fun handle(value: HandlerI<*>.() -> Unit): HandlerI<*> = handle(Handler(value))
 
+    override fun controllers(): ListMultiHolder<BusinessControllerI<*>> = itemAsList(CONTROLLERS, BusinessControllerI::class.java, true)
+    override fun controllers(vararg value: BusinessControllerI<*>): B = apply { controllers().addItems(value.asList()) }
+    override fun controller(value: BusinessControllerI<*>): BusinessControllerI<*> = applyAndReturn { controllers().addItem(value); value }
+    override fun controller(value: BusinessControllerI<*>.() -> Unit): BusinessControllerI<*> = controller(BusinessController(value))
+
     override fun fillSupportsItems() {
         entryActions()
         exitActions()
         executors()
         handlers()
+        controllers()
         super.fillSupportsItems()
     }
 
@@ -838,6 +844,7 @@ open class StateB<B : StateB<B>>(adapt: B.() -> Unit = {}) : ControllerB<B>(adap
         val EXIT_ACTIONS = "_exitActions"
         val EXECUTORS = "_executors"
         val HANDLERS = "_handlers"
+        val CONTROLLERS = "_controllers"
     }
 }
 
@@ -873,9 +880,15 @@ open class StateMachineB<B : StateMachineB<B>>(adapt: B.() -> Unit = {}) : Contr
     override fun check(value: PredicateI<*>): PredicateI<*> = applyAndReturn { checks().addItem(value); value }
     override fun check(value: PredicateI<*>.() -> Unit): PredicateI<*> = check(Predicate(value))
 
+    override fun controllers(): ListMultiHolder<BusinessControllerI<*>> = itemAsList(CONTROLLERS, BusinessControllerI::class.java, true)
+    override fun controllers(vararg value: BusinessControllerI<*>): B = apply { controllers().addItems(value.asList()) }
+    override fun controller(value: BusinessControllerI<*>): BusinessControllerI<*> = applyAndReturn { controllers().addItem(value); value }
+    override fun controller(value: BusinessControllerI<*>.() -> Unit): BusinessControllerI<*> = controller(BusinessController(value))
+
     override fun fillSupportsItems() {
         states()
         checks()
+        controllers()
         super.fillSupportsItems()
     }
 
@@ -886,6 +899,7 @@ open class StateMachineB<B : StateMachineB<B>>(adapt: B.() -> Unit = {}) : Contr
         val TIMEOUT = "_timeout"
         val STATES = "_states"
         val CHECKS = "_checks"
+        val CONTROLLERS = "_controllers"
     }
 }
 

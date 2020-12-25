@@ -239,10 +239,10 @@ interface EntityI<B : EntityI<B>> : DataTypeI<B> {
     fun projector(value: ProjectorI<*>): ProjectorI<*>
     fun projector(value: ProjectorI<*>.() -> Unit = {}): ProjectorI<*>
 
-    fun processManager(): ListMultiHolder<ProcessManagerI<*>>
-    fun processManager(vararg value: ProcessManagerI<*>): B
-    fun processManager(value: ProcessManagerI<*>): ProcessManagerI<*>
-    fun processManager(value: ProcessManagerI<*>.() -> Unit = {}): ProcessManagerI<*>
+    fun saga(): ListMultiHolder<SagaI<*>>
+    fun saga(vararg value: SagaI<*>): B
+    fun saga(value: SagaI<*>): SagaI<*>
+    fun saga(value: SagaI<*>.() -> Unit = {}): SagaI<*>
 }
 
 
@@ -379,10 +379,10 @@ interface ModuleI<B : ModuleI<B>> : StructureUnitI<B> {
     fun controller(value: BusinessControllerI<*>): BusinessControllerI<*>
     fun controller(value: BusinessControllerI<*>.() -> Unit = {}): BusinessControllerI<*>
 
-    fun processManagers(): ListMultiHolder<ProcessManagerI<*>>
-    fun processManagers(vararg value: ProcessManagerI<*>): B
-    fun processManager(value: ProcessManagerI<*>): ProcessManagerI<*>
-    fun processManager(value: ProcessManagerI<*>.() -> Unit = {}): ProcessManagerI<*>
+    fun sagas(): ListMultiHolder<SagaI<*>>
+    fun sagas(vararg value: SagaI<*>): B
+    fun saga(value: SagaI<*>): SagaI<*>
+    fun saga(value: SagaI<*>.() -> Unit = {}): SagaI<*>
 
     fun projectors(): ListMultiHolder<ProjectorI<*>>
     fun projectors(vararg value: ProjectorI<*>): B
@@ -398,12 +398,12 @@ interface ModuleGroupI<B : ModuleGroupI<B>> : StructureUnitI<B> {
 }
 
 
-interface ProcessManagerI<B : ProcessManagerI<B>> : StateMachineI<B> {
+interface ProjectorI<B : ProjectorI<B>> : StateMachineI<B> {
 
 }
 
 
-interface ProjectorI<B : ProjectorI<B>> : StateMachineI<B> {
+interface SagaI<B : SagaI<B>> : StateMachineI<B> {
 
 }
 
@@ -432,6 +432,11 @@ interface StateI<B : StateI<B>> : ControllerI<B> {
     fun handlers(vararg value: HandlerI<*>): B
     fun handle(value: HandlerI<*>): HandlerI<*>
     fun handle(value: HandlerI<*>.() -> Unit = {}): HandlerI<*>
+
+    fun controllers(): ListMultiHolder<BusinessControllerI<*>>
+    fun controllers(vararg value: BusinessControllerI<*>): B
+    fun controller(value: BusinessControllerI<*>): BusinessControllerI<*>
+    fun controller(value: BusinessControllerI<*>.() -> Unit = {}): BusinessControllerI<*>
 }
 
 
@@ -458,6 +463,11 @@ interface StateMachineI<B : StateMachineI<B>> : ControllerI<B> {
     fun checks(vararg value: PredicateI<*>): B
     fun check(value: PredicateI<*>): PredicateI<*>
     fun check(value: PredicateI<*>.() -> Unit = {}): PredicateI<*>
+
+    fun controllers(): ListMultiHolder<BusinessControllerI<*>>
+    fun controllers(vararg value: BusinessControllerI<*>): B
+    fun controller(value: BusinessControllerI<*>): BusinessControllerI<*>
+    fun controller(value: BusinessControllerI<*>.() -> Unit = {}): BusinessControllerI<*>
 }
 
 

@@ -165,13 +165,11 @@ fun <T : ConstructorI<*>> T.toGoHttpRouterBeforeBody(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
     api: String = DesignDerivedKind.API
 ): String {
-    val item = findParentMust(EntityI::class.java)
+    val entity = findParentMust(EntityI::class.java)
     return """
-    pathPrefixIdBased := pathPrefix + "/" + "${item.name().decapitalize()}"
-    pathPrefix = pathPrefix + "/" + "${item.name().toPlural().decapitalize()}"   
-    ctx := newContext("${item.name().decapitalize()}")
-    entityFactory := func() ${c.n(g.eh.Entity)} { return ${item.toGoInstance(c, derived, api)} }
-    repo := readRepos(string(${item.name()}${DesignDerivedType.AggregateType}), entityFactory)
+    pathPrefixIdBased := pathPrefix + "/" + "${entity.name().decapitalize()}"
+    pathPrefix = pathPrefix + "/" + "${entity.name().toPlural().decapitalize()}"   
+    ctx := newContext("${entity.name().decapitalize()}")
     httpQueryHandler := eh.NewHttpQueryHandlerFull()
     httpCommandHandler := eh.NewHttpCommandHandlerFull(ctx, commandBus)
     """
@@ -181,7 +179,22 @@ fun <T : ConstructorI<*>> T.toGoHttpModuleRouterBeforeBody(
     c: GenerationContext,
     derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
-    val item = findParentMust(StructureUnitI::class.java)
+    val structureUnit = findParentMust(StructureUnitI::class.java)
+    val entities = structureUnit.findDownByType(EntityI::class.java)
     return """
-    pathPrefix = pathPrefix + "/" + "${item.name().decapitalize()}""""
+    pathPrefix = pathPrefix + "/" + "${structureUnit.name().decapitalize()}"
+    ${entities.joinSurroundIfNotEmptyToString("") { entity ->
+        val aggregateHandler = "${entity.name()}AggregateHandler"
+        val projectEventHandler = "${entity.name()}Projector"
+
+        """
+    var projectorAccount *$projectEventHandler
+    if projectorAccount, err = esEngine.${entity.name()}.Register${projectEventHandler}(string(${entity.name()}${DesignDerivedType.AggregateType}), 
+             esEngine.${entity.name()}.AggregateHandlers, esEngine.${entity.name()}.Events); err != nil {
+        return
+    }
+     
+    ${entity.name().decapitalize()}Router := New${entity.name()}Router(pathPrefix, newContext, esEngine.CommandBus, projectorAccount.Repo)       
+       """ 
+    } }"""
 }

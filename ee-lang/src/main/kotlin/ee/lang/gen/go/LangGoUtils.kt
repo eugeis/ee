@@ -105,10 +105,10 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         }
 
         object eh : StructureUnit({ namespace("$geeUtils.eh") }) {
-            object AggregateInitializer : ExternalType() {
+            object AggregateEngine : ExternalType() {
                 val RegisterForAllEvents = Operation()
                 val RegisterForEvent = Operation()
-                val NewAggregateInitializer = Operation()
+                val NewAggregateEngine = Operation()
             }
 
             object DelegateCommandHandler : ExternalType({ ifc() })
@@ -160,6 +160,8 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             // errors
             object CommandError : ExternalType()
             object ErrAggregateDeleted : ExternalType()
+
+            object Middleware : ExternalType()
         }
     }
 
@@ -174,11 +176,22 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
     object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("eh") }) {
 
-        object Aggregate : ExternalType() {}
+        object Aggregate : ExternalType({}) {}
 
-        object AggregateBase : ExternalType() {}
+        object AggregateBase : ExternalType({
+            name("AggregateBase")
+            namespace("github.com.looplab.eventhorizon.aggregatestore.events")
 
-        object NewAggregateBase : Operation() {}
+            constr {
+                namespace("github.com.looplab.eventhorizon.aggregatestore.events")
+                p("t", AggregateType)
+                p("id", n.UUID)
+            }
+        }) {}
+
+        object NewAggregateBase : Operation({
+            namespace("github.com.looplab.eventhorizon.aggregatestore.events")
+        }) {}
 
         object RegisterEventData : Operation() {}
 
@@ -235,6 +248,8 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         }
 
         object Projector : ExternalType({ namespace("github.com.looplab.eventhorizon.eventhandler.projector") }) {}
+
+        object Type : ExternalType({ namespace("github.com.looplab.eventhorizon.eventhandler.projector") }) {}
     }
 
 
