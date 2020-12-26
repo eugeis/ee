@@ -358,7 +358,7 @@ private fun StateMachineI<*>.addStateMachineArtifacts(
 
     // add state prop
     entity.prop {
-        name("${stateMachinePrefix}State").type(stateType)
+        name("${stateMachinePrefix}State").type(n.String)
     }
 
     controller {

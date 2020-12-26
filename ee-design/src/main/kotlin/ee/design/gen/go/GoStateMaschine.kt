@@ -15,16 +15,7 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerSetupBody(
     val state = findParentMust(ControllerI::class.java).derivedFrom() as StateI<*>
     val commands = state.uniqueCommands()
 
-    val commandsPreparer = """
-    o.CommandsPreparer = func(cmd ${c.n(g.eh.Command)}, entity ${entity.toGo(c, api)}) (err error) {
-        if entity.DeletedAt != nil {
-            err = ${c.n(g.gee.eh.CommandError)}{Err: ${c.n(g.gee.eh.ErrAggregateDeleted)}, Cmd: cmd, Entity: entity}
-        }
-        return
-    }
-    """
-
-    return commandsPreparer + commands.joinSurroundIfNotEmptyToString("") { item ->
+    return commands.joinSurroundIfNotEmptyToString("") { item ->
         val handler = c.n(item, DesignDerivedType.Handler).capitalize()
         """
     o.$handler = func(command ${item.toGo(c, api)}, entity ${
@@ -36,8 +27,8 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerSetupBody(
             if (item is CreateByI<*> && item.event().isNotEMPTY()) {
                 """
         ${item.toGoStoreEvent(c, derived, api)}"""
-            } else if ((item is UpdateByI<*> || item is DeleteByI<*> || !item.isAffectMulti()) && item.event()
-                    .isNotEMPTY()
+            } else if ((item is UpdateByI<*> || item is DeleteByI<*> ||
+                        !item.isAffectMulti()) && item.event().isNotEMPTY()
             ) {
                 """
         ${item.toGoStoreEvent(c, derived, api)}"""
@@ -107,8 +98,10 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerExecuteBody(
     }("Not supported command type '%v' in state '${state.name()}' for entity '%v", cmd.CommandType(), $entityParamName))"""
 
     return """
-    if err = o.CommandsPreparer(cmd, $entityParamName); err != nil {
-        return
+    if o.CommandsPreparer != nil {
+        if err = o.CommandsPreparer(cmd, $entityParamName); err != nil {
+            return
+        }
     }
     ${
         commands.joinSurroundIfNotEmptyToString(
@@ -160,9 +153,10 @@ fun <T : OperationI<*>> T.toGoStatesCommandHandlerExecute(
             separator = "",
             prefix = {
                 """
+    stateTypes := ${entityStateMachinePrefix}StateTypes()                    
     currentAggregateState := ${entityParamName}.$stateParamName
-    if currentAggregateState == nil {
-        currentAggregateState = ${entityStateMachinePrefix}StateTypes().${stateMachine.defaultState().name()}()
+    if currentAggregateState == "" {
+        currentAggregateState = stateTypes.${stateMachine.defaultState().name()}().Name()
     }
     
     switch currentAggregateState {"""
@@ -173,11 +167,12 @@ fun <T : OperationI<*>> T.toGoStatesCommandHandlerExecute(
 		err = ${c.n(g.errors.New, api)}(${
                     c.n(g.fmt.Sprintf, api)
                 }("Not supported state '%v' for entity '%v", ${entityParamName}.${
-                    stateMachine.sourceArtifactsPrefix()}State, $entityParamName))
+                    stateMachine.sourceArtifactsPrefix()
+                }State, $entityParamName))
 	}"""
             }) { state ->
             """
-    case ${entityStateMachinePrefix}StateTypes().${state.name()}():
+    case stateTypes.${state.name()}().Name():
         err = o.${state.name()}.Execute(cmd, $entityParamName, store)"""
         }
     }"""
@@ -233,8 +228,8 @@ fun <T : OperationI<*>> T.toGoStatesEventHandlerApplyEvent(
             prefix = {
                 """
     currentAggregateState := ${entityParamName}.$stateParamName
-    if currentAggregateState == nil {
-        currentAggregateState = ${entityStateMachinePrefix}StateTypes().${stateMachine.defaultState().name()}()
+    if currentAggregateState == "" {
+        currentAggregateState = ${entityStateMachinePrefix}StateTypes().${stateMachine.defaultState().name()}().Name()
     }
     
     var $newStateParamName *${entityStateMachinePrefix}StateType     
@@ -250,12 +245,12 @@ fun <T : OperationI<*>> T.toGoStatesEventHandlerApplyEvent(
                 }State, $entityParamName))
 	}
 
-    if err == nil && $newStateParamName != ${entityParamName}.$stateParamName {
-        ${entityParamName}.$stateParamName = $newStateParamName
+    if err == nil && $newStateParamName.Name() != ${entityParamName}.$stateParamName {
+        ${entityParamName}.$stateParamName = $newStateParamName.Name()
     }"""
             }) { state ->
             """
-    case ${entityStateMachinePrefix}StateTypes().${state.name()}():
+    case ${entityStateMachinePrefix}StateTypes().${state.name()}().Name():
         new${stateMachine.sourceArtifactsPrefix()}State, err = o.${state.name()}.Apply(event, $entityParamName)"""
         }
     }"""

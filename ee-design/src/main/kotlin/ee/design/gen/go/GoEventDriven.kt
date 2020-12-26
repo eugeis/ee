@@ -25,80 +25,6 @@ fun <T : EntityI<*>> T.toGoEventTypes(c: GenerationContext): String {
     }
 }
 
-fun <T : OperationI<*>> T.toGoCommandHandlerExecuteCommandBody(
-    c: GenerationContext,
-    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
-): String {
-    val entity = findParentMust(EntityI::class.java)
-    val items = entity.findDownByType(CommandI::class.java)
-    val entityParamName = entity.name().decapitalize()
-    return """
-    $entityParamName := entity.(${entity.toGo(c, api)})
-    if err = o.CommandsPreparer(cmd, $entityParamName); err != nil {
-        return
-    }
-    
-    ${
-        items.joinSurroundIfNotEmptyToString("", "switch cmd.CommandType() {") {
-            """
-    case ${it.nameAndParentName().capitalize()}Command:
-        err = o.${it.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${
-                it.toGo(
-                    c,
-                    api
-                )
-            }), $entityParamName, store)"""
-        }
-    }
-    default:
-		err = ${c.n(g.errors.New, api)}(${
-        c.n(g.fmt.Sprintf, api)
-    }("Not supported command type '%v' for entity '%v", cmd.CommandType(), entity))
-	}"""
-}
-
-fun <T : OperationI<*>> T.toGoCommandHandlerAddCommandPreparerBody(
-    c: GenerationContext,
-    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
-): String {
-    val entity = findParentMust(EntityI::class.java)
-    val command = derivedFrom()
-    val handlerName = c.n(command, DesignDerivedType.Handler).capitalize()
-    return """
-    prevHandler := o.$handlerName
-	o.$handlerName = func(command *${c.n(command, api)}, entity *${c.n(entity, api)}, store ${
-        c.n(
-            g.gee.eh.AggregateStoreEvent, api
-        )
-    }) (err error) {
-		if err = preparer(command, entity); err == nil {
-			err = prevHandler(command, entity, store)
-		}
-		return
-	}"""
-}
-
-fun <T : OperationI<*>> T.toGoCommandHandlerAddCommandsPreparerBody(
-    c: GenerationContext,
-    derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
-): String {
-    val entity = findParentMust(EntityI::class.java)
-    val handlerName = "CommandsPreparer"
-    return """
-    prevHandler := o.$handlerName
-	o.$handlerName = func(cmd ${c.n(g.eh.Command, api)}, entity *${
-        c.n(
-            entity,
-            api
-        )
-    }, store ${c.n(g.gee.eh.AggregateStoreEvent, api)}) (err error) {
-		if err = preparer(cmd, entity); err == nil {
-			err = prevHandler(cmd, entity, store)
-		}
-		return
-	}"""
-}
-
 fun <T : OperationI<*>> T.toGoFindByBody(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
     api: String = DesignDerivedKind.API
@@ -260,49 +186,6 @@ fun <T : AttributeI<*>> T.toGoApplyEventProp(c: GenerationContext, derived: Stri
         { "eventData.${name().capitalize()}" })
 }"""
 
-
-fun <T : OperationI<*>> T.toGoCommandHandlerSetupBody(
-    c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
-): String {
-    val entity = findParentMust(EntityI::class.java)
-
-    val commandsPreparer = """
-    o.CommandsPreparer = func(cmd ${c.n(g.eh.Command)}, entity ${entity.toGo(c, api)}) (err error) {
-        if entity.DeletedAt != nil {
-            err = ${c.n(g.gee.eh.CommandError)}{Err: ${c.n(g.gee.eh.ErrAggregateDeleted)}, Cmd: cmd, Entity: entity}
-        }
-        return
-    }
-    """
-
-    val commands = entity.findDownByType(CommandI::class.java)
-    return commandsPreparer + commands.joinSurroundIfNotEmptyToString("") { item ->
-        val handler = c.n(item, DesignDerivedType.Handler).capitalize()
-        """
-    o.$handler = func(command ${item.toGo(c, api)}, entity ${
-            entity.toGo(
-                c,
-                api
-            )
-        }, store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (err error) {${
-            if (item is CreateByI<*> && item.event().isNotEMPTY()) {
-                """
-        ${item.toGoStoreEvent(c, derived, api)}"""
-            } else if ((item is UpdateByI<*> || item is DeleteByI<*> || !item.isAffectMulti()) && item.event()
-                    .isNotEMPTY()
-            ) {
-                """
-        ${item.toGoStoreEvent(c, derived, api)}"""
-            } else {
-                """
-        err = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Command})"""
-            }
-        }
-        return
-    }"""
-    }
-}
-
 fun <T : OperationI<*>> T.toGoEventHandlerApplyEvent(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
@@ -454,9 +337,15 @@ func (o *$name) RegisterFor${it.name().capitalize()}(handler ${c.n(g.eh.EventHan
         }
     }
     
-func (o *$name) Register${projectEventHandler}(projectorType string, listener $aggregateHandler, events []${c.n(g.eh.EventType)}) (ret *$projectEventHandler, err error) {
-	repo := o.Repos(projectorType, o.EntityFactory)
-	ret = New${projectEventHandler}(projectorType, listener, repo)
+func (o *$name) Register${projectEventHandler}(
+    projType string, listener $aggregateHandler, events []${c.n(g.eh.EventType)}) (ret *$projectEventHandler, err error) {
+	
+    var repo ${c.n(g.eh.ReadWriteRepo)}
+    if repo, err = o.Repos(projType, o.EntityFactory); err != nil {
+        return
+    }
+    
+	ret = New${projectEventHandler}(projType, listener, repo)
     proj := projector.NewEventHandler(ret, repo)
 	proj.SetEntityFactory(o.EntityFactory)
 	err = o.RegisterForEvents(proj, events)
@@ -465,28 +354,31 @@ func (o *$name) Register${projectEventHandler}(projectorType string, listener $a
 
 type $projectEventHandler struct {
 	$aggregateHandler
-    projectorType ${c.n(g.eh.Type)}
+    projType ${c.n(g.eh.Type)}
     Repo ${c.n(g.eh.ReadRepo)}
 }
 
-func New${projectEventHandler}(projectorType string, eventHandler $aggregateHandler, repo ${c.n(g.eh.ReadRepo)}) (ret *${projectEventHandler}) {
+func New${projectEventHandler}(projType string, eventHandler $aggregateHandler, repo ${c.n(g.eh.ReadRepo)}) (ret *${projectEventHandler}) {
 	ret = &${projectEventHandler}{
         $aggregateHandler: eventHandler,
-		projectorType:     ${c.n(g.eh.Type)}(projectorType),
+		projType:     ${c.n(g.eh.Type)}(projType),
         Repo:              repo,
 	}
 	return
 }
 
 func (o *${projectEventHandler}) ProjectorType() ${c.n(g.eh.Type)} {
-	return o.projectorType
+	return o.projType
 }
 
 func (o *${projectEventHandler}) Project(
 	ctx ${c.n(g.context.Context)}, event ${c.n(g.eh.Event)}, entity ${c.n(g.eh.Entity)}) (ret ${c.n(g.eh.Entity)}, err error) {
 
-	ret = entity
-	err = o.Apply(event, entity.(*${entity.name()}))
+	if err = o.Apply(event, entity.(*${entity.name()})); err == nil {
+        if event.EventType() != ${entity.name()}DeletedEvent {
+            ret = entity
+        }
+    }
 	return
 }
 

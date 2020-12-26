@@ -499,14 +499,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         macros.registerMacro(ConstructorI<*>::toGoEhEngineBody.name, ConstructorI<*>::toGoEhEngineBody)
         macros.registerMacro(OperationI<*>::toGoEhEngineSetupBody.name, OperationI<*>::toGoEhEngineSetupBody)
         macros.registerMacro(AttributeI<*>::toGoPropOptionalAfterBody.name, AttributeI<*>::toGoPropOptionalAfterBody)
-        macros.registerMacro(
-            OperationI<*>::toGoCommandHandlerExecuteCommandBody.name,
-            OperationI<*>::toGoCommandHandlerExecuteCommandBody
-        )
-        macros.registerMacro(
-            OperationI<*>::toGoCommandHandlerSetupBody.name,
-            OperationI<*>::toGoCommandHandlerSetupBody
-        )
+
         macros.registerMacro(
             OperationI<*>::toGoStatesCommandHandlerSetupBody.name,
             OperationI<*>::toGoStatesCommandHandlerSetupBody
@@ -587,16 +580,6 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         macros.registerMacro(
             OperationI<*>::toGoStateAddCommandsPreparerBody.name,
             OperationI<*>::toGoStateAddCommandsPreparerBody
-        )
-
-        macros.registerMacro(
-            OperationI<*>::toGoCommandHandlerAddCommandPreparerBody.name,
-            OperationI<*>::toGoCommandHandlerAddCommandPreparerBody
-        )
-
-        macros.registerMacro(
-            OperationI<*>::toGoCommandHandlerAddCommandsPreparerBody.name,
-            OperationI<*>::toGoCommandHandlerAddCommandsPreparerBody
         )
 
         macros.registerMacro(
