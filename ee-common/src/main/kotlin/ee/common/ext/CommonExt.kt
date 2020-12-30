@@ -142,6 +142,7 @@ fun String.toDotsAsPath(): String = replace(".", "/")
 fun String.relativeTo(string: String): String = replaceFirst(string, "")
 
 fun String.toPlural(): String = endsWith("rch").ifElse({ "${this}es" }, { "${this}s" })
+fun String.toSingular(): String = endsWith("es").ifElse({ removeSuffix("es") }, { removeSuffix("s") })
 
 fun String.toConvertUmlauts(): String = Umlauts.replaceUmlauts(this)
 
@@ -523,3 +524,13 @@ fun <R> safe(log: Logger, label: String = "", call: () -> R): R? {
     }
 }
 
+fun String.removeOneOfSuffixes(vararg suffixes: String): String {
+    var ret = this
+    for (suffix in suffixes) {
+        if (endsWith(suffix)) {
+            ret = removeSuffix(suffix)
+            break
+        }
+    }
+    return ret
+}

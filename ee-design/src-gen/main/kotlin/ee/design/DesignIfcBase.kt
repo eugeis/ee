@@ -12,7 +12,13 @@ import ee.lang.ListMultiHolder
 import ee.lang.LogicUnitI
 import ee.lang.PredicateI
 import ee.lang.StructureUnitI
+import ee.lang.TypeI
 import ee.lang.ValuesI
+
+
+interface AddChildByI<B : AddChildByI<B>> : ChildCommandByI<B> {
+
+}
 
 
 interface AggregateHandlerI<B : AggregateHandlerI<B>> : StateMachineI<B> {
@@ -38,6 +44,41 @@ interface BusinessControllerI<B : BusinessControllerI<B>> : ControllerI<B> {
 
 
 interface BusinessEventI<B : BusinessEventI<B>> : EventI<B> {
+
+}
+
+
+interface ChildAddedI<B : ChildAddedI<B>> : ChildEventI<B> {
+
+}
+
+
+interface ChildCommandByI<B : ChildCommandByI<B>> : CommandI<B> {
+
+    fun type(): TypeI<*>
+    fun type(value: TypeI<*>): B
+
+    fun child(): AttributeI<*>
+    fun child(value: AttributeI<*>): B
+}
+
+
+interface ChildEventI<B : ChildEventI<B>> : EventI<B> {
+
+    fun type(): TypeI<*>
+    fun type(value: TypeI<*>): B
+
+    fun child(): AttributeI<*>
+    fun child(value: AttributeI<*>): B
+}
+
+
+interface ChildRemovedI<B : ChildRemovedI<B>> : ChildEventI<B> {
+
+}
+
+
+interface ChildUpdatedI<B : ChildUpdatedI<B>> : ChildEventI<B> {
 
 }
 
@@ -204,6 +245,21 @@ interface EntityI<B : EntityI<B>> : DataTypeI<B> {
     fun deleteBy(value: DeleteByI<*>): DeleteByI<*>
     fun deleteBy(value: DeleteByI<*>.() -> Unit = {}): DeleteByI<*>
 
+    fun addChildBys(): ListMultiHolder<AddChildByI<*>>
+    fun addChildBys(vararg value: AddChildByI<*>): B
+    fun addChildBy(value: AddChildByI<*>): AddChildByI<*>
+    fun addChildBy(value: AddChildByI<*>.() -> Unit = {}): AddChildByI<*>
+
+    fun updateChildBys(): ListMultiHolder<UpdateChildByI<*>>
+    fun updateChildBys(vararg value: UpdateChildByI<*>): B
+    fun updateChildBy(value: UpdateChildByI<*>): UpdateChildByI<*>
+    fun updateChildBy(value: UpdateChildByI<*>.() -> Unit = {}): UpdateChildByI<*>
+
+    fun removeChildBys(): ListMultiHolder<RemoveChildByI<*>>
+    fun removeChildBys(vararg value: RemoveChildByI<*>): B
+    fun removeChildBy(value: RemoveChildByI<*>): RemoveChildByI<*>
+    fun removeChildBy(value: RemoveChildByI<*>.() -> Unit = {}): RemoveChildByI<*>
+
     fun events(): ListMultiHolder<BusinessEventI<*>>
     fun events(vararg value: BusinessEventI<*>): B
     fun event(value: BusinessEventI<*>): BusinessEventI<*>
@@ -223,6 +279,21 @@ interface EntityI<B : EntityI<B>> : DataTypeI<B> {
     fun deleted(vararg value: DeletedI<*>): B
     fun deleted(value: DeletedI<*>): DeletedI<*>
     fun deleted(value: DeletedI<*>.() -> Unit = {}): DeletedI<*>
+
+    fun childAdded(): ListMultiHolder<ChildAddedI<*>>
+    fun childAdded(vararg value: ChildAddedI<*>): B
+    fun childAdded(value: ChildAddedI<*>): ChildAddedI<*>
+    fun childAdded(value: ChildAddedI<*>.() -> Unit = {}): ChildAddedI<*>
+
+    fun childUpdated(): ListMultiHolder<ChildUpdatedI<*>>
+    fun childUpdated(vararg value: ChildUpdatedI<*>): B
+    fun childUpdated(value: ChildUpdatedI<*>): ChildUpdatedI<*>
+    fun childUpdated(value: ChildUpdatedI<*>.() -> Unit = {}): ChildUpdatedI<*>
+
+    fun childRemoved(): ListMultiHolder<ChildRemovedI<*>>
+    fun childRemoved(vararg value: ChildRemovedI<*>): B
+    fun childRemoved(value: ChildRemovedI<*>): ChildRemovedI<*>
+    fun childRemoved(value: ChildRemovedI<*>.() -> Unit = {}): ChildRemovedI<*>
 
     fun checks(): ListMultiHolder<PredicateI<*>>
     fun checks(vararg value: PredicateI<*>): B
@@ -403,6 +474,11 @@ interface ProjectorI<B : ProjectorI<B>> : StateMachineI<B> {
 }
 
 
+interface RemoveChildByI<B : RemoveChildByI<B>> : ChildCommandByI<B> {
+
+}
+
+
 interface SagaI<B : SagaI<B>> : StateMachineI<B> {
 
 }
@@ -472,6 +548,11 @@ interface StateMachineI<B : StateMachineI<B>> : ControllerI<B> {
 
 
 interface UpdateByI<B : UpdateByI<B>> : CommandI<B> {
+
+}
+
+
+interface UpdateChildByI<B : UpdateChildByI<B>> : ChildCommandByI<B> {
 
 }
 

@@ -22,12 +22,16 @@ func (o *$o) ${name().capitalize()}() ${toGoType(c, api)} {
 }
 
 fun AttributeI<*>.toGoAddMethod(o: String, c: GenerationContext, api: String = LangDerivedKind.API): String {
-    val type = type().generics()[0].toGo(c, api)
+    val type = type().generics().first().toGo(c, api)
     return """
-func (o *$o) AddTo${name().capitalize()}(item $type) $type {
+func (o *$o) ${toGoAddMethodName()}(item $type) $type {
     o.${nameForGoMember()} = append(o.${nameForGoMember()}, item)
     return item
 }"""
+}
+
+fun AttributeI<*>.toGoAddMethodName(): String {
+    return "AddTo${name().capitalize()}"
 }
 
 fun EnumLiteralI<*>.toGoLitMethod(index: Int, enum: String, literals: String): String {

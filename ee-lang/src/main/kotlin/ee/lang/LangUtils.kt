@@ -2,6 +2,9 @@ package ee.lang
 
 import ee.common.ext.ifElse
 import ee.common.ext.setAndTrue
+import org.slf4j.LoggerFactory
+
+private val log = LoggerFactory.getLogger("LangUtils")
 
 open class LangDerivedKindNames {
     val API = "Api"
@@ -215,6 +218,45 @@ fun TypeI<*>.propsNoNative(): List<AttributeI<*>> = storage.getOrPut(this, "prop
     propsAll().filter { !it.type().isNative() }
 }
 
+fun TypeI<*>.propsCollectionValueTypes(): List<ValuesI<*>> = storage.getOrPut(this, "propsCollectionValueTypes") {
+    val ret = mutableListOf<ValuesI<*>>()
+    props().forEach {
+        if (it.type().derivedFrom() == n.List || it.type().derivedFrom() == n.Collection) {
+            val generic = it.type().generics().first()
+            val genericType = generic.type()
+            if (genericType is ValuesI<*>) {
+                ret.add(genericType)
+            }
+        }
+    }
+    ret
+}
+
+fun TypeI<*>.propsCollectionValues(): List<AttributeI<*>> = storage.getOrPut(this, "propsCollectionValues") {
+    props().filter {
+        if (it.type().derivedFrom() == n.List || it.type().derivedFrom() == n.Collection) {
+            val generic = it.type().generics().first()
+            generic.type() is ValuesI<*>
+        } else {
+            false
+        }
+    }
+}
+
+fun TypeI<*>.propsMapValues(): List<AttributeI<*>> = storage.getOrPut(this, "propsMapValues") {
+    props().filter {
+        if (it.type().derivedFrom() == n.Map) {
+            val generic = it.type().generics()[1]
+            generic.type() is ValuesI<*>
+        } else {
+            false
+        }
+    }
+}
+
+fun TypeI<*>.propsAnonymous(): List<AttributeI<*>> = storage.getOrPut(this, "propsAnonymous") {
+    props().filter { it.isAnonymous() }
+}
 
 fun TypeI<*>.propsNoMeta(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoMeta") {
     props().filter { !it.isMeta() }
@@ -260,6 +302,29 @@ fun TypeI<*>.operationsWithInherited(): List<OperationI<*>> = storage.getOrPut(
     operations().toMutableSet().apply {
         superUnits().forEach { addAll(it.operationsWithInherited()) }
     }.toList().sortedBy { it.name() }
+}
+
+
+fun TypeI<*>.addPropId(): AttributeI<*> {
+    return prop {
+        key(true).type(n.UUID).name("id")
+    }
+}
+
+fun TypeI<*>.propId(): AttributeI<*>? = props().find { it.isKey() }
+
+fun TypeI<*>.getOrAddPropId(): AttributeI<*> = storage.getOrPut(this, "propId") {
+    initIfNotInitialized()
+    var ret = propId()
+    if (ret == null && superUnit().isNotEMPTY()) {
+        ret = superUnit().propId()
+    }
+
+    if (ret == null) {
+        log.debug("prop 'id' can't be found for '$this', build default one")
+        ret = addPropId()
+    }
+    ret
 }
 
 //paramsNotDerived().filterSkipped { it.isAnonymous() }.map { p(it).isDefault(true).isAnonymous(it.isAnonymous()) }

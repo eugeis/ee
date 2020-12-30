@@ -134,27 +134,16 @@ private fun EntityI<*>.addEsArtifacts(
 
     val entity = this
 
-    val propId = entity.propId()
+    val propId = entity.getOrAddPropId()
 
-    val finders = findDownByType(FindByI::class.java)
-    val counters = findDownByType(CountByI::class.java)
-    val exists = findDownByType(ExistByI::class.java)
-
-    val creaters = findDownByType(CreateByI::class.java)
-    val updaters = findDownByType(UpdateByI::class.java)
-    val deleters = findDownByType(DeleteByI::class.java)
-
-    val businessCommands = findDownByType(BusinessCommandI::class.java)
-
-    val queryRepository = addQueryRepository(finders, counters, exists)
+    val queryRepository = addQueryRepository()
 
     val events = findDownByType(EventI::class.java).sortedBy { it.name() }
     val commands = findDownByType(CommandI::class.java)
 
+    val httpQueryHandler = addHttpQueryHandler(queryRepository)
 
-    val httpQueryHandler = addHttpQueryHandler(finders, counters, exists, queryRepository)
-
-    val httpCommandHandler = addHttpCommandHandler(creaters, updaters, deleters, businessCommands)
+    val httpCommandHandler = addHttpCommandHandler()
 
     val httpRouter = controller {
         name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
@@ -230,7 +219,7 @@ private fun EntityI<*>.addEsArtifacts(
 
         op {
             name("DeleteBy${propId.name().toPlural().capitalize()}")
-            params(p { name("itemIds").type(n.List.GT(entity.propId().type())) })
+            params(p { name("itemIds").type(n.List.GT(entity.getOrAddPropId().type())) })
 
             macrosBody(OperationI<*>::toGoHttpClientDeleteByIdsBody.name)
         }
@@ -622,7 +611,7 @@ fun StateI<*>.sourceArtifactsPrefix(stateMachinePrefix: String): String {
 
 private fun EntityI<*>.addCli(client: ControllerI<*>): BusinessControllerI<*> {
 
-    val propId = propId()
+    val propId = getOrAddPropId()
 
     return controller {
         name(DesignDerivedType.Cli).derivedAsType(DesignDerivedType.Cli)
@@ -665,10 +654,9 @@ private fun EntityI<*>.addCli(client: ControllerI<*>): BusinessControllerI<*> {
     }
 }
 
-private fun EntityI<*>.addHttpQueryHandler(
-    finders: List<FindByI<*>>, counters: List<CountByI<*>>,
-    exists: List<ExistByI<*>>, queryRepository: BusinessControllerI<*>
-): BusinessControllerI<*> {
+private fun EntityI<*>.addHttpQueryHandler(queryRepository: BusinessControllerI<*>): BusinessControllerI<*> {
+    val dataTypeOperations = findDownByType(DataTypeOperationI::class.java)
+
     return controller {
         name(DesignDerivedType.HttpQueryHandler).derivedAsType(DesignDerivedType.Http)
         prop {
@@ -676,28 +664,8 @@ private fun EntityI<*>.addHttpQueryHandler(
                 .anonymous(true).name(DesignDerivedType.HttpQueryHandler.decapitalize())
         }
         prop { type(queryRepository).name("queryRepository") }
-        //queries
-        finders.forEach {
-            op {
-                name(it.name().capitalize()).notErr()
-                p("w", g.net.http.ResponseWriter)
-                p("r", g.net.http.Request)
-                derivedFrom(it)
-                macrosBody(OperationI<*>::toGoHttpHandlerBody.name)
-            }
-        }
 
-        counters.forEach {
-            op {
-                name(it.name().capitalize()).notErr()
-                p("w", g.net.http.ResponseWriter)
-                p("r", g.net.http.Request)
-                derivedFrom(it)
-                macrosBody(OperationI<*>::toGoHttpHandlerBody.name)
-            }
-        }
-
-        exists.forEach {
+        dataTypeOperations.forEach {
             op {
                 name(it.name().capitalize()).notErr()
                 p("w", g.net.http.ResponseWriter)
@@ -711,11 +679,7 @@ private fun EntityI<*>.addHttpQueryHandler(
     }
 }
 
-private fun EntityI<*>.addQueryRepository(
-    finders: List<FindByI<*>>,
-    counters: List<CountByI<*>>,
-    exists: List<ExistByI<*>>
-): BusinessControllerI<*> {
+private fun EntityI<*>.addQueryRepository(): BusinessControllerI<*> {
 
     return controller {
         name(DesignDerivedType.QueryRepository).derivedAsType(DesignDerivedType.Query)
@@ -723,15 +687,15 @@ private fun EntityI<*>.addQueryRepository(
         prop(g.context.Context).replaceable(false).name("ctx")
 
         //queries
-        finders.forEach {
+        findBys().forEach {
             op(it).macrosBody(OperationI<*>::toGoFindByBody.name)
         }
 
-        counters.forEach {
+        countBys().forEach {
             op(it).macrosBody(OperationI<*>::toGoCountByBody.name)
         }
 
-        exists.forEach {
+        existBys().forEach {
             op(it).macrosBody(OperationI<*>::toGoExistByBody.name)
         }
 
@@ -739,12 +703,10 @@ private fun EntityI<*>.addQueryRepository(
     }
 }
 
-private fun EntityI<*>.addHttpCommandHandler(
-    creaters: List<CreateByI<*>>,
-    updaters: List<UpdateByI<*>>,
-    deleters: List<DeleteByI<*>>,
-    businessCommands: List<BusinessCommandI<*>>
-): BusinessControllerI<*> {
+private fun EntityI<*>.addHttpCommandHandler(): BusinessControllerI<*> {
+
+    val commands = findDownByType(CommandI::class.java).sortedBy { it.name() }
+
     return controller {
         name(DesignDerivedType.HttpCommandHandler).derivedAsType(DesignDerivedType.Http)
         prop {
@@ -753,37 +715,7 @@ private fun EntityI<*>.addHttpCommandHandler(
         }
 
         //commands
-        creaters.forEach {
-            op {
-                name(it.name().capitalize()).notErr()
-                p("w", g.net.http.ResponseWriter)
-                p("r", g.net.http.Request)
-                derivedFrom(it)
-                macrosBody(OperationI<*>::toGoHttpHandlerCommandBody.name)
-            }
-        }
-
-        updaters.forEach {
-            op {
-                name(it.name().capitalize()).notErr()
-                p("w", g.net.http.ResponseWriter)
-                p("r", g.net.http.Request)
-                derivedFrom(it)
-                macrosBody(OperationI<*>::toGoHttpHandlerCommandBody.name)
-            }
-        }
-
-        deleters.forEach {
-            op {
-                name(it.name().capitalize()).notErr()
-                p("w", g.net.http.ResponseWriter)
-                p("r", g.net.http.Request)
-                derivedFrom(it)
-                macrosBody(OperationI<*>::toGoHttpHandlerCommandBody.name)
-            }
-        }
-
-        businessCommands.forEach {
+        commands.forEach {
             op {
                 name(it.name().capitalize()).notErr()
                 p("w", g.net.http.ResponseWriter)

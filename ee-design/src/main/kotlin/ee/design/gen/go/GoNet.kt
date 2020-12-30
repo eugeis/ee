@@ -13,7 +13,7 @@ fun <T : CommandI<*>> T.toGoHandler(
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api)}
-func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)}            { return o.${entity.propId().nameForGoMember()} }
+func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)}            { return o.${entity.getOrAddPropId().nameForGoMember()} }
 func (o *$name) AggregateType() ${
         c.n(
             g.eh.AggregateType
@@ -33,43 +33,60 @@ fun <T : OperationI<*>> T.toGoSetupHttpRouterBody(
 ): String {
     val entity = findParentMust(EntityI::class.java)
 
-    val commandsWithKey = entity.commands().filterCommandsWithKey().sortedByDescending { it.props().size }
-    val commandsWithoutKey = entity.commands().filterCommandsWithoutKey().sortedByDescending { it.props().size }
-    val creatersWithKey = entity.createBys().filterCommandsWithKey().sortedByDescending { it.props().size }
-    val creatersWithoutKey = entity.createBys().filterCommandsWithoutKey().sortedByDescending { it.props().size }
-    val updatersWithKey = entity.updateBys().filterCommandsWithKey().sortedByDescending { it.props().size }
-    val updatersWithoutKey = entity.updateBys().filterCommandsWithoutKey().sortedByDescending { it.props().size }
-    val deletersWithKey = entity.deleteBys().filterCommandsWithKey().sortedByDescending { it.props().size }
-    val deletersWithoutKey = entity.deleteBys().filterCommandsWithoutKey().sortedByDescending { it.props().size }
+    val postCommandsWithKey = mutableListOf<CommandI<*>>()
+    val putCommandsWithKey = mutableListOf<CommandI<*>>()
+    val deleteCommandsWithKey = mutableListOf<CommandI<*>>()
+
+    val postCommandsWithoutKey = mutableListOf<CommandI<*>>()
+    val putCommandsWithoutKey = mutableListOf<CommandI<*>>()
+    val deleteCommandsWithoutKey = mutableListOf<CommandI<*>>()
+
+
+    postCommandsWithKey.addAll(entity.createBys().filterCommandsWithKey().sortedByDescending { it.props().size })
+    postCommandsWithoutKey.addAll(entity.createBys().filterCommandsWithoutKey().sortedByDescending { it.props().size })
+
+    putCommandsWithKey.addAll(entity.updateBys().filterCommandsWithKey().sortedByDescending { it.props().size })
+    putCommandsWithoutKey.addAll(entity.updateBys().filterCommandsWithoutKey().sortedByDescending { it.props().size })
+
+    deleteCommandsWithKey.addAll(entity.deleteBys().filterCommandsWithKey().sortedByDescending { it.props().size })
+    deleteCommandsWithoutKey.addAll(
+        entity.deleteBys().filterCommandsWithoutKey().sortedByDescending { it.props().size })
+
+    postCommandsWithKey.addAll(entity.addChildBys().filterCommandsWithKey().sortedByDescending { it.props().size })
+    postCommandsWithoutKey.addAll(
+        entity.addChildBys().filterCommandsWithoutKey().sortedByDescending { it.props().size })
+
+    putCommandsWithKey.addAll(entity.updateChildBys().filterCommandsWithKey().sortedByDescending { it.props().size })
+    putCommandsWithoutKey.addAll(
+        entity.updateChildBys().filterCommandsWithoutKey().sortedByDescending { it.props().size })
+
+    deleteCommandsWithKey.addAll(entity.removeChildBys().filterCommandsWithKey().sortedByDescending { it.props().size })
+    deleteCommandsWithoutKey.addAll(
+        entity.removeChildBys().filterCommandsWithoutKey().sortedByDescending { it.props().size })
+
+    postCommandsWithKey.addAll(entity.commands().filterCommandsWithKey().sortedByDescending { it.props().size })
+    postCommandsWithoutKey.addAll(entity.commands().filterCommandsWithoutKey().sortedByDescending { it.props().size })
 
     val queries = entity.findDownByType(DataTypeOperationI::class.java)
     val queriesWithKey = queries.filterOpsWithKey().sortedByDescending { it.params().size }
     val queriesWithoutKey = queries.filterOpsWithoutKey().sortedByDescending { it.params().size }
-
-    val postCommandsWithKey = mutableListOf<CommandI<*>>()
-    postCommandsWithKey.addAll(creatersWithKey)
-    postCommandsWithKey.addAll(commandsWithKey)
-
-    val postCommandsWithoutKey = mutableListOf<CommandI<*>>()
-    postCommandsWithoutKey.addAll(creatersWithoutKey)
-    postCommandsWithoutKey.addAll(commandsWithoutKey)
 
     return """${
         queriesWithKey.routerQueriesWithKeyGet(c, api)
     }${
         postCommandsWithKey.routerCommandsWithKeyPost(c, api)
     }${
-        updatersWithKey.routerCommandsWithKeyPut(c, api)
+        putCommandsWithKey.routerCommandsWithKeyPut(c, api)
     }${
-        deletersWithKey.routerCommandsWithKeyDelete(c, api)
+        deleteCommandsWithKey.routerCommandsWithKeyDelete(c, api)
     }${
         queriesWithoutKey.routerQueriesGet(c, api)
     }${
         postCommandsWithoutKey.routerCommandsPost(c, api)
     }${
-        updatersWithoutKey.routerCommandsPut(c, api)
+        putCommandsWithoutKey.routerCommandsPut(c, api)
     }${
-        deletersWithoutKey.routerCommandsDelete(c, api)
+        deleteCommandsWithoutKey.routerCommandsDelete(c, api)
     }"""
 }
 
@@ -136,16 +153,17 @@ fun Collection<DataTypeOperationI<*>>.routerQueries(httpMethod: String) =
         HandlerFunc(o.QueryHandler.${item.name().capitalize()})"""
     }
 
-private fun ItemI<*>.buildHttpPathKey(index: Int, keyParam: AttributeI<*>) =
-    if (index == 0) "/{${keyParam.name().decapitalize()}}" else "/{${keyParam.name().decapitalize()}}/${
-        name().removeSuffixById().toHyphenLowerCase()
+private fun ItemI<*>.buildHttpPathKey(index: Int, keyParam: AttributeI<*>): String {
+    val ret = if (index == 0) "/{${keyParam.name().decapitalize()}}" else "/{${keyParam.name().decapitalize()}}/${
+        name().removeSuffixForRoute().toHyphenLowerCase()
     }"
+    return ret
+}
 
 private fun ItemI<*>.buildHttpPath(index: Int) =
-    if (index == 0) "" else "/${name().removeSuffixAll().toHyphenLowerCase()}"
+    if (index == 0) "" else "/${name().removeSuffixForRoute().toHyphenLowerCase()}"
 
-fun String.removeSuffixById(): String = removeSuffix("ById")
-fun String.removeSuffixAll(): String = removeSuffix("All")
+fun String.removeSuffixForRoute(): String = removeOneOfSuffixes("ById", "Add", "Update", "Remove", "All")
 
 fun <T : OperationI<*>> T.toGoSetupModuleHttpRouter(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
@@ -183,18 +201,22 @@ fun <T : ConstructorI<*>> T.toGoHttpModuleRouterBeforeBody(
     val entities = structureUnit.findDownByType(EntityI::class.java)
     return """
     pathPrefix = pathPrefix + "/" + "${structureUnit.name().decapitalize()}"
-    ${entities.joinSurroundIfNotEmptyToString("") { entity ->
-        val aggregateHandler = "${entity.name()}AggregateHandler"
-        val projectEventHandler = "${entity.name()}Projector"
+    ${
+        entities.joinSurroundIfNotEmptyToString("") { entity ->
+            val aggregateHandler = "${entity.name()}AggregateHandler"
+            val projectEventHandler = "${entity.name()}Projector"
 
-        """
+            """
     var projectorAccount *$projectEventHandler
     if projectorAccount, err = esEngine.${entity.name()}.Register${projectEventHandler}(string(${entity.name()}${DesignDerivedType.AggregateType}), 
              esEngine.${entity.name()}.AggregateHandlers, esEngine.${entity.name()}.Events); err != nil {
         return
     }
      
-    ${entity.name().decapitalize()}Router := New${entity.name()}Router(pathPrefix, newContext, esEngine.CommandBus, projectorAccount.Repo)       
-       """ 
-    } }"""
+    ${
+                entity.name().decapitalize()
+            }Router := New${entity.name()}Router(pathPrefix, newContext, esEngine.CommandBus, projectorAccount.Repo)       
+       """
+        }
+    }"""
 }

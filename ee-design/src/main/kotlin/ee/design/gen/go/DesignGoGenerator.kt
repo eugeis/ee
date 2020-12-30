@@ -55,6 +55,8 @@ open class DesignGoGenerator(val models: List<StructureUnitI<*>>, targetAsSingle
 
         addIdPropToEntities()
 
+        addIdPropToValues()
+
         addCommandsAndEventsForAggregates()
 
         addQueriesForAggregates()

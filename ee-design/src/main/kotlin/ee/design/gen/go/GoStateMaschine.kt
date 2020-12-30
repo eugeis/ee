@@ -15,32 +15,49 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerSetupBody(
     val state = findParentMust(ControllerI::class.java).derivedFrom() as StateI<*>
     val commands = state.uniqueCommands()
 
-    return commands.joinSurroundIfNotEmptyToString("") { item ->
-        val handler = c.n(item, DesignDerivedType.Handler).capitalize()
+    return commands.joinSurroundIfNotEmptyToString("") { command ->
+        val handler = c.n(command, DesignDerivedType.Handler).capitalize()
         """
-    o.$handler = func(command ${item.toGo(c, api)}, entity ${
-            entity.toGo(
-                c,
-                api
-            )
+    o.$handler = func(command ${command.toGo(c, api)}, entity ${
+            entity.toGo(c, api)
         }, store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (err error) {${
-            if (item is CreateByI<*> && item.event().isNotEMPTY()) {
+            if (command is CreateByI<*> && command.event().isNotEMPTY()) {
+                """${command.toGoCheckInitValuesId(c)}
+        ${command.toGoStoreEvent(c, derived, api)}"""
+            } else if (command is AddChildByI<*> && command.event().isNotEMPTY()) {
+                val idName = command.type().getOrAddPropId().name().capitalize()
+                val typeName = command.type().name()
                 """
-        ${item.toGoStoreEvent(c, derived, api)}"""
-            } else if ((item is UpdateByI<*> || item is DeleteByI<*> ||
-                        !item.isAffectMulti()) && item.event().isNotEMPTY()
+        if command.$typeName.$idName == uuid.Nil {
+            command.$typeName.$idName = ${c.n(g.google.uuid.New)}()
+        }
+        ${command.toGoStoreEvent(c, derived, api)}"""
+            } else if ((command is UpdateByI<*> || command is DeleteByI<*> ||
+                        !command.isAffectMulti()) && command.event().isNotEMPTY()
             ) {
-                """
-        ${item.toGoStoreEvent(c, derived, api)}"""
+                """${command.toGoCheckInitValuesId(c)}
+        ${command.toGoStoreEvent(c, derived, api)}"""
             } else {
                 """
-        err = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(item, api)}${DesignDerivedType.Command})"""
+        err = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(command, api)}${DesignDerivedType.Command})"""
             }
         }
         return
     }"""
     }
 }
+
+private fun CommandI<*>.toGoCheckInitValuesId(c: GenerationContext) =
+    propsCollectionValues().joinSurroundIfNotEmptyToString("") {
+        val idName = it.type().getOrAddPropId().name().capitalize()
+        """
+        
+        for _, item := range command.${it.name().capitalize()} {
+            if item.$idName == uuid.Nil {
+                item.$idName = ${c.n(g.google.uuid.New)}()
+            }
+        }"""
+    }
 
 fun <T : OperationI<*>> T.toGoStateCommandHandlerAddCommandPreparerBody(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
@@ -245,7 +262,7 @@ fun <T : OperationI<*>> T.toGoStatesEventHandlerApplyEvent(
                 }State, $entityParamName))
 	}
 
-    if err == nil && $newStateParamName.Name() != ${entityParamName}.$stateParamName {
+    if err == nil && $newStateParamName != nil && $newStateParamName.Name() != ${entityParamName}.$stateParamName {
         ${entityParamName}.$stateParamName = $newStateParamName.Name()
     }"""
             }) { state ->
@@ -359,13 +376,13 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerSetupBody(
 
     val events = state.uniqueEvents()
 
-    val id = entity.propId().name().capitalize()
+    val id = entity.getOrAddPropId().name().capitalize()
     return events.joinSurroundIfNotEmptyToString("") { event ->
         val handler = c.n(event, DesignDerivedType.Handler).capitalize()
         """
         ${event.toGoRegisterEventData(c, api, derived)}
-        //default handler implementation
-        o.$handler = func(event ${c.n(g.eh.Event, api)}, ${
+	//default handler implementation
+	o.$handler = func(event ${c.n(g.eh.Event, api)}, ${
             event.hasData().then(
                 "eventData ${event.toGo(c, api)}, "
             )
@@ -383,6 +400,15 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerSetupBody(
         *entity = *${entity.toGoInstance(c, derived, api)}${
                     event.toGoApplyEvent(c, derived)
                 }"""
+            } else if (event is ChildAddedI<*>) { //entity.AddToParticipants(eventData.Participant)
+                """
+        entity.${event.child().toGoAddMethodName()}(eventData.${event.type().name()})"""
+            } else if (event is ChildUpdatedI<*>) {
+                """
+        entity.${event.child().toGoAddMethodName()}(eventData.${event.type().name()})"""
+            } else if (event is ChildRemovedI<*>) {
+                """
+        entity.${event.child().toGoAddMethodName()}(eventData.${event.type().name()})"""
             } else {
                 """
         //err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(event, api)}${DesignDerivedType.Event})"""
@@ -424,9 +450,9 @@ fun StateI<*>.commandHandlers(): List<CommandExecutors> {
 fun EventI<*>.toGoRegisterEventData(c: GenerationContext, api: String, derived: String) =
     if (hasData()) {
         """
-        //register event object factory
-        ${c.n(g.eh.RegisterEventData, api)}(${c.n(this, api)}Event, func() ${c.n(g.eh.EventData, api)} {
-        return &${c.n(this, derived)}{}
+    //register event object factory
+    ${c.n(g.eh.RegisterEventData, api)}(${c.n(this, api)}Event, func() ${c.n(g.eh.EventData, api)} {
+        return &${c.n(this, derived)}{${toGoPropAnonymousInit(c, derived, api)}}
     })
         """
     } else {

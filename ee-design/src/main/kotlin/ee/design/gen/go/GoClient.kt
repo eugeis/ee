@@ -3,7 +3,6 @@ package ee.design.gen.go
 import ee.common.ext.toPlural
 import ee.design.DesignDerivedKind
 import ee.design.EntityI
-import ee.design.propId
 import ee.lang.*
 import ee.lang.gen.go.g
 
@@ -155,7 +154,7 @@ fun <T : OperationI<*>> T.toGoCliDeleteByIdsBody(
 ): String {
 
     val entity = findParentMust(EntityI::class.java)
-    val propId = entity.propId()
+    val propId = entity.getOrAddPropId()
 
     return """
 	ret = cli.Command{
@@ -188,7 +187,7 @@ fun <T : OperationI<*>> T.toGoCliDeleteByIdBody(
 ): String {
 
     val entity = findParentMust(EntityI::class.java)
-    val propId = entity.propId()
+    val propId = entity.getOrAddPropId()
 
     return """
 	ret = cli.Command{

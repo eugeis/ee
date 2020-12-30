@@ -19,9 +19,22 @@ import ee.lang.Predicate
 import ee.lang.PredicateI
 import ee.lang.StructureUnitB
 import ee.lang.StructureUnitI
+import ee.lang.Type
+import ee.lang.TypeI
 import ee.lang.Values
 import ee.lang.ValuesB
 import ee.lang.ValuesI
+
+
+open class AddChildBy(adapt: AddChildBy.() -> Unit = {}) : AddChildByB<AddChildBy>(adapt) {
+
+    companion object {
+        val EMPTY = AddChildBy { name(ItemEmpty.name()) }.apply<AddChildBy> { init() }
+    }
+}
+
+open class AddChildByB<B : AddChildByB<B>>(adapt: B.() -> Unit = {}) : ChildCommandByB<B>(adapt), AddChildByI<B> {
+}
 
 
 open class AggregateHandler(adapt: AggregateHandler.() -> Unit = {}) : AggregateHandlerB<AggregateHandler>(adapt) {
@@ -88,6 +101,83 @@ open class BusinessEvent(adapt: BusinessEvent.() -> Unit = {}) : BusinessEventB<
 }
 
 open class BusinessEventB<B : BusinessEventB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), BusinessEventI<B> {
+}
+
+
+open class ChildAdded(adapt: ChildAdded.() -> Unit = {}) : ChildAddedB<ChildAdded>(adapt) {
+
+    companion object {
+        val EMPTY = ChildAdded { name(ItemEmpty.name()) }.apply<ChildAdded> { init() }
+    }
+}
+
+open class ChildAddedB<B : ChildAddedB<B>>(adapt: B.() -> Unit = {}) : ChildEventB<B>(adapt), ChildAddedI<B> {
+}
+
+
+open class ChildCommandBy(adapt: ChildCommandBy.() -> Unit = {}) : ChildCommandByB<ChildCommandBy>(adapt) {
+
+    companion object {
+        val EMPTY = ChildCommandBy { name(ItemEmpty.name()) }.apply<ChildCommandBy> { init() }
+    }
+}
+
+open class ChildCommandByB<B : ChildCommandByB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), ChildCommandByI<B> {
+
+    override fun type(): TypeI<*> = attr(TYPE, { Type.EMPTY })
+    override fun type(value: TypeI<*>): B = apply { attr(TYPE, value) }
+
+    override fun child(): AttributeI<*> = attr(CHILD, { Attribute.EMPTY })
+    override fun child(value: AttributeI<*>): B = apply { attr(CHILD, value) }
+
+    companion object {
+        val TYPE = "_type"
+        val CHILD = "_child"
+    }
+}
+
+
+open class ChildEvent(adapt: ChildEvent.() -> Unit = {}) : ChildEventB<ChildEvent>(adapt) {
+
+    companion object {
+        val EMPTY = ChildEvent { name(ItemEmpty.name()) }.apply<ChildEvent> { init() }
+    }
+}
+
+open class ChildEventB<B : ChildEventB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), ChildEventI<B> {
+
+    override fun type(): TypeI<*> = attr(TYPE, { Type.EMPTY })
+    override fun type(value: TypeI<*>): B = apply { attr(TYPE, value) }
+
+    override fun child(): AttributeI<*> = attr(CHILD, { Attribute.EMPTY })
+    override fun child(value: AttributeI<*>): B = apply { attr(CHILD, value) }
+
+    companion object {
+        val TYPE = "_type"
+        val CHILD = "_child"
+    }
+}
+
+
+open class ChildRemoved(adapt: ChildRemoved.() -> Unit = {}) : ChildRemovedB<ChildRemoved>(adapt) {
+
+    companion object {
+        val EMPTY = ChildRemoved { name(ItemEmpty.name()) }.apply<ChildRemoved> { init() }
+    }
+}
+
+open class ChildRemovedB<B : ChildRemovedB<B>>(adapt: B.() -> Unit = {}) : ChildEventB<B>(adapt), ChildRemovedI<B> {
+}
+
+
+open class ChildUpdated(adapt: ChildUpdated.() -> Unit = {}) : ChildUpdatedB<ChildUpdated>(adapt) {
+
+    companion object {
+        val EMPTY = ChildUpdated { name(ItemEmpty.name()) }.apply<ChildUpdated> { init() }
+    }
+}
+
+open class ChildUpdatedB<B : ChildUpdatedB<B>>(adapt: B.() -> Unit = {}) : ChildEventB<B>(adapt), ChildUpdatedI<B> {
 }
 
 
@@ -376,6 +466,21 @@ open class EntityB<B : EntityB<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adap
     override fun deleteBy(value: DeleteByI<*>): DeleteByI<*> = applyAndReturn { deleteBys().addItem(value); value }
     override fun deleteBy(value: DeleteByI<*>.() -> Unit): DeleteByI<*> = deleteBy(DeleteBy(value))
 
+    override fun addChildBys(): ListMultiHolder<AddChildByI<*>> = itemAsList(ADD_CHILD_BYS, AddChildByI::class.java, true)
+    override fun addChildBys(vararg value: AddChildByI<*>): B = apply { addChildBys().addItems(value.asList()) }
+    override fun addChildBy(value: AddChildByI<*>): AddChildByI<*> = applyAndReturn { addChildBys().addItem(value); value }
+    override fun addChildBy(value: AddChildByI<*>.() -> Unit): AddChildByI<*> = addChildBy(AddChildBy(value))
+
+    override fun updateChildBys(): ListMultiHolder<UpdateChildByI<*>> = itemAsList(UPDATE_CHILD_BYS, UpdateChildByI::class.java, true)
+    override fun updateChildBys(vararg value: UpdateChildByI<*>): B = apply { updateChildBys().addItems(value.asList()) }
+    override fun updateChildBy(value: UpdateChildByI<*>): UpdateChildByI<*> = applyAndReturn { updateChildBys().addItem(value); value }
+    override fun updateChildBy(value: UpdateChildByI<*>.() -> Unit): UpdateChildByI<*> = updateChildBy(UpdateChildBy(value))
+
+    override fun removeChildBys(): ListMultiHolder<RemoveChildByI<*>> = itemAsList(REMOVE_CHILD_BYS, RemoveChildByI::class.java, true)
+    override fun removeChildBys(vararg value: RemoveChildByI<*>): B = apply { removeChildBys().addItems(value.asList()) }
+    override fun removeChildBy(value: RemoveChildByI<*>): RemoveChildByI<*> = applyAndReturn { removeChildBys().addItem(value); value }
+    override fun removeChildBy(value: RemoveChildByI<*>.() -> Unit): RemoveChildByI<*> = removeChildBy(RemoveChildBy(value))
+
     override fun events(): ListMultiHolder<BusinessEventI<*>> = itemAsList(EVENTS, BusinessEventI::class.java, true)
     override fun events(vararg value: BusinessEventI<*>): B = apply { events().addItems(value.asList()) }
     override fun event(value: BusinessEventI<*>): BusinessEventI<*> = applyAndReturn { events().addItem(value); value }
@@ -395,6 +500,21 @@ open class EntityB<B : EntityB<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adap
     override fun deleted(vararg value: DeletedI<*>): B = apply { deleted().addItems(value.asList()) }
     override fun deleted(value: DeletedI<*>): DeletedI<*> = applyAndReturn { deleted().addItem(value); value }
     override fun deleted(value: DeletedI<*>.() -> Unit): DeletedI<*> = deleted(Deleted(value))
+
+    override fun childAdded(): ListMultiHolder<ChildAddedI<*>> = itemAsList(CHILD_ADDED, ChildAddedI::class.java, true)
+    override fun childAdded(vararg value: ChildAddedI<*>): B = apply { childAdded().addItems(value.asList()) }
+    override fun childAdded(value: ChildAddedI<*>): ChildAddedI<*> = applyAndReturn { childAdded().addItem(value); value }
+    override fun childAdded(value: ChildAddedI<*>.() -> Unit): ChildAddedI<*> = childAdded(ChildAdded(value))
+
+    override fun childUpdated(): ListMultiHolder<ChildUpdatedI<*>> = itemAsList(CHILD_UPDATED, ChildUpdatedI::class.java, true)
+    override fun childUpdated(vararg value: ChildUpdatedI<*>): B = apply { childUpdated().addItems(value.asList()) }
+    override fun childUpdated(value: ChildUpdatedI<*>): ChildUpdatedI<*> = applyAndReturn { childUpdated().addItem(value); value }
+    override fun childUpdated(value: ChildUpdatedI<*>.() -> Unit): ChildUpdatedI<*> = childUpdated(ChildUpdated(value))
+
+    override fun childRemoved(): ListMultiHolder<ChildRemovedI<*>> = itemAsList(CHILD_REMOVED, ChildRemovedI::class.java, true)
+    override fun childRemoved(vararg value: ChildRemovedI<*>): B = apply { childRemoved().addItems(value.asList()) }
+    override fun childRemoved(value: ChildRemovedI<*>): ChildRemovedI<*> = applyAndReturn { childRemoved().addItem(value); value }
+    override fun childRemoved(value: ChildRemovedI<*>.() -> Unit): ChildRemovedI<*> = childRemoved(ChildRemoved(value))
 
     override fun checks(): ListMultiHolder<PredicateI<*>> = itemAsList(CHECKS, PredicateI::class.java, true)
     override fun checks(vararg value: PredicateI<*>): B = apply { checks().addItems(value.asList()) }
@@ -427,10 +547,16 @@ open class EntityB<B : EntityB<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adap
         createBys()
         updateBys()
         deleteBys()
+        addChildBys()
+        updateChildBys()
+        removeChildBys()
         events()
         created()
         updated()
         deleted()
+        childAdded()
+        childUpdated()
+        childRemoved()
         checks()
         handlers()
         projectors()
@@ -453,10 +579,16 @@ open class EntityB<B : EntityB<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adap
         val CREATE_BYS = "_createBys"
         val UPDATE_BYS = "_updateBys"
         val DELETE_BYS = "_deleteBys"
+        val ADD_CHILD_BYS = "_addChildBys"
+        val UPDATE_CHILD_BYS = "_updateChildBys"
+        val REMOVE_CHILD_BYS = "_removeChildBys"
         val EVENTS = "_events"
         val CREATED = "_created"
         val UPDATED = "_updated"
         val DELETED = "_deleted"
+        val CHILD_ADDED = "_childAdded"
+        val CHILD_UPDATED = "_childUpdated"
+        val CHILD_REMOVED = "_childRemoved"
         val CHECKS = "_checks"
         val HANDLERS = "_handlers"
         val PROJECTORS = "_projectors"
@@ -781,6 +913,17 @@ open class ProjectorB<B : ProjectorB<B>>(adapt: B.() -> Unit = {}) : StateMachin
 }
 
 
+open class RemoveChildBy(adapt: RemoveChildBy.() -> Unit = {}) : RemoveChildByB<RemoveChildBy>(adapt) {
+
+    companion object {
+        val EMPTY = RemoveChildBy { name(ItemEmpty.name()) }.apply<RemoveChildBy> { init() }
+    }
+}
+
+open class RemoveChildByB<B : RemoveChildByB<B>>(adapt: B.() -> Unit = {}) : ChildCommandByB<B>(adapt), RemoveChildByI<B> {
+}
+
+
 open class Saga(adapt: Saga.() -> Unit = {}) : SagaB<Saga>(adapt) {
 
     companion object {
@@ -912,6 +1055,17 @@ open class UpdateBy(adapt: UpdateBy.() -> Unit = {}) : UpdateByB<UpdateBy>(adapt
 }
 
 open class UpdateByB<B : UpdateByB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), UpdateByI<B> {
+}
+
+
+open class UpdateChildBy(adapt: UpdateChildBy.() -> Unit = {}) : UpdateChildByB<UpdateChildBy>(adapt) {
+
+    companion object {
+        val EMPTY = UpdateChildBy { name(ItemEmpty.name()) }.apply<UpdateChildBy> { init() }
+    }
+}
+
+open class UpdateChildByB<B : UpdateChildByB<B>>(adapt: B.() -> Unit = {}) : ChildCommandByB<B>(adapt), UpdateChildByI<B> {
 }
 
 

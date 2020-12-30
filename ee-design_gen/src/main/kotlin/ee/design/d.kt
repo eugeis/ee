@@ -125,9 +125,27 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
     object DeleteBy : CompilationUnit({ superUnit(Command) })
     object UpdateBy : CompilationUnit({ superUnit(Command) })
 
+    object ChildCommandBy : CompilationUnit({ superUnit(Command) }) {
+        val type = prop(l.Type)
+        val child = prop(l.Attribute)
+    }
+
+    object AddChildBy : CompilationUnit({ superUnit(ChildCommandBy) })
+    object UpdateChildBy : CompilationUnit({ superUnit(ChildCommandBy) })
+    object RemoveChildBy : CompilationUnit({ superUnit(ChildCommandBy) })
+
     object Created : CompilationUnit({ superUnit(Event) })
     object Deleted : CompilationUnit({ superUnit(Event) })
     object Updated : CompilationUnit({ superUnit(Event) })
+
+    object ChildEvent : CompilationUnit({ superUnit(Event) }) {
+        val type = prop(l.Type)
+        val child = prop(l.Attribute)
+    }
+
+    object ChildAdded : CompilationUnit({ superUnit(ChildEvent) })
+    object ChildUpdated : CompilationUnit({ superUnit(ChildEvent) })
+    object ChildRemoved : CompilationUnit({ superUnit(ChildEvent) })
 
     object Entity : CompilationUnit({ superUnit(l.DataType) }) {
         val defaultEvents = propB().value(true)
@@ -144,14 +162,23 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
 
         val commands = prop(BusinessCommand).multi(true).nonFluent("command")
         val composites = prop(CompositeCommand).multi(true).nonFluent("composite")
+
         val createBys = prop(CreateBy).multi(true).nonFluent("createBy")
         val updateBys = prop(UpdateBy).multi(true).nonFluent("updateBy")
         val deleteBys = prop(DeleteBy).multi(true).nonFluent("deleteBy")
+
+        val addChildBys = prop(AddChildBy).multi(true).nonFluent("addChildBy")
+        val updateChildBys = prop(UpdateChildBy).multi(true).nonFluent("updateChildBy")
+        val removeChildBys = prop(RemoveChildBy).multi(true).nonFluent("removeChildBy")
 
         val events = prop(BusinessEvent).multi(true).nonFluent("event")
         val created = prop(Created).multi(true).nonFluent("created")
         val updated = prop(Updated).multi(true).nonFluent("updated")
         val deleted = prop(Deleted).multi(true).nonFluent("deleted")
+
+        val childAdded = prop(ChildAdded).multi(true).nonFluent("childAdded")
+        val childUpdated = prop(ChildUpdated).multi(true).nonFluent("childUpdated")
+        val childRemoved = prop(ChildRemoved).multi(true).nonFluent("childRemoved")
 
         val checks = prop(l.Predicate).multi(true).nonFluent("check")
         val handlers = prop(AggregateHandler).multi(true).nonFluent("handler")
