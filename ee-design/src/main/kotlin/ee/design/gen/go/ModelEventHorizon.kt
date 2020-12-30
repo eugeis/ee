@@ -134,7 +134,7 @@ private fun EntityI<*>.addEsArtifacts(
 
     val entity = this
 
-    val propId = entity.getOrAddPropId()
+    val propId = entity.propIdOrAdd()
 
     val queryRepository = addQueryRepository()
 
@@ -219,7 +219,7 @@ private fun EntityI<*>.addEsArtifacts(
 
         op {
             name("DeleteBy${propId.name().toPlural().capitalize()}")
-            params(p { name("itemIds").type(n.List.GT(entity.getOrAddPropId().type())) })
+            params(p { name("itemIds").type(n.List.GT(entity.propIdOrAdd().type())) })
 
             macrosBody(OperationI<*>::toGoHttpClientDeleteByIdsBody.name)
         }
@@ -611,7 +611,7 @@ fun StateI<*>.sourceArtifactsPrefix(stateMachinePrefix: String): String {
 
 private fun EntityI<*>.addCli(client: ControllerI<*>): BusinessControllerI<*> {
 
-    val propId = getOrAddPropId()
+    val propId = propIdOrAdd()
 
     return controller {
         name(DesignDerivedType.Cli).derivedAsType(DesignDerivedType.Cli)

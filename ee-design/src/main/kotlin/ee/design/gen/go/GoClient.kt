@@ -154,7 +154,7 @@ fun <T : OperationI<*>> T.toGoCliDeleteByIdsBody(
 ): String {
 
     val entity = findParentMust(EntityI::class.java)
-    val propId = entity.getOrAddPropId()
+    val propId = entity.propIdOrAdd()
 
     return """
 	ret = cli.Command{
@@ -187,7 +187,7 @@ fun <T : OperationI<*>> T.toGoCliDeleteByIdBody(
 ): String {
 
     val entity = findParentMust(EntityI::class.java)
-    val propId = entity.getOrAddPropId()
+    val propId = entity.propIdOrAdd()
 
     return """
 	ret = cli.Command{

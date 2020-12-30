@@ -126,50 +126,62 @@ fun CommandI<*>.deriveEventName(): String {
 
 fun CommandI<*>.deriveEvent(): EventI<*> {
     val entity = findParentMust(EntityI::class.java)
+    val eventName = deriveEventName()
+    val eventProps = props().toTypedArray()
+
     return when (val command = this) {
         is CreateByI -> entity.created {
-            name(deriveEventName())
+            name(eventName)
             //paramsNotDerived(*command.paramsNotDerived().map { p(it) }.toTypedArray())
-            props(*command.props().toTypedArray())
+            props(*eventProps)
             constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
         }
         is UpdateByI -> entity.updated {
-            name(deriveEventName())
+            name(eventName)
             //paramsNotDerived(*command.paramsNotDerived().map { p(it) }.toTypedArray())
-            props(*command.props().toTypedArray())
+            props(*eventProps)
             constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
         }
         is DeleteByI -> entity.deleted {
-            name(deriveEventName())
+            name(eventName)
             //paramsNotDerived(*command.paramsNotDerived().map { p(it) }.toTypedArray())
-            props(*command.props().toTypedArray())
+            props(*eventProps)
             constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
         }
         is AddChildByI -> entity.childAdded {
-            name(deriveEventName())
-            child(command.child())
+            name(eventName)
             type(command.type())
-            props(*command.props().toTypedArray())
+            typeIdName(command.typeIdName())
+            typeIdType(command.typeIdType())
+            child(command.child())
+            childIdName(command.childIdName())
+            props(*eventProps)
             constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
         }
         is UpdateChildByI -> entity.childUpdated {
-            name(deriveEventName())
-            child(command.child())
+            name(eventName)
             type(command.type())
-            props(*command.props().toTypedArray())
+            typeIdName(command.typeIdName())
+            typeIdType(command.typeIdType())
+            child(command.child())
+            childIdName(command.childIdName())
+            props(*eventProps)
             constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
         }
         is RemoveChildByI -> entity.childRemoved {
-            name(deriveEventName())
-            child(command.child())
+            name(eventName)
             type(command.type())
-            props(*command.props().toTypedArray())
+            typeIdName(command.typeIdName())
+            typeIdType(command.typeIdType())
+            child(command.child())
+            childIdName(command.childIdName())
+            props(*eventProps)
             constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
         }
         else -> entity.event {
-            name(deriveEventName())
+            name(eventName)
             //paramsNotDerived(*command.paramsNotDerived().map { p(it) }.toTypedArray())
-            props(*command.props().toTypedArray())
+            props(*eventProps)
             constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
         }
     }
@@ -205,7 +217,7 @@ fun StructureUnitI<*>.addQueriesForAggregates() {
         }
         findBy {
             name("FindById")
-            params(getOrAddPropId())
+            params(propIdOrAdd())
             ret(item)
         }
         countBy {
@@ -214,7 +226,7 @@ fun StructureUnitI<*>.addQueriesForAggregates() {
         }
         countBy {
             name("CountById")
-            params(getOrAddPropId())
+            params(propIdOrAdd())
             ret(n.Long)
         }
         existBy {
@@ -223,7 +235,7 @@ fun StructureUnitI<*>.addQueriesForAggregates() {
         }
         existBy {
             name("ExistById")
-            params(getOrAddPropId())
+            params(propIdOrAdd())
             ret(n.Boolean)
         }
     }
@@ -276,6 +288,10 @@ fun StructureUnitI<*>.addCommandsAndEventsForAggregates() {
     }
 }
 
+fun AttributeI<*>.commandRemoveAll(): CommandI<*> = storage.getOrPut(this, "commandRemoveAll") {
+    commandAdd(type().generics().first().type())
+}
+
 fun AttributeI<*>.commandAddToList(): CommandI<*> = storage.getOrPut(this, "commandAddToList") {
     commandAdd(type().generics().first().type())
 }
@@ -301,14 +317,38 @@ fun AttributeI<*>.commandRemoveFromMap(): CommandI<*> = storage.getOrPut(this, "
     commandRemove(type().generics()[1].type())
 }
 
+private fun AttributeI<*>.commandRemoveAll(type: TypeI<*>): AddChildByI<*> {
+    val attr = this
+    val entity = parent() as EntityI
+    val propId = type.propIdOrAdd()
+    val typeIdName = propId.name().capitalize()
+    val attrNameSingular = attr.name().toSingular()
+    return entity.addChildBy {
+        name("${attrNameSingular}Add")
+        type(type)
+        typeIdName(typeIdName)
+        typeIdType(propId.type())
+        child(attr)
+        childIdName("$attrNameSingular$typeIdName")
+        prop { name(type.name()).type(type).anonymous() }
+        constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
+    }
+}
+
 private fun AttributeI<*>.commandAdd(type: TypeI<*>): AddChildByI<*> {
     val attr = this
     val entity = parent() as EntityI
+    val propId = type.propIdOrAdd()
+    val typeIdName = propId.name().capitalize()
+    val attrNameSingular = attr.name().toSingular()
     return entity.addChildBy {
-        name("${attr.name().toSingular()}Add")
-        child(attr)
+        name("${attrNameSingular}Add")
         type(type)
-        prop { name("value").type(type).anonymous() }
+        typeIdName(typeIdName)
+        typeIdType(propId.type())
+        child(attr)
+        childIdName("$attrNameSingular$typeIdName")
+        prop { name(type.name()).type(type).anonymous() }
         constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
     }
 }
@@ -316,23 +356,36 @@ private fun AttributeI<*>.commandAdd(type: TypeI<*>): AddChildByI<*> {
 private fun AttributeI<*>.commandUpdate(type: TypeI<*>): UpdateChildByI<*> {
     val attr = this
     val entity = parent() as EntityI
+    val propId = type.propIdOrAdd()
+    val typeIdName = propId.name().capitalize()
+    val attrNameSingular = attr.name().toSingular()
     return entity.updateChildBy {
-        name("${attr.name().toSingular()}Update")
-        child(attr)
+        name("${attrNameSingular}Update")
         type(type)
-        prop { name("value").type(type).anonymous() }
+        typeIdName(typeIdName)
+        typeIdType(propId.type())
+        child(attr)
+        childIdName("$attrNameSingular$typeIdName")
+        prop { name(type.name()).type(type).anonymous() }
         constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
     }
 }
 
 private fun AttributeI<*>.commandRemove(type: TypeI<*>): RemoveChildByI<*> {
     val attr = this
+    val attrNameSingular = attr.name().toSingular()
     val entity = parent() as EntityI
+    val propId = type.propIdOrAdd()
+    val typeIdName = propId.name().capitalize()
+    val childIdName = "$attrNameSingular$typeIdName"
     return entity.removeChildBy {
-        name("${attr.name().toSingular()}Remove")
-        child(attr)
+        name("${attrNameSingular}Remove")
         type(type)
-        prop { name("value").type(type).anonymous() }
+        typeIdName(typeIdName)
+        typeIdType(propId.type())
+        child(attr)
+        childIdName(childIdName)
+        prop { name(childIdName).type(propId.type()) }
         constructorFull { derivedAsType(LangDerivedKind.MANUAL) }
     }
 }
@@ -349,7 +402,7 @@ fun StructureUnitI<*>.addAggregateHandler() {
 fun StructureUnitI<*>.addIdPropToEntities() {
     findDownByType(EntityI::class.java).filter { item -> !item.isVirtual() && item.propId() == null }
         .forEach {
-            it.getOrAddPropId()
+            it.propIdOrAdd()
         }
 }
 
@@ -357,7 +410,7 @@ fun StructureUnitI<*>.addIdPropToCommands() {
     findDownByType(EntityI::class.java).filter { !it.isVirtual() }.forEach { entity ->
         entity.findDownByType(CommandI::class.java).filter { item -> item.propId() == null }
             .forEach {
-                it.prop(entity.getOrAddPropId())
+                it.prop(entity.propIdOrAdd())
             }
     }
 }
@@ -366,7 +419,7 @@ fun StructureUnitI<*>.addIdPropToValues() {
     findDownByType(EntityI::class.java).filter { !it.isVirtual() }.forEach { entity ->
         entity.propsCollectionValueTypes().filter { item -> item.propId() == null }
             .forEach {
-                it.prop(entity.getOrAddPropId())
+                it.prop(entity.propIdOrAdd())
             }
     }
 }

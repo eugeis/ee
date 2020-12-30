@@ -127,12 +127,24 @@ open class ChildCommandByB<B : ChildCommandByB<B>>(adapt: B.() -> Unit = {}) : C
     override fun type(): TypeI<*> = attr(TYPE, { Type.EMPTY })
     override fun type(value: TypeI<*>): B = apply { attr(TYPE, value) }
 
+    override fun typeIdName(): String = attr(TYPE_ID_NAME, { "" })
+    override fun typeIdName(value: String): B = apply { attr(TYPE_ID_NAME, value) }
+
+    override fun typeIdType(): TypeI<*> = attr(TYPE_ID_TYPE, { Type.EMPTY })
+    override fun typeIdType(value: TypeI<*>): B = apply { attr(TYPE_ID_TYPE, value) }
+
     override fun child(): AttributeI<*> = attr(CHILD, { Attribute.EMPTY })
     override fun child(value: AttributeI<*>): B = apply { attr(CHILD, value) }
 
+    override fun childIdName(): String = attr(CHILD_ID_NAME, { "" })
+    override fun childIdName(value: String): B = apply { attr(CHILD_ID_NAME, value) }
+
     companion object {
         val TYPE = "_type"
+        val TYPE_ID_NAME = "_typeIdName"
+        val TYPE_ID_TYPE = "_typeIdType"
         val CHILD = "_child"
+        val CHILD_ID_NAME = "_childIdName"
     }
 }
 
@@ -149,12 +161,24 @@ open class ChildEventB<B : ChildEventB<B>>(adapt: B.() -> Unit = {}) : EventB<B>
     override fun type(): TypeI<*> = attr(TYPE, { Type.EMPTY })
     override fun type(value: TypeI<*>): B = apply { attr(TYPE, value) }
 
+    override fun typeIdName(): String = attr(TYPE_ID_NAME, { "" })
+    override fun typeIdName(value: String): B = apply { attr(TYPE_ID_NAME, value) }
+
+    override fun typeIdType(): TypeI<*> = attr(TYPE_ID_TYPE, { Type.EMPTY })
+    override fun typeIdType(value: TypeI<*>): B = apply { attr(TYPE_ID_TYPE, value) }
+
     override fun child(): AttributeI<*> = attr(CHILD, { Attribute.EMPTY })
     override fun child(value: AttributeI<*>): B = apply { attr(CHILD, value) }
 
+    override fun childIdName(): String = attr(CHILD_ID_NAME, { "" })
+    override fun childIdName(value: String): B = apply { attr(CHILD_ID_NAME, value) }
+
     companion object {
         val TYPE = "_type"
+        val TYPE_ID_NAME = "_typeIdName"
+        val TYPE_ID_TYPE = "_typeIdType"
         val CHILD = "_child"
+        val CHILD_ID_NAME = "_childIdName"
     }
 }
 

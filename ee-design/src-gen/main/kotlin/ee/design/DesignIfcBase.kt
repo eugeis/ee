@@ -58,8 +58,17 @@ interface ChildCommandByI<B : ChildCommandByI<B>> : CommandI<B> {
     fun type(): TypeI<*>
     fun type(value: TypeI<*>): B
 
+    fun typeIdName(): String
+    fun typeIdName(value: String): B
+
+    fun typeIdType(): TypeI<*>
+    fun typeIdType(value: TypeI<*>): B
+
     fun child(): AttributeI<*>
     fun child(value: AttributeI<*>): B
+
+    fun childIdName(): String
+    fun childIdName(value: String): B
 }
 
 
@@ -68,8 +77,17 @@ interface ChildEventI<B : ChildEventI<B>> : EventI<B> {
     fun type(): TypeI<*>
     fun type(value: TypeI<*>): B
 
+    fun typeIdName(): String
+    fun typeIdName(value: String): B
+
+    fun typeIdType(): TypeI<*>
+    fun typeIdType(value: TypeI<*>): B
+
     fun child(): AttributeI<*>
     fun child(value: AttributeI<*>): B
+
+    fun childIdName(): String
+    fun childIdName(value: String): B
 }
 
 

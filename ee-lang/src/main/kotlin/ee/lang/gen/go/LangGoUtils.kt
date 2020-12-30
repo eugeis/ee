@@ -139,6 +139,10 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
             object EntityNotExists : Operation()
 
+            object EntityChildNotExists : Operation()
+
+            object EntityChildIdNotDefined : Operation()
+
             object IdsDismatch : Operation()
 
             object ValidateIdsMatch : Operation()

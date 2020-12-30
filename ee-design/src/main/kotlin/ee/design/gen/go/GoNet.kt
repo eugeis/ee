@@ -13,7 +13,9 @@ fun <T : CommandI<*>> T.toGoHandler(
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api)}
-func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)}            { return o.${entity.getOrAddPropId().nameForGoMember()} }
+func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)}            { return o.${
+        entity.propIdOrAdd().nameForGoMember()
+    } }
 func (o *$name) AggregateType() ${
         c.n(
             g.eh.AggregateType
@@ -153,11 +155,21 @@ fun Collection<DataTypeOperationI<*>>.routerQueries(httpMethod: String) =
         HandlerFunc(o.QueryHandler.${item.name().capitalize()})"""
     }
 
+private fun ItemI<*>.buildHttpChildPathKey(): String {
+    return when (val command = this) {
+        is UpdateChildByI -> "/{${command.childIdName()}}"
+        is RemoveChildByI -> "/{${command.childIdName()}}"
+        else -> ""
+    }
+}
+
 private fun ItemI<*>.buildHttpPathKey(index: Int, keyParam: AttributeI<*>): String {
-    val ret = if (index == 0) "/{${keyParam.name().decapitalize()}}" else "/{${keyParam.name().decapitalize()}}/${
-        name().removeSuffixForRoute().toHyphenLowerCase()
-    }"
-    return ret
+    return if (index == 0) {
+        "/{${keyParam.name().decapitalize()}}"
+    } else {
+        "/{${keyParam.name().decapitalize()}}/${name().removeSuffixForRoute().toHyphenLowerCase()}${
+            buildHttpChildPathKey()}"
+    }
 }
 
 private fun ItemI<*>.buildHttpPath(index: Int) =

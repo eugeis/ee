@@ -127,6 +127,26 @@ fun <T : OperationI<*>> T.toGoHttpHandlerBody(
     o.HandleResult(ret, err, "${parentNameAndName()}", w, r)"""
 }
 
+private fun ItemI<*>.toGoHttpParseChildId(): String {
+    return when (val command = this) {
+        is UpdateChildByI -> """
+    ${command.childIdName()}, _ := uuid.Parse(vars["${command.childIdName()}"])"""
+        is RemoveChildByI -> """
+    ${command.childIdName()}, _ := uuid.Parse(vars["${command.childIdName()}"])"""
+        else -> ""
+    }
+}
+
+private fun ItemI<*>.toGoHttpInitChildId(variable: String): String {
+    return when (val command = this) {
+        is UpdateChildByI -> """
+    $variable.${command.type().name().capitalize()}.${command.typeIdName().capitalize()} = ${command.childIdName()}"""
+        is RemoveChildByI -> """
+    $variable.${command.childIdName().capitalize()} = ${command.childIdName()}"""
+        else -> ""
+    }
+}
+
 fun <T : OperationI<*>> T.toGoHttpHandlerCommandBody(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
     api: String = DesignDerivedKind.API
@@ -136,14 +156,15 @@ fun <T : OperationI<*>> T.toGoHttpHandlerCommandBody(
         val command = derivedFrom() as CommandI<*>
         """
     vars := ${c.n(g.mux.Vars, api)}(r)
-    ${entity.getOrAddPropId().name().decapitalize()}, _ := ${c.n(g.google.uuid.Parse, api)}(vars["${
-            entity.getOrAddPropId().name().decapitalize()
-        }"])
-    o.HandleCommand(&${command.nameAndParentName().capitalize()}{${
-            entity.getOrAddPropId().name().capitalize()
-        }: ${entity.getOrAddPropId().name().decapitalize()}${
+    ${entity.propIdOrAdd().name().decapitalize()}, _ := ${c.n(g.google.uuid.Parse, api)}(vars["${
+            entity.propIdOrAdd().name().decapitalize()
+        }"])${command.toGoHttpParseChildId()}
+    command := &${command.nameAndParentName().capitalize()}{${
+            entity.propIdOrAdd().name().capitalize()
+        }: ${entity.propIdOrAdd().name().decapitalize()}${
             command.toGoPropAnonymousInit(c, derived, api, ", ")
-        }}, w, r)"""
+        }}${command.toGoHttpInitChildId("command")}
+    o.HandleCommand(command, w, r)"""
     }
 }
 
@@ -154,7 +175,7 @@ fun <T : OperationI<*>> T.toGoHttpHandlerIdBasedBody(
     val entity = findParentMust(EntityI::class.java)
     return """
     vars := ${c.n(g.mux.Vars, api)}(r)
-    id := vars["${entity.getOrAddPropId().name().decapitalize()}"]
+    id := vars["${entity.propIdOrAdd().name().decapitalize()}"]
     ${c.n(g.fmt.Fprintf, api)}(w, "id=%v, %q from ${parentNameAndName()}", id, ${
         c.n(
             g.html.EscapeString,
@@ -225,11 +246,11 @@ fun <T : OperationI<*>> T.toGoEventHandlerSetupBody(
 ): String {
     val entity = findParentMust(EntityI::class.java)
     val events = entity.findDownByType(EventI::class.java)
-    val id = entity.getOrAddPropId().name().capitalize()
+    val id = entity.propIdOrAdd().name().capitalize()
     return events.joinSurroundIfNotEmptyToString("") { event ->
         val handler = c.n(event, DesignDerivedType.Handler).capitalize()
         """${event.toGoRegisterEventData(c, api, derived)}
-    //default handler implementation
+    //default command handler implementation
     o.$handler = func(event ${c.n(g.eh.Event, api)}, ${
             event.hasData().then(
                 "eventData ${event.toGo(c, api)}, "
@@ -442,7 +463,7 @@ fun <T : CommandI<*>> T.toGoCommandImpl(
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api, true)}
-func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)} { return o.${entity.getOrAddPropId().nameForGoMember()} }
+func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)} { return o.${entity.propIdOrAdd().nameForGoMember()} }
 func (o *$name) AggregateType() ${c.n(g.eh.AggregateType)} { return ${entity.name()}${DesignDerivedType.AggregateType} }
 func (o *$name) CommandType() ${c.n(g.eh.CommandType)} { return ${nameAndParentName().capitalize()}${DesignDerivedType.Command} }
 """
@@ -472,7 +493,7 @@ fun <T : EntityI<*>> T.toGoEntityImpl(
     val name = c.n(this, derived)
     return """
         ${toGoImpl(c, derived, api, true)}
-func (o *$name) EntityID() ${c.n(g.google.uuid.UUID)} { return o.${getOrAddPropId().nameForGoMember()} }
+func (o *$name) EntityID() ${c.n(g.google.uuid.UUID)} { return o.${propIdOrAdd().nameForGoMember()} }
 func (o *$name) Deleted() *${c.n(g.time.Time)} { return o.${propDeletedAt().nameForGoMember()} }
 """
 }

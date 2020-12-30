@@ -313,7 +313,7 @@ fun TypeI<*>.addPropId(): AttributeI<*> {
 
 fun TypeI<*>.propId(): AttributeI<*>? = props().find { it.isKey() }
 
-fun TypeI<*>.getOrAddPropId(): AttributeI<*> = storage.getOrPut(this, "propId") {
+fun TypeI<*>.propIdOrAdd(): AttributeI<*> = storage.getOrPut(this, "propId") {
     initIfNotInitialized()
     var ret = propId()
     if (ret == null && superUnit().isNotEMPTY()) {

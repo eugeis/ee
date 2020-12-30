@@ -3,6 +3,7 @@ package ee.design.gen.go
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.joinWithIndexSurroundIfNotEmptyToString
 import ee.common.ext.then
+import ee.common.ext.toSingular
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.*
@@ -25,11 +26,24 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerSetupBody(
                 """${command.toGoCheckInitValuesId(c)}
         ${command.toGoStoreEvent(c, derived, api)}"""
             } else if (command is AddChildByI<*> && command.event().isNotEMPTY()) {
-                val idName = command.type().getOrAddPropId().name().capitalize()
+                val idName = command.type().propIdOrAdd().name().capitalize()
                 val typeName = command.type().name()
                 """
         if command.$typeName.$idName == uuid.Nil {
             command.$typeName.$idName = ${c.n(g.google.uuid.New)}()
+        }
+        ${command.toGoStoreEvent(c, derived, api)}"""
+            } else if (command is UpdateChildByI<*> && command.event().isNotEMPTY()) {
+                val idName = command.type().propIdOrAdd().name().capitalize()
+                val typeName = command.type().name()
+                """
+        if command.$typeName.$idName == uuid.Nil {
+            err = ${
+                    c.n(
+                        g.gee.eh.EntityChildIdNotDefined,
+                        api
+                    )
+                }(command.AggregateID(), command.AggregateType(), "${command.child().name()}")
         }
         ${command.toGoStoreEvent(c, derived, api)}"""
             } else if ((command is UpdateByI<*> || command is DeleteByI<*> ||
@@ -49,7 +63,7 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerSetupBody(
 
 private fun CommandI<*>.toGoCheckInitValuesId(c: GenerationContext) =
     propsCollectionValues().joinSurroundIfNotEmptyToString("") {
-        val idName = it.type().getOrAddPropId().name().capitalize()
+        val idName = it.type().propIdOrAdd().name().capitalize()
         """
         
         for _, item := range command.${it.name().capitalize()} {
@@ -376,12 +390,12 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerSetupBody(
 
     val events = state.uniqueEvents()
 
-    val id = entity.getOrAddPropId().name().capitalize()
+    val id = entity.propIdOrAdd().name().capitalize()
     return events.joinSurroundIfNotEmptyToString("") { event ->
         val handler = c.n(event, DesignDerivedType.Handler).capitalize()
         """
         ${event.toGoRegisterEventData(c, api, derived)}
-	//default handler implementation
+	//default event handler implementation
 	o.$handler = func(event ${c.n(g.eh.Event, api)}, ${
             event.hasData().then(
                 "eventData ${event.toGo(c, api)}, "
@@ -400,18 +414,24 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerSetupBody(
         *entity = *${entity.toGoInstance(c, derived, api)}${
                     event.toGoApplyEvent(c, derived)
                 }"""
-            } else if (event is ChildAddedI<*>) { //entity.AddToParticipants(eventData.Participant)
+            } else if (event is ChildAddedI<*>) {
                 """
         entity.${event.child().toGoAddMethodName()}(eventData.${event.type().name()})"""
             } else if (event is ChildUpdatedI<*>) {
                 """
-        entity.${event.child().toGoAddMethodName()}(eventData.${event.type().name()})"""
+        if oldItem := entity.${event.child().toGoReplaceMethodName()}(eventData.${event.type().name()}); oldItem == nil {
+            err = ${c.n(g.gee.eh.EntityChildNotExists, api)}(event.AggregateID(), event.AggregateType(), 
+                eventData.${event.type().name()}.${event.typeIdName()}, "${event.child().name()}")           
+        }"""
             } else if (event is ChildRemovedI<*>) {
                 """
-        entity.${event.child().toGoAddMethodName()}(eventData.${event.type().name()})"""
+        if oldItem := entity.${event.child().toGoRemoveMethodName()}(eventData.${event.childIdName().capitalize()}); oldItem == nil {
+            err = ${c.n(g.gee.eh.EntityChildNotExists, api)}(event.AggregateID(), event.AggregateType(), 
+                eventData.${event.childIdName().capitalize()}, "${event.child().name()}")           
+        }"""
             } else {
                 """
-        //err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(event, api)}${DesignDerivedType.Event})"""
+        err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(event, api)}${DesignDerivedType.Event})"""
             }
         }
         return

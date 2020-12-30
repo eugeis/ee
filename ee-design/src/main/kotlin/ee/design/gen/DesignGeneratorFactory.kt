@@ -308,7 +308,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                     it.derivedAsType().equals(derivedType, true)
                 }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
                 retEntities.forEach {
-                    it.getOrAddPropId()
+                    it.propIdOrAdd()
                     it.propDeletedAt()
                 }
                 retEntities
