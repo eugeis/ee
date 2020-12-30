@@ -2,6 +2,7 @@ package ee.lang
 
 import ee.common.ext.ifElse
 import ee.common.ext.setAndTrue
+import ee.common.ext.toSingular
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("LangUtils")
@@ -136,6 +137,10 @@ fun TypeI<*>.propsSuperUnit(): List<AttributeI<*>> = storage.getOrPut(this, "pro
     propsAll().filter { !it.isInherited() }
 }
 
+fun TypeI<*>.propsAllKeys(): List<AttributeI<*>> = storage.getOrPut(this, "propsAllKeys") {
+    propsAll().filter { it.isKey() }
+}
+
 fun TypeI<*>.propsAll(): List<AttributeI<*>> = storage.getOrPut(this, "propsAll") {
     if (superUnit().isNotEMPTY()) {
         val ret = mutableListOf<AttributeI<*>>()
@@ -254,6 +259,34 @@ fun TypeI<*>.propsMapValues(): List<AttributeI<*>> = storage.getOrPut(this, "pro
     }
 }
 
+fun AttributeI<*>.propIdNameAttrCap(): String = storage.getOrPut(this, "propIdNameAttrCap") {
+    propIdNameAttr().capitalize()
+}
+
+fun AttributeI<*>.nameSingular(): String = storage.getOrPut(this, "nameSingular") {
+    name().toSingular()
+}
+
+fun AttributeI<*>.propIdNameAttr(): String = storage.getOrPut(this, "propIdNameAttr") {
+    "${name().toSingular()}${type().propIdNameCap()}"
+}
+
+fun TypeI<*>.propIdNameCap(): String = storage.getOrPut(this, "propIdNameCap") {
+    propIdName().capitalize()
+}
+
+fun TypeI<*>.propIdName(): String = storage.getOrPut(this, "propIdName") {
+    propIdOrAdd().name()
+}
+
+fun TypeI<*>.propIdNameParentCap(): String = storage.getOrPut(this, "propIdNameParentCap") {
+    propIdNameParent().capitalize()
+}
+
+fun TypeI<*>.propIdNameParent(): String = storage.getOrPut(this, "propIdNameParent") {
+    "${name().decapitalize()}${propIdNameCap()}"
+}
+
 fun TypeI<*>.propsAnonymous(): List<AttributeI<*>> = storage.getOrPut(this, "propsAnonymous") {
     props().filter { it.isAnonymous() }
 }
@@ -273,7 +306,6 @@ fun TypeI<*>.propsNoMetaNoValue(): List<AttributeI<*>> = storage.getOrPut(this, 
 fun TypeI<*>.propsNoMetaNoValueNoId(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoMetaNoValueNoId") {
     props().filter { !it.isMeta() && it.value() == null && !it.isKey() }
 }
-
 
 fun TypeI<*>.genericsAll(): List<GenericI<*>> = storage.getOrPut(this, "genericsAll") {
     if (superUnit().isNotEMPTY()) {
@@ -327,20 +359,14 @@ fun TypeI<*>.propIdOrAdd(): AttributeI<*> = storage.getOrPut(this, "propId") {
     ret
 }
 
-//paramsNotDerived().filterSkipped { it.isAnonymous() }.map { p(it).isDefault(true).isAnonymous(it.isAnonymous()) }
-
-//helper design functions
-/*
-fun lambda(init: LambdaI<*>.() -> Unit): LambdaI<*> = Lambda(init)
-
-fun p(init: AttributeI<*>.() -> Unit = {}): AttributeI<*> = duration(init)
-
-fun p(name: String, type: TypeI<*> = n.String, body: AttributeI<*>.() -> Unit = {}): AttributeI<*> = duration({
-    type(type).name(name)
-    body()
-})
-
-*/
+fun TypeI<*>.propIdFullName(): AttributeI<*>? = if (propId() != null) {
+    propIdOrAdd().derive {
+        name("${this@propIdFullName.name()}${name().capitalize()}")
+        notKey()
+    }
+} else {
+    null
+}
 
 fun ret(type: TypeI<*> = n.String, body: AttributeI<*>.() -> Unit = {}): AttributeI<*> = p {
     type(type).name("ret")

@@ -127,10 +127,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
 
     object ChildCommandBy : CompilationUnit({ superUnit(Command) }) {
         val type = prop(l.Type)
-        val typeIdName = propS()
-        val typeIdType = prop(l.Type)
         val child = prop(l.Attribute)
-        val childIdName = propS()
     }
 
     object AddChildBy : CompilationUnit({ superUnit(ChildCommandBy) })
@@ -143,10 +140,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
 
     object ChildEvent : CompilationUnit({ superUnit(Event) }) {
         val type = prop(l.Type)
-        val typeIdName = propS()
-        val typeIdType = prop(l.Type)
         val child = prop(l.Attribute)
-        val childIdName = propS()
     }
 
     object ChildAdded : CompilationUnit({ superUnit(ChildEvent) })

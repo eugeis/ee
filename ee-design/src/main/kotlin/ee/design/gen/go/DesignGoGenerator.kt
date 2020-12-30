@@ -53,9 +53,9 @@ open class DesignGoGenerator(val models: List<StructureUnitI<*>>, targetAsSingle
     protected fun StructureUnitI<*>.extendForGoGeneration() {
         initsForGoGeneration()
 
-        addIdPropToEntities()
+        addIdPropToEntityValues()
 
-        addIdPropToValues()
+        addIdPropToEntities()
 
         addCommandsAndEventsForAggregates()
 
@@ -66,6 +66,8 @@ open class DesignGoGenerator(val models: List<StructureUnitI<*>>, targetAsSingle
         addDefaultReturnValuesForQueries()
 
         addIdPropToCommands()
+
+        addIdPropToEvents()
 
         addEsArtifacts()
 

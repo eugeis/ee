@@ -127,45 +127,38 @@ fun <T : OperationI<*>> T.toGoHttpHandlerBody(
     o.HandleResult(ret, err, "${parentNameAndName()}", w, r)"""
 }
 
-private fun ItemI<*>.toGoHttpParseChildId(): String {
-    return when (val command = this) {
-        is UpdateChildByI -> """
-    ${command.childIdName()}, _ := uuid.Parse(vars["${command.childIdName()}"])"""
-        is RemoveChildByI -> """
-    ${command.childIdName()}, _ := uuid.Parse(vars["${command.childIdName()}"])"""
-        else -> ""
-    }
-}
-
-private fun ItemI<*>.toGoHttpInitChildId(variable: String): String {
-    return when (val command = this) {
-        is UpdateChildByI -> """
-    $variable.${command.type().name().capitalize()}.${command.typeIdName().capitalize()} = ${command.childIdName()}"""
-        is RemoveChildByI -> """
-    $variable.${command.childIdName().capitalize()} = ${command.childIdName()}"""
-        else -> ""
-    }
-}
-
 fun <T : OperationI<*>> T.toGoHttpHandlerCommandBody(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
     api: String = DesignDerivedKind.API
 ): String {
     return (derivedFrom() is CommandI<*>).then {
-        val entity = findParentMust(EntityI::class.java)
         val command = derivedFrom() as CommandI<*>
+        val varProps = command.propVars()
         """
-    vars := ${c.n(g.mux.Vars, api)}(r)
-    ${entity.propIdOrAdd().name().decapitalize()}, _ := ${c.n(g.google.uuid.Parse, api)}(vars["${
-            entity.propIdOrAdd().name().decapitalize()
-        }"])${command.toGoHttpParseChildId()}
+    vars := ${c.n(g.mux.Vars, api)}(r)${
+            varProps.joinSurroundIfNotEmptyToString("") { propKey ->
+                val propName = propKey.decapitalize()
+                """
+    $propName, _ := ${c.n(g.google.uuid.Parse, api)}(vars["$propName"])"""
+            }
+        }
     command := &${command.nameAndParentName().capitalize()}{${
-            entity.propIdOrAdd().name().capitalize()
-        }: ${entity.propIdOrAdd().name().decapitalize()}${
-            command.toGoPropAnonymousInit(c, derived, api, ", ")
-        }}${command.toGoHttpInitChildId("command")}
+            varProps.joinSurroundIfNotEmptyToString(", ") { propKey ->
+                """${propKey.capitalize()}: ${propKey.decapitalize()}"""
+            }
+        }}
     o.HandleCommand(command, w, r)"""
     }
+}
+
+private fun CommandI<*>.propVars(): List<String> {
+    val ret = mutableListOf(propIdName())
+    if (this is UpdateChildByI<*>) {
+        ret.add(type().propIdNameParent())
+    } else if (this is RemoveChildByI<*>) {
+        ret.add(type().propIdNameParent())
+    }
+    return ret
 }
 
 fun <T : OperationI<*>> T.toGoHttpHandlerIdBasedBody(
@@ -207,11 +200,14 @@ fun <T : CommandI<*>> T.toGoStoreEvent(
     }, ${g.time.Now.toGoCall(c, derived, api)})"""
 }
 
-fun <T : EventI<*>> T.toGoApplyEvent(c: GenerationContext, derived: String): String =
-    props().joinSurroundIfNotEmptyToString("") { it.toGoApplyEventProp(c, derived) }
+fun <T : EventI<*>> T.toGoApplyEvent(
+    c: GenerationContext, derived: String, excludeProps: Set<String> = emptySet(), variableName: String = "entity"
+): String =
+    props().filter { !excludeProps.contains(it.name()) }
+        .joinSurroundIfNotEmptyToString("") { it.toGoApplyEventProp(c, derived, variableName) }
 
-fun <T : AttributeI<*>> T.toGoApplyEventProp(c: GenerationContext, derived: String): String = """
-		entity.${name().capitalize()} = ${
+fun <T : AttributeI<*>> T.toGoApplyEventProp(c: GenerationContext, derived: String, variableName: String): String = """
+		$variableName.${name().capitalize()} = ${
     (value() != null).ifElse({ toGoValue(c, derived) },
         { "eventData.${name().capitalize()}" })
 }"""

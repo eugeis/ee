@@ -102,13 +102,13 @@ fun Collection<CommandI<*>>.routerCommandsWithKeyDelete(c: GenerationContext, ap
     routerCommandsWithKey(c.n(g.net.http.MethodDelete, api))
 
 fun Collection<CommandI<*>>.routerCommandsWithKey(httpMethod: String) =
-    joinWithIndexSurroundIfNotEmptyToString("") { index, item ->
+    joinWithIndexSurroundIfNotEmptyToString("") { index, command ->
         """
     router.Methods($httpMethod).PathPrefix(o.PathPrefixIdBased).Path("${
-            item.buildHttpPathKey(index, item.findPropKey()!!)
+            command.buildHttpPathKey(index, command.findPropKey()!!)
         }").
-        Name("${item.nameAndParentName().capitalize()}").
-        HandlerFunc(o.CommandHandler.${item.name().capitalize()})"""
+        Name("${command.nameAndParentName().capitalize()}").
+        HandlerFunc(o.CommandHandler.${command.name().capitalize()})"""
     }
 
 fun Collection<DataTypeOperationI<*>>.routerQueriesWithKeyGet(c: GenerationContext, api: String) =
@@ -157,8 +157,8 @@ fun Collection<DataTypeOperationI<*>>.routerQueries(httpMethod: String) =
 
 private fun ItemI<*>.buildHttpChildPathKey(): String {
     return when (val command = this) {
-        is UpdateChildByI -> "/{${command.childIdName()}}"
-        is RemoveChildByI -> "/{${command.childIdName()}}"
+        is UpdateChildByI -> "/{${command.type().propIdNameParent()}}"
+        is RemoveChildByI -> "/{${command.type().propIdNameParent()}}"
         else -> ""
     }
 }

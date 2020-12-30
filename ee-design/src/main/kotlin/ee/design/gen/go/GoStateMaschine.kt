@@ -26,18 +26,14 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerSetupBody(
                 """${command.toGoCheckInitValuesId(c)}
         ${command.toGoStoreEvent(c, derived, api)}"""
             } else if (command is AddChildByI<*> && command.event().isNotEMPTY()) {
-                val idName = command.type().propIdOrAdd().name().capitalize()
-                val typeName = command.type().name()
                 """
-        if command.$typeName.$idName == uuid.Nil {
-            command.$typeName.$idName = ${c.n(g.google.uuid.New)}()
+        if command.${command.type().propIdNameParentCap()} == uuid.Nil {
+            command.${command.type().propIdNameParentCap()} = ${c.n(g.google.uuid.New)}()
         }
         ${command.toGoStoreEvent(c, derived, api)}"""
             } else if (command is UpdateChildByI<*> && command.event().isNotEMPTY()) {
-                val idName = command.type().propIdOrAdd().name().capitalize()
-                val typeName = command.type().name()
                 """
-        if command.$typeName.$idName == uuid.Nil {
+        if command.${command.type().propIdNameParentCap()} == uuid.Nil {
             err = ${
                     c.n(
                         g.gee.eh.EntityChildIdNotDefined,
@@ -416,18 +412,27 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerSetupBody(
                 }"""
             } else if (event is ChildAddedI<*>) {
                 """
-        entity.${event.child().toGoAddMethodName()}(eventData.${event.type().name()})"""
+        child := ${event.type().primaryOrFirstConstructorOrFull().toGoCall(c, derived, api)}
+        child.$id = eventData.${event.type().propIdNameParentCap()}${
+                    event.toGoApplyEvent(c, derived, setOf(event.type().propIdNameParentCap()), "child")
+                }
+        entity.${event.child().toGoAddMethodName()}(child)"""
             } else if (event is ChildUpdatedI<*>) {
                 """
-        if oldItem := entity.${event.child().toGoReplaceMethodName()}(eventData.${event.type().name()}); oldItem == nil {
+        if _, child := entity.${event.child().toGoFindMethodName()}(eventData.${
+                    event.type().propIdNameParentCap()
+                }); child == nil {
             err = ${c.n(g.gee.eh.EntityChildNotExists, api)}(event.AggregateID(), event.AggregateType(), 
-                eventData.${event.type().name()}.${event.typeIdName()}, "${event.child().name()}")           
+                eventData.${event.type().propIdNameParentCap()}, "${event.child().name()}")           
+        } else {${event.toGoApplyEvent(c, derived, setOf(event.type().propIdNameParentCap()), "    child")}
         }"""
             } else if (event is ChildRemovedI<*>) {
                 """
-        if oldItem := entity.${event.child().toGoRemoveMethodName()}(eventData.${event.childIdName().capitalize()}); oldItem == nil {
+        if oldItem := entity.${event.child().toGoRemoveMethodName()}(eventData.${
+                    event.type().propIdNameParentCap()
+                }); oldItem == nil {
             err = ${c.n(g.gee.eh.EntityChildNotExists, api)}(event.AggregateID(), event.AggregateType(), 
-                eventData.${event.childIdName().capitalize()}, "${event.child().name()}")           
+                eventData.${event.type().propIdNameParentCap()}, "${event.child().name()}")           
         }"""
             } else {
                 """
