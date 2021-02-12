@@ -9,14 +9,14 @@ fun StructureUnitI<*>.addEsArtifacts() {
 
     findDownByType(EntityI::class.java).filter { !it.isVirtual() && it.derivedAsType().isEmpty() }.groupBy {
         it.findParentMust(ModuleI::class.java)
-    }.forEach { (module, items) ->
+    }.forEach { (module, entities) ->
         module.extend {
 
             val aggregateInitializers = mutableMapOf<String, ControllerI<*>>()
             val httpRouters = mutableMapOf<String, ControllerI<*>>()
             val httpClients = mutableMapOf<String, ControllerI<*>>()
 
-            items.forEach {
+            entities.forEach {
                 it.extend {
                     addEsArtifacts(aggregateInitializers, httpRouters, httpClients)
                 }
@@ -43,8 +43,17 @@ fun StructureUnitI<*>.addEsArtifacts() {
                 }
             }
 
+            val projectors = mutableListOf<AttributeI<*>>()
+
             controller {
                 name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
+                entities.forEach { entity ->
+                    val entityProj = "${entity.name()}Projector"
+                    val p = prop {
+                        name(entityProj.decapitalize()).type(Type().name(entityProj)).default().notInitByDefaultTypeValue()
+                    }
+                    projectors.add(p)
+                }
                 val pathPrefix = propS { name("pathPrefix") }
                 val httpRouterParams = httpRouters.map { (_, item) ->
                     prop {
@@ -66,6 +75,7 @@ fun StructureUnitI<*>.addEsArtifacts() {
                             }).name("newContext")
                         },
                         p { name("esEngine").type(esEngine) },
+                        *projectors.toTypedArray(),
                         *httpRouterParams.map { p(it) { default().notInitByDefaultTypeValue() } }.toTypedArray()
                     )
                     errorHandling()
@@ -94,7 +104,7 @@ fun StructureUnitI<*>.addEsArtifacts() {
 
 
             val entityClis = mutableMapOf<String, ControllerI<*>>()
-            items.forEach { entity ->
+            entities.forEach { entity ->
                 entity.extend {
                     entityClis[entity.name()] = entity.addCli(httpClients[entity.name()]!!)
                 }

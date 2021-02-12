@@ -116,6 +116,9 @@ fun CommandI<*>.deriveEventName(): String {
         name().endsWith("gin") -> {
             ret.replace("gin", "gged")
         }
+        name().endsWith("ay") -> {
+            ret.replace("ay", "aid")
+        }
         else -> {
             "$ret${consonants.matches(ret).then("e")}d"
         }

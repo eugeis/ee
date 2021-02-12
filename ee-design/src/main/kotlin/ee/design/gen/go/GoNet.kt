@@ -219,15 +219,15 @@ fun <T : ConstructorI<*>> T.toGoHttpModuleRouterBeforeBody(
             val projectEventHandler = "${entity.name()}Projector"
 
             """
-    var projectorAccount *$projectEventHandler
-    if projectorAccount, err = esEngine.${entity.name()}.Register${projectEventHandler}(string(${entity.name()}${DesignDerivedType.AggregateType}), 
+    var ${projectEventHandler.decapitalize()} *$projectEventHandler
+    if  ${projectEventHandler.decapitalize()}, err = esEngine.${entity.name()}.Register${
+        projectEventHandler}(string(${entity.name()}${DesignDerivedType.AggregateType}), 
              esEngine.${entity.name()}.AggregateHandlers, esEngine.${entity.name()}.Events); err != nil {
         return
     }
      
-    ${
-                entity.name().decapitalize()
-            }Router := New${entity.name()}Router(pathPrefix, newContext, esEngine.CommandBus, projectorAccount.Repo)       
+    ${entity.name().decapitalize()}Router := New${entity.name()}Router(pathPrefix, newContext, esEngine.CommandBus,  ${
+        projectEventHandler.decapitalize()}.Repo)       
        """
         }
     }"""
