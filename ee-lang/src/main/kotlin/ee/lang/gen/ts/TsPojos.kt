@@ -8,17 +8,15 @@ import ee.lang.*
 
 fun LiteralI<*>.toTypeScript(): String = name().toUnderscoredUpperCase()
 fun LiteralI<*>.toTypeScriptIsMethod(): String {
-    return """
-    is${name().capitalize()}() : boolean {
+    return """is${name().capitalize()}() : boolean {
         return this == ${toTypeScript()};
-    }"""
+}"""
 }
 
 fun <T : EnumTypeI<*>> T.toTypeScriptEnum(c: GenerationContext, derived: String = LangDerivedKind.API,
     api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
-    return """
-enum $name {
+    return """enum $name {
     ${literals().joinToString(",${nL}    ") { "${it.toTypeScript()}${it.toTypeScriptCallValue(c, derived)}" }}
 }"""
     /*
@@ -35,21 +33,19 @@ enum $name {
 fun <T : EnumTypeI<*>> T.toTypeScriptEnumParseMethod(c: GenerationContext,
     derived: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
-    return """
-fun String?.to$name(): $name {
+    return """fun String?.to$name(): $name {
     return if (this != null) $name.valueOf(this) else $name.${literals().first().toTypeScript()};
 }"""
 }
 
 fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
     api: String = LangDerivedKind.API): String {
-    return """
-${isOpen().then("export ")}class ${c.n(this, derived)}${toTypeScriptExtends(c, derived,
-        api)} {${props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+    return """${isOpen().then("export ")}class ${c.n(this, derived)}${toTypeScriptExtends(c, derived,
+        api)} {${props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toTypeScriptMember(c, derived, api, false)
-    }}${constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+    }}${constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toTypeScript(c, derived, api)
-    }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+    }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toTypeScriptImpl(c, derived, api)
     }}
 }"""

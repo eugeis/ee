@@ -31,9 +31,9 @@ open class TsContext : GenerationContext {
                 "${outsideTypes.map { (su, items) ->
                     """${indent}import {${items.sortedBy { it.name() }.joinToString(", ") {
                         it.name()
-                    }}} from "../${su.name().equals("shared", true).not().then {
+                    }}} from '../${su.name().equals("shared", true).not().then {
                         "${su.name().decapitalize()}/"
-                    }}${su.name().capitalize()}ApiBase""""
+                    }}${su.name().capitalize()}ApiBase'"""
                 }.toHashSet().sorted().joinToString(nL)}$nL$nL"
             }
         }

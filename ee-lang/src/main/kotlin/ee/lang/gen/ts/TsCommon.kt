@@ -7,18 +7,18 @@ import ee.lang.gen.java.j
 fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
     val baseType = findDerivedOrThis()
     return when (baseType) {
-        n.String, n.Text -> "\"\""
+        n.String, n.Text -> "''"
         n.Boolean        -> "false"
         n.Int            -> "0"
         n.Long           -> "0L"
         n.Float          -> "0f"
         n.Date           -> "${c.n(j.util.Date)}()"
-        n.Path           -> "${c.n(j.nio.file.Paths)}.get(\"\")"
+        n.Path           -> "${c.n(j.nio.file.Paths)}.get('')"
         n.Blob           -> "new ByteArray(0)"
         n.Void           -> ""
         n.Error          -> "new Throwable()"
         n.Exception      -> "new Exception()"
-        n.Url            -> "${c.n(j.net.URL)}(\"\")"
+        n.Url            -> "${c.n(j.net.URL)}('')"
         n.Map            -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("new Map()", "new Map()")
         n.List           -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("new Array()", "new Array()")
         else             -> {
@@ -30,7 +30,7 @@ fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, 
             } else if (baseType is CompilationUnitI<*>) {
                 "new ${c.n(this, derived)}()"
             } else {
-                (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
+                (this.parent() == n).ifElse("''", { "${c.n(this, derived)}.EMPTY" })
             }
         }
     }
@@ -41,7 +41,7 @@ fun <T : AttributeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: Str
 
 
 fun <T : ItemI<*>> T.toTypeScriptEMPTY(c: GenerationContext, derived: String): String =
-    (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
+    (this.parent() == n).ifElse("''", { "${c.n(this, derived)}.EMPTY" })
 
 
 fun <T : AttributeI<*>> T.toTypeScriptEMPTY(c: GenerationContext, derived: String): String =
@@ -227,7 +227,7 @@ fun <T : OperationI<*>> T.toTypeScriptLambda(c: GenerationContext, derived: Stri
 fun <T : OperationI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String, api: String): String {
     return """
     ${toTypeScriptGenerics(c, derived)}${name()}(${params().toTypeScriptSignature(c, derived,
-        api)}) : ${retFirst().toTypeScriptTypeDef(c, api)} {
-        throw new ReferenceError("Not implemented yet.");
+        api)}): ${retFirst().toTypeScriptTypeDef(c, api)} {
+        throw new ReferenceError('Not implemented yet.');
     }"""
 }
