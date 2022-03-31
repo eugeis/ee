@@ -50,3 +50,25 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: 
     }}
 }"""
 }
+
+// TODO IMPLEMENT PROPS
+fun <T : CompilationUnitI<*>> T.toTypeScriptComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                 api: String = LangDerivedKind.API): String {
+    return """
+        import { Component, OnInit } from '@angular/core';
+
+        @Component({
+          selector: 'app-${items.name().toLowerCase()}',
+          templateUrl: './${items.name().toLowerCase()}.component.html',
+          styleUrls: ['./${items.name().toLowerCase()}.component.css']
+        })
+        ${isOpen().then("export ")}class ${items.name()}Component implements OnInit {
+        
+          constructor() { }
+        
+          ngOnInit(): void {
+          }
+        
+        }
+    """.trimMargin()
+}

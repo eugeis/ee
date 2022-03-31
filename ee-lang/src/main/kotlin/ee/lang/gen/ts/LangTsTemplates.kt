@@ -15,4 +15,7 @@ open class LangTsTemplates {
     open fun <T : CompilationUnitI<*>> pojo(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("Pojo", nameBuilder) { item, c -> item.toTypeScriptImpl(c, LangDerivedKind.API) }
 
+    open fun <T : CompilationUnitI<*>> component(items: BasicI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("Component", nameBuilder) { item, c -> item.toTypeScriptComponent(items, c, LangDerivedKind.API) }
+
 }

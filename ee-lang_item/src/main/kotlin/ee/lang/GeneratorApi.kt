@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import ee.common.ext.*
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.*
 
 val tab = "    "
@@ -121,13 +122,19 @@ open class GeneratorSimple<M>(
 
     override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
         if (shallSkip(model)) return
-
         val c = contextBuilder.builder.invoke(model)
         val module = target.resolve(c.moduleFolder)
         val metaData = module.loadMetaData()
 
-        val pkg = prepareNamespace(module, c)
-        val path = pkg.resolve(template.name(model).fileName)
+        var pkg = prepareNamespace(module, c)
+        var path = pkg.resolve(template.name(model).fileName)
+        if(path.toString().contains(".component.ts")) {
+            val lastIndex = pkg.toString().lastIndexOf("\\") + 1
+            if(pkg.toString().substring(lastIndex) != "shared") {
+                pkg = Paths.get(pkg.toString().substring(0, lastIndex) + "shared")
+                path = pkg.resolve(template.name(model).fileName)
+            }
+        }
         val relative = target.relativize(path).toString()
         if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
             log.debug("generate $path for $model")
@@ -218,6 +225,23 @@ open class FragmentsTemplate<M>(
     }
 }
 
+open class SingleItemFragmentsTemplate<M>(
+    override val name: String,
+    val fragments: M.() -> FragmentI<M>, val nameBuilder: TemplateI<M>.(M) -> NamesI) : TemplateI<M> {
+
+    override fun generate(item: M, context: GenerationContext): String {
+        val buffer = StringBuffer()
+        buffer.appendln(item.fragments().generate(item, context))
+        buffer.appendln()
+
+        return buffer.toString()
+    }
+
+    override fun name(item: M): NamesI {
+        return nameBuilder(this, item)
+    }
+}
+
 open class ItemsFragment<M, I>(
         override val name: String = "",
         val items: M.() -> Collection<I>, val fragments: I.() -> Collection<FragmentI<I>>) : FragmentI<M> {
@@ -231,6 +255,22 @@ open class ItemsFragment<M, I>(
             }
         }
         return buffer.toString()
+    }
+}
+
+open class SingleItemFragment<M, I>(
+    override val name: String = "",
+    val items: M.() -> Collection<I>, val fragments: I.() -> FragmentI<I>) : FragmentI<M> {
+
+    override fun generate(item: M, context: GenerationContext): String {
+        val buffer = StringBuffer()
+        return if(item.items().isNotEmpty()) {
+            buffer.appendln(item.items().first().fragments().generate(item.items().first(), context))
+            buffer.appendln()
+            buffer.toString()
+        } else {
+            buffer.toString()
+        }
     }
 }
 

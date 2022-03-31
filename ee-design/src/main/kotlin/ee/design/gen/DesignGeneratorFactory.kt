@@ -17,6 +17,7 @@ import ee.lang.gen.itemNameAsKotlinFileName
 import ee.lang.gen.swagger.itemNameAsSwaggerFileName
 import ee.lang.gen.ts.itemAndTemplateNameAsTsFileName
 import ee.lang.gen.ts.itemNameAsTsFileName
+import ee.lang.gen.ts.templateNameAsTsFileName
 
 open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGeneratorFactory(targetAsSingleModule) {
 
@@ -391,7 +392,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         return GeneratorContexts(generator, swaggerContextBuilder, goContextBuilder)
     }
 
-    open fun angular(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {
+    open fun angular(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
         val tsTemplates = buildTsTemplates()
         val tsContextFactory = buildTsContextFactory()
         val tsContextBuilder = tsContextFactory.buildForImplOnly()
@@ -463,6 +464,20 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                 )
             )
         )
+
+        for (i in basics.invoke(model)){
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "Component", contextBuilder = tsContextBuilder,
+                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.component",
+                        nameBuilder = templateNameAsTsFileName, fragments = {
+                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                fragments = { tsTemplates.component(i) })
+                        })
+                )
+            )
+        }
+
         return GeneratorContexts(generator, tsContextBuilder)
     }
 

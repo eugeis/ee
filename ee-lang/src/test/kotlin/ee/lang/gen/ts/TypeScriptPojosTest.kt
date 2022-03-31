@@ -246,6 +246,7 @@ class TypeScriptPojosTest {
     }
 
     @Test
+    @Order(10)
     @DisplayName("Typescript Test Enum Parse Method")
     fun simpleEnumParseMethodTest() {
         val out = SimpleComp.SimpleModule.SimpleEnum.toTypeScriptEnumParseMethod(context(), "")
@@ -258,7 +259,7 @@ class TypeScriptPojosTest {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     @DisplayName("Typescript Test Entity Elements Default")
     fun toTypeScriptDefaultTest() {
         val out = SimpleComp.SimpleModule.SimpleEntity.toTypeScriptDefault(context(), "", Attribute.EMPTY)
@@ -267,7 +268,7 @@ class TypeScriptPojosTest {
     }
 
     @Test
-    @Order(11)
+    @Order(12)
     @DisplayName("Typescript Test with Empty Constructor")
     fun simpleEmptyConstructor() {
         val out = SimpleComp.SimpleModule.EntityWithEmptyConstructor.toTypeScriptImpl(context(), "", "")
@@ -284,7 +285,7 @@ class TypeScriptPojosTest {
     }
 
     @Test
-    @Order(12)
+    @Order(13)
     @DisplayName("Typescript Test with Constructor")
     fun entityWithConstructor() {
         CompWithConstructor.prepareForTsGeneration()
