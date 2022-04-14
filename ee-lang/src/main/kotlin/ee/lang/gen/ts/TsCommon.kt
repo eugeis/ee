@@ -231,3 +231,19 @@ fun <T : OperationI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String
         throw new ReferenceError('Not implemented yet.');
     }"""
 }
+
+fun <T : AttributeI<*>> T.toTypeScriptImportElements(element: AttributeI<*>): String {
+    val elementTypeName = element.type().name()
+    val elementParentName = element.parent().namespace()
+    val elementParentNameRegex = elementParentName.substring(elementParentName.lastIndexOf(".") + 1)
+    return """import { ${elementTypeName.capitalize()} } from '../${elementParentNameRegex.toLowerCase()}/${elementParentNameRegex.capitalize() + "ApiBase"}';"""
+}
+
+fun <T : BasicI<*>> T.toTypeScriptGenerateComponentPart(element: BasicI<*>): String =
+    """@Component({
+  selector: 'app-${element.name().toLowerCase()}',
+  templateUrl: './${element.name().toLowerCase()}.component.html',
+  styleUrls: ['./${element.name().toLowerCase()}.component.css']
+})
+"""
+

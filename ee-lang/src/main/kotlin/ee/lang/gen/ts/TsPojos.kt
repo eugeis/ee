@@ -54,20 +54,13 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptComponent(items: BasicI<*>, c: Gener
                                                  api: String = LangDerivedKind.API): String {
     val commonTypeAttribute = arrayOf("string", "int", "bool", "double")
     return """import { Component, OnInit } from '@angular/core';
-${items.props().filter { it.toString().contains("TypedAttribute") && !(it.type().name().toLowerCase() in commonTypeAttribute)}.
-    joinSurroundIfNotEmptyToString(nL, postfix = nL) { "import { ${it.type().name().capitalize()} } from '../" +
-            "${it.parent().namespace().substring(it.parent().namespace().lastIndexOf(".") + 1)}/" +
-            "${it.parent().namespace().substring(it.parent().namespace().lastIndexOf(".") + 1).capitalize() + "ApiBase"}';" } }
-@Component({
-  selector: 'app-${items.name().toLowerCase()}',
-  templateUrl: './${items.name().toLowerCase()}.component.html',
-  styleUrls: ['./${items.name().toLowerCase()}.component.css']
-})
+${items.props().filter { it.toString().contains("TypedAttribute") && it.type().name().toLowerCase() !in commonTypeAttribute }.
+    joinSurroundIfNotEmptyToString(nL, postfix = nL) { it.toTypeScriptImportElements(it) } }
+${items.toTypeScriptGenerateComponentPart(items)}
 ${isOpen().then("export ")}class ${items.name()}Component implements OnInit {
-${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-it.toTypeScriptMember(c, derived, api, false, halfTab)
+${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
+    it.toTypeScriptMember(c, derived, api, false, halfTab)
 }}
-
   constructor() { }
 
   ngOnInit(): void {
