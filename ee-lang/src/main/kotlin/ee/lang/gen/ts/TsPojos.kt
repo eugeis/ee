@@ -5,7 +5,6 @@ import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 
-
 fun LiteralI<*>.toTypeScript(): String = name().toUnderscoredUpperCase()
 fun LiteralI<*>.toTypeScriptIsMethod(): String {
     return """is${name().capitalize()}() : boolean {
@@ -42,7 +41,7 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: 
     api: String = LangDerivedKind.API): String {
     return """${isOpen().then("export ")}class ${c.n(this, derived)}${toTypeScriptExtends(c, derived,
         api)} {${props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-        it.toTypeScriptMember(c, derived, api, false)
+        it.toTypeScriptMember(c, derived, api, false, tab)
     }}${constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toTypeScript(c, derived, api)
     }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
@@ -51,24 +50,28 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: 
 }"""
 }
 
-// TODO IMPLEMENT PROPS
 fun <T : CompilationUnitI<*>> T.toTypeScriptComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                  api: String = LangDerivedKind.API): String {
-    return """
-        import { Component, OnInit } from '@angular/core';
+    val commonTypeAttribute = arrayOf("string", "int", "bool", "double")
+    return """import { Component, OnInit } from '@angular/core';
+${items.props().filter { it.toString().contains("TypedAttribute") && !(it.type().name().toLowerCase() in commonTypeAttribute)}.
+    joinSurroundIfNotEmptyToString(nL, postfix = nL) { "import { ${it.type().name().capitalize()} } from '../" +
+            "${it.parent().namespace().substring(it.parent().namespace().lastIndexOf(".") + 1)}/" +
+            "${it.parent().namespace().substring(it.parent().namespace().lastIndexOf(".") + 1).capitalize() + "ApiBase"}';" } }
+@Component({
+  selector: 'app-${items.name().toLowerCase()}',
+  templateUrl: './${items.name().toLowerCase()}.component.html',
+  styleUrls: ['./${items.name().toLowerCase()}.component.css']
+})
+${isOpen().then("export ")}class ${items.name()}Component implements OnInit {
+${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+it.toTypeScriptMember(c, derived, api, false, halfTab)
+}}
 
-        @Component({
-          selector: 'app-${items.name().toLowerCase()}',
-          templateUrl: './${items.name().toLowerCase()}.component.html',
-          styleUrls: ['./${items.name().toLowerCase()}.component.css']
-        })
-        ${isOpen().then("export ")}class ${items.name()}Component implements OnInit {
-        
-          constructor() { }
-        
-          ngOnInit(): void {
-          }
-        
-        }
-    """.trimMargin()
+  constructor() { }
+
+  ngOnInit(): void {
+  }
+
+}"""
 }

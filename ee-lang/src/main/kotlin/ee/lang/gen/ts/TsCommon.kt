@@ -170,9 +170,9 @@ fun <T : AttributeI<*>> T.toTypeScriptConstructorMember(c: GenerationContext, de
     "${toTypeScriptSignature(c, derived, api, init)}"
 
 fun <T : AttributeI<*>> T.toTypeScriptMember(c: GenerationContext, derived: String, api: String,
-    init: Boolean = true): String =
+    init: Boolean = true, indent: String): String =
         //"    ${isReplaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
-    "    ${toTypeScriptSignature(c, derived, api, init)}"
+    "${indent}${toTypeScriptSignature(c, derived, api, init)}"
 
 fun List<AttributeI<*>>.toTypeScriptSignature(c: GenerationContext, derived: String, api: String): String =
     joinWrappedToString(", ") { it.toTypeScriptSignature(c, derived, api) }
