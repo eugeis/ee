@@ -80,7 +80,32 @@ object CompWithConstructor: Comp({ artifact("ee-lang-test").namespace("ee.lang.t
             }
         }
     }
+}
 
+object ComponentWithoutInterface: Comp({ artifact("ee-lang-test").namespace("ee.lang.test") }) {
+    object ModuleWithoutInherit: Module() {
+        object BasicWithoutInherit : Basic() {
+            val firstSimpleProperty = propS()
+            val anotherSimpleProperty = propS()
+            val lastSimpleProperty = propS()
+        }
+    }
+}
+
+object ComponentWithInterface: Comp({ artifact("ee-lang-test").namespace("ee.lang.test") }) {
+    object ModuleWithInherit: Module() {
+        object BasicWithInherit : Basic() {
+            val firstSimpleProperty = prop(BasicWithoutInherit)
+            val anotherSimpleProperty = propS()
+            val lastSimpleProperty = propS()
+        }
+
+        object BasicWithoutInherit : Basic() {
+            val firstSimpleProperty = propS()
+            val anotherSimpleProperty = propS()
+            val lastSimpleProperty = propS()
+        }
+    }
 }
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -269,6 +294,79 @@ class TypeScriptPojosTest {
 
     @Test
     @Order(12)
+    @DisplayName("Typescript Test for Generating Component Without Interface")
+    fun toTypeScriptComponentTestWithoutInterface() {
+        val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
+            findDownByType(BasicI::class.java).filter { it.derivedAsType().isEmpty() }
+                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+        ComponentWithoutInterface.prepareForTsGeneration()
+        val out = ComponentWithoutInterface.ModuleWithoutInherit.BasicWithoutInherit.
+        toTypeScriptComponent(basics.invoke(ComponentWithoutInterface).first(),
+            contextCompWithoutInterface(), "", "")
+        log.infoBeforeAfter(out)
+        assertThat(out, `is`("""
+            import { Component, OnInit } from '@angular/core';
+
+            @Component({
+              selector: 'app-basicwithoutinherit',
+              templateUrl: './basicwithoutinherit.component.html',
+              styleUrls: ['./basicwithoutinherit.component.css']
+            })
+            
+            export class BasicWithoutInheritComponent implements OnInit {
+            
+              firstSimpleProperty: string
+              anotherSimpleProperty: string
+              lastSimpleProperty: string
+              constructor() { }
+            
+              ngOnInit(): void {
+              }
+            
+            }
+        """.trimIndent()))
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("Typescript Test for Generating Component With Interface")
+    fun toTypeScriptComponentTestWithInterface() {
+        val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
+            findDownByType(BasicI::class.java).filter { it.derivedAsType().isEmpty() }
+                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+        ComponentWithInterface.prepareForTsGeneration()
+        val out = ComponentWithInterface.ModuleWithInherit.BasicWithInherit.
+        toTypeScriptComponent(basics.invoke(ComponentWithInterface).first(),
+            contextCompWithoutInterface(), "", "")
+        log.infoBeforeAfter(out)
+        assertThat(out, `is`("""
+            import { Component, OnInit } from '@angular/core';
+            import { BasicWithoutInherit } from '../modulewithinherit/ModulewithinheritApiBase';
+            
+            @Component({
+              selector: 'app-basicwithinherit',
+              templateUrl: './basicwithinherit.component.html',
+              styleUrls: ['./basicwithinherit.component.css']
+            })
+            
+            export class BasicWithInheritComponent implements OnInit {
+            
+              firstSimpleProperty: BasicWithoutInherit
+              anotherSimpleProperty: string
+              lastSimpleProperty: string
+              constructor() { }
+            
+              ngOnInit(): void {
+              }
+            
+            }
+        """.trimIndent()))
+    }
+
+    @Test
+    @Order(14)
     @DisplayName("Typescript Test with Empty Constructor")
     fun simpleEmptyConstructor() {
         val out = SimpleComp.SimpleModule.EntityWithEmptyConstructor.toTypeScriptImpl(context(), "", "")
@@ -285,7 +383,7 @@ class TypeScriptPojosTest {
     }
 
     @Test
-    @Order(13)
+    @Order(15)
     @DisplayName("Typescript Test with Constructor")
     fun entityWithConstructor() {
         CompWithConstructor.prepareForTsGeneration()
@@ -307,6 +405,10 @@ class TypeScriptPojosTest {
 
 private fun context() = LangTsContextFactory().buildForImplOnly().builder.invoke(SimpleComp)
 private fun contextConst() = LangTsContextFactory().buildForImplOnly().builder.invoke(CompWithConstructor)
+
+private fun contextCompWithInterface() = LangTsContextFactory().buildForImplOnly().builder.invoke(ComponentWithInterface)
+
+private fun contextCompWithoutInterface() = LangTsContextFactory().buildForImplOnly().builder.invoke(ComponentWithoutInterface)
 
 fun Logger.infoBeforeAfter(out: String) {
     info("before")
