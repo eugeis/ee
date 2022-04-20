@@ -129,12 +129,16 @@ open class GeneratorSimple<M>(
 
         var pkg = prepareNamespace(module, c)
         var path = pkg.resolve(template.name(model).fileName)
-        if(path.toString().contains(".component.ts")) {
+        if(path.toString().contains(".component")) {
             val lastIndex = pkg.toString().lastIndexOf("\\") + 1
-            if(pkg.toString().substring(lastIndex) != "shared") {
-                pkg = Paths.get(pkg.toString().substring(0, lastIndex) + "shared")
-                path = pkg.resolve(template.name(model).fileName)
-            }
+            val lastIndexOfEE = pkg.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
+            pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
+                    "ee\\component\\${template.name(model).fileName.
+                        substring(0, template.name(model).fileName.indexOf("."))}")
+            path = pkg.resolve(template.name(model).fileName)
+            if(!pkg.exists()) {
+                    pkg.mkdirs()
+                }
         }
         val relative = target.relativize(path).toString()
         if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {

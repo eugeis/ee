@@ -15,9 +15,7 @@ import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
 import ee.lang.gen.go.itemNameAsGoFileName
 import ee.lang.gen.itemNameAsKotlinFileName
 import ee.lang.gen.swagger.itemNameAsSwaggerFileName
-import ee.lang.gen.ts.itemAndTemplateNameAsTsFileName
-import ee.lang.gen.ts.itemNameAsTsFileName
-import ee.lang.gen.ts.templateNameAsTsFileName
+import ee.lang.gen.ts.*
 
 open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGeneratorFactory(targetAsSingleModule) {
 
@@ -468,11 +466,31 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         for (i in basics.invoke(model)){
             moduleGenerators.add(
                 GeneratorSimple(
-                    "Component", contextBuilder = tsContextBuilder,
+                    "TypeScriptComponent", contextBuilder = tsContextBuilder,
                     template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.component",
                         nameBuilder = templateNameAsTsFileName, fragments = {
                             SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                fragments = { tsTemplates.component(i) })
+                                fragments = { tsTemplates.angularComponentTypeScript(i) })
+                        })
+                )
+            )
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "HtmlComponent", contextBuilder = tsContextBuilder,
+                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.component",
+                        nameBuilder = templateNameAsHTMLFileName, fragments = {
+                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                fragments = { tsTemplates.angularComponentHTML(i) })
+                        })
+                )
+            )
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "ScssComponent", contextBuilder = tsContextBuilder,
+                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.component",
+                        nameBuilder = templateNameAsCSSFileName, fragments = {
+                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                fragments = { tsTemplates.angularComponentCSS(i) })
                         })
                 )
             )

@@ -236,7 +236,44 @@ fun <T : AttributeI<*>> T.toTypeScriptImportElements(element: AttributeI<*>): St
     val elementTypeName = element.type().name()
     val elementParentName = element.parent().namespace()
     val elementParentNameRegex = elementParentName.substring(elementParentName.lastIndexOf(".") + 1)
-    return """import { ${elementTypeName.capitalize()} } from '../${elementParentNameRegex.toLowerCase()}/${elementParentNameRegex.capitalize() + "ApiBase"}';"""
+    return """import { ${elementTypeName.capitalize()} } from '../../schkola/${elementParentNameRegex.toLowerCase()}/${elementParentNameRegex.capitalize() + "ApiBase"}';"""
+}
+
+//TODO IMPLEMENT INTERFACE
+fun <T : AttributeI<*>> T.toTypeScriptHtmlInputFunction(indent: String, element: AttributeI<*>): String {
+    return if (element.type().name().contains("Number") || element.type().name().contains("Int")) {
+        """${indent}this.${element.name()} = Number((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
+    } else if (element.type().name().contains("Boolean")) {
+        """${indent}this.${element.name()} = Boolean((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
+    } else if (element.type().name().contains("String")) {
+        """${indent}this.${element.name()} = (<HTMLInputElement>document.getElementById('${element.name()}')).value;"""
+    } else {
+        """${indent}this.${element.name()} = (<HTMLInputElement>document.getElementById('${element.name()}')).value;"""
+    }
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptHtmlDeleteFunction(indent: String, element: AttributeI<*>): String {
+    return if(element.type().name().contains("Number") || element.type().name().contains("Int")) {
+        """${indent}this.${element.name()} = 0;"""
+    } else if (element.type().name().contains("Boolean")) {
+        """${indent}this.${element.name()} = undefined;"""
+    } else if (element.type().name().contains("String")) {
+        """${indent}this.${element.name()} = '';"""
+    } else {
+        """${indent}this.${element.name()} = new ${element.type().name()}();"""
+    }
+}
+
+fun <T : AttributeI<*>> T.toHtmlForm(element: AttributeI<*>): String {
+    return """<mat-form-field appearance="fill">
+    <mat-label>${element.name().capitalize()}</mat-label>
+    <input matInput id="${element.name()}">
+</mat-form-field>
+"""
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptHtmlPrintFunction(indent: String, element: AttributeI<*>): String {
+    return """${indent}console.log('${element.name().capitalize()} Value: ' + this.${element.name()})"""
 }
 
 fun <T : BasicI<*>> T.toTypeScriptGenerateComponentPart(element: BasicI<*>): String =

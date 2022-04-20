@@ -65,6 +65,49 @@ ${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefi
 
   ngOnInit(): void {
   }
+  inputElement() {
+${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toTypeScriptHtmlInputFunction(tab, it)
+}}
+  }
+  deleteElement() {
+${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toTypeScriptHtmlDeleteFunction(tab, it)
+}}
+  }
+  printElement() {
+${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toTypeScriptHtmlPrintFunction(tab, it)
+}}
+  }
 
 }"""
+}
+
+fun <T : CompilationUnitI<*>> T.toHtmlComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                      api: String = LangDerivedKind.API): String {
+    return """${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toHtmlForm(it)
+    }}
+<div>
+    <button mat-raised-button (click)="inputElement()">Input</button>
+    <button mat-raised-button (click)="deleteElement()">Delete</button>
+    <button mat-raised-button (click)="printElement()">Check Value</button>
+</div>
+    """
+}
+
+fun <T : CompilationUnitI<*>> T.toScssComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                api: String = LangDerivedKind.API): String {
+    return """
+:host {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+button {
+    display: inline-block;
+}
+    """
 }

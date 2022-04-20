@@ -73,3 +73,23 @@ val templateNameAsTsFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
 val itemNameAsTsFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("${it.name()}.ts")
 }
+
+val itemAndTemplateNameAsHTMLFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
+    Names("${it.name().capitalize()}${name.capitalize()}.html")
+}
+val templateNameAsHTMLFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
+    Names("$name.html")
+}
+val itemNameAsHTMLFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
+    Names("${it.name()}.html")
+}
+
+val itemAndTemplateNameAsCSSFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
+    Names("${it.name().capitalize()}${name.capitalize()}.scss")
+}
+val templateNameAsCSSFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
+    Names("$name.scss")
+}
+val itemNameAsCSSFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
+    Names("${it.name()}.scss")
+}
