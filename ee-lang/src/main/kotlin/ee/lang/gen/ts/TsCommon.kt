@@ -240,19 +240,19 @@ fun <T : AttributeI<*>> T.toTypeScriptImportElements(element: AttributeI<*>): St
 }
 
 fun <T : AttributeI<*>> T.toTypeScriptHtmlInputFunction(c: GenerationContext, indent: String, element: AttributeI<*>): String {
-    return if (element.type().toTypeScriptIfNative(c, "", element).equals("number")) {
-        """${indent}this.${element.name()} = Number((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
-    } else if (element.type().toTypeScriptIfNative(c, "", element).equals("boolean")) {
-        """${indent}this.${element.name()} = Boolean((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
-    } else if (element.type().toTypeScriptIfNative(c, "", element).equals("string")) {
-        """${indent}this.${element.name()} = (<HTMLInputElement>document.getElementById('${element.name()}')).value;"""
-    } else {
-        if (element.type().props().size > 0) {
-            element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-                it.toTypeScriptHtmlInputFunctionInterface(c, element.name(), tab, it)
+    return when (element.type().toTypeScriptIfNative(c, "", element)) {
+        "boolean" -> """${indent}this.${element.name()} = Boolean((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
+        "string" -> """${indent}this.${element.name()} = (<HTMLInputElement>document.getElementById('${element.name()}')).value;"""
+        "number" -> """${indent}this.${element.name()} = Number((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
+        else -> {
+            when (element.type().props().size) {
+                0 -> """${indent}this.${element.name()} = Number((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
+                else -> {
+                    element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+                        it.toTypeScriptHtmlInputFunctionInterface(c, element.name(), tab, it)
+                    }
+                }
             }
-        } else {
-            """${indent}this.${element.name()} = Number((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
         }
     }
 }
@@ -266,30 +266,30 @@ fun <T : AttributeI<*>> T.toTypeScriptHtmlInputFunctionInterface(c: GenerationCo
 }
 
 fun <T : AttributeI<*>> T.toTypeScriptHtmlDeleteFunction(c: GenerationContext, indent: String, element: AttributeI<*>): String {
-    return if(element.type().toTypeScriptIfNative(c, "", element).equals("number")) {
-        """${indent}this.${element.name()} = 0;"""
-    } else if (element.type().toTypeScriptIfNative(c, "", element).equals("boolean")) {
-        """${indent}this.${element.name()} = undefined;"""
-    } else if (element.type().toTypeScriptIfNative(c, "", element).equals("string")) {
-        """${indent}this.${element.name()} = '';"""
-    } else {
-        if (element.type().props().size > 0) {
-            element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-                it.toTypeScriptHtmlDeleteFunctionInterface(c, element.name(), tab, it)
+    return when (element.type().toTypeScriptIfNative(c, "", element)) {
+        "boolean" -> """${indent}this.${element.name()} = undefined;"""
+        "string" -> """${indent}this.${element.name()} = '';"""
+        "number" -> """${indent}this.${element.name()} = 0;"""
+        else -> {
+            when (element.type().props().size) {
+                0 -> """${indent}this.${element.name()} = 0;"""
+                else -> {
+                    element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+                        it.toTypeScriptHtmlDeleteFunctionInterface(c, element.name(), tab, it)
+                    }
+                }
             }
-        } else {
-            """${indent}this.${element.name()} = 0;"""
         }
     }
 }
 
 fun <T : AttributeI<*>> T.toTypeScriptHtmlDeleteFunctionInterface(c: GenerationContext, elementName: String, indent: String, element: AttributeI<*>): String {
-    return if (element.type().toTypeScriptIfNative(c, "", element).equals("boolean")) {
-        """${indent}this.${elementName}.${element.name()} = undefined;"""
-    } else if (element.type().toTypeScriptIfNative(c, "", element).equals("string")) {
-        """${indent}this.${elementName}.${element.name()} = '';"""
-    } else {
-        """${indent}this.${elementName}.${element.name()} = 0;"""
+    return when (element.type().toTypeScriptIfNative(c, "", element)) {
+        "boolean" -> """${indent}this.${elementName}.${element.name()} = undefined;"""
+        "string" -> """${indent}this.${elementName}.${element.name()} = '';"""
+        else -> {
+            """${indent}this.${elementName}.${element.name()} = 0;"""
+        }
     }
 }
 
@@ -330,15 +330,17 @@ fun <T : AttributeI<*>> T.toTypeScriptHtmlPrintFunctionInterface(elementName: St
 }
 
 fun <T : AttributeI<*>> T.toTypeScriptProperties(c: GenerationContext, indent: String, element: AttributeI<*>): String {
-    return if (element.type().toTypeScriptIfNative(c, "", element).equals("string")
-        || element.type().toTypeScriptIfNative(c, "", element).equals("boolean")) {
-        """${indent}${element.name()}: ${element.type().name()}"""
-    } else if (element.type().toTypeScriptIfNative(c, "", element).equals("number")) {
-        """${indent}${element.name()}: Number"""
-    } else if (element.type().props().size == 0) {
-        """${indent}${element.name()}: ${element.type().name()}"""
-    } else {
-        """${indent}${element.name()}: ${element.type().name()} = new ${element.type().name().capitalize()}()"""
+    return when (element.type().toTypeScriptIfNative(c, "", element)) {
+        "string", "boolean" -> """${indent}${element.name()}: ${element.type().name()}"""
+        "number" -> """${indent}${element.name()}: Number"""
+        else -> {
+            when (element.type().props().size) {
+                0 -> """${indent}${element.name()}: ${element.type().name()}"""
+                else -> {
+                    """${indent}${element.name()}: ${element.type().name()} = new ${element.type().name().capitalize()}()"""
+                }
+            }
+        }
     }
 }
 
