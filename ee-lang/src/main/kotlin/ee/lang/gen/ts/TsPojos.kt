@@ -59,7 +59,7 @@ ${items.props().filter { it.toString().contains("TypedAttribute") && it.type().n
 ${items.toTypeScriptGenerateComponentPart(items)}
 ${isOpen().then("export ")}class ${items.name()}Component implements OnInit {
 ${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
-    it.toTypeScriptMember(c, derived, api, false, halfTab)
+    it.toTypeScriptProperties(c, halfTab, it)
 }}
   constructor() { }
 
@@ -67,12 +67,12 @@ ${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefi
   }
   inputElement() {
 ${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toTypeScriptHtmlInputFunction(tab, it)
+        it.toTypeScriptHtmlInputFunction(c, tab, it)
 }}
   }
   deleteElement() {
 ${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toTypeScriptHtmlDeleteFunction(tab, it)
+        it.toTypeScriptHtmlDeleteFunction(c, tab, it)
 }}
   }
   printElement() {

@@ -239,48 +239,113 @@ fun <T : AttributeI<*>> T.toTypeScriptImportElements(element: AttributeI<*>): St
     return """import { ${elementTypeName.capitalize()} } from '../../schkola/${elementParentNameRegex.toLowerCase()}/${elementParentNameRegex.capitalize() + "ApiBase"}';"""
 }
 
-//TODO IMPLEMENT INTERFACE
-fun <T : AttributeI<*>> T.toTypeScriptHtmlInputFunction(indent: String, element: AttributeI<*>): String {
-    return if (element.type().name().contains("Number") || element.type().name().contains("Int")) {
+fun <T : AttributeI<*>> T.toTypeScriptHtmlInputFunction(c: GenerationContext, indent: String, element: AttributeI<*>): String {
+    return if (element.type().toTypeScriptIfNative(c, "", element).equals("number")) {
         """${indent}this.${element.name()} = Number((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
-    } else if (element.type().name().contains("Boolean")) {
+    } else if (element.type().toTypeScriptIfNative(c, "", element).equals("boolean")) {
         """${indent}this.${element.name()} = Boolean((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
-    } else if (element.type().name().contains("String")) {
+    } else if (element.type().toTypeScriptIfNative(c, "", element).equals("string")) {
         """${indent}this.${element.name()} = (<HTMLInputElement>document.getElementById('${element.name()}')).value;"""
     } else {
-        """${indent}this.${element.name()} = (<HTMLInputElement>document.getElementById('${element.name()}')).value;"""
+        if (element.type().props().size > 0) {
+            element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+                it.toTypeScriptHtmlInputFunctionInterface(c, element.name(), tab, it)
+            }
+        } else {
+            """${indent}this.${element.name()} = Number((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
+        }
     }
 }
 
-fun <T : AttributeI<*>> T.toTypeScriptHtmlDeleteFunction(indent: String, element: AttributeI<*>): String {
-    return if(element.type().name().contains("Number") || element.type().name().contains("Int")) {
+fun <T : AttributeI<*>> T.toTypeScriptHtmlInputFunctionInterface(c: GenerationContext,elementName: String, indent: String, element: AttributeI<*>): String {
+    return if(element.type().toTypeScriptIfNative(c, "", element).equals("string") || element.type().toTypeScriptIfNative(c, "", element).equals("boolean")) {
+        """${indent}this.${elementName}.${element.name()} = (<HTMLInputElement>document.getElementById('${elementName + element.name().capitalize()}')).value;"""
+    } else {
+        """${indent}this.${elementName}.${element.name()} = Number((<HTMLInputElement>document.getElementById('${elementName + element.name().capitalize()}')).value);"""
+    }
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptHtmlDeleteFunction(c: GenerationContext, indent: String, element: AttributeI<*>): String {
+    return if(element.type().toTypeScriptIfNative(c, "", element).equals("number")) {
         """${indent}this.${element.name()} = 0;"""
-    } else if (element.type().name().contains("Boolean")) {
+    } else if (element.type().toTypeScriptIfNative(c, "", element).equals("boolean")) {
         """${indent}this.${element.name()} = undefined;"""
-    } else if (element.type().name().contains("String")) {
+    } else if (element.type().toTypeScriptIfNative(c, "", element).equals("string")) {
         """${indent}this.${element.name()} = '';"""
     } else {
-        """${indent}this.${element.name()} = new ${element.type().name()}();"""
+        if (element.type().props().size > 0) {
+            element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+                it.toTypeScriptHtmlDeleteFunctionInterface(c, element.name(), tab, it)
+            }
+        } else {
+            """${indent}this.${element.name()} = 0;"""
+        }
+    }
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptHtmlDeleteFunctionInterface(c: GenerationContext, elementName: String, indent: String, element: AttributeI<*>): String {
+    return if (element.type().toTypeScriptIfNative(c, "", element).equals("boolean")) {
+        """${indent}this.${elementName}.${element.name()} = undefined;"""
+    } else if (element.type().toTypeScriptIfNative(c, "", element).equals("string")) {
+        """${indent}this.${elementName}.${element.name()} = '';"""
+    } else {
+        """${indent}this.${elementName}.${element.name()} = 0;"""
     }
 }
 
 fun <T : AttributeI<*>> T.toHtmlForm(element: AttributeI<*>): String {
-    return """<mat-form-field appearance="fill">
+    return if (element.type().props().size > 0) {
+        element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, postfix = nL) {
+            it.toTypeScriptHtmlInterface(element.name(), it)
+        }
+    } else {
+        """<mat-form-field appearance="fill">
     <mat-label>${element.name().capitalize()}</mat-label>
     <input matInput id="${element.name()}">
 </mat-form-field>
 """
+    }
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptHtmlInterface(elementName: String, element: AttributeI<*>): String {
+    return """
+<mat-form-field appearance="fill">
+    <mat-label>${elementName.capitalize()}${element.name().capitalize()}</mat-label>
+    <input matInput id="${elementName}${element.name().capitalize()}">
+</mat-form-field>"""
 }
 
 fun <T : AttributeI<*>> T.toTypeScriptHtmlPrintFunction(indent: String, element: AttributeI<*>): String {
-    return """${indent}console.log('${element.name().capitalize()} Value: ' + this.${element.name()})"""
+    return if (element.type().props().size > 0) {
+        element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+            it.toTypeScriptHtmlPrintFunctionInterface(element.name(), tab, it)
+        }
+    } else {
+        """${indent}console.log('${element.name().capitalize()} Value: ' + this.${element.name()})"""
+    }
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptHtmlPrintFunctionInterface(elementName: String, indent: String, element: AttributeI<*>): String {
+    return """${indent}console.log('${elementName.capitalize()}${element.name().capitalize()} Value: ' + this.${elementName}.${element.name()})"""
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptProperties(c: GenerationContext, indent: String, element: AttributeI<*>): String {
+    return if (element.type().toTypeScriptIfNative(c, "", element).equals("string")
+        || element.type().toTypeScriptIfNative(c, "", element).equals("boolean")) {
+        """${indent}${element.name()}: ${element.type().name()}"""
+    } else if (element.type().toTypeScriptIfNative(c, "", element).equals("number")) {
+        """${indent}${element.name()}: Number"""
+    } else if (element.type().props().size == 0) {
+        """${indent}${element.name()}: ${element.type().name()}"""
+    } else {
+        """${indent}${element.name()}: ${element.type().name()} = new ${element.type().name().capitalize()}()"""
+    }
 }
 
 fun <T : BasicI<*>> T.toTypeScriptGenerateComponentPart(element: BasicI<*>): String =
     """@Component({
   selector: 'app-${element.name().toLowerCase()}',
   templateUrl: './${element.name().toLowerCase()}.component.html',
-  styleUrls: ['./${element.name().toLowerCase()}.component.css']
+  styleUrls: ['./${element.name().toLowerCase()}.component.scss']
 })
 """
-
