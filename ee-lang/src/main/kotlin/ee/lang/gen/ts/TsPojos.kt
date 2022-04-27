@@ -58,27 +58,50 @@ ${items.props().filter { it.toString().contains("TypedAttribute") && it.type().n
     joinSurroundIfNotEmptyToString(nL, postfix = nL) { it.toTypeScriptImportElements(it) } }
 ${items.toTypeScriptGenerateComponentPart(items)}
 ${isOpen().then("export ")}class ${items.name()}Component implements OnInit {
-${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL, postfix = nL) {
-    it.toTypeScriptProperties(c, halfTab, it)
+${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+    it.toTypeScriptGenerateProperties(c, halfTab, it)
 }}
+${items.toTypeScriptGenerateArrayPart(halfTab)}
   constructor() { }
 
   ngOnInit(): void {
   }
   inputElement() {
 ${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toTypeScriptHtmlInputFunction(c, tab, it)
+        it.toTypeScriptInputFunction(c, tab, it)
+}}
+${items.toTypeScriptInputPushElementToArrayPart(tab, items)}
+  }
+  deleteElement(index: number) {
+${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+        var indexOfElement = calculateIndex(items, it)
+        it.toTypeScriptDeleteFunction(c, tab, it, indexOfElement)
+}}
+${items.toTypeScriptDeleteElementFromArrayPart(tab)}
+  }
+  printElement(index: number) {
+${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+        var indexOfElement = calculateIndex(items, it)
+        it.toTypeScriptPrintFunction(tab, it, indexOfElement)
 }}
   }
-  deleteElement() {
+  changeIndex(input: number) {
+        this.index = input;
+  }
+  loadElement(index: number) {
 ${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toTypeScriptHtmlDeleteFunction(c, tab, it)
+        var indexOfElement = calculateIndex(items, it)
+        it.toTypeScriptLoadFunction(c, tab, it, indexOfElement)
 }}
   }
-  printElement() {
+  editElement(index: number) {
 ${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toTypeScriptHtmlPrintFunction(tab, it)
-}}
+        var indexOfElement = calculateIndex(items, it)
+        it.toTypeScriptEditFunction(c, tab, it, indexOfElement)
+    }}
+  }
+  simplifiedHtmlInputElement(element: string) {
+        return (<HTMLInputElement>document.getElementById(element)).value;
   }
 
 }"""
@@ -91,8 +114,18 @@ fun <T : CompilationUnitI<*>> T.toHtmlComponent(items: BasicI<*>, c: GenerationC
     }}
 <div>
     <button mat-raised-button (click)="inputElement()">Input</button>
-    <button mat-raised-button (click)="deleteElement()">Delete</button>
-    <button mat-raised-button (click)="printElement()">Check Value</button>
+    <mat-form-field appearance="fill">
+        <mat-label>Select</mat-label>
+        <mat-select (valueChange)="changeIndex(${"$"}event)">
+            <div *ngFor="let item of dataElement; let i = index">
+                <mat-option [value]="i">{{i}}</mat-option>
+            </div>
+        </mat-select>
+    </mat-form-field>
+    <button mat-raised-button (click)="loadElement(index)">Load Value</button>
+    <button mat-raised-button (click)="printElement(index)">Check Value</button>
+    <button mat-raised-button (click)="editElement(index)">Edit Value</button>
+    <button mat-raised-button (click)="deleteElement(index)">Delete</button>
 </div>
     """
 }
@@ -110,4 +143,23 @@ button {
     display: inline-block;
 }
     """
+}
+
+fun calculateIndex(items: BasicI<*>, it: AttributeI<*>): Int {
+    // start index of element
+    var indexOfElement = 0
+    while (items.props()[indexOfElement] != it) {
+        ++indexOfElement
+    }
+    // searching interface in between indexes
+    var indexForSearchingElement = 0
+    var indexOfElementWithInterface = 0
+    while (items.props()[indexForSearchingElement] != it) {
+        if (items.props()[indexForSearchingElement].type().props().size != 0) {
+            indexOfElementWithInterface = indexForSearchingElement
+            indexOfElement += items.props()[indexOfElementWithInterface].type().props().size - 1
+        }
+        ++indexForSearchingElement
+    }
+    return indexOfElement;
 }

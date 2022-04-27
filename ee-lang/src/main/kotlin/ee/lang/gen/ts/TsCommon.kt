@@ -3,7 +3,7 @@ package ee.lang.gen.ts
 import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
-
+var tempIndex = 0
 fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
     val baseType = findDerivedOrThis()
     return when (baseType) {
@@ -239,17 +239,17 @@ fun <T : AttributeI<*>> T.toTypeScriptImportElements(element: AttributeI<*>): St
     return """import { ${elementTypeName.capitalize()} } from '../../schkola/${elementParentNameRegex.toLowerCase()}/${elementParentNameRegex.capitalize() + "ApiBase"}';"""
 }
 
-fun <T : AttributeI<*>> T.toTypeScriptHtmlInputFunction(c: GenerationContext, indent: String, element: AttributeI<*>): String {
+fun <T : AttributeI<*>> T.toTypeScriptInputFunction(c: GenerationContext, indent: String, element: AttributeI<*>): String {
     return when (element.type().toTypeScriptIfNative(c, "", element)) {
         "boolean" -> """${indent}this.${element.name()} = Boolean((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
-        "string" -> """${indent}this.${element.name()} = (<HTMLInputElement>document.getElementById('${element.name()}')).value;"""
+        "string" -> """${indent}this.${element.name()} = this.simplifiedHtmlInputElement('${element.name()}');"""
         "number" -> """${indent}this.${element.name()} = Number((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
         else -> {
             when (element.type().props().size) {
                 0 -> """${indent}this.${element.name()} = Number((<HTMLInputElement>document.getElementById('${element.name()}')).value);"""
                 else -> {
                     element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-                        it.toTypeScriptHtmlInputFunctionInterface(c, element.name(), tab, it)
+                        it.toTypeScriptInputFunctionWithInterface(c, element.name(), tab, it)
                     }
                 }
             }
@@ -257,25 +257,45 @@ fun <T : AttributeI<*>> T.toTypeScriptHtmlInputFunction(c: GenerationContext, in
     }
 }
 
-fun <T : AttributeI<*>> T.toTypeScriptHtmlInputFunctionInterface(c: GenerationContext,elementName: String, indent: String, element: AttributeI<*>): String {
+fun <T : AttributeI<*>> T.toTypeScriptInputFunctionWithInterface(c: GenerationContext, elementName: String, indent: String, element: AttributeI<*>): String {
     return if(element.type().toTypeScriptIfNative(c, "", element).equals("string") || element.type().toTypeScriptIfNative(c, "", element).equals("boolean")) {
-        """${indent}this.${elementName}.${element.name()} = (<HTMLInputElement>document.getElementById('${elementName + element.name().capitalize()}')).value;"""
+        """${indent}this.${elementName}.${element.name()} = this.simplifiedHtmlInputElement('${elementName + element.name().capitalize()}');"""
     } else {
         """${indent}this.${elementName}.${element.name()} = Number((<HTMLInputElement>document.getElementById('${elementName + element.name().capitalize()}')).value);"""
     }
 }
 
-fun <T : AttributeI<*>> T.toTypeScriptHtmlDeleteFunction(c: GenerationContext, indent: String, element: AttributeI<*>): String {
+fun <T : BasicI<*>> T.toTypeScriptInputPushElementToArrayPart(indent: String, element: BasicI<*>): String =
+    """${indent}this.dataElement.push([${element.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") { 
+        it.toTypeScriptInputPushingElements(it)
+    }}]);
+"""
+
+fun <T : AttributeI<*>> T.toTypeScriptInputPushingElements(element: AttributeI<*>): String {
+    return when (element.type().props().size) {
+        0 -> """this.${element.name()}"""
+        else -> {
+            element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
+                it.toTypeScriptInputPushingElementsWithInterface(element.name(), tab, it)
+            }
+        }
+    }
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptInputPushingElementsWithInterface(elementName: String, indent: String, element: AttributeI<*>): String {
+    return """this.${elementName}.${element.name()}"""
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptDeleteFunction(c: GenerationContext, indent: String, element: AttributeI<*>, index: Int): String {
+    tempIndex = index
     return when (element.type().toTypeScriptIfNative(c, "", element)) {
-        "boolean" -> """${indent}this.${element.name()} = undefined;"""
-        "string" -> """${indent}this.${element.name()} = '';"""
-        "number" -> """${indent}this.${element.name()} = 0;"""
+        "boolean", "string", "number" -> """${indent}this.dataElement[index][${tempIndex}] = '';"""
         else -> {
             when (element.type().props().size) {
-                0 -> """${indent}this.${element.name()} = 0;"""
+                0 -> """${indent}this.dataElement[index][${tempIndex}] = '';"""
                 else -> {
                     element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-                        it.toTypeScriptHtmlDeleteFunctionInterface(c, element.name(), tab, it)
+                        it.toTypeScriptDeleteFunctionWithInterface(c, element.name(), tab, it, tempIndex)
                     }
                 }
             }
@@ -283,20 +303,85 @@ fun <T : AttributeI<*>> T.toTypeScriptHtmlDeleteFunction(c: GenerationContext, i
     }
 }
 
-fun <T : AttributeI<*>> T.toTypeScriptHtmlDeleteFunctionInterface(c: GenerationContext, elementName: String, indent: String, element: AttributeI<*>): String {
+fun <T : AttributeI<*>> T.toTypeScriptDeleteFunctionWithInterface(c: GenerationContext, elementName: String, indent: String, element: AttributeI<*>, index: Int): String {
+    tempIndex = index + 1
     return when (element.type().toTypeScriptIfNative(c, "", element)) {
-        "boolean" -> """${indent}this.${elementName}.${element.name()} = undefined;"""
-        "string" -> """${indent}this.${elementName}.${element.name()} = '';"""
+        "boolean", "string" -> """${indent}this.dataElement[index][${index}] = '';"""
         else -> {
-            """${indent}this.${elementName}.${element.name()} = 0;"""
+            """${indent}this.dataElement[index][${index}]} = '';"""
         }
     }
+}
+
+fun <T : BasicI<*>> T.toTypeScriptDeleteElementFromArrayPart(indent: String): String =
+    """${indent}this.tempArray = this.dataElement.filter(function(element) {return element[0] !== '' })
+${indent}this.dataElement = this.tempArray;"""
+
+
+fun <T : AttributeI<*>> T.toTypeScriptPrintFunction(indent: String, element: AttributeI<*>, index: Int): String {
+    tempIndex = index
+    return if (element.type().props().size > 0) {
+        element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+            it.toTypeScriptPrintFunctionWithInterface(element.name(), tab, it, tempIndex)
+        }
+    } else {
+        """${indent}console.log('${element.name().capitalize()} Value: ' + this.dataElement[index][${tempIndex}])"""
+    }
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptPrintFunctionWithInterface(elementName: String, indent: String, element: AttributeI<*>, index: Int): String {
+    tempIndex = index + 1
+    return """${indent}console.log('${elementName.capitalize()}${element.name().capitalize()} Value: ' + this.dataElement[index][${index}])"""
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptLoadFunction(c: GenerationContext, indent: String, element: AttributeI<*>, index: Int): String {
+    tempIndex = index
+    return when (element.type().toTypeScriptIfNative(c, "", element)) {
+        "boolean", "string", "number" -> """${indent}(<HTMLInputElement>document.getElementById('${element.name()}')).value = this.dataElement[index][${tempIndex}];"""
+        else -> {
+            when (element.type().props().size) {
+                0 -> """${indent}(<HTMLInputElement>document.getElementById('${element.name()}')).value = this.dataElement[index][${tempIndex}];"""
+                else -> {
+                    element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+                        it.toTypeScriptLoadFunctionWithInterface(element.name(), tab, it, tempIndex)
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptLoadFunctionWithInterface(elementName: String, indent: String, element: AttributeI<*>, index: Int): String {
+    tempIndex = index + 1
+    return """${indent}(<HTMLInputElement>document.getElementById('${elementName + element.name().capitalize()}')).value = this.dataElement[index][${index}];"""
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptEditFunction(c: GenerationContext, indent: String, element: AttributeI<*>, index: Int): String {
+    tempIndex = index
+    return when (element.type().toTypeScriptIfNative(c, "", element)) {
+        "boolean", "string", "number" -> """${indent}this.dataElement[index][${tempIndex}] = this.simplifiedHtmlInputElement('${element.name()}');"""
+        else -> {
+            when (element.type().props().size) {
+                0 -> """${indent}this.dataElement[index][${tempIndex}] = this.simplifiedHtmlInputElement('${element.name()}');"""
+                else -> {
+                    element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
+                        it.toTypeScriptEditFunctionWithInterface(element.name(), tab, it, tempIndex)
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun <T : AttributeI<*>> T.toTypeScriptEditFunctionWithInterface(elementName: String, indent: String, element: AttributeI<*>, index: Int): String {
+    tempIndex = index + 1
+    return """${indent}this.dataElement[index][${index}] = this.simplifiedHtmlInputElement('${elementName + element.name().capitalize()}');"""
 }
 
 fun <T : AttributeI<*>> T.toHtmlForm(element: AttributeI<*>): String {
     return if (element.type().props().size > 0) {
         element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, postfix = nL) {
-            it.toTypeScriptHtmlInterface(element.name(), it)
+            it.toHtmlWithInterface(element.name(), it)
         }
     } else {
         """<mat-form-field appearance="fill">
@@ -307,7 +392,7 @@ fun <T : AttributeI<*>> T.toHtmlForm(element: AttributeI<*>): String {
     }
 }
 
-fun <T : AttributeI<*>> T.toTypeScriptHtmlInterface(elementName: String, element: AttributeI<*>): String {
+fun <T : AttributeI<*>> T.toHtmlWithInterface(elementName: String, element: AttributeI<*>): String {
     return """
 <mat-form-field appearance="fill">
     <mat-label>${elementName.capitalize()}${element.name().capitalize()}</mat-label>
@@ -315,21 +400,7 @@ fun <T : AttributeI<*>> T.toTypeScriptHtmlInterface(elementName: String, element
 </mat-form-field>"""
 }
 
-fun <T : AttributeI<*>> T.toTypeScriptHtmlPrintFunction(indent: String, element: AttributeI<*>): String {
-    return if (element.type().props().size > 0) {
-        element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-            it.toTypeScriptHtmlPrintFunctionInterface(element.name(), tab, it)
-        }
-    } else {
-        """${indent}console.log('${element.name().capitalize()} Value: ' + this.${element.name()})"""
-    }
-}
-
-fun <T : AttributeI<*>> T.toTypeScriptHtmlPrintFunctionInterface(elementName: String, indent: String, element: AttributeI<*>): String {
-    return """${indent}console.log('${elementName.capitalize()}${element.name().capitalize()} Value: ' + this.${elementName}.${element.name()})"""
-}
-
-fun <T : AttributeI<*>> T.toTypeScriptProperties(c: GenerationContext, indent: String, element: AttributeI<*>): String {
+fun <T : AttributeI<*>> T.toTypeScriptGenerateProperties(c: GenerationContext, indent: String, element: AttributeI<*>): String {
     return when (element.type().toTypeScriptIfNative(c, "", element)) {
         "string", "boolean" -> """${indent}${element.name()}: ${element.type().name()}"""
         "number" -> """${indent}${element.name()}: Number"""
@@ -343,6 +414,12 @@ fun <T : AttributeI<*>> T.toTypeScriptProperties(c: GenerationContext, indent: S
         }
     }
 }
+
+fun <T : BasicI<*>> T.toTypeScriptGenerateArrayPart(indent: String): String =
+    """${indent}index = 0;
+  dataElement: any[][] = [];
+  tempArray: any[][] = [];
+"""
 
 fun <T : BasicI<*>> T.toTypeScriptGenerateComponentPart(element: BasicI<*>): String =
     """@Component({
