@@ -294,7 +294,83 @@ class TypeScriptPojosTest {
 
     @Test
     @Order(12)
-    @DisplayName("Typescript Test for Generating Component Without Interface")
+    @DisplayName("Typescript Test for Generating SCSS Component Without Interface")
+    fun toTypeScriptScssComponentTestWithoutInterface() {
+        val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
+            findDownByType(BasicI::class.java).filter { it.derivedAsType().isEmpty() }
+                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+        ComponentWithoutInterface.prepareForTsGeneration()
+        val out = ComponentWithoutInterface.ModuleWithoutInherit.BasicWithoutInherit.
+        toScssComponent(basics.invoke(ComponentWithoutInterface).first(),
+            contextCompWithoutInterface(), "", "")
+        log.infoBeforeAfter(out)
+        assertThat(out, `is`("""
+        
+        :host {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        button {
+            display: inline-block;
+        }
+            
+        """.trimIndent()))
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("Typescript Test for Generating HTML Component Without Interface")
+    fun toTypeScriptHtmlComponentTestWithoutInterface() {
+        val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
+            findDownByType(BasicI::class.java).filter { it.derivedAsType().isEmpty() }
+                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+        ComponentWithoutInterface.prepareForTsGeneration()
+        val out = ComponentWithoutInterface.ModuleWithoutInherit.BasicWithoutInherit.
+        toHtmlComponent(basics.invoke(ComponentWithoutInterface).first(),
+            contextCompWithoutInterface(), "", "")
+        log.infoBeforeAfter(out)
+        assertThat(out, `is`("""
+        <mat-form-field appearance="fill">
+            <mat-label>FirstSimpleProperty</mat-label>
+            <input matInput id="firstSimpleProperty">
+        </mat-form-field>
+        
+        <mat-form-field appearance="fill">
+            <mat-label>AnotherSimpleProperty</mat-label>
+            <input matInput id="anotherSimpleProperty">
+        </mat-form-field>
+        
+        <mat-form-field appearance="fill">
+            <mat-label>LastSimpleProperty</mat-label>
+            <input matInput id="lastSimpleProperty">
+        </mat-form-field>
+        
+        <div>
+            <button mat-raised-button (click)="inputElement()">Input</button>
+            <mat-form-field appearance="fill">
+                <mat-label>Select</mat-label>
+                <mat-select (valueChange)="changeIndex(${"$"}event)">
+                    <div *ngFor="let item of dataElement; let i = index">
+                        <mat-option [value]="i">{{i}}</mat-option>
+                    </div>
+                </mat-select>
+            </mat-form-field>
+            <button mat-raised-button (click)="loadElement(index)">Load Value</button>
+            <button mat-raised-button (click)="printElement(index)">Check Value</button>
+            <button mat-raised-button (click)="editElement(index)">Edit Value</button>
+            <button mat-raised-button (click)="deleteElement(index)">Delete</button>
+        </div>
+            
+        """.trimIndent()))
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("Typescript Test for Generating Typescript Component Without Interface")
     fun toTypeScriptComponentTestWithoutInterface() {
         val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
             findDownByType(BasicI::class.java).filter { it.derivedAsType().isEmpty() }
@@ -311,17 +387,56 @@ class TypeScriptPojosTest {
             @Component({
               selector: 'app-basicwithoutinherit',
               templateUrl: './basicwithoutinherit.component.html',
-              styleUrls: ['./basicwithoutinherit.component.css']
+              styleUrls: ['./basicwithoutinherit.component.scss']
             })
             
             export class BasicWithoutInheritComponent implements OnInit {
             
-              firstSimpleProperty: string
-              anotherSimpleProperty: string
-              lastSimpleProperty: string
+              firstSimpleProperty: String
+              anotherSimpleProperty: String
+              lastSimpleProperty: String
+              index = 0;
+              dataElement: any[][] = [];
+              tempArray: any[][] = [];
+            
               constructor() { }
             
               ngOnInit(): void {
+              }
+              inputElement() {
+                this.firstSimpleProperty = this.simplifiedHtmlInputElement('firstSimpleProperty');
+                this.anotherSimpleProperty = this.simplifiedHtmlInputElement('anotherSimpleProperty');
+                this.lastSimpleProperty = this.simplifiedHtmlInputElement('lastSimpleProperty');
+                this.dataElement.push([this.firstSimpleProperty, this.anotherSimpleProperty, this.lastSimpleProperty]);
+            
+              }
+              deleteElement(index: number) {
+                this.dataElement[index][0] = '';
+                this.dataElement[index][1] = '';
+                this.dataElement[index][2] = '';
+                this.tempArray = this.dataElement.filter(function(element) {return element[0] !== '' })
+                this.dataElement = this.tempArray;
+              }
+              printElement(index: number) {
+                console.log('FirstSimpleProperty Value: ' + this.dataElement[index][0])
+                console.log('AnotherSimpleProperty Value: ' + this.dataElement[index][1])
+                console.log('LastSimpleProperty Value: ' + this.dataElement[index][2])
+              }
+              changeIndex(input: number) {
+                    this.index = input;
+              }
+              loadElement(index: number) {
+                (<HTMLInputElement>document.getElementById('firstSimpleProperty')).value = this.dataElement[index][0];
+                (<HTMLInputElement>document.getElementById('anotherSimpleProperty')).value = this.dataElement[index][1];
+                (<HTMLInputElement>document.getElementById('lastSimpleProperty')).value = this.dataElement[index][2];
+              }
+              editElement(index: number) {
+                this.dataElement[index][0] = this.simplifiedHtmlInputElement('firstSimpleProperty');
+                this.dataElement[index][1] = this.simplifiedHtmlInputElement('anotherSimpleProperty');
+                this.dataElement[index][2] = this.simplifiedHtmlInputElement('lastSimpleProperty');
+              }
+              simplifiedHtmlInputElement(element: string) {
+                    return (<HTMLInputElement>document.getElementById(element)).value;
               }
             
             }
@@ -329,8 +444,8 @@ class TypeScriptPojosTest {
     }
 
     @Test
-    @Order(13)
-    @DisplayName("Typescript Test for Generating Component With Interface")
+    @Order(15)
+    @DisplayName("Typescript Test for Generating Typescript Component With Interface")
     fun toTypeScriptComponentTestWithInterface() {
         val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
             findDownByType(BasicI::class.java).filter { it.derivedAsType().isEmpty() }
@@ -343,22 +458,71 @@ class TypeScriptPojosTest {
         log.infoBeforeAfter(out)
         assertThat(out, `is`("""
             import { Component, OnInit } from '@angular/core';
-            import { BasicWithoutInherit } from '../modulewithinherit/ModulewithinheritApiBase';
+            import { BasicWithoutInherit } from '../../schkola/modulewithinherit/ModulewithinheritApiBase';
             
             @Component({
               selector: 'app-basicwithinherit',
               templateUrl: './basicwithinherit.component.html',
-              styleUrls: ['./basicwithinherit.component.css']
+              styleUrls: ['./basicwithinherit.component.scss']
             })
             
             export class BasicWithInheritComponent implements OnInit {
             
-              firstSimpleProperty: BasicWithoutInherit
-              anotherSimpleProperty: string
-              lastSimpleProperty: string
+              firstSimpleProperty: BasicWithoutInherit = new BasicWithoutInherit()
+              anotherSimpleProperty: String
+              lastSimpleProperty: String
+              index = 0;
+              dataElement: any[][] = [];
+              tempArray: any[][] = [];
+            
               constructor() { }
             
               ngOnInit(): void {
+              }
+              inputElement() {
+                this.firstSimpleProperty.firstSimpleProperty = this.simplifiedHtmlInputElement('firstSimplePropertyFirstSimpleProperty');
+                this.firstSimpleProperty.anotherSimpleProperty = this.simplifiedHtmlInputElement('firstSimplePropertyAnotherSimpleProperty');
+                this.firstSimpleProperty.lastSimpleProperty = this.simplifiedHtmlInputElement('firstSimplePropertyLastSimpleProperty');
+                this.anotherSimpleProperty = this.simplifiedHtmlInputElement('anotherSimpleProperty');
+                this.lastSimpleProperty = this.simplifiedHtmlInputElement('lastSimpleProperty');
+                this.dataElement.push([this.firstSimpleProperty.firstSimpleProperty, this.firstSimpleProperty.anotherSimpleProperty, this.firstSimpleProperty.lastSimpleProperty, this.anotherSimpleProperty, this.lastSimpleProperty]);
+            
+              }
+              deleteElement(index: number) {
+                this.dataElement[index][0] = '';
+                this.dataElement[index][1] = '';
+                this.dataElement[index][2] = '';
+                this.dataElement[index][3] = '';
+                this.dataElement[index][4] = '';
+                this.tempArray = this.dataElement.filter(function(element) {return element[0] !== '' })
+                this.dataElement = this.tempArray;
+              }
+              printElement(index: number) {
+                console.log('FirstSimplePropertyFirstSimpleProperty Value: ' + this.dataElement[index][0])
+                console.log('FirstSimplePropertyAnotherSimpleProperty Value: ' + this.dataElement[index][1])
+                console.log('FirstSimplePropertyLastSimpleProperty Value: ' + this.dataElement[index][2])
+                console.log('AnotherSimpleProperty Value: ' + this.dataElement[index][3])
+                console.log('LastSimpleProperty Value: ' + this.dataElement[index][4])
+              }
+              changeIndex(input: number) {
+                    this.index = input;
+              }
+              loadElement(index: number) {
+                (<HTMLInputElement>document.getElementById('firstSimplePropertyFirstSimpleProperty')).value = this.dataElement[index][0];
+                (<HTMLInputElement>document.getElementById('firstSimplePropertyAnotherSimpleProperty')).value = this.dataElement[index][1];
+                (<HTMLInputElement>document.getElementById('firstSimplePropertyLastSimpleProperty')).value = this.dataElement[index][2];
+                (<HTMLInputElement>document.getElementById('anotherSimpleProperty')).value = this.dataElement[index][3];
+                (<HTMLInputElement>document.getElementById('lastSimpleProperty')).value = this.dataElement[index][4];
+              }
+              editElement(index: number) {
+                this.dataElement[index][0] = this.simplifiedHtmlInputElement('firstSimplePropertyFirstSimpleProperty');
+                this.dataElement[index][1] = this.simplifiedHtmlInputElement('firstSimplePropertyAnotherSimpleProperty');
+                this.dataElement[index][2] = this.simplifiedHtmlInputElement('firstSimplePropertyLastSimpleProperty');
+                this.dataElement[index][3] = this.simplifiedHtmlInputElement('anotherSimpleProperty');
+                this.dataElement[index][4] = this.simplifiedHtmlInputElement('lastSimpleProperty');
+              }
+              simplifiedHtmlInputElement(element: string) {
+                    return (<HTMLInputElement>document.getElementById(element)).value;
               }
             
             }
@@ -366,7 +530,7 @@ class TypeScriptPojosTest {
     }
 
     @Test
-    @Order(14)
+    @Order(16)
     @DisplayName("Typescript Test with Empty Constructor")
     fun simpleEmptyConstructor() {
         val out = SimpleComp.SimpleModule.EntityWithEmptyConstructor.toTypeScriptImpl(context(), "", "")
@@ -383,7 +547,7 @@ class TypeScriptPojosTest {
     }
 
     @Test
-    @Order(15)
+    @Order(17)
     @DisplayName("Typescript Test with Constructor")
     fun entityWithConstructor() {
         CompWithConstructor.prepareForTsGeneration()

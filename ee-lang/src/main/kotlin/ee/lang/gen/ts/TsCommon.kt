@@ -417,8 +417,8 @@ fun <T : AttributeI<*>> T.toTypeScriptGenerateProperties(c: GenerationContext, i
 
 fun <T : BasicI<*>> T.toTypeScriptGenerateArrayPart(indent: String): String =
     """${indent}index = 0;
-  dataElement: any[][] = [];
-  tempArray: any[][] = [];
+${indent}dataElement: any[][] = [];
+${indent}tempArray: any[][] = [];
 """
 
 fun <T : BasicI<*>> T.toTypeScriptGenerateComponentPart(element: BasicI<*>): String =
