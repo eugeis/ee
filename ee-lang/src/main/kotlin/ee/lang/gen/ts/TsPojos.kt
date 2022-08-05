@@ -15,7 +15,7 @@ fun LiteralI<*>.toTypeScriptIsMethod(): String {
 fun <T : EnumTypeI<*>> T.toTypeScriptEnum(c: GenerationContext, derived: String = LangDerivedKind.API,
     api: String = LangDerivedKind.API): String {
     val name = c.n(this, derived)
-    return """enum $name {
+    return """${isOpen().then("export ")}enum $name {
     ${literals().joinToString(",${nL}    ") { "${it.toTypeScript()}${it.toTypeScriptCallValue(c, derived)}" }}
 }"""
     /*
@@ -41,7 +41,7 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: 
     api: String = LangDerivedKind.API): String {
     return """${isOpen().then("export ")}class ${c.n(this, derived)}${toTypeScriptExtends(c, derived,
         api)} {${props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-        it.toTypeScriptMember(c, derived, api, false, tab)
+        it.toTypeScriptMember(c, derived, api, true, tab)
     }}${constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toTypeScript(c, derived, api)
     }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
@@ -50,7 +50,7 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: 
 }"""
 }
 
-fun <T : CompilationUnitI<*>> T.toTypeScriptComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+/*fun <T : CompilationUnitI<*>> T.toTypeScriptComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                  api: String = LangDerivedKind.API): String {
     val commonTypeAttribute = arrayOf("string", "int", "bool", "double")
     return """import { Component, OnInit } from '@angular/core';
@@ -162,4 +162,4 @@ fun calculateIndex(items: BasicI<*>, it: AttributeI<*>): Int {
         ++indexForSearchingElement
     }
     return indexOfElement;
-}
+}*/

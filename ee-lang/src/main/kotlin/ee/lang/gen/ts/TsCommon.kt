@@ -12,7 +12,7 @@ fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, 
         n.Int            -> "0"
         n.Long           -> "0L"
         n.Float          -> "0f"
-        n.Date           -> "${c.n(j.util.Date)}()"
+        n.Date           -> "new Date()"
         n.Path           -> "${c.n(j.nio.file.Paths)}.get('')"
         n.Blob           -> "new ByteArray(0)"
         n.Void           -> ""
@@ -50,9 +50,14 @@ fun <T : AttributeI<*>> T.toTypeScriptEMPTY(c: GenerationContext, derived: Strin
 fun <T : AttributeI<*>> T.toTypeScriptTypeSingle(c: GenerationContext, api: String): String =
     type().toTypeScript(c, api, this)
 
-fun <T : AttributeI<*>> T.toTypeScriptTypeDef(c: GenerationContext, api: String): String =
-    """${type().toTypeScript(c, api, this)}${isNullable().then("?")}"""
-
+fun <T : AttributeI<*>> T.toTypeScriptTypeDef(c: GenerationContext, api: String): String {
+    val typeKeywords = arrayOf("string", "boolean", "number")
+    if (typeKeywords.any() {it == type().toTypeScript(c, api, this)}) {
+        return ""
+    } else {
+        return """: ${type().toTypeScript(c, api, this)}${isNullable().then("?")}"""
+    }
+}
 
 fun <T : AttributeI<*>> T.toTypeScriptCompanionObjectName(c: GenerationContext): String =
     """        val ${name().toUnderscoredUpperCase()} = "_${name()}""""
@@ -162,7 +167,7 @@ fun <T : AttributeI<*>> T.toTypeScriptInitMember(c: GenerationContext, derived: 
 
 fun <T : AttributeI<*>> T.toTypeScriptSignature(c: GenerationContext, derived: String, api: String,
     init: Boolean = true): String =
-    "${name()}: ${toTypeScriptTypeDef(c, api)}${init.then { toTypeScriptInit(c, derived) }}"
+    "${name()}${toTypeScriptTypeDef(c, api)}${init.then { toTypeScriptInit(c, derived) }}"
 
 fun <T : AttributeI<*>> T.toTypeScriptConstructorMember(c: GenerationContext, derived: String, api: String,
     init: Boolean = true): String =
@@ -227,7 +232,7 @@ fun <T : OperationI<*>> T.toTypeScriptLambda(c: GenerationContext, derived: Stri
 fun <T : OperationI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String, api: String): String {
     return """
     ${toTypeScriptGenerics(c, derived)}${name()}(${params().toTypeScriptSignature(c, derived,
-        api)}): ${retFirst().toTypeScriptTypeDef(c, api)} {
+        api)})${retFirst().toTypeScriptTypeDef(c, api)} {
         throw new ReferenceError('Not implemented yet.');
     }"""
 }
