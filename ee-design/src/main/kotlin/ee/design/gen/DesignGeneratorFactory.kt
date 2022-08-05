@@ -463,6 +463,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             )
         )
 
+        /*
         for (i in basics.invoke(model)){
             moduleGenerators.add(
                 GeneratorSimple(
@@ -494,7 +495,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                         })
                 )
             )
-        }
+        }*/
 
         return GeneratorContexts(generator, tsContextBuilder)
     }
