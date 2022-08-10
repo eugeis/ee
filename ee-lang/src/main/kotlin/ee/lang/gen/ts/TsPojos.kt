@@ -3,6 +3,7 @@ package ee.lang.gen.ts
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
+import ee.design.ModuleI
 import ee.lang.*
 
 fun LiteralI<*>.toTypeScript(): String = name().toUnderscoredUpperCase()
@@ -49,6 +50,38 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: 
     }}
 }"""
 }
+
+fun <T : CompilationUnitI<*>> T.toTypeScriptModuleTSComponent(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                      api: String = LangDerivedKind.API): String {
+    return """"""
+}
+
+fun <T : CompilationUnitI<*>> T.toTypeScriptModuleHTMLComponent(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                              api: String = LangDerivedKind.API): String {
+    return """"""
+}
+
+fun <T : CompilationUnitI<*>> T.toTypeScriptModuleSCSSComponent(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                              api: String = LangDerivedKind.API): String {
+    return """"""
+}
+
+fun <T : CompilationUnitI<*>> T.toTypeScriptModuleService(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                api: String = LangDerivedKind.API): String {
+    return """${isOpen().then("export ")}class ${items.name()}ViewService {
+
+    pageElement = ['${items.name()}'];
+
+    tabElement = [${items.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString() {
+        it.toTypeScriptArrayElement(c, tab, it)
+    }}];
+
+    pageName = '${items.name()}Component';
+}
+""".trimIndent()
+}
+
+
 
 /*fun <T : CompilationUnitI<*>> T.toTypeScriptComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                  api: String = LangDerivedKind.API): String {

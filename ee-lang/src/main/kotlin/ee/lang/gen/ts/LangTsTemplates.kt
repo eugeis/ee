@@ -1,5 +1,6 @@
 package ee.lang.gen.ts
 
+import ee.design.ModuleI
 import ee.lang.*
 
 open class LangTsTemplates {
@@ -14,6 +15,18 @@ open class LangTsTemplates {
 
     open fun <T : CompilationUnitI<*>> pojo(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("Pojo", nameBuilder) { item, c -> item.toTypeScriptImpl(c, LangDerivedKind.API) }
+
+    open fun <T : CompilationUnitI<*>> moduleComponentTypeScript(items: ModuleI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("ModuleTypeScriptComponent", nameBuilder) { item, c -> item.toTypeScriptModuleTSComponent(items, c, LangDerivedKind.API) }
+
+    open fun <T : CompilationUnitI<*>> moduleComponentHTML(items: ModuleI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("ModuleHTMLComponent", nameBuilder) { item, c -> item.toTypeScriptModuleHTMLComponent(items, c, LangDerivedKind.API) }
+
+    open fun <T : CompilationUnitI<*>> moduleComponentSCSS(items: ModuleI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("ModuleSCSSComponent", nameBuilder) { item, c -> item.toTypeScriptModuleSCSSComponent(items, c, LangDerivedKind.API) }
+
+    open fun <T : CompilationUnitI<*>> moduleService(items: ModuleI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("ModuleService", nameBuilder) { item, c -> item.toTypeScriptModuleService(items, c, LangDerivedKind.API) }
 
     /*open fun <T : CompilationUnitI<*>> angularComponentTypeScript(items: BasicI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("TypeScriptComponent", nameBuilder) { item, c -> item.toTypeScriptComponent(items, c, LangDerivedKind.API) }

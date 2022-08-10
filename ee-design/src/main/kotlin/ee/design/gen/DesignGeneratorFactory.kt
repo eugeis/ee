@@ -463,8 +463,51 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             )
         )
 
-        /*
-        for (i in basics.invoke(model)){
+        for (i in modules.invoke(model)) {
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "ModuleTypeScriptComponent", contextBuilder = tsContextBuilder,
+                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.component",
+                        nameBuilder = templateNameAsTsFileName, fragments = {
+                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                fragments = { tsTemplates.moduleComponentTypeScript(i) })
+                        })
+                )
+            )
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "ModuleHtmlComponent", contextBuilder = tsContextBuilder,
+                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.component",
+                        nameBuilder = templateNameAsHTMLFileName, fragments = {
+                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                fragments = { tsTemplates.moduleComponentHTML(i) })
+                        })
+                )
+            )
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "ModuleScssComponent", contextBuilder = tsContextBuilder,
+                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.component",
+                        nameBuilder = templateNameAsCSSFileName, fragments = {
+                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                fragments = { tsTemplates.moduleComponentSCSS(i) })
+                        })
+                )
+            )
+
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "ModuleService", contextBuilder = tsContextBuilder,
+                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.service",
+                        nameBuilder = templateNameAsTsFileName, fragments = {
+                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                fragments = { tsTemplates.moduleService(i) })
+                        })
+                )
+            )
+        }
+
+        /*for (i in basics.invoke(model)){
             moduleGenerators.add(
                 GeneratorSimple(
                     "TypeScriptComponent", contextBuilder = tsContextBuilder,

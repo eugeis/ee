@@ -1,6 +1,7 @@
 package ee.lang.gen.ts
 
 import ee.common.ext.*
+import ee.design.EntityI
 import ee.lang.*
 import ee.lang.gen.java.j
 var tempIndex = 0
@@ -10,17 +11,17 @@ fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, 
         n.String, n.Text -> "''"
         n.Boolean        -> "false"
         n.Int            -> "0"
-        n.Long           -> "0L"
-        n.Float          -> "0f"
+        n.Long           -> "0"
+        n.Float          -> "0"
         n.Date           -> "new Date()"
         n.Path           -> "${c.n(j.nio.file.Paths)}.get('')"
-        n.Blob           -> "new ByteArray(0)"
+        n.Blob           -> "new Blob()"
         n.Void           -> ""
         n.Error          -> "new Throwable()"
         n.Exception      -> "new Exception()"
         n.Url            -> "${c.n(j.net.URL)}('')"
         n.Map            -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("new Map()", "new Map()")
-        n.List           -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("new Array()", "new Array()")
+        n.List           -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("[]", "[]")
         else             -> {
             if (baseType is LiteralI<*>) {
                 "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI<*>).toTypeScript(c, derived,
@@ -243,6 +244,10 @@ fun <T : AttributeI<*>> T.toTypeScriptImportElements(element: AttributeI<*>): St
     val elementParentNameRegex = elementParentName.substring(elementParentName.lastIndexOf(".") + 1)
     return """import { ${elementTypeName.capitalize()} } from '../../schkola/${elementParentNameRegex.toLowerCase()}/${elementParentNameRegex.capitalize() + "ApiBase"}';"""
 }
+
+fun <T : TypeI<*>> T.toTypeScriptArrayElement(c: GenerationContext, derived: String,
+                                  attr: EntityI<*>): String =
+    "'${attr.name()}'"
 
 fun <T : AttributeI<*>> T.toTypeScriptInputFunction(c: GenerationContext, indent: String, element: AttributeI<*>): String {
     return when (element.type().toTypeScriptIfNative(c, "", element)) {
