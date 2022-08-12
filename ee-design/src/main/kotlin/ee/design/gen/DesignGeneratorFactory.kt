@@ -467,7 +467,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             moduleGenerators.add(
                 GeneratorSimple(
                     "ModuleTypeScriptComponent", contextBuilder = tsContextBuilder,
-                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.component",
+                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-view.component",
                         nameBuilder = templateNameAsTsFileName, fragments = {
                             SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
                                 fragments = { tsTemplates.moduleComponentTypeScript(i) })
@@ -477,7 +477,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             moduleGenerators.add(
                 GeneratorSimple(
                     "ModuleHtmlComponent", contextBuilder = tsContextBuilder,
-                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.component",
+                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-view.component",
                         nameBuilder = templateNameAsHTMLFileName, fragments = {
                             SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
                                 fragments = { tsTemplates.moduleComponentHTML(i) })
@@ -487,7 +487,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             moduleGenerators.add(
                 GeneratorSimple(
                     "ModuleScssComponent", contextBuilder = tsContextBuilder,
-                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.component",
+                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-view.component",
                         nameBuilder = templateNameAsCSSFileName, fragments = {
                             SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
                                 fragments = { tsTemplates.moduleComponentSCSS(i) })
@@ -506,6 +506,10 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                 )
             )
         }
+
+        /*for (i in entities.invoke(model)) {
+
+        }*/
 
         /*for (i in basics.invoke(model)){
             moduleGenerators.add(

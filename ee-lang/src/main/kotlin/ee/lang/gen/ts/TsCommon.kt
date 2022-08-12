@@ -2,6 +2,7 @@ package ee.lang.gen.ts
 
 import ee.common.ext.*
 import ee.design.EntityI
+import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.java.j
 var tempIndex = 0
@@ -11,17 +12,17 @@ fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, 
         n.String, n.Text -> "''"
         n.Boolean        -> "false"
         n.Int            -> "0"
-        n.Long           -> "0"
-        n.Float          -> "0"
-        n.Date           -> "new Date()"
+        n.Long           -> "0L"
+        n.Float          -> "0f"
+        n.Date           -> "${c.n(j.util.Date)}()"
         n.Path           -> "${c.n(j.nio.file.Paths)}.get('')"
-        n.Blob           -> "new Blob()"
+        n.Blob           -> "new ByteArray(0)"
         n.Void           -> ""
         n.Error          -> "new Throwable()"
         n.Exception      -> "new Exception()"
         n.Url            -> "${c.n(j.net.URL)}('')"
         n.Map            -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("new Map()", "new Map()")
-        n.List           -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("[]", "[]")
+        n.List           -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("new Array()", "new Array()")
         else             -> {
             if (baseType is LiteralI<*>) {
                 "${(baseType.findParent(EnumTypeI::class.java) as EnumTypeI<*>).toTypeScript(c, derived,
@@ -51,14 +52,9 @@ fun <T : AttributeI<*>> T.toTypeScriptEMPTY(c: GenerationContext, derived: Strin
 fun <T : AttributeI<*>> T.toTypeScriptTypeSingle(c: GenerationContext, api: String): String =
     type().toTypeScript(c, api, this)
 
-fun <T : AttributeI<*>> T.toTypeScriptTypeDef(c: GenerationContext, api: String): String {
-    val typeKeywords = arrayOf("string", "boolean", "number")
-    if (typeKeywords.any() {it == type().toTypeScript(c, api, this)}) {
-        return ""
-    } else {
-        return """: ${type().toTypeScript(c, api, this)}${isNullable().then("?")}"""
-    }
-}
+fun <T : AttributeI<*>> T.toTypeScriptTypeDef(c: GenerationContext, api: String): String =
+    """${type().toTypeScript(c, api, this)}${isNullable().then("?")}"""
+
 
 fun <T : AttributeI<*>> T.toTypeScriptCompanionObjectName(c: GenerationContext): String =
     """        val ${name().toUnderscoredUpperCase()} = "_${name()}""""
@@ -129,7 +125,7 @@ fun OperationI<*>.toTypeScriptGenerics(c: GenerationContext, derived: String): S
     }
 
 fun <T : TypeI<*>> T.toTypeScript(c: GenerationContext, derived: String,
-    attr: AttributeI<*> = Attribute.EMPTY): String =
+                                  attr: AttributeI<*> = Attribute.EMPTY): String =
     toTypeScriptIfNative(c, derived, attr) ?: "${c.n(this, derived)}${this.toTypeScriptGenericTypes(c, derived, attr)}"
 
 fun <T : AttributeI<*>> T.toTypeScriptValue(c: GenerationContext, derived: String): String {
@@ -167,17 +163,17 @@ fun <T : AttributeI<*>> T.toTypeScriptInitMember(c: GenerationContext, derived: 
     "this.${name()}${toTypeScriptInit(c, derived)}"
 
 fun <T : AttributeI<*>> T.toTypeScriptSignature(c: GenerationContext, derived: String, api: String,
-    init: Boolean = true): String =
-    "${name()}${toTypeScriptTypeDef(c, api)}${init.then { toTypeScriptInit(c, derived) }}"
+                                                init: Boolean = true): String =
+    "${name()}: ${toTypeScriptTypeDef(c, api)}${init.then { toTypeScriptInit(c, derived) }}"
 
 fun <T : AttributeI<*>> T.toTypeScriptConstructorMember(c: GenerationContext, derived: String, api: String,
-    init: Boolean = true): String =
-        //"${isReplaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
+                                                        init: Boolean = true): String =
+    //"${isReplaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
     "${toTypeScriptSignature(c, derived, api, init)}"
 
 fun <T : AttributeI<*>> T.toTypeScriptMember(c: GenerationContext, derived: String, api: String,
-    init: Boolean = true, indent: String): String =
-        //"    ${isReplaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
+                                             init: Boolean = true, indent: String): String =
+    //"    ${isReplaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
     "${indent}${toTypeScriptSignature(c, derived, api, init)}"
 
 fun List<AttributeI<*>>.toTypeScriptSignature(c: GenerationContext, derived: String, api: String): String =
@@ -233,7 +229,7 @@ fun <T : OperationI<*>> T.toTypeScriptLambda(c: GenerationContext, derived: Stri
 fun <T : OperationI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String, api: String): String {
     return """
     ${toTypeScriptGenerics(c, derived)}${name()}(${params().toTypeScriptSignature(c, derived,
-        api)})${retFirst().toTypeScriptTypeDef(c, api)} {
+        api)}): ${retFirst().toTypeScriptTypeDef(c, api)} {
         throw new ReferenceError('Not implemented yet.');
     }"""
 }
@@ -245,9 +241,69 @@ fun <T : AttributeI<*>> T.toTypeScriptImportElements(element: AttributeI<*>): St
     return """import { ${elementTypeName.capitalize()} } from '../../schkola/${elementParentNameRegex.toLowerCase()}/${elementParentNameRegex.capitalize() + "ApiBase"}';"""
 }
 
-fun <T : TypeI<*>> T.toTypeScriptArrayElement(c: GenerationContext, derived: String,
-                                  attr: EntityI<*>): String =
+fun <T : ItemI<*>> T.toTypeScriptModuleImportServices(element: ModuleI<*>): String {
+    return """import { ${element.name()}ViewService } from '../../services/${element.name().toLowerCase()}-view.service}';${"\n"}"""
+}
+
+fun <T : ItemI<*>> T.toTypeScriptModuleInputElement(name: String, indent: String, element: ModuleI<*>): String {
+    return """${indent}@Input() $name = '${element.name()}Component';${"\n"}"""
+}
+
+fun <T : ItemI<*>> T.toTypeScriptModuleConstructor(indent: String, element: ModuleI<*>): String {
+    return """${indent}constructor(public ${element.name().toLowerCase()}ViewService: ${element.name()}ViewService) {}${"\n"}"""
+}
+
+fun <T : TypeI<*>> T.toTypeScriptModuleArrayElement(attr: EntityI<*>): String =
     "'${attr.name()}'"
+
+fun <T : ItemI<*>> T.toTypeScriptGenerateComponentPartWithProviders(element: ModuleI<*>): String =
+    """@Component({
+  selector: 'app-${element.name().toLowerCase()}',
+  templateUrl: './${element.name().toLowerCase()}.component.html',
+  styleUrls: ['./${element.name().toLowerCase()}.component.scss'],
+  providers: [${element.name()}ViewService]
+})
+"""
+
+fun <T : ItemI<*>> T.toTypeScriptModuleHTML(element: ModuleI<*>): String =
+    """<mat-sidenav-container>
+    <mat-sidenav #drawer
+                 [mode]="'side'" [fixedInViewport]="true">
+        <mat-nav-list>
+            <a *ngFor="let pageName of ${element.name().toLowerCase()}ViewService.pageElement"
+               mat-list-item
+               routerLinkActive="active-link"
+               [routerLink]="'/' + pageName.toLowerCase()"
+            >{{pageName.toUpperCase()}}</a>
+        </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+        <mat-toolbar>
+            <button mat-icon-button (click)="drawer.toggle()">
+                <mat-icon>menu</mat-icon>
+            </button>
+            <span>{{pageName}}</span>
+        </mat-toolbar>
+
+        <nav mat-tab-nav-bar>
+            <div *ngFor="let pageTabsName of ${element.name().toLowerCase()}ViewService.tabElement">
+                <a mat-tab-link
+                   [routerLink]="'/' + ${element.name().toLowerCase()}ViewService.pageElement[0].toLowerCase() + '/' + pageTabsName.toLowerCase()"
+                   routerLinkActive="active-link"
+                >{{pageTabsName.toUpperCase()}}
+                </a>
+            </div>
+        </nav>
+    </mat-sidenav-content>
+</mat-sidenav-container>"""
+
+fun <T : ItemI<*>> T.toTypeScriptModuleSCSS(): String =
+    """:host {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}"""
 
 fun <T : AttributeI<*>> T.toTypeScriptInputFunction(c: GenerationContext, indent: String, element: AttributeI<*>): String {
     return when (element.type().toTypeScriptIfNative(c, "", element)) {
@@ -276,7 +332,7 @@ fun <T : AttributeI<*>> T.toTypeScriptInputFunctionWithInterface(c: GenerationCo
 }
 
 fun <T : BasicI<*>> T.toTypeScriptInputPushElementToArrayPart(indent: String, element: BasicI<*>): String =
-    """${indent}this.dataElement.push([${element.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") { 
+    """${indent}this.dataElement.push([${element.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
         it.toTypeScriptInputPushingElements(it)
     }}]);
 """

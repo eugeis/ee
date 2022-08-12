@@ -129,12 +129,12 @@ open class GeneratorSimple<M>(
 
         var pkg = prepareNamespace(module, c)
         var path = pkg.resolve(template.name(model).fileName)
-        if(path.toString().contains(".service")) {
+        if(path.toString().contains(".component")) {
             val lastIndex = pkg.toString().lastIndexOf("\\") + 1
             val lastIndexOfEE = pkg.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
             pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
                     "ee\\component\\${template.name(model).fileName.
-                        substring(0, template.name(model).fileName.indexOf("."))}")
+                        substring(0, template.name(model).fileName.indexOf("-"))}")
             path = pkg.resolve(template.name(model).fileName)
             if(!pkg.exists()) {
                     pkg.mkdirs()
