@@ -129,16 +129,27 @@ open class GeneratorSimple<M>(
 
         var pkg = prepareNamespace(module, c)
         var path = pkg.resolve(template.name(model).fileName)
-        if(path.toString().contains(".component")) {
+        if(path.toString().contains("module-view.component")) {
             val lastIndex = pkg.toString().lastIndexOf("\\") + 1
             val lastIndexOfEE = pkg.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
             pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
                     "ee\\component\\${template.name(model).fileName.
-                        substring(0, template.name(model).fileName.indexOf("-"))}")
+                        substring(0, template.name(model).fileName.indexOf("-"))}\\components\\view")
             path = pkg.resolve(template.name(model).fileName)
             if(!pkg.exists()) {
                     pkg.mkdirs()
                 }
+        }
+        if(path.toString().contains("module-view.service")) {
+            val lastIndex = pkg.toString().lastIndexOf("\\") + 1
+            val lastIndexOfEE = pkg.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
+            pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
+                    "ee\\component\\${template.name(model).fileName.
+                    substring(0, template.name(model).fileName.indexOf("-"))}\\service")
+            path = pkg.resolve(template.name(model).fileName)
+            if(!pkg.exists()) {
+                pkg.mkdirs()
+            }
         }
         val relative = target.relativize(path).toString()
         if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {

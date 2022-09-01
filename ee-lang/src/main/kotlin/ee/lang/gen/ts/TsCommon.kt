@@ -238,19 +238,30 @@ fun <T : AttributeI<*>> T.toTypeScriptImportElements(element: AttributeI<*>): St
     val elementTypeName = element.type().name()
     val elementParentName = element.parent().namespace()
     val elementParentNameRegex = elementParentName.substring(elementParentName.lastIndexOf(".") + 1)
-    return """import { ${elementTypeName.capitalize()} } from '../../schkola/${elementParentNameRegex.toLowerCase()}/${elementParentNameRegex.capitalize() + "ApiBase"}';"""
+    return """import {${elementTypeName.capitalize()}} from '../../schkola/${elementParentNameRegex.toLowerCase()}/${elementParentNameRegex.capitalize() + "ApiBase"}';"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptModuleImportServices(element: ModuleI<*>): String {
-    return """import { ${element.name()}ViewService } from '../../services/${element.name().toLowerCase()}-view.service}';${"\n"}"""
+    return """import {${element.name()}ViewService} from '../../services/${element.name().toLowerCase()}-view.service}';${"\n"}"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptModuleInputElement(name: String, indent: String, element: ModuleI<*>): String {
     return """${indent}@Input() $name = '${element.name()}Component';${"\n"}"""
 }
 
+fun <T : ItemI<*>> T.toTypeScriptModuleInitEntity(c: GenerationContext,indent: String, element: ModuleI<*>): String {
+    return """${indent}${element.name().toLowerCase()}: ${c.n(this)} = new ${c.n(this)}();${"\n"}"""
+}
+
 fun <T : ItemI<*>> T.toTypeScriptModuleConstructor(indent: String, element: ModuleI<*>): String {
     return """${indent}constructor(public ${element.name().toLowerCase()}ViewService: ${element.name()}ViewService) {}${"\n"}"""
+}
+
+fun <T : ItemI<*>> T.toTypeScriptOnInit(indent: String, element: ModuleI<*>): String {
+    return """${indent}ngOnInit(): void {
+        this.${element.name().toLowerCase()} = this.${element.name().toLowerCase()}DataService.getFirst();
+        this.${element.name().toLowerCase()}DataService.checkRoute(this.${element.name().toLowerCase()});
+    }"""
 }
 
 fun <T : TypeI<*>> T.toTypeScriptModuleArrayElement(attr: EntityI<*>): String =
@@ -259,8 +270,8 @@ fun <T : TypeI<*>> T.toTypeScriptModuleArrayElement(attr: EntityI<*>): String =
 fun <T : ItemI<*>> T.toTypeScriptGenerateComponentPartWithProviders(element: ModuleI<*>): String =
     """@Component({
   selector: 'app-${element.name().toLowerCase()}',
-  templateUrl: './${element.name().toLowerCase()}.component.html',
-  styleUrls: ['./${element.name().toLowerCase()}.component.scss'],
+  templateUrl: './${element.name().toLowerCase()}-view.component.html',
+  styleUrls: ['./${element.name().toLowerCase()}-view.component.scss'],
   providers: [${element.name()}ViewService]
 })
 """

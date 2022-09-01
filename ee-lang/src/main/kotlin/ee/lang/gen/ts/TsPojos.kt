@@ -3,6 +3,7 @@ package ee.lang.gen.ts
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
+import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 
@@ -52,13 +53,13 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: 
 }
 
 fun <T : CompilationUnitI<*>> T.toTypeScriptModuleTSComponent(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                              api: String = LangDerivedKind.API): String {
+api: String = LangDerivedKind.API): String {
     return """import {Component, Input} from '@angular/core';
 ${items.toTypeScriptModuleImportServices(items)}
 ${items.toTypeScriptGenerateComponentPartWithProviders(items)}
 ${isOpen().then("export ")}class ${items.name()}ViewComponent {${"\n"}
-${items.toTypeScriptModuleInputElement("pageName",tab , items)}       
-${items.toTypeScriptModuleConstructor(tab, items)}      
+${items.toTypeScriptModuleInputElement("pageName", tab , items)}       
+${items.toTypeScriptModuleConstructor(tab, items)}
 }"""
 }
 
@@ -85,6 +86,36 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptModuleService(items: ModuleI<*>, c: 
     pageName = '${items.name()}Component';
 }
 """
+}
+
+fun <T : CompilationUnitI<*>> T.toTypeScriptEntityViewTSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                  api: String = LangDerivedKind.API): String {
+    return """ """
+}
+
+fun <T : CompilationUnitI<*>> T.toTypeScriptEntityViewHTMLComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                    api: String = LangDerivedKind.API): String {
+    return """ """
+}
+
+fun <T : CompilationUnitI<*>> T.toTypeScriptEntityViewSCSSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                    api: String = LangDerivedKind.API): String {
+    return """ """
+}
+
+fun <T : CompilationUnitI<*>> T.toTypeScriptEntityListTSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                  api: String = LangDerivedKind.API): String {
+    return """ """
+}
+
+fun <T : CompilationUnitI<*>> T.toTypeScriptEntityListHTMLComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                    api: String = LangDerivedKind.API): String {
+    return """ """
+}
+
+fun <T : CompilationUnitI<*>> T.toTypeScriptEntityListSCSSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                    api: String = LangDerivedKind.API): String {
+    return """ """
 }
 
 
