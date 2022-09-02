@@ -3,8 +3,10 @@ package ee.lang.gen.ts
 import ee.common.ext.*
 import ee.design.EntityI
 import ee.design.ModuleI
+import ee.design.gen.go.toGoPropOptionalAfterBody
 import ee.lang.*
 import ee.lang.gen.java.j
+
 var tempIndex = 0
 fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
     val baseType = findDerivedOrThis()
@@ -309,12 +311,134 @@ fun <T : ItemI<*>> T.toTypeScriptModuleHTML(element: ModuleI<*>): String =
     </mat-sidenav-content>
 </mat-sidenav-container>"""
 
+fun <T : ItemI<*>> T.toTypeScriptEntityViewHTML(c: GenerationContext, element: EntityI<*>, enums: List<EnumTypeI<*>>): String =
+    """<app-${element.parent().name().toLowerCase()} [pageName]="${element.name().toLowerCase()}DataService.pageName"></app-${element.parent().name().toLowerCase()}>
+<div>
+    <form class="${element.name().toLowerCase()}-form">
+        ${element.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+            it.toTypeScriptHTMLForms(tab, element, it.name(), it.type().name(), enums)
+        }}
+    </form>
+</div>
+
+<app-button [element]="${element.name().toLowerCase()}" [isEdit]="${element.name().toLowerCase()}DataService.isEdit" [itemIndex]="${element.name().toLowerCase()}DataService.itemIndex"></app-button>
+"""
+
+fun <T : AttributeI<*>> T.toTypeScriptHTMLForms(indent: String, parent: EntityI<*>, childElement: String, elementType: String, enums: List<EnumTypeI<*>>): String {
+    var isEnum = false
+    enums.forEach {
+        if(it.name() == elementType) {
+            isEnum = true;
+        }
+    }
+    return when (elementType.toLowerCase()) {
+        "string", "uuid", "text", "float", "int" -> this.toHTMLStringForm(parent, childElement)
+        "date" -> this.toHTMLDateForm(parent, childElement)
+        else -> {
+            when (isEnum) {
+                true -> this.toHTMLEnumForm(parent, childElement)
+                else -> this.toHTMLObjectForm(parent, childElement, elementType)
+            }
+        }
+    }
+}
+
+fun <T : AttributeI<*>> T.toHTMLStringForm(parent: EntityI<*>, childElement: String): String {
+    return """
+        <mat-form-field appearance="outline">
+            <mat-label>${childElement}</mat-label>
+            <input matInput name="${childElement.toLowerCase()}" [(ngModel)]="${parent.name().toLowerCase()}.${childElement.toLowerCase()}">
+        </mat-form-field>"""
+}
+
+fun <T : AttributeI<*>> T.toHTMLDateForm(parent: EntityI<*>, childElement: String): String {
+    return """
+        <mat-form-field appearance="outline">
+            <mat-label>${childElement}</mat-label>
+            <input matInput [matDatepicker]="picker" [(ngModel)]="${parent.name().toLowerCase()}.${childElement.toLowerCase()}">
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>"""
+}
+
+fun <T : AttributeI<*>> T.toHTMLEnumForm(parent: EntityI<*>, childElement: String): String {
+    return """
+        <mat-form-field appearance="outline">
+            <mat-label>${childElement}</mat-label>
+            <mat-select [(value)]="${parent.name().toLowerCase()}.${childElement.toLowerCase()}">
+                <mat-option *ngFor="let item of ${childElement.toLowerCase()}Enum" [value]="item">{{item}}</mat-option>
+            </mat-select>
+        </mat-form-field>"""
+}
+
+fun <T : AttributeI<*>> T.toHTMLObjectForm(parent: EntityI<*>, childElement: String, elementType: String): String {
+    return """
+        <app-${elementType.toLowerCase()} [${elementType.toLowerCase()}]="${parent.name().toLowerCase()}.${childElement.toLowerCase()}"></app-${elementType.toLowerCase()}>"""
+}
+
+fun <T : ItemI<*>> T.toTypeScriptEntityListHTML(element: EntityI<*>): String =
+    """<app-person [pageName]="profileDataService.pageName"></app-person>
+<a class="newButton" [routerLink]="'./new'"
+        routerLinkActive="active-link">
+    <mat-icon>add_circle_outline</mat-icon> Add New Item
+</a>
+
+<a class="deleteButton" (click)="profileDataService.clearItems()">
+    <mat-icon>delete_outline</mat-icon> Delete All Item
+</a>
+<app-table [displayedColumns]="tableHeader"></app-table>
+"""
+
 fun <T : ItemI<*>> T.toTypeScriptModuleSCSS(): String =
     """:host {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
 }"""
+
+fun <T : ItemI<*>> T.toTypeScriptEntityViewSCSS(): String =
+    """app-button {
+    position: relative;
+    left: 10%;
+}
+
+form {
+    position: relative;
+    z-index: 1;
+    left: 10%;
+}
+"""
+
+fun <T : ItemI<*>> T.toTypeScriptEntityListSCSS(): String =
+    """app-table {
+    position: absolute;
+    width: 80% !important;
+    z-index: 1;
+    top: 30%;
+    left: 10%;
+}
+
+a {
+    text-decoration: none;
+    border: 0;
+    background: white;
+    color: black;
+    cursor: pointer;
+}
+
+.newButton {
+    position: absolute;
+    top: 20%;
+    left: 30%;
+}
+
+.deleteButton {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+}
+"""
 
 fun <T : AttributeI<*>> T.toTypeScriptInputFunction(c: GenerationContext, indent: String, element: AttributeI<*>): String {
     return when (element.type().toTypeScriptIfNative(c, "", element)) {

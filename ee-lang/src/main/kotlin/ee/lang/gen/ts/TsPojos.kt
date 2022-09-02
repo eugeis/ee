@@ -93,14 +93,14 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptEntityViewTSComponent(items: EntityI
     return """ """
 }
 
-fun <T : CompilationUnitI<*>> T.toTypeScriptEntityViewHTMLComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toTypeScriptEntityViewHTMLComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                     api: String = LangDerivedKind.API): String {
-    return """ """
+    return items.toTypeScriptEntityViewHTML(c, items, enums)
 }
 
 fun <T : CompilationUnitI<*>> T.toTypeScriptEntityViewSCSSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                     api: String = LangDerivedKind.API): String {
-    return """ """
+    return items.toTypeScriptEntityViewSCSS()
 }
 
 fun <T : CompilationUnitI<*>> T.toTypeScriptEntityListTSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
@@ -110,12 +110,12 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptEntityListTSComponent(items: EntityI
 
 fun <T : CompilationUnitI<*>> T.toTypeScriptEntityListHTMLComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                     api: String = LangDerivedKind.API): String {
-    return """ """
+    return items.toTypeScriptEntityListHTML(items)
 }
 
 fun <T : CompilationUnitI<*>> T.toTypeScriptEntityListSCSSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                     api: String = LangDerivedKind.API): String {
-    return """ """
+    return items.toTypeScriptEntityListSCSS()
 }
 
 

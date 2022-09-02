@@ -32,8 +32,8 @@ open class LangTsTemplates {
     open fun <T : CompilationUnitI<*>> entityViewComponentTypeScript(items: EntityI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("ModuleTypeScriptComponent", nameBuilder) { item, c -> item.toTypeScriptEntityViewTSComponent(items, c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> entityViewComponentHTML(items: EntityI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("ModuleHTMLComponent", nameBuilder) { item, c -> item.toTypeScriptEntityViewHTMLComponent(items, c, LangDerivedKind.API) }
+    open fun <T : CompilationUnitI<*>> entityViewComponentHTML(items: EntityI<*>, enums: List<EnumTypeI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("ModuleHTMLComponent", nameBuilder) { item, c -> item.toTypeScriptEntityViewHTMLComponent(items, enums, c, LangDerivedKind.API) }
 
     open fun <T : CompilationUnitI<*>> entityViewComponentSCSS(items: EntityI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("ModuleSCSSComponent", nameBuilder) { item, c -> item.toTypeScriptEntityViewSCSSComponent(items, c, LangDerivedKind.API) }

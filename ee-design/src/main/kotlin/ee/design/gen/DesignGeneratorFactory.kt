@@ -524,7 +524,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                     template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-entity-view.component",
                         nameBuilder = templateNameAsHTMLFileName, fragments = {
                             SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                fragments = { tsTemplates.entityViewComponentHTML(i) })
+                                fragments = { tsTemplates.entityViewComponentHTML(i, enums.invoke(model)) })
                         })
                 )
             )
