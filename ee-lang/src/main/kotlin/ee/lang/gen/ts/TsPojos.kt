@@ -52,8 +52,8 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: 
 }"""
 }
 
-fun <T : CompilationUnitI<*>> T.toTypeScriptModuleTSComponent(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-api: String = LangDerivedKind.API): String {
+fun <T : CompilationUnitI<*>> T.toAngularModuleTSComponent(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                           api: String = LangDerivedKind.API): String {
     return """import {Component, Input} from '@angular/core';
 ${items.toTypeScriptModuleImportServices(items)}
 ${items.toTypeScriptGenerateComponentPartWithProviders(items)}
@@ -63,24 +63,24 @@ ${items.toTypeScriptModuleConstructor(tab, items)}
 }"""
 }
 
-fun <T : CompilationUnitI<*>> T.toTypeScriptModuleHTMLComponent(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                                api: String = LangDerivedKind.API): String {
-    return items.toTypeScriptModuleHTML(items)
+fun <T : CompilationUnitI<*>> T.toAngularModuleHTMLComponent(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                             api: String = LangDerivedKind.API): String {
+    return items.toAngularModuleHTML(items)
 }
 
-fun <T : CompilationUnitI<*>> T.toTypeScriptModuleSCSSComponent(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                                api: String = LangDerivedKind.API): String {
-    return items.toTypeScriptModuleSCSS()
+fun <T : CompilationUnitI<*>> T.toAngularModuleSCSSComponent(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                             api: String = LangDerivedKind.API): String {
+    return items.toAngularModuleSCSS()
 }
 
-fun <T : CompilationUnitI<*>> T.toTypeScriptModuleService(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                          api: String = LangDerivedKind.API): String {
+fun <T : CompilationUnitI<*>> T.toAngularModuleService(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                       api: String = LangDerivedKind.API): String {
     return """${isOpen().then("export ")}class ${items.name()}ViewService {
 
     pageElement = ['${items.name()}'];
 
     tabElement = [${items.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString() {
-        it.toTypeScriptModuleArrayElement(it)
+        it.toAngularModuleArrayElement(it)
     }}];
 
     pageName = '${items.name()}Component';
@@ -88,34 +88,50 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptModuleService(items: ModuleI<*>, c: 
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toTypeScriptEntityViewTSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                                  api: String = LangDerivedKind.API): String {
-    return """ """
+fun <T : CompilationUnitI<*>> T.toAngularEntityViewTSComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                               api: String = LangDerivedKind.API): String {
+    return """import {Component, OnInit} from '@angular/core';
+import {TableDataService} from '../../../../template/services/data.service';
+import {${items.name()}DataService} from '../../services/${items.name().toLowerCase()}-data.service';
+
+${items.toTypeScriptGenerateComponentPartWithProvidersView(items)}
+${isOpen().then("export ")}class ${items.name()}ViewComponent implements OnInit {
+
+${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toAngularGenerateEnumElement(c, tab, items, it.name(), it.type().name(), enums)
+}.trim()}
+
+    ${items.name().toLowerCase()}: ${c.n(items.name(), derived)};
+
+${items.toTypeScriptViewConstructor(tab, items)}
+${items.toTypeScriptOnInit(tab, items)}
+}
+"""
 }
 
-fun <T : CompilationUnitI<*>> T.toTypeScriptEntityViewHTMLComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                                    api: String = LangDerivedKind.API): String {
-    return items.toTypeScriptEntityViewHTML(c, items, enums)
+fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                 api: String = LangDerivedKind.API): String {
+    return items.toAngularEntityViewHTML(c, items, enums)
 }
 
-fun <T : CompilationUnitI<*>> T.toTypeScriptEntityViewSCSSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                                    api: String = LangDerivedKind.API): String {
-    return items.toTypeScriptEntityViewSCSS()
+fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                 api: String = LangDerivedKind.API): String {
+    return items.toAngularEntityViewSCSS()
 }
 
-fun <T : CompilationUnitI<*>> T.toTypeScriptEntityListTSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                                  api: String = LangDerivedKind.API): String {
-    return """ """
+fun <T : CompilationUnitI<*>> T.toAngularEntityListTSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                               api: String = LangDerivedKind.API): String {
+    return """""" /*items.toAngularEntityListTS()*/
 }
 
-fun <T : CompilationUnitI<*>> T.toTypeScriptEntityListHTMLComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                                    api: String = LangDerivedKind.API): String {
-    return items.toTypeScriptEntityListHTML(items)
+fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                 api: String = LangDerivedKind.API): String {
+    return items.toAngularEntityListHTML(items)
 }
 
-fun <T : CompilationUnitI<*>> T.toTypeScriptEntityListSCSSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                                    api: String = LangDerivedKind.API): String {
-    return items.toTypeScriptEntityListSCSS()
+fun <T : CompilationUnitI<*>> T.toAngularEntityListSCSSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                 api: String = LangDerivedKind.API): String {
+    return items.toAngularEntityListSCSS()
 }
 
 

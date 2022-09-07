@@ -3,7 +3,6 @@ package ee.lang.gen.ts
 import ee.common.ext.*
 import ee.design.EntityI
 import ee.design.ModuleI
-import ee.design.gen.go.toGoPropOptionalAfterBody
 import ee.lang.*
 import ee.lang.gen.java.j
 
@@ -259,14 +258,18 @@ fun <T : ItemI<*>> T.toTypeScriptModuleConstructor(indent: String, element: Modu
     return """${indent}constructor(public ${element.name().toLowerCase()}ViewService: ${element.name()}ViewService) {}${"\n"}"""
 }
 
-fun <T : ItemI<*>> T.toTypeScriptOnInit(indent: String, element: ModuleI<*>): String {
+fun <T : ItemI<*>> T.toTypeScriptViewConstructor(indent: String, element: EntityI<*>): String {
+    return """${indent}constructor(public ${element.name().toLowerCase()}DataService: ${element.name()}DataService) {}${"\n"}"""
+}
+
+fun <T : ItemI<*>> T.toTypeScriptOnInit(indent: String, element: EntityI<*>): String {
     return """${indent}ngOnInit(): void {
         this.${element.name().toLowerCase()} = this.${element.name().toLowerCase()}DataService.getFirst();
         this.${element.name().toLowerCase()}DataService.checkRoute(this.${element.name().toLowerCase()});
     }"""
 }
 
-fun <T : TypeI<*>> T.toTypeScriptModuleArrayElement(attr: EntityI<*>): String =
+fun <T : TypeI<*>> T.toAngularModuleArrayElement(attr: EntityI<*>): String =
     "'${attr.name()}'"
 
 fun <T : ItemI<*>> T.toTypeScriptGenerateComponentPartWithProviders(element: ModuleI<*>): String =
@@ -278,7 +281,26 @@ fun <T : ItemI<*>> T.toTypeScriptGenerateComponentPartWithProviders(element: Mod
 })
 """
 
-fun <T : ItemI<*>> T.toTypeScriptModuleHTML(element: ModuleI<*>): String =
+fun <T : ItemI<*>> T.toTypeScriptGenerateComponentPartWithProvidersView(element: EntityI<*>): String =
+    """@Component({
+  selector: 'app-${element.name().toLowerCase()}',
+  templateUrl: './${element.name().toLowerCase()}-view.component.html',
+  styleUrls: ['./${element.name().toLowerCase()}-view.component.scss'],
+  providers: [{provide: TableDataService, useClass: ${element.name()}DataService}]
+})
+"""
+
+fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: String, element: EntityI<*>, elementName: String, elementType: String,  enums: List<EnumTypeI<*>>): String {
+    var text = ""
+    enums.forEach {
+        if(it.name() == elementType) {
+            text = """${indent}${it.name().toLowerCase()}Enum = this.${element.name().toLowerCase()}DataService.loadEnumElement(${c.n(this)});"""
+        }
+    }
+    return text
+}
+
+fun <T : ItemI<*>> T.toAngularModuleHTML(element: ModuleI<*>): String =
     """<mat-sidenav-container>
     <mat-sidenav #drawer
                  [mode]="'side'" [fixedInViewport]="true">
@@ -311,7 +333,7 @@ fun <T : ItemI<*>> T.toTypeScriptModuleHTML(element: ModuleI<*>): String =
     </mat-sidenav-content>
 </mat-sidenav-container>"""
 
-fun <T : ItemI<*>> T.toTypeScriptEntityViewHTML(c: GenerationContext, element: EntityI<*>, enums: List<EnumTypeI<*>>): String =
+fun <T : ItemI<*>> T.toAngularEntityViewHTML(c: GenerationContext, element: EntityI<*>, enums: List<EnumTypeI<*>>): String =
     """<app-${element.parent().name().toLowerCase()} [pageName]="${element.name().toLowerCase()}DataService.pageName"></app-${element.parent().name().toLowerCase()}>
 <div>
     <form class="${element.name().toLowerCase()}-form">
@@ -377,27 +399,27 @@ fun <T : AttributeI<*>> T.toHTMLObjectForm(parent: EntityI<*>, childElement: Str
         <app-${elementType.toLowerCase()} [${elementType.toLowerCase()}]="${parent.name().toLowerCase()}.${childElement.toLowerCase()}"></app-${elementType.toLowerCase()}>"""
 }
 
-fun <T : ItemI<*>> T.toTypeScriptEntityListHTML(element: EntityI<*>): String =
-    """<app-person [pageName]="profileDataService.pageName"></app-person>
+fun <T : ItemI<*>> T.toAngularEntityListHTML(element: EntityI<*>): String =
+    """<app-${element.parent().name().toLowerCase()} [pageName]="profileDataService.pageName"></app-${element.parent().name().toLowerCase()}>
 <a class="newButton" [routerLink]="'./new'"
         routerLinkActive="active-link">
     <mat-icon>add_circle_outline</mat-icon> Add New Item
 </a>
 
-<a class="deleteButton" (click)="profileDataService.clearItems()">
+<a class="deleteButton" (click)="${element.name().toLowerCase()}DataService.clearItems()">
     <mat-icon>delete_outline</mat-icon> Delete All Item
 </a>
 <app-table [displayedColumns]="tableHeader"></app-table>
 """
 
-fun <T : ItemI<*>> T.toTypeScriptModuleSCSS(): String =
+fun <T : ItemI<*>> T.toAngularModuleSCSS(): String =
     """:host {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
 }"""
 
-fun <T : ItemI<*>> T.toTypeScriptEntityViewSCSS(): String =
+fun <T : ItemI<*>> T.toAngularEntityViewSCSS(): String =
     """app-button {
     position: relative;
     left: 10%;
@@ -410,7 +432,7 @@ form {
 }
 """
 
-fun <T : ItemI<*>> T.toTypeScriptEntityListSCSS(): String =
+fun <T : ItemI<*>> T.toAngularEntityListSCSS(): String =
     """app-table {
     position: absolute;
     width: 80% !important;

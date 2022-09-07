@@ -141,29 +141,29 @@ open class GeneratorSimple<M>(
                 }
         }
         if(path.toString().contains("entity-view.component")) {
-            val modelName = "schkola"
-            val lastIndex = pkg.toString().lastIndexOf("\\") + 1
-            val lastIndexOfEE = pkg.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
-            val lastIndexOfSchkola = pkg.toString().lastIndexOf("\\schkola") + 1
-            val parentName = pkg.toString().substring(lastIndexOfSchkola + modelName.length + 1, pkg.toString().length)
+            val lastIndex = path.toString().lastIndexOf("\\") + 1
+            val lastIndexOfEE = path.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
+            val lastIndexOfParent = path.toString().lastIndexOf("_")
+            val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
             pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
-                    "ee\\component\\${parentName}\\${template.name(model).fileName.
-                    substring(0, template.name(model).fileName.indexOf("-"))}\\components\\view")
-            path = pkg.resolve(template.name(model).fileName)
+                    "ee\\component\\${parentName.toLowerCase()}\\${template.name(model).fileName.
+                    substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\view")
+            val newFileName = template.name(model).fileName.substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.length)
+            path = pkg.resolve(newFileName)
             if(!pkg.exists()) {
                 pkg.mkdirs()
             }
         }
         if(path.toString().contains("entity-list.component")) {
-            val modelName = "schkola"
-            val lastIndex = pkg.toString().lastIndexOf("\\") + 1
-            val lastIndexOfEE = pkg.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
-            val lastIndexOfSchkola = pkg.toString().substring(0, lastIndex).lastIndexOf("\\schkola") + 1
-            val parentName = pkg.toString().substring(lastIndexOfSchkola + modelName.length + 1, pkg.toString().length)
+            val lastIndex = path.toString().lastIndexOf("\\") + 1
+            val lastIndexOfEE = path.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
+            val lastIndexOfParent = path.toString().lastIndexOf("_")
+            val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
             pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
-                    "ee\\component\\${parentName}\\${template.name(model).fileName.
-                    substring(0, template.name(model).fileName.indexOf("-"))}\\components\\list")
-            path = pkg.resolve(template.name(model).fileName)
+                    "ee\\component\\${parentName.toLowerCase()}\\${template.name(model).fileName.
+                    substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\list")
+            val newFileName = template.name(model).fileName.substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.length)
+            path = pkg.resolve(newFileName)
             if(!pkg.exists()) {
                 pkg.mkdirs()
             }
