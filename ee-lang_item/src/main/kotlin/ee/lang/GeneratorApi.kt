@@ -129,9 +129,12 @@ open class GeneratorSimple<M>(
 
         var pkg = prepareNamespace(module, c)
         var path = pkg.resolve(template.name(model).fileName)
+
+        val lastIndex = path.toString().lastIndexOf("\\") + 1
+        val lastIndexOfEE = path.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
+        val newFileName = template.name(model).fileName.substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.length)
+
         if(path.toString().contains("module-view.component")) {
-            val lastIndex = pkg.toString().lastIndexOf("\\") + 1
-            val lastIndexOfEE = pkg.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
             pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
                     "ee\\component\\${template.name(model).fileName.
                         substring(0, template.name(model).fileName.indexOf("-"))}\\components\\view")
@@ -141,36 +144,48 @@ open class GeneratorSimple<M>(
                 }
         }
         if(path.toString().contains("entity-view.component")) {
-            val lastIndex = path.toString().lastIndexOf("\\") + 1
-            val lastIndexOfEE = path.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
             val lastIndexOfParent = path.toString().lastIndexOf("_")
             val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
             pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
                     "ee\\component\\${parentName.toLowerCase()}\\${template.name(model).fileName.
                     substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\view")
-            val newFileName = template.name(model).fileName.substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.length)
             path = pkg.resolve(newFileName)
             if(!pkg.exists()) {
                 pkg.mkdirs()
             }
+            if(path.exists()) {
+                return
+            }
         }
         if(path.toString().contains("entity-list.component")) {
-            val lastIndex = path.toString().lastIndexOf("\\") + 1
-            val lastIndexOfEE = path.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
             val lastIndexOfParent = path.toString().lastIndexOf("_")
             val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
             pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
                     "ee\\component\\${parentName.toLowerCase()}\\${template.name(model).fileName.
                     substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\list")
-            val newFileName = template.name(model).fileName.substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.length)
             path = pkg.resolve(newFileName)
             if(!pkg.exists()) {
                 pkg.mkdirs()
             }
+            if(path.exists()) {
+                return
+            }
+        }
+        if(path.toString().contains("data.service")) {
+            val lastIndexOfParent = path.toString().lastIndexOf("_")
+            val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
+            pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
+                    "ee\\component\\${parentName.toLowerCase()}\\${template.name(model).fileName.
+                    substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\service")
+            path = pkg.resolve(newFileName)
+            if(!pkg.exists()) {
+                pkg.mkdirs()
+            }
+            if(path.exists()) {
+                return
+            }
         }
         if(path.toString().contains("module-view.service")) {
-            val lastIndex = pkg.toString().lastIndexOf("\\") + 1
-            val lastIndexOfEE = pkg.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
             pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
                     "ee\\component\\${template.name(model).fileName.
                     substring(0, template.name(model).fileName.indexOf("-"))}\\service")

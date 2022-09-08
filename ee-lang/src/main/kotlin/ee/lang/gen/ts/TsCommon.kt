@@ -250,22 +250,24 @@ fun <T : ItemI<*>> T.toTypeScriptModuleInputElement(name: String, indent: String
     return """${indent}@Input() $name = '${element.name()}Component';${"\n"}"""
 }
 
-fun <T : ItemI<*>> T.toTypeScriptModuleInitEntity(c: GenerationContext,indent: String, element: ModuleI<*>): String {
-    return """${indent}${element.name().toLowerCase()}: ${c.n(this)} = new ${c.n(this)}();${"\n"}"""
-}
-
 fun <T : ItemI<*>> T.toTypeScriptModuleConstructor(indent: String, element: ModuleI<*>): String {
     return """${indent}constructor(public ${element.name().toLowerCase()}ViewService: ${element.name()}ViewService) {}${"\n"}"""
 }
 
-fun <T : ItemI<*>> T.toTypeScriptViewConstructor(indent: String, element: EntityI<*>): String {
+fun <T : ItemI<*>> T.toAngularConstructorDataService(indent: String, element: EntityI<*>): String {
     return """${indent}constructor(public ${element.name().toLowerCase()}DataService: ${element.name()}DataService) {}${"\n"}"""
 }
 
-fun <T : ItemI<*>> T.toTypeScriptOnInit(indent: String, element: EntityI<*>): String {
+fun <T : ItemI<*>> T.toAngularViewOnInit(indent: String, element: EntityI<*>): String {
     return """${indent}ngOnInit(): void {
         this.${element.name().toLowerCase()} = this.${element.name().toLowerCase()}DataService.getFirst();
         this.${element.name().toLowerCase()}DataService.checkRoute(this.${element.name().toLowerCase()});
+    }"""
+}
+
+fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
+    return """${indent}ngOnInit(): void {
+        this.tableHeader = this.generateTableHeader();
     }"""
 }
 
@@ -281,23 +283,36 @@ fun <T : ItemI<*>> T.toTypeScriptGenerateComponentPartWithProviders(element: Mod
 })
 """
 
-fun <T : ItemI<*>> T.toTypeScriptGenerateComponentPartWithProvidersView(element: EntityI<*>): String =
+fun <T : ItemI<*>> T.toTypeScriptGenerateViewComponentPartWithProviders(element: EntityI<*>, type: String): String =
     """@Component({
-  selector: 'app-${element.name().toLowerCase()}',
+  selector: 'app-${element.name().toLowerCase()}-${type}',
   templateUrl: './${element.name().toLowerCase()}-view.component.html',
   styleUrls: ['./${element.name().toLowerCase()}-view.component.scss'],
   providers: [{provide: TableDataService, useClass: ${element.name()}DataService}]
 })
 """
 
+//TODO: Fix Import sometimes not showing
 fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: String, element: EntityI<*>, elementName: String, elementType: String,  enums: List<EnumTypeI<*>>): String {
     var text = ""
     enums.forEach {
         if(it.name() == elementType) {
-            text = """${indent}${it.name().toLowerCase()}Enum = this.${element.name().toLowerCase()}DataService.loadEnumElement(${c.n(this)});"""
+            text = """${indent}${it.name().toLowerCase()}Enum = this.${element.name().toLowerCase()}DataService.loadEnumElement(${c.n(it)});"""
         }
     }
     return text
+}
+
+fun <T : ItemI<*>> T.toTypeScriptViewEntityProp(c: GenerationContext,indent: String, element: EntityI<*>): String {
+    return """${indent}${element.name().toLowerCase()}: ${c.n(element)};${"\n"}"""
+}
+
+fun <T : ItemI<*>> T.toTypeScriptViewEntityPropInit(c: GenerationContext,indent: String, element: EntityI<*>): String {
+    return """${indent}${element.name().toLowerCase()}: ${c.n(element)} = new ${c.n(element)}();${"\n"}"""
+}
+
+fun <T : ItemI<*>> T.toAngularGenerateTableHeader(element: AttributeI<*>): String {
+    return "'${element.name().toLowerCase()}'"
 }
 
 fun <T : ItemI<*>> T.toAngularModuleHTML(element: ModuleI<*>): String =

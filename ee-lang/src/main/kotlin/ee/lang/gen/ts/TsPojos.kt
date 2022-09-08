@@ -94,17 +94,15 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewTSComponent(items: EntityI<*>
 import {TableDataService} from '../../../../template/services/data.service';
 import {${items.name()}DataService} from '../../services/${items.name().toLowerCase()}-data.service';
 
-${items.toTypeScriptGenerateComponentPartWithProvidersView(items)}
-${isOpen().then("export ")}class ${items.name()}ViewComponent implements OnInit {
+${items.toTypeScriptGenerateViewComponentPartWithProviders(items, "view")}
+${isOpen().then("export ")}class ${c.n(items.name())}ViewComponent implements OnInit {
 
-${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         it.toAngularGenerateEnumElement(c, tab, items, it.name(), it.type().name(), enums)
-}.trim()}
-
-    ${items.name().toLowerCase()}: ${c.n(items.name(), derived)};
-
-${items.toTypeScriptViewConstructor(tab, items)}
-${items.toTypeScriptOnInit(tab, items)}
+}}
+${items.toTypeScriptViewEntityProp(c, tab, items)}
+${items.toAngularConstructorDataService(tab, items)}
+${items.toAngularViewOnInit(tab, items)}
 }
 """
 }
@@ -121,7 +119,26 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(items: EntityI<
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityListTSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                api: String = LangDerivedKind.API): String {
-    return """""" /*items.toAngularEntityListTS()*/
+    return """import {Component, OnInit} from '@angular/core';
+import {TableDataService} from '../../../../template/services/data.service';
+import {${items.name()}DataService} from '../../services/${items.name().toLowerCase()}-data.service';
+
+${items.toTypeScriptGenerateViewComponentPartWithProviders(items, "list")}
+${isOpen().then("export ")}class ${c.n(items.name())}ViewComponent implements OnInit {
+
+${items.toTypeScriptViewEntityPropInit(c, tab, items)}
+    tableHeader: Array<String> = [];
+
+${items.toAngularConstructorDataService(tab, items)}
+${items.toAngularListOnInit(tab)}
+
+    generateTableHeader() {
+        return ['Actions', ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") {
+            it.toAngularGenerateTableHeader(it)
+    }}];
+    }
+}
+"""
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
@@ -132,6 +149,24 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(items: EntityI<
 fun <T : CompilationUnitI<*>> T.toAngularEntityListSCSSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                  api: String = LangDerivedKind.API): String {
     return items.toAngularEntityListSCSS()
+}
+
+fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                 api: String = LangDerivedKind.API): String {
+    return """import {Injectable} from '@angular/core';
+import {TableDataService} from '../../../template/services/data.service';
+
+@Injectable()
+${isOpen().then("export ")}class ${c.n(items.name())}ViewComponent extends TableDataService {
+    itemName = '${c.n(items).toLowerCase()}';
+
+    pageName = '${c.n(items)}Component';
+
+    getFirst() {
+        return new ${c.n(items)}();
+    }
+}
+"""
 }
 
 
