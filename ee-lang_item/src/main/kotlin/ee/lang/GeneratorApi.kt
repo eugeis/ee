@@ -194,6 +194,20 @@ open class GeneratorSimple<M>(
                 pkg.mkdirs()
             }
         }
+        if(path.toString().contains("basic.component")) {
+            val lastIndexOfParent = path.toString().lastIndexOf("_")
+            val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
+            pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
+                    "ee\\component\\${parentName.toLowerCase()}\\basics\\${template.name(model).fileName.
+                    substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}")
+            path = pkg.resolve(newFileName)
+            if(!pkg.exists()) {
+                pkg.mkdirs()
+            }
+            if(path.exists()) {
+                return
+            }
+        }
         val relative = target.relativize(path).toString()
         if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
             log.debug("generate $path for $model")

@@ -578,6 +578,39 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                     )
                 )
             }
+
+            i.basics().forEach {
+                moduleGenerators.add(
+                    GeneratorSimple(
+                        "BasicTypeScriptComponent", contextBuilder = tsContextBuilder,
+                        template = SingleItemFragmentsTemplate(name = "${i.name()}_${it.name().toLowerCase()}-basic.component",
+                            nameBuilder = templateNameAsTsFileName, fragments = {
+                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                    fragments = { tsTemplates.basicComponentTypeScript(it) })
+                            })
+                    )
+                )
+                moduleGenerators.add(
+                    GeneratorSimple(
+                        "BasicHtmlComponent", contextBuilder = tsContextBuilder,
+                        template = SingleItemFragmentsTemplate(name = "${i.name()}_${it.name().toLowerCase()}-basic.component",
+                            nameBuilder = templateNameAsHTMLFileName, fragments = {
+                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                    fragments = { tsTemplates.basicComponentHTML(it) })
+                            })
+                    )
+                )
+                moduleGenerators.add(
+                    GeneratorSimple(
+                        "BasicScssComponent", contextBuilder = tsContextBuilder,
+                        template = SingleItemFragmentsTemplate(name = "${i.name()}_${it.name().toLowerCase()}-basic.component",
+                            nameBuilder = templateNameAsCSSFileName, fragments = {
+                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                    fragments = { tsTemplates.basicComponentSCSS(it) })
+                            })
+                    )
+                )
+            }
         }
 
         /*for (i in basics.invoke(model)){

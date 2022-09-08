@@ -274,7 +274,15 @@ fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
 fun <T : TypeI<*>> T.toAngularModuleArrayElement(attr: EntityI<*>): String =
     "'${attr.name()}'"
 
-fun <T : ItemI<*>> T.toTypeScriptGenerateComponentPartWithProviders(element: ModuleI<*>): String =
+fun <T : ItemI<*>> T.toTypeScriptBasicGenerateComponentPart(element: BasicI<*>): String =
+    """@Component({
+  selector: 'app-${element.name().toLowerCase()}',
+  templateUrl: './${element.name().toLowerCase()}.component.html',
+  styleUrls: ['./${element.name().toLowerCase()}.component.scss'],
+})
+"""
+
+fun <T : ItemI<*>> T.toTypeScriptModuleGenerateComponentPart(element: ModuleI<*>): String =
     """@Component({
   selector: 'app-${element.name().toLowerCase()}',
   templateUrl: './${element.name().toLowerCase()}-view.component.html',
@@ -283,7 +291,7 @@ fun <T : ItemI<*>> T.toTypeScriptGenerateComponentPartWithProviders(element: Mod
 })
 """
 
-fun <T : ItemI<*>> T.toTypeScriptGenerateViewComponentPartWithProviders(element: EntityI<*>, type: String): String =
+fun <T : ItemI<*>> T.toTypeScriptEntityGenerateViewComponentPart(element: EntityI<*>, type: String): String =
     """@Component({
   selector: 'app-${element.name().toLowerCase()}-${type}',
   templateUrl: './${element.name().toLowerCase()}-view.component.html',
@@ -313,6 +321,24 @@ fun <T : ItemI<*>> T.toTypeScriptViewEntityPropInit(c: GenerationContext,indent:
 
 fun <T : ItemI<*>> T.toAngularGenerateTableHeader(element: AttributeI<*>): String {
     return "'${element.name().toLowerCase()}'"
+}
+
+fun <T : ItemI<*>> T.toAngularInitEmptyElements(c: GenerationContext, element: AttributeI<*>): String {
+    return when (element.type().toTypeScriptIfNative(c, "", element)) {
+        "boolean" -> """${element.name().toLowerCase()}: false"""
+        "string" -> """${element.name().toLowerCase()}: ''"""
+        "number" -> """${element.name().toLowerCase()}: 0"""
+        else -> {
+            when (element.type().props().size) {
+                0 -> """${element.name().toLowerCase()}: 0"""
+                else -> {
+                    """${element.name()}: {${element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
+                        it.toAngularInitEmptyElements(c, it)
+                    }}}"""
+                }
+            }
+        }
+    }
 }
 
 fun <T : ItemI<*>> T.toAngularModuleHTML(element: ModuleI<*>): String =
@@ -415,7 +441,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectForm(parent: EntityI<*>, childElement: Str
 }
 
 fun <T : ItemI<*>> T.toAngularEntityListHTML(element: EntityI<*>): String =
-    """<app-${element.parent().name().toLowerCase()} [pageName]="profileDataService.pageName"></app-${element.parent().name().toLowerCase()}>
+    """<app-${element.parent().name().toLowerCase()} [pageName]="${element.name().toLowerCase()}DataService.pageName"></app-${element.parent().name().toLowerCase()}>
 <a class="newButton" [routerLink]="'./new'"
         routerLinkActive="active-link">
     <mat-icon>add_circle_outline</mat-icon> Add New Item
@@ -427,7 +453,7 @@ fun <T : ItemI<*>> T.toAngularEntityListHTML(element: EntityI<*>): String =
 <app-table [displayedColumns]="tableHeader"></app-table>
 """
 
-fun <T : ItemI<*>> T.toAngularModuleSCSS(): String =
+fun <T : ItemI<*>> T.toAngularDefaultSCSS(): String =
     """:host {
     display: flex;
     flex-direction: column;
@@ -475,6 +501,15 @@ a {
     top: 20%;
     left: 50%;
 }
+"""
+
+//TODO: Change Approach for different type of props
+fun <T : ItemI<*>> T.toAngularBasicHTML(element: AttributeI<*>): String =
+    """
+        <mat-form-field appearance="outline">
+            <mat-label>${element.name()}</mat-label>
+            <input matInput name="${element.name().toLowerCase()}" [(ngModel)]="${element.parent().name().toLowerCase()}.${element.name().toLowerCase()}">
+        </mat-form-field>
 """
 
 fun <T : AttributeI<*>> T.toTypeScriptInputFunction(c: GenerationContext, indent: String, element: AttributeI<*>): String {

@@ -50,6 +50,14 @@ open class LangTsTemplates {
     open fun <T : CompilationUnitI<*>> entityDataService(items: EntityI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityDataService", nameBuilder) { item, c -> item.toAngularEntityDataService(items, c, LangDerivedKind.API) }
 
+    open fun <T : CompilationUnitI<*>> basicComponentTypeScript(items: BasicI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("BasicTypeScriptComponent", nameBuilder) { item, c -> item.toAngularBasicTSComponent(items, c, LangDerivedKind.API) }
+
+    open fun <T : CompilationUnitI<*>> basicComponentHTML(items: BasicI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("BasicHTMLComponent", nameBuilder) { item, c -> item.toAngularBasicHTMLComponent(items, c, LangDerivedKind.API) }
+
+    open fun <T : CompilationUnitI<*>> basicComponentSCSS(items: BasicI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("BasicSCSSComponent", nameBuilder) { item, c -> item.toAngularBasicSCSSComponent(items, c, LangDerivedKind.API) }
     /*open fun <T : CompilationUnitI<*>> angularComponentTypeScript(items: BasicI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("TypeScriptComponent", nameBuilder) { item, c -> item.toTypeScriptComponent(items, c, LangDerivedKind.API) }
 

@@ -56,7 +56,7 @@ fun <T : CompilationUnitI<*>> T.toAngularModuleTSComponent(items: ModuleI<*>, c:
                                                            api: String = LangDerivedKind.API): String {
     return """import {Component, Input} from '@angular/core';
 ${items.toTypeScriptModuleImportServices(items)}
-${items.toTypeScriptGenerateComponentPartWithProviders(items)}
+${items.toTypeScriptModuleGenerateComponentPart(items)}
 ${isOpen().then("export ")}class ${items.name()}ViewComponent {${"\n"}
 ${items.toTypeScriptModuleInputElement("pageName", tab , items)}       
 ${items.toTypeScriptModuleConstructor(tab, items)}
@@ -70,7 +70,7 @@ fun <T : CompilationUnitI<*>> T.toAngularModuleHTMLComponent(items: ModuleI<*>, 
 
 fun <T : CompilationUnitI<*>> T.toAngularModuleSCSSComponent(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                              api: String = LangDerivedKind.API): String {
-    return items.toAngularModuleSCSS()
+    return items.toAngularDefaultSCSS()
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularModuleService(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
@@ -94,7 +94,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewTSComponent(items: EntityI<*>
 import {TableDataService} from '../../../../template/services/data.service';
 import {${items.name()}DataService} from '../../services/${items.name().toLowerCase()}-data.service';
 
-${items.toTypeScriptGenerateViewComponentPartWithProviders(items, "view")}
+${items.toTypeScriptEntityGenerateViewComponentPart(items, "view")}
 ${isOpen().then("export ")}class ${c.n(items.name())}ViewComponent implements OnInit {
 
 ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
@@ -123,7 +123,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListTSComponent(items: EntityI<*>
 import {TableDataService} from '../../../../template/services/data.service';
 import {${items.name()}DataService} from '../../services/${items.name().toLowerCase()}-data.service';
 
-${items.toTypeScriptGenerateViewComponentPartWithProviders(items, "list")}
+${items.toTypeScriptEntityGenerateViewComponentPart(items, "list")}
 ${isOpen().then("export ")}class ${c.n(items.name())}ViewComponent implements OnInit {
 
 ${items.toTypeScriptViewEntityPropInit(c, tab, items)}
@@ -167,6 +167,42 @@ ${isOpen().then("export ")}class ${c.n(items.name())}ViewComponent extends Table
     }
 }
 """
+}
+fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                 api: String = LangDerivedKind.API): String {
+    return """import {Component, Input, OnInit} from '@angular/core';
+
+${items.toTypeScriptBasicGenerateComponentPart(items)}
+${isOpen().then("export ")}class ${c.n(items.name())}Component implements OnInit {
+
+    @Input() ${c.n(items).toLowerCase()}: ${c.n(items)} = new ${c.n(items)}();
+
+    ngOnInit(): void {
+        if (this.${c.n(items).toLowerCase()} === undefined) {
+            this.${c.n(items).toLowerCase()} = {${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") {
+        it.toAngularInitEmptyElements(c, it)
+    }}};
+        }
+    }
+}
+"""
+}
+
+fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                 api: String = LangDerivedKind.API): String {
+    return """<div>
+    <form>
+        ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString() { 
+            it.toAngularBasicHTML(it)
+        }}
+    </form>
+</div>
+"""
+}
+
+fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                 api: String = LangDerivedKind.API): String {
+    return items.toAngularDefaultSCSS()
 }
 
 
