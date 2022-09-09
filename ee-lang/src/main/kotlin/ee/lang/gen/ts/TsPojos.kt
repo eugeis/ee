@@ -192,8 +192,8 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(items: BasicI<*>, c:
                                                                  api: String = LangDerivedKind.API): String {
     return """<div>
     <form>
-        ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString() { 
-            it.toAngularBasicHTML(it)
+        ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString { 
+            it.toAngularBasicHTML(c, it)
         }}
     </form>
 </div>

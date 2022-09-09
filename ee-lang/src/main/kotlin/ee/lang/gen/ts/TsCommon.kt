@@ -300,7 +300,6 @@ fun <T : ItemI<*>> T.toTypeScriptEntityGenerateViewComponentPart(element: Entity
 })
 """
 
-//TODO: Fix Import sometimes not showing
 fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: String, element: EntityI<*>, elementName: String, elementType: String,  enums: List<EnumTypeI<*>>): String {
     var text = ""
     enums.forEach {
@@ -503,14 +502,41 @@ a {
 }
 """
 
-//TODO: Change Approach for different type of props
-fun <T : ItemI<*>> T.toAngularBasicHTML(element: AttributeI<*>): String =
-    """
+fun <T : ItemI<*>> T.toAngularBasicHTML(c: GenerationContext, element: AttributeI<*>): String {
+    return when (element.type().toTypeScriptIfNative(c, "", element)) {
+        "boolean" -> """
+        <mat-form-field appearance="outline">
+            <mat-label>${element.name()}</mat-label>
+            <mat-select [(value)]="${element.parent().name().toLowerCase()}.${element.name().toLowerCase()}">
+                <mat-option *ngFor="let item of ['true', 'false']" [value]="item">{{item}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+"""
+        "string", "number" -> """
         <mat-form-field appearance="outline">
             <mat-label>${element.name()}</mat-label>
             <input matInput name="${element.name().toLowerCase()}" [(ngModel)]="${element.parent().name().toLowerCase()}.${element.name().toLowerCase()}">
         </mat-form-field>
 """
+        else -> {
+            when (element.type().props().size) {
+                0 -> """
+        <mat-form-field appearance="outline">
+            <mat-label>${element.name()}</mat-label>
+            <mat-select [(value)]="${element.parent().name().toLowerCase()}.${element.name().toLowerCase()}">
+                <mat-option *ngFor="let item of ${element.name().toLowerCase()}Enum" [value]="item">{{item}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+"""
+                else -> {
+                    element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString {
+                        it.toAngularBasicHTML(c, it)
+                    }
+                }
+            }
+        }
+    }
+}
 
 fun <T : AttributeI<*>> T.toTypeScriptInputFunction(c: GenerationContext, indent: String, element: AttributeI<*>): String {
     return when (element.type().toTypeScriptIfNative(c, "", element)) {
