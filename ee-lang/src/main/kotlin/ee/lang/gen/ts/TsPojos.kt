@@ -88,7 +88,7 @@ fun <T : CompilationUnitI<*>> T.toAngularModuleService(items: ModuleI<*>, c: Gen
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityViewTSComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularEntityViewTSComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                api: String = LangDerivedKind.API): String {
     return """import {Component, OnInit} from '@angular/core';
 import {TableDataService} from '../../../../template/services/data.service';
@@ -102,7 +102,7 @@ ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
 }}
 ${items.toTypeScriptViewEntityProp(c, tab, items)}
 ${items.toAngularConstructorDataService(tab, items)}
-${items.toAngularViewOnInit(tab, items)}
+${items.toAngularViewOnInit(c, tab, items, basics)}
 }
 """
 }
@@ -170,18 +170,12 @@ ${isOpen().then("export ")}class ${c.n(items.name())}ViewComponent extends Table
 }
 fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                  api: String = LangDerivedKind.API): String {
-    return """import {Component, Input, OnInit} from '@angular/core';
+    return """import {Component, Input} from '@angular/core';
 
 ${items.toTypeScriptBasicGenerateComponentPart(items)}
-${isOpen().then("export ")}class ${c.n(items.name())}Component implements OnInit {
+${isOpen().then("export ")}class ${c.n(items.name())}Component {
 
-    @Input() ${c.n(items).toLowerCase()}: ${c.n(items)} = new ${c.n(items)}();
-
-    ngOnInit(): void {
-        if (this.${c.n(items).toLowerCase()} === undefined) {
-            this.${c.n(items).toLowerCase()} = {${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") {
-        it.toAngularInitEmptyElements(c, it)
-    }}};
+    @Input() ${c.n(items).toLowerCase()}: ${c.n(items)};
         }
     }
 }

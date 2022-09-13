@@ -29,8 +29,8 @@ open class LangTsTemplates {
     open fun <T : CompilationUnitI<*>> moduleService(items: ModuleI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("ModuleService", nameBuilder) { item, c -> item.toAngularModuleService(items, c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> entityViewComponentTypeScript(items: EntityI<*>, enums: List<EnumTypeI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityViewTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityViewTSComponent(items, enums, c, LangDerivedKind.API) }
+    open fun <T : CompilationUnitI<*>> entityViewComponentTypeScript(items: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EntityViewTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityViewTSComponent(items, enums, basics, c, LangDerivedKind.API) }
 
     open fun <T : CompilationUnitI<*>> entityViewComponentHTML(items: EntityI<*>, enums: List<EnumTypeI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityViewHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityViewHTMLComponent(items, enums, c, LangDerivedKind.API) }

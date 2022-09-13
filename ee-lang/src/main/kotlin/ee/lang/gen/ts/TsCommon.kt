@@ -5,6 +5,7 @@ import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.java.j
+import kotlin.reflect.typeOf
 
 var tempIndex = 0
 fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
@@ -258,11 +259,22 @@ fun <T : ItemI<*>> T.toAngularConstructorDataService(indent: String, element: En
     return """${indent}constructor(public ${element.name().toLowerCase()}DataService: ${element.name()}DataService) {}${"\n"}"""
 }
 
-fun <T : ItemI<*>> T.toAngularViewOnInit(indent: String, element: EntityI<*>): String {
+//TODO: Fix Import
+fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext,indent: String, element: EntityI<*>, basics: List<BasicI<*>>): String {
+    val basicElements: MutableList<String> = ArrayList()
+    basics.forEach { basicElements.add(it.name().toLowerCase()) }
+
     return """${indent}ngOnInit(): void {
         this.${element.name().toLowerCase()} = this.${element.name().toLowerCase()}DataService.getFirst();
+        ${element.props().filter { c.n(it.name().toLowerCase()) in basicElements }.joinSurroundIfNotEmptyToString(nL + tab) { 
+            it.toAngularEmptyBasic(c, indent, it, element, basics)
+    }.trim()}
         this.${element.name().toLowerCase()}DataService.checkRoute(this.${element.name().toLowerCase()});
     }"""
+}
+
+fun <T : ItemI<*>> T.toAngularEmptyBasic(c: GenerationContext, indent: String, element: AttributeI<*>, entity: EntityI<*>, basics: List<BasicI<*>>): String {
+    return """${indent}this.${entity.name().toLowerCase()}.${c.n(element.name())} = new ${c.n(element.name().capitalize())}();"""
 }
 
 fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
