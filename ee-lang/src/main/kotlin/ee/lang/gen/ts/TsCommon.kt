@@ -5,7 +5,6 @@ import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.java.j
-import kotlin.reflect.typeOf
 
 var tempIndex = 0
 fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
@@ -244,29 +243,29 @@ fun <T : AttributeI<*>> T.toTypeScriptImportElements(element: AttributeI<*>): St
 }
 
 fun <T : ItemI<*>> T.toTypeScriptModuleImportServices(element: ModuleI<*>): String {
-    return """import {${element.name()}ViewService} from '../../services/${element.name().toLowerCase()}-view.service}';${"\n"}"""
+    return """import {${element.name()}ViewService} from '../../service/${element.name().toLowerCase()}-view.service';$nL"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptModuleInputElement(name: String, indent: String, element: ModuleI<*>): String {
-    return """${indent}@Input() $name = '${element.name()}Component';${"\n"}"""
+    return """${indent}@Input() $name = '${element.name()}Component';$nL"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptModuleConstructor(indent: String, element: ModuleI<*>): String {
-    return """${indent}constructor(public ${element.name().toLowerCase()}ViewService: ${element.name()}ViewService) {}${"\n"}"""
+    return """${indent}constructor(public ${element.name().toLowerCase()}ViewService: ${element.name()}ViewService) {}$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularConstructorDataService(indent: String, element: EntityI<*>): String {
-    return """${indent}constructor(public ${element.name().toLowerCase()}DataService: ${element.name()}DataService) {}${"\n"}"""
+    return """${indent}constructor(public ${element.name().toLowerCase()}DataService: ${element.name()}DataService) {}$nL"""
 }
 
 //TODO: Fix Import
 fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext,indent: String, element: EntityI<*>, basics: List<BasicI<*>>): String {
     val basicElements: MutableList<String> = ArrayList()
-    basics.forEach { basicElements.add(it.name().toLowerCase()) }
+    basics.forEach { basicElements.add(it.name().capitalize()) }
 
     return """${indent}ngOnInit(): void {
         this.${element.name().toLowerCase()} = this.${element.name().toLowerCase()}DataService.getFirst();
-        ${element.props().filter { c.n(it.name().toLowerCase()) in basicElements }.joinSurroundIfNotEmptyToString(nL + tab) { 
+        ${element.props().filter { it.name().capitalize() in basicElements }.joinSurroundIfNotEmptyToString(nL + tab) { 
             it.toAngularEmptyBasic(c, indent, it, element, basics)
     }.trim()}
         this.${element.name().toLowerCase()}DataService.checkRoute(this.${element.name().toLowerCase()});
@@ -274,7 +273,7 @@ fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext,indent: String, el
 }
 
 fun <T : ItemI<*>> T.toAngularEmptyBasic(c: GenerationContext, indent: String, element: AttributeI<*>, entity: EntityI<*>, basics: List<BasicI<*>>): String {
-    return """${indent}this.${entity.name().toLowerCase()}.${c.n(element.name())} = new ${c.n(element.name().capitalize())}();"""
+    return """${indent}this.${entity.name().toLowerCase()}.${c.n(element)} = new ${c.n(element)}();"""
 }
 
 fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
@@ -323,11 +322,11 @@ fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: 
 }
 
 fun <T : ItemI<*>> T.toTypeScriptViewEntityProp(c: GenerationContext,indent: String, element: EntityI<*>): String {
-    return """${indent}${element.name().toLowerCase()}: ${c.n(element)};${"\n"}"""
+    return """${indent}${element.name().toLowerCase()}: ${c.n(element)};$nL"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptViewEntityPropInit(c: GenerationContext,indent: String, element: EntityI<*>): String {
-    return """${indent}${element.name().toLowerCase()}: ${c.n(element)} = new ${c.n(element)}();${"\n"}"""
+    return """${indent}${element.name().toLowerCase()}: ${c.n(element)} = new ${c.n(element)}();$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularGenerateTableHeader(element: AttributeI<*>): String {
@@ -548,6 +547,30 @@ fun <T : ItemI<*>> T.toAngularBasicHTML(c: GenerationContext, element: Attribute
             }
         }
     }
+}
+
+fun <T : ItemI<*>> T.toAngularModuleImportEntities(element: EntityI<*>): String {
+    return """import {${element.name().capitalize()}ViewComponent} from './${element.name().toLowerCase()}/components/view/${element.name().toLowerCase()}-entity-view.component';
+import {${element.name().capitalize()}ListComponent} from './${element.name().toLowerCase()}/components/list/${element.name().toLowerCase()}-entity-list.component';"""
+}
+
+fun <T : ItemI<*>> T.toAngularModuleImportBasics(element: BasicI<*>): String {
+    return """import {${element.name().capitalize()}Component} from './basics/components/${element.name().toLowerCase()}/${element.name().toLowerCase()}-basic.component';"""
+}
+
+fun <T : ItemI<*>> T.toAngularModuleDeclarationEntities(indent: String, element: EntityI<*>): String {
+    return """$indent${element.name().capitalize()}ViewComponent,
+$indent${element.name().capitalize()}ListComponent"""
+}
+
+fun <T : ItemI<*>> T.toAngularModuleDeclarationBasics(indent: String, element: BasicI<*>): String {
+    return """$indent${element.name().capitalize()}Component"""
+}
+
+fun <T : ItemI<*>> T.toAngularModulePath(indent: String, element: EntityI<*>): String {
+    return """$indent{ path: '${element.name().toLowerCase()}', component: ${element.name().capitalize()}ListComponent },
+$indent{ path: '${element.name().toLowerCase()}/new', component: ${element.name().capitalize()}ViewComponent },
+$indent{ path: '${element.name().toLowerCase()}/edit/:id', component: ${element.name().capitalize()}ViewComponent },"""
 }
 
 fun <T : AttributeI<*>> T.toTypeScriptInputFunction(c: GenerationContext, indent: String, element: AttributeI<*>): String {

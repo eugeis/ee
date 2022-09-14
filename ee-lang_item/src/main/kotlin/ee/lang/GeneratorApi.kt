@@ -133,7 +133,12 @@ open class GeneratorSimple<M>(
         val lastIndex = path.toString().lastIndexOf("\\") + 1
         val lastIndexOfEE = path.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
         val newFileName = template.name(model).fileName.substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.length)
-
+        if(path.toString().contains("-routing.module") || path.toString().contains("-model.module")) {
+            pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
+                    "ee\\component\\${template.name(model).fileName.
+                    substring(0, template.name(model).fileName.indexOf("-"))}")
+            path = pkg.resolve(template.name(model).fileName)
+        }
         if(path.toString().contains("module-view.component")) {
             pkg = Paths.get(pkg.toString().substring(0, lastIndexOfEE) +
                     "ee\\component\\${template.name(model).fileName.
@@ -141,7 +146,7 @@ open class GeneratorSimple<M>(
             path = pkg.resolve(template.name(model).fileName)
             if(!pkg.exists()) {
                     pkg.mkdirs()
-                }
+            }
         }
         if(path.toString().contains("entity-view.component")) {
             val lastIndexOfParent = path.toString().lastIndexOf("_")

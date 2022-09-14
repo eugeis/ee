@@ -505,6 +505,29 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                         })
                 )
             )
+
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "ViewModuleService", contextBuilder = tsContextBuilder,
+                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-model.module",
+                        nameBuilder = templateNameAsTsFileName, fragments = {
+                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                fragments = { tsTemplates.angularModule(i) })
+                        })
+                )
+            )
+
+            moduleGenerators.add(
+                GeneratorSimple(
+                    "ViewModuleService", contextBuilder = tsContextBuilder,
+                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-routing.module",
+                        nameBuilder = templateNameAsTsFileName, fragments = {
+                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                fragments = { tsTemplates.angularRoutingModule(i) })
+                        })
+                )
+            )
+
             i.entities().forEach {j ->
                 moduleGenerators.add(
                     GeneratorSimple(
