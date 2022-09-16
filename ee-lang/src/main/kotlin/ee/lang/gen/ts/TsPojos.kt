@@ -92,9 +92,9 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewTSComponent(items: EntityI<*>
                                                                api: String = LangDerivedKind.API): String {
     return """import {Component, OnInit} from '@angular/core';
 import {TableDataService} from '../../../../../template/services/data.service';
-import {${items.name()}DataService} from '../../service/${items.name().toLowerCase()}-data.service';
+import {${c.n(items)}DataService} from '../../service/${items.name().toLowerCase()}-data.service';
 
-${items.toTypeScriptEntityGenerateViewComponentPart(items, "view")}
+${items.toTypeScriptEntityGenerateViewComponentPart(c, items, "view")}
 ${isOpen().then("export ")}class ${c.n(items)}ViewComponent implements OnInit {
 
 ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
@@ -123,7 +123,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListTSComponent(items: EntityI<*>
 import {TableDataService} from '../../../../../template/services/data.service';
 import {${items.name()}DataService} from '../../service/${items.name().toLowerCase()}-data.service';
 
-${items.toTypeScriptEntityGenerateViewComponentPart(items, "list")}
+${items.toTypeScriptEntityGenerateViewComponentPart(c, items, "list")}
 ${isOpen().then("export ")}class ${c.n(items)}ListComponent implements OnInit {
 
 ${items.toTypeScriptViewEntityPropInit(c, tab, items)}
@@ -267,119 +267,3 @@ export class ${items.name().capitalize()}RoutingModules {}
 
 """
 }
-
-
-
-/*fun <T : CompilationUnitI<*>> T.toTypeScriptComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                 api: String = LangDerivedKind.API): String {
-    val commonTypeAttribute = arrayOf("string", "int", "bool", "double")
-    return """import { Component, OnInit } from '@angular/core';
-${items.props().filter { it.toString().contains("TypedAttribute") && it.type().name().toLowerCase() !in commonTypeAttribute }.
-    joinSurroundIfNotEmptyToString(nL, postfix = nL) { it.toTypeScriptImportElements(it) } }
-${items.toTypeScriptGenerateComponentPart(items)}
-${isOpen().then("export ")}class ${items.name()}Component implements OnInit {
-${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-    it.toTypeScriptGenerateProperties(c, halfTab, it)
-}}
-${items.toTypeScriptGenerateArrayPart(halfTab)}
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-  inputElement() {
-${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toTypeScriptInputFunction(c, tab, it)
-}}
-${items.toTypeScriptInputPushElementToArrayPart(tab, items)}
-  }
-  deleteElement(index: number) {
-${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-        var indexOfElement = calculateIndex(items, it)
-        it.toTypeScriptDeleteFunction(c, tab, it, indexOfElement)
-}}
-${items.toTypeScriptDeleteElementFromArrayPart(tab)}
-  }
-  printElement(index: number) {
-${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-        var indexOfElement = calculateIndex(items, it)
-        it.toTypeScriptPrintFunction(tab, it, indexOfElement)
-}}
-  }
-  changeIndex(input: number) {
-        this.index = input;
-  }
-  loadElement(index: number) {
-${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-        var indexOfElement = calculateIndex(items, it)
-        it.toTypeScriptLoadFunction(c, tab, it, indexOfElement)
-}}
-  }
-  editElement(index: number) {
-${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-        var indexOfElement = calculateIndex(items, it)
-        it.toTypeScriptEditFunction(c, tab, it, indexOfElement)
-    }}
-  }
-  simplifiedHtmlInputElement(element: string) {
-        return (<HTMLInputElement>document.getElementById(element)).value;
-  }
-
-}"""
-}
-
-fun <T : CompilationUnitI<*>> T.toHtmlComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                      api: String = LangDerivedKind.API): String {
-    return """${items.props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toHtmlForm(it)
-    }}
-<div>
-    <button mat-raised-button (click)="inputElement()">Input</button>
-    <mat-form-field appearance="fill">
-        <mat-label>Select</mat-label>
-        <mat-select (valueChange)="changeIndex(${"$"}event)">
-            <div *ngFor="let item of dataElement; let i = index">
-                <mat-option [value]="i">{{i}}</mat-option>
-            </div>
-        </mat-select>
-    </mat-form-field>
-    <button mat-raised-button (click)="loadElement(index)">Load Value</button>
-    <button mat-raised-button (click)="printElement(index)">Check Value</button>
-    <button mat-raised-button (click)="editElement(index)">Edit Value</button>
-    <button mat-raised-button (click)="deleteElement(index)">Delete</button>
-</div>
-    """
-}
-
-fun <T : CompilationUnitI<*>> T.toScssComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                api: String = LangDerivedKind.API): String {
-    return """
-:host {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-button {
-    display: inline-block;
-}
-    """
-}
-
-fun calculateIndex(items: BasicI<*>, it: AttributeI<*>): Int {
-    // start index of element
-    var indexOfElement = 0
-    while (items.props()[indexOfElement] != it) {
-        ++indexOfElement
-    }
-    // searching interface in between indexes
-    var indexForSearchingElement = 0
-    var indexOfElementWithInterface = 0
-    while (items.props()[indexForSearchingElement] != it) {
-        if (items.props()[indexForSearchingElement].type().props().size != 0) {
-            indexOfElementWithInterface = indexForSearchingElement
-            indexOfElement += items.props()[indexOfElementWithInterface].type().props().size - 1
-        }
-        ++indexForSearchingElement
-    }
-    return indexOfElement;
-}*/

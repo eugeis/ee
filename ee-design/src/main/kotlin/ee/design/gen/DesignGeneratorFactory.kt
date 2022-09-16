@@ -464,210 +464,153 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         )
 
         for (i in modules.invoke(model)) {
-            moduleGenerators.add(
-                GeneratorSimple(
-                    "ModuleTypeScriptComponent", contextBuilder = tsContextBuilder,
-                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-module-view.component",
-                        nameBuilder = templateNameAsTsFileName, fragments = {
-                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                fragments = { tsTemplates.moduleComponentTypeScript(i) })
-                        })
-                )
-            )
-            moduleGenerators.add(
-                GeneratorSimple(
-                    "ModuleHtmlComponent", contextBuilder = tsContextBuilder,
-                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-module-view.component",
-                        nameBuilder = templateNameAsHTMLFileName, fragments = {
-                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                fragments = { tsTemplates.moduleComponentHTML(i) })
-                        })
-                )
-            )
-            moduleGenerators.add(
-                GeneratorSimple(
-                    "ModuleScssComponent", contextBuilder = tsContextBuilder,
-                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-module-view.component",
-                        nameBuilder = templateNameAsCSSFileName, fragments = {
-                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                fragments = { tsTemplates.moduleComponentSCSS(i) })
-                        })
-                )
-            )
-
-            moduleGenerators.add(
-                GeneratorSimple(
-                    "ViewModuleService", contextBuilder = tsContextBuilder,
-                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-module-view.service",
-                        nameBuilder = templateNameAsTsFileName, fragments = {
-                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                fragments = { tsTemplates.moduleService(i) })
-                        })
-                )
-            )
-
-            moduleGenerators.add(
-                GeneratorSimple(
-                    "ViewModuleService", contextBuilder = tsContextBuilder,
-                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-model.module",
-                        nameBuilder = templateNameAsTsFileName, fragments = {
-                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                fragments = { tsTemplates.angularModule(i) })
-                        })
-                )
-            )
-
-            moduleGenerators.add(
-                GeneratorSimple(
-                    "ViewModuleService", contextBuilder = tsContextBuilder,
-                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-routing.module",
-                        nameBuilder = templateNameAsTsFileName, fragments = {
-                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                fragments = { tsTemplates.angularRoutingModule(i) })
-                        })
+            moduleGenerators.addAll(
+                listOf(
+                    GeneratorSimple(
+                        "ModuleTypeScriptComponent", contextBuilder = tsContextBuilder,
+                        template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-module-view.component",
+                            nameBuilder = templateNameAsTsFileName, fragments = {
+                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                    fragments = { tsTemplates.moduleComponentTypeScript(i) })
+                            })
+                    ),
+                    GeneratorSimple(
+                        "ModuleHtmlComponent", contextBuilder = tsContextBuilder,
+                        template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-module-view.component",
+                            nameBuilder = templateNameAsHTMLFileName, fragments = {
+                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                    fragments = { tsTemplates.moduleComponentHTML(i) })
+                            })
+                    ),
+                    GeneratorSimple(
+                        "ViewModuleService", contextBuilder = tsContextBuilder,
+                        template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-module-view.service",
+                            nameBuilder = templateNameAsTsFileName, fragments = {
+                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                    fragments = { tsTemplates.moduleService(i) })
+                            })
+                    ),
+                    GeneratorSimple(
+                        "ViewModuleService", contextBuilder = tsContextBuilder,
+                        template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-module-view.service",
+                            nameBuilder = templateNameAsTsFileName, fragments = {
+                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                    fragments = { tsTemplates.moduleService(i) })
+                            })
+                    ),
+                    GeneratorSimple(
+                        "ViewModuleService", contextBuilder = tsContextBuilder,
+                        template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-model.module",
+                            nameBuilder = templateNameAsTsFileName, fragments = {
+                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                    fragments = { tsTemplates.angularModule(i) })
+                            })
+                    ),
+                    GeneratorSimple(
+                        "ViewModuleService", contextBuilder = tsContextBuilder,
+                        template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-routing.module",
+                            nameBuilder = templateNameAsTsFileName, fragments = {
+                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
+                                    fragments = { tsTemplates.angularRoutingModule(i) })
+                            })
+                    )
                 )
             )
 
             i.entities().forEach {j ->
-                moduleGenerators.add(
-                    GeneratorSimple(
-                        "EntityViewTypeScriptComponent", contextBuilder = tsContextBuilder,
-                        template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-view.component",
-                            nameBuilder = templateNameAsTsFileName, fragments = {
-                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
-                                    fragments = { tsTemplates.entityViewComponentTypeScript(j, i.enums(), i.basics()) })
-                            })
-                    )
-                )
-                moduleGenerators.add(
-                    GeneratorSimple(
-                        "EntityViewHtmlComponent", contextBuilder = tsContextBuilder,
-                        template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-view.component",
-                            nameBuilder = templateNameAsHTMLFileName, fragments = {
-                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
-                                    fragments = { tsTemplates.entityViewComponentHTML(j, i.enums()) })
-                            })
-                    )
-                )
-                moduleGenerators.add(
-                    GeneratorSimple(
-                        "EntityViewScssComponent", contextBuilder = tsContextBuilder,
-                        template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-view.component",
-                            nameBuilder = templateNameAsCSSFileName, fragments = {
-                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
-                                    fragments = { tsTemplates.entityViewComponentSCSS(j) })
-                            })
-                    )
-                )
-
-                moduleGenerators.add(
-                    GeneratorSimple(
-                        "EntityListTypeScriptComponent", contextBuilder = tsContextBuilder,
-                        template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-list.component",
-                            nameBuilder = templateNameAsTsFileName, fragments = {
-                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
-                                    fragments = { tsTemplates.entityListComponentTypeScript(j) })
-                            })
-                    )
-                )
-                moduleGenerators.add(
-                    GeneratorSimple(
-                        "EntityListHtmlComponent", contextBuilder = tsContextBuilder,
-                        template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-list.component",
-                            nameBuilder = templateNameAsHTMLFileName, fragments = {
-                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
-                                    fragments = { tsTemplates.entityListComponentHTML(j) })
-                            })
-                    )
-                )
-                moduleGenerators.add(
-                    GeneratorSimple(
-                        "EntityListScssComponent", contextBuilder = tsContextBuilder,
-                        template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-list.component",
-                            nameBuilder = templateNameAsCSSFileName, fragments = {
-                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
-                                    fragments = { tsTemplates.entityListComponentSCSS(j) })
-                            })
-                    )
-                )
-                moduleGenerators.add(
-                    GeneratorSimple(
-                        "EntityDataService", contextBuilder = tsContextBuilder,
-                        template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-data.service",
-                            nameBuilder = templateNameAsTsFileName, fragments = {
-                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
-                                    fragments = { tsTemplates.entityDataService(j) })
-                            })
+                moduleGenerators.addAll(
+                    listOf(
+                        GeneratorSimple(
+                            "EntityViewTypeScriptComponent", contextBuilder = tsContextBuilder,
+                            template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-view.component",
+                                nameBuilder = templateNameAsTsFileName, fragments = {
+                                    SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                        fragments = { tsTemplates.entityViewComponentTypeScript(j, i.enums(), i.basics()) })
+                                })
+                        ),
+                        GeneratorSimple(
+                            "EntityViewHtmlComponent", contextBuilder = tsContextBuilder,
+                            template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-view.component",
+                                nameBuilder = templateNameAsHTMLFileName, fragments = {
+                                    SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                        fragments = { tsTemplates.entityViewComponentHTML(j, i.enums()) })
+                                })
+                        ),
+                        GeneratorSimple(
+                            "EntityViewScssComponent", contextBuilder = tsContextBuilder,
+                            template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-view.component",
+                                nameBuilder = templateNameAsCSSFileName, fragments = {
+                                    SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                        fragments = { tsTemplates.entityViewComponentSCSS(j) })
+                                })
+                        ),
+                        GeneratorSimple(
+                            "EntityListTypeScriptComponent", contextBuilder = tsContextBuilder,
+                            template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-list.component",
+                                nameBuilder = templateNameAsTsFileName, fragments = {
+                                    SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                        fragments = { tsTemplates.entityListComponentTypeScript(j) })
+                                })
+                        ),
+                        GeneratorSimple(
+                            "EntityListHtmlComponent", contextBuilder = tsContextBuilder,
+                            template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-list.component",
+                                nameBuilder = templateNameAsHTMLFileName, fragments = {
+                                    SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                        fragments = { tsTemplates.entityListComponentHTML(j) })
+                                })
+                        ),
+                        GeneratorSimple(
+                            "EntityListScssComponent", contextBuilder = tsContextBuilder,
+                            template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-list.component",
+                                nameBuilder = templateNameAsCSSFileName, fragments = {
+                                    SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                        fragments = { tsTemplates.entityListComponentSCSS(j) })
+                                })
+                        ),
+                        GeneratorSimple(
+                            "EntityDataService", contextBuilder = tsContextBuilder,
+                            template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-data.service",
+                                nameBuilder = templateNameAsTsFileName, fragments = {
+                                    SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                        fragments = { tsTemplates.entityDataService(j) })
+                                })
+                        )
                     )
                 )
             }
 
             i.basics().forEach {
-                moduleGenerators.add(
-                    GeneratorSimple(
-                        "BasicTypeScriptComponent", contextBuilder = tsContextBuilder,
-                        template = SingleItemFragmentsTemplate(name = "${i.name()}_${it.name().toLowerCase()}-basic.component",
-                            nameBuilder = templateNameAsTsFileName, fragments = {
-                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
-                                    fragments = { tsTemplates.basicComponentTypeScript(it) })
-                            })
-                    )
-                )
-                moduleGenerators.add(
-                    GeneratorSimple(
-                        "BasicHtmlComponent", contextBuilder = tsContextBuilder,
-                        template = SingleItemFragmentsTemplate(name = "${i.name()}_${it.name().toLowerCase()}-basic.component",
-                            nameBuilder = templateNameAsHTMLFileName, fragments = {
-                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
-                                    fragments = { tsTemplates.basicComponentHTML(it) })
-                            })
-                    )
-                )
-                moduleGenerators.add(
-                    GeneratorSimple(
-                        "BasicScssComponent", contextBuilder = tsContextBuilder,
-                        template = SingleItemFragmentsTemplate(name = "${i.name()}_${it.name().toLowerCase()}-basic.component",
-                            nameBuilder = templateNameAsCSSFileName, fragments = {
-                                SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
-                                    fragments = { tsTemplates.basicComponentSCSS(it) })
-                            })
+                moduleGenerators.addAll(
+                    listOf(
+                        GeneratorSimple(
+                            "BasicTypeScriptComponent", contextBuilder = tsContextBuilder,
+                            template = SingleItemFragmentsTemplate(name = "${i.name()}_${it.name().toLowerCase()}-basic.component",
+                                nameBuilder = templateNameAsTsFileName, fragments = {
+                                    SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                        fragments = { tsTemplates.basicComponentTypeScript(it) })
+                                })
+                        ),
+                        GeneratorSimple(
+                            "BasicHtmlComponent", contextBuilder = tsContextBuilder,
+                            template = SingleItemFragmentsTemplate(name = "${i.name()}_${it.name().toLowerCase()}-basic.component",
+                                nameBuilder = templateNameAsHTMLFileName, fragments = {
+                                    SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                        fragments = { tsTemplates.basicComponentHTML(it) })
+                                })
+                        ),
+                        GeneratorSimple(
+                            "BasicScssComponent", contextBuilder = tsContextBuilder,
+                            template = SingleItemFragmentsTemplate(name = "${i.name()}_${it.name().toLowerCase()}-basic.component",
+                                nameBuilder = templateNameAsCSSFileName, fragments = {
+                                    SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                        fragments = { tsTemplates.basicComponentSCSS(it) })
+                                })
+                        )
                     )
                 )
             }
         }
-
-        /*for (i in basics.invoke(model)){
-            moduleGenerators.add(
-                GeneratorSimple(
-                    "TypeScriptComponent", contextBuilder = tsContextBuilder,
-                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.component",
-                        nameBuilder = templateNameAsTsFileName, fragments = {
-                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                fragments = { tsTemplates.angularComponentTypeScript(i) })
-                        })
-                )
-            )
-            moduleGenerators.add(
-                GeneratorSimple(
-                    "HtmlComponent", contextBuilder = tsContextBuilder,
-                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.component",
-                        nameBuilder = templateNameAsHTMLFileName, fragments = {
-                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                fragments = { tsTemplates.angularComponentHTML(i) })
-                        })
-                )
-            )
-            moduleGenerators.add(
-                GeneratorSimple(
-                    "ScssComponent", contextBuilder = tsContextBuilder,
-                    template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}.component",
-                        nameBuilder = templateNameAsCSSFileName, fragments = {
-                            SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                fragments = { tsTemplates.angularComponentCSS(i) })
-                        })
-                )
-            )
-        }*/
 
         return GeneratorContexts(generator, tsContextBuilder)
     }

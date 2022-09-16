@@ -30,7 +30,7 @@ open class TsContext : GenerationContext {
             outsideTypes.isNotEmpty().then {
                 "${outsideTypes.map { (su, items) ->
                     """${indent}import {${items.sortedBy { it.name() }.joinToString(", ") {
-                        it.name()
+                        it.name().capitalize()
                     }}} from '../${su.name().equals("shared", true).not().then {
                         "${su.name().decapitalize()}/"
                     }}${su.name().capitalize()}ApiBase'"""

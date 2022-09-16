@@ -65,13 +65,4 @@ open class LangTsTemplates {
     open fun <T : CompilationUnitI<*>> angularRoutingModule(items: ModuleI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("AngularRoutingModule", nameBuilder) { item, c -> item.toAngularRoutingModule(items, c, LangDerivedKind.API) }
 
-    /*open fun <T : CompilationUnitI<*>> angularComponentTypeScript(items: BasicI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("TypeScriptComponent", nameBuilder) { item, c -> item.toTypeScriptComponent(items, c, LangDerivedKind.API) }
-
-    open fun <T : CompilationUnitI<*>> angularComponentHTML(items: BasicI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("HtmlComponent", nameBuilder) { item, c -> item.toHtmlComponent(items, c, LangDerivedKind.API) }
-
-    open fun <T : CompilationUnitI<*>> angularComponentCSS(items: BasicI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("ScssComponent", nameBuilder) { item, c -> item.toScssComponent(items, c, LangDerivedKind.API) }*/
-
 }
