@@ -483,11 +483,11 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                             })
                     ),
                     GeneratorSimple(
-                        "ViewModuleService", contextBuilder = tsContextBuilder,
-                        template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-module-view.service",
-                            nameBuilder = templateNameAsTsFileName, fragments = {
+                        "ModuleScssComponent", contextBuilder = tsContextBuilder,
+                        template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-module-view.component",
+                            nameBuilder = templateNameAsCSSFileName, fragments = {
                                 SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                    fragments = { tsTemplates.moduleService(i) })
+                                    fragments = { tsTemplates.moduleComponentSCSS(i) })
                             })
                     ),
                     GeneratorSimple(
@@ -499,7 +499,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                             })
                     ),
                     GeneratorSimple(
-                        "ViewModuleService", contextBuilder = tsContextBuilder,
+                        "AngularModule", contextBuilder = tsContextBuilder,
                         template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-model.module",
                             nameBuilder = templateNameAsTsFileName, fragments = {
                                 SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
@@ -507,7 +507,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                             })
                     ),
                     GeneratorSimple(
-                        "ViewModuleService", contextBuilder = tsContextBuilder,
+                        "AngularRoutingModule", contextBuilder = tsContextBuilder,
                         template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-routing.module",
                             nameBuilder = templateNameAsTsFileName, fragments = {
                                 SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
