@@ -12,10 +12,14 @@ open class DesignTypeScriptGenerator(val model: StructureUnitI<*>) {
         model.extendForTsGeneration()
 
         val generatorFactory = DesignGeneratorFactory()
-        val generatorContexts = generatorFactory.angular("", model)
-        val generator = generatorContexts.generator
-        generator.delete(target, model)
-        generator.generate(target, model)
+        val generatorContextsApiBase = generatorFactory.angularApiBase("", model)
+        val generatorApiBase = generatorContextsApiBase.generator
+        val generatorContextsComponent = generatorFactory.angularComponents("", model)
+        val generatorComponent = generatorContextsComponent.generator
+        generatorApiBase.delete(target, model)
+        generatorComponent.delete(target, model)
+        generatorApiBase.generate(target, model)
+        generatorComponent.generate(target, model)
     }
 
     protected fun StructureUnitI<*>.extendForTsGeneration() {

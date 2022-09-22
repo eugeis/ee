@@ -243,7 +243,7 @@ fun <T : AttributeI<*>> T.toTypeScriptImportElements(element: AttributeI<*>): St
 }
 
 fun <T : ItemI<*>> T.toTypeScriptModuleImportServices(element: ModuleI<*>): String {
-    return """import {${element.name()}ViewService} from '../../service/${element.name().toLowerCase()}-view.service';$nL"""
+    return """import {${element.name()}ViewService} from '../../service/${element.name().toLowerCase()}-module-view.service';$nL"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptModuleInputElement(name: String, indent: String, element: ModuleI<*>): String {
@@ -258,7 +258,6 @@ fun <T : ItemI<*>> T.toAngularConstructorDataService(indent: String, element: En
     return """${indent}constructor(public ${element.name().toLowerCase()}DataService: ${element.name()}DataService) {}$nL"""
 }
 
-//TODO: Fix Import
 fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext,indent: String, element: EntityI<*>, basics: List<BasicI<*>>): String {
     val basicElements: MutableList<String> = ArrayList()
     basics.forEach { basicElements.add(it.name().capitalize()) }
@@ -296,8 +295,8 @@ fun <T : ItemI<*>> T.toTypeScriptBasicGenerateComponentPart(element: BasicI<*>):
 fun <T : ItemI<*>> T.toTypeScriptModuleGenerateComponentPart(element: ModuleI<*>): String =
     """@Component({
   selector: 'app-${element.name().toLowerCase()}',
-  templateUrl: './${element.name().toLowerCase()}-view.component.html',
-  styleUrls: ['./${element.name().toLowerCase()}-view.component.scss'],
+  templateUrl: './${element.name().toLowerCase()}-module-view.component.html',
+  styleUrls: ['./${element.name().toLowerCase()}-module-view.component.scss'],
   providers: [${element.name()}ViewService]
 })
 """
@@ -305,8 +304,8 @@ fun <T : ItemI<*>> T.toTypeScriptModuleGenerateComponentPart(element: ModuleI<*>
 fun <T : ItemI<*>> T.toTypeScriptEntityGenerateViewComponentPart(c: GenerationContext, element: EntityI<*>, type: String): String =
     """@Component({
   selector: 'app-${c.n(element).toLowerCase()}-${type}',
-  templateUrl: './${c.n(element).toLowerCase()}-view.component.html',
-  styleUrls: ['./${c.n(element).toLowerCase()}-view.component.scss'],
+  templateUrl: './${c.n(element).toLowerCase()}-entity-${type}.component.html',
+  styleUrls: ['./${c.n(element).toLowerCase()}-entity-${type}.component.scss'],
   providers: [{provide: TableDataService, useClass: ${c.n(element).capitalize()}DataService}]
 })
 """
@@ -384,12 +383,12 @@ fun <T : ItemI<*>> T.toAngularModuleHTML(element: ModuleI<*>): String =
     </mat-sidenav-content>
 </mat-sidenav-container>"""
 
-fun <T : ItemI<*>> T.toAngularEntityViewHTML(c: GenerationContext, element: EntityI<*>, enums: List<EnumTypeI<*>>): String =
+fun <T : ItemI<*>> T.toAngularEntityViewHTML(c: GenerationContext, element: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String =
     """<app-${element.parent().name().toLowerCase()} [pageName]="${element.name().toLowerCase()}DataService.pageName"></app-${element.parent().name().toLowerCase()}>
 <div>
     <form class="${element.name().toLowerCase()}-form">
         ${element.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-            it.toTypeScriptHTMLForms(tab, element, it.name(), it.type().name(), enums)
+            it.toTypeScriptHTMLForms(tab, element, it.name(), it.type().name(), enums, basics)
         }}
     </form>
 </div>
@@ -397,20 +396,32 @@ fun <T : ItemI<*>> T.toAngularEntityViewHTML(c: GenerationContext, element: Enti
 <app-button [element]="${element.name().toLowerCase()}" [isEdit]="${element.name().toLowerCase()}DataService.isEdit" [itemIndex]="${element.name().toLowerCase()}DataService.itemIndex"></app-button>
 """
 
-fun <T : AttributeI<*>> T.toTypeScriptHTMLForms(indent: String, parent: EntityI<*>, childElement: String, elementType: String, enums: List<EnumTypeI<*>>): String {
+fun <T : AttributeI<*>> T.toTypeScriptHTMLForms(indent: String, parent: EntityI<*>, childElement: String, elementType: String, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String {
     var isEnum = false
+    var isBasic = false
     enums.forEach {
         if(it.name() == elementType) {
             isEnum = true;
         }
     }
+    basics.forEach {
+        if(it.name() == elementType) {
+            isBasic = true
+        }
+    }
+    //TODO FIX ARRAY DATES
     return when (elementType.toLowerCase()) {
-        "string", "uuid", "text", "float", "int" -> this.toHTMLStringForm(parent, childElement)
-        "date" -> this.toHTMLDateForm(parent, childElement)
+        "string", "uuid", "text", "float", "int", "boolean" -> this.toHTMLStringForm(parent, childElement)
+        "date", "list" -> this.toHTMLDateForm(parent, childElement)
         else -> {
             when (isEnum) {
                 true -> this.toHTMLEnumForm(parent, childElement)
-                else -> this.toHTMLObjectForm(parent, childElement, elementType)
+                else -> {
+                    when (isBasic) {
+                        true -> this.toHTMLObjectForm(parent, childElement, elementType)
+                        false -> this.toHTMLObjectFormEntity(parent, childElement, elementType)
+                    }
+                }
             }
         }
     }
@@ -420,7 +431,7 @@ fun <T : AttributeI<*>> T.toHTMLStringForm(parent: EntityI<*>, childElement: Str
     return """
         <mat-form-field appearance="outline">
             <mat-label>${childElement}</mat-label>
-            <input matInput name="${childElement.toLowerCase()}" [(ngModel)]="${parent.name().toLowerCase()}.${childElement.toLowerCase()}">
+            <input matInput name="${childElement.toLowerCase()}" [(ngModel)]="${parent.name().toLowerCase()}.${childElement.toCamelCase()}">
         </mat-form-field>"""
 }
 
@@ -428,7 +439,7 @@ fun <T : AttributeI<*>> T.toHTMLDateForm(parent: EntityI<*>, childElement: Strin
     return """
         <mat-form-field appearance="outline">
             <mat-label>${childElement}</mat-label>
-            <input matInput [matDatepicker]="picker" [(ngModel)]="${parent.name().toLowerCase()}.${childElement.toLowerCase()}">
+            <input matInput [matDatepicker]="picker" [(ngModel)]="${parent.name().toLowerCase()}.${childElement.toCamelCase()}">
             <mat-hint>MM/DD/YYYY</mat-hint>
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
@@ -439,7 +450,7 @@ fun <T : AttributeI<*>> T.toHTMLEnumForm(parent: EntityI<*>, childElement: Strin
     return """
         <mat-form-field appearance="outline">
             <mat-label>${childElement}</mat-label>
-            <mat-select [(value)]="${parent.name().toLowerCase()}.${childElement.toLowerCase()}">
+            <mat-select [(value)]="${parent.name().toLowerCase()}.${childElement.toCamelCase()}">
                 <mat-option *ngFor="let item of ${childElement.toLowerCase()}Enum" [value]="item">{{item}}</mat-option>
             </mat-select>
         </mat-form-field>"""
@@ -447,7 +458,12 @@ fun <T : AttributeI<*>> T.toHTMLEnumForm(parent: EntityI<*>, childElement: Strin
 
 fun <T : AttributeI<*>> T.toHTMLObjectForm(parent: EntityI<*>, childElement: String, elementType: String): String {
     return """
-        <app-${elementType.toLowerCase()} [${elementType.toLowerCase()}]="${parent.name().toLowerCase()}.${childElement.toLowerCase()}"></app-${elementType.toLowerCase()}>"""
+        <app-${elementType.toLowerCase()} [${elementType.toCamelCase()}]="${parent.name().toLowerCase()}.${childElement.toCamelCase()}"></app-${elementType.toLowerCase()}>"""
+}
+
+fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(parent: EntityI<*>, childElement: String, elementType: String): String {
+    return """
+        <app-${elementType.toLowerCase()}-view></app-${elementType.toLowerCase()}-view>"""
 }
 
 fun <T : ItemI<*>> T.toAngularEntityListHTML(element: EntityI<*>): String =
@@ -555,12 +571,16 @@ import {${element.name().capitalize()}ListComponent} from './${element.name().to
 }
 
 fun <T : ItemI<*>> T.toAngularModuleImportBasics(element: BasicI<*>): String {
-    return """import {${element.name().capitalize()}Component} from './basics/components/${element.name().toLowerCase()}/${element.name().toLowerCase()}-basic.component';"""
+    return """import {${element.name().capitalize()}Component} from './basics/${element.name().toLowerCase()}/${element.name().toLowerCase()}-basic.component';"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleDeclarationEntities(indent: String, element: EntityI<*>): String {
     return """$indent${element.name().capitalize()}ViewComponent,
 $indent${element.name().capitalize()}ListComponent"""
+}
+
+fun <T : ItemI<*>> T.toAngularModuleExportViews(indent: String, element: EntityI<*>): String {
+    return """$indent${element.name().capitalize()}ViewComponent"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleDeclarationBasics(indent: String, element: BasicI<*>): String {

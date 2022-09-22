@@ -107,9 +107,9 @@ ${items.toAngularViewOnInit(c, tab, items, basics)}
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                  api: String = LangDerivedKind.API): String {
-    return items.toAngularEntityViewHTML(c, items, enums)
+    return items.toAngularEntityViewHTML(c, items, enums, basics)
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
@@ -236,7 +236,11 @@ ${items.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL")
         MaterialModule
     ],
     providers: [],
-    exports: []
+    exports: [
+${items.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
+    it.toAngularModuleExportViews(tab + tab, it)
+}}
+    ]
 })
 export class ${items.name().capitalize()}Module { }
 """

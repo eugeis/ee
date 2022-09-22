@@ -390,7 +390,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         return GeneratorContexts(generator, swaggerContextBuilder, goContextBuilder)
     }
 
-    open fun angular(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
+    open fun angularApiBase(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
         val tsTemplates = buildTsTemplates()
         val tsContextFactory = buildTsContextFactory()
         val tsContextBuilder = tsContextFactory.buildForImplOnly()
@@ -463,8 +463,64 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             )
         )
 
+        return GeneratorContexts(generator, tsContextBuilder)
+    }
+
+    open fun angularComponents(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
+        val tsTemplates = buildTsTemplates()
+        val tsContextFactory = buildTsContextFactory()
+        val tsContextBuilder = tsContextFactory.buildForImplOnly()
+
+        val components: StructureUnitI<*>.() -> List<CompI<*>> = {
+            if (this is CompI<*>) listOf(this) else findDownByType(CompI::class.java)
+        }
+        val modules: StructureUnitI<*>.() -> List<ModuleI<*>> = {
+            if (this is ModuleI<*>) listOf(this) else findDownByType(ModuleI::class.java)
+        }
+
+        val commands: StructureUnitI<*>.() -> List<CommandI<*>> = { findDownByType(CommandI::class.java) }
+        val commandEnums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
+            findDownByType(EnumTypeI::class.java).filter {
+                it.parent() is ControllerI<*> && it.name().endsWith("CommandType")
+            }
+        }
+
+        val events: StructureUnitI<*>.() -> List<EventI<*>> = { findDownByType(EventI::class.java) }
+        val eventEnums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
+            findDownByType(EnumTypeI::class.java).filter {
+                it.parent() is ControllerI<*> && it.name().endsWith("EventType")
+            }
+        }
+
+        val enums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
+            findDownByType(EnumTypeI::class.java).filter {
+                it.parent() is StructureUnitI<*> && it.derivedAsType().isEmpty()
+            }.sortedBy { it.name() }
+        }
+
+        val values: StructureUnitI<*>.() -> List<ValuesI<*>> = {
+            findDownByType(ValuesI::class.java).filter { it.derivedAsType().isEmpty() }
+                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+
+        val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
+            findDownByType(BasicI::class.java).filter { it.derivedAsType().isEmpty() }
+                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+
+        val entities: StructureUnitI<*>.() -> List<EntityI<*>> = {
+            findDownByType(EntityI::class.java).filter { it.derivedAsType().isEmpty() }
+                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+
+        val compGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
+        val generator = GeneratorGroup(
+            "angular",
+            listOf(GeneratorGroupItems("angularComponents", items = components, generators = compGenerators))
+        )
+
         for (i in modules.invoke(model)) {
-            moduleGenerators.addAll(
+            compGenerators.addAll(
                 listOf(
                     GeneratorSimple(
                         "ModuleTypeScriptComponent", contextBuilder = tsContextBuilder,
@@ -518,7 +574,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             )
 
             i.entities().forEach {j ->
-                moduleGenerators.addAll(
+                compGenerators.addAll(
                     listOf(
                         GeneratorSimple(
                             "EntityViewTypeScriptComponent", contextBuilder = tsContextBuilder,
@@ -533,7 +589,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                             template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-view.component",
                                 nameBuilder = templateNameAsHTMLFileName, fragments = {
                                     SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
-                                        fragments = { tsTemplates.entityViewComponentHTML(j, i.enums()) })
+                                        fragments = { tsTemplates.entityViewComponentHTML(j, i.enums(), basics()) })
                                 })
                         ),
                         GeneratorSimple(
@@ -581,7 +637,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             }
 
             i.basics().forEach {
-                moduleGenerators.addAll(
+                compGenerators.addAll(
                     listOf(
                         GeneratorSimple(
                             "BasicTypeScriptComponent", contextBuilder = tsContextBuilder,
