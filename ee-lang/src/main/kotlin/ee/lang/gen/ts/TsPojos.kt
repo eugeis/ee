@@ -73,11 +73,11 @@ fun <T : CompilationUnitI<*>> T.toAngularModuleSCSSComponent(items: ModuleI<*>, 
     return items.toAngularDefaultSCSS()
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularModuleService(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularModuleService(items: ModuleI<*>, modules: List<ModuleI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                        api: String = LangDerivedKind.API): String {
     return """${isOpen().then("export ")}class ${items.name()}ViewService {
 
-    pageElement = ['${items.name()}'];
+    pageElement = [${modules.filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") { """'${it.name()}'""" }}];
 
     tabElement = [${items.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString() {
         it.toAngularModuleArrayElement(it)
@@ -90,7 +90,7 @@ fun <T : CompilationUnitI<*>> T.toAngularModuleService(items: ModuleI<*>, c: Gen
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewTSComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                api: String = LangDerivedKind.API): String {
-    return """import {Component, OnInit} from '@angular/core';
+    return """import {Component, Inject, OnInit} from '@angular/core';
 import {TableDataService} from '../../../../../template/services/data.service';
 import {${c.n(items)}DataService} from '../../service/${items.name().toLowerCase()}-data.service';
 
@@ -119,7 +119,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(items: EntityI<
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityListTSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                api: String = LangDerivedKind.API): String {
-    return """import {Component, OnInit} from '@angular/core';
+    return """import {Component, Inject, OnInit} from '@angular/core';
 import {TableDataService} from '../../../../../template/services/data.service';
 import {${items.name()}DataService} from '../../service/${items.name().toLowerCase()}-data.service';
 
@@ -181,12 +181,12 @@ ${isOpen().then("export ")}class ${c.n(items)}Component {
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(items: BasicI<*>, basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                  api: String = LangDerivedKind.API): String {
     return """<div>
     <form>
-        ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString { 
-            it.toAngularBasicHTML(c, it)
+        ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { 
+            it.toAngularBasicHTML(c, it, basics)
         }}
     </form>
 </div>
@@ -239,6 +239,9 @@ ${items.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL")
     exports: [
 ${items.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
     it.toAngularModuleExportViews(tab + tab, it)
+}},
+${items.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
+        it.toAngularModuleDeclarationBasics(tab + tab, it)
 }}
     ]
 })

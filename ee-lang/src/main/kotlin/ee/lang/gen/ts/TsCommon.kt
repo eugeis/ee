@@ -5,6 +5,7 @@ import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.java.j
+import org.w3c.dom.Attr
 
 var tempIndex = 0
 fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
@@ -255,24 +256,26 @@ fun <T : ItemI<*>> T.toTypeScriptModuleConstructor(indent: String, element: Modu
 }
 
 fun <T : ItemI<*>> T.toAngularConstructorDataService(indent: String, element: EntityI<*>): String {
-    return """${indent}constructor(public ${element.name().toLowerCase()}DataService: ${element.name()}DataService) {}$nL"""
+    return """${indent}constructor(@Inject(${element.name()}DataService) public ${element.name().toLowerCase()}DataService: ${element.name()}DataService) {}$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext,indent: String, element: EntityI<*>, basics: List<BasicI<*>>): String {
     val basicElements: MutableList<String> = ArrayList()
     basics.forEach { basicElements.add(it.name().capitalize()) }
+    print("ELEMENT: " + element.name())
+    element.props().forEach { print("TYPE: " + it.type().name()) }
 
     return """${indent}ngOnInit(): void {
         this.${element.name().toLowerCase()} = this.${element.name().toLowerCase()}DataService.getFirst();
-        ${element.props().filter { it.name().capitalize() in basicElements }.joinSurroundIfNotEmptyToString(nL + tab) { 
-            it.toAngularEmptyBasic(c, indent, it, element, basics)
+        ${element.props().filter { it.type().name() in basicElements }.joinSurroundIfNotEmptyToString(nL + tab) { 
+            it.toAngularEmptyBasic(c, indent, it, element, it.type())
     }.trim()}
         this.${element.name().toLowerCase()}DataService.checkRoute(this.${element.name().toLowerCase()});
     }"""
 }
 
-fun <T : ItemI<*>> T.toAngularEmptyBasic(c: GenerationContext, indent: String, element: AttributeI<*>, entity: EntityI<*>, basics: List<BasicI<*>>): String {
-    return """${indent}this.${entity.name().toLowerCase()}.${c.n(element)} = new ${c.n(element).capitalize()}();"""
+fun <T : ItemI<*>> T.toAngularEmptyBasic(c: GenerationContext, indent: String, element: AttributeI<*>, entity: EntityI<*>, elementType: TypeI<*>): String {
+    return """${indent}this.${entity.name().toLowerCase()}.${element.name().toCamelCase()} = new ${c.n(elementType).capitalize()}();"""
 }
 
 fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
@@ -287,8 +290,8 @@ fun <T : TypeI<*>> T.toAngularModuleArrayElement(attr: EntityI<*>): String =
 fun <T : ItemI<*>> T.toTypeScriptBasicGenerateComponentPart(element: BasicI<*>): String =
     """@Component({
   selector: 'app-${element.name().toLowerCase()}',
-  templateUrl: './${element.name().toLowerCase()}.component.html',
-  styleUrls: ['./${element.name().toLowerCase()}.component.scss'],
+  templateUrl: './${element.name().toLowerCase()}-basic.component.html',
+  styleUrls: ['./${element.name().toLowerCase()}-basic.component.scss'],
 })
 """
 
@@ -314,7 +317,7 @@ fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: 
     var text = ""
     enums.forEach {
         if(it.name() == elementType) {
-            text = """${indent}${it.name().toLowerCase()}Enum = this.${element.name().toLowerCase()}DataService.loadEnumElement(${c.n(it)});"""
+            text = """${indent}${elementType.toLowerCase()}Enum = this.${element.name().toLowerCase()}DataService.loadEnumElement(${c.n(it)});"""
         }
     }
     return text
@@ -374,7 +377,7 @@ fun <T : ItemI<*>> T.toAngularModuleHTML(element: ModuleI<*>): String =
         <nav mat-tab-nav-bar>
             <div *ngFor="let pageTabsName of ${element.name().toLowerCase()}ViewService.tabElement">
                 <a mat-tab-link
-                   [routerLink]="'/' + ${element.name().toLowerCase()}ViewService.pageElement[0].toLowerCase() + '/' + pageTabsName.toLowerCase()"
+                   [routerLink]="'/${element.name().toLowerCase()}' + '/' + pageTabsName.toLowerCase()"
                    routerLinkActive="active-link"
                 >{{pageTabsName.toUpperCase()}}
                 </a>
@@ -409,13 +412,13 @@ fun <T : AttributeI<*>> T.toTypeScriptHTMLForms(indent: String, parent: EntityI<
             isBasic = true
         }
     }
-    //TODO FIX ARRAY DATES
+
     return when (elementType.toLowerCase()) {
-        "string", "uuid", "text", "float", "int", "boolean" -> this.toHTMLStringForm(parent, childElement)
+        "string", "uuid", "text", "float", "int", "boolean", "blob" -> this.toHTMLStringForm(parent, childElement)
         "date", "list" -> this.toHTMLDateForm(parent, childElement)
         else -> {
             when (isEnum) {
-                true -> this.toHTMLEnumForm(parent, childElement)
+                true -> this.toHTMLEnumForm(parent, childElement, elementType)
                 else -> {
                     when (isBasic) {
                         true -> this.toHTMLObjectForm(parent, childElement, elementType)
@@ -446,19 +449,19 @@ fun <T : AttributeI<*>> T.toHTMLDateForm(parent: EntityI<*>, childElement: Strin
         </mat-form-field>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLEnumForm(parent: EntityI<*>, childElement: String): String {
+fun <T : AttributeI<*>> T.toHTMLEnumForm(parent: EntityI<*>, childElement: String, elementName: String): String {
     return """
         <mat-form-field appearance="outline">
             <mat-label>${childElement}</mat-label>
             <mat-select [(value)]="${parent.name().toLowerCase()}.${childElement.toCamelCase()}">
-                <mat-option *ngFor="let item of ${childElement.toLowerCase()}Enum" [value]="item">{{item}}</mat-option>
+                <mat-option *ngFor="let item of ${elementName.toLowerCase()}Enum" [value]="item">{{item}}</mat-option>
             </mat-select>
         </mat-form-field>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLObjectForm(parent: EntityI<*>, childElement: String, elementType: String): String {
     return """
-        <app-${elementType.toLowerCase()} [${elementType.toCamelCase()}]="${parent.name().toLowerCase()}.${childElement.toCamelCase()}"></app-${elementType.toLowerCase()}>"""
+        <app-${elementType.toLowerCase()} [${elementType.toLowerCase()}]="${parent.name().toLowerCase()}.${childElement.toCamelCase()}"></app-${elementType.toLowerCase()}>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(parent: EntityI<*>, childElement: String, elementType: String): String {
@@ -480,11 +483,7 @@ fun <T : ItemI<*>> T.toAngularEntityListHTML(element: EntityI<*>): String =
 """
 
 fun <T : ItemI<*>> T.toAngularDefaultSCSS(): String =
-    """:host {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}"""
+    """:host {}"""
 
 fun <T : ItemI<*>> T.toAngularEntityViewSCSS(): String =
     """app-button {
@@ -529,35 +528,42 @@ a {
 }
 """
 
-fun <T : ItemI<*>> T.toAngularBasicHTML(c: GenerationContext, element: AttributeI<*>): String {
+fun <T : ItemI<*>> T.toAngularBasicHTML(c: GenerationContext, element: AttributeI<*>, basics: List<BasicI<*>>): String {
+    var isBasic = false
+    basics.forEach {
+        if(it.name() == element.type().name()) {
+            isBasic = true
+        }
+    }
+
     return when (element.type().toTypeScriptIfNative(c, "", element)) {
         "boolean" -> """
         <mat-form-field appearance="outline">
             <mat-label>${element.name()}</mat-label>
-            <mat-select [(value)]="${element.parent().name().toLowerCase()}.${element.name().toLowerCase()}">
+            <mat-select [(value)]="${element.parent().name().toLowerCase()}.${element.name().toCamelCase()}">
                 <mat-option *ngFor="let item of ['true', 'false']" [value]="item">{{item}}</mat-option>
             </mat-select>
-        </mat-form-field>
-"""
+        </mat-form-field>"""
         "string", "number" -> """
         <mat-form-field appearance="outline">
             <mat-label>${element.name()}</mat-label>
-            <input matInput name="${element.name().toLowerCase()}" [(ngModel)]="${element.parent().name().toLowerCase()}.${element.name().toLowerCase()}">
-        </mat-form-field>
-"""
+            <input matInput name="${element.name().toLowerCase()}" [(ngModel)]="${element.parent().name().toLowerCase()}.${element.name().toCamelCase()}">
+        </mat-form-field>"""
         else -> {
             when (element.type().props().size) {
                 0 -> """
         <mat-form-field appearance="outline">
             <mat-label>${element.name()}</mat-label>
-            <mat-select [(value)]="${element.parent().name().toLowerCase()}.${element.name().toLowerCase()}">
+            <mat-select [(value)]="${element.parent().name().toLowerCase()}.${element.name().toCamelCase()}">
                 <mat-option *ngFor="let item of ${element.name().toLowerCase()}Enum" [value]="item">{{item}}</mat-option>
             </mat-select>
-        </mat-form-field>
-"""
+        </mat-form-field>"""
                 else -> {
-                    element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString {
-                        it.toAngularBasicHTML(c, it)
+                    when (isBasic) {
+                        true ->  """
+        <app-${element.type().name().toLowerCase()} [${element.type().name().toLowerCase()}]="${element.parent().name().toLowerCase()}.${element.name().toCamelCase()}"></app-${element.type().name().toLowerCase()}>"""
+                        false ->  """
+        <app-${element.type().name().toLowerCase()}-view></app-${element.type().name().toLowerCase()}-view>"""
                     }
                 }
             }
@@ -590,5 +596,5 @@ fun <T : ItemI<*>> T.toAngularModuleDeclarationBasics(indent: String, element: B
 fun <T : ItemI<*>> T.toAngularModulePath(indent: String, element: EntityI<*>): String {
     return """$indent{ path: '${element.name().toLowerCase()}', component: ${element.name().capitalize()}ListComponent },
 $indent{ path: '${element.name().toLowerCase()}/new', component: ${element.name().capitalize()}ViewComponent },
-$indent{ path: '${element.name().toLowerCase()}/edit/:id', component: ${element.name().capitalize()}ViewComponent },"""
+$indent{ path: '${element.name().toLowerCase()}/edit/:id', component: ${element.name().capitalize()}ViewComponent }"""
 }

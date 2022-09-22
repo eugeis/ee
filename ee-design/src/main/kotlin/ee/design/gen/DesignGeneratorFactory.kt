@@ -551,7 +551,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                         template = SingleItemFragmentsTemplate(name = "${fileNamePrefix}${i.name().toLowerCase()}-module-view.service",
                             nameBuilder = templateNameAsTsFileName, fragments = {
                                 SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
-                                    fragments = { tsTemplates.moduleService(i) })
+                                    fragments = { tsTemplates.moduleService(i, modules.invoke(model)) })
                             })
                     ),
                     GeneratorSimple(
@@ -581,7 +581,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                             template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-view.component",
                                 nameBuilder = templateNameAsTsFileName, fragments = {
                                     SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
-                                        fragments = { tsTemplates.entityViewComponentTypeScript(j, i.enums(), i.basics()) })
+                                        fragments = { tsTemplates.entityViewComponentTypeScript(j, i.enums(), basics()) })
                                 })
                         ),
                         GeneratorSimple(
@@ -652,7 +652,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                             template = SingleItemFragmentsTemplate(name = "${i.name()}_${it.name().toLowerCase()}-basic.component",
                                 nameBuilder = templateNameAsHTMLFileName, fragments = {
                                     SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
-                                        fragments = { tsTemplates.basicComponentHTML(it) })
+                                        fragments = { tsTemplates.basicComponentHTML(it, basics()) })
                                 })
                         ),
                         GeneratorSimple(
