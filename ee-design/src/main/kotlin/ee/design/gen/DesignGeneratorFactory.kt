@@ -601,6 +601,30 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                 })
                         ),
                         GeneratorSimple(
+                            "EntityViewTypeScriptComponent", contextBuilder = tsContextBuilder,
+                            template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-form.component",
+                                nameBuilder = templateNameAsTsFileName, fragments = {
+                                    SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                        fragments = { tsTemplates.formComponentTypeScript(j, i.enums(), basics(), entities()) })
+                                })
+                        ),
+                        GeneratorSimple(
+                            "EntityViewHtmlComponent", contextBuilder = tsContextBuilder,
+                            template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-form.component",
+                                nameBuilder = templateNameAsHTMLFileName, fragments = {
+                                    SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                        fragments = { tsTemplates.formComponentHTML(j, i.enums(), basics()) })
+                                })
+                        ),
+                        GeneratorSimple(
+                            "EntityViewScssComponent", contextBuilder = tsContextBuilder,
+                            template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-form.component",
+                                nameBuilder = templateNameAsCSSFileName, fragments = {
+                                    SingleItemFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
+                                        fragments = { tsTemplates.formComponentSCSS(j) })
+                                })
+                        ),
+                        GeneratorSimple(
                             "EntityListTypeScriptComponent", contextBuilder = tsContextBuilder,
                             template = SingleItemFragmentsTemplate(name = "${i.name()}_${j.name().toLowerCase()}-entity-list.component",
                                 nameBuilder = templateNameAsTsFileName, fragments = {

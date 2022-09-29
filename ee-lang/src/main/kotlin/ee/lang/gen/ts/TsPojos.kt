@@ -90,17 +90,14 @@ fun <T : CompilationUnitI<*>> T.toAngularModuleService(items: ModuleI<*>, module
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewTSComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                api: String = LangDerivedKind.API): String {
-    return """import {Component, Inject, OnInit} from '@angular/core';
+    return """import {Component, OnInit} from '@angular/core';
 import {TableDataService} from '../../../../../template/services/data.service';
 import {${c.n(items)}DataService} from '../../service/${items.name().toLowerCase()}-data.service';
 
 ${items.toTypeScriptEntityGenerateViewComponentPart(c, items, "view")}
 ${isOpen().then("export ")}class ${c.n(items)}ViewComponent implements OnInit {
 
-${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
-        it.toAngularGenerateEnumElement(c, tab, items, it.name(), it.type().name(), enums)
-}}
-${items.toTypeScriptViewEntityProp(c, tab, items)}
+${items.toTypeScriptEntityProp(c, tab, items)}
 ${items.toAngularConstructorDataService(tab, items)}
 ${items.toAngularViewOnInit(c, tab, items, basics)}
 }
@@ -117,9 +114,37 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(items: EntityI<
     return items.toAngularEntityViewSCSS()
 }
 
+fun <T : CompilationUnitI<*>> T.toAngularFormTSComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, entities: List<EntityI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                               api: String = LangDerivedKind.API): String {
+    return """import {Component, OnInit, Input} from '@angular/core';
+import {${c.n(items)}DataService} from '../../service/${items.name().toLowerCase()}-data.service';
+
+${items.toTypeScriptEntityGenerateFormComponentPart(c, items, "view")}
+${isOpen().then("export ")}class ${c.n(items)}FormComponent implements OnInit {
+
+${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
+        it.toAngularGenerateEnumElement(c, tab, items, it.name(), it.type().name(), enums)
+    }}
+${items.toTypeScriptFormProp(c, tab, items)}
+${items.toAngularConstructorDataService(tab, items)}
+${items.toAngularFormOnInit(c, tab, items, basics, entities)}
+}
+"""
+}
+
+fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                 api: String = LangDerivedKind.API): String {
+    return items.toAngularFormHTML(c, items, enums, basics)
+}
+
+fun <T : CompilationUnitI<*>> T.toAngularFormSCSSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                                 api: String = LangDerivedKind.API): String {
+    return items.toAngularFormSCSS()
+}
+
 fun <T : CompilationUnitI<*>> T.toAngularEntityListTSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                api: String = LangDerivedKind.API): String {
-    return """import {Component, Inject, OnInit} from '@angular/core';
+    return """import {Component, OnInit} from '@angular/core';
 import {TableDataService} from '../../../../../template/services/data.service';
 import {${items.name()}DataService} from '../../service/${items.name().toLowerCase()}-data.service';
 
@@ -134,7 +159,7 @@ ${items.toAngularListOnInit(tab)}
 
     generateTableHeader() {
         return ['Actions', ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") {
-            it.toAngularGenerateTableHeader(it)
+            it.toAngularGenerateTableHeader(c, it)
     }}];
     }
 }
@@ -170,12 +195,21 @@ ${isOpen().then("export ")}class ${c.n(items)}DataService extends TableDataServi
 }
 fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                  api: String = LangDerivedKind.API): String {
-    return """import {Component, Input} from '@angular/core';
+    return """import {Component, Input, OnInit} from '@angular/core';
 
 ${items.toTypeScriptBasicGenerateComponentPart(items)}
-${isOpen().then("export ")}class ${c.n(items)}Component {
+${isOpen().then("export ")}class ${c.n(items)}Component implements OnInit {
 
     @Input() ${c.n(items).toLowerCase()}: ${c.n(items)};
+    
+    ngOnInit() {
+        if (this.${c.n(items).toLowerCase()} === undefined) {
+            this.${c.n(items).toLowerCase()} = new ${items.name().capitalize()}();
+        }
+        ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { 
+            it.toTypeScriptInitEmptyProps(c, it)
+    }.trim()}
+    }
     
 }
 """
@@ -195,7 +229,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(items: BasicI<*>, ba
 
 fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                  api: String = LangDerivedKind.API): String {
-    return items.toAngularDefaultSCSS()
+    return items.toAngularFormSCSS()
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularModule(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
@@ -212,9 +246,8 @@ import {${items.name().capitalize()}ViewComponent} from './components/view/${ite
 ${items.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { 
     it.toAngularModuleImportEntities(it)
 }}
-
-${items.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { 
-    it.toAngularModuleImportBasics(it)
+${items.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toAngularModuleImportBasics(it) 
 }}
 
 @NgModule({
@@ -224,7 +257,7 @@ ${items.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL
     it.toAngularModuleDeclarationEntities(tab + tab, it)
 }},
 ${items.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
-    it.toAngularModuleDeclarationBasics(tab + tab, it)
+        it.toAngularModuleDeclarationBasics(tab + tab, it)
 }}
     ],
     imports: [
@@ -233,7 +266,7 @@ ${items.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL")
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        MaterialModule
+        MaterialModule,
     ],
     providers: [],
     exports: [
@@ -245,8 +278,7 @@ ${items.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL")
 }}
     ]
 })
-export class ${items.name().capitalize()}Module { }
-"""
+export class ${items.name().capitalize()}Module {}"""
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularRoutingModule(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,

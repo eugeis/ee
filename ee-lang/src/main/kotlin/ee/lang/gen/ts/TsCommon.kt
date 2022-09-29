@@ -5,7 +5,6 @@ import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.java.j
-import org.w3c.dom.Attr
 
 var tempIndex = 0
 fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
@@ -256,26 +255,35 @@ fun <T : ItemI<*>> T.toTypeScriptModuleConstructor(indent: String, element: Modu
 }
 
 fun <T : ItemI<*>> T.toAngularConstructorDataService(indent: String, element: EntityI<*>): String {
-    return """${indent}constructor(@Inject(${element.name()}DataService) public ${element.name().toLowerCase()}DataService: ${element.name()}DataService) {}$nL"""
+    return """${indent}constructor(public ${element.name().toLowerCase()}DataService: ${element.name()}DataService) {}$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext,indent: String, element: EntityI<*>, basics: List<BasicI<*>>): String {
     val basicElements: MutableList<String> = ArrayList()
     basics.forEach { basicElements.add(it.name().capitalize()) }
-    print("ELEMENT: " + element.name())
-    element.props().forEach { print("TYPE: " + it.type().name()) }
 
     return """${indent}ngOnInit(): void {
         this.${element.name().toLowerCase()} = this.${element.name().toLowerCase()}DataService.getFirst();
-        ${element.props().filter { it.type().name() in basicElements }.joinSurroundIfNotEmptyToString(nL + tab) { 
-            it.toAngularEmptyBasic(c, indent, it, element, it.type())
-    }.trim()}
         this.${element.name().toLowerCase()}DataService.checkRoute(this.${element.name().toLowerCase()});
     }"""
 }
 
-fun <T : ItemI<*>> T.toAngularEmptyBasic(c: GenerationContext, indent: String, element: AttributeI<*>, entity: EntityI<*>, elementType: TypeI<*>): String {
-    return """${indent}this.${entity.name().toLowerCase()}.${element.name().toCamelCase()} = new ${c.n(elementType).capitalize()}();"""
+fun <T : ItemI<*>> T.toAngularFormOnInit(c: GenerationContext,indent: String, element: EntityI<*>, basics: List<BasicI<*>>, entities: List<EntityI<*>>): String {
+    val includedElements: MutableList<String> = ArrayList()
+    basics.forEach { includedElements.add(it.name().capitalize()) }
+    entities.forEach { includedElements.add(it.name().capitalize()) }
+
+    return """${indent}ngOnInit(): void {
+        ${element.props().filter { it.type().name() in includedElements }.joinSurroundIfNotEmptyToString(nL + tab) {
+        it.toAngularEmptyProps(c, indent, it, element, it.type())
+    }.trim()}
+    }"""
+}
+
+fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, element: AttributeI<*>, entity: EntityI<*>, elementType: TypeI<*>): String {
+    return """${indent}if (this.${entity.name().toLowerCase()}.${element.name().toCamelCase()} === undefined) {
+            this.${entity.name().toLowerCase()}.${element.name().toCamelCase()} = new ${c.n(elementType).capitalize()}();
+        }"""
 }
 
 fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
@@ -313,6 +321,14 @@ fun <T : ItemI<*>> T.toTypeScriptEntityGenerateViewComponentPart(c: GenerationCo
 })
 """
 
+fun <T : ItemI<*>> T.toTypeScriptEntityGenerateFormComponentPart(c: GenerationContext, element: EntityI<*>, type: String): String =
+    """@Component({
+  selector: 'app-${c.n(element).toLowerCase()}-form',
+  templateUrl: './${c.n(element).toLowerCase()}-form.component.html',
+  styleUrls: ['./${c.n(element).toLowerCase()}-form.component.scss']
+})
+"""
+
 fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: String, element: EntityI<*>, elementName: String, elementType: String,  enums: List<EnumTypeI<*>>): String {
     var text = ""
     enums.forEach {
@@ -323,16 +339,43 @@ fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: 
     return text
 }
 
-fun <T : ItemI<*>> T.toTypeScriptViewEntityProp(c: GenerationContext,indent: String, element: EntityI<*>): String {
+fun <T : ItemI<*>> T.toTypeScriptEntityProp(c: GenerationContext, indent: String, element: EntityI<*>): String {
     return """${indent}${element.name().toLowerCase()}: ${c.n(element)};$nL"""
+}
+
+fun <T : ItemI<*>> T.toTypeScriptFormProp(c: GenerationContext, indent: String, element: EntityI<*>): String {
+    return """${indent}@Input() ${element.name().toLowerCase()}: ${c.n(element)};$nL"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptViewEntityPropInit(c: GenerationContext,indent: String, element: EntityI<*>): String {
     return """${indent}${element.name().toLowerCase()}: ${c.n(element)} = new ${c.n(element)}();$nL"""
 }
 
-fun <T : ItemI<*>> T.toAngularGenerateTableHeader(element: AttributeI<*>): String {
-    return "'${element.name().toLowerCase()}'"
+fun <T : ItemI<*>> T.toAngularGenerateTableHeader(c: GenerationContext, element: AttributeI<*>): String {
+    return when (element.type().toTypeScriptIfNative(c, "", element)) {
+        "boolean", "string", "number", "Date" -> """'${element.name().toCamelCase()}'"""
+        else -> {
+            when (element.type().props().size) {
+                0 -> """'${element.name().toCamelCase()}'"""
+                else -> {
+                    element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
+                        it.toTypeScriptTypeProperty(c, element, it)
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun <T : ItemI<*>> T.toTypeScriptTypeProperty(c: GenerationContext, elementParent: AttributeI<*>, element: AttributeI<*>): String {
+    return when (element.type().props().size) {
+        0 -> """'${element.name().toCamelCase()}'"""
+        else -> {
+            element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
+                it.toTypeScriptTypeProperty(c, elementParent, it)
+            }
+        }
+    }
 }
 
 fun <T : ItemI<*>> T.toAngularInitEmptyElements(c: GenerationContext, element: AttributeI<*>): String {
@@ -347,6 +390,23 @@ fun <T : ItemI<*>> T.toAngularInitEmptyElements(c: GenerationContext, element: A
                     """${element.name()}: {${element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
                         it.toAngularInitEmptyElements(c, it)
                     }}}"""
+                }
+            }
+        }
+    }
+}
+
+fun <T : ItemI<*>> T.toTypeScriptInitEmptyProps(c: GenerationContext, element: AttributeI<*>): String {
+    return when (element.type().toTypeScriptIfNative(c, "", element)) {
+        "boolean", "string", "number", "Date" -> ""
+        else -> {
+            when (element.type().props().size) {
+                0 -> ""
+                else -> {
+                    """
+        if (this.${element.parent().name().toLowerCase()}.${element.name().toCamelCase()} === undefined) {
+            this.${element.parent().name().toLowerCase()}.${element.name().toCamelCase()} = new ${c.n(element.type()).capitalize()}();
+        }"""
                 }
             }
         }
@@ -388,15 +448,21 @@ fun <T : ItemI<*>> T.toAngularModuleHTML(element: ModuleI<*>): String =
 
 fun <T : ItemI<*>> T.toAngularEntityViewHTML(c: GenerationContext, element: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String =
     """<app-${element.parent().name().toLowerCase()} [pageName]="${element.name().toLowerCase()}DataService.pageName"></app-${element.parent().name().toLowerCase()}>
+
+<app-${element.name().toLowerCase()}-form [${element.name().toLowerCase()}]="${element.name().toLowerCase()}"></app-${element.name().toLowerCase()}-form>
+
+<app-button [element]="${element.name().toLowerCase()}" [isEdit]="${element.name().toLowerCase()}DataService.isEdit" [itemIndex]="${element.name().toLowerCase()}DataService.itemIndex"></app-button>
+"""
+
+fun <T : ItemI<*>> T.toAngularFormHTML(c: GenerationContext, element: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String =
+    """
 <div>
     <form class="${element.name().toLowerCase()}-form">
         ${element.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-            it.toTypeScriptHTMLForms(tab, element, it.name(), it.type().name(), enums, basics)
-        }}
+        it.toTypeScriptHTMLForms(tab, element, it.name(), it.type().name(), enums, basics)
+    }}
     </form>
 </div>
-
-<app-button [element]="${element.name().toLowerCase()}" [isEdit]="${element.name().toLowerCase()}DataService.isEdit" [itemIndex]="${element.name().toLowerCase()}DataService.itemIndex"></app-button>
 """
 
 fun <T : AttributeI<*>> T.toTypeScriptHTMLForms(indent: String, parent: EntityI<*>, childElement: String, elementType: String, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String {
@@ -466,7 +532,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectForm(parent: EntityI<*>, childElement: Str
 
 fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(parent: EntityI<*>, childElement: String, elementType: String): String {
     return """
-        <app-${elementType.toLowerCase()}-view></app-${elementType.toLowerCase()}-view>"""
+        <app-${elementType.toLowerCase()}-form [${elementType.toLowerCase()}]="${parent.name().toLowerCase()}.${childElement.toCamelCase()}"></app-${elementType.toLowerCase()}-form>"""
 }
 
 fun <T : ItemI<*>> T.toAngularEntityListHTML(element: EntityI<*>): String =
@@ -491,7 +557,10 @@ fun <T : ItemI<*>> T.toAngularEntityViewSCSS(): String =
     left: 10%;
 }
 
-form {
+"""
+
+fun <T : ItemI<*>> T.toAngularFormSCSS(): String =
+    """form {
     position: relative;
     z-index: 1;
     left: 10%;
@@ -563,7 +632,7 @@ fun <T : ItemI<*>> T.toAngularBasicHTML(c: GenerationContext, element: Attribute
                         true ->  """
         <app-${element.type().name().toLowerCase()} [${element.type().name().toLowerCase()}]="${element.parent().name().toLowerCase()}.${element.name().toCamelCase()}"></app-${element.type().name().toLowerCase()}>"""
                         false ->  """
-        <app-${element.type().name().toLowerCase()}-view></app-${element.type().name().toLowerCase()}-view>"""
+        <app-${element.type().name().toLowerCase()}-form [${element.type().name().toLowerCase()}]="${element.parent().name().toLowerCase()}.${element.name().toCamelCase()}"></app-${element.type().name().toLowerCase()}-form>"""
                     }
                 }
             }
@@ -572,21 +641,23 @@ fun <T : ItemI<*>> T.toAngularBasicHTML(c: GenerationContext, element: Attribute
 }
 
 fun <T : ItemI<*>> T.toAngularModuleImportEntities(element: EntityI<*>): String {
-    return """import {${element.name().capitalize()}ViewComponent} from './${element.name().toLowerCase()}/components/view/${element.name().toLowerCase()}-entity-view.component';
-import {${element.name().capitalize()}ListComponent} from './${element.name().toLowerCase()}/components/list/${element.name().toLowerCase()}-entity-list.component';"""
+    return """import {${element.name().capitalize()}ViewComponent} from '@schkola/${element.parent().name().toLowerCase()}/${element.name().toLowerCase()}/components/view/${element.name().toLowerCase()}-entity-view.component';
+import {${element.name().capitalize()}ListComponent} from '@schkola/${element.parent().name().toLowerCase()}/${element.name().toLowerCase()}/components/list/${element.name().toLowerCase()}-entity-list.component';
+import {${element.name().capitalize()}FormComponent} from '@schkola/${element.parent().name().toLowerCase()}/${element.name().toLowerCase()}/components/form/${element.name().toLowerCase()}-form.component';"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleImportBasics(element: BasicI<*>): String {
-    return """import {${element.name().capitalize()}Component} from './basics/${element.name().toLowerCase()}/${element.name().toLowerCase()}-basic.component';"""
+    return """import {${element.name().capitalize()}Component} from '@schkola/${element.parent().name().toLowerCase()}/basics/${element.name().toLowerCase()}/${element.name().toLowerCase()}-basic.component';"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleDeclarationEntities(indent: String, element: EntityI<*>): String {
     return """$indent${element.name().capitalize()}ViewComponent,
-$indent${element.name().capitalize()}ListComponent"""
+$indent${element.name().capitalize()}ListComponent,
+$indent${element.name().capitalize()}FormComponent"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleExportViews(indent: String, element: EntityI<*>): String {
-    return """$indent${element.name().capitalize()}ViewComponent"""
+    return """$indent${element.name().capitalize()}FormComponent"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleDeclarationBasics(indent: String, element: BasicI<*>): String {

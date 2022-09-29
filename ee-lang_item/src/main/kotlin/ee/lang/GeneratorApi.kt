@@ -159,6 +159,17 @@ open class GeneratorSimple<M>(
                 pkg.mkdirs()
             }
         }
+        if(path.toString().contains("form.component")) {
+            val lastIndexOfParent = path.toString().lastIndexOf("_")
+            val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
+            pkg = Paths.get(pkg.toString() +
+                    "\\${parentName.toLowerCase()}\\${template.name(model).fileName.
+                    substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\form")
+            path = pkg.resolve(newFileName)
+            if(!pkg.exists()) {
+                pkg.mkdirs()
+            }
+        }
         if(path.toString().contains("entity-list.component")) {
             val lastIndexOfParent = path.toString().lastIndexOf("_")
             val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
@@ -194,7 +205,7 @@ open class GeneratorSimple<M>(
             val lastIndexOfParent = path.toString().lastIndexOf("_")
             val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
             pkg = Paths.get(pkg.toString() +
-                    "\\${parentName.toLowerCase()}\\basics\\${template.name(model).fileName.
+                    "\\${parentName}\\basics\\${template.name(model).fileName.
                     substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}")
             path = pkg.resolve(newFileName)
             if(!pkg.exists()) {
