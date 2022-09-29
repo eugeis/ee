@@ -6,11 +6,11 @@ val storage = DerivedStorage<ItemI<*>>()
 
 class DerivedStorage<I>(val itemToStorage: MutableMap<I, MutableMap<String, Any>> = HashMap()) {
     fun <T, S : I> getOrPut(item: S, key: String, init: S.(String) -> T): T {
-        val itemStorage = itemToStorage.getOrPut(item, { HashMap() })
+        val itemStorage = itemToStorage.getOrPut(item) { HashMap() }
         @Suppress("UNCHECKED_CAST")
-        return itemStorage.getOrPut(key, {
+        return itemStorage.getOrPut(key) {
             item.init(key) as Any
-        }) as T
+        } as T
     }
 
     fun reset(item: I) {

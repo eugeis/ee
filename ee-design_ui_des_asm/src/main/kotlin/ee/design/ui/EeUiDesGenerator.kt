@@ -44,9 +44,9 @@ private fun ClassNodes.generateSrcGenUiDes(target: Path, namespace: String, clas
 
         val buffer = StringBuffer()
 
-        buffer.appendln("import ee.design.*")
-        buffer.appendln()
-        buffer.appendln("object Shared : Module() {")
+        buffer.appendLine("import ee.design.*")
+        buffer.appendLine()
+        buffer.appendLine("object Shared : Module() {")
         var indent: String = tab
 
         generateSrcGen(buffer, context, enums) { context ->
@@ -55,7 +55,7 @@ private fun ClassNodes.generateSrcGenUiDes(target: Path, namespace: String, clas
         generateSrcGen(buffer, context, widgets) { context ->
             toDesWidget(context, indent)
         }
-        buffer.appendln("}")
+        buffer.appendLine("}")
         out.println(context.complete(buffer.toString()))
     }
 }
@@ -77,7 +77,7 @@ private fun ClassTree.toClassNodes(classAsEnums: Set<String> = emptySet()): Clas
 private fun <T : ClassNode> generateSrcGen(buffer: StringBuffer, context: KotlinContext, items: Collection<T>,
     generator: T.(KotlinContext) -> String) {
     for (item in items) {
-        buffer.appendln(item.generator(context))
-        buffer.appendln()
+        buffer.appendLine(item.generator(context))
+        buffer.appendLine()
     }
 }

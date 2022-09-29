@@ -291,8 +291,8 @@ open class FragmentsTemplate<M>(
     override fun generate(item: M, context: GenerationContext): String {
         val buffer = StringBuffer()
         item.fragments().forEach { fragment ->
-            buffer.appendln(fragment.generate(item, context))
-            buffer.appendln()
+            buffer.appendLine(fragment.generate(item, context))
+            buffer.appendLine()
         }
         return buffer.toString()
     }
@@ -308,8 +308,8 @@ open class SingleItemFragmentsTemplate<M>(
 
     override fun generate(item: M, context: GenerationContext): String {
         val buffer = StringBuffer()
-        buffer.appendln(item.fragments().generate(item, context))
-        buffer.appendln()
+        buffer.appendLine(item.fragments().generate(item, context))
+        buffer.appendLine()
 
         return buffer.toString()
     }
@@ -327,8 +327,8 @@ open class ItemsFragment<M, I>(
         val buffer = StringBuffer()
         item.items().forEach { childItem ->
             childItem.fragments().forEach { fragment ->
-                buffer.appendln(fragment.generate(childItem, context))
-                buffer.appendln()
+                buffer.appendLine(fragment.generate(childItem, context))
+                buffer.appendLine()
             }
         }
         return buffer.toString()
@@ -342,8 +342,8 @@ open class SingleItemFragment<M, I>(
     override fun generate(item: M, context: GenerationContext): String {
         val buffer = StringBuffer()
         return if(item.items().isNotEmpty()) {
-            buffer.appendln(item.items().first().fragments().generate(item.items().first(), context))
-            buffer.appendln()
+            buffer.appendLine(item.items().first().fragments().generate(item.items().first(), context))
+            buffer.appendLine()
             buffer.toString()
         } else {
             buffer.toString()

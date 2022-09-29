@@ -113,33 +113,33 @@ open class ItemB<B : ItemI<B>>(var _adapt: B.() -> Unit = {}) : ItemI<B> {
 
     override fun copy(): B {
         val ret = createType()
-        if (ret != null) {
+        return if (ret != null) {
             ret.parent(EMPTY)
             fill(ret)
             if (ret is MultiHolderI<*, *>) {
                 ret.fillSupportsItems()
             }
-            return ret
+            ret
         } else {
-            log.debug("can't create a new instance of $ret.")
+            log.debug("can't create a new instance of null.")
 
-            return this as B
+            this as B
         }
     }
 
     override fun copyWithParent(): B {
         val ret = createType()
-        if (ret != null) {
+        return if (ret != null) {
             ret.parent(parent())
             fill(ret)
             if (ret is MultiHolderI<*, *>) {
                 ret.fillSupportsItems()
             }
-            return ret
+            ret
         } else {
-            log.debug("Can't create a new instance of $ret.")
+            log.debug("Can't create a new instance of null.")
 
-            return this as B
+            this as B
         }
     }
 
@@ -491,7 +491,7 @@ open class CompositeB<B : CompositeI<B>>(adapt: B.() -> Unit = {}) :
 
     override fun attributes(): MapMultiHolderB<Any, *> = itemAsMap(
         "__attributes",
-        Any::class.java, true, true
+        Any::class.java, attachParent = true, internal = true
     )
 }
 

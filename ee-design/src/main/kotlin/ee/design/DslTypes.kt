@@ -6,7 +6,7 @@ data class DslTypes(val name: String, val desc: String, val types: Map<String, S
 
 fun StringBuffer.appendTypes(log: Logger, types: DslTypes, keyToTypes: MutableMap<String, String>): StringBuffer =
         apply {
-            appendln("//${types.name}")
+            appendLine("//${types.name}")
             types.types.forEach { (k, v) ->
                 if (keyToTypes.containsKey(k)) {
                     if (keyToTypes[k] != v) {
@@ -15,7 +15,7 @@ fun StringBuffer.appendTypes(log: Logger, types: DslTypes, keyToTypes: MutableMa
                     }
                 } else {
                     keyToTypes[k] = v
-                    appendln(v)
+                    appendLine(v)
                 }
             }
         }

@@ -43,7 +43,7 @@ import ee.lang.*
 object UaNodeSet : Module( { namespace("mcr.opcua.nodeset").artifact("mcr-opcua_nodeset").initObjectTree() } ) {
 """)
                 append("    //").append(types.name)
-                types.types.forEach { k, v ->
+                types.types.forEach { (k, v) ->
                     if (keyToTypes.containsKey(k)) {
                         if (keyToTypes[k] != v) {
                             log.warn("different type definitions in {}, with same name {} first:{} second {}",
@@ -51,10 +51,10 @@ object UaNodeSet : Module( { namespace("mcr.opcua.nodeset").artifact("mcr-opcua_
                         }
                     } else {
                         keyToTypes[k] = v
-                        appendln(v)
+                        appendLine(v)
                     }
                 }
-                types.elements.forEach { k, v ->
+                types.elements.forEach { (k, v) ->
                     if (keyToTypes.containsKey(k)) {
                         if (keyToTypes[k] != v) {
                             log.warn("different type definitions in {}, with same name {} first:{} second {}",
@@ -62,9 +62,9 @@ object UaNodeSet : Module( { namespace("mcr.opcua.nodeset").artifact("mcr-opcua_
                         }
                     } else {
                         keyToTypes[k] = v
-                        appendln(v)
+                        appendLine(v)
                     }
                 }
-                appendln("}")
+                appendLine("}")
             }
 }
