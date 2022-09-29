@@ -1,8 +1,9 @@
-package ee.lang.gen.ts
+package ee.design.gen.ts
 
 import ee.common.ext.logger
 import ee.lang.*
 import ee.design.*
+import ee.lang.gen.ts.*
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.*
@@ -291,7 +292,7 @@ class TypeScriptPojosTest {
         log.infoBeforeAfter(out)
         assertThat(out, `is`("new SimpleEntity()".trimIndent()))
     }
-
+/*
     @Test
     @Order(12)
     @DisplayName("Typescript Test for Generating SCSS Component Without Interface")
@@ -319,7 +320,8 @@ class TypeScriptPojosTest {
             
         """.trimIndent()))
     }
-
+    */
+/*
     @Test
     @Order(13)
     @DisplayName("Typescript Test for Generating HTML Component Without Interface")
@@ -367,7 +369,8 @@ class TypeScriptPojosTest {
             
         """.trimIndent()))
     }
-
+    */
+/*
     @Test
     @Order(14)
     @DisplayName("Typescript Test for Generating Typescript Component Without Interface")
@@ -442,7 +445,8 @@ class TypeScriptPojosTest {
             }
         """.trimIndent()))
     }
-
+    */
+/*
     @Test
     @Order(15)
     @DisplayName("Typescript Test for Generating Typescript Component With Interface")
@@ -528,6 +532,8 @@ class TypeScriptPojosTest {
             }
         """.trimIndent()))
     }
+
+    */
 
     @Test
     @Order(16)
