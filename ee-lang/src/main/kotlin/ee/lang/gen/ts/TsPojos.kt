@@ -71,20 +71,3 @@ ${isOpen().then("export ")}class ${c.n(items)}Component implements OnInit {
 }
 """
 }
-
-fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(items: BasicI<*>, basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                                 api: String = LangDerivedKind.API): String {
-    return """<div>
-    <form>
-        ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { 
-            it.toAngularBasicHTML(c, it, basics)
-        }}
-    </form>
-</div>
-"""
-}
-
-fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                                 api: String = LangDerivedKind.API): String {
-    return items.toAngularFormSCSS()
-}

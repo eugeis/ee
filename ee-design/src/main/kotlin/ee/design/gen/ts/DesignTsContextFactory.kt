@@ -7,6 +7,7 @@ import ee.lang.*
 import ee.lang.gen.ts.LangTsContextFactory
 import ee.lang.gen.ts.TsContext
 import ee.lang.gen.ts.TsContextBuilder
+import kotlin.reflect.typeOf
 
 open class DesignTsContextFactory : LangTsContextFactory() {
     override fun contextBuilder(derived: DerivedController): TsContextBuilder<StructureUnitI<*>> {
