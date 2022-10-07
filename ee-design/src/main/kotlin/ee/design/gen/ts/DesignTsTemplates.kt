@@ -1,5 +1,6 @@
 package ee.design.gen.ts
 
+import com.sun.org.apache.xpath.internal.operations.Mod
 import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
@@ -26,11 +27,11 @@ open class DesignTsTemplates : LangTsTemplates {
     */
 
 
-    open fun <T : CompilationUnitI<*>> moduleComponentTypeScript(module: ModuleI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("ModuleTypeScriptComponent", nameBuilder) { item, c -> item.toAngularModuleTSComponent(module, c, LangDerivedKind.API) }
+    open fun <T : ModuleI<*>> moduleComponentTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("ModuleTypeScriptComponent", nameBuilder) { item, c -> item.toAngularModuleTSComponent(c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> moduleService(module: ModuleI<*>, modules: List<ModuleI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("ModuleService", nameBuilder) { item, c -> item.toAngularModuleService(module, modules, c, LangDerivedKind.API) }
+    open fun <T : ModuleI<*>> moduleService(modules: List<ModuleI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("ModuleService", nameBuilder) { item, c -> item.toAngularModuleService(modules, c, LangDerivedKind.API) }
 
     open fun <T : CompilationUnitI<*>> entityViewComponentTypeScript(basics: List<BasicI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityViewTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityViewTSComponent(basics, c, LangDerivedKind.API)  }

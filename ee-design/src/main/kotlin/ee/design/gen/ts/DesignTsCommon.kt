@@ -39,12 +39,12 @@ fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, e
 fun <T : TypeI<*>> T.toAngularModuleArrayElement(attr: EntityI<*>): String =
     "'${attr.name()}'"
 
-fun <T : ItemI<*>> T.toTypeScriptModuleGenerateComponentPart(element: ModuleI<*>): String =
-    """@Component({
-  selector: 'app-${element.name().toLowerCase()}',
-  templateUrl: './${element.name().toLowerCase()}-module-view.component.html',
-  styleUrls: ['./${element.name().toLowerCase()}-module-view.component.scss'],
-  providers: [${element.name()}ViewService]
+fun <T : ItemI<*>> T.toTypeScriptModuleGenerateComponentPart(c: GenerationContext): String =
+    """@${c.n("Component")}({
+  selector: 'app-${this.name().toLowerCase()}',
+  templateUrl: './${this.name().toLowerCase()}-module-view.component.html',
+  styleUrls: ['./${this.name().toLowerCase()}-module-view.component.scss'],
+  providers: [${this.name().capitalize()}ViewService]
 })
 """
 
@@ -93,6 +93,11 @@ import {${element.name().capitalize()}ListComponent} from '@schkola/${element.pa
 import {${element.name().capitalize()}FormComponent} from '@schkola/${element.parent().name().toLowerCase()}/${element.name().toLowerCase()}/components/form/${element.name().toLowerCase()}-form.component';"""
 }
 
+fun <T : ItemI<*>> T.toAngularModuleImportEntitiesRouting(element: EntityI<*>): String {
+    return """import {${element.name().capitalize()}ViewComponent} from '@schkola/${element.parent().name().toLowerCase()}/${element.name().toLowerCase()}/components/view/${element.name().toLowerCase()}-entity-view.component';
+import {${element.name().capitalize()}ListComponent} from '@schkola/${element.parent().name().toLowerCase()}/${element.name().toLowerCase()}/components/list/${element.name().toLowerCase()}-entity-list.component';"""
+}
+
 fun <T : ItemI<*>> T.toAngularModuleImportBasics(element: BasicI<*>): String {
     return """import {${element.name().capitalize()}Component} from '@schkola/${element.parent().name().toLowerCase()}/basics/${element.name().toLowerCase()}/${element.name().toLowerCase()}-basic.component';"""
 }
@@ -118,14 +123,14 @@ $indent{ path: '${element.name().toLowerCase()}/edit/:id', component: ${element.
 }
 
 
-fun <T : ItemI<*>> T.toTypeScriptModuleImportServices(element: ModuleI<*>): String {
-    return """import {${element.name()}ViewService} from '../../service/${element.name().toLowerCase()}-module-view.service';$nL"""
+fun <T : ItemI<*>> T.toTypeScriptModuleImportServices(): String {
+    return """import {${this.name()}ViewService} from '../../service/${this.name().toLowerCase()}-module-view.service';$nL"""
 }
 
-fun <T : ItemI<*>> T.toTypeScriptModuleInputElement(name: String, indent: String, element: ModuleI<*>): String {
-    return """${indent}@Input() $name = '${element.name()}Component';$nL"""
+fun <T : ItemI<*>> T.toTypeScriptModuleInputElement(c: GenerationContext, name: String, indent: String): String {
+    return """${indent}@${c.n("Input")}() $name = '${this.name()}Component';$nL"""
 }
 
-fun <T : ItemI<*>> T.toTypeScriptModuleConstructor(indent: String, element: ModuleI<*>): String {
-    return """${indent}constructor(public ${element.name().toLowerCase()}ViewService: ${element.name()}ViewService) {}$nL"""
+fun <T : ItemI<*>> T.toTypeScriptModuleConstructor(indent: String): String {
+    return """${indent}constructor(public ${this.name().toLowerCase()}ViewService: ${this.name()}ViewService) {}$nL"""
 }

@@ -20,17 +20,17 @@ import toAngularBasicSCSSComponent
 open class DesignAngularTemplates : LangTsTemplates {
     constructor(defaultNameBuilder: TemplateI<*>.(CompositeI<*>) -> NamesI) : super(defaultNameBuilder)
 
-    open fun <T : CompilationUnitI<*>> angularModule(module: ModuleI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("AngularModule", nameBuilder) { item, c -> item.toAngularModule(module, c, LangDerivedKind.API) }
+    open fun <T : ModuleI<*>> angularModule(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("AngularModule", nameBuilder) { item, c -> item.toAngularModule(c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> angularRoutingModule(module: ModuleI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("AngularRoutingModule", nameBuilder) { item, c -> item.toAngularRoutingModule(module, c, LangDerivedKind.API) }
+    open fun <T : ModuleI<*>> angularRoutingModule(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("AngularRoutingModule", nameBuilder) { item, c -> item.toAngularRoutingModule(c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> moduleComponentHTML(module: ModuleI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("ModuleHTMLComponent", nameBuilder) { item, c -> item.toAngularModuleHTMLComponent(module, c, LangDerivedKind.API) }
+    open fun <T : ModuleI<*>> moduleComponentHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("ModuleHTMLComponent", nameBuilder) { item, c -> item.toAngularModuleHTMLComponent(c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> moduleComponentSCSS(module: ModuleI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("ModuleSCSSComponent", nameBuilder) { item, c -> item.toAngularModuleSCSSComponent(module, c, LangDerivedKind.API) }
+    open fun <T : ModuleI<*>> moduleComponentSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("ModuleSCSSComponent", nameBuilder) { item, c -> item.toAngularModuleSCSSComponent(c, LangDerivedKind.API) }
 
     open fun <T : CompilationUnitI<*>> entityViewComponentHTML(enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityViewHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityViewHTMLComponent(enums, basics, c, LangDerivedKind.API) }

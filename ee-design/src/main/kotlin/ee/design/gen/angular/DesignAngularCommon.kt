@@ -5,12 +5,12 @@ import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.toTypeScriptIfNative
 
-fun <T : ItemI<*>> T.toAngularModuleHTML(element: ModuleI<*>): String =
+fun <T : ItemI<*>> T.toAngularModuleHTML(): String =
     """<mat-sidenav-container>
     <mat-sidenav #drawer
                  [mode]="'side'" [fixedInViewport]="true">
         <mat-nav-list>
-            <a *ngFor="let pageName of ${element.name().toLowerCase()}ViewService.pageElement"
+            <a *ngFor="let pageName of ${this.name().toLowerCase()}ViewService.pageElement"
                mat-list-item
                routerLinkActive="active-link"
                [routerLink]="'/' + pageName.toLowerCase()"
@@ -27,9 +27,9 @@ fun <T : ItemI<*>> T.toAngularModuleHTML(element: ModuleI<*>): String =
         </mat-toolbar>
 
         <nav mat-tab-nav-bar>
-            <div *ngFor="let pageTabsName of ${element.name().toLowerCase()}ViewService.tabElement">
+            <div *ngFor="let pageTabsName of ${this.name().toLowerCase()}ViewService.tabElement">
                 <a mat-tab-link
-                   [routerLink]="'/${element.name().toLowerCase()}' + '/' + pageTabsName.toLowerCase()"
+                   [routerLink]="'/${this.name().toLowerCase()}' + '/' + pageTabsName.toLowerCase()"
                    routerLinkActive="active-link"
                 >{{pageTabsName.toUpperCase()}}
                 </a>
@@ -51,13 +51,13 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTML(c: GenerationContext, enums: L
 <div>
     <form class="${this.name().toLowerCase()}-form">
         ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toTypeScriptHTMLForms(tab, it.name(), it.type().name(), enums, basics)
+        it.toTypeScriptHTMLForms(it.type().name(), enums, basics)
     }}
     </form>
 </div>
 """
 
-fun <T : AttributeI<*>> T.toTypeScriptHTMLForms(indent: String, childElement: String, elementType: String, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String {
+fun <T : AttributeI<*>> T.toTypeScriptHTMLForms(elementType: String, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String {
     var isEnum = false
     var isBasic = false
     enums.forEach {

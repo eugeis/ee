@@ -2,36 +2,36 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.design.ModuleI
 import ee.lang.*
 
-fun <T : CompilationUnitI<*>> T.toAngularModule(module: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : ModuleI<*>> T.toAngularModule(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                 api: String = LangDerivedKind.API): String {
     return """import { NgModule } from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
-import {${module.name().capitalize()}RoutingModules} from './${module.name().toLowerCase()}-routing.module';
+import {${this.name().capitalize()}RoutingModules} from './${this.name().toLowerCase()}-routing.module';
 import {CommonModule} from '@angular/common';
-import {TemplateModule} from '../../template/template.module';
-import {MaterialModule} from '../../template/material.module';
+import {TemplateModule} from '@template/template.module';
+import {MaterialModule} from '@template/material.module';
 
-import {${module.name().capitalize()}ViewComponent} from './components/view/${module.name().toLowerCase()}-module-view.component';
-${module.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+import {${this.name().capitalize()}ViewComponent} from './components/view/${this.name().toLowerCase()}-module-view.component';
+${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleImportEntities(it)
     }}
-${module.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleImportBasics(it)
     }}
 
-@NgModule({
+@${c.n("NgModule")}({
     declarations: [
-        ${module.name().capitalize()}ViewComponent,
-${module.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
+        ${this.name().capitalize()}ViewComponent,
+${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
         it.toAngularModuleDeclarationEntities(tab + tab, it)
     }},
-${module.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
+${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
         it.toAngularModuleDeclarationBasics(tab + tab, it)
     }}
     ],
     imports: [
-        ${module.name().capitalize()}RoutingModules,
+        ${this.name().capitalize()}RoutingModules,
         TemplateModule,
         CommonModule,
         FormsModule,
@@ -40,30 +40,30 @@ ${module.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL"
     ],
     providers: [],
     exports: [
-${module.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
+${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
         it.toAngularModuleExportViews(tab + tab, it)
     }},
-${module.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
+${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
         it.toAngularModuleDeclarationBasics(tab + tab, it)
     }}
     ]
 })
-export class ${module.name().capitalize()}Module {}"""
+export class ${this.name().capitalize()}Module {}"""
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularRoutingModule(module: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : ModuleI<*>> T.toAngularRoutingModule(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                        api: String = LangDerivedKind.API): String {
     return """import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import {${module.name().capitalize()}ViewComponent} from './components/view/${module.name().toLowerCase()}-module-view.component';
-${module.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleImportEntities(it)
+import {${this.name().capitalize()}ViewComponent} from './components/view/${this.name().toLowerCase()}-module-view.component';
+${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toAngularModuleImportEntitiesRouting(it)
     }}
 
 const routes: Routes = [
-    { path: '', component: ${module.name().capitalize()}ViewComponent },
-${module.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
+    { path: '', component: ${this.name().capitalize()}ViewComponent },
+${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
         it.toAngularModulePath(tab, it)
     }}
 ];
@@ -72,19 +72,19 @@ ${module.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$n
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule],
 })
-export class ${module.name().capitalize()}RoutingModules {}
+export class ${this.name().capitalize()}RoutingModules {}
 
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularModuleHTMLComponent(module: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : ModuleI<*>> T.toAngularModuleHTMLComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                              api: String = LangDerivedKind.API): String {
-    return module.toAngularModuleHTML(module)
+    return this.toAngularModuleHTML()
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularModuleSCSSComponent(module: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : ModuleI<*>> T.toAngularModuleSCSSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                              api: String = LangDerivedKind.API): String {
-    return module.toAngularDefaultSCSS()
+    return this.toAngularDefaultSCSS()
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,

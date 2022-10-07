@@ -5,28 +5,28 @@ import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.*
 
-fun <T : CompilationUnitI<*>> T.toAngularModuleTSComponent(module: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : ModuleI<*>> T.toAngularModuleTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                            api: String = LangDerivedKind.API): String {
     return """import {Component, Input} from '@angular/core';
-${module.toTypeScriptModuleImportServices(module)}
-${module.toTypeScriptModuleGenerateComponentPart(module)}
-${isOpen().then("export ")}class ${module.name()}ViewComponent {${"\n"}
-${module.toTypeScriptModuleInputElement("pageName", tab , module)}       
-${module.toTypeScriptModuleConstructor(tab, module)}
+${this.toTypeScriptModuleImportServices()}
+${this.toTypeScriptModuleGenerateComponentPart(c)}
+export class ${this.name()}ViewComponent {${"\n"}
+${this.toTypeScriptModuleInputElement(c, "pageName", tab)}       
+${this.toTypeScriptModuleConstructor(tab)}
 }"""
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularModuleService(module: ModuleI<*>, modules: List<ModuleI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : ModuleI<*>> T.toAngularModuleService(modules: List<ModuleI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                        api: String = LangDerivedKind.API): String {
-    return """${isOpen().then("export ")}class ${module.name()}ViewService {
+    return """export class ${this.name()}ViewService {
 
     pageElement = [${modules.filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") { """'${it.name()}'""" }}];
 
-    tabElement = [${module.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString() {
+    tabElement = [${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString() {
         it.toAngularModuleArrayElement(it)
     }}];
 
-    pageName = '${module.name()}Component';
+    pageName = '${this.name()}Component';
 }
 """
 }
