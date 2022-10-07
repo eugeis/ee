@@ -4,35 +4,35 @@ import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 
-fun <T : ItemI<*>> T.toAngularConstructorDataService(indent: String, element: EntityI<*>): String {
-    return """${indent}constructor(public ${element.name().toLowerCase()}DataService: ${element.name()}DataService) {}$nL"""
+fun <T : ItemI<*>> T.toAngularConstructorDataService(indent: String): String {
+    return """${indent}constructor(public ${this.name().toLowerCase()}DataService: ${this.name()}DataService) {}$nL"""
 }
 
-fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String, element: EntityI<*>, basics: List<BasicI<*>>): String {
+fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String, basics: List<BasicI<*>>): String {
     val basicElements: MutableList<String> = ArrayList()
     basics.forEach { basicElements.add(it.name().capitalize()) }
 
     return """${indent}ngOnInit(): void {
-        this.${element.name().toLowerCase()} = this.${element.name().toLowerCase()}DataService.getFirst();
-        this.${element.name().toLowerCase()}DataService.checkRoute(this.${element.name().toLowerCase()});
+        this.${this.name().toLowerCase()} = this.${this.name().toLowerCase()}DataService.getFirst();
+        this.${this.name().toLowerCase()}DataService.checkRoute(this.${this.name().toLowerCase()});
     }"""
 }
 
-fun <T : ItemI<*>> T.toAngularFormOnInit(c: GenerationContext, indent: String, element: EntityI<*>, basics: List<BasicI<*>>, entities: List<EntityI<*>>): String {
+fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent: String, basics: List<BasicI<*>>, entities: List<EntityI<*>>): String {
     val includedElements: MutableList<String> = ArrayList()
     basics.forEach { includedElements.add(it.name().capitalize()) }
     entities.forEach { includedElements.add(it.name().capitalize()) }
 
     return """${indent}ngOnInit(): void {
-        ${element.props().filter { it.type().name() in includedElements }.joinSurroundIfNotEmptyToString(nL + tab) {
-        it.toAngularEmptyProps(c, indent, it, element, it.type())
+        ${this.props().filter { it.type().name() in includedElements }.joinSurroundIfNotEmptyToString(nL + tab) {
+        it.toAngularEmptyProps(c, indent, it.type())
     }.trim()}
     }"""
 }
 
-fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, element: AttributeI<*>, entity: EntityI<*>, elementType: TypeI<*>): String {
-    return """${indent}if (this.${entity.name().toLowerCase()}.${element.name().toCamelCase()} === undefined) {
-            this.${entity.name().toLowerCase()}.${element.name().toCamelCase()} = new ${c.n(elementType).capitalize()}();
+fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, elementType: TypeI<*>): String {
+    return """${indent}if (this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} === undefined) {
+            this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} = new ${c.n(elementType).capitalize()}();
         }"""
 }
 
@@ -48,43 +48,43 @@ fun <T : ItemI<*>> T.toTypeScriptModuleGenerateComponentPart(element: ModuleI<*>
 })
 """
 
-fun <T : ItemI<*>> T.toTypeScriptEntityGenerateViewComponentPart(c: GenerationContext, element: EntityI<*>, type: String): String =
-    """@Component({
-  selector: 'app-${c.n(element).toLowerCase()}-${type}',
-  templateUrl: './${c.n(element).toLowerCase()}-entity-${type}.component.html',
-  styleUrls: ['./${c.n(element).toLowerCase()}-entity-${type}.component.scss'],
-  providers: [{provide: TableDataService, useClass: ${c.n(element).capitalize()}DataService}]
+fun <T : ItemI<*>> T.toTypeScriptEntityGenerateViewComponentPart(c: GenerationContext, type: String): String =
+    """@${c.n("Component")}({
+  selector: 'app-${c.n(this).toLowerCase()}-${type}',
+  templateUrl: './${c.n(this).toLowerCase()}-entity-${type}.component.html',
+  styleUrls: ['./${c.n(this).toLowerCase()}-entity-${type}.component.scss'],
+  providers: [{provide: TableDataService, useClass: ${c.n(this).capitalize()}DataService}]
 })
 """
 
-fun <T : ItemI<*>> T.toTypeScriptEntityGenerateFormComponentPart(c: GenerationContext, element: EntityI<*>, type: String): String =
-    """@Component({
-  selector: 'app-${c.n(element).toLowerCase()}-form',
-  templateUrl: './${c.n(element).toLowerCase()}-form.component.html',
-  styleUrls: ['./${c.n(element).toLowerCase()}-form.component.scss']
+fun <T : ItemI<*>> T.toTypeScriptEntityGenerateFormComponentPart(c: GenerationContext): String =
+    """@${c.n("Component")}({
+  selector: 'app-${c.n(this).toLowerCase()}-form',
+  templateUrl: './${c.n(this).toLowerCase()}-form.component.html',
+  styleUrls: ['./${c.n(this).toLowerCase()}-form.component.scss']
 })
 """
 
-fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: String, element: EntityI<*>, elementName: String, elementType: String, enums: List<EnumTypeI<*>>): String {
+fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: String, elementType: String, enums: List<EnumTypeI<*>>): String {
     var text = ""
     enums.forEach {
         if(it.name() == elementType) {
-            text = """${indent}${elementType.toLowerCase()}Enum = this.${element.name().toLowerCase()}DataService.loadEnumElement(${c.n(it)});"""
+            text = """${indent}${elementType.toLowerCase()}Enum = this.${this.parent().name().toLowerCase()}DataService.loadEnumElement(${c.n(it)});"""
         }
     }
     return text
 }
 
-fun <T : ItemI<*>> T.toTypeScriptEntityProp(c: GenerationContext, indent: String, element: EntityI<*>): String {
-    return """${indent}${element.name().toLowerCase()}: ${c.n(element)};$nL"""
+fun <T : ItemI<*>> T.toTypeScriptEntityProp(c: GenerationContext, indent: String): String {
+    return """${indent}${this.name().toLowerCase()}: ${c.n(this)};$nL"""
 }
 
-fun <T : ItemI<*>> T.toTypeScriptFormProp(c: GenerationContext, indent: String, element: EntityI<*>): String {
-    return """${indent}@Input() ${element.name().toLowerCase()}: ${c.n(element)};$nL"""
+fun <T : ItemI<*>> T.toTypeScriptFormProp(c: GenerationContext, indent: String): String {
+    return """${indent}@${c.n("Input")}() ${this.name().toLowerCase()}: ${c.n(this)};$nL"""
 }
 
-fun <T : ItemI<*>> T.toTypeScriptViewEntityPropInit(c: GenerationContext, indent: String, element: EntityI<*>): String {
-    return """${indent}${element.name().toLowerCase()}: ${c.n(element)} = new ${c.n(element)}();$nL"""
+fun <T : ItemI<*>> T.toTypeScriptViewEntityPropInit(c: GenerationContext, indent: String): String {
+    return """${indent}${this.name().toLowerCase()}: ${c.n(this)} = new ${c.n(this)}();$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleImportEntities(element: EntityI<*>): String {

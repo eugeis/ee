@@ -38,26 +38,26 @@ fun <T : ItemI<*>> T.toAngularModuleHTML(element: ModuleI<*>): String =
     </mat-sidenav-content>
 </mat-sidenav-container>"""
 
-fun <T : ItemI<*>> T.toAngularEntityViewHTML(c: GenerationContext, element: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String =
-    """<app-${element.parent().name().toLowerCase()} [pageName]="${element.name().toLowerCase()}DataService.pageName"></app-${element.parent().name().toLowerCase()}>
+fun <T : ItemI<*>> T.toAngularEntityViewHTML(c: GenerationContext, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String =
+    """<app-${this.parent().name().toLowerCase()} [pageName]="${this.name().toLowerCase()}DataService.pageName"></app-${this.parent().name().toLowerCase()}>
 
-<app-${element.name().toLowerCase()}-form [${element.name().toLowerCase()}]="${element.name().toLowerCase()}"></app-${element.name().toLowerCase()}-form>
+<app-${this.name().toLowerCase()}-form [${this.name().toLowerCase()}]="${this.name().toLowerCase()}"></app-${this.name().toLowerCase()}-form>
 
-<app-button [element]="${element.name().toLowerCase()}" [isEdit]="${element.name().toLowerCase()}DataService.isEdit" [itemIndex]="${element.name().toLowerCase()}DataService.itemIndex"></app-button>
+<app-button [element]="${this.name().toLowerCase()}" [isEdit]="${this.name().toLowerCase()}DataService.isEdit" [itemIndex]="${this.name().toLowerCase()}DataService.itemIndex"></app-button>
 """
 
-fun <T : ItemI<*>> T.toAngularFormHTML(c: GenerationContext, element: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String =
+fun <T : CompilationUnitI<*>> T.toAngularFormHTML(c: GenerationContext, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String =
     """
 <div>
-    <form class="${element.name().toLowerCase()}-form">
-        ${element.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toTypeScriptHTMLForms(tab, element, it.name(), it.type().name(), enums, basics)
+    <form class="${this.name().toLowerCase()}-form">
+        ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toTypeScriptHTMLForms(tab, it.name(), it.type().name(), enums, basics)
     }}
     </form>
 </div>
 """
 
-fun <T : AttributeI<*>> T.toTypeScriptHTMLForms(indent: String, parent: EntityI<*>, childElement: String, elementType: String, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String {
+fun <T : AttributeI<*>> T.toTypeScriptHTMLForms(indent: String, childElement: String, elementType: String, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String {
     var isEnum = false
     var isBasic = false
     enums.forEach {
@@ -72,15 +72,15 @@ fun <T : AttributeI<*>> T.toTypeScriptHTMLForms(indent: String, parent: EntityI<
     }
 
     return when (elementType.toLowerCase()) {
-        "string", "uuid", "text", "float", "int", "boolean", "blob" -> this.toHTMLStringForm(parent, childElement)
-        "date", "list" -> this.toHTMLDateForm(parent, childElement)
+        "string", "uuid", "text", "float", "int", "boolean", "blob" -> this.toHTMLStringForm()
+        "date", "list" -> this.toHTMLDateForm()
         else -> {
             when (isEnum) {
-                true -> this.toHTMLEnumForm(parent, childElement, elementType)
+                true -> this.toHTMLEnumForm(elementType)
                 else -> {
                     when (isBasic) {
-                        true -> this.toHTMLObjectForm(parent, childElement, elementType)
-                        false -> this.toHTMLObjectFormEntity(parent, childElement, elementType)
+                        true -> this.toHTMLObjectForm(elementType)
+                        false -> this.toHTMLObjectFormEntity(elementType)
                     }
                 }
             }
@@ -88,53 +88,53 @@ fun <T : AttributeI<*>> T.toTypeScriptHTMLForms(indent: String, parent: EntityI<
     }
 }
 
-fun <T : AttributeI<*>> T.toHTMLStringForm(parent: EntityI<*>, childElement: String): String {
+fun <T : AttributeI<*>> T.toHTMLStringForm(): String {
     return """
         <mat-form-field appearance="outline">
-            <mat-label>${childElement}</mat-label>
-            <input matInput name="${childElement.toLowerCase()}" [(ngModel)]="${parent.name().toLowerCase()}.${childElement.toCamelCase()}">
+            <mat-label>${this.name()}</mat-label>
+            <input matInput name="${this.name().toLowerCase()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
         </mat-form-field>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLDateForm(parent: EntityI<*>, childElement: String): String {
+fun <T : AttributeI<*>> T.toHTMLDateForm(): String {
     return """
         <mat-form-field appearance="outline">
-            <mat-label>${childElement}</mat-label>
-            <input matInput [matDatepicker]="picker" [(ngModel)]="${parent.name().toLowerCase()}.${childElement.toCamelCase()}">
+            <mat-label>${this.name()}</mat-label>
+            <input matInput [matDatepicker]="picker" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
             <mat-hint>MM/DD/YYYY</mat-hint>
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLEnumForm(parent: EntityI<*>, childElement: String, elementName: String): String {
+fun <T : AttributeI<*>> T.toHTMLEnumForm(elementName: String): String {
     return """
         <mat-form-field appearance="outline">
-            <mat-label>${childElement}</mat-label>
-            <mat-select [(value)]="${parent.name().toLowerCase()}.${childElement.toCamelCase()}">
+            <mat-label>${this.name()}</mat-label>
+            <mat-select [(value)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
                 <mat-option *ngFor="let item of ${elementName.toLowerCase()}Enum" [value]="item">{{item}}</mat-option>
             </mat-select>
         </mat-form-field>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLObjectForm(parent: EntityI<*>, childElement: String, elementType: String): String {
+fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String): String {
     return """
-        <app-${elementType.toLowerCase()} [${elementType.toLowerCase()}]="${parent.name().toLowerCase()}.${childElement.toCamelCase()}"></app-${elementType.toLowerCase()}>"""
+        <app-${elementType.toLowerCase()} [${elementType.toLowerCase()}]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}"></app-${elementType.toLowerCase()}>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(parent: EntityI<*>, childElement: String, elementType: String): String {
+fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String): String {
     return """
-        <app-${elementType.toLowerCase()}-form [${elementType.toLowerCase()}]="${parent.name().toLowerCase()}.${childElement.toCamelCase()}"></app-${elementType.toLowerCase()}-form>"""
+        <app-${elementType.toLowerCase()}-form [${elementType.toLowerCase()}]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}"></app-${elementType.toLowerCase()}-form>"""
 }
 
-fun <T : ItemI<*>> T.toAngularEntityListHTML(element: EntityI<*>): String =
-    """<app-${element.parent().name().toLowerCase()} [pageName]="${element.name().toLowerCase()}DataService.pageName"></app-${element.parent().name().toLowerCase()}>
+fun <T : ItemI<*>> T.toAngularEntityListHTML(): String =
+    """<app-${this.parent().name().toLowerCase()} [pageName]="${this.name().toLowerCase()}DataService.pageName"></app-${this.parent().name().toLowerCase()}>
 <a class="newButton" [routerLink]="'./new'"
         routerLinkActive="active-link">
     <mat-icon>add_circle_outline</mat-icon> Add New Item
 </a>
 
-<a class="deleteButton" (click)="${element.name().toLowerCase()}DataService.clearItems()">
+<a class="deleteButton" (click)="${this.name().toLowerCase()}DataService.clearItems()">
     <mat-icon>delete_outline</mat-icon> Delete All Item
 </a>
 <app-table [displayedColumns]="tableHeader"></app-table>

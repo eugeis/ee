@@ -31,57 +31,57 @@ fun <T : CompilationUnitI<*>> T.toAngularModuleService(items: ModuleI<*>, module
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityViewTSComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularEntityViewTSComponent(basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                api: String = LangDerivedKind.API): String {
     return """import {Component, OnInit} from '@angular/core';
-import {TableDataService} from '../../../../../template/services/data.service';
-import {${c.n(items)}DataService} from '../../service/${items.name().toLowerCase()}-data.service';
+import {TableDataService} from '@template/services/data.service';
+import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 
-${items.toTypeScriptEntityGenerateViewComponentPart(c, items, "view")}
-${isOpen().then("export ")}class ${c.n(items)}ViewComponent implements OnInit {
+${this.toTypeScriptEntityGenerateViewComponentPart(c, "view")}
+${isOpen().then("export ")}class ${c.n(this)}ViewComponent implements ${c.n("OnInit")} {
 
-${items.toTypeScriptEntityProp(c, tab, items)}
-${items.toAngularConstructorDataService(tab, items)}
-${items.toAngularViewOnInit(c, tab, items, basics)}
+${this.toTypeScriptEntityProp(c, tab)}
+${this.toAngularConstructorDataService(tab)}
+${this.toAngularViewOnInit(c, tab, basics)}
 }
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularFormTSComponent(items: EntityI<*>, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, entities: List<EntityI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularFormTSComponent(enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, entities: List<EntityI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                          api: String = LangDerivedKind.API): String {
     return """import {Component, OnInit, Input} from '@angular/core';
-import {${c.n(items)}DataService} from '../../service/${items.name().toLowerCase()}-data.service';
+import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 
-${items.toTypeScriptEntityGenerateFormComponentPart(c, items, "view")}
-${isOpen().then("export ")}class ${c.n(items)}FormComponent implements OnInit {
+${this.toTypeScriptEntityGenerateFormComponentPart(c)}
+${isOpen().then("export ")}class ${c.n(this)}FormComponent implements ${c.n("OnInit")} {
 
-${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
-        it.toAngularGenerateEnumElement(c, tab, items, it.name(), it.type().name(), enums)
+${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
+        it.toAngularGenerateEnumElement(c, tab, it.type().name(), enums)
     }}
-${items.toTypeScriptFormProp(c, tab, items)}
-${items.toAngularConstructorDataService(tab, items)}
-${items.toAngularFormOnInit(c, tab, items, basics, entities)}
+${this.toTypeScriptFormProp(c, tab)}
+${this.toAngularConstructorDataService(tab)}
+${this.toAngularFormOnInit(c, tab, basics, entities)}
 }
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityListTSComponent(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularEntityListTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                api: String = LangDerivedKind.API): String {
     return """import {Component, OnInit} from '@angular/core';
-import {TableDataService} from '../../../../../template/services/data.service';
-import {${items.name()}DataService} from '../../service/${items.name().toLowerCase()}-data.service';
+import {TableDataService} from '@template/services/data.service';
+import {${this.name()}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 
-${items.toTypeScriptEntityGenerateViewComponentPart(c, items, "list")}
-${isOpen().then("export ")}class ${c.n(items)}ListComponent implements OnInit {
+${this.toTypeScriptEntityGenerateViewComponentPart(c, "list")}
+${isOpen().then("export ")}class ${c.n(this)}ListComponent implements ${c.n("OnInit")} {
 
-${items.toTypeScriptViewEntityPropInit(c, tab, items)}
+${this.toTypeScriptViewEntityPropInit(c, tab)}
     tableHeader: Array<String> = [];
 
-${items.toAngularConstructorDataService(tab, items)}
-${items.toAngularListOnInit(tab)}
+${this.toAngularConstructorDataService(tab)}
+${this.toAngularListOnInit(tab)}
 
     generateTableHeader() {
-        return ['Actions', ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") {
+        return ['Actions', ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") {
         it.toAngularGenerateTableHeader(c, it)
     }}];
     }
@@ -89,19 +89,19 @@ ${items.toAngularListOnInit(tab)}
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(items: EntityI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                            api: String = LangDerivedKind.API): String {
     return """import {Injectable} from '@angular/core';
-import {TableDataService} from '../../../../template/services/data.service';
+import {TableDataService} from '@template/services/data.service';
 
-@Injectable()
-${isOpen().then("export ")}class ${c.n(items)}DataService extends TableDataService {
-    itemName = '${c.n(items).toLowerCase()}';
+@${c.n("Injectable")}()
+${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataService {
+    itemName = '${c.n(this).toLowerCase()}';
 
-    pageName = '${c.n(items)}Component';
+    pageName = '${c.n(this)}Component';
 
     getFirst() {
-        return new ${c.n(items)}();
+        return new ${c.n(this)}();
     }
 }
 """

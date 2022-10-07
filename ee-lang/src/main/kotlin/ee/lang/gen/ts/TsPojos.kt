@@ -50,24 +50,23 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: 
 }"""
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(items: BasicI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                  api: String = LangDerivedKind.API): String {
     return """import {Component, Input, OnInit} from '@angular/core';
 
-${items.toTypeScriptBasicGenerateComponentPart(items)}
-${isOpen().then("export ")}class ${c.n(items)}Component implements OnInit {
+${this.toTypeScriptBasicGenerateComponentPart(c)}
+${isOpen().then("export ")}class ${c.n(this)}Component implements ${c.n("OnInit")} {
 
-    @Input() ${c.n(items).toLowerCase()}: ${c.n(items)};
+    @${c.n("Input")}() ${c.n(this).toLowerCase()}: ${c.n(this)};
     
     ngOnInit() {
-        if (this.${c.n(items).toLowerCase()} === undefined) {
-            this.${c.n(items).toLowerCase()} = new ${items.name().capitalize()}();
+        if (this.${c.n(this).toLowerCase()} === undefined) {
+            this.${c.n(this).toLowerCase()} = new ${this.name().capitalize()}();
         }
-        ${items.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { 
+        ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { 
             it.toTypeScriptInitEmptyProps(c, it)
     }.trim()}
     }
-    
 }
 """
 }

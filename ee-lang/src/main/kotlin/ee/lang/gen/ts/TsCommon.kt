@@ -233,19 +233,11 @@ fun <T : OperationI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String
     }"""
 }
 
-fun <T : AttributeI<*>> T.toTypeScriptImportElements(element: AttributeI<*>): String {
-    val elementTypeName = element.type().name()
-    val elementParentName = element.parent().namespace()
-    val elementParentNameRegex = elementParentName.substring(elementParentName.lastIndexOf(".") + 1)
-    return """import {${elementTypeName.capitalize()}} from '../../schkola/${elementParentNameRegex.toLowerCase()}/${elementParentNameRegex.capitalize() + "ApiBase"}';"""
-}
-
-
-fun <T : ItemI<*>> T.toTypeScriptBasicGenerateComponentPart(element: BasicI<*>): String =
-    """@Component({
-  selector: 'app-${element.name().toLowerCase()}',
-  templateUrl: './${element.name().toLowerCase()}-basic.component.html',
-  styleUrls: ['./${element.name().toLowerCase()}-basic.component.scss'],
+fun <T : ItemI<*>> T.toTypeScriptBasicGenerateComponentPart(c: GenerationContext): String =
+    """@${c.n("Component")}({
+  selector: 'app-${this.name().toLowerCase()}',
+  templateUrl: './${this.name().toLowerCase()}-basic.component.html',
+  styleUrls: ['./${this.name().toLowerCase()}-basic.component.scss'],
 })
 """
 
