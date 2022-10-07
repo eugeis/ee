@@ -1,27 +1,16 @@
 package ee.design.gen.ts
 
-import ee.common.ext.then
 import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.LangTsTemplates
 import ee.lang.gen.ts.toAngularBasicTSComponent
 import toAngularEntityDataService
-import toAngularEntityListHTMLComponent
-import toAngularEntityListSCSSComponent
 import toAngularEntityListTSComponent
-import toAngularEntityViewHTMLComponent
-import toAngularEntityViewSCSSComponent
 import toAngularEntityViewTSComponent
-import toAngularFormHTMLComponent
-import toAngularFormSCSSComponent
 import toAngularFormTSComponent
-import toAngularModule
-import toAngularModuleHTMLComponent
-import toAngularModuleSCSSComponent
 import toAngularModuleService
 import toAngularModuleTSComponent
-import toAngularRoutingModule
 
 open class DesignTsTemplates : LangTsTemplates {
     constructor(defaultNameBuilder: TemplateI<*>.(CompositeI<*>) -> NamesI) : super(defaultNameBuilder)
@@ -37,11 +26,11 @@ open class DesignTsTemplates : LangTsTemplates {
     */
 
 
-    open fun <T : CompilationUnitI<*>> moduleComponentTypeScript(items: ModuleI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("ModuleTypeScriptComponent", nameBuilder) { item, c -> item.toAngularModuleTSComponent(items, c, LangDerivedKind.API) }
+    open fun <T : CompilationUnitI<*>> moduleComponentTypeScript(module: ModuleI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("ModuleTypeScriptComponent", nameBuilder) { item, c -> item.toAngularModuleTSComponent(module, c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> moduleService(items: ModuleI<*>, modules: List<ModuleI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("ModuleService", nameBuilder) { item, c -> item.toAngularModuleService(items, modules, c, LangDerivedKind.API) }
+    open fun <T : CompilationUnitI<*>> moduleService(module: ModuleI<*>, modules: List<ModuleI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("ModuleService", nameBuilder) { item, c -> item.toAngularModuleService(module, modules, c, LangDerivedKind.API) }
 
     open fun <T : CompilationUnitI<*>> entityViewComponentTypeScript(basics: List<BasicI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityViewTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityViewTSComponent(basics, c, LangDerivedKind.API)  }

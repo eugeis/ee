@@ -5,28 +5,28 @@ import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.*
 
-fun <T : CompilationUnitI<*>> T.toAngularModuleTSComponent(items: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularModuleTSComponent(module: ModuleI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                            api: String = LangDerivedKind.API): String {
     return """import {Component, Input} from '@angular/core';
-${items.toTypeScriptModuleImportServices(items)}
-${items.toTypeScriptModuleGenerateComponentPart(items)}
-${isOpen().then("export ")}class ${items.name()}ViewComponent {${"\n"}
-${items.toTypeScriptModuleInputElement("pageName", tab , items)}       
-${items.toTypeScriptModuleConstructor(tab, items)}
+${module.toTypeScriptModuleImportServices(module)}
+${module.toTypeScriptModuleGenerateComponentPart(module)}
+${isOpen().then("export ")}class ${module.name()}ViewComponent {${"\n"}
+${module.toTypeScriptModuleInputElement("pageName", tab , module)}       
+${module.toTypeScriptModuleConstructor(tab, module)}
 }"""
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularModuleService(items: ModuleI<*>, modules: List<ModuleI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularModuleService(module: ModuleI<*>, modules: List<ModuleI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                        api: String = LangDerivedKind.API): String {
-    return """${isOpen().then("export ")}class ${items.name()}ViewService {
+    return """${isOpen().then("export ")}class ${module.name()}ViewService {
 
     pageElement = [${modules.filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") { """'${it.name()}'""" }}];
 
-    tabElement = [${items.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString() {
+    tabElement = [${module.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString() {
         it.toAngularModuleArrayElement(it)
     }}];
 
-    pageName = '${items.name()}Component';
+    pageName = '${module.name()}Component';
 }
 """
 }
