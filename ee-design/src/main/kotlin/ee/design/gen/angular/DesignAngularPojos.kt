@@ -87,9 +87,9 @@ fun <T : ModuleI<*>> T.toAngularModuleSCSSComponent(c: GenerationContext, derive
     return this.toAngularDefaultSCSS()
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                  api: String = LangDerivedKind.API): String {
-    return this.toAngularEntityViewHTML(c, enums, basics)
+    return this.toAngularEntityViewHTML()
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
@@ -97,9 +97,9 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(c: GenerationCo
     return this.toAngularEntityViewSCSS()
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                            api: String = LangDerivedKind.API): String {
-    return this.toAngularFormHTML(c, enums, basics)
+    return this.toAngularFormHTML(c)
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularFormSCSSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
@@ -117,17 +117,9 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListSCSSComponent(c: GenerationCo
     return this.toAngularEntityListSCSS()
 }
 
-//TODO: Fix Basic HTML
-fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                             api: String = LangDerivedKind.API): String {
-    return """<div>
-    <form>
-        ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        this.toAngularBasicHTML(c, it, basics)
-    }}
-    </form>
-</div>
-"""
+    return this.toAngularFormHTML(c)
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,

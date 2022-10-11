@@ -4,7 +4,6 @@ import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
 
-var tempIndex = 0
 fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
     val baseType = findDerivedOrThis()
     return when (baseType) {
@@ -191,7 +190,7 @@ fun <T : ConstructorI<*>> T.toTypeScript(c: GenerationContext, derived: String, 
     return if (isNotEMPTY()) """
     constructor(${params().joinWrappedToString(", ", "                ") {
         it.toTypeScriptSignature(c, derived, api)
-    }})${superUnit().isNotEMPTY().then {
+    }}) {${superUnit().isNotEMPTY().then {
         (superUnit() as ConstructorI<*>).toTypeScriptCall(c, (parent() != superUnit().parent()).ifElse("super", "this"))
     }} ${paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("${nL}        ", prefix = "{${nL}        ") {
         it.toTypeScriptAssign(c)
@@ -269,24 +268,6 @@ fun <T : ItemI<*>> T.toTypeScriptTypeProperty(c: GenerationContext, elementParen
         else -> {
             element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
                 it.toTypeScriptTypeProperty(c, elementParent, it)
-            }
-        }
-    }
-}
-
-fun <T : ItemI<*>> T.toAngularInitEmptyElements(c: GenerationContext, element: AttributeI<*>): String {
-    return when (element.type().toTypeScriptIfNative(c, "", element)) {
-        "boolean" -> """${element.name().toLowerCase()}: false"""
-        "string" -> """${element.name().toLowerCase()}: ''"""
-        "number" -> """${element.name().toLowerCase()}: 0"""
-        else -> {
-            when (element.type().props().size) {
-                0 -> """${element.name().toLowerCase()}: 0"""
-                else -> {
-                    """${element.name()}: {${element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
-                        it.toAngularInitEmptyElements(c, it)
-                    }}}"""
-                }
             }
         }
     }

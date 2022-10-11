@@ -32,14 +32,14 @@ open class DesignAngularTemplates : LangTsTemplates {
     open fun <T : ModuleI<*>> moduleComponentSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("ModuleSCSSComponent", nameBuilder) { item, c -> item.toAngularModuleSCSSComponent(c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> entityViewComponentHTML(enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityViewHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityViewHTMLComponent(enums, basics, c, LangDerivedKind.API) }
+    open fun <T : CompilationUnitI<*>> entityViewComponentHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EntityViewHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityViewHTMLComponent(c, LangDerivedKind.API) }
 
     open fun <T : CompilationUnitI<*>> entityViewComponentSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityViewSCSSComponent", nameBuilder) { item, c -> item.toAngularEntityViewSCSSComponent(c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> formComponentHTML(enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityFormHTMLComponent", nameBuilder) { item, c -> item.toAngularFormHTMLComponent(enums, basics, c, LangDerivedKind.API) }
+    open fun <T : CompilationUnitI<*>> formComponentHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EntityFormHTMLComponent", nameBuilder) { item, c -> item.toAngularFormHTMLComponent(c, LangDerivedKind.API) }
 
     open fun <T : CompilationUnitI<*>> formComponentSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityFormSCSSComponent", nameBuilder) { item, c -> item.toAngularFormSCSSComponent(c, LangDerivedKind.API) }
@@ -50,8 +50,8 @@ open class DesignAngularTemplates : LangTsTemplates {
     open fun <T : CompilationUnitI<*>> entityListComponentSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityListSCSSComponent", nameBuilder) { item, c -> item.toAngularEntityListSCSSComponent(c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> basicComponentHTML(basics: List<BasicI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("BasicHTMLComponent", nameBuilder) { item, c -> item.toAngularBasicHTMLComponent(basics, c, LangDerivedKind.API) }
+    open fun <T : CompilationUnitI<*>> basicComponentHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("BasicHTMLComponent", nameBuilder) { item, c -> item.toAngularBasicHTMLComponent(c, LangDerivedKind.API) }
 
     open fun <T : CompilationUnitI<*>> basicComponentSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("BasicSCSSComponent", nameBuilder) { item, c -> item.toAngularBasicSCSSComponent(c, LangDerivedKind.API) }

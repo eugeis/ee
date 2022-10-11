@@ -565,7 +565,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.entityViewComponentTypeScript(basics())).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.entityViewComponentTypeScript()).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )
@@ -577,7 +577,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.formComponentTypeScript(module.enums(), basics(), entities())).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.formComponentTypeScript()).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )
@@ -758,7 +758,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.entityViewComponentHTML(module.enums(), basics())).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.entityViewComponentHTML()).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )
@@ -782,7 +782,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.formComponentHTML(module.enums(), basics())).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.formComponentHTML()).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )
@@ -837,7 +837,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.basicComponentHTML(basics())).filter { this.name() == basic.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.basicComponentHTML()).filter { this.name() == basic.name() } }),
                                     )
                                 }
                             )

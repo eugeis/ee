@@ -38,7 +38,7 @@ fun <T : ItemI<*>> T.toAngularModuleHTML(): String =
     </mat-sidenav-content>
 </mat-sidenav-container>"""
 
-fun <T : ItemI<*>> T.toAngularEntityViewHTML(c: GenerationContext, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String =
+fun <T : ItemI<*>> T.toAngularEntityViewHTML(): String =
     """<app-${this.parent().name().toLowerCase()} [pageName]="${this.name().toLowerCase()}DataService.pageName"></app-${this.parent().name().toLowerCase()}>
 
 <app-${this.name().toLowerCase()}-form [${this.name().toLowerCase()}]="${this.name().toLowerCase()}"></app-${this.name().toLowerCase()}-form>
@@ -46,53 +46,41 @@ fun <T : ItemI<*>> T.toAngularEntityViewHTML(c: GenerationContext, enums: List<E
 <app-button [element]="${this.name().toLowerCase()}" [isEdit]="${this.name().toLowerCase()}DataService.isEdit" [itemIndex]="${this.name().toLowerCase()}DataService.itemIndex"></app-button>
 """
 
-fun <T : CompilationUnitI<*>> T.toAngularFormHTML(c: GenerationContext, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String =
+fun <T : CompilationUnitI<*>> T.toAngularFormHTML(c: GenerationContext): String =
     """
 <div>
     <form class="${this.name().toLowerCase()}-form">
         ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toTypeScriptHTMLForms(it.type().name(), enums, basics)
+        when(it.type()) {
+            is EnumTypeI<*> -> it.toHTMLEnumForm(it.type().name())
+            is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
+            is EntityI<*> -> it.toHTMLObjectFormEntity(it.type().name())
+            else -> when(it.type().name().toLowerCase()) {
+                "boolean" -> it.toHTMLBooleanForm()
+                "date", "list" -> it.toHTMLDateForm()
+                else -> {it.toHTMLStringForm()}
+            }
+        }
     }}
     </form>
 </div>
 """
-
-fun <T : AttributeI<*>> T.toTypeScriptHTMLForms(elementType: String, enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>): String {
-    var isEnum = false
-    var isBasic = false
-    enums.forEach {
-        if(it.name() == elementType) {
-            isEnum = true;
-        }
-    }
-    basics.forEach {
-        if(it.name() == elementType) {
-            isBasic = true
-        }
-    }
-
-    return when (elementType.toLowerCase()) {
-        "string", "uuid", "text", "float", "int", "boolean", "blob" -> this.toHTMLStringForm()
-        "date", "list" -> this.toHTMLDateForm()
-        else -> {
-            when (isEnum) {
-                true -> this.toHTMLEnumForm(elementType)
-                else -> {
-                    when (isBasic) {
-                        true -> this.toHTMLObjectForm(elementType)
-                        false -> this.toHTMLObjectFormEntity(elementType)
-                    }
-                }
-            }
-        }
-    }
-}
 
 fun <T : AttributeI<*>> T.toHTMLStringForm(): String {
     return """
         <mat-form-field appearance="outline">
             <mat-label>${this.name()}</mat-label>
             <input matInput name="${this.name().toLowerCase()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
+        </mat-form-field>"""
+}
+
+fun <T : AttributeI<*>> T.toHTMLBooleanForm(): String {
+    return """
+        <mat-form-field appearance="outline">
+            <mat-label>${this.name()}</mat-label>
+            <mat-select [(value)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
+                <mat-option *ngFor="let item of ['true', 'false']" [value]="item">{{item}}</mat-option>
+            </mat-select>
         </mat-form-field>"""
 }
 

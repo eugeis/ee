@@ -31,7 +31,7 @@ fun <T : ModuleI<*>> T.toAngularModuleService(modules: List<ModuleI<*>>, c: Gene
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityViewTSComponent(basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularEntityViewTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                api: String = LangDerivedKind.API): String {
     return """import {Component, OnInit} from '@angular/core';
 import {TableDataService} from '@template/services/data.service';
@@ -42,12 +42,12 @@ ${isOpen().then("export ")}class ${c.n(this)}ViewComponent implements ${c.n("OnI
 
 ${this.toTypeScriptEntityProp(c, tab)}
 ${this.toAngularConstructorDataService(tab)}
-${this.toAngularViewOnInit(c, tab, basics)}
+${this.toAngularViewOnInit(c, tab)}
 }
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularFormTSComponent(enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, entities: List<EntityI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularFormTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                          api: String = LangDerivedKind.API): String {
     return """import {Component, OnInit, Input} from '@angular/core';
 import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
@@ -55,12 +55,12 @@ import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerC
 ${this.toTypeScriptEntityGenerateFormComponentPart(c)}
 ${isOpen().then("export ")}class ${c.n(this)}FormComponent implements ${c.n("OnInit")} {
 
-${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
-        it.toAngularGenerateEnumElement(c, tab, it.type().name(), enums)
+${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
+        it.type().toAngularGenerateEnumElement(c, tab, this)
     }}
 ${this.toTypeScriptFormProp(c, tab)}
 ${this.toAngularConstructorDataService(tab)}
-${this.toAngularFormOnInit(c, tab, basics, entities)}
+${this.toAngularFormOnInit(c, tab)}
 }
 """
 }

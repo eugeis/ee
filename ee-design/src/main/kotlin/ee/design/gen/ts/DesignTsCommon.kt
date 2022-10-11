@@ -8,23 +8,17 @@ fun <T : ItemI<*>> T.toAngularConstructorDataService(indent: String): String {
     return """${indent}constructor(public ${this.name().toLowerCase()}DataService: ${this.name()}DataService) {}$nL"""
 }
 
-fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String, basics: List<BasicI<*>>): String {
-    val basicElements: MutableList<String> = ArrayList()
-    basics.forEach { basicElements.add(it.name().capitalize()) }
-
+fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): String {
     return """${indent}ngOnInit(): void {
         this.${this.name().toLowerCase()} = this.${this.name().toLowerCase()}DataService.getFirst();
         this.${this.name().toLowerCase()}DataService.checkRoute(this.${this.name().toLowerCase()});
     }"""
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent: String, basics: List<BasicI<*>>, entities: List<EntityI<*>>): String {
-    val includedElements: MutableList<String> = ArrayList()
-    basics.forEach { includedElements.add(it.name().capitalize()) }
-    entities.forEach { includedElements.add(it.name().capitalize()) }
+fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent: String): String {
 
     return """${indent}ngOnInit(): void {
-        ${this.props().filter { it.type().name() in includedElements }.joinSurroundIfNotEmptyToString(nL + tab) {
+        ${this.props().filter { it.type() is BasicI<*> || it.type() is EntityI<*> }.joinSurroundIfNotEmptyToString(nL + tab) {
         it.toAngularEmptyProps(c, indent, it.type())
     }.trim()}
     }"""
@@ -65,14 +59,8 @@ fun <T : ItemI<*>> T.toTypeScriptEntityGenerateFormComponentPart(c: GenerationCo
 })
 """
 
-fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: String, elementType: String, enums: List<EnumTypeI<*>>): String {
-    var text = ""
-    enums.forEach {
-        if(it.name() == elementType) {
-            text = """${indent}${elementType.toLowerCase()}Enum = this.${this.parent().name().toLowerCase()}DataService.loadEnumElement(${c.n(it)});"""
-        }
-    }
-    return text
+fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: String, element: T): String {
+    return """${indent}${c.n(this).toLowerCase()}Enum = this.${element.name().toLowerCase()}DataService.loadEnumElement(${c.n(this).capitalize()});"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptEntityProp(c: GenerationContext, indent: String): String {

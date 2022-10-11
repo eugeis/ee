@@ -33,11 +33,11 @@ open class DesignTsTemplates : LangTsTemplates {
     open fun <T : ModuleI<*>> moduleService(modules: List<ModuleI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("ModuleService", nameBuilder) { item, c -> item.toAngularModuleService(modules, c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> entityViewComponentTypeScript(basics: List<BasicI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityViewTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityViewTSComponent(basics, c, LangDerivedKind.API)  }
+    open fun <T : CompilationUnitI<*>> entityViewComponentTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EntityViewTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityViewTSComponent(c, LangDerivedKind.API)  }
 
-    open fun <T : CompilationUnitI<*>> formComponentTypeScript(enums: List<EnumTypeI<*>>, basics: List<BasicI<*>>, entities: List<EntityI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityFormTypeScriptComponent", nameBuilder) { item, c -> item.toAngularFormTSComponent(enums, basics, entities, c, LangDerivedKind.API) }
+    open fun <T : CompilationUnitI<*>> formComponentTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EntityFormTypeScriptComponent", nameBuilder) { item, c -> item.toAngularFormTSComponent(c, LangDerivedKind.API) }
 
     open fun <T : CompilationUnitI<*>> entityListComponentTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityListTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityListTSComponent(c, LangDerivedKind.API) }
