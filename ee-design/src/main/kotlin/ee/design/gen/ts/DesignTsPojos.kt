@@ -1,18 +1,17 @@
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
-import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.*
 
-fun <T : ModuleI<*>> T.toAngularModuleTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                           api: String = LangDerivedKind.API): String {
+fun <T : ModuleI<*>> T.toAngularModuleTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                 api: String = LangDerivedKind.API): String {
     return """import {Component, Input} from '@angular/core';
-${this.toTypeScriptModuleImportServices()}
-${this.toTypeScriptModuleGenerateComponentPart(c)}
+${this.toAngularModuleImportServices()}
+${this.toAngularModuleGenerateComponentPart(c)}
 export class ${this.name()}ViewComponent {${"\n"}
-${this.toTypeScriptModuleInputElement(c, "pageName", tab)}       
-${this.toTypeScriptModuleConstructor(tab)}
+${this.toAngularModuleInputElement(c, "pageName", tab)}       
+${this.toAngularModuleConstructor(tab)}
 }"""
 }
 
@@ -23,7 +22,7 @@ fun <T : ModuleI<*>> T.toAngularModuleService(modules: List<ModuleI<*>>, c: Gene
     pageElement = [${modules.filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") { """'${it.name()}'""" }}];
 
     tabElement = [${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString() {
-        it.toAngularModuleArrayElement(it)
+        it.toAngularModuleTabElement()
     }}];
 
     pageName = '${this.name()}Component';
@@ -31,13 +30,13 @@ fun <T : ModuleI<*>> T.toAngularModuleService(modules: List<ModuleI<*>>, c: Gene
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityViewTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                               api: String = LangDerivedKind.API): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityViewTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                              api: String = LangDerivedKind.API): String {
     return """import {Component, OnInit} from '@angular/core';
 import {TableDataService} from '@template/services/data.service';
 import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 
-${this.toTypeScriptEntityGenerateViewComponentPart(c, "view")}
+${this.toAngularEntityGenerateComponentPart(c, "view")}
 ${isOpen().then("export ")}class ${c.n(this)}ViewComponent implements ${c.n("OnInit")} {
 
 ${this.toTypeScriptEntityProp(c, tab)}
@@ -47,12 +46,12 @@ ${this.toAngularViewOnInit(c, tab)}
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularFormTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                         api: String = LangDerivedKind.API): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                              api: String = LangDerivedKind.API): String {
     return """import {Component, OnInit, Input} from '@angular/core';
 import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 
-${this.toTypeScriptEntityGenerateFormComponentPart(c)}
+${this.toAngularEntityGenerateFormComponentPart(c)}
 ${isOpen().then("export ")}class ${c.n(this)}FormComponent implements ${c.n("OnInit")} {
 
 ${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
@@ -65,16 +64,16 @@ ${this.toAngularFormOnInit(c, tab)}
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityListTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                               api: String = LangDerivedKind.API): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityListTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                              api: String = LangDerivedKind.API): String {
     return """import {Component, OnInit} from '@angular/core';
 import {TableDataService} from '@template/services/data.service';
 import {${this.name()}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 
-${this.toTypeScriptEntityGenerateViewComponentPart(c, "list")}
+${this.toAngularEntityGenerateComponentPart(c, "list")}
 ${isOpen().then("export ")}class ${c.n(this)}ListComponent implements ${c.n("OnInit")} {
 
-${this.toTypeScriptViewEntityPropInit(c, tab)}
+${this.toTypeScriptEntityPropInit(c, tab)}
     tableHeader: Array<String> = [];
 
 ${this.toAngularConstructorDataService(tab)}
@@ -82,7 +81,7 @@ ${this.toAngularListOnInit(tab)}
 
     generateTableHeader() {
         return ['Actions', ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") {
-        it.toAngularGenerateTableHeader(c, it)
+        it.toAngularGenerateTableHeader(c)
     }}];
     }
 }

@@ -14,7 +14,7 @@ open class DesignAngularGenerator(val model: StructureUnitI<*>) {
 
         val generatorContextsApiBase = generatorFactory.typeScriptApiBase("", model)
         val generatorApiBase = generatorContextsApiBase.generator
-        val generatorContextsComponent = generatorFactory.typeScriptComponent("", model)
+        val generatorContextsComponent = generatorFactory.angularTypeScriptComponent("", model)
         val generatorComponent = generatorContextsComponent.generator
 
         val generatorAngularModule = generatorFactory.angularModules("", model)

@@ -1,7 +1,6 @@
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.toCamelCase
 import ee.design.EntityI
-import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.toTypeScriptIfNative
 
@@ -46,7 +45,7 @@ fun <T : ItemI<*>> T.toAngularEntityViewHTML(): String =
 <app-button [element]="${this.name().toLowerCase()}" [isEdit]="${this.name().toLowerCase()}DataService.isEdit" [itemIndex]="${this.name().toLowerCase()}DataService.itemIndex"></app-button>
 """
 
-fun <T : CompilationUnitI<*>> T.toAngularFormHTML(c: GenerationContext): String =
+fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
     """
 <div>
     <form class="${this.name().toLowerCase()}-form">
@@ -182,7 +181,7 @@ fun <T : ItemI<*>> T.toAngularEntityViewSCSS(): String =
 
 """
 
-fun <T : ItemI<*>> T.toAngularFormSCSS(): String =
+fun <T : ItemI<*>> T.toAngularEntityFormSCSS(): String =
     """form {
     position: relative;
     z-index: 1;

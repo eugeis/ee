@@ -54,7 +54,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, 
                                                                  api: String = LangDerivedKind.API): String {
     return """import {Component, Input, OnInit} from '@angular/core';
 
-${this.toTypeScriptBasicGenerateComponentPart(c)}
+${this.toAngularBasicGenerateComponentPart(c)}
 ${isOpen().then("export ")}class ${c.n(this)}Component implements ${c.n("OnInit")} {
 
     @${c.n("Input")}() ${c.n(this).toLowerCase()}: ${c.n(this)};
@@ -64,7 +64,7 @@ ${isOpen().then("export ")}class ${c.n(this)}Component implements ${c.n("OnInit"
             this.${c.n(this).toLowerCase()} = new ${this.name().capitalize()}();
         }
         ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { 
-            it.toTypeScriptInitEmptyProps(c, it)
+            it.toTypeScriptInitEmptyProps(c)
     }.trim()}
     }
 }

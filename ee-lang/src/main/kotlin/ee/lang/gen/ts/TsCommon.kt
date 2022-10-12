@@ -232,7 +232,7 @@ fun <T : OperationI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String
     }"""
 }
 
-fun <T : ItemI<*>> T.toTypeScriptBasicGenerateComponentPart(c: GenerationContext): String =
+fun <T : ItemI<*>> T.toAngularBasicGenerateComponentPart(c: GenerationContext): String =
     """@${c.n("Component")}({
   selector: 'app-${this.name().toLowerCase()}',
   templateUrl: './${this.name().toLowerCase()}-basic.component.html',
@@ -246,15 +246,15 @@ fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
     }"""
 }
 
-fun <T : ItemI<*>> T.toAngularGenerateTableHeader(c: GenerationContext, element: AttributeI<*>): String {
-    return when (element.type().toTypeScriptIfNative(c, "", element)) {
-        "boolean", "string", "number", "Date" -> """'${element.name().toCamelCase()}'"""
+fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext): String {
+    return when (this.type().toTypeScriptIfNative(c, "", this)) {
+        "boolean", "string", "number", "Date" -> """'${this.name().toCamelCase()}'"""
         else -> {
-            when (element.type().props().size) {
-                0 -> """'${element.name().toCamelCase()}'"""
+            when (this.type().props().size) {
+                0 -> """'${this.name().toCamelCase()}'"""
                 else -> {
-                    element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
-                        it.toTypeScriptTypeProperty(c, element, it)
+                    this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
+                        it.toTypeScriptTypeProperty(c, this)
                     }
                 }
             }
@@ -262,27 +262,27 @@ fun <T : ItemI<*>> T.toAngularGenerateTableHeader(c: GenerationContext, element:
     }
 }
 
-fun <T : ItemI<*>> T.toTypeScriptTypeProperty(c: GenerationContext, elementParent: AttributeI<*>, element: AttributeI<*>): String {
-    return when (element.type().props().size) {
-        0 -> """'${element.name().toCamelCase()}'"""
+fun <T : AttributeI<*>> T.toTypeScriptTypeProperty(c: GenerationContext, elementParent: AttributeI<*>): String {
+    return when (this.type().props().size) {
+        0 -> """'${this.name().toCamelCase()}'"""
         else -> {
-            element.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
-                it.toTypeScriptTypeProperty(c, elementParent, it)
+            this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
+                it.toTypeScriptTypeProperty(c, elementParent)
             }
         }
     }
 }
 
-fun <T : ItemI<*>> T.toTypeScriptInitEmptyProps(c: GenerationContext, element: AttributeI<*>): String {
-    return when (element.type().toTypeScriptIfNative(c, "", element)) {
+fun <T : AttributeI<*>> T.toTypeScriptInitEmptyProps(c: GenerationContext): String {
+    return when (this.type().toTypeScriptIfNative(c, "", this)) {
         "boolean", "string", "number", "Date" -> ""
         else -> {
-            when (element.type().props().size) {
+            when (this.type().props().size) {
                 0 -> ""
                 else -> {
                     """
-        if (this.${element.parent().name().toLowerCase()}.${element.name().toCamelCase()} === undefined) {
-            this.${element.parent().name().toLowerCase()}.${element.name().toCamelCase()} = new ${c.n(element.type()).capitalize()}();
+        if (this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} === undefined) {
+            this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} = new ${c.n(this.type()).capitalize()}();
         }"""
                 }
             }

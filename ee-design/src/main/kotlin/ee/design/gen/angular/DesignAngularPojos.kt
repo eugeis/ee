@@ -14,20 +14,20 @@ import {MaterialModule} from '@template/material.module';
 
 import {${this.name().capitalize()}ViewComponent} from './components/view/${this.name().toLowerCase()}-module-view.component';
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleImportEntities(it)
+        it.toAngularModuleImportEntities()
     }}
 ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleImportBasics(it)
+        it.toAngularModuleImportBasics()
     }}
 
 @${c.n("NgModule")}({
     declarations: [
         ${this.name().capitalize()}ViewComponent,
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
-        it.toAngularModuleDeclarationEntities(tab + tab, it)
+        it.toAngularModuleDeclarationEntities(tab + tab)
     }},
 ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
-        it.toAngularModuleDeclarationBasics(tab + tab, it)
+        it.toAngularModuleDeclarationBasics(tab + tab)
     }}
     ],
     imports: [
@@ -41,10 +41,10 @@ ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") 
     providers: [],
     exports: [
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
-        it.toAngularModuleExportViews(tab + tab, it)
+        it.toAngularModuleExportViews(tab + tab)
     }},
 ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
-        it.toAngularModuleDeclarationBasics(tab + tab, it)
+        it.toAngularModuleDeclarationBasics(tab + tab)
     }}
     ]
 })
@@ -58,13 +58,13 @@ import { Routes, RouterModule } from '@angular/router';
 
 import {${this.name().capitalize()}ViewComponent} from './components/view/${this.name().toLowerCase()}-module-view.component';
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleImportEntitiesRouting(it)
+        it.toAngularModuleImportEntitiesRouting()
     }}
 
 const routes: Routes = [
     { path: '', component: ${this.name().capitalize()}ViewComponent },
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
-        it.toAngularModulePath(tab, it)
+        it.toAngularModulePath(tab)
     }}
 ];
 
@@ -78,12 +78,12 @@ export class ${this.name().capitalize()}RoutingModules {}
 }
 
 fun <T : ModuleI<*>> T.toAngularModuleHTMLComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                             api: String = LangDerivedKind.API): String {
+                                                    api: String = LangDerivedKind.API): String {
     return this.toAngularModuleHTML()
 }
 
-fun <T : ModuleI<*>> T.toAngularModuleSCSSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                             api: String = LangDerivedKind.API): String {
+fun <T : ModuleI<*>> T.toAngularModuleSCSS(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                           api: String = LangDerivedKind.API): String {
     return this.toAngularDefaultSCSS()
 }
 
@@ -99,12 +99,12 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(c: GenerationCo
 
 fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                            api: String = LangDerivedKind.API): String {
-    return this.toAngularFormHTML(c)
+    return this.toAngularEntityFormHTML()
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularFormSCSSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                            api: String = LangDerivedKind.API): String {
-    return this.toAngularFormSCSS()
+    return this.toAngularEntityFormSCSS()
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
@@ -119,10 +119,10 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListSCSSComponent(c: GenerationCo
 
 fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                             api: String = LangDerivedKind.API): String {
-    return this.toAngularFormHTML(c)
+    return this.toAngularEntityFormHTML()
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                             api: String = LangDerivedKind.API): String {
-    return this.toAngularFormSCSS()
+    return this.toAngularEntityFormSCSS()
 }

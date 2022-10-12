@@ -1,6 +1,5 @@
 package ee.design.gen
 
-import ee.common.ext.then
 import ee.design.*
 import ee.design.gen.go.*
 import ee.design.gen.kt.DesignKotlinContextFactory
@@ -472,7 +471,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         return GeneratorContexts(generator, tsContextBuilder)
     }
 
-    open fun typeScriptComponent(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
+    open fun angularTypeScriptComponent(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
         val tsTemplates = buildTsTemplates()
         val tsContextFactory = buildTsContextFactory()
         val tsContextBuilder = tsContextFactory.buildForImplOnly()
@@ -482,31 +481,6 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         }
         val modules: StructureUnitI<*>.() -> List<ModuleI<*>> = {
             if (this is ModuleI<*>) listOf(this) else findDownByType(ModuleI::class.java)
-        }
-
-        val commands: StructureUnitI<*>.() -> List<CommandI<*>> = { findDownByType(CommandI::class.java) }
-        val commandEnums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
-            findDownByType(EnumTypeI::class.java).filter {
-                it.parent() is ControllerI<*> && it.name().endsWith("CommandType")
-            }
-        }
-
-        val events: StructureUnitI<*>.() -> List<EventI<*>> = { findDownByType(EventI::class.java) }
-        val eventEnums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
-            findDownByType(EnumTypeI::class.java).filter {
-                it.parent() is ControllerI<*> && it.name().endsWith("EventType")
-            }
-        }
-
-        val enums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
-            findDownByType(EnumTypeI::class.java).filter {
-                it.parent() is StructureUnitI<*> && it.derivedAsType().isEmpty()
-            }.sortedBy { it.name() }
-        }
-
-        val values: StructureUnitI<*>.() -> List<ValuesI<*>> = {
-            findDownByType(ValuesI::class.java).filter { it.derivedAsType().isEmpty() }
-                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
         val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
@@ -521,28 +495,28 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
         val compGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
         val generator = GeneratorGroup(
-            "angular",
-            listOf(GeneratorGroupItems("angularComponents", items = components, generators = compGenerators))
+            "angularTypeScriptComponents",
+            listOf(GeneratorGroupItems("angularTypeScriptComponents", items = components, generators = compGenerators))
         )
 
         modules.invoke(model).forEach {module ->
             compGenerators.addAll(
                 listOf(
                     GeneratorSimple(
-                        "ModuleTypeScriptComponent", contextBuilder = tsContextBuilder,
-                        template = FragmentsTemplate(name = "${fileNamePrefix}${module.name().toLowerCase()}-module-view.component",
+                        "ModuleViewTypeScript", contextBuilder = tsContextBuilder,
+                        template = FragmentsTemplate(name = "${module.name().toLowerCase()}-module-view.component",
                             nameBuilder = templateNameAsTsFileName, fragments = {
                                 listOf(
                                     ItemsFragment(items = modules,
                                         fragments = {
-                                            listOf<Template<ModuleI<*>>>(tsTemplates.moduleComponentTypeScript()).filter { this.name() == module.name() } }),
+                                            listOf<Template<ModuleI<*>>>(tsTemplates.moduleTypeScript()).filter { this.name() == module.name() } }),
                                 )
                             }
                         )
                     ),
                     GeneratorSimple(
                         "ModuleViewService", contextBuilder = tsContextBuilder,
-                        template = FragmentsTemplate(name = "${fileNamePrefix}${module.name().toLowerCase()}-module-view.service",
+                        template = FragmentsTemplate(name = "${module.name().toLowerCase()}-module-view.service",
                             nameBuilder = templateNameAsTsFileName, fragments = {
                                 listOf(
                                     ItemsFragment(items = modules,
@@ -559,37 +533,37 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                 compGenerators.addAll(
                     listOf(
                         GeneratorSimple(
-                            "EntityViewTypeScriptComponent", contextBuilder = tsContextBuilder,
+                            "EntityViewTypeScript", contextBuilder = tsContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-view.component",
                                 nameBuilder = templateNameAsTsFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.entityViewComponentTypeScript()).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.entityViewTypeScript()).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )
                         ),
                         GeneratorSimple(
-                            "EntityViewTypeScriptComponent", contextBuilder = tsContextBuilder,
+                            "EntityFormTypeScript", contextBuilder = tsContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-form.component",
                                 nameBuilder = templateNameAsTsFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.formComponentTypeScript()).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.entityFormTypeScript()).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )
                         ),
                         GeneratorSimple(
-                            "EntityListTypeScriptComponent", contextBuilder = tsContextBuilder,
+                            "EntityListTypeScript", contextBuilder = tsContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-list.component",
                                 nameBuilder = templateNameAsTsFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.entityListComponentTypeScript()).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.entityListTypeScript()).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )
@@ -614,13 +588,13 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                 compGenerators.addAll(
                     listOf(
                         GeneratorSimple(
-                            "BasicTypeScriptComponent", contextBuilder = tsContextBuilder,
+                            "BasicTypeScript", contextBuilder = tsContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${basic.name().toLowerCase()}-basic.component",
                                 nameBuilder = templateNameAsTsFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.basicComponentTypeScript()).filter { this.name() == basic.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.basicTypeScript()).filter { this.name() == basic.name() } }),
                                     )
                                 }
                             )
@@ -645,11 +619,6 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             if (this is ModuleI<*>) listOf(this) else findDownByType(ModuleI::class.java)
         }
 
-        val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
-            findDownByType(BasicI::class.java).filter { it.derivedAsType().isEmpty() }
-                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
-        }
-
         val compGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
         val generator = GeneratorGroup(
             "angularModule",
@@ -661,7 +630,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                 listOf(
                     GeneratorSimple(
                         "AngularModule", contextBuilder = angularContextBuilder,
-                        template = FragmentsTemplate(name = "${fileNamePrefix}${module.name().toLowerCase()}-model.module",
+                        template = FragmentsTemplate(name = "${module.name().toLowerCase()}-model.module",
                             nameBuilder = templateNameAsTsFileName, fragments = {
                                 listOf(
                                     ItemsFragment(items = modules,
@@ -673,7 +642,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                     ),
                     GeneratorSimple(
                         "AngularRoutingModule", contextBuilder = angularContextBuilder,
-                        template = FragmentsTemplate(name = "${fileNamePrefix}${module.name().toLowerCase()}-routing.module",
+                        template = FragmentsTemplate(name = "${module.name().toLowerCase()}-routing.module",
                             nameBuilder = templateNameAsTsFileName, fragments = {
                                 listOf(
                                     ItemsFragment(items = modules,
@@ -714,33 +683,33 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
         val compGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
         val generator = GeneratorGroup(
-            "angularHtmlAndScss",
-            listOf(GeneratorGroupItems("angularHtmlAndScss", items = components, generators = compGenerators))
+            "angularHtmlAndScssComponents",
+            listOf(GeneratorGroupItems("angularHtmlAndScssComponents", items = components, generators = compGenerators))
         )
 
         modules.invoke(model).forEach {module ->
             compGenerators.addAll(
                 listOf(
                     GeneratorSimple(
-                        "ModuleHtmlComponent", contextBuilder = angularContextBuilder,
-                        template = FragmentsTemplate(name = "${fileNamePrefix}${module.name().toLowerCase()}-module-view.component",
+                        "ModuleHtml", contextBuilder = angularContextBuilder,
+                        template = FragmentsTemplate(name = "${module.name().toLowerCase()}-module-view.component",
                             nameBuilder = templateNameAsHTMLFileName, fragments = {
                                 listOf(
                                     ItemsFragment(items = modules,
                                         fragments = {
-                                            listOf<Template<ModuleI<*>>>(angularTemplates.moduleComponentHTML()).filter { this.name() == module.name() } }),
+                                            listOf<Template<ModuleI<*>>>(angularTemplates.moduleHTML()).filter { this.name() == module.name() } }),
                                 )
                             }
                         )
                     ),
                     GeneratorSimple(
-                        "ModuleScssComponent", contextBuilder = angularContextBuilder,
+                        "ModuleScss", contextBuilder = angularContextBuilder,
                         template = FragmentsTemplate(name = "${fileNamePrefix}${module.name().toLowerCase()}-module-view.component",
                             nameBuilder = templateNameAsCSSFileName, fragments = {
                                 listOf(
                                     ItemsFragment(items = modules,
                                         fragments = {
-                                            listOf<Template<ModuleI<*>>>(angularTemplates.moduleComponentSCSS()).filter { this.name() == module.name() } }),
+                                            listOf<Template<ModuleI<*>>>(angularTemplates.moduleSCSS()).filter { this.name() == module.name() } }),
                                 )
                             }
                         )
@@ -752,73 +721,73 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                 compGenerators.addAll(
                     listOf(
                         GeneratorSimple(
-                            "EntityViewHtmlComponent", contextBuilder = angularContextBuilder,
+                            "EntityViewHtml", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-view.component",
                                 nameBuilder = templateNameAsHTMLFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.entityViewComponentHTML()).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.entityViewHTML()).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )
                         ),
                         GeneratorSimple(
-                            "EntityViewScssComponent", contextBuilder = angularContextBuilder,
+                            "EntityViewScss", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-view.component",
                                 nameBuilder = templateNameAsCSSFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.entityViewComponentSCSS()).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.entityViewSCSS()).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )
                         ),
                         GeneratorSimple(
-                            "EntityFormHtmlComponent", contextBuilder = angularContextBuilder,
+                            "EntityFormHtml", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-form.component",
                                 nameBuilder = templateNameAsHTMLFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.formComponentHTML()).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.entityFormHTML()).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )
                         ),
                         GeneratorSimple(
-                            "EntityFormScssComponent", contextBuilder = angularContextBuilder,
+                            "EntityFormScss", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-form.component",
                                 nameBuilder = templateNameAsCSSFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.formComponentSCSS()).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.entityFormSCSS()).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )
                         ),
                         GeneratorSimple(
-                            "EntityListHtmlComponent", contextBuilder = angularContextBuilder,
+                            "EntityListHtml", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-list.component",
                                 nameBuilder = templateNameAsHTMLFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.entityListComponentHTML()).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.entityListHTML()).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )
                         ),
                         GeneratorSimple(
-                            "EntityListScssComponent", contextBuilder = angularContextBuilder,
+                            "EntityListScss", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-list.component",
                                 nameBuilder = templateNameAsCSSFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.entityListComponentSCSS()).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.entityListSCSS()).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )
@@ -831,25 +800,25 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                 compGenerators.addAll(
                     listOf(
                         GeneratorSimple(
-                            "BasicHtmlComponent", contextBuilder = angularContextBuilder,
+                            "BasicHtml", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${basic.name().toLowerCase()}-basic.component",
                                 nameBuilder = templateNameAsHTMLFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.basicComponentHTML()).filter { this.name() == basic.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.basicHTML()).filter { this.name() == basic.name() } }),
                                     )
                                 }
                             )
                         ),
                         GeneratorSimple(
-                            "BasicScssComponent", contextBuilder = angularContextBuilder,
+                            "BasicScss", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${basic.name().toLowerCase()}-basic.component",
                                 nameBuilder = templateNameAsCSSFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.basicComponentSCSS()).filter { this.name() == basic.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(angularTemplates.basicSCSS()).filter { this.name() == basic.name() } }),
                                     )
                                 }
                             )
