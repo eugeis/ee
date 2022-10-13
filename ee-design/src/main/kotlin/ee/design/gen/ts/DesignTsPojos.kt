@@ -8,7 +8,7 @@ fun <T : ModuleI<*>> T.toAngularModuleTypeScript(c: GenerationContext, derived: 
                                                  api: String = LangDerivedKind.API): String {
     return """import {Component, Input} from '@angular/core';
 ${this.toAngularModuleImportServices()}
-${this.toAngularModuleGenerateComponentPart(c)}
+${this.toAngularGenerateComponentPart(c, "module", "", hasProviders = true, hasClass = false)}
 export class ${this.name()}ViewComponent {${"\n"}
 ${this.toAngularModuleInputElement(c, "pageName", tab)}       
 ${this.toAngularModuleConstructor(tab)}
@@ -36,7 +36,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewTypeScript(c: GenerationConte
 import {TableDataService} from '@template/services/data.service';
 import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 
-${this.toAngularEntityGenerateComponentPart(c, "view")}
+${this.toAngularGenerateComponentPart(c, "entity", "view", hasProviders = true, hasClass = true)}
 ${isOpen().then("export ")}class ${c.n(this)}ViewComponent implements ${c.n("OnInit")} {
 
 ${this.toTypeScriptEntityProp(c, tab)}
@@ -51,7 +51,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationConte
     return """import {Component, OnInit, Input} from '@angular/core';
 import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 
-${this.toAngularEntityGenerateFormComponentPart(c)}
+${this.toAngularGenerateComponentPart(c, "entity", "form", hasProviders = false, hasClass = false)}
 ${isOpen().then("export ")}class ${c.n(this)}FormComponent implements ${c.n("OnInit")} {
 
 ${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
@@ -70,7 +70,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListTypeScript(c: GenerationConte
 import {TableDataService} from '@template/services/data.service';
 import {${this.name()}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 
-${this.toAngularEntityGenerateComponentPart(c, "list")}
+${this.toAngularGenerateComponentPart(c, "entity", "list", hasProviders = true, hasClass = true)}
 ${isOpen().then("export ")}class ${c.n(this)}ListComponent implements ${c.n("OnInit")} {
 
 ${this.toTypeScriptEntityPropInit(c, tab)}

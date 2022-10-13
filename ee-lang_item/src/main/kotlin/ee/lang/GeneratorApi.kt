@@ -159,7 +159,7 @@ open class GeneratorSimple<M>(
                 pkg.mkdirs()
             }
         }
-        if(path.toString().contains("form.component")) {
+        if(path.toString().contains("entity-form.component")) {
             val lastIndexOfParent = path.toString().lastIndexOf("_")
             val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
             pkg = Paths.get(pkg.toString() +
@@ -302,23 +302,6 @@ open class FragmentsTemplate<M>(
     }
 }
 
-open class SingleItemFragmentsTemplate<M>(
-    override val name: String,
-    val fragments: M.() -> FragmentI<M>, val nameBuilder: TemplateI<M>.(M) -> NamesI) : TemplateI<M> {
-
-    override fun generate(item: M, context: GenerationContext): String {
-        val buffer = StringBuffer()
-        buffer.appendLine(item.fragments().generate(item, context))
-        buffer.appendLine()
-
-        return buffer.toString()
-    }
-
-    override fun name(item: M): NamesI {
-        return nameBuilder(this, item)
-    }
-}
-
 open class ItemsFragment<M, I>(
         override val name: String = "",
         val items: M.() -> Collection<I>, val fragments: I.() -> Collection<FragmentI<I>>) : FragmentI<M> {
@@ -332,22 +315,6 @@ open class ItemsFragment<M, I>(
             }
         }
         return buffer.toString()
-    }
-}
-
-open class SingleItemFragment<M, I>(
-    override val name: String = "",
-    val items: M.() -> Collection<I>, val fragments: I.() -> FragmentI<I>) : FragmentI<M> {
-
-    override fun generate(item: M, context: GenerationContext): String {
-        val buffer = StringBuffer()
-        return if(item.items().isNotEmpty()) {
-            buffer.appendLine(item.items().first().fragments().generate(item.items().first(), context))
-            buffer.appendLine()
-            buffer.toString()
-        } else {
-            buffer.toString()
-        }
     }
 }
 

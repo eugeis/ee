@@ -546,7 +546,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                         ),
                         GeneratorSimple(
                             "EntityFormTypeScript", contextBuilder = tsContextBuilder,
-                            template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-form.component",
+                            template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-form.component",
                                 nameBuilder = templateNameAsTsFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
@@ -746,7 +746,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                         ),
                         GeneratorSimple(
                             "EntityFormHtml", contextBuilder = angularContextBuilder,
-                            template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-form.component",
+                            template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-form.component",
                                 nameBuilder = templateNameAsHTMLFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
@@ -758,7 +758,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                         ),
                         GeneratorSimple(
                             "EntityFormScss", contextBuilder = angularContextBuilder,
-                            template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-form.component",
+                            template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-form.component",
                                 nameBuilder = templateNameAsCSSFileName, fragments = {
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,

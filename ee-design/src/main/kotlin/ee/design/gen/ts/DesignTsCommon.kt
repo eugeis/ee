@@ -1,4 +1,6 @@
+import ee.common.ext.ifElse
 import ee.common.ext.joinSurroundIfNotEmptyToString
+import ee.common.ext.then
 import ee.common.ext.toCamelCase
 import ee.design.EntityI
 import ee.lang.*
@@ -32,31 +34,25 @@ fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, e
 fun <T : TypeI<*>> T.toAngularModuleTabElement(): String =
     "'${this.name()}'"
 
-fun <T : ItemI<*>> T.toAngularModuleGenerateComponentPart(c: GenerationContext): String =
+fun <T : ItemI<*>> T.toAngularGenerateComponentPart(c: GenerationContext, element: String, type: String, hasProviders: Boolean, hasClass: Boolean): String =
     """@${c.n("Component")}({
   selector: 'app-${this.name().toLowerCase()}',
-  templateUrl: './${this.name().toLowerCase()}-module-view.component.html',
-  styleUrls: ['./${this.name().toLowerCase()}-module-view.component.scss'],
-  providers: [${this.name().capitalize()}ViewService]
+  templateUrl: './${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.html',
+  styleUrls: ['./${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.scss'],
+  ${this.checkProvider(hasProviders, hasClass).trim()}
 })
 """
 
-fun <T : ItemI<*>> T.toAngularEntityGenerateComponentPart(c: GenerationContext, type: String): String =
-    """@${c.n("Component")}({
-  selector: 'app-${c.n(this).toLowerCase()}-${type}',
-  templateUrl: './${c.n(this).toLowerCase()}-entity-${type}.component.html',
-  styleUrls: ['./${c.n(this).toLowerCase()}-entity-${type}.component.scss'],
-  providers: [{provide: TableDataService, useClass: ${c.n(this).capitalize()}DataService}]
-})
-"""
-
-fun <T : ItemI<*>> T.toAngularEntityGenerateFormComponentPart(c: GenerationContext): String =
-    """@${c.n("Component")}({
-  selector: 'app-${c.n(this).toLowerCase()}-form',
-  templateUrl: './${c.n(this).toLowerCase()}-form.component.html',
-  styleUrls: ['./${c.n(this).toLowerCase()}-form.component.scss']
-})
-"""
+fun <T : ItemI<*>> T.checkProvider(hasProviders: Boolean, hasClass: Boolean): String {
+    val text: String = if (hasProviders && !hasClass) {
+        "providers: [${this.name().capitalize()}ViewService]"
+    } else if (hasProviders && hasClass) {
+        "providers: [{provide: TableDataService, useClass: ${this.name().capitalize()}DataService}]"
+    } else {
+        ""
+    }
+    return text
+}
 
 fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: String, element: T): String {
     return """${indent}${c.n(this).toLowerCase()}Enum = this.${element.name().toLowerCase()}DataService.loadEnumElement(${c.n(this).capitalize()});"""
