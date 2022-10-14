@@ -36,7 +36,7 @@ fun <T : TypeI<*>> T.toAngularModuleTabElement(): String =
 
 fun <T : ItemI<*>> T.toAngularGenerateComponentPart(c: GenerationContext, element: String, type: String, hasProviders: Boolean, hasClass: Boolean): String =
     """@${c.n("Component")}({
-  selector: 'app-${this.name().toLowerCase()}',
+  selector: 'app-${this.name().toLowerCase()}${(element == "entity").then("-${type}")}',
   templateUrl: './${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.html',
   styleUrls: ['./${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.scss'],
   ${this.checkProvider(hasProviders, hasClass).trim()}
@@ -71,18 +71,18 @@ fun <T : ItemI<*>> T.toTypeScriptEntityPropInit(c: GenerationContext, indent: St
 }
 
 fun <T : ItemI<*>> T.toAngularModuleImportEntities(): String {
-    return """import {${this.name().capitalize()}ViewComponent} from '@schkola/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/components/view/${this.name().toLowerCase()}-entity-view.component';
-import {${this.name().capitalize()}ListComponent} from '@schkola/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/components/list/${this.name().toLowerCase()}-entity-list.component';
-import {${this.name().capitalize()}FormComponent} from '@schkola/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/components/form/${this.name().toLowerCase()}-form.component';"""
+    return """import {${this.name().capitalize()}ViewComponent} from '@${this.parent().parent().name().decapitalize()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/components/view/${this.name().toLowerCase()}-entity-view.component';
+import {${this.name().capitalize()}ListComponent} from '@${this.parent().parent().name().decapitalize()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/components/list/${this.name().toLowerCase()}-entity-list.component';
+import {${this.name().capitalize()}FormComponent} from '@${this.parent().parent().name().decapitalize()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/components/form/${this.name().toLowerCase()}-entity-form.component';"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleImportEntitiesRouting(): String {
-    return """import {${this.name().capitalize()}ViewComponent} from '@schkola/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/components/view/${this.name().toLowerCase()}-entity-view.component';
-import {${this.name().capitalize()}ListComponent} from '@schkola/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/components/list/${this.name().toLowerCase()}-entity-list.component';"""
+    return """import {${this.name().capitalize()}ViewComponent} from '@${this.parent().parent().name().decapitalize()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/components/view/${this.name().toLowerCase()}-entity-view.component';
+import {${this.name().capitalize()}ListComponent} from '@${this.parent().parent().name().decapitalize()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/components/list/${this.name().toLowerCase()}-entity-list.component';"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleImportBasics(): String {
-    return """import {${this.name().capitalize()}Component} from '@schkola/${this.parent().name().toLowerCase()}/basics/${this.name().toLowerCase()}/${this.name().toLowerCase()}-basic.component';"""
+    return """import {${this.name().capitalize()}Component} from '@${this.parent().parent().name().decapitalize()}/${this.parent().name().toLowerCase()}/basics/${this.name().toLowerCase()}/${this.name().toLowerCase()}-basic.component';"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleDeclarationEntities(indent: String): String {
@@ -107,7 +107,7 @@ $indent{ path: '${this.name().toLowerCase()}/edit/:id', component: ${this.name()
 
 
 fun <T : ItemI<*>> T.toAngularModuleImportServices(): String {
-    return """import {${this.name()}ViewService} from '../../service/${this.name().toLowerCase()}-module-view.service';$nL"""
+    return """import {${this.name()}ViewService} from '@${this.parent().name().decapitalize()}/${this.name()}/service/${this.name().toLowerCase()}-module-view.service';$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleInputElement(c: GenerationContext, name: String, indent: String): String {

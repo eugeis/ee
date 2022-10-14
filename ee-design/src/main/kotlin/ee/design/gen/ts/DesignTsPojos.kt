@@ -8,7 +8,7 @@ fun <T : ModuleI<*>> T.toAngularModuleTypeScript(c: GenerationContext, derived: 
                                                  api: String = LangDerivedKind.API): String {
     return """import {Component, Input} from '@angular/core';
 ${this.toAngularModuleImportServices()}
-${this.toAngularGenerateComponentPart(c, "module", "", hasProviders = true, hasClass = false)}
+${this.toAngularGenerateComponentPart(c, "module", "view", hasProviders = true, hasClass = false)}
 export class ${this.name()}ViewComponent {${"\n"}
 ${this.toAngularModuleInputElement(c, "pageName", tab)}       
 ${this.toAngularModuleConstructor(tab)}
