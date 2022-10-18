@@ -121,10 +121,19 @@ fun <T : ItemI<*>> T.toAngularEntityListHTML(): String =
     <mat-icon>add_circle_outline</mat-icon> Add New Item
 </a>
 
-<a class="deleteButton" (click)="${this.name().toLowerCase()}DataService.clearItems()">
-    <mat-icon>delete_outline</mat-icon> Delete All Item
-</a>
-<app-table [displayedColumns]="tableHeader"></app-table>
+<ng-container *ngIf="${this.name().toLowerCase()}DataService.isHidden; else showed">
+    <a class="showButton" (click)="${this.name().toLowerCase()}DataService.toggleHidden()">
+        <mat-icon>delete_outline</mat-icon> Delete Multiple Items
+    </a>
+</ng-container>
+
+<ng-template #showed>
+    <a class="deleteButton" (click)="${this.name().toLowerCase()}DataService.clearMultipleItems(${this.name().toLowerCase()}DataService.selection.selected); ${this.name().toLowerCase()}DataService.toggleHidden()">
+        <mat-icon>delete_outline</mat-icon> Delete Items
+    </a>
+</ng-template>
+
+<app-table [selection]="${this.name().toLowerCase()}DataService.selection" [isHidden]="${this.name().toLowerCase()}DataService.isHidden" [displayedColumns]="tableHeader"></app-table>
 """
 
 fun <T : ItemI<*>> T.toAngularBasicHTML(c: GenerationContext, element: AttributeI<*>, basics: List<BasicI<*>>): String {
@@ -212,7 +221,7 @@ a {
     left: 30%;
 }
 
-.deleteButton {
+.deleteButton, .showButton {
     position: absolute;
     top: 20%;
     left: 50%;

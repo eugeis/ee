@@ -80,7 +80,7 @@ ${this.toAngularConstructorDataService(tab)}
 ${this.toAngularListOnInit(tab)}
 
     generateTableHeader() {
-        return ['Actions', ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") {
+        return ['Box', 'Actions', ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") {
         it.toAngularGenerateTableHeader(c)
     }}];
     }
@@ -92,15 +92,24 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(c: GenerationContext,
                                                            api: String = LangDerivedKind.API): String {
     return """import {Injectable} from '@angular/core';
 import {TableDataService} from '@template/services/data.service';
+import {SelectionModel} from '@angular/cdk/collections';
 
 @${c.n("Injectable")}()
 ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataService {
     itemName = '${c.n(this).toLowerCase()}';
 
     pageName = '${c.n(this)}Component';
+    
+    isHidden = true;
+
+    selection = new ${c.n("SelectionModel")}<any>(true, []);
 
     getFirst() {
         return new ${c.n(this)}();
+    }
+    
+    toggleHidden() {
+        this.isHidden = !this.isHidden;
     }
 }
 """
