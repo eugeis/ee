@@ -124,5 +124,5 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext
 
 fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                             api: String = LangDerivedKind.API): String {
-    return this.toAngularEntityFormSCSS()
+    return this.toAngularDefaultSCSS()
 }

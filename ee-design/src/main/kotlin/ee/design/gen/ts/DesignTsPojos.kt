@@ -49,9 +49,10 @@ ${this.toAngularViewOnInit(c, tab)}
 fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                               api: String = LangDerivedKind.API): String {
     return """import {Component, OnInit, Input} from '@angular/core';
+import {TableDataService} from '@template/services/data.service';
 import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 
-${this.toAngularGenerateComponentPart(c, "entity", "form", hasProviders = false, hasClass = false)}
+${this.toAngularGenerateComponentPart(c, "entity", "form", hasProviders = true, hasClass = true)}
 ${isOpen().then("export ")}class ${c.n(this)}FormComponent implements ${c.n("OnInit")} {
 
 ${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
