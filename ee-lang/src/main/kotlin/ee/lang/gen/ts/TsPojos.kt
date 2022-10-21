@@ -4,6 +4,7 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
+import toAngularGenerateEnumElementBasic
 
 fun LiteralI<*>.toTypeScript(): String = name().toUnderscoredUpperCase()
 fun LiteralI<*>.toTypeScriptIsMethod(): String {
@@ -58,7 +59,22 @@ ${this.toAngularBasicGenerateComponentPart(c)}
 ${isOpen().then("export ")}class ${c.n(this)}Component implements ${c.n("OnInit")} {
 
     @${c.n("Input")}() ${c.n(this).toLowerCase()}: ${c.n(this)};
-    
+    @${c.n("Input")}() parentName: String;
+${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
+    it.type().toAngularGenerateEnumElementBasic(c, tab, this)
+}}
+
+${if (props().any { it.type() is EnumTypeI<*> }) {
+    """
+    loadEnumElement(enumElement: any) {
+        let tempArray = [];
+        Object.keys(enumElement).map((element, index) => {
+            tempArray.push(enumElement[index]);
+        })
+        tempArray = tempArray.filter((item) => item);
+        return tempArray;
+    }"""
+} else {""}}
     ngOnInit() {
         if (this.${c.n(this).toLowerCase()} === undefined) {
             this.${c.n(this).toLowerCase()} = new ${this.name().capitalize()}();

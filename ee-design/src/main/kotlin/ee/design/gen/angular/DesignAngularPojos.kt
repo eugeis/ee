@@ -1,4 +1,5 @@
 import ee.common.ext.joinSurroundIfNotEmptyToString
+import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 
@@ -119,10 +120,10 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListSCSSComponent(c: GenerationCo
 
 fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                             api: String = LangDerivedKind.API): String {
-    return this.toAngularEntityFormHTML()
+    return this.toAngularBasicHTML()
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                             api: String = LangDerivedKind.API): String {
-    return this.toAngularDefaultSCSS()
+    return this.toAngularBasicSCSS()
 }

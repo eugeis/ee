@@ -49,64 +49,92 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
     """
 <div>
     <form class="${this.name().toLowerCase()}-form">
-        ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        <fieldset>
+            <legend>${this.name().capitalize()}</legend>
+            ${this.props().filter { it.type() !is BasicI<*> && it.type() !is EntityI<*> }.joinSurroundIfNotEmptyToString(nL) {
+        when(it.type().name().toLowerCase()) {
+            "boolean" -> it.toHTMLBooleanForm(tab)
+            "date", "list" -> it.toHTMLDateForm(tab)
+            "string" -> it.toHTMLStringForm(tab)
+            else -> when(it.type()) {
+                is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name())
+                else -> ""
+            }
+        }
+    }}
+        </fieldset>
+        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
-            is EnumTypeI<*> -> it.toHTMLEnumForm(it.type().name())
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
             is EntityI<*> -> it.toHTMLObjectFormEntity(it.type().name())
-            else -> when(it.type().name().toLowerCase()) {
-                "boolean" -> it.toHTMLBooleanForm()
-                "date", "list" -> it.toHTMLDateForm()
-                else -> {it.toHTMLStringForm()}
-            }
+            else -> ""
         }
     }}
     </form>
 </div>
 """
 
-fun <T : AttributeI<*>> T.toHTMLStringForm(): String {
+fun <T : CompilationUnitI<*>> T.toAngularBasicHTML(): String =
+    """
+<fieldset>
+    <legend>{{parentName}} ${this.name().capitalize()}</legend>
+        ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        when(it.type()) {
+            is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name())
+            is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
+            is EntityI<*> -> it.toHTMLObjectFormEntity(it.type().name())
+            else -> when(it.type().name().toLowerCase()) {
+                "boolean" -> it.toHTMLBooleanForm("")
+                "date", "list" -> it.toHTMLDateForm("")
+                else -> {it.toHTMLStringForm("")}
+            }
+        }
+    }}
+</fieldset>
+"""
+
+fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String): String {
     return """
-        <mat-form-field appearance="outline">
-            <mat-label>${this.name()}</mat-label>
-            <input matInput name="${this.name().toLowerCase()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
-        </mat-form-field>"""
+        ${indent}<mat-form-field appearance="outline">
+            ${indent}<mat-label>${this.name()}</mat-label>
+            ${indent}<input matInput name="${this.name().toLowerCase()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
+        ${indent}</mat-form-field>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLBooleanForm(): String {
+fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String): String {
     return """
-        <mat-form-field appearance="outline">
-            <mat-label>${this.name()}</mat-label>
-            <mat-select [(value)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
-                <mat-option *ngFor="let item of ['true', 'false']" [value]="item">{{item}}</mat-option>
-            </mat-select>
-        </mat-form-field>"""
+        ${indent}<mat-form-field appearance="outline">
+            ${indent}<mat-label>${this.name()}</mat-label>
+            ${indent}<mat-select [(value)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
+                ${indent}<mat-option *ngFor="let item of ['true', 'false']" [value]="item">{{item}}</mat-option>
+            ${indent}</mat-select>
+        ${indent}</mat-form-field>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLDateForm(): String {
+fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String): String {
     return """
-        <mat-form-field appearance="outline">
-            <mat-label>${this.name()}</mat-label>
-            <input matInput [matDatepicker]="picker" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
-            <mat-hint>MM/DD/YYYY</mat-hint>
-            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>"""
+        ${indent}<mat-form-field appearance="outline">
+            ${indent}<mat-label>${this.name()}</mat-label>
+            ${indent}<input matInput [matDatepicker]="picker" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
+            ${indent}<mat-hint>MM/DD/YYYY</mat-hint>
+            ${indent}<mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            ${indent}<mat-datepicker #picker></mat-datepicker>
+        ${indent}</mat-form-field>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLEnumForm(elementName: String): String {
+fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementName: String): String {
     return """
-        <mat-form-field appearance="outline">
-            <mat-label>${this.name()}</mat-label>
-            <mat-select [(value)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
-                <mat-option *ngFor="let item of ${elementName.toLowerCase()}Enum" [value]="item">{{item}}</mat-option>
-            </mat-select>
-        </mat-form-field>"""
+        ${indent}<mat-form-field appearance="outline">
+            ${indent}<mat-label>${this.name()}</mat-label>
+            ${indent}<mat-select [(value)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
+                ${indent}<mat-option *ngFor="let item of ${elementName.toLowerCase()}Enum" [value]="item">{{item}}</mat-option>
+            ${indent}</mat-select>
+        ${indent}</mat-form-field>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String): String {
     return """
-        <app-${elementType.toLowerCase()} [${elementType.toLowerCase()}]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}"></app-${elementType.toLowerCase()}>"""
+        <app-${elementType.toLowerCase()} [parentName]="'${this.parent().name().capitalize()}'" [${elementType.toLowerCase()}]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}"></app-${elementType.toLowerCase()}>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String): String {
@@ -195,6 +223,28 @@ fun <T : ItemI<*>> T.toAngularEntityFormSCSS(): String =
     position: relative;
     z-index: 1;
     left: 10%;
+}
+
+fieldset {
+    width: 75%;
+    padding: 20px;
+    border: round(30) 1px;
+
+    .mat-form-field {
+        padding: 10px 0;
+    }
+}
+"""
+
+fun <T : ItemI<*>> T.toAngularBasicSCSS(): String =
+    """fieldset {
+    width: 75%;
+    padding: 20px;
+    border: round(30) 1px;
+
+    .mat-form-field {
+        padding: 10px 0;
+    }
 }
 """
 
