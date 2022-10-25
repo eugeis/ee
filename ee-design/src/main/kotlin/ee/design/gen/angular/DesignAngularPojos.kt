@@ -85,7 +85,7 @@ fun <T : ModuleI<*>> T.toAngularModuleHTMLComponent(c: GenerationContext, derive
 
 fun <T : ModuleI<*>> T.toAngularModuleSCSS(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                            api: String = LangDerivedKind.API): String {
-    return this.toAngularDefaultSCSS()
+    return this.toAngularModuleSCSS()
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,

@@ -6,7 +6,7 @@ import ee.lang.gen.ts.toTypeScriptIfNative
 
 fun <T : ItemI<*>> T.toAngularModuleHTML(): String =
     """<mat-sidenav-container>
-    <mat-sidenav #drawer
+    <mat-sidenav opened="true" disableClose="true" position="end" #drawer
                  [mode]="'side'" [fixedInViewport]="true">
         <mat-nav-list>
             <a *ngFor="let pageName of ${this.name().toLowerCase()}ViewService.pageElement"
@@ -19,10 +19,13 @@ fun <T : ItemI<*>> T.toAngularModuleHTML(): String =
 
     <mat-sidenav-content>
         <mat-toolbar>
+            <span>{{pageName}}</span>
+
+            <span class="toolbar-space"></span>
+
             <button mat-icon-button (click)="drawer.toggle()">
                 <mat-icon>menu</mat-icon>
             </button>
-            <span>{{pageName}}</span>
         </mat-toolbar>
 
         <nav mat-tab-nav-bar>
@@ -55,12 +58,19 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
         when(it.type().name().toLowerCase()) {
             "boolean" -> it.toHTMLBooleanForm(tab)
             "date", "list" -> it.toHTMLDateForm(tab)
-            "string" -> it.toHTMLStringForm(tab)
+            "string", "text" -> it.toHTMLStringForm(tab)
+            "blob" -> it.toHTMLUploadForm(tab)
             else -> when(it.type()) {
                 is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name())
                 else -> ""
             }
         }
+    }}
+    
+            ${this.props().filter { it.type().name().toLowerCase() == "blob" }.joinSurroundIfNotEmptyToString(nL) {
+                """<div>
+                <img *ngFor='let preview of ${it.parent().name().toLowerCase()}DataService.previews' [src]="preview" class="preview">
+            </div>"""
     }}
         </fieldset>
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
@@ -98,6 +108,14 @@ fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String): String {
         ${indent}<mat-form-field appearance="outline">
             ${indent}<mat-label>${this.name()}</mat-label>
             ${indent}<input matInput name="${this.name().toLowerCase()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
+        ${indent}</mat-form-field>"""
+}
+
+fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String): String {
+    return """
+        ${indent}<mat-form-field appearance="outline">
+            ${indent}<mat-label>${this.name()}</mat-label>
+            ${indent}<input matInput name="${this.name().toLowerCase()}" type="file" (change)="${this.parent().name().toLowerCase()}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
 
@@ -164,51 +182,11 @@ fun <T : ItemI<*>> T.toAngularEntityListHTML(): String =
 <app-table [selection]="${this.name().toLowerCase()}DataService.selection" [isHidden]="${this.name().toLowerCase()}DataService.isHidden" [displayedColumns]="tableHeader"></app-table>
 """
 
-fun <T : ItemI<*>> T.toAngularBasicHTML(c: GenerationContext, element: AttributeI<*>, basics: List<BasicI<*>>): String {
-    var isBasic = false
-    basics.forEach {
-        if(it.name() == element.type().name()) {
-            isBasic = true
-        }
-    }
-
-    return when (element.type().toTypeScriptIfNative(c, "", element)) {
-        "boolean" -> """
-        <mat-form-field appearance="outline">
-            <mat-label>${element.name()}</mat-label>
-            <mat-select [(value)]="${element.parent().name().toLowerCase()}.${element.name().toCamelCase()}">
-                <mat-option *ngFor="let item of ['true', 'false']" [value]="item">{{item}}</mat-option>
-            </mat-select>
-        </mat-form-field>"""
-        "string", "number" -> """
-        <mat-form-field appearance="outline">
-            <mat-label>${element.name()}</mat-label>
-            <input matInput name="${element.name().toLowerCase()}" [(ngModel)]="${element.parent().name().toLowerCase()}.${element.name().toCamelCase()}">
-        </mat-form-field>"""
-        else -> {
-            when (element.type().props().size) {
-                0 -> """
-        <mat-form-field appearance="outline">
-            <mat-label>${element.name()}</mat-label>
-            <mat-select [(value)]="${element.parent().name().toLowerCase()}.${element.name().toCamelCase()}">
-                <mat-option *ngFor="let item of ${element.name().toLowerCase()}Enum" [value]="item">{{item}}</mat-option>
-            </mat-select>
-        </mat-form-field>"""
-                else -> {
-                    when (isBasic) {
-                        true ->  """
-        <app-${element.type().name().toLowerCase()} [${element.type().name().toLowerCase()}]="${element.parent().name().toLowerCase()}.${element.name().toCamelCase()}"></app-${element.type().name().toLowerCase()}>"""
-                        false ->  """
-        <app-${element.type().name().toLowerCase()}-form [${element.type().name().toLowerCase()}]="${element.parent().name().toLowerCase()}.${element.name().toCamelCase()}"></app-${element.type().name().toLowerCase()}-form>"""
-                    }
-                }
-            }
-        }
-    }
+fun <T : ItemI<*>> T.toAngularModuleSCSS(): String =
+    """.toolbar-space {
+    flex: 1 1 auto;
 }
-
-fun <T : ItemI<*>> T.toAngularDefaultSCSS(): String =
-    """:host {}"""
+"""
 
 fun <T : ItemI<*>> T.toAngularEntityViewSCSS(): String =
     """app-button {

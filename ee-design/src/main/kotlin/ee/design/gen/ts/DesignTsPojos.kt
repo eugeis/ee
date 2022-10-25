@@ -102,6 +102,14 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     pageName = '${c.n(this)}Component';
     
     isHidden = true;
+    
+    ${this.props().filter { it.type().name().toLowerCase() == "blob" }.joinSurroundIfNotEmptyToString { 
+        """
+    selectedFiles?: FileList;
+    
+    previews: string[] = [];
+    """
+    }}
 
     selection = new ${c.n("SelectionModel")}<any>(true, []);
 
@@ -112,6 +120,25 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     toggleHidden() {
         this.isHidden = !this.isHidden;
     }
+    
+    ${this.props().filter { it.type().name().toLowerCase() == "blob" }.joinSurroundIfNotEmptyToString {
+        """
+    selectFiles(event: any): void {
+        this.selectedFiles = event.target.files;
+
+        this.previews = [];
+        if (this.selectedFiles) {
+            const fileReader = new FileReader();
+
+            fileReader.onload = (e: any) => {
+                this.previews.push(e.target.result);
+            };
+
+            fileReader.readAsDataURL(this.selectedFiles[0]);
+        }
+    }
+    """ 
+    }}
 }
 """
 }
