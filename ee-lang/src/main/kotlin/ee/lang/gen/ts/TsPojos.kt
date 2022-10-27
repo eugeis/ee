@@ -4,7 +4,6 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
-import toAngularGenerateEnumElementBasic
 
 fun LiteralI<*>.toTypeScript(): String = name().toUnderscoredUpperCase()
 fun LiteralI<*>.toTypeScriptIsMethod(): String {
@@ -51,6 +50,11 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: 
 }"""
 }
 
+
+fun <T : ItemI<*>> T.toAngularGenerateEnumElementBasic(c: GenerationContext, indent: String): String {
+    return """${indent}${c.n(this).toLowerCase()}Enum = this.loadEnumElement(${c.n(this).capitalize()});"""
+}
+
 fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                  api: String = LangDerivedKind.API): String {
     return """import {Component, Input, OnInit} from '@angular/core';
@@ -61,7 +65,7 @@ ${isOpen().then("export ")}class ${c.n(this)}Component implements ${c.n("OnInit"
     @${c.n("Input")}() ${c.n(this).toLowerCase()}: ${c.n(this)};
     @${c.n("Input")}() parentName: String;
 ${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
-    it.type().toAngularGenerateEnumElementBasic(c, tab, this)
+    it.type().toAngularGenerateEnumElementBasic(c, tab)
 }}
 
 ${if (props().any { it.type() is EnumTypeI<*> }) {
