@@ -186,6 +186,12 @@ fun <T : ItemI<*>> T.toAngularModuleSCSS(): String =
     """.toolbar-space {
     flex: 1 1 auto;
 }
+
+mat-sidenav-container {
+    position: relative;
+    width: 100%;
+    z-index: 2;
+}
 """
 
 fun <T : ItemI<*>> T.toAngularEntityViewSCSS(): String =
@@ -199,12 +205,13 @@ fun <T : ItemI<*>> T.toAngularEntityViewSCSS(): String =
 fun <T : ItemI<*>> T.toAngularEntityFormSCSS(): String =
     """form {
     position: relative;
+    max-width: 80%;
     z-index: 1;
     left: 10%;
 }
 
 fieldset {
-    width: 75%;
+    width: 80%;
     padding: 20px;
     border: round(30) 1px;
 
@@ -212,11 +219,24 @@ fieldset {
         padding: 10px 0;
     }
 }
+
+@media screen and (max-width: 650px) {
+    form {
+        left: 5%;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    form {
+        left: 5%;
+        max-width: 50%;
+    }
+}
 """
 
 fun <T : ItemI<*>> T.toAngularBasicSCSS(): String =
     """fieldset {
-    width: 75%;
+    width: 80%;
     padding: 20px;
     border: round(30) 1px;
 
@@ -253,6 +273,30 @@ a {
     position: absolute;
     top: 20%;
     left: 50%;
+}
+
+@media screen and (max-width: 1000px) {
+    app-table {
+        max-width: 70%;
+    }
+}
+
+@media screen and (max-width: 585px) {
+    app-table {
+        max-width: 60%;
+    }
+
+    .newButton {
+        position: absolute;
+        top: 20%;
+        left: 10%;
+    }
+
+    .deleteButton, .showButton {
+        position: absolute;
+        top: 20%;
+        left: 40%;
+    }
 }
 """
 
