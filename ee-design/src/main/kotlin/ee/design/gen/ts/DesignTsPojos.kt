@@ -46,6 +46,7 @@ ${this.toAngularViewOnInit(c, tab)}
 """
 }
 
+//TEST
 fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                               api: String = LangDerivedKind.API): String {
     return """import {Component, OnInit, Input} from '@angular/core';
