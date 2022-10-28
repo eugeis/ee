@@ -6,6 +6,15 @@ import ee.lang.*
 
 object ts : StructureUnit({ namespace("").name("TypeScript") }) {}
 
+object angular : StructureUnit({namespace("@angular").name("angular")}) {
+    object core : StructureUnit() {
+        object Component : ExternalType() {
+        }
+        object OnInit : ExternalType() {
+        }
+    }
+}
+
 open class TsContext : GenerationContext {
 
     constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src/app/shared",
@@ -48,6 +57,7 @@ fun <T : StructureUnitI<*>> T.prepareForTsGeneration(): T {
 
 fun <T : StructureUnitI<*>> T.initsForTsGeneration(): T {
     ts.initObjectTree()
+    angular.initObjectTrees()
     initObjectTrees()
     return this
 }

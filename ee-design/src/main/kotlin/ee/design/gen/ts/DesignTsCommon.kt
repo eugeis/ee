@@ -58,10 +58,6 @@ fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: 
     return """${indent}${c.n(this).toLowerCase()}Enum = this.${element.name().toLowerCase()}DataService.loadEnumElement(${c.n(this).capitalize()});"""
 }
 
-fun <T : ItemI<*>> T.toAngularGenerateEnumElementBasic(c: GenerationContext, indent: String, element: T): String {
-    return """${indent}${c.n(this).toLowerCase()}Enum = this.loadEnumElement(${c.n(this).capitalize()});"""
-}
-
 fun <T : ItemI<*>> T.toTypeScriptEntityProp(c: GenerationContext, indent: String): String {
     return """${indent}${this.name().toLowerCase()}: ${c.n(this)};$nL"""
 }
