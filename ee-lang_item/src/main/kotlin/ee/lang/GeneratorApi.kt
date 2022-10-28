@@ -123,95 +123,13 @@ open class GeneratorSimple<M>(
 
     override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
         if (shallSkip(model)) return
+
         val c = contextBuilder.builder.invoke(model)
         val module = target.resolve(c.moduleFolder)
         val metaData = module.loadMetaData()
 
-        var pkg = prepareNamespace(module, c)
-        var path = pkg.resolve(template.name(model).fileName)
-
-        val lastIndex = path.toString().lastIndexOf("\\") + 1
-        val lastIndexOfEE = path.toString().substring(0, lastIndex).lastIndexOf("\\ee") + 1
-        val newFileName = template.name(model).fileName.substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.length)
-        if(path.toString().contains("-routing.module") || path.toString().contains("-model.module")) {
-            pkg = Paths.get(pkg.toString() +
-                    "\\${template.name(model).fileName.
-                    substring(0, template.name(model).fileName.indexOf("-"))}")
-            path = pkg.resolve(template.name(model).fileName)
-        }
-        if(path.toString().contains("module-view.component")) {
-            pkg = Paths.get(pkg.toString() +
-                    "\\${template.name(model).fileName.
-                        substring(0, template.name(model).fileName.indexOf("-"))}\\components\\view")
-            path = pkg.resolve(template.name(model).fileName)
-            if(!pkg.exists()) {
-                    pkg.mkdirs()
-            }
-        }
-        if(path.toString().contains("entity-view.component")) {
-            val lastIndexOfParent = path.toString().lastIndexOf("_")
-            val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-            pkg = Paths.get(pkg.toString() +
-                    "\\${parentName.toLowerCase()}\\${template.name(model).fileName.
-                    substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\view")
-            path = pkg.resolve(newFileName)
-            if(!pkg.exists()) {
-                pkg.mkdirs()
-            }
-        }
-        if(path.toString().contains("entity-form.component")) {
-            val lastIndexOfParent = path.toString().lastIndexOf("_")
-            val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-            pkg = Paths.get(pkg.toString() +
-                    "\\${parentName.toLowerCase()}\\${template.name(model).fileName.
-                    substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\form")
-            path = pkg.resolve(newFileName)
-            if(!pkg.exists()) {
-                pkg.mkdirs()
-            }
-        }
-        if(path.toString().contains("entity-list.component")) {
-            val lastIndexOfParent = path.toString().lastIndexOf("_")
-            val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-            pkg = Paths.get(pkg.toString() +
-                    "\\${parentName.toLowerCase()}\\${template.name(model).fileName.
-                    substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\list")
-            path = pkg.resolve(newFileName)
-            if(!pkg.exists()) {
-                pkg.mkdirs()
-            }
-        }
-        if(path.toString().contains("data.service")) {
-            val lastIndexOfParent = path.toString().lastIndexOf("_")
-            val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-            pkg = Paths.get(pkg.toString() +
-                    "\\${parentName.toLowerCase()}\\${template.name(model).fileName.
-                    substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\service")
-            path = pkg.resolve(newFileName)
-            if(!pkg.exists()) {
-                pkg.mkdirs()
-            }
-        }
-        if(path.toString().contains("module-view.service")) {
-            pkg = Paths.get(pkg.toString() +
-                    "\\${template.name(model).fileName.
-                    substring(0, template.name(model).fileName.indexOf("-"))}\\service")
-            path = pkg.resolve(template.name(model).fileName)
-            if(!pkg.exists()) {
-                pkg.mkdirs()
-            }
-        }
-        if(path.toString().contains("basic.component")) {
-            val lastIndexOfParent = path.toString().lastIndexOf("_")
-            val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-            pkg = Paths.get(pkg.toString() +
-                    "\\${parentName}\\basics\\${template.name(model).fileName.
-                    substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}")
-            path = pkg.resolve(newFileName)
-            if(!pkg.exists()) {
-                pkg.mkdirs()
-            }
-        }
+        val pkg = prepareNamespace(module, c)
+        val path = pkg.resolve(template.name(model).fileName)
         val relative = target.relativize(path).toString()
         if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
             log.debug("generate $path for $model")
@@ -255,6 +173,103 @@ open class Generator<M, I>(name: String, contextBuilder: ContextBuilder<M>, val 
             }
         }
         metaData.store(module)
+    }
+}
+
+open class GeneratorAngular<M>(name: String, contextBuilder: ContextBuilder<M>, val template: TemplateI<M>) : GeneratorBase<M>(name, contextBuilder) {
+    override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
+        if (shallSkip(model)) return
+        val c = contextBuilder.builder.invoke(model)
+        val module = target.resolve(c.moduleFolder)
+        val metaData = module.loadMetaData()
+
+        var pkg = prepareNamespace(module, c)
+        var path = pkg.resolve(template.name(model).fileName)
+
+        with(path.toString()) {
+            val lastIndex = path.toString().lastIndexOf("\\") + 1
+            val newFileName = template.name(model).fileName.substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.length)
+
+            when {
+                contains("-routing.module") || contains("-model.module") -> {
+                    pkg = Paths.get(pkg.toString() +
+                        "\\${template.name(model).fileName.
+                        substring(0, template.name(model).fileName.indexOf("-"))}")
+                    path = pkg.resolve(template.name(model).fileName)
+                }
+                contains("module-view.component") -> {
+                    pkg = Paths.get(pkg.toString() +
+                        "\\${template.name(model).fileName.
+                        substring(0, template.name(model).fileName.indexOf("-"))}\\components\\view")
+                    path = pkg.resolve(template.name(model).fileName)
+                }
+                contains("entity-view.component") -> {
+                    val lastIndexOfParent = path.toString().lastIndexOf("_")
+                    val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
+                    pkg = Paths.get(pkg.toString() +
+                            "\\${parentName.toLowerCase()}\\${template.name(model).fileName.
+                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\view")
+                    path = pkg.resolve(newFileName)
+                }
+                contains("entity-form.component") -> {
+                    val lastIndexOfParent = path.toString().lastIndexOf("_")
+                    val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
+                    pkg = Paths.get(pkg.toString() +
+                            "\\${parentName.toLowerCase()}\\${template.name(model).fileName.
+                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\form")
+                    path = pkg.resolve(newFileName)
+                }
+                contains("entity-list.component") -> {
+                    val lastIndexOfParent = path.toString().lastIndexOf("_")
+                    val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
+                    pkg = Paths.get(pkg.toString() +
+                            "\\${parentName.toLowerCase()}\\${template.name(model).fileName.
+                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\list")
+                    path = pkg.resolve(newFileName)
+                }
+                contains("data.service") -> {
+                    val lastIndexOfParent = path.toString().lastIndexOf("_")
+                    val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
+                    pkg = Paths.get(pkg.toString() +
+                            "\\${parentName.toLowerCase()}\\${template.name(model).fileName.
+                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\service")
+                    path = pkg.resolve(newFileName)
+                }
+                contains("module-view.service") -> {
+                    pkg = Paths.get(pkg.toString() +
+                            "\\${template.name(model).fileName.
+                            substring(0, template.name(model).fileName.indexOf("-"))}\\service")
+                    path = pkg.resolve(template.name(model).fileName)
+                }
+                contains("basic.component") -> {
+                    val lastIndexOfParent = path.toString().lastIndexOf("_")
+                    val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
+                    pkg = Paths.get(pkg.toString() +
+                            "\\${parentName}\\basics\\${template.name(model).fileName.
+                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}")
+                    path = pkg.resolve(newFileName)
+                }
+            }
+        }
+
+        if(!pkg.exists()) {
+            pkg.mkdirs()
+        }
+
+        val relative = target.relativize(path).toString()
+        if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
+            log.debug("generate $path for $model")
+            val body = template.generate(model, c)
+            if (body.isNotBlank()) {
+                val text = c.complete(body)
+                path.toFile().writeText(text)
+                metaData.track(relative, path.lastModified())
+            }
+            c.clear()
+            metaData.store(module)
+        } else {
+            log.debug("File exists $path and was modified after generation, skip generation.")
+        }
     }
 }
 

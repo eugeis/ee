@@ -502,7 +502,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         modules.invoke(model).forEach {module ->
             compGenerators.addAll(
                 listOf(
-                    GeneratorSimple(
+                    GeneratorAngular(
                         "ModuleViewTypeScript", contextBuilder = tsContextBuilder,
                         template = FragmentsTemplate(name = "${module.name().toLowerCase()}-module-view.component",
                             nameBuilder = templateNameAsTsFileName, fragments = {
@@ -514,7 +514,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                             }
                         )
                     ),
-                    GeneratorSimple(
+                    GeneratorAngular(
                         "ModuleViewService", contextBuilder = tsContextBuilder,
                         template = FragmentsTemplate(name = "${module.name().toLowerCase()}-module-view.service",
                             nameBuilder = templateNameAsTsFileName, fragments = {
@@ -532,7 +532,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             module.entities().forEach {entity ->
                 compGenerators.addAll(
                     listOf(
-                        GeneratorSimple(
+                        GeneratorAngular(
                             "EntityViewTypeScript", contextBuilder = tsContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-view.component",
                                 nameBuilder = templateNameAsTsFileName, fragments = {
@@ -544,7 +544,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                 }
                             )
                         ),
-                        GeneratorSimple(
+                        GeneratorAngular(
                             "EntityFormTypeScript", contextBuilder = tsContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-form.component",
                                 nameBuilder = templateNameAsTsFileName, fragments = {
@@ -556,7 +556,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                 }
                             )
                         ),
-                        GeneratorSimple(
+                        GeneratorAngular(
                             "EntityListTypeScript", contextBuilder = tsContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-list.component",
                                 nameBuilder = templateNameAsTsFileName, fragments = {
@@ -568,7 +568,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                 }
                             )
                         ),
-                        GeneratorSimple(
+                        GeneratorAngular(
                             "EntityDataService", contextBuilder = tsContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-data.service",
                                 nameBuilder = templateNameAsTsFileName, fragments = {
@@ -587,7 +587,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             module.basics().forEach {basic ->
                 compGenerators.addAll(
                     listOf(
-                        GeneratorSimple(
+                        GeneratorAngular(
                             "BasicTypeScript", contextBuilder = tsContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${basic.name().toLowerCase()}-basic.component",
                                 nameBuilder = templateNameAsTsFileName, fragments = {
@@ -628,7 +628,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         modules.invoke(model).forEach {module ->
             compGenerators.addAll(
                 listOf(
-                    GeneratorSimple(
+                    GeneratorAngular(
                         "AngularModule", contextBuilder = angularContextBuilder,
                         template = FragmentsTemplate(name = "${module.name().toLowerCase()}-model.module",
                             nameBuilder = templateNameAsTsFileName, fragments = {
@@ -640,7 +640,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                             }
                         )
                     ),
-                    GeneratorSimple(
+                    GeneratorAngular(
                         "AngularRoutingModule", contextBuilder = angularContextBuilder,
                         template = FragmentsTemplate(name = "${module.name().toLowerCase()}-routing.module",
                             nameBuilder = templateNameAsTsFileName, fragments = {
@@ -690,7 +690,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         modules.invoke(model).forEach {module ->
             compGenerators.addAll(
                 listOf(
-                    GeneratorSimple(
+                    GeneratorAngular(
                         "ModuleHtml", contextBuilder = angularContextBuilder,
                         template = FragmentsTemplate(name = "${module.name().toLowerCase()}-module-view.component",
                             nameBuilder = templateNameAsHTMLFileName, fragments = {
@@ -702,7 +702,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                             }
                         )
                     ),
-                    GeneratorSimple(
+                    GeneratorAngular(
                         "ModuleScss", contextBuilder = angularContextBuilder,
                         template = FragmentsTemplate(name = "${fileNamePrefix}${module.name().toLowerCase()}-module-view.component",
                             nameBuilder = templateNameAsCSSFileName, fragments = {
@@ -720,7 +720,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             module.entities().forEach {entity ->
                 compGenerators.addAll(
                     listOf(
-                        GeneratorSimple(
+                        GeneratorAngular(
                             "EntityViewHtml", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-view.component",
                                 nameBuilder = templateNameAsHTMLFileName, fragments = {
@@ -732,7 +732,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                 }
                             )
                         ),
-                        GeneratorSimple(
+                        GeneratorAngular(
                             "EntityViewScss", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-view.component",
                                 nameBuilder = templateNameAsCSSFileName, fragments = {
@@ -744,7 +744,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                 }
                             )
                         ),
-                        GeneratorSimple(
+                        GeneratorAngular(
                             "EntityFormHtml", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-form.component",
                                 nameBuilder = templateNameAsHTMLFileName, fragments = {
@@ -756,7 +756,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                 }
                             )
                         ),
-                        GeneratorSimple(
+                        GeneratorAngular(
                             "EntityFormScss", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-form.component",
                                 nameBuilder = templateNameAsCSSFileName, fragments = {
@@ -768,7 +768,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                 }
                             )
                         ),
-                        GeneratorSimple(
+                        GeneratorAngular(
                             "EntityListHtml", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-list.component",
                                 nameBuilder = templateNameAsHTMLFileName, fragments = {
@@ -780,7 +780,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                 }
                             )
                         ),
-                        GeneratorSimple(
+                        GeneratorAngular(
                             "EntityListScss", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${entity.name().toLowerCase()}-entity-list.component",
                                 nameBuilder = templateNameAsCSSFileName, fragments = {
@@ -799,7 +799,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             module.basics().forEach {basic ->
                 compGenerators.addAll(
                     listOf(
-                        GeneratorSimple(
+                        GeneratorAngular(
                             "BasicHtml", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${basic.name().toLowerCase()}-basic.component",
                                 nameBuilder = templateNameAsHTMLFileName, fragments = {
@@ -811,7 +811,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                 }
                             )
                         ),
-                        GeneratorSimple(
+                        GeneratorAngular(
                             "BasicScss", contextBuilder = angularContextBuilder,
                             template = FragmentsTemplate(name = "${module.name()}_${basic.name().toLowerCase()}-basic.component",
                                 nameBuilder = templateNameAsCSSFileName, fragments = {
