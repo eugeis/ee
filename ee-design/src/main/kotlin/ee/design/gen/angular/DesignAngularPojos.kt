@@ -1,5 +1,5 @@
 import ee.common.ext.joinSurroundIfNotEmptyToString
-import ee.design.EntityI
+import ee.common.ext.then
 import ee.design.ModuleI
 import ee.lang.*
 
@@ -20,6 +20,11 @@ ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
 ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleImportBasics()
     }}
+${this.entities().any { entity ->
+        entity.props().any {
+            it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase()
+        }
+    }.then {this.toAngularImportOtherModules()}}    
 
 @${c.n("NgModule")}({
     declarations: [
@@ -38,6 +43,11 @@ ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") 
         FormsModule,
         ReactiveFormsModule,
         MaterialModule,
+        ${this.entities().any { entity ->
+        entity.props().any {
+            it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase()
+        }
+    }.then {this.toAngularImportOtherModulesOnImportPart()}}
     ],
     providers: [],
     exports: [
@@ -50,6 +60,35 @@ ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") 
     ]
 })
 export class ${this.name().capitalize()}Module {}"""
+}
+
+fun <T : ModuleI<*>> T.toAngularImportOtherModules(): String {
+    val sb = StringBuilder()
+    val importedOtherModules: MutableList<String> = ArrayList()
+    this.entities().forEach { entity ->
+        entity.props().filter { it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase() }.forEach {
+            importedOtherModules.add("import {${it.type().parent().name()}Module} from '@${it.type().parent().parent().name().toLowerCase()}/${it.type().parent().name().toLowerCase()}/${it.type().parent().name().toLowerCase()}-model.module';")
+        }
+    }
+    importedOtherModules.distinct().forEach {
+        sb.append(it + "\n")
+    }
+    return sb.toString()
+}
+
+fun <T : ModuleI<*>> T.toAngularImportOtherModulesOnImportPart(): String {
+    val sb = StringBuilder()
+    val importedOtherModules: MutableList<String> = ArrayList()
+    this.entities().forEach { entity ->
+        entity.props().filter { it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase() }.forEach {
+            importedOtherModules.add("${it.type().parent().name()}Module,")
+        }
+    }
+    importedOtherModules.distinct().forEach {
+        sb.append(it)
+        sb.append(("\n${tab + tab}"))
+    }
+    return sb.toString()
 }
 
 fun <T : ModuleI<*>> T.toAngularRoutingModule(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
