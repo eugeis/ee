@@ -60,6 +60,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
             "date", "list" -> it.toHTMLDateForm(tab)
             "string", "text" -> it.toHTMLStringForm(tab)
             "blob" -> it.toHTMLUploadForm(tab)
+            "float", "int" -> it.toHTMLNumberForm(tab)
             else -> when(it.type()) {
                 is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name())
                 else -> ""
@@ -76,7 +77,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
-            is EntityI<*> -> it.toHTMLObjectFormEntity(it.type().name())
+            is EntityI<*> -> it.toHTMLObjectFormEntity(it.type().name(), it.type().props().first { element -> element.type().name() == "String" })
             else -> ""
         }
     }}
@@ -92,10 +93,12 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTML(): String =
         when(it.type()) {
             is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name())
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
-            is EntityI<*> -> it.toHTMLObjectFormEntity(it.type().name())
+            is EntityI<*> -> it.toHTMLObjectFormBasic(it.type().name())
             else -> when(it.type().name().toLowerCase()) {
                 "boolean" -> it.toHTMLBooleanForm("")
                 "date", "list" -> it.toHTMLDateForm("")
+                "float", "int" -> it.toHTMLNumberForm("")
+                "blob" -> it.toHTMLUploadForm("")
                 else -> {it.toHTMLStringForm("")}
             }
         }
@@ -108,6 +111,14 @@ fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String): String {
         ${indent}<mat-form-field appearance="outline">
             ${indent}<mat-label>${this.name()}</mat-label>
             ${indent}<input matInput name="${this.name().toLowerCase()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
+        ${indent}</mat-form-field>"""
+}
+
+fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String): String {
+    return """
+        ${indent}<mat-form-field appearance="outline">
+            ${indent}<mat-label>${this.name()}</mat-label>
+            ${indent}<input matInput name="${this.name().toLowerCase()}" type="number" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
 
@@ -150,17 +161,34 @@ fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementName: String): S
         ${indent}</mat-form-field>"""
 }
 
+// ANGULAR ENTITY FORM HTML is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
 fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String): String {
     return """
         <app-${elementType.toLowerCase()} [parentName]="'${this.parent().name().capitalize()}'" [${elementType.toLowerCase()}]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}"></app-${elementType.toLowerCase()}>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String): String {
+fun <T : AttributeI<*>> T.toHTMLObjectFormBasic(elementType: String): String {
     return """
         <app-${elementType.toLowerCase()}-form [${elementType.toLowerCase()}]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}"></app-${elementType.toLowerCase()}-form>"""
 }
 
-fun <T : ItemI<*>> T.toAngularEntityListHTML(): String =
+fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: AttributeI<*>): String {
+    return """
+        <fieldset>
+            <legend>${elementType.toCamelCase().capitalize()}</legend>
+            <mat-form-field appearance="fill">
+                <mat-label>Select ${elementType.toCamelCase().capitalize()}</mat-label>
+                <input type="text" matInput [formControl]="${this.parent().name().toLowerCase()}DataService.control${elementType.toCamelCase().capitalize()}" [matAutocomplete]="auto${elementType.toCamelCase().capitalize()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
+                <mat-autocomplete #auto${elementType.toCamelCase().capitalize()}="matAutocomplete" [displayWith]="${this.parent().name().toLowerCase()}DataService.display${elementType.toCamelCase().capitalize()}">
+                    <mat-option *ngFor="let option of ${this.parent().name().toLowerCase()}DataService.filteredOptions${elementType.toCamelCase().capitalize()} | async" [value]="option">
+                        {{option.${key.name()}}}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+        </fieldset>"""
+}
+
+fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
     """<app-${this.parent().name().toLowerCase()} [pageName]="${this.name().toLowerCase()}DataService.pageName"></app-${this.parent().name().toLowerCase()}>
 <a class="newButton" [routerLink]="'./new'"
         routerLinkActive="active-link">
@@ -179,7 +207,77 @@ fun <T : ItemI<*>> T.toAngularEntityListHTML(): String =
     </a>
 </ng-template>
 
-<app-table [selection]="${this.name().toLowerCase()}DataService.selection" [isHidden]="${this.name().toLowerCase()}DataService.isHidden" [displayedColumns]="tableHeader"></app-table>
+<mat-form-field class="filter">
+    <mat-label>Filter</mat-label>
+    <input matInput (keyup)="${this.name().toLowerCase()}DataService.applyFilter(${"$"}event)" placeholder="Input Filter..." >
+</mat-form-field>
+
+<div class="mat-elevation-z8" style="overflow-x: scroll">
+    <table mat-table matSort [dataSource]="${this.name().toLowerCase()}DataService.dataSources">
+        <ng-container matColumnDef="Box">
+            <th mat-header-cell *matHeaderCellDef>
+                <section [style.visibility]="${this.name().toLowerCase()}DataService.isHidden? 'hidden': 'visible'">
+                    <mat-checkbox color="warn"
+                                  (change)="${"$"}event ? ${this.name().toLowerCase()}DataService.masterToggle() : null"
+                                  [checked]="${this.name().toLowerCase()}DataService.selection.hasValue() && ${this.name().toLowerCase()}DataService.allRowsSelected()"
+                                  [indeterminate]="${this.name().toLowerCase()}DataService.selection.hasValue() && !${this.name().toLowerCase()}DataService.allRowsSelected()"></mat-checkbox>
+                </section>
+            </th>
+            <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'box'">
+                <section [style.visibility]="${this.name().toLowerCase()}DataService.isHidden? 'hidden': 'visible'">
+                    <mat-checkbox color="warn"
+                                  (click)="${"$"}event.stopPropagation()"
+                                  (change)="${"$"}event ? ${this.name().toLowerCase()}DataService.selection.toggle(element) : null"
+                                  [checked]="${this.name().toLowerCase()}DataService.selection.isSelected(element)"></mat-checkbox>
+                </section>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="Actions">
+            <th mat-header-cell *matHeaderCellDef> ACTIONS </th>
+            <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'actions'">
+                <mat-menu #appMenu="matMenu">
+                    <ng-template matMenuContent>
+                        <button mat-menu-item (click)="${this.name().toLowerCase()}DataService.editItems(i, element)"><mat-icon>edit</mat-icon>
+                            <span>EDIT</span></button>
+                        <button mat-menu-item (click)="${this.name().toLowerCase()}DataService.removeItem(element)"><mat-icon>delete</mat-icon>
+                            <span>DELETE</span></button>
+                    </ng-template>
+                </mat-menu>
+
+                <button mat-icon-button [matMenuTriggerFor]="appMenu">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+            </td>
+        </ng-container>
+        
+        ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
+            when(it.type()) {
+                is EntityI<*> -> it.toAngularTableListEntity(it.type().name(), it.type().findParentNonInternal())
+                else -> it.toAngularTableList()
+            }
+        }}
+
+        <tr mat-header-row *matHeaderRowDef="tableHeader"></tr>
+        <tr mat-row *matRowDef="let row; columns: tableHeader;"></tr>
+    </table>
+</div>
+"""
+
+fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNonInternal: ItemI<*>?): String =
+    """
+<ng-container matColumnDef="${this.name()}-entity">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
+    <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${this.parent().name().toLowerCase()}DataService.searchItems(element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}')">{{element['${this.name()}']}}</a> </td>
+</ng-container>
+"""
+
+fun <T : ItemI<*>> T.toAngularTableList(): String =
+    """
+<ng-container matColumnDef="${this.name()}">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
+    <td mat-cell *matCellDef="let element"> {{element['${this.name()}']}} </td>
+</ng-container>
 """
 
 fun <T : ItemI<*>> T.toAngularModuleSCSS(): String =
@@ -202,7 +300,7 @@ fun <T : ItemI<*>> T.toAngularEntityViewSCSS(): String =
 
 """
 
-fun <T : ItemI<*>> T.toAngularEntityFormSCSS(): String =
+fun <T : CompilationUnitI<*>> T.toAngularEntityFormSCSS(): String =
     """form {
     position: relative;
     max-width: 80%;
@@ -232,6 +330,20 @@ fieldset {
         max-width: 50%;
     }
 }
+${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
+        when (it.type()) {
+            is BasicI<*>, is EntityI<*> -> it.toSCSSOtherFormStyle(it.type().name())
+            else -> ""
+        }
+    }
+}
+"""
+
+fun <T : ItemI<*>> T.toSCSSOtherFormStyle(elementType: String): String =
+    """app-${elementType.toLowerCase()}-form {
+    position: relative;
+    left: -10%;
+}
 """
 
 fun <T : ItemI<*>> T.toAngularBasicSCSS(): String =
@@ -247,12 +359,27 @@ fun <T : ItemI<*>> T.toAngularBasicSCSS(): String =
 """
 
 fun <T : ItemI<*>> T.toAngularEntityListSCSS(): String =
-    """app-table {
+    """div {
     position: absolute;
     width: 80% !important;
     z-index: 1;
-    top: 30%;
+    top: 40%;
     left: 10%;
+}
+
+table {
+    width: 100%;
+}
+
+table td, table th {
+    padding: 2px 20px;
+}
+
+.filter {
+    position: absolute;
+    left: 10%;
+    top: 30%;
+    width: 80% !important;
 }
 
 a {
@@ -276,13 +403,13 @@ a {
 }
 
 @media screen and (max-width: 1000px) {
-    app-table {
+    div {
         max-width: 70%;
     }
 }
 
 @media screen and (max-width: 585px) {
-    app-table {
+    div {
         max-width: 60%;
     }
 

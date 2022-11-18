@@ -1,8 +1,10 @@
 package ee.lang.gen.ts
 
 import ee.common.ext.*
+import ee.design.EntityI
 import ee.lang.*
 import ee.lang.gen.java.j
+import javax.swing.text.html.parser.Entity
 
 fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
     val baseType = findDerivedOrThis()
@@ -243,22 +245,30 @@ fun <T : ItemI<*>> T.toAngularBasicGenerateComponentPart(c: GenerationContext): 
 fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
     return """${indent}ngOnInit(): void {
         this.tableHeader = this.generateTableHeader();
+        this.${this.name().toLowerCase()}DataService.checkSearchRoute();
+        if (this.${this.name().toLowerCase()}DataService.isSearch) {
+            this.${this.name().toLowerCase()}DataService.loadSearchData()
+        } else {
+            this.${this.name().toLowerCase()}DataService.dataSources =
+                new MatTableDataSource(this.${this.name().toLowerCase()}DataService.changeMapToArray(
+                    this.${this.name().toLowerCase()}DataService.retrieveItemsFromCache()));
+        }
     }"""
 }
 
-fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext): String {
-    return when (this.type().toTypeScriptIfNative(c, "", this)) {
-        "boolean", "string", "number", "Date" -> """'${this.name().toCamelCase()}'"""
-        else -> {
-            when (this.type().props().size) {
-                0 -> """'${this.name().toCamelCase()}'"""
-                else -> {
-                    this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
-                        it.toTypeScriptTypeProperty(c, this)
-                    }
-                }
-            }
+/*when (this.type().props().size) {
+    0 -> """'${this.name().toCamelCase()}'"""
+    else -> {
+        this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
+            it.toTypeScriptTypeProperty(c, this)
         }
+    }
+}*/
+fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext): String {
+    return when (this.type()) {
+        /*is BasicI<*> -> """'${this.name().toLowerCase()}-entity'"""*/
+        is EntityI<*> -> """'${this.name().toLowerCase()}-entity'"""
+        else -> """'${this.name().toCamelCase()}'"""
     }
 }
 

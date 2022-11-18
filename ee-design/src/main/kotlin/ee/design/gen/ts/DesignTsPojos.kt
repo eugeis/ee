@@ -1,5 +1,6 @@
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
+import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.*
@@ -49,9 +50,14 @@ ${this.toAngularViewOnInit(c, tab)}
 fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                               api: String = LangDerivedKind.API): String {
     return """import {Component, OnInit, Input} from '@angular/core';
-import {TableDataService} from '@template/services/data.service';
 import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
-
+${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+    when(it.type()) {
+        is EntityI<*> -> it.type().toAngularImportEntityComponent(it.type().findParentNonInternal())
+        else -> ""
+    }
+}}
+    
 ${this.toAngularGenerateComponentPart(c, "entity", "form", hasProviders = false, hasClass = false)}
 ${isOpen().then("export ")}class ${c.n(this)}FormComponent implements ${c.n("OnInit")} {
 
@@ -59,7 +65,13 @@ ${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString(""
         it.type().toAngularGenerateEnumElement(c, tab, this)
     }}
 ${this.toTypeScriptFormProp(c, tab)}
-${this.toAngularConstructorDataService(tab)}
+    constructor(public ${this.name().toLowerCase()}DataService: ${this.name()}DataService, 
+${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+    when(it.type()) {
+        is EntityI<*> -> it.type().toAngularPropOnConstructor()
+        else -> ""
+    }
+}}) {}
 ${this.toAngularFormOnInit(c, tab)}
 }
 """
@@ -67,17 +79,24 @@ ${this.toAngularFormOnInit(c, tab)}
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityListTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                               api: String = LangDerivedKind.API): String {
-    return """import {Component, OnInit} from '@angular/core';
+    return """import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {TableDataService} from '@template/services/data.service';
 import {${this.name()}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
+import {MatTableDataSource} from '@angular/material/table';
+import {MatSort} from '@angular/material/sort';
 
 ${this.toAngularGenerateComponentPart(c, "entity", "list", hasProviders = true, hasClass = true)}
-${isOpen().then("export ")}class ${c.n(this)}ListComponent implements ${c.n("OnInit")} {
+${isOpen().then("export ")}class ${c.n(this)}ListComponent implements ${c.n("OnInit")}, ${c.n("AfterViewInit")} {
 
 ${this.toTypeScriptEntityPropInit(c, tab)}
     tableHeader: Array<String> = [];
+    
+    @ViewChild(MatSort) sort: MatSort;
 
 ${this.toAngularConstructorDataService(tab)}
+    ngAfterViewInit() {
+        this.${this.name().toLowerCase()}DataService.dataSources.sort = this.sort;
+    }
 ${this.toAngularListOnInit(tab)}
 
     generateTableHeader() {
@@ -91,9 +110,18 @@ ${this.toAngularListOnInit(tab)}
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                            api: String = LangDerivedKind.API): String {
-    return """import {Injectable} from '@angular/core';
+    return """
+${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+    when(it.type()) {
+        is EntityI<*> -> it.type().toAngularControlServiceImport(it.type().findParentNonInternal())
+        else -> ""
+    }
+}}
+import {Injectable} from '@angular/core';
 import {TableDataService} from '@template/services/data.service';
-import {SelectionModel} from '@angular/cdk/collections';
+import {FormControl} from '@angular/forms';
+import {Observable} from 'rxjs';
+import {map, startWith} from 'rxjs/operators';
 
 @${c.n("Injectable")}()
 ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataService {
@@ -103,6 +131,13 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     
     isHidden = true;
     
+    ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+        when(it.type()) {
+            is EntityI<*> -> it.type().toAngularControlService()
+            else -> ""
+        }
+    }}
+    
     ${this.props().filter { it.type().name().toLowerCase() == "blob" }.joinSurroundIfNotEmptyToString { 
         """
     selectedFiles?: FileList;
@@ -111,14 +146,28 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     """
     }}
 
-    selection = new ${c.n("SelectionModel")}<any>(true, []);
-
     getFirst() {
         return new ${c.n(this)}();
     }
     
     toggleHidden() {
         this.isHidden = !this.isHidden;
+    }
+    
+    ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+        when(it.type()) {
+            is EntityI<*> -> it.type().toAngularControlServiceFunctions(it.type().props().first { element -> element.type().name() == "String" })
+            else -> ""
+        }
+    }}
+    
+    initObservable() {
+    ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+        when(it.type()) {
+            is EntityI<*> -> it.type().toAngularInitObservable(it.type().props().first { element -> element.type().name() == "String" })
+            else -> ""
+        }
+    }}
     }
     
     ${this.props().filter { it.type().name().toLowerCase() == "blob" }.joinSurroundIfNotEmptyToString {
