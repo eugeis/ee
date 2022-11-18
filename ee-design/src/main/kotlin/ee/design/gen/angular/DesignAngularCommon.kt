@@ -209,7 +209,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
 
 <mat-form-field class="filter">
     <mat-label>Filter</mat-label>
-    <input matInput (keyup)="${this.name().toLowerCase()}DataService.applyFilter(${"$"}event)" placeholder="Input Filter..." >
+    <input matInput (keyup)="${this.name().toLowerCase()}DataService.applyFilter(${"$"}event)" placeholder="Input Filter..." [ngModel]="{this.name().toLowerCase()}DataService.filterValue">
 </mat-form-field>
 
 <div class="mat-elevation-z8" style="overflow-x: scroll">
@@ -266,18 +266,18 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
 
 fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNonInternal: ItemI<*>?): String =
     """
-<ng-container matColumnDef="${this.name()}-entity">
-    <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
-    <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${this.parent().name().toLowerCase()}DataService.searchItems(element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}')">{{element['${this.name()}']}}</a> </td>
-</ng-container>
+        <ng-container matColumnDef="${this.name()}-entity">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
+            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${this.parent().name().toLowerCase()}DataService.searchItems(element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}')">{{element['${this.name()}']}}</a> </td>
+        </ng-container>
 """
 
 fun <T : ItemI<*>> T.toAngularTableList(): String =
     """
-<ng-container matColumnDef="${this.name()}">
-    <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
-    <td mat-cell *matCellDef="let element"> {{element['${this.name()}']}} </td>
-</ng-container>
+        <ng-container matColumnDef="${this.name()}">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
+            <td mat-cell *matCellDef="let element"> {{element['${this.name()}']}} </td>
+        </ng-container>
 """
 
 fun <T : ItemI<*>> T.toAngularModuleSCSS(): String =
