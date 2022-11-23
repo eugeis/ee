@@ -267,7 +267,7 @@ fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
 fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext): String {
     return when (this.type()) {
         /*is BasicI<*> -> """'${this.name().toLowerCase()}-entity'"""*/
-        is EntityI<*> -> """'${this.name().toLowerCase()}-entity'"""
+        is EntityI<*>, is ValuesI<*> -> """'${this.name().toLowerCase()}-entity'"""
         else -> """'${this.name().toCamelCase()}'"""
     }
 }

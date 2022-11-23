@@ -61,13 +61,13 @@ fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): 
 fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent: String): String {
 
     return """${indent}ngOnInit(): void {
-        ${this.props().filter { it.type() is BasicI<*> || it.type() is EntityI<*> }.joinSurroundIfNotEmptyToString(nL + tab) {
+        ${this.props().filter { it.type() is BasicI<*> || it.type() is EntityI<*> || it.type() is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL + tab) {
         it.toAngularEmptyProps(c, indent, it.type())
     }.trim()}
     
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
 when(it.type()) {
-    is EntityI<*> -> it.toAngularInitOption(it.type().name())
+    is EntityI<*>, is ValuesI<*> -> it.toAngularInitOption(it.type().name())
     else -> ""
 }
     }}

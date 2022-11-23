@@ -45,7 +45,7 @@ fun <T : ItemI<*>> T.toAngularEntityViewHTML(): String =
 
 <app-${this.name().toLowerCase()}-form [${this.name().toLowerCase()}]="${this.name().toLowerCase()}"></app-${this.name().toLowerCase()}-form>
 
-<app-button [element]="${this.name().toLowerCase()}" [isEdit]="${this.name().toLowerCase()}DataService.isEdit" [itemIndex]="${this.name().toLowerCase()}DataService.itemIndex"></app-button>
+<app-button [element]="${this.name().toLowerCase()}" [isEdit]="${this.name().toLowerCase()}DataService.isEdit"></app-button>
 """
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
@@ -54,7 +54,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
     <form class="${this.name().toLowerCase()}-form">
         <fieldset>
             <legend>${this.name().capitalize()}</legend>
-            ${this.props().filter { it.type() !is BasicI<*> && it.type() !is EntityI<*> }.joinSurroundIfNotEmptyToString(nL) {
+            ${this.props().filter { it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type().name().toLowerCase()) {
             "boolean" -> it.toHTMLBooleanForm(tab)
             "date", "list" -> it.toHTMLDateForm(tab)
@@ -77,7 +77,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
-            is EntityI<*> -> it.toHTMLObjectFormEntity(it.type().name(), it.type().props().first { element -> element.type().name() == "String" })
+            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntity(it.type().name(), it.type().props().first { element -> element.type().name() == "String" })
             else -> ""
         }
     }}
@@ -93,7 +93,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTML(): String =
         when(it.type()) {
             is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name())
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
-            is EntityI<*> -> it.toHTMLObjectFormBasic(it.type().name())
+            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormBasic(it.type().name())
             else -> when(it.type().name().toLowerCase()) {
                 "boolean" -> it.toHTMLBooleanForm("")
                 "date", "list" -> it.toHTMLDateForm("")
@@ -209,7 +209,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
 
 <mat-form-field class="filter">
     <mat-label>Filter</mat-label>
-    <input matInput (keyup)="${this.name().toLowerCase()}DataService.applyFilter(${"$"}event)" placeholder="Input Filter..." [ngModel]="{this.name().toLowerCase()}DataService.filterValue">
+    <input matInput (keyup)="${this.name().toLowerCase()}DataService.applyFilter(${"$"}event)" placeholder="Input Filter..." [ngModel]="${this.name().toLowerCase()}DataService.filterValue">
 </mat-form-field>
 
 <div class="mat-elevation-z8" style="overflow-x: scroll">
@@ -253,7 +253,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
         
         ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
             when(it.type()) {
-                is EntityI<*> -> it.toAngularTableListEntity(it.type().name(), it.type().findParentNonInternal())
+                is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntity(it.type().name(), it.type().findParentNonInternal())
                 else -> it.toAngularTableList()
             }
         }}
@@ -268,7 +268,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNon
     """
         <ng-container matColumnDef="${this.name()}-entity">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
-            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${this.parent().name().toLowerCase()}DataService.searchItems(element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}')">{{element['${this.name()}']}}</a> </td>
+            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${this.parent().name().toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${this.parent().name().toLowerCase()}')">{{element['${this.name()}']}}</a> </td>
         </ng-container>
 """
 
@@ -332,7 +332,7 @@ fieldset {
 }
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
         when (it.type()) {
-            is BasicI<*>, is EntityI<*> -> it.toSCSSOtherFormStyle(it.type().name())
+            is BasicI<*>, is EntityI<*>, is ValuesI<*> -> it.toSCSSOtherFormStyle(it.type().name())
             else -> ""
         }
     }

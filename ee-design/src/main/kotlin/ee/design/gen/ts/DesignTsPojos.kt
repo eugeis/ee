@@ -53,7 +53,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationConte
 import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
     when(it.type()) {
-        is EntityI<*> -> it.type().toAngularImportEntityComponent(it.type().findParentNonInternal())
+        is EntityI<*>, is ValuesI<*> -> it.type().toAngularImportEntityComponent(it.type().findParentNonInternal())
         else -> ""
     }
 }}
@@ -68,7 +68,7 @@ ${this.toTypeScriptFormProp(c, tab)}
     constructor(public ${this.name().toLowerCase()}DataService: ${this.name()}DataService, 
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
     when(it.type()) {
-        is EntityI<*> -> it.type().toAngularPropOnConstructor()
+        is EntityI<*>, is ValuesI<*> -> it.type().toAngularPropOnConstructor()
         else -> ""
     }
 }}) {}
@@ -113,7 +113,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(c: GenerationContext,
     return """
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
     when(it.type()) {
-        is EntityI<*> -> it.type().toAngularControlServiceImport(it.type().findParentNonInternal())
+        is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlServiceImport(it.type().findParentNonInternal())
         else -> ""
     }
 }}
@@ -133,7 +133,7 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*> -> it.type().toAngularControlService()
+            is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlService()
             else -> ""
         }
     }}
@@ -156,7 +156,7 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*> -> it.type().toAngularControlServiceFunctions(it.type().props().first { element -> element.type().name() == "String" })
+            is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlServiceFunctions(it.type().props().first { element -> element.type().name() == "String" })
             else -> ""
         }
     }}
@@ -164,7 +164,7 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     initObservable() {
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*> -> it.type().toAngularInitObservable(it.type().props().first { element -> element.type().name() == "String" })
+            is EntityI<*>, is ValuesI<*> -> it.type().toAngularInitObservable(it.type().props().first { element -> element.type().name() == "String" })
             else -> ""
         }
     }}
