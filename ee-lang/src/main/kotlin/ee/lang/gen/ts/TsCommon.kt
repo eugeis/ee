@@ -266,18 +266,36 @@ fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
 }*/
 fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext): String {
     return when (this.type()) {
-        /*is BasicI<*> -> """'${this.name().toLowerCase()}-entity'"""*/
         is EntityI<*>, is ValuesI<*> -> """'${this.name().toLowerCase()}-entity'"""
-        else -> """'${this.name().toCamelCase()}'"""
+        else -> {
+            when (this.type().toTypeScriptIfNative(c, "", this)) {
+                "boolean", "string", "number", "Date" -> """'${this.name().toCamelCase()}'"""
+                else -> {
+                    when (this.type().props().size) {
+                        0 -> """'${this.name().toCamelCase()}'"""
+                        else -> {
+                            this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
+                                it.toTypeScriptTypeProperty(c, this)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
 fun <T : AttributeI<*>> T.toTypeScriptTypeProperty(c: GenerationContext, elementParent: AttributeI<*>): String {
-    return when (this.type().props().size) {
-        0 -> """'${this.name().toCamelCase()}'"""
+    return when (this.type()) {
+        is EntityI<*>, is ValuesI<*> -> """'${this.name().toLowerCase()}-entity'"""
         else -> {
-            this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
-                it.toTypeScriptTypeProperty(c, elementParent)
+            when (this.type().props().size) {
+                0 -> """'${this.name().toCamelCase()}'"""
+                else -> {
+                    this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
+                        it.toTypeScriptTypeProperty(c, elementParent)
+                    }
+                }
             }
         }
     }

@@ -10,8 +10,7 @@ fun <T : ModuleI<*>> T.toAngularModuleTypeScript(c: GenerationContext, derived: 
     return """import {Component, Input} from '@angular/core';
 ${this.toAngularModuleImportServices()}
 ${this.toAngularGenerateComponentPart(c, "module", "view", hasProviders = true, hasClass = false)}
-export class ${this.name()}ViewComponent {${"\n"}
-${this.toAngularModuleInputElement(c, "pageName", tab)}       
+export class ${this.name()}ViewComponent {${"\n"}  
 ${this.toAngularModuleConstructor(tab)}
 }"""
 }
@@ -26,7 +25,7 @@ fun <T : ModuleI<*>> T.toAngularModuleService(modules: List<ModuleI<*>>, c: Gene
         it.toAngularModuleTabElement()
     }}];
 
-    pageName = '${this.name()}Component';
+    pageName = '${this.name()}';
 }
 """
 }

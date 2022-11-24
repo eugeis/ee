@@ -166,10 +166,6 @@ fun <T : ItemI<*>> T.toAngularModuleImportServices(): String {
     return """import {${this.name()}ViewService} from '@${this.parent().name().decapitalize()}/${this.name()}/service/${this.name().toLowerCase()}-module-view.service';$nL"""
 }
 
-fun <T : ItemI<*>> T.toAngularModuleInputElement(c: GenerationContext, name: String, indent: String): String {
-    return """${indent}@${c.n("Input")}() $name = '${this.name()}Component';$nL"""
-}
-
 fun <T : ItemI<*>> T.toAngularModuleConstructor(indent: String): String {
     return """${indent}constructor(public ${this.name().toLowerCase()}ViewService: ${this.name()}ViewService) {}$nL"""
 }

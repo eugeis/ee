@@ -2,46 +2,13 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.toCamelCase
 import ee.design.EntityI
 import ee.lang.*
-import ee.lang.gen.ts.toTypeScriptIfNative
 
 fun <T : ItemI<*>> T.toAngularModuleHTML(): String =
-    """<mat-sidenav-container>
-    <mat-sidenav opened="true" disableClose="true" position="end" #drawer
-                 [mode]="'side'" [fixedInViewport]="true">
-        <mat-nav-list>
-            <a *ngFor="let pageName of ${this.name().toLowerCase()}ViewService.pageElement"
-               mat-list-item
-               routerLinkActive="active-link"
-               [routerLink]="'/' + pageName.toLowerCase()"
-            >{{pageName.toUpperCase()}}</a>
-        </mat-nav-list>
-    </mat-sidenav>
-
-    <mat-sidenav-content>
-        <mat-toolbar>
-            <span>{{pageName}}</span>
-
-            <span class="toolbar-space"></span>
-
-            <button mat-icon-button (click)="drawer.toggle()">
-                <mat-icon>menu</mat-icon>
-            </button>
-        </mat-toolbar>
-
-        <nav mat-tab-nav-bar>
-            <div *ngFor="let pageTabsName of ${this.name().toLowerCase()}ViewService.tabElement">
-                <a mat-tab-link
-                   [routerLink]="'/${this.name().toLowerCase()}' + '/' + pageTabsName.toLowerCase()"
-                   routerLinkActive="active-link"
-                >{{pageTabsName.toUpperCase()}}
-                </a>
-            </div>
-        </nav>
-    </mat-sidenav-content>
-</mat-sidenav-container>"""
+    """<app-page [pageName]="${this.name().toLowerCase()}ViewService.pageName" [pageElement]="${this.name().toLowerCase()}ViewService.pageElement" [tabElement]="${this.name().toLowerCase()}ViewService.tabElement"></app-page>
+"""
 
 fun <T : ItemI<*>> T.toAngularEntityViewHTML(): String =
-    """<app-${this.parent().name().toLowerCase()} [pageName]="${this.name().toLowerCase()}DataService.pageName"></app-${this.parent().name().toLowerCase()}>
+    """<app-${this.parent().name().toLowerCase()}></app-${this.parent().name().toLowerCase()}>
 
 <app-${this.name().toLowerCase()}-form [${this.name().toLowerCase()}]="${this.name().toLowerCase()}"></app-${this.name().toLowerCase()}-form>
 
@@ -93,6 +60,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTML(): String =
         when(it.type()) {
             is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name())
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
+            // TODO: Implement ComboBox for Entity Element on Basic
             is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormBasic(it.type().name())
             else -> when(it.type().name().toLowerCase()) {
                 "boolean" -> it.toHTMLBooleanForm("")
@@ -161,7 +129,6 @@ fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementName: String): S
         ${indent}</mat-form-field>"""
 }
 
-// ANGULAR ENTITY FORM HTML is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
 fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String): String {
     return """
         <app-${elementType.toLowerCase()} [parentName]="'${this.parent().name().capitalize()}'" [${elementType.toLowerCase()}]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}"></app-${elementType.toLowerCase()}>"""
@@ -189,7 +156,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: Attri
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
-    """<app-${this.parent().name().toLowerCase()} [pageName]="${this.name().toLowerCase()}DataService.pageName"></app-${this.parent().name().toLowerCase()}>
+    """<app-${this.parent().name().toLowerCase()}></app-${this.parent().name().toLowerCase()}>
 <a class="newButton" [routerLink]="'./new'"
         routerLinkActive="active-link">
     <mat-icon>add_circle_outline</mat-icon> Add New Item
@@ -254,6 +221,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
         ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
             when(it.type()) {
                 is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntity(it.type().name(), it.type().findParentNonInternal())
+                is BasicI<*> -> this.toAngularTableListBasic(it.parent().name())
                 else -> it.toAngularTableList()
             }
         }}
@@ -266,9 +234,27 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
 
 fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNonInternal: ItemI<*>?): String =
     """
-        <ng-container matColumnDef="${this.name()}-entity">
+        <ng-container matColumnDef="${this.name().toLowerCase()}-entity">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
-            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${this.parent().name().toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${this.parent().name().toLowerCase()}')">{{element['${this.name()}']}}</a> </td>
+            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${this.parent().name().toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${this.parent().name().toLowerCase()}')">{{element['${this.name().toLowerCase()}']}}</a> </td>
+        </ng-container>
+"""
+
+fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String): String =
+    this.props().filter { !isEMPTY() }.joinSurroundIfNotEmptyToString("") {
+        when(it.type()) {
+            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName)
+            is BasicI<*> -> it.type().toAngularTableListBasic(parentName)
+            else -> it.toAngularTableList()
+        }
+    }
+
+
+fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String): String =
+    """
+        <ng-container matColumnDef="${this.name().toLowerCase()}-entity">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
+            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${this.parent().name().toLowerCase()}')">{{element['${this.name().toLowerCase()}']}}</a> </td>
         </ng-container>
 """
 
@@ -281,16 +267,7 @@ fun <T : ItemI<*>> T.toAngularTableList(): String =
 """
 
 fun <T : ItemI<*>> T.toAngularModuleSCSS(): String =
-    """.toolbar-space {
-    flex: 1 1 auto;
-}
-
-mat-sidenav-container {
-    position: relative;
-    width: 100%;
-    z-index: 2;
-}
-"""
+    """host{}"""
 
 fun <T : ItemI<*>> T.toAngularEntityViewSCSS(): String =
     """app-button {
