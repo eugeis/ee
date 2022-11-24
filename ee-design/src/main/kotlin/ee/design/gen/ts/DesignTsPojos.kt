@@ -122,7 +122,7 @@ import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
 
-@${c.n("Injectable")}()
+@${c.n("Injectable")}({ providedIn: 'root' })
 ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataService {
     itemName = '${c.n(this).toLowerCase()}';
 
