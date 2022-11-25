@@ -13,6 +13,11 @@ import {CommonModule} from '@angular/common';
 import {TemplateModule} from '@template/template.module';
 import {MaterialModule} from '@template/material.module';
 
+import {HttpClient} from '@angular/common/http';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {TemplateTranslateService} from '@template/services/translate.service';
+import {TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
+
 import {${this.name().capitalize()}ViewComponent} from './components/view/${this.name().toLowerCase()}-module-view.component';
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleImportEntities()
@@ -25,6 +30,10 @@ ${this.entities().any { entity ->
             it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase()
         }
     }.then {this.toAngularImportOtherModules()}}    
+
+export function HttpLoaderFactory(http: ${c.n("HttpClient")}) {
+    return new TranslateHttpLoader(http);
+}
 
 @${c.n("NgModule")}({
     declarations: [
@@ -43,13 +52,18 @@ ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") 
         FormsModule,
         ReactiveFormsModule,
         MaterialModule,
+        ${c.n("TranslateModule")}.forChild({
+            loader: {provide: ${c.n("TranslateLoader")}, useFactory: HttpLoaderFactory, deps: [${c.n("HttpClient")}]},
+        }),
         ${this.entities().any { entity ->
         entity.props().any {
             it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase()
         }
     }.then {this.toAngularImportOtherModulesOnImportPart()}}
     ],
-    providers: [],
+    providers: [
+        { provide: ${c.n("TranslateService")}, useExisting: ${c.n("TemplateTranslateService")} }
+    ],
     exports: [
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
         it.toAngularModuleExportViews(tab + tab)
