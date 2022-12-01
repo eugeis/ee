@@ -483,6 +483,12 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             if (this is ModuleI<*>) listOf(this) else findDownByType(ModuleI::class.java)
         }
 
+        val enums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
+            findDownByType(EnumTypeI::class.java).filter {
+                it.parent() is StructureUnitI<*> && it.derivedAsType().isEmpty()
+            }.sortedBy { it.name() }
+        }
+
         val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
             findDownByType(BasicI::class.java).filter { it.derivedAsType().isEmpty() }
                 .sortedBy { "${it.javaClass.simpleName} ${name()}" }
@@ -582,6 +588,25 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                         ),
                     )
                 )
+
+                entity.props().filter { it.type() is EnumTypeI<*> }.forEach { enum ->
+                    compGenerators.addAll(
+                        listOf(
+                            GeneratorAngular(
+                                "EnumTypeScript", contextBuilder = tsContextBuilder,
+                                template = FragmentsTemplate(name = "${module.name()}_${enum.type().name().toLowerCase()}-enum.component",
+                                    nameBuilder = templateNameAsTsFileName, fragments = {
+                                        listOf(
+                                            ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = enums,
+                                                fragments = {
+                                                    listOf<Template<CompilationUnitI<*>>>(tsTemplates.enumTypeScript(enum.parent())).filter { this.name() == enum.type().name() }}),
+                                        )
+                                    }
+                                )
+                            )
+                        )
+                    )
+                }
             }
 
             module.basics().forEach {basic ->
@@ -601,6 +626,25 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                         ),
                     )
                 )
+
+                basic.props().filter { it.type() is EnumTypeI<*> }.forEach { enum ->
+                    compGenerators.addAll(
+                        listOf(
+                            GeneratorAngular(
+                                "EnumTypeScript", contextBuilder = tsContextBuilder,
+                                template = FragmentsTemplate(name = "${module.name()}_${enum.type().name().toLowerCase()}-enum.component",
+                                    nameBuilder = templateNameAsTsFileName, fragments = {
+                                        listOf(
+                                            ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = enums,
+                                                fragments = {
+                                                    listOf<Template<CompilationUnitI<*>>>(tsTemplates.enumTypeScript(enum.parent())).filter { this.name() == enum.type().name() }}),
+                                        )
+                                    }
+                                )
+                            )
+                        )
+                    )
+                }
             }
         }
 
@@ -669,6 +713,12 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         }
         val modules: StructureUnitI<*>.() -> List<ModuleI<*>> = {
             if (this is ModuleI<*>) listOf(this) else findDownByType(ModuleI::class.java)
+        }
+
+        val enums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
+            findDownByType(EnumTypeI::class.java).filter {
+                it.parent() is StructureUnitI<*> && it.derivedAsType().isEmpty()
+            }.sortedBy { it.name() }
         }
 
         val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
@@ -794,6 +844,37 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                         ),
                     )
                 )
+
+                entity.props().filter { it.type() is EnumTypeI }.forEach { enum ->
+                    compGenerators.addAll(
+                        listOf(
+                            GeneratorAngular(
+                                "EnumHtml", contextBuilder = angularContextBuilder,
+                                template = FragmentsTemplate(name = "${module.name()}_${enum.type().name().toLowerCase()}-enum.component",
+                                    nameBuilder = templateNameAsHTMLFileName, fragments = {
+                                        listOf(
+                                            ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = enums,
+                                                fragments = {
+                                                    listOf<Template<CompilationUnitI<*>>>(angularTemplates.enumHTML(enum.parent(), enum.name())).filter { this.name() == enum.type().name() } }),
+                                        )
+                                    }
+                                )
+                            ),
+                            GeneratorAngular(
+                                "EnumScss", contextBuilder = angularContextBuilder,
+                                template = FragmentsTemplate(name = "${module.name()}_${enum.type().name().toLowerCase()}-enum.component",
+                                    nameBuilder = templateNameAsCSSFileName, fragments = {
+                                        listOf(
+                                            ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = enums,
+                                                fragments = {
+                                                    listOf<Template<CompilationUnitI<*>>>(angularTemplates.enumSCSS()).filter { this.name() == enum.type().name() } }),
+                                        )
+                                    }
+                                )
+                            ),
+                        )
+                    )
+                }
             }
 
             module.basics().forEach {basic ->
@@ -825,6 +906,37 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                         ),
                     )
                 )
+
+                basic.props().filter { it.type() is EnumTypeI }.forEach { enum ->
+                    compGenerators.addAll(
+                        listOf(
+                            GeneratorAngular(
+                                "EnumHtml", contextBuilder = angularContextBuilder,
+                                template = FragmentsTemplate(name = "${module.name()}_${enum.type().name().toLowerCase()}-enum.component",
+                                    nameBuilder = templateNameAsHTMLFileName, fragments = {
+                                        listOf(
+                                            ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = enums,
+                                                fragments = {
+                                                    listOf<Template<CompilationUnitI<*>>>(angularTemplates.enumHTML(enum.parent(), enum.name())).filter { this.name() == enum.type().name() } }),
+                                        )
+                                    }
+                                )
+                            ),
+                            GeneratorAngular(
+                                "EnumScss", contextBuilder = angularContextBuilder,
+                                template = FragmentsTemplate(name = "${module.name()}_${enum.type().name().toLowerCase()}-enum.component",
+                                    nameBuilder = templateNameAsCSSFileName, fragments = {
+                                        listOf(
+                                            ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = enums,
+                                                fragments = {
+                                                    listOf<Template<CompilationUnitI<*>>>(angularTemplates.enumSCSS()).filter { this.name() == enum.type().name() } }),
+                                        )
+                                    }
+                                )
+                            ),
+                        )
+                    )
+                }
             }
         }
 

@@ -249,6 +249,14 @@ open class GeneratorAngular<M>(name: String, contextBuilder: ContextBuilder<M>, 
                             substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}")
                     path = pkg.resolve(newFileName)
                 }
+                contains("enum.component") -> {
+                    val lastIndexOfParent = path.toString().lastIndexOf("_")
+                    val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
+                    pkg = Paths.get(pkg.toString() +
+                            "\\${parentName}\\enums\\${template.name(model).fileName.
+                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}")
+                    path = pkg.resolve(newFileName)
+                }
             }
         }
 

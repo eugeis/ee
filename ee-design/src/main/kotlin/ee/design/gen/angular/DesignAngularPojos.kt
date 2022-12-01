@@ -25,6 +25,9 @@ ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
 ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleImportBasics()
     }}
+${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toAngularModuleImportEnums()
+    }}
 ${this.entities().any { entity ->
         entity.props().any {
             it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase()
@@ -38,11 +41,14 @@ export function HttpLoaderFactory(http: ${c.n("HttpClient")}) {
 @${c.n("NgModule")}({
     declarations: [
         ${this.name().capitalize()}ViewComponent,
-${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
+${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleDeclarationEntities(tab + tab)
-    }},
-${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
+    }}
+${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleDeclarationBasics(tab + tab)
+    }}
+${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toAngularModuleDeclarationEnums(tab + tab) 
     }}
     ],
     imports: [
@@ -65,11 +71,14 @@ ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") 
         { provide: ${c.n("TranslateService")}, useExisting: ${c.n("TemplateTranslateService")} }
     ],
     exports: [
-${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
+${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleExportViews(tab + tab)
-    }},
-${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
+    }}
+${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleDeclarationBasics(tab + tab)
+    }}
+${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toAngularModuleDeclarationEnums(tab + tab)
     }}
     ]
 })
@@ -136,9 +145,9 @@ fun <T : ModuleI<*>> T.toAngularModuleHTMLComponent(c: GenerationContext, derive
     return this.toAngularModuleHTML()
 }
 
-fun <T : ModuleI<*>> T.toAngularModuleSCSS(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                           api: String = LangDerivedKind.API): String {
-    return this.toAngularModuleSCSS()
+fun <T : ModuleI<*>> T.toAngularDefaultSCSS(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                            api: String = LangDerivedKind.API): String {
+    return this.toAngularDefaultSCSS()
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
@@ -179,4 +188,14 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext
 fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                             api: String = LangDerivedKind.API): String {
     return this.toAngularBasicSCSS()
+}
+
+fun <T : CompilationUnitI<*>> T.toAngularEnumHTMLComponent(parent: ItemI<*>, elementName: String, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                            api: String = LangDerivedKind.API): String {
+    return this.toAngularEnumHTML(parent, elementName)
+}
+
+fun <T : CompilationUnitI<*>> T.toAngularEnumSCSSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                            api: String = LangDerivedKind.API): String {
+    return this.toAngularDefaultSCSS()
 }

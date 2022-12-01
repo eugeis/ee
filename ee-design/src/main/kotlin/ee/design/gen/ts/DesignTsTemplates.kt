@@ -2,8 +2,10 @@ package ee.design.gen.ts
 
 import ee.design.ModuleI
 import ee.lang.*
+import ee.lang.gen.go.g
 import ee.lang.gen.ts.LangTsTemplates
 import ee.lang.gen.ts.toAngularBasicTSComponent
+import ee.lang.gen.ts.toAngularEnumTSComponent
 import toAngularEntityDataService
 import toAngularEntityListTypeScript
 import toAngularEntityViewTypeScript
@@ -45,5 +47,8 @@ open class DesignTsTemplates : LangTsTemplates {
 
     open fun <T : CompilationUnitI<*>> basicTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("BasicTypeScriptComponent", nameBuilder) { item, c -> item.toAngularBasicTSComponent(c, LangDerivedKind.API) }
+
+    open fun <T : CompilationUnitI<*>> enumTypeScript(parent: ItemI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EnumTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEnumTSComponent(parent, c, LangDerivedKind.API) }
 
 }

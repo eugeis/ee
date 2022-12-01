@@ -4,6 +4,7 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
+import toAngularGenerateComponentPart
 
 fun LiteralI<*>.toTypeScript(): String = name().toUnderscoredUpperCase()
 fun LiteralI<*>.toTypeScriptIsMethod(): String {
@@ -59,7 +60,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, 
                                                                  api: String = LangDerivedKind.API): String {
     return """import {Component, Input, OnInit} from '@angular/core';
 
-${this.toAngularBasicGenerateComponentPart(c)}
+${this.toAngularGenerateComponentPart(c, "basic", "", hasProviders = false, hasClass = false)}
 ${isOpen().then("export ")}class ${c.n(this)}Component implements ${c.n("OnInit")} {
 
     @${c.n("Input")}() ${c.n(this).toLowerCase()}: ${c.n(this)};
@@ -87,6 +88,29 @@ ${if (props().any { it.type() is EnumTypeI<*> }) {
             it.toTypeScriptInitEmptyProps(c)
     }.trim()}
     }
+}
+"""
+}
+
+fun <T : CompilationUnitI<*>> T.toAngularEnumTSComponent(parent: ItemI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                          api: String = LangDerivedKind.API): String {
+    return """import {Component, Input, OnInit} from '@angular/core';
+import {TableDataService} from '@template/services/data.service';
+
+${this.toAngularGenerateComponentPart(c, "enum", "", hasProviders = false, hasClass = false)}
+
+export class ${c.n(this)}EnumComponent implements ${c.n("OnInit")} {
+
+    @${c.n("Input")}() ${c.n(parent).toLowerCase()}: ${c.n(parent)};
+    
+    enumElements: Array<string>;
+    
+    constructor(private tableDataService: ${c.n("TableDataService")}) { }
+    
+    ngOnInit(): void {
+        this.enumElements = this.${c.n("tableDataService")}.loadEnumElement(${c.n(this)}, '${c.n(parent).toLowerCase()}', '${c.n(this).toLowerCase()}-enum');
+    }
+
 }
 """
 }

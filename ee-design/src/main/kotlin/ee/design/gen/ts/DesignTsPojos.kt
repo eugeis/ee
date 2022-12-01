@@ -60,9 +60,6 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
 ${this.toAngularGenerateComponentPart(c, "entity", "form", hasProviders = false, hasClass = false)}
 ${isOpen().then("export ")}class ${c.n(this)}FormComponent implements ${c.n("OnInit")} {
 
-${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
-        it.type().toAngularGenerateEnumElement(c, tab, this)
-    }}
 ${this.toTypeScriptFormProp(c, tab)}
     constructor(public ${this.name().toLowerCase()}DataService: ${this.name()}DataService, 
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {

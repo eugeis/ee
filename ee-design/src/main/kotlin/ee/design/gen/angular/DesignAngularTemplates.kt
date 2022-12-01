@@ -6,7 +6,7 @@ import ee.lang.gen.ts.LangTsTemplates
 import toAngularModule
 import toAngularRoutingModule
 import toAngularModuleHTMLComponent
-import toAngularModuleSCSS
+import toAngularDefaultSCSS
 import toAngularEntityViewHTMLComponent
 import toAngularEntityViewSCSSComponent
 import toAngularFormHTMLComponent
@@ -15,6 +15,8 @@ import toAngularEntityListHTMLComponent
 import toAngularEntityListSCSSComponent
 import toAngularBasicHTMLComponent
 import toAngularBasicSCSSComponent
+import toAngularEnumHTMLComponent
+import toAngularEnumSCSSComponent
 
 open class DesignAngularTemplates : LangTsTemplates {
     constructor(defaultNameBuilder: TemplateI<*>.(CompositeI<*>) -> NamesI) : super(defaultNameBuilder)
@@ -29,7 +31,7 @@ open class DesignAngularTemplates : LangTsTemplates {
         Template("ModuleHTMLComponent", nameBuilder) { item, c -> item.toAngularModuleHTMLComponent(c, LangDerivedKind.API) }
 
     open fun <T : ModuleI<*>> moduleSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("ModuleSCSSComponent", nameBuilder) { item, c -> item.toAngularModuleSCSS(c, LangDerivedKind.API) }
+        Template("ModuleSCSSComponent", nameBuilder) { item, c -> item.toAngularDefaultSCSS(c, LangDerivedKind.API) }
 
     open fun <T : CompilationUnitI<*>> entityViewHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityViewHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityViewHTMLComponent(c, LangDerivedKind.API) }
@@ -54,5 +56,11 @@ open class DesignAngularTemplates : LangTsTemplates {
 
     open fun <T : CompilationUnitI<*>> basicSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("BasicSCSSComponent", nameBuilder) { item, c -> item.toAngularBasicSCSSComponent(c, LangDerivedKind.API) }
+
+    open fun <T : CompilationUnitI<*>> enumHTML(parent: ItemI<*>, elementName: String, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EnumHTMLComponent", nameBuilder) { item, c -> item.toAngularEnumHTMLComponent(parent, elementName, c, LangDerivedKind.API) }
+
+    open fun <T : CompilationUnitI<*>> enumSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EnumSCSSComponent", nameBuilder) { item, c -> item.toAngularEnumSCSSComponent(c, LangDerivedKind.API) }
 
 }

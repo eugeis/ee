@@ -140,18 +140,26 @@ fun <T : ItemI<*>> T.toAngularModuleImportBasics(): String {
     return """import {${this.name().capitalize()}Component} from '@${this.parent().parent().name().decapitalize()}/${this.parent().name().toLowerCase()}/basics/${this.name().toLowerCase()}/${this.name().toLowerCase()}-basic.component';"""
 }
 
+fun <T : ItemI<*>> T.toAngularModuleImportEnums(): String {
+    return """import {${this.name().capitalize()}EnumComponent} from '@${this.parent().parent().name().decapitalize()}/${this.parent().name().toLowerCase()}/enums/${this.name().toLowerCase()}/${this.name().toLowerCase()}-enum.component';"""
+}
+
 fun <T : ItemI<*>> T.toAngularModuleDeclarationEntities(indent: String): String {
     return """$indent${this.name().capitalize()}ViewComponent,
 $indent${this.name().capitalize()}ListComponent,
-$indent${this.name().capitalize()}FormComponent"""
+$indent${this.name().capitalize()}FormComponent,"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleExportViews(indent: String): String {
-    return """$indent${this.name().capitalize()}FormComponent"""
+    return """$indent${this.name().capitalize()}FormComponent,"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleDeclarationBasics(indent: String): String {
-    return """$indent${this.name().capitalize()}Component"""
+    return """$indent${this.name().capitalize()}Component,"""
+}
+
+fun <T : ItemI<*>> T.toAngularModuleDeclarationEnums(indent: String): String {
+    return """$indent${this.name().capitalize()}EnumComponent,"""
 }
 
 fun <T : ItemI<*>> T.toAngularModulePath(indent: String): String {

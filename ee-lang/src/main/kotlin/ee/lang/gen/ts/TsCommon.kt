@@ -234,14 +234,6 @@ fun <T : OperationI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String
     }"""
 }
 
-fun <T : ItemI<*>> T.toAngularBasicGenerateComponentPart(c: GenerationContext): String =
-    """@${c.n("Component")}({
-  selector: 'app-${this.name().toLowerCase()}',
-  templateUrl: './${this.name().toLowerCase()}-basic.component.html',
-  styleUrls: ['./${this.name().toLowerCase()}-basic.component.scss'],
-})
-"""
-
 fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
     return """${indent}ngOnInit(): void {
         this.tableHeader = this.generateTableHeader();

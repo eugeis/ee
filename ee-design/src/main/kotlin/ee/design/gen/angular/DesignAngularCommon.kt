@@ -121,12 +121,7 @@ fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String): String {
 
 fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementName: String): String {
     return """
-        ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>${this.name()}</mat-label>
-            ${indent}<mat-select [(value)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
-                ${indent}<mat-option *ngFor="let item of ${elementName.toLowerCase()}Enum" [value]="item">{{item}}</mat-option>
-            ${indent}</mat-select>
-        ${indent}</mat-form-field>"""
+        ${indent}<app-${elementName.toLowerCase()} [${this.parent().name().toLowerCase()}]="${this.parent().name().toLowerCase()}"></app-${elementName.toLowerCase()}>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String): String {
@@ -222,6 +217,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
             when(it.type()) {
                 is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntity(it.type().name(), it.type().findParentNonInternal())
                 is BasicI<*> -> this.toAngularTableListBasic(it.parent().name())
+                is EnumTypeI<*> -> it.toAngularTableListEnum()
                 else -> it.toAngularTableList()
             }
         }}
@@ -240,11 +236,20 @@ fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNon
         </ng-container>
 """
 
+fun <T : ItemI<*>> T.toAngularTableListEnum(): String =
+    """
+        <ng-container matColumnDef="${this.name()}">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
+            <td mat-cell *matCellDef="let element"> {{element['${this.name()}'] | translate}} </td>
+        </ng-container>
+"""
+
 fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String): String =
     this.props().filter { !isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
             is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName)
             is BasicI<*> -> it.type().toAngularTableListBasic(parentName)
+            is EnumTypeI<*> -> it.toAngularTableListEnum()
             else -> it.toAngularTableList()
         }
     }
@@ -266,7 +271,7 @@ fun <T : ItemI<*>> T.toAngularTableList(): String =
         </ng-container>
 """
 
-fun <T : ItemI<*>> T.toAngularModuleSCSS(): String =
+fun <T : ItemI<*>> T.toAngularDefaultSCSS(): String =
     """host{}"""
 
 fun <T : ItemI<*>> T.toAngularEntityViewSCSS(): String =
@@ -402,5 +407,15 @@ a {
         left: 40%;
     }
 }
+"""
+
+fun <T : CompilationUnitI<*>> T.toAngularEnumHTML(parent: ItemI<*>, elementName: String): String =
+    """
+<mat-form-field appearance="outline">
+    <mat-label>${this.name().toLowerCase()}</mat-label>
+    <mat-select [(value)]="${parent.name().toLowerCase()}.${elementName.toCamelCase()}">
+        <mat-option *ngFor="let item of enumElements" [value]="item">{{item | translate}}</mat-option>
+    </mat-select>
+</mat-form-field>
 """
 
