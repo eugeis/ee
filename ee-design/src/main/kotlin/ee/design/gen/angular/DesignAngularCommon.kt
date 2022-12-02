@@ -12,7 +12,7 @@ fun <T : ItemI<*>> T.toAngularEntityViewHTML(): String =
 
 <app-${this.name().toLowerCase()}-form [${this.name().toLowerCase()}]="${this.name().toLowerCase()}"></app-${this.name().toLowerCase()}-form>
 
-<app-button [element]="${this.name().toLowerCase()}" [isEdit]="${this.name().toLowerCase()}DataService.isEdit"></app-button>
+<app-button [element]="${this.name().toLowerCase()}" [entityElements]="${this.name().toLowerCase()}DataService.entityElements" [isEdit]="${this.name().toLowerCase()}DataService.isEdit"></app-button>
 """
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =

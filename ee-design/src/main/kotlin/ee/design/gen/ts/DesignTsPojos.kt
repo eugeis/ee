@@ -1,5 +1,6 @@
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
+import ee.common.ext.toCamelCase
 import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
@@ -126,6 +127,13 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     pageName = '${c.n(this)}Component';
     
     isHidden = true;
+    
+    entityElements = [${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+        when(it.type()) {
+            is EntityI<*>, is ValuesI<*> -> """'${it.name().toCamelCase()}',"""
+            else -> ""
+        }
+    }}];   
     
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
