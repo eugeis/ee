@@ -17,8 +17,8 @@ fun <T : ItemI<*>> T.toAngularEntityViewHTML(): String =
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
     """
-<div>
-    <form class="${this.name().toLowerCase()}-form">
+<div class="${this.name().toLowerCase()}-form">
+    <form>
         <fieldset>
             <legend>${this.name().capitalize()}</legend>
             ${this.props().filter { it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL) {
@@ -54,24 +54,26 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
 
 fun <T : CompilationUnitI<*>> T.toAngularBasicHTML(): String =
     """
-<fieldset>
-    <legend>{{parentName}} ${this.name().capitalize()}</legend>
-        ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        when(it.type()) {
-            is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name())
-            is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
-            // TODO: Implement ComboBox for Entity Element on Basic
-            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormBasic(it.type().name())
-            else -> when(it.type().name().toLowerCase()) {
-                "boolean" -> it.toHTMLBooleanForm("")
-                "date", "list" -> it.toHTMLDateForm("")
-                "float", "int" -> it.toHTMLNumberForm("")
-                "blob" -> it.toHTMLUploadForm("")
-                else -> {it.toHTMLStringForm("")}
+<div class="${this.name().toLowerCase()}-basic-form">
+    <fieldset>
+        <legend>{{parentName}} ${this.name().capitalize()}</legend>
+            ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+            when(it.type()) {
+                is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name())
+                is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
+                // TODO: Implement ComboBox for Entity Element on Basic
+                is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormBasic(it.type().name())
+                else -> when(it.type().name().toLowerCase()) {
+                    "boolean" -> it.toHTMLBooleanForm("")
+                    "date", "list" -> it.toHTMLDateForm("")
+                    "float", "int" -> it.toHTMLNumberForm("")
+                    "blob" -> it.toHTMLUploadForm("")
+                    else -> {it.toHTMLStringForm("")}
+                }
             }
-        }
-    }}
-</fieldset>
+        }}
+    </fieldset>
+</div>
 """
 
 fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String): String {
@@ -152,29 +154,31 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: Attri
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
     """<app-${this.parent().name().toLowerCase()}></app-${this.parent().name().toLowerCase()}>
-<a class="newButton" [routerLink]="'./new'"
-        routerLinkActive="active-link">
-    <mat-icon>add_circle_outline</mat-icon> Add New Item
-</a>
-
-<ng-container *ngIf="${this.name().toLowerCase()}DataService.isHidden; else showed">
-    <a class="showButton" (click)="${this.name().toLowerCase()}DataService.toggleHidden()">
-        <mat-icon>delete_outline</mat-icon> Delete Multiple Items
+<div class="${this.name().toLowerCase()}-list-button">
+    <a class="newButton" [routerLink]="'./new'"
+            routerLinkActive="active-link">
+        <mat-icon>add_circle_outline</mat-icon> Add New Item
     </a>
-</ng-container>
+    
+    <ng-container *ngIf="${this.name().toLowerCase()}DataService.isHidden; else showed">
+        <a class="showButton" (click)="${this.name().toLowerCase()}DataService.toggleHidden()">
+            <mat-icon>delete_outline</mat-icon> Delete Multiple Items
+        </a>
+    </ng-container>
+    
+    <ng-template #showed>
+        <a class="deleteButton" (click)="${this.name().toLowerCase()}DataService.clearMultipleItems(${this.name().toLowerCase()}DataService.selection.selected); ${this.name().toLowerCase()}DataService.toggleHidden()">
+            <mat-icon>delete_outline</mat-icon> Delete Items
+        </a>
+    </ng-template>
+    
+    <mat-form-field class="filter">
+        <mat-label>Filter</mat-label>
+        <input matInput (keyup)="${this.name().toLowerCase()}DataService.applyFilter(${"$"}event)" placeholder="Input Filter..." [ngModel]="${this.name().toLowerCase()}DataService.filterValue">
+    </mat-form-field>
+</div>
 
-<ng-template #showed>
-    <a class="deleteButton" (click)="${this.name().toLowerCase()}DataService.clearMultipleItems(${this.name().toLowerCase()}DataService.selection.selected); ${this.name().toLowerCase()}DataService.toggleHidden()">
-        <mat-icon>delete_outline</mat-icon> Delete Items
-    </a>
-</ng-template>
-
-<mat-form-field class="filter">
-    <mat-label>Filter</mat-label>
-    <input matInput (keyup)="${this.name().toLowerCase()}DataService.applyFilter(${"$"}event)" placeholder="Input Filter..." [ngModel]="${this.name().toLowerCase()}DataService.filterValue">
-</mat-form-field>
-
-<div class="mat-elevation-z8" style="overflow-x: scroll">
+<div class="mat-elevation-z8 ${this.name().toLowerCase()}-list" style="overflow-x: scroll">
     <table mat-table matSort [dataSource]="${this.name().toLowerCase()}DataService.dataSources">
         <ng-container matColumnDef="Box">
             <th mat-header-cell *matHeaderCellDef>
@@ -283,35 +287,12 @@ fun <T : ItemI<*>> T.toAngularEntityViewSCSS(): String =
 """
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityFormSCSS(): String =
-    """form {
-    position: relative;
-    max-width: 80%;
-    z-index: 1;
-    left: 10%;
+    """@import "src/styles";
+
+.${this.name().toLowerCase()}-form {
+    @extend .entity-form
 }
 
-fieldset {
-    width: 80%;
-    padding: 20px;
-    border: round(30) 1px;
-
-    .mat-form-field {
-        padding: 10px 0;
-    }
-}
-
-@media screen and (max-width: 650px) {
-    form {
-        left: 5%;
-    }
-}
-
-@media screen and (max-width: 480px) {
-    form {
-        left: 5%;
-        max-width: 50%;
-    }
-}
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
         when (it.type()) {
             is BasicI<*>, is EntityI<*>, is ValuesI<*> -> it.toSCSSOtherFormStyle(it.type().name())
@@ -329,19 +310,18 @@ fun <T : ItemI<*>> T.toSCSSOtherFormStyle(elementType: String): String =
 """
 
 fun <T : ItemI<*>> T.toAngularBasicSCSS(): String =
-    """fieldset {
-    width: 80%;
-    padding: 20px;
-    border: round(30) 1px;
+    """@import "src/styles";
 
-    .mat-form-field {
-        padding: 10px 0;
-    }
+.${this.name().toLowerCase()}-basic-form {
+    @extend .fieldset-form
 }
 """
 
 fun <T : ItemI<*>> T.toAngularEntityListSCSS(): String =
-    """div {
+    """@import "src/styles";
+
+.${this.name().toLowerCase()}-list {
+    @extend .entity-list;
     position: absolute;
     width: 80% !important;
     z-index: 1;
@@ -349,63 +329,8 @@ fun <T : ItemI<*>> T.toAngularEntityListSCSS(): String =
     left: 10%;
 }
 
-table {
-    width: 100%;
-}
-
-table td, table th {
-    padding: 2px 20px;
-}
-
-.filter {
-    position: absolute;
-    left: 10%;
-    top: 30%;
-    width: 80% !important;
-}
-
-a {
-    text-decoration: none;
-    border: 0;
-    background: white;
-    color: black;
-    cursor: pointer;
-}
-
-.newButton {
-    position: absolute;
-    top: 20%;
-    left: 30%;
-}
-
-.deleteButton, .showButton {
-    position: absolute;
-    top: 20%;
-    left: 50%;
-}
-
-@media screen and (max-width: 1000px) {
-    div {
-        max-width: 70%;
-    }
-}
-
-@media screen and (max-width: 585px) {
-    div {
-        max-width: 60%;
-    }
-
-    .newButton {
-        position: absolute;
-        top: 20%;
-        left: 10%;
-    }
-
-    .deleteButton, .showButton {
-        position: absolute;
-        top: 20%;
-        left: 40%;
-    }
+.${this.name().toLowerCase()}-list-button {
+    @extend .entity-list-button
 }
 """
 
