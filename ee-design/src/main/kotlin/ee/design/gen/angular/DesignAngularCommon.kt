@@ -61,8 +61,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTML(): String =
             when(it.type()) {
                 is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name())
                 is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
-                // TODO: Implement ComboBox for Entity Element on Basic
-                is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormBasic(it.type().name())
+                is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityForBasic(it.type().name(), it.type().props().first { element -> element.type().name() == "String" })
                 else -> when(it.type().name().toLowerCase()) {
                     "boolean" -> it.toHTMLBooleanForm("")
                     "date", "list" -> it.toHTMLDateForm("")
@@ -75,6 +74,22 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTML(): String =
     </fieldset>
 </div>
 """
+
+fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, key: AttributeI<*>): String {
+    return """
+        <fieldset>
+            <legend>${elementType.toCamelCase().capitalize()}</legend>
+            <mat-form-field appearance="fill">
+                <mat-label>Select ${elementType.toCamelCase().capitalize()}</mat-label>
+                <input type="text" matInput [formControl]="control${elementType.toCamelCase().capitalize()}" [matAutocomplete]="auto${elementType.toCamelCase().capitalize()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
+                <mat-autocomplete #auto${elementType.toCamelCase().capitalize()}="matAutocomplete" [displayWith]="display${elementType.toCamelCase().capitalize()}">
+                    <mat-option *ngFor="let option of filteredOptions${elementType.toCamelCase().capitalize()} | async" [value]="option">
+                        {{option.${key.name()}}}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+        </fieldset>"""
+}
 
 fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String): String {
     return """

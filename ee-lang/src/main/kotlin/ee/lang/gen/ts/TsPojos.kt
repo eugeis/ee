@@ -3,8 +3,15 @@ package ee.lang.gen.ts
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
+import ee.design.EntityI
 import ee.lang.*
+import toAngularControlService
+import toAngularControlServiceFunctions
 import toAngularGenerateComponentPart
+import toAngularImportEntityComponent
+import toAngularInitObservable
+import toAngularInitOption
+import toAngularPropOnConstructor
 
 fun LiteralI<*>.toTypeScript(): String = name().toUnderscoredUpperCase()
 fun LiteralI<*>.toTypeScriptIsMethod(): String {
@@ -59,6 +66,19 @@ fun <T : ItemI<*>> T.toAngularGenerateEnumElementBasic(c: GenerationContext, ind
 fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                  api: String = LangDerivedKind.API): String {
     return """import {Component, Input, OnInit} from '@angular/core';
+${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
+    """
+${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+    when(it.type()) {
+        is EntityI<*>, is ValuesI<*> -> it.type().toAngularImportEntityComponent(it.type().findParentNonInternal())
+        else -> ""
+    }
+}}
+import {map, startWith} from 'rxjs/operators';
+import {FormControl} from '@angular/forms';
+import {Observable} from 'rxjs';
+"""
+}else{""}}
 
 ${this.toAngularGenerateComponentPart(c, "basic", "", hasProviders = false, hasClass = false)}
 ${isOpen().then("export ")}class ${c.n(this)}Component implements ${c.n("OnInit")} {
@@ -68,6 +88,22 @@ ${isOpen().then("export ")}class ${c.n(this)}Component implements ${c.n("OnInit"
 ${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
     it.type().toAngularGenerateEnumElementBasic(c, tab)
 }}
+
+${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
+        """${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+            when(it.type()) {
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlService()
+                else -> ""
+            }
+        }}        
+    constructor(${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+            when(it.type()) {
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularPropOnConstructor()
+                else -> "" }
+            }.trim()
+        }) {}
+"""
+}else{""}}
 
 ${if (props().any { it.type() is EnumTypeI<*> }) {
     """
@@ -87,9 +123,44 @@ ${if (props().any { it.type() is EnumTypeI<*> }) {
         ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { 
             it.toTypeScriptInitEmptyProps(c)
     }.trim()}
+    
+    ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
+        """
+        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+            when(it.type()) {
+                is EntityI<*>, is ValuesI<*> -> it.toAngularInitOptionBasic(it.type().name())
+                else -> ""
+            }
+        }}
+    
+        this.initObservable();"""
+    } else {""}}
     }
+    
+${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
+        """    
+        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+            when(it.type()) {
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlServiceFunctions(it.type().props().first { element -> element.type().name() == "String" })
+                else -> ""
+            }
+        }}
+    
+    initObservable() {
+        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+            when(it.type()) {
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularInitObservable(it.type().props().first { element -> element.type().name() == "String" })
+                else -> ""
+            }
+        }}
+    }"""
+    } else {""}}
 }
 """
+}
+
+fun <T : ItemI<*>> T.toAngularInitOptionBasic(elementType: String): String {
+    return """this.option${elementType.capitalize()} = this.${elementType.toLowerCase()}DataService.changeMapToArray(this.${elementType.toLowerCase()}DataService.retrieveItemsFromCache()); $nL"""
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEnumTSComponent(parent: ItemI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
