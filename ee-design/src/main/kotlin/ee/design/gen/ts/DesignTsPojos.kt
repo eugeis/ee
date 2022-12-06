@@ -131,7 +131,14 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     entityElements = [${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
             is EntityI<*>, is ValuesI<*> -> """'${it.name().toCamelCase()}',"""
-            else -> ""
+            else -> {
+                it.type().props().filter {childElement -> !childElement.isEMPTY() }.joinSurroundIfNotEmptyToString("") {childElement -> 
+                    when(childElement.type()) {
+                        is EntityI<*>, is ValuesI<*> -> """'${childElement.name().toCamelCase()}',"""
+                        else -> ""
+                    }
+                }
+            }
         }
     }}];   
     
