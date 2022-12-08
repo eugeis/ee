@@ -129,7 +129,7 @@ fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
             ${indent}<mat-label>${this.name()}</mat-label>
-            ${indent}<input matInput [matDatepicker]="picker" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
+            ${indent}<input matInput [matDatepicker]="picker" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'">
             ${indent}<mat-hint>MM/DD/YYYY</mat-hint>
             ${indent}<mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             ${indent}<mat-datepicker #picker></mat-datepicker>
