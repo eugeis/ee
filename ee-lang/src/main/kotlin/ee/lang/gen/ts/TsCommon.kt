@@ -243,7 +243,7 @@ fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
         } else {
             this.${this.name().toLowerCase()}DataService.dataSources =
                 new MatTableDataSource(this.${this.name().toLowerCase()}DataService.changeMapToArray(
-                    this.${this.name().toLowerCase()}DataService.retrieveItemsFromCache()));
+                    this.${this.name().toLowerCase()}DataService.retrieveItemsForTableList()));
         }
     }"""
 }
@@ -256,42 +256,34 @@ fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
         }
     }
 }*/
-fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext): String {
+fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext, parentName: String = ""): String {
     return when (this.type()) {
         is EntityI<*>, is ValuesI<*> -> """'${this.name().toLowerCase()}-entity'"""
-        else -> {
-            when (this.type().toTypeScriptIfNative(c, "", this)) {
-                "boolean", "string", "number", "Date" -> """'${this.name().toCamelCase()}'"""
-                else -> {
-                    when (this.type().props().size) {
-                        0 -> """'${this.name().toCamelCase()}'"""
-                        else -> {
-                            this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
-                                it.toTypeScriptTypeProperty(c, this)
-                            }
+        is BasicI<*> -> this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
+                            it.toAngularGenerateTableHeader(c, this.name())
                         }
-                    }
-                }
-            }
-        }
+        is EnumTypeI<*> -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}'"""
+        else -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}'"""
     }
 }
 
-fun <T : AttributeI<*>> T.toTypeScriptTypeProperty(c: GenerationContext, elementParent: AttributeI<*>): String {
+/*fun <T : AttributeI<*>> T.toTypeScriptTypeProperty(c: GenerationContext, elementParent: AttributeI<*>): String {
     return when (this.type()) {
         is EntityI<*>, is ValuesI<*> -> """'${this.name().toLowerCase()}-entity'"""
+        is BasicI<*> -> this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
+                            it.toTypeScriptTypeProperty(c, elementParent)
+                        }
+        is EnumTypeI<*> -> """'${this.name().toCamelCase()}'"""
         else -> {
             when (this.type().props().size) {
-                0 -> """'${this.name().toCamelCase()}'"""
+                0 -> """'${elementParent.name().toLowerCase()}-${this.name().toCamelCase()}'"""
                 else -> {
-                    this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
-                        it.toTypeScriptTypeProperty(c, elementParent)
-                    }
+
                 }
             }
         }
     }
-}
+}*/
 
 fun <T : AttributeI<*>> T.toTypeScriptInitEmptyProps(c: GenerationContext): String {
     return when (this.type().toTypeScriptIfNative(c, "", this)) {

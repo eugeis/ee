@@ -1,4 +1,5 @@
 import ee.common.ext.joinSurroundIfNotEmptyToString
+import ee.common.ext.then
 import ee.common.ext.toCamelCase
 import ee.design.EntityI
 import ee.lang.*
@@ -232,14 +233,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
             </td>
         </ng-container>
         
-        ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
-            when(it.type()) {
-                is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntity(it.type().name(), it.type().findParentNonInternal())
-                is BasicI<*> -> this.toAngularTableListBasic(it.parent().name())
-                is EnumTypeI<*> -> it.toAngularTableListEnum()
-                else -> it.toAngularTableList()
-            }
-        }}
+        ${toAngularTableListBasic(this.name(), "")}
 
         <tr mat-header-row *matHeaderRowDef="tableHeader"></tr>
         <tr mat-row *matRowDef="let row; columns: tableHeader;"></tr>
@@ -255,21 +249,21 @@ fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNon
         </ng-container>
 """
 
-fun <T : ItemI<*>> T.toAngularTableListEnum(): String =
+fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = ""): String =
     """
-        <ng-container matColumnDef="${this.name()}">
+        <ng-container matColumnDef="${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
-            <td mat-cell *matCellDef="let element"> {{element['${this.name()}'] | translate}} </td>
+            <td mat-cell *matCellDef="let element"> {{element['${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}'] | translate}} </td>
         </ng-container>
 """
 
-fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String): String =
+fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = ""): String =
     this.props().filter { !isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
             is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName)
-            is BasicI<*> -> it.type().toAngularTableListBasic(parentName)
-            is EnumTypeI<*> -> it.toAngularTableListEnum()
-            else -> it.toAngularTableList()
+            is BasicI<*> -> it.type().toAngularTableListBasic(parentName, it.name())
+            is EnumTypeI<*> -> it.toAngularTableListEnum(basicName)
+            else -> it.toAngularTableList(basicName)
         }
     }
 
@@ -278,15 +272,15 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
     """
         <ng-container matColumnDef="${this.name().toLowerCase()}-entity">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
-            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${this.parent().name().toLowerCase()}')">{{element['${this.name().toLowerCase()}']}}</a> </td>
+            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{element['${this.name().toLowerCase()}']}}</a> </td>
         </ng-container>
 """
 
-fun <T : ItemI<*>> T.toAngularTableList(): String =
+fun <T : ItemI<*>> T.toAngularTableList(parentName: String = ""): String =
     """
-        <ng-container matColumnDef="${this.name()}">
+        <ng-container matColumnDef="${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
-            <td mat-cell *matCellDef="let element"> {{element['${this.name()}']}} </td>
+            <td mat-cell *matCellDef="let element"> {{element['${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}']}} </td>
         </ng-container>
 """
 
