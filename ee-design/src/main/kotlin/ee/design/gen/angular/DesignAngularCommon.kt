@@ -341,6 +341,10 @@ fun <T : ItemI<*>> T.toAngularEntityListSCSS(): String =
 .${this.name().toLowerCase()}-list-button {
     @extend .entity-list-button
 }
+
+a {
+    @extend .entity-link
+}
 """
 
 fun <T : CompilationUnitI<*>> T.toAngularEnumHTML(parent: ItemI<*>, elementName: String): String =
