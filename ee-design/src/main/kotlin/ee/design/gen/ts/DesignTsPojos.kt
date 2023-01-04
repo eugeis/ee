@@ -88,6 +88,8 @@ ${isOpen().then("export ")}class ${c.n(this)}ListComponent implements ${c.n("OnI
 ${this.toTypeScriptEntityPropInit(c, tab)}
     tableHeader: Array<String> = [];
     
+    ${this.props().any { it.type() is EntityI<*> }.then { "elementValue: MatTableDataSource<any>;" }}
+    
     @ViewChild(MatSort) sort: MatSort;
 
 ${this.toAngularConstructorDataService(tab)}

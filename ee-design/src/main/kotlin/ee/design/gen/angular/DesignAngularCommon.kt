@@ -21,7 +21,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
 <div class="${this.name().toLowerCase()}-form">
     <form>
         <fieldset>
-            <legend>${this.name().capitalize()}</legend>
+            <legend>{{"${this.name().toLowerCase()}" | translate}}</legend>
             ${this.props().filter { it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type().name().toLowerCase()) {
             "boolean" -> it.toHTMLBooleanForm(tab)
@@ -81,7 +81,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
         <fieldset>
             <legend>${elementType.toCamelCase().capitalize()}</legend>
             <mat-form-field appearance="fill">
-                <mat-label>Select ${elementType.toCamelCase().capitalize()}</mat-label>
+                <mat-label>{{"select" | translate}} {{"${elementType.toLowerCase()}" | translate}}</mat-label>
                 <input type="text" matInput [formControl]="control${elementType.toCamelCase().capitalize()}" [matAutocomplete]="auto${elementType.toCamelCase().capitalize()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
                 <mat-autocomplete #auto${elementType.toCamelCase().capitalize()}="matAutocomplete" [displayWith]="display${elementType.toCamelCase().capitalize()}">
                     <mat-option *ngFor="let option of filteredOptions${elementType.toCamelCase().capitalize()} | async" [value]="option">
@@ -95,7 +95,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
 fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>${this.name()}</mat-label>
+            ${indent}<mat-label>{{"${this.name().toLowerCase()}" | translate}}</mat-label>
             ${indent}<input matInput name="${this.name().toLowerCase()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
@@ -103,7 +103,7 @@ fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String): String {
 fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>${this.name()}</mat-label>
+            ${indent}<mat-label>{{"${this.name().toLowerCase()}" | translate}}</mat-label>
             ${indent}<input matInput name="${this.name().toLowerCase()}" type="number" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
@@ -111,7 +111,7 @@ fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String): String {
 fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>${this.name()}</mat-label>
+            ${indent}<mat-label>{{"${this.name().toLowerCase()}" | translate}}${this.name()}</mat-label>
             ${indent}<input matInput name="${this.name().toLowerCase()}" type="file" (change)="${this.parent().name().toLowerCase()}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
@@ -119,7 +119,7 @@ fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String): String {
 fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>${this.name()}</mat-label>
+            ${indent}<mat-label>{{"${this.name().toLowerCase()}" | translate}}</mat-label>
             ${indent}<mat-select [(value)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
                 ${indent}<mat-option *ngFor="let item of ['true', 'false']" [value]="item">{{item}}</mat-option>
             ${indent}</mat-select>
@@ -129,7 +129,7 @@ fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String): String {
 fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>${this.name()}</mat-label>
+            ${indent}<mat-label>{{"${this.name().toLowerCase()}" | translate}}</mat-label>
             ${indent}<input matInput [matDatepicker]="picker" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'">
             ${indent}<mat-hint>MM/DD/YYYY</mat-hint>
             ${indent}<mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -173,23 +173,23 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
 <div class="${this.name().toLowerCase()}-list-button">
     <a class="newButton" [routerLink]="'./new'"
             routerLinkActive="active-link">
-        <mat-icon>add_circle_outline</mat-icon> Add New Item
+        <mat-icon>add_circle_outline</mat-icon> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
     </a>
     
     <ng-container *ngIf="${this.name().toLowerCase()}DataService.isHidden; else showed">
         <a class="showButton" (click)="${this.name().toLowerCase()}DataService.toggleHidden()">
-            <mat-icon>delete_outline</mat-icon> Delete Multiple Items
+            <mat-icon>delete_outline</mat-icon> {{"delete" | translate}} {{"multiple" | translate}} {{"items" | translate}}
         </a>
     </ng-container>
     
     <ng-template #showed>
         <a class="deleteButton" (click)="${this.name().toLowerCase()}DataService.clearMultipleItems(${this.name().toLowerCase()}DataService.selection.selected); ${this.name().toLowerCase()}DataService.toggleHidden()">
-            <mat-icon>delete_outline</mat-icon> Delete Items
+            <mat-icon>delete_outline</mat-icon> {{"delete" | translate}} {{"items" | translate}}
         </a>
     </ng-template>
     
     <mat-form-field class="filter">
-        <mat-label>Filter</mat-label>
+        <mat-label>{{"filter" | translate}}</mat-label>
         <input matInput (keyup)="${this.name().toLowerCase()}DataService.applyFilter(${"$"}event)" placeholder="Input Filter..." [ngModel]="${this.name().toLowerCase()}DataService.filterValue">
     </mat-form-field>
 </div>
@@ -216,14 +216,14 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
         </ng-container>
 
         <ng-container matColumnDef="Actions">
-            <th mat-header-cell *matHeaderCellDef> ACTIONS </th>
+            <th mat-header-cell *matHeaderCellDef> {{"action" | translate}} </th>
             <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'actions'">
                 <mat-menu #appMenu="matMenu">
                     <ng-template matMenuContent>
                         <button mat-menu-item (click)="${this.name().toLowerCase()}DataService.editItems(i, element)"><mat-icon>edit</mat-icon>
-                            <span>EDIT</span></button>
+                            <span>{{"edit" | translate}}</span></button>
                         <button mat-menu-item (click)="${this.name().toLowerCase()}DataService.removeItem(element)"><mat-icon>delete</mat-icon>
-                            <span>DELETE</span></button>
+                            <span>{{"delete" | translate}}</span></button>
                     </ng-template>
                 </mat-menu>
 
@@ -252,7 +252,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNon
 fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = ""): String =
     """
         <ng-container matColumnDef="${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${this.name().toLowerCase()}" | translate}} </th>
             <td mat-cell *matCellDef="let element"> {{element['${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}'] | translate}} </td>
         </ng-container>
 """
@@ -271,7 +271,7 @@ fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName:
 fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String): String =
     """
         <ng-container matColumnDef="${this.name().toLowerCase()}-entity">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${this.name().toLowerCase()}" | translate}}</th>
             <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{element['${this.name().toLowerCase()}']}}</a> </td>
         </ng-container>
 """
@@ -279,7 +279,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
 fun <T : ItemI<*>> T.toAngularTableList(parentName: String = ""): String =
     """
         <ng-container matColumnDef="${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${this.name().toLowerCase()}" | translate}} </th>
             <td mat-cell *matCellDef="let element"> {{element['${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}']}} </td>
         </ng-container>
 """
