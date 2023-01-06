@@ -95,7 +95,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
 fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"${this.name().toLowerCase()}" | translate}}</mat-label>
+            ${indent}<mat-label>{{"table.${this.name().toLowerCase()}" | translate}}</mat-label>
             ${indent}<input matInput name="${this.name().toLowerCase()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
@@ -103,7 +103,7 @@ fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String): String {
 fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"${this.name().toLowerCase()}" | translate}}</mat-label>
+            ${indent}<mat-label>{{"table.${this.name().toLowerCase()}" | translate}}</mat-label>
             ${indent}<input matInput name="${this.name().toLowerCase()}" type="number" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
@@ -111,7 +111,7 @@ fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String): String {
 fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"${this.name().toLowerCase()}" | translate}}${this.name()}</mat-label>
+            ${indent}<mat-label>{{"table.${this.name().toLowerCase()}" | translate}}${this.name()}</mat-label>
             ${indent}<input matInput name="${this.name().toLowerCase()}" type="file" (change)="${this.parent().name().toLowerCase()}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
@@ -119,7 +119,7 @@ fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String): String {
 fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"${this.name().toLowerCase()}" | translate}}</mat-label>
+            ${indent}<mat-label>{{"table.${this.name().toLowerCase()}" | translate}}</mat-label>
             ${indent}<mat-select [(value)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
                 ${indent}<mat-option *ngFor="let item of ['true', 'false']" [value]="item">{{item}}</mat-option>
             ${indent}</mat-select>
@@ -129,7 +129,7 @@ fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String): String {
 fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"${this.name().toLowerCase()}" | translate}}</mat-label>
+            ${indent}<mat-label>{{"table.${this.name().toLowerCase()}" | translate}}</mat-label>
             ${indent}<input matInput [matDatepicker]="picker" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'">
             ${indent}<mat-hint>MM/DD/YYYY</mat-hint>
             ${indent}<mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
