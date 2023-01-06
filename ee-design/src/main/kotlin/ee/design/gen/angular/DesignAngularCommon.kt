@@ -21,7 +21,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
 <div class="${this.name().toLowerCase()}-form">
     <form>
         <fieldset>
-            <legend>{{"${this.name().toLowerCase()}" | translate}}</legend>
+            <legend>{{"table.${this.name().toLowerCase()}" | translate}}</legend>
             ${this.props().filter { it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type().name().toLowerCase()) {
             "boolean" -> it.toHTMLBooleanForm(tab)
@@ -57,7 +57,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTML(): String =
     """
 <div class="${this.name().toLowerCase()}-basic-form">
     <fieldset>
-        <legend>{{parentName}} ${this.name().capitalize()}</legend>
+        <legend>{{"table."+ parentName | translate}} {{"table.${this.name().toLowerCase()}" | translate}}</legend>
             ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
             when(it.type()) {
                 is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name())
@@ -81,7 +81,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
         <fieldset>
             <legend>${elementType.toCamelCase().capitalize()}</legend>
             <mat-form-field appearance="fill">
-                <mat-label>{{"select" | translate}} {{"${elementType.toLowerCase()}" | translate}}</mat-label>
+                <mat-label>{{"select" | translate}} {{"table.${elementType.toLowerCase()}" | translate}}</mat-label>
                 <input type="text" matInput [formControl]="control${elementType.toCamelCase().capitalize()}" [matAutocomplete]="auto${elementType.toCamelCase().capitalize()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
                 <mat-autocomplete #auto${elementType.toCamelCase().capitalize()}="matAutocomplete" [displayWith]="display${elementType.toCamelCase().capitalize()}">
                     <mat-option *ngFor="let option of filteredOptions${elementType.toCamelCase().capitalize()} | async" [value]="option">
@@ -111,7 +111,7 @@ fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String): String {
 fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"table.${this.name().toLowerCase()}" | translate}}${this.name()}</mat-label>
+            ${indent}<mat-label>{{"table.${this.name().toLowerCase()}" | translate}}</mat-label>
             ${indent}<input matInput name="${this.name().toLowerCase()}" type="file" (change)="${this.parent().name().toLowerCase()}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
@@ -144,7 +144,7 @@ fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementName: String): S
 
 fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String): String {
     return """
-        <app-${elementType.toLowerCase()} [parentName]="'${this.parent().name().capitalize()}'" [${elementType.toLowerCase()}]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}"></app-${elementType.toLowerCase()}>"""
+        <app-${elementType.toLowerCase()} [parentName]="'${this.parent().name().toLowerCase()}'" [${elementType.toLowerCase()}]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}"></app-${elementType.toLowerCase()}>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLObjectFormBasic(elementType: String): String {
@@ -350,7 +350,7 @@ a {
 fun <T : CompilationUnitI<*>> T.toAngularEnumHTML(parent: ItemI<*>, elementName: String): String =
     """
 <mat-form-field appearance="outline">
-    <mat-label>${this.name().toLowerCase()}</mat-label>
+    <mat-label>{{"table.${this.name().toLowerCase()}" | translate}}</mat-label>
     <mat-select [(value)]="${parent.name().toLowerCase()}.${elementName.toCamelCase()}">
         <mat-option *ngFor="let item of enumElements" [value]="item">{{item | translate}}</mat-option>
     </mat-select>
