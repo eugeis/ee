@@ -216,7 +216,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
         </ng-container>
 
         <ng-container matColumnDef="Actions">
-            <th mat-header-cell *matHeaderCellDef> {{"action" | translate}} </th>
+            <th mat-header-cell *matHeaderCellDef> {{"table.action" | translate}} </th>
             <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'actions'">
                 <mat-menu #appMenu="matMenu">
                     <ng-template matMenuContent>
@@ -252,7 +252,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNon
 fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = ""): String =
     """
         <ng-container matColumnDef="${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${this.name().toLowerCase()}" | translate}} </th>
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().toLowerCase()}" | translate}} </th>
             <td mat-cell *matCellDef="let element"> {{element['${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}'] | translate}} </td>
         </ng-container>
 """
@@ -271,7 +271,7 @@ fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName:
 fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String): String =
     """
         <ng-container matColumnDef="${this.name().toLowerCase()}-entity">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${this.name().toLowerCase()}" | translate}}</th>
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().toLowerCase()}" | translate}}</th>
             <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{element['${this.name().toLowerCase()}']}}</a> </td>
         </ng-container>
 """
@@ -279,7 +279,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
 fun <T : ItemI<*>> T.toAngularTableList(parentName: String = ""): String =
     """
         <ng-container matColumnDef="${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${this.name().toLowerCase()}" | translate}} </th>
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().toLowerCase()}" | translate}} </th>
             <td mat-cell *matCellDef="let element"> {{element['${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}']}} </td>
         </ng-container>
 """
