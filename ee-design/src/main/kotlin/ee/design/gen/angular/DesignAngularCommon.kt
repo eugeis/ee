@@ -155,9 +155,9 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormBasic(elementType: String): String {
 fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: AttributeI<*>): String {
     return """
         <fieldset>
-            <legend>${elementType.toCamelCase().capitalize()}</legend>
+            <legend>{{"table.${elementType.toCamelCase().toLowerCase()}" | translate}}</legend>
             <mat-form-field appearance="fill">
-                <mat-label>Select ${elementType.toCamelCase().capitalize()}</mat-label>
+                <mat-label>{{"select" | translate}} {{"table.${elementType.toCamelCase().toLowerCase()}" | translate}}</mat-label>
                 <input type="text" matInput [formControl]="${this.parent().name().toLowerCase()}DataService.control${elementType.toCamelCase().capitalize()}" [matAutocomplete]="auto${elementType.toCamelCase().capitalize()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
                 <mat-autocomplete #auto${elementType.toCamelCase().capitalize()}="matAutocomplete" [displayWith]="${this.parent().name().toLowerCase()}DataService.display${elementType.toCamelCase().capitalize()}">
                     <mat-option *ngFor="let option of ${this.parent().name().toLowerCase()}DataService.filteredOptions${elementType.toCamelCase().capitalize()} | async" [value]="option">
@@ -178,13 +178,13 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
     
     <ng-container *ngIf="${this.name().toLowerCase()}DataService.isHidden; else showed">
         <a class="showButton" (click)="${this.name().toLowerCase()}DataService.toggleHidden()">
-            <mat-icon>delete_outline</mat-icon> {{"delete" | translate}} {{"multiple" | translate}} {{"items" | translate}}
+            <mat-icon>delete_outline</mat-icon> {{"delete" | translate}}...
         </a>
     </ng-container>
     
     <ng-template #showed>
         <a class="deleteButton" (click)="${this.name().toLowerCase()}DataService.clearMultipleItems(${this.name().toLowerCase()}DataService.selection.selected); ${this.name().toLowerCase()}DataService.toggleHidden()">
-            <mat-icon>delete_outline</mat-icon> {{"delete" | translate}} {{"items" | translate}}
+            <mat-icon>delete_outline</mat-icon> {{"delete" | translate}} {{"item" | translate}}
         </a>
     </ng-template>
     
