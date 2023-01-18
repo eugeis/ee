@@ -260,7 +260,7 @@ fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = ""): String =
 fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = ""): String =
     this.props().filter { !isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName)
+            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props().first { element -> element.type().name() == "String" })
             is BasicI<*> -> it.type().toAngularTableListBasic(parentName, it.name())
             is EnumTypeI<*> -> it.toAngularTableListEnum(basicName)
             else -> it.toAngularTableList(basicName)
@@ -268,11 +268,11 @@ fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName:
     }
 
 
-fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String): String =
+fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: AttributeI<*>): String =
     """
         <ng-container matColumnDef="${this.name().toLowerCase()}-entity">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().toLowerCase()}" | translate}}</th>
-            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{element['${this.name().toLowerCase()}']}}</a> </td>
+            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{elementValue.data[i]['${this.name().toLowerCase()}-${key.name()}']}}</a> </td>
         </ng-container>
 """
 
