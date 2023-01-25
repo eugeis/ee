@@ -20,7 +20,7 @@ import toAngularFormHTMLComponent
 import toAngularFormSCSSComponent
 import toAngularModule
 import toAngularModuleHTMLComponent
-import toAngularModuleSCSS
+import toAngularDefaultSCSS
 import toAngularModuleService
 import toAngularModuleTypeScript
 import toAngularRoutingModule
@@ -42,6 +42,7 @@ object SimpleComp: Comp({ artifact("ee-lang-test").namespace("ee.lang.test") }) 
             val bool = propB()
             val count = propI()
             val float = propF()
+            val otherModuleEntity = prop(OtherSimpleModule.OtherSimpleEntity)
         }
 
         object SimpleEnum : EnumType() {
@@ -83,6 +84,23 @@ object SimpleComp: Comp({ artifact("ee-lang-test").namespace("ee.lang.test") }) 
             val constructor = constructorOwnPropsOnly()
         }
     }
+    object OtherSimpleModule: Module() {
+        // Simple object with basic elements
+        object OtherSimpleBasic : Basic() {
+            val firstSimpleProperty = propS()
+            val anotherSimpleProperty = propS()
+            val lastSimpleProperty = propS()
+        }
+
+        object OtherSimpleEntity : Entity() {
+            val simpleBasicProperties = prop(OtherSimpleBasic)
+            val name = propS()
+            val birthday = propDT()
+            val bool = propB()
+            val count = propI()
+            val float = propF()
+        }
+    }
 }
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -111,9 +129,7 @@ import {SimpleModuleViewService} from '@simpleComp/SimpleModule/service/simplemo
 })
 
 export class SimpleModuleViewComponent {
-
-    @Input() pageName = 'SimpleModuleComponent';
-       
+  
     constructor(public simplemoduleViewService: SimpleModuleViewService) {}
 
 }"""))
@@ -127,11 +143,11 @@ export class SimpleModuleViewComponent {
         log.infoBeforeAfter(out)
         assertThat(out, `is`("""export class SimpleModuleViewService {
 
-    pageElement = ['SimpleModule'];
+    pageElement = ['OtherSimpleModule', 'SimpleModule'];
 
     tabElement = ['EntityWithNullables', 'EntityWithOperations', 'GenericEntity', 'SimpleEntity'];
 
-    pageName = 'SimpleModuleComponent';
+    pageName = 'SimpleModule';
 }
 """))
     }
@@ -142,58 +158,17 @@ export class SimpleModuleViewComponent {
     fun toAngularModuleHTMLComponentTest() {
         val out = SimpleComp.SimpleModule.toAngularModuleHTMLComponent(context())
         log.infoBeforeAfter(out)
-        assertThat(out, `is`("""<mat-sidenav-container>
-    <mat-sidenav opened="true" disableClose="true" position="end" #drawer
-                 [mode]="'side'" [fixedInViewport]="true">
-        <mat-nav-list>
-            <a *ngFor="let pageName of simplemoduleViewService.pageElement"
-               mat-list-item
-               routerLinkActive="active-link"
-               [routerLink]="'/' + pageName.toLowerCase()"
-            >{{pageName.toUpperCase()}}</a>
-        </mat-nav-list>
-    </mat-sidenav>
-
-    <mat-sidenav-content>
-        <mat-toolbar>
-            <span>{{pageName}}</span>
-
-            <span class="toolbar-space"></span>
-
-            <button mat-icon-button (click)="drawer.toggle()">
-                <mat-icon>menu</mat-icon>
-            </button>
-        </mat-toolbar>
-
-        <nav mat-tab-nav-bar>
-            <div *ngFor="let pageTabsName of simplemoduleViewService.tabElement">
-                <a mat-tab-link
-                   [routerLink]="'/simplemodule' + '/' + pageTabsName.toLowerCase()"
-                   routerLinkActive="active-link"
-                >{{pageTabsName.toUpperCase()}}
-                </a>
-            </div>
-        </nav>
-    </mat-sidenav-content>
-</mat-sidenav-container>"""))
+        assertThat(out, `is`("""<app-page [pageName]="simplemoduleViewService.pageName" [pageElement]="simplemoduleViewService.pageElement" [tabElement]="simplemoduleViewService.tabElement"></app-page>
+"""))
     }
 
     @Test
     @Order(4)
-    @DisplayName("Angular Test for Generating Module SCSS Component")
+    @DisplayName("Angular Test for Generating Default/ Module SCSS Component")
     fun toAngularModuleSCSSComponentTest() {
-        val out = SimpleComp.SimpleModule.toAngularModuleSCSS(context())
+        val out = SimpleComp.SimpleModule.toAngularDefaultSCSS(context())
         log.infoBeforeAfter(out)
-        assertThat(out, `is`(""".toolbar-space {
-    flex: 1 1 auto;
-}
-
-mat-sidenav-container {
-    position: relative;
-    width: 100%;
-    z-index: 2;
-}
-"""))
+        assertThat(out, `is`("""host{}"""))
     }
 
     @Test
@@ -202,9 +177,11 @@ mat-sidenav-container {
     fun toAngularEntityListTypeScriptComponentTest() {
         val out = SimpleComp.SimpleModule.SimpleEntity.toAngularEntityListTypeScript(context())
         log.infoBeforeAfter(out)
-        assertThat(out, `is`("""import {Component, OnInit} from '@angular/core';
+        assertThat(out, `is`("""import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {TableDataService} from '@template/services/data.service';
 import {SimpleEntityDataService} from '@simplecomp/simplemodule/simpleentity/service/simpleentity-data.service';
+import {MatTableDataSource} from '@angular/material/table';
+import {MatSort} from '@angular/material/sort';
 
 @Component({
   selector: 'app-simpleentity-list',
@@ -213,20 +190,37 @@ import {SimpleEntityDataService} from '@simplecomp/simplemodule/simpleentity/ser
   providers: [{provide: TableDataService, useClass: SimpleEntityDataService}]
 })
 
-export class SimpleEntityListComponent implements OnInit {
+export class SimpleEntityListComponent implements OnInit, AfterViewInit {
 
     simpleentity: SimpleEntity = new SimpleEntity();
 
     tableHeader: Array<String> = [];
+    
+    elementValue: MatTableDataSource<any>;
+    
+    @ViewChild(MatSort) sort: MatSort;
 
     constructor(public simpleentityDataService: SimpleEntityDataService) {}
 
+    ngAfterViewInit() {
+        this.simpleentityDataService.dataSources.sort = this.sort;
+    }
     ngOnInit(): void {
         this.tableHeader = this.generateTableHeader();
+        this.simpleentityDataService.checkSearchRoute();
+        if (this.simpleentityDataService.isSearch) {
+            this.simpleentityDataService.loadSearchData()
+        } else {
+            this.simpleentityDataService.dataSources =
+                new MatTableDataSource(this.simpleentityDataService.changeMapToArray(
+                    this.simpleentityDataService.retrieveItemsForTableList()));
+        }
+        this.elementValue = new MatTableDataSource(this.simpleentityDataService.changeMapToArray(
+            this.simpleentityDataService.retrieveItemsFromCache()));
     }
 
     generateTableHeader() {
-        return ['Box', 'Actions', 'firstSimpleProperty', 'anotherSimpleProperty', 'lastSimpleProperty', 'name', 'birthday', 'bool', 'count', 'float'];
+        return ['Box', 'Actions', 'simpleBasicProperties-firstSimpleProperty', 'simpleBasicProperties-anotherSimpleProperty', 'simpleBasicProperties-lastSimpleProperty', 'name', 'birthday', 'bool', 'count', 'float', 'othermoduleentity-entity'];
     }
 }
 """))
@@ -238,25 +232,121 @@ export class SimpleEntityListComponent implements OnInit {
     fun toAngularEntityListHTMLComponentTest() {
         val out = SimpleComp.SimpleModule.SimpleEntity.toAngularEntityListHTMLComponent(context())
         log.infoBeforeAfter(out)
-        assertThat(out, `is`("""<app-simplemodule [pageName]="simpleentityDataService.pageName"></app-simplemodule>
-<a class="newButton" [routerLink]="'./new'"
-        routerLinkActive="active-link">
-    <mat-icon>add_circle_outline</mat-icon> Add New Item
-</a>
-
-<ng-container *ngIf="simpleentityDataService.isHidden; else showed">
-    <a class="showButton" (click)="simpleentityDataService.toggleHidden()">
-        <mat-icon>delete_outline</mat-icon> Delete Multiple Items
+        assertThat(out, `is`("""<app-simplemodule></app-simplemodule>
+<div class="simpleentity-list-button">
+    <a class="newButton" [routerLink]="'./new'"
+            routerLinkActive="active-link">
+        <mat-icon>add_circle_outline</mat-icon> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
     </a>
-</ng-container>
+    
+    <ng-container *ngIf="simpleentityDataService.isHidden; else showed">
+        <a class="showButton" (click)="simpleentityDataService.toggleHidden()">
+            <mat-icon>delete_outline</mat-icon> {{"delete" | translate}}...
+        </a>
+    </ng-container>
+    
+    <ng-template #showed>
+        <a class="deleteButton" (click)="simpleentityDataService.clearMultipleItems(simpleentityDataService.selection.selected); simpleentityDataService.toggleHidden()">
+            <mat-icon>delete_outline</mat-icon> {{"delete" | translate}} {{"item" | translate}}
+        </a>
+    </ng-template>
+    
+    <mat-form-field class="filter">
+        <mat-label>{{"filter" | translate}}</mat-label>
+        <input matInput (keyup)="simpleentityDataService.applyFilter(${'$'}event)" placeholder="Input Filter..." [ngModel]="simpleentityDataService.filterValue">
+    </mat-form-field>
+</div>
 
-<ng-template #showed>
-    <a class="deleteButton" (click)="simpleentityDataService.clearMultipleItems(simpleentityDataService.selection.selected); simpleentityDataService.toggleHidden()">
-        <mat-icon>delete_outline</mat-icon> Delete Items
-    </a>
-</ng-template>
+<div class="mat-elevation-z8 simpleentity-list" style="overflow-x: scroll">
+    <table mat-table matSort [dataSource]="simpleentityDataService.dataSources">
+        <ng-container matColumnDef="Box">
+            <th mat-header-cell *matHeaderCellDef>
+                <section [style.visibility]="simpleentityDataService.isHidden? 'hidden': 'visible'">
+                    <mat-checkbox color="warn"
+                                  (change)="${'$'}event ? simpleentityDataService.masterToggle() : null"
+                                  [checked]="simpleentityDataService.selection.hasValue() && simpleentityDataService.allRowsSelected()"
+                                  [indeterminate]="simpleentityDataService.selection.hasValue() && !simpleentityDataService.allRowsSelected()"></mat-checkbox>
+                </section>
+            </th>
+            <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'box'">
+                <section [style.visibility]="simpleentityDataService.isHidden? 'hidden': 'visible'">
+                    <mat-checkbox color="warn"
+                                  (click)="${'$'}event.stopPropagation()"
+                                  (change)="${'$'}event ? simpleentityDataService.selection.toggle(element) : null"
+                                  [checked]="simpleentityDataService.selection.isSelected(element)"></mat-checkbox>
+                </section>
+            </td>
+        </ng-container>
 
-<app-table [selection]="simpleentityDataService.selection" [isHidden]="simpleentityDataService.isHidden" [displayedColumns]="tableHeader"></app-table>
+        <ng-container matColumnDef="Actions">
+            <th mat-header-cell *matHeaderCellDef> {{"table.action" | translate}} </th>
+            <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'actions'">
+                <mat-menu #appMenu="matMenu">
+                    <ng-template matMenuContent>
+                        <button mat-menu-item (click)="simpleentityDataService.editItems(i, element)"><mat-icon>edit</mat-icon>
+                            <span>{{"edit" | translate}}</span></button>
+                        <button mat-menu-item (click)="simpleentityDataService.removeItem(element)"><mat-icon>delete</mat-icon>
+                            <span>{{"delete" | translate}}</span></button>
+                    </ng-template>
+                </mat-menu>
+
+                <button mat-icon-button [matMenuTriggerFor]="appMenu">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+            </td>
+        </ng-container>
+        
+        
+        <ng-container matColumnDef="simpleBasicProperties-firstSimpleProperty">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.firstsimpleproperty" | translate}} </th>
+            <td mat-cell *matCellDef="let element"> {{element['simpleBasicProperties-firstSimpleProperty']}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="simpleBasicProperties-anotherSimpleProperty">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.anothersimpleproperty" | translate}} </th>
+            <td mat-cell *matCellDef="let element"> {{element['simpleBasicProperties-anotherSimpleProperty']}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="simpleBasicProperties-lastSimpleProperty">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.lastsimpleproperty" | translate}} </th>
+            <td mat-cell *matCellDef="let element"> {{element['simpleBasicProperties-lastSimpleProperty']}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.name" | translate}} </th>
+            <td mat-cell *matCellDef="let element"> {{element['name']}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="birthday">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.birthday" | translate}} </th>
+            <td mat-cell *matCellDef="let element"> {{element['birthday'] | DateTimeTranslationPipe}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="bool">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.bool" | translate}} </th>
+            <td mat-cell *matCellDef="let element"> {{element['bool']}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="count">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.count" | translate}} </th>
+            <td mat-cell *matCellDef="let element"> {{element['count']}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="float">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.float" | translate}} </th>
+            <td mat-cell *matCellDef="let element"> {{element['float']}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="othermoduleentity-entity">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.othermoduleentity" | translate}}</th>
+            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="simpleentityDataService.searchItems(i, element['othermoduleentity'], 'othersimplemodule/othersimpleentity', 'simpleentity')">{{elementValue.data[i]['othermoduleentity-name']}}</a> </td>
+        </ng-container>
+
+
+        <tr mat-header-row *matHeaderRowDef="tableHeader"></tr>
+        <tr mat-row *matRowDef="let row; columns: tableHeader;"></tr>
+    </table>
+</div>
 """))
     }
 
@@ -266,56 +356,23 @@ export class SimpleEntityListComponent implements OnInit {
     fun toAngularEntityListSCSSComponentTest() {
         val out = SimpleComp.SimpleModule.SimpleEntity.toAngularEntityListSCSSComponent(context())
         log.infoBeforeAfter(out)
-        assertThat(out, `is`("""app-table {
+        assertThat(out, `is`("""@import "src/styles";
+
+.simpleentity-list {
+    @extend .entity-list;
     position: absolute;
     width: 80% !important;
     z-index: 1;
-    top: 30%;
+    top: 40%;
     left: 10%;
 }
 
+.simpleentity-list-button {
+    @extend .entity-list-button
+}
+
 a {
-    text-decoration: none;
-    border: 0;
-    background: white;
-    color: black;
-    cursor: pointer;
-}
-
-.newButton {
-    position: absolute;
-    top: 20%;
-    left: 30%;
-}
-
-.deleteButton, .showButton {
-    position: absolute;
-    top: 20%;
-    left: 50%;
-}
-
-@media screen and (max-width: 1000px) {
-    app-table {
-        max-width: 70%;
-    }
-}
-
-@media screen and (max-width: 585px) {
-    app-table {
-        max-width: 60%;
-    }
-
-    .newButton {
-        position: absolute;
-        top: 20%;
-        left: 10%;
-    }
-
-    .deleteButton, .showButton {
-        position: absolute;
-        top: 20%;
-        left: 40%;
-    }
+    @extend .entity-link
 }
 """))
     }
@@ -357,11 +414,11 @@ export class SimpleEntityViewComponent implements OnInit {
     fun toAngularEntityViewHTMLComponentTest() {
         val out = SimpleComp.SimpleModule.SimpleEntity.toAngularEntityViewHTMLComponent(context())
         log.infoBeforeAfter(out)
-        assertThat(out, `is`("""<app-simplemodule [pageName]="simpleentityDataService.pageName"></app-simplemodule>
+        assertThat(out, `is`("""<app-simplemodule></app-simplemodule>
 
 <app-simpleentity-form [simpleentity]="simpleentity"></app-simpleentity-form>
 
-<app-button [element]="simpleentity" [isEdit]="simpleentityDataService.isEdit" [itemIndex]="simpleentityDataService.itemIndex"></app-button>
+<app-button [element]="simpleentity" [entityElements]="simpleentityDataService.entityElements" [isEdit]="simpleentityDataService.isEdit"></app-button>
 """))
     }
 
@@ -386,9 +443,10 @@ export class SimpleEntityViewComponent implements OnInit {
         val out = SimpleComp.SimpleModule.SimpleEntity.toAngularEntityFormTypeScript(context())
         log.infoBeforeAfter(out)
         assertThat(out, `is`("""import {Component, OnInit, Input} from '@angular/core';
-import {TableDataService} from '@template/services/data.service';
 import {SimpleEntityDataService} from '@simplecomp/simplemodule/simpleentity/service/simpleentity-data.service';
+import {OtherSimpleEntityDataService} from '@simplecomp/othersimplemodule/othersimpleentity/service/othersimpleentity-data.service';
 
+    
 @Component({
   selector: 'app-simpleentity-form',
   templateUrl: './simpleentity-entity-form.component.html',
@@ -398,15 +456,23 @@ import {SimpleEntityDataService} from '@simplecomp/simplemodule/simpleentity/ser
 
 export class SimpleEntityFormComponent implements OnInit {
 
-
     @Input() simpleentity: SimpleEntity;
 
-    constructor(public simpleentityDataService: SimpleEntityDataService) {}
-
+    constructor(public simpleentityDataService: SimpleEntityDataService, 
+        public othersimpleentityDataService: OtherSimpleEntityDataService, 
+) {}
     ngOnInit(): void {
         if (this.simpleentity.simpleBasicProperties === undefined) {
             this.simpleentity.simpleBasicProperties = new SimpleBasic();
         }
+        if (this.simpleentity.otherModuleEntity === undefined) {
+            this.simpleentity.otherModuleEntity = new OtherSimpleEntity();
+        }
+    
+        this.simpleentityDataService.optionOtherSimpleEntity = this.simpleentityDataService.changeMapToArray(this.othersimpleentityDataService.retrieveItemsFromCache()); 
+
+    
+    this.simpleentityDataService.initObservable();
     }
 }
 """))
@@ -419,42 +485,63 @@ export class SimpleEntityFormComponent implements OnInit {
         val out = SimpleComp.SimpleModule.SimpleEntity.toAngularFormHTMLComponent(context())
         log.infoBeforeAfter(out)
         assertThat(out, `is`("""
-<div>
-    <form class="simpleentity-form">
+<div class="simpleentity-form">
+    <form>
         <fieldset>
-            <legend>SimpleEntity</legend>
+            <legend>{{"table.simpleentity" | translate}}</legend>
             
             <mat-form-field appearance="outline">
-                <mat-label>name</mat-label>
+                <mat-label>{{"table.name" | translate}}</mat-label>
                 <input matInput name="name" [(ngModel)]="simpleentity.name">
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-                <mat-label>birthday</mat-label>
-                <input matInput [matDatepicker]="picker" [(ngModel)]="simpleentity.birthday">
+                <mat-label>{{"table.birthday" | translate}}</mat-label>
+                <input matInput [matDatepicker]="picker" [(ngModel)]="simpleentity.birthday" [ngModel]="simpleentity.birthday | date: 'yyyy-MM-dd'">
                 <mat-hint>MM/DD/YYYY</mat-hint>
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-                <mat-label>bool</mat-label>
+                <mat-label>{{"table.bool" | translate}}</mat-label>
                 <mat-select [(value)]="simpleentity.bool">
                     <mat-option *ngFor="let item of ['true', 'false']" [value]="item">{{item}}</mat-option>
                 </mat-select>
             </mat-form-field>
 
+            <mat-form-field appearance="outline">
+                <mat-label>{{"table.count" | translate}}</mat-label>
+                <input matInput name="count" type="number" [(ngModel)]="simpleentity.count">
+            </mat-form-field>
 
+            <mat-form-field appearance="outline">
+                <mat-label>{{"table.float" | translate}}</mat-label>
+                <input matInput name="float" type="number" [(ngModel)]="simpleentity.float">
+            </mat-form-field>
     
             
         </fieldset>
         
-        <app-simplebasic [parentName]="'SimpleEntity'" [simplebasic]="simpleentity.simpleBasicProperties"></app-simplebasic>
+        <app-simplebasic [parentName]="'simpleentity'" [simplebasic]="simpleentity.simpleBasicProperties"></app-simplebasic>
 
 
 
 
 
+
+        <fieldset>
+            <legend>{{"table.othersimpleentity" | translate}}</legend>
+            <mat-form-field appearance="fill">
+                <mat-label>{{"select" | translate}} {{"table.othersimpleentity" | translate}}</mat-label>
+                <input type="text" matInput [formControl]="simpleentityDataService.controlOtherSimpleEntity" [matAutocomplete]="autoOtherSimpleEntity" [(ngModel)]="simpleentity.otherModuleEntity">
+                <mat-autocomplete #autoOtherSimpleEntity="matAutocomplete" [displayWith]="simpleentityDataService.displayOtherSimpleEntity">
+                    <mat-option *ngFor="let option of simpleentityDataService.filteredOptionsOtherSimpleEntity | async" [value]="option">
+                        {{option.name}}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+        </fieldset>
     </form>
 </div>
 """))
@@ -466,35 +553,27 @@ export class SimpleEntityFormComponent implements OnInit {
     fun toAngularEntityFormSCSSComponentTest() {
         val out = SimpleComp.SimpleModule.SimpleEntity.toAngularFormSCSSComponent(context())
         log.infoBeforeAfter(out)
-        assertThat(out, `is`("""form {
+        assertThat(out, `is`("""@import "src/styles";
+
+.simpleentity-form {
+    @extend .entity-form
+}
+
+app-simplebasic-form {
     position: relative;
-    max-width: 80%;
-    z-index: 1;
-    left: 10%;
+    left: -10%;
 }
 
-fieldset {
-    width: 80%;
-    padding: 20px;
-    border: round(30) 1px;
 
-    .mat-form-field {
-        padding: 10px 0;
-    }
+
+
+
+
+app-othersimpleentity-form {
+    position: relative;
+    left: -10%;
 }
 
-@media screen and (max-width: 650px) {
-    form {
-        left: 5%;
-    }
-}
-
-@media screen and (max-width: 480px) {
-    form {
-        left: 5%;
-        max-width: 50%;
-    }
-}
 """))
     }
 
@@ -504,11 +583,16 @@ fieldset {
     fun toAngularEntityDataServiceComponentTest() {
         val out = SimpleComp.SimpleModule.SimpleEntity.toAngularEntityDataService(context())
         log.infoBeforeAfter(out)
-        assertThat(out, `is`("""import {Injectable} from '@angular/core';
-import {TableDataService} from '@template/services/data.service';
-import {SelectionModel} from '@angular/cdk/collections';
+        assertThat(out, `is`("""
+import {OtherSimpleEntity} from '@simplecomp/othersimplemodule/OtherSimpleModuleApiBase';
 
-@Injectable()
+import {Injectable} from '@angular/core';
+import {TableDataService} from '@template/services/data.service';
+import {FormControl} from '@angular/forms';
+import {Observable} from 'rxjs';
+import {map, startWith} from 'rxjs/operators';
+
+@Injectable({ providedIn: 'root' })
 export class SimpleEntityDataService extends TableDataService {
     itemName = 'simpleentity';
 
@@ -516,9 +600,15 @@ export class SimpleEntityDataService extends TableDataService {
     
     isHidden = true;
     
+    entityElements = ['otherModuleEntity',];   
     
+    
+    controlOtherSimpleEntity = new FormControl<OtherSimpleEntity>(new OtherSimpleEntity());
+    optionOtherSimpleEntity: Array<OtherSimpleEntity>;
+    filteredOptionsOtherSimpleEntity: Observable<OtherSimpleEntity[]>;
 
-    selection = new SelectionModel<any>(true, []);
+    
+    
 
     getFirst() {
         return new SimpleEntity();
@@ -526,6 +616,30 @@ export class SimpleEntityDataService extends TableDataService {
     
     toggleHidden() {
         this.isHidden = !this.isHidden;
+    }
+    
+    
+    displayOtherSimpleEntity(otherSimpleEntity: OtherSimpleEntity): string {
+        return otherSimpleEntity ? otherSimpleEntity.name : '';
+    }
+    
+    filterOtherSimpleEntity(name: string, array: Array<OtherSimpleEntity>): OtherSimpleEntity[] {
+        return array.filter(option => option.name.toLowerCase().includes(name.toLowerCase()));
+    }
+
+    
+    initObservable() {
+    
+        this.filteredOptionsOtherSimpleEntity = this.controlOtherSimpleEntity.valueChanges.pipe(
+            startWith(''),
+            map((value: OtherSimpleEntity) => {
+                const name = typeof value === 'string' ? value : value.name;
+                return name ?
+                    this.filterOtherSimpleEntity(name as string, this.optionOtherSimpleEntity)
+                    : this.optionOtherSimpleEntity.slice();
+            }),
+        );
+
     }
     
     
@@ -547,6 +661,11 @@ import {CommonModule} from '@angular/common';
 import {TemplateModule} from '@template/template.module';
 import {MaterialModule} from '@template/material.module';
 
+import {HttpClient} from '@angular/common/http';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {TemplateTranslateService} from '@template/services/translate.service';
+import {TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
+
 import {SimpleModuleViewComponent} from './components/view/simplemodule-module-view.component';
 import {EntityWithNullablesViewComponent} from '@simpleComp/simplemodule/entitywithnullables/components/view/entitywithnullables-entity-view.component';
 import {EntityWithNullablesListComponent} from '@simpleComp/simplemodule/entitywithnullables/components/list/entitywithnullables-entity-list.component';
@@ -562,6 +681,13 @@ import {SimpleEntityListComponent} from '@simpleComp/simplemodule/simpleentity/c
 import {SimpleEntityFormComponent} from '@simpleComp/simplemodule/simpleentity/components/form/simpleentity-entity-form.component';
 import {OperationComponentComponent} from '@simpleComp/simplemodule/basics/operationcomponent/operationcomponent-basic.component';
 import {SimpleBasicComponent} from '@simpleComp/simplemodule/basics/simplebasic/simplebasic-basic.component';
+import {SimpleEnumEnumComponent} from '@simpleComp/simplemodule/enums/simpleenum/simpleenum-enum.component';
+import {OtherSimpleModuleModule} from '@simplecomp/othersimplemodule/othersimplemodule-model.module';
+    
+
+export function HttpLoaderFactory(http: HttpClient) {
+    return new TranslateHttpLoader(http);
+}
 
 @NgModule({
     declarations: [
@@ -579,7 +705,8 @@ import {SimpleBasicComponent} from '@simpleComp/simplemodule/basics/simplebasic/
         SimpleEntityListComponent,
         SimpleEntityFormComponent,
         OperationComponentComponent,
-        SimpleBasicComponent
+        SimpleBasicComponent,
+        SimpleEnumEnumComponent,
     ],
     imports: [
         SimpleModuleRoutingModules,
@@ -588,15 +715,23 @@ import {SimpleBasicComponent} from '@simpleComp/simplemodule/basics/simplebasic/
         FormsModule,
         ReactiveFormsModule,
         MaterialModule,
+        TranslateModule.forChild({
+            loader: {provide: TranslateLoader, useFactory: HttpLoaderFactory, deps: [HttpClient]},
+        }),
+        OtherSimpleModuleModule,
+        
     ],
-    providers: [],
+    providers: [
+        { provide: TranslateService, useExisting: TemplateTranslateService }
+    ],
     exports: [
         EntityWithNullablesFormComponent,
         EntityWithOperationsFormComponent,
         GenericEntityFormComponent,
         SimpleEntityFormComponent,
         OperationComponentComponent,
-        SimpleBasicComponent
+        SimpleBasicComponent,
+        SimpleEnumEnumComponent,
     ]
 })
 export class SimpleModuleModule {}"""))
@@ -626,15 +761,19 @@ const routes: Routes = [
     { path: 'entitywithnullables', component: EntityWithNullablesListComponent },
     { path: 'entitywithnullables/new', component: EntityWithNullablesViewComponent },
     { path: 'entitywithnullables/edit/:id', component: EntityWithNullablesViewComponent },
+    { path: 'entitywithnullables/search', component: EntityWithNullablesListComponent },
     { path: 'entitywithoperations', component: EntityWithOperationsListComponent },
     { path: 'entitywithoperations/new', component: EntityWithOperationsViewComponent },
     { path: 'entitywithoperations/edit/:id', component: EntityWithOperationsViewComponent },
+    { path: 'entitywithoperations/search', component: EntityWithOperationsListComponent },
     { path: 'genericentity', component: GenericEntityListComponent },
     { path: 'genericentity/new', component: GenericEntityViewComponent },
     { path: 'genericentity/edit/:id', component: GenericEntityViewComponent },
+    { path: 'genericentity/search', component: GenericEntityListComponent },
     { path: 'simpleentity', component: SimpleEntityListComponent },
     { path: 'simpleentity/new', component: SimpleEntityViewComponent },
-    { path: 'simpleentity/edit/:id', component: SimpleEntityViewComponent }
+    { path: 'simpleentity/edit/:id', component: SimpleEntityViewComponent },
+    { path: 'simpleentity/search', component: SimpleEntityListComponent }
 ];
 
 @NgModule({
