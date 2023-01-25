@@ -1,5 +1,4 @@
 import ee.common.ext.joinSurroundIfNotEmptyToString
-import ee.common.ext.then
 import ee.common.ext.toCamelCase
 import ee.design.EntityI
 import ee.lang.*
@@ -233,7 +232,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
             </td>
         </ng-container>
         
-        ${toAngularTableListBasic(this.name(), "")}
+        ${toAngularTableListBasic(this.name(), "", false)}
 
         <tr mat-header-row *matHeaderRowDef="tableHeader"></tr>
         <tr mat-row *matRowDef="let row; columns: tableHeader;"></tr>
@@ -257,11 +256,11 @@ fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = ""): String =
         </ng-container>
 """
 
-fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = ""): String =
+fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = "", isChild: Boolean): String =
     this.props().filter { !isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props().first { element -> element.type().name() == "String" })
-            is BasicI<*> -> it.type().toAngularTableListBasic(parentName, it.name())
+            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props().first { element -> element.type().name() == "String" }, isChild)
+            is BasicI<*> -> it.type().toAngularTableListBasic(parentName, it.name(), true)
             is EnumTypeI<*> -> it.toAngularTableListEnum(basicName)
             else -> {
                 when(it.type().name()) {
@@ -273,11 +272,11 @@ fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName:
     }
 
 
-fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: AttributeI<*>): String =
+fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: AttributeI<*>, isChild: Boolean): String =
     """
         <ng-container matColumnDef="${this.name().toLowerCase()}-entity">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().toLowerCase()}" | translate}}</th>
-            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{elementValue.data[i]['${this.name().toLowerCase()}-${key.name()}']}}</a> </td>
+            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{elementValue.data[i]${if(isChild) "['${this.name().toLowerCase()}']['${key.name()}']" else "['${this.name().toLowerCase()}-${key.name()}']"}}}</a> </td>
         </ng-container>
 """
 
