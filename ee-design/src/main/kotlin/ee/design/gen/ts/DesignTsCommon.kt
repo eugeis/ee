@@ -72,12 +72,12 @@ when(it.type()) {
 }
     }}
     
-    this.${this.name().toLowerCase()}DataService.initObservable();
+        this.${this.name().toLowerCase()}DataService.initObservable();
     }"""
 }
 
 fun <T : ItemI<*>> T.toAngularInitOption(elementType: String): String {
-    return """${tab + tab}this.${this.parent().name().toLowerCase()}DataService.option${elementType.capitalize()} = this.${this.parent().name().toLowerCase()}DataService.changeMapToArray(this.${elementType.toLowerCase()}DataService.retrieveItemsFromCache()); $nL"""
+    return """${tab + tab}this.${this.parent().name().toLowerCase()}DataService.option${elementType.capitalize()} = this.${elementType.toLowerCase()}DataService.changeMapToArray(this.${elementType.toLowerCase()}DataService.retrieveItemsFromCache()); $nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, elementType: TypeI<*>): String {

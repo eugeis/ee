@@ -88,8 +88,6 @@ ${isOpen().then("export ")}class ${c.n(this)}ListComponent implements ${c.n("OnI
 ${this.toTypeScriptEntityPropInit(c, tab)}
     tableHeader: Array<String> = [];
     
-    ${this.props().any { it.type() is EntityI<*> || it.type().props().any { child -> child.type() is EntityI<*>} }.then { "elementValue: MatTableDataSource<any>;" }}
-    
     @ViewChild(MatSort) sort: MatSort;
 
 ${this.toAngularConstructorDataService(tab)}
@@ -121,6 +119,8 @@ import {TableDataService} from '@template/services/data.service';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
+import {SelectionModel} from '@angular/cdk/collections';
+import {MatTableDataSource} from '@angular/material/table';
 
 @${c.n("Injectable")}({ providedIn: 'root' })
 ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataService {
@@ -158,6 +158,11 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     previews: string[] = [];
     """
     }}
+    
+    items: Map<string, ${c.n(this)}> = new Map();
+    tableItems: Map<string, ${c.n(this)}> = new Map();
+    selection = new SelectionModel<${c.n(this)}>(true, []);
+    dataSources: MatTableDataSource<${c.n(this)}>;
 
     getFirst() {
         return new ${c.n(this)}();
@@ -201,6 +206,98 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     }
     """ 
     }}
+    
+    inputElement(element: ${c.n(this)}) {
+        this.changeDateValue(element);
+        const id = this.itemName + JSON.stringify(element);
+        this.addItemToTableArray(element, id);
+    }
+
+    addItemToTableArray(items: ${c.n(this)}, id: string) {
+        this.items = this.retrieveItemsFromCache()
+        this.items.set(id, items);
+        this.saveItemToCache(this.items);
+    }
+
+    changeMapToArray(data: Map<string, ${c.n(this)}>) {
+        const tableItems: Array<${c.n(this)}> = [];
+        data.forEach((value) => {
+            tableItems.push(value);
+        });
+        return tableItems
+    }
+
+    clearMultipleItems(selected: ${c.n(this)}[]) {
+        this.items = this.retrieveItemsFromCache();
+        selected.forEach((selectedItem) => {
+            const id = this.itemName + JSON.stringify(selectedItem);
+            this.items.delete(id)
+        })
+        this.saveItemToCache(this.items);
+        window.location.reload();
+    }
+
+    removeItem(element: ${c.n(this)}) {
+        const id = this.itemName + JSON.stringify(element)
+        this.items = this.retrieveItemsFromCache();
+        this.items.delete(id)
+        this.saveItemToCache(this.items);
+        window.location.reload();
+    }
+
+    searchItems(index: number, element: ${c.n(this)}, relativePath: string, itemName: string) {
+        this._router.navigate([ relativePath + '/edit', index] );
+        if (typeof element === 'string') {
+            localStorage.setItem('edit', element);
+            localStorage.setItem('edit-entity', itemName);
+        }
+    }
+    
+    loadSearchData() {
+        const searchItem = JSON.parse(localStorage.getItem('search'));
+        this.dataSources = new MatTableDataSource(this.changeMapToArray(this.retrieveItemsFromCache()));
+        this.filterValue = searchItem;
+        this.dataSources.filter = this.filterValue;
+    }
+
+    editElement(element: ${c.n(this)}) {
+        this.items = this.retrieveItemsFromCache();
+        const editItem = JSON.parse(localStorage.getItem('edit'));
+        const editItemEntity = localStorage.getItem('edit-entity');
+        const newElement = this.changeDateValue(element);
+        const oldId = this.itemName + JSON.stringify(editItem);
+        const newId = this.itemName + JSON.stringify(newElement);
+
+        this.addItemToTableArray(newElement, newId);
+        this.items.delete(oldId);
+        this.saveItemToCache(this.items);
+        // this.editInheritedEntity(editItemEntity, newElement)
+    }
+
+    editItems(index: number, element: ${c.n(this)}) {
+        this._router.navigate([this._router.url + '/edit' , index]);
+        localStorage.setItem('edit', JSON.stringify(element));
+    }
+
+    checkRoute(element: ${c.n(this)}) {
+        const currentUrl = this._router.url;
+        currentUrl.includes('edit') ? this.isEdit = true : this.isEdit = false;
+        if (this.isEdit) {
+            this.loadElement(element);
+        }
+    }
+
+    loadElement(element: ${c.n(this)}) {
+        const editItem = JSON.parse(localStorage.getItem('edit'));
+        if (editItem !== null) {
+            Object.assign(element, editItem)
+        }
+    }
+
+    saveItemToCache(data: Map<string, ${c.n(this)}>) {
+        localStorage.map = JSON.stringify(Array.from(data.entries()));
+        localStorage.setItem(this.itemName, localStorage.map);
+    }
 }
 """
 }

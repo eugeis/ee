@@ -12,7 +12,19 @@ fun <T : ItemI<*>> T.toAngularEntityViewHTML(): String =
 
 <app-${this.name().toLowerCase()}-form [${this.name().toLowerCase()}]="${this.name().toLowerCase()}"></app-${this.name().toLowerCase()}-form>
 
-<app-button [element]="${this.name().toLowerCase()}" [entityElements]="${this.name().toLowerCase()}DataService.entityElements" [isEdit]="${this.name().toLowerCase()}DataService.isEdit"></app-button>
+<ng-container *ngIf="${this.name().toLowerCase()}DataService.isEdit; else notEdit">
+    <button mat-raised-button [routerLink]="'../../'"
+            routerLinkActive="active-link">{{'cancel edit' | translate}}</button>
+    <button mat-raised-button (click)="${this.name().toLowerCase()}DataService.editElement(${this.name().toLowerCase()})" [routerLink]="'../../'"
+            routerLinkActive="active-link">{{'save changes' | translate}}</button>
+</ng-container>
+
+<ng-template #notEdit>
+    <button mat-raised-button [routerLink]="'../'"
+            routerLinkActive="active-link">{{'cancel' | translate}}</button>
+    <button mat-raised-button (click)="${this.name().toLowerCase()}DataService.inputElement(${this.name().toLowerCase()})" [routerLink]="'../'"
+            routerLinkActive="active-link">{{'save' | translate}}</button>
+</ng-template>
 """
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
@@ -232,7 +244,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
             </td>
         </ng-container>
         
-        ${toAngularTableListBasic(this.name(), "", false)}
+        ${toAngularTableListBasic(this.name(), "", "",false)}
 
         <tr mat-header-row *matHeaderRowDef="tableHeader"></tr>
         <tr mat-row *matRowDef="let row; columns: tableHeader;"></tr>
@@ -248,24 +260,24 @@ fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNon
         </ng-container>
 """
 
-fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = ""): String =
+fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = "", isChild: Boolean): String =
     """
         <ng-container matColumnDef="${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().toLowerCase()}" | translate}} </th>
-            <td mat-cell *matCellDef="let element"> {{element['${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}'] | translate}} </td>
+            <td mat-cell *matCellDef="let element"> {{element${if(parentName.isEmpty()) "" else if(isChild) "['$parentName']" else ""}['${this.name()}'] | translate}} </td>
         </ng-container>
 """
 
-fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = "", isChild: Boolean): String =
+fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = "", basicParentName: String = "", isChild: Boolean): String =
     this.props().filter { !isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
             is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props().first { element -> element.type().name() == "String" }, isChild)
-            is BasicI<*> -> it.type().toAngularTableListBasic(parentName, it.name(), true)
-            is EnumTypeI<*> -> it.toAngularTableListEnum(basicName)
+            is BasicI<*> -> it.type().toAngularTableListBasic(parentName, it.name(), it.parent().name(),true)
+            is EnumTypeI<*> -> it.toAngularTableListEnum(basicName, isChild)
             else -> {
                 when(it.type().name()) {
                     "Date" -> it.toAngularTableListDate(basicName)
-                    else -> it.toAngularTableList(basicName)
+                    else -> it.toAngularTableList(parentName, basicName, basicParentName)
                 }
             }
         }
@@ -276,7 +288,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
     """
         <ng-container matColumnDef="${this.name().toLowerCase()}-entity">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().toLowerCase()}" | translate}}</th>
-            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{elementValue.data[i]${if(isChild) "['${this.name().toLowerCase()}']['${key.name()}']" else "['${this.name().toLowerCase()}-${key.name()}']"}}}</a> </td>
+            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{element${if(isChild) "['${this.parent().name().toLowerCase()}']['${this.name().toLowerCase()}']['${key.name()}']" else "['${this.name().toLowerCase()}']['${key.name()}']"}}}</a> </td>
         </ng-container>
 """
 
@@ -288,11 +300,11 @@ fun <T : ItemI<*>> T.toAngularTableListDate(parentName: String = ""): String =
         </ng-container>
 """
 
-fun <T : ItemI<*>> T.toAngularTableList(parentName: String = ""): String =
+fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: String = "", basicParentName: String = ""): String =
     """
-        <ng-container matColumnDef="${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}">
+        <ng-container matColumnDef="${if(elementName.isEmpty()) "" else "$elementName-"}${this.name()}">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().toLowerCase()}" | translate}} </th>
-            <td mat-cell *matCellDef="let element"> {{element['${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}']}} </td>
+            <td mat-cell *matCellDef="let element"> {{element${if(elementName.isEmpty()) "" else if(parentName.equals(basicParentName, ignoreCase = true)) "['$elementName']" else "['${basicParentName.toLowerCase()}']['$elementName']"}['${this.name()}']}} </td>
         </ng-container>
 """
 
@@ -300,7 +312,7 @@ fun <T : ItemI<*>> T.toAngularDefaultSCSS(): String =
     """host{}"""
 
 fun <T : ItemI<*>> T.toAngularEntityViewSCSS(): String =
-    """app-button {
+    """button {
     position: relative;
     left: 10%;
 }
