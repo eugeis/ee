@@ -105,8 +105,9 @@ ${this.toAngularListOnInit(tab)}
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                           api: String = LangDerivedKind.API): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(
+    entities: List<EntityI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+    api: String = LangDerivedKind.API): String {
     return """
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
     when(it.type()) {
@@ -247,10 +248,8 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
 
     searchItems(index: number, element: ${c.n(this)}, relativePath: string, itemName: string) {
         this._router.navigate([ relativePath + '/edit', index] );
-        if (typeof element === 'string') {
-            localStorage.setItem('edit', element);
-            localStorage.setItem('edit-entity', itemName);
-        }
+        localStorage.setItem('edit', JSON.stringify(element));
+        localStorage.setItem('edit-entity', itemName);
     }
     
     loadSearchData() {
@@ -271,9 +270,41 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
         this.addItemToTableArray(newElement, newId);
         this.items.delete(oldId);
         this.saveItemToCache(this.items);
-        // this.editInheritedEntity(editItemEntity, newElement)
+        this.editInheritedEntity(editItemEntity, newElement)
     }
-
+    
+    editInheritedEntity(itemName: string, newElement: ${c.n(this)}) {
+        const editItem = JSON.parse(localStorage.getItem('edit'));
+        if (JSON.stringify(newElement) !== JSON.stringify(editItem)) {
+        ${entities.filter { entity -> entity.props().any {property ->
+            (property.type() is BasicI<*> || property.type() is EntityI<*>) && ( entity.props().any {
+                childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) } ||
+                property.type().props().any {
+                        childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
+                )
+            } 
+        }.joinSurroundIfNotEmptyToString("") {
+        
+        """
+            const inheritedElement${it.name().capitalize()}: Map<string, ${c.n(it)}> = new Map(JSON.parse(localStorage.getItem(itemName)));
+            inheritedElement${it.name().capitalize()}.forEach((value, key) => {
+                if (key.includes(JSON.stringify(editItem))) {
+                    value${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
+                ) }.joinSurroundIfNotEmptyToString("") { elementName -> """.${elementName.name()}""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*>) && ( 
+                property.type().props().any { childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
+                ) }.joinSurroundIfNotEmptyToString("") { elementName -> """.${elementName.name()}.${this.name().toCamelCase()}""" }} = newElement;
+                    const newId = itemName + JSON.stringify(value);
+                    inheritedElement${it.name().capitalize()}.set(newId, value);
+                    inheritedElement${it.name().capitalize()}.delete(key);
+                }
+            });
+            localStorage.${it.name().toLowerCase()} = JSON.stringify(Array.from(inheritedElement${it.name().capitalize()}.entries()));
+            localStorage.setItem('${it.name().toLowerCase()}', localStorage.${it.name().toLowerCase()});
+        """
+    }}
+        }
+    }
+   
     editItems(index: number, element: ${c.n(this)}) {
         this._router.navigate([this._router.url + '/edit' , index]);
         localStorage.setItem('edit', JSON.stringify(element));

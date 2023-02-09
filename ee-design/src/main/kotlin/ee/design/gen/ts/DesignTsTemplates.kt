@@ -1,8 +1,8 @@
 package ee.design.gen.ts
 
+import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
-import ee.lang.gen.go.g
 import ee.lang.gen.ts.LangTsTemplates
 import ee.lang.gen.ts.toAngularBasicTSComponent
 import ee.lang.gen.ts.toAngularEnumTSComponent
@@ -42,8 +42,8 @@ open class DesignTsTemplates : LangTsTemplates {
     open fun <T : CompilationUnitI<*>> entityListTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityListTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityListTypeScript(c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> entityDataService(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityDataService", nameBuilder) { item, c -> item.toAngularEntityDataService(c, LangDerivedKind.API) }
+    open fun <T : CompilationUnitI<*>> entityDataService(entites: List<EntityI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EntityDataService", nameBuilder) { item, c -> item.toAngularEntityDataService(entites, c, LangDerivedKind.API) }
 
     open fun <T : CompilationUnitI<*>> basicTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("BasicTypeScriptComponent", nameBuilder) { item, c -> item.toAngularBasicTSComponent(c, LangDerivedKind.API) }

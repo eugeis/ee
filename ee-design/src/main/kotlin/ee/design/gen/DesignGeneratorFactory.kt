@@ -581,7 +581,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = entities,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.entityDataService()).filter { this.name() == entity.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.entityDataService(entities.invoke(model))).filter { this.name() == entity.name() } }),
                                     )
                                 }
                             )

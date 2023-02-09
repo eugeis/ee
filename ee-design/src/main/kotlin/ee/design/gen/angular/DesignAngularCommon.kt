@@ -288,7 +288,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
     """
         <ng-container matColumnDef="${this.name().toLowerCase()}-entity">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().toLowerCase()}" | translate}}</th>
-            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{element${if(isChild) "['${this.parent().name().toLowerCase()}']['${this.name().toLowerCase()}']['${key.name()}']" else "['${this.name().toLowerCase()}']['${key.name()}']"}}}</a> </td>
+            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element${if(isChild) "['${this.parent().name().toLowerCase()}']['${this.name().toLowerCase()}']" else "['${this.name().toLowerCase()}']"}, '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{element${if(isChild) "['${this.parent().name().toLowerCase()}']['${this.name().toLowerCase()}']['${key.name()}']" else "['${this.name().toLowerCase()}']['${key.name()}']"}}}</a> </td>
         </ng-container>
 """
 
