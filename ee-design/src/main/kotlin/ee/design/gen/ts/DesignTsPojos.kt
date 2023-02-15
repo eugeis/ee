@@ -209,7 +209,6 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     }}
     
     inputElement(element: ${c.n(this)}) {
-        this.changeDateValue(element);
         const id = this.itemName + JSON.stringify(element);
         this.addItemToTableArray(element, id);
     }
@@ -263,14 +262,13 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
         this.items = this.retrieveItemsFromCache();
         const editItem = JSON.parse(localStorage.getItem('edit'));
         const editItemEntity = localStorage.getItem('edit-entity');
-        const newElement = this.changeDateValue(element);
         const oldId = this.itemName + JSON.stringify(editItem);
-        const newId = this.itemName + JSON.stringify(newElement);
+        const newId = this.itemName + JSON.stringify(element);
 
-        this.addItemToTableArray(newElement, newId);
+        this.addItemToTableArray(element, newId);
         this.items.delete(oldId);
         this.saveItemToCache(this.items);
-        this.editInheritedEntity(editItemEntity, newElement)
+        this.editInheritedEntity(editItemEntity, element)
     }
     
     editInheritedEntity(itemName: string, newElement: ${c.n(this)}) {
@@ -330,5 +328,12 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
         localStorage.setItem(this.itemName, localStorage.map);
     }
 }
+
+declare global {
+    interface Window {
+        ${c.n(this).toLowerCase()}DataService: ${c.n(this)}DataService;
+    }
+}
+window.${c.n(this).toLowerCase()}DataService = new ${c.n(this)}DataService();
 """
 }

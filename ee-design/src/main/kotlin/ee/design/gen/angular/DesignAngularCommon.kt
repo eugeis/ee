@@ -296,7 +296,7 @@ fun <T : ItemI<*>> T.toAngularTableListDate(parentName: String = ""): String =
     """
         <ng-container matColumnDef="${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().toLowerCase()}" | translate}} </th>
-            <td mat-cell *matCellDef="let element"> {{element['${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}'] | DateTimeTranslationPipe}} </td>
+            <td mat-cell *matCellDef="let element"> {{element['${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}'] | DateTimeTranslation}} </td>
         </ng-container>
 """
 
