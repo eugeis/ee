@@ -37,8 +37,8 @@ fun <T : TypeI<*>> T.toAngularModuleTabElement(): String =
 fun <T : ItemI<*>> T.toAngularGenerateComponentPart(c: GenerationContext, element: String, type: String, hasProviders: Boolean, hasClass: Boolean): String =
     """@${c.n("Component")}({
   selector: 'app-${this.name().toLowerCase()}${(element == "entity").then("-${type}")}',
-  templateUrl: './${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.html',
-  styleUrls: ['./${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.scss'],
+  templateUrl: '${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.html',
+  styleUrls: ['${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.scss'],
   ${this.checkProvider(hasProviders, hasClass).trim()}
 })
 """

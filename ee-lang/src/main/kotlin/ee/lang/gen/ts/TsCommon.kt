@@ -5,8 +5,7 @@ import ee.lang.*
 import ee.lang.gen.java.j
 
 fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
-    val baseType = findDerivedOrThis()
-    return when (baseType) {
+    return when (val baseType = findDerivedOrThis()) {
         n.String, n.Text -> "''"
         n.Boolean        -> "false"
         n.Int            -> "0"
@@ -30,7 +29,7 @@ fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, 
             } else if (baseType is CompilationUnitI<*>) {
                 "new ${c.n(this, derived)}()"
             } else {
-                (this.parent() == n).ifElse("''", { "${c.n(this, derived)}.EMPTY" })
+                (this.parent() == n).ifElse("''") { "${c.n(this, derived)}.EMPTY" }
             }
         }
     }
@@ -41,7 +40,7 @@ fun <T : AttributeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: Str
 
 
 fun <T : ItemI<*>> T.toTypeScriptEMPTY(c: GenerationContext, derived: String): String =
-    (this.parent() == n).ifElse("''", { "${c.n(this, derived)}.EMPTY" })
+    (this.parent() == n).ifElse("''") { "${c.n(this, derived)}.EMPTY" }
 
 
 fun <T : AttributeI<*>> T.toTypeScriptEMPTY(c: GenerationContext, derived: String): String =
@@ -167,7 +166,7 @@ fun <T : AttributeI<*>> T.toTypeScriptSignature(c: GenerationContext, derived: S
 fun <T : AttributeI<*>> T.toTypeScriptConstructorMember(c: GenerationContext, derived: String, api: String,
                                                         init: Boolean = true): String =
     //"${isReplaceable().setAndTrue().ifElse("", "readonly ")}${toTypeScriptSignature(c, derived, api, init)}"
-    "${toTypeScriptSignature(c, derived, api, init)}"
+    toTypeScriptSignature(c, derived, api, init)
 
 fun <T : AttributeI<*>> T.toTypeScriptMember(c: GenerationContext, derived: String, api: String,
                                              init: Boolean = true, indent: String): String =
@@ -192,9 +191,9 @@ fun <T : ConstructorI<*>> T.toTypeScript(c: GenerationContext, derived: String, 
         it.toTypeScriptSignature(c, derived, api)
     }}) {${superUnit().isNotEMPTY().then {
         (superUnit() as ConstructorI<*>).toTypeScriptCall(c, (parent() != superUnit().parent()).ifElse("super", "this"))
-    }} ${paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("${nL}        ", prefix = "{${nL}        ") {
+    }} ${paramsWithOut(superUnit()).joinSurroundIfNotEmptyToString("$nL        ", prefix = "{${nL}        ") {
         it.toTypeScriptAssign(c)
-    }}${(parent() as CompilationUnitI<*>).props().filter { it.isMeta() }.joinSurroundIfNotEmptyToString("${nL}        ",
+    }}${(parent() as CompilationUnitI<*>).props().filter { it.isMeta() }.joinSurroundIfNotEmptyToString("$nL        ",
         prefix = "${nL}        ") {
         it.toTypeScriptInitMember(c, derived)
     }}
@@ -232,13 +231,22 @@ fun <T : OperationI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String
     }"""
 }
 
-fun <T : ItemI<*>> T.toAngularBasicGenerateComponentPart(c: GenerationContext): String =
-    """@${c.n("Component")}({
-  selector: 'app-${this.name().toLowerCase()}',
-  templateUrl: './${this.name().toLowerCase()}-basic.component.html',
-  styleUrls: ['./${this.name().toLowerCase()}-basic.component.scss'],
-})
-"""
+fun <T : ItemI<*>> T.toAngularComponentAnnotation(c: GenerationContext): String {
+    val selector = toAngularComponentSelector()
+    val componentFileName = toAngularComponentFileNameBase()
+    return """@${c.n(angular.core.Component)}({
+  selector: '$selector',
+  templateUrl: '$componentFileName.html',
+  styleUrls: ['$componentFileName.scss'],
+})"""
+}
+
+fun <T : ItemI<*>> T.toAngularComponentFileNameBase(): String {
+    return "${name().toHyphenLowerCase()}.component"
+}
+fun <T : ItemI<*>> T.toAngularComponentSelector(): String {
+    return fullParentNameAndName().toHyphenLowerCase()
+}
 
 fun <T : ItemI<*>> T.toAngularListOnInit(indent: String): String {
     return """${indent}ngOnInit(): void {

@@ -118,12 +118,44 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListSCSSComponent(c: GenerationCo
     return this.toAngularEntityListSCSS()
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                            api: String = LangDerivedKind.API): String {
-    return this.toAngularBasicHTML()
+fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(
+    c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+    api: String = LangDerivedKind.API
+): String {
+    return """
+<fieldset>
+    <legend>{{parentName}} ${this.name().capitalize()}</legend>
+        ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+            when (it.type()) {
+                is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name())
+                is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
+                is EntityI<*> -> it.toHTMLObjectFormEntity(it.type().name())
+                else -> when (it.type().name().toLowerCase()) {
+                    "boolean" -> it.toHTMLBooleanForm("")
+                    "date", "list" -> it.toHTMLDateForm("")
+                    else -> {
+                        it.toHTMLStringForm("")
+                    }
+                }
+            }
+        }
+    }
+</fieldset>
+"""
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                            api: String = LangDerivedKind.API): String {
-    return this.toAngularBasicSCSS()
+fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(
+    c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+    api: String = LangDerivedKind.API
+): String {
+    return """fieldset {
+    width: 80%;
+    padding: 20px;
+    border: round(30) 1px;
+
+    .mat-form-field {
+        padding: 10px 0;
+    }
+}
+"""
 }

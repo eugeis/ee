@@ -7,21 +7,20 @@ import ee.lang.*
 import ee.lang.gen.ts.LangTsContextFactory
 import ee.lang.gen.ts.TsContext
 import ee.lang.gen.ts.TsContextBuilder
-import kotlin.reflect.typeOf
 
-open class DesignTsContextFactory : LangTsContextFactory() {
-    override fun contextBuilder(derived: DerivedController): TsContextBuilder<StructureUnitI<*>> {
+open class DesignTsContextFactory(alwaysImportTypes: Boolean = false) : LangTsContextFactory(alwaysImportTypes) {
+    override fun contextBuilder(
+        derived: DerivedController, buildNamespace: StructureUnitI<*>.()->String): TsContextBuilder<StructureUnitI<*>> {
+
         return TsContextBuilder(CONTEXT_TYPE_SCRIPT, macroController){
             val structureUnit = this
             val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: structureUnit
-            TsContext(moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}_ng",
-                namespace = structureUnit.namespace().toLowerCase(), derivedController = derived,
+            TsContext(
+                alwaysImportTypes = alwaysImportTypes,
+                moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}_ng",
+                namespace = structureUnit.buildNamespace(), derivedController = derived,
                 macroController = macroController)
         }
-    }
-
-    override fun registerForImplOnly(derived: DerivedController) {
-        super.registerForImplOnly(derived)
     }
 
     override fun buildName(item: ItemI<*>, kind: String): String {
@@ -34,6 +33,6 @@ open class DesignTsContextFactory : LangTsContextFactory() {
         }
     }
 
-    protected open fun buildNameForCommand(item: CommandI<*>, kind: String) = item.nameAndParentName().capitalize()
-    protected open fun buildNameForEvent(item: EventI<*>, kind: String) = item.parentNameAndName().capitalize()
+    protected open fun buildNameForCommand(item: CommandI<*>, kind: String) = item.dataTypeNameAndParentName().capitalize()
+    protected open fun buildNameForEvent(item: EventI<*>, kind: String) = item.dataTypeParentNameAndName().capitalize()
 }

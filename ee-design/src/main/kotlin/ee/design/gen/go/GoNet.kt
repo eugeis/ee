@@ -25,7 +25,7 @@ func (o *$name) CommandType() ${
         c.n(
             g.eh.CommandType
         )
-    }      { return ${nameAndParentName().capitalize()}${DesignDerivedType.Command} }
+    }      { return ${dataTypeNameAndParentName().capitalize()}${DesignDerivedType.Command} }
 """
 }
 
@@ -107,7 +107,7 @@ fun Collection<CommandI<*>>.routerCommandsWithKey(httpMethod: String) =
     router.Methods($httpMethod).PathPrefix(o.PathPrefixIdBased).Path("${
             command.buildHttpPathKey(index, command.findPropKey()!!)
         }").
-        Name("${command.nameAndParentName().capitalize()}").
+        Name("${command.dataTypeNameAndParentName().capitalize()}").
         HandlerFunc(o.CommandHandler.${command.name().capitalize()})"""
     }
 
@@ -120,7 +120,7 @@ fun Collection<DataTypeOperationI<*>>.routerQueriesWithKey(httpMethod: String) =
     router.Methods($httpMethod).PathPrefix(o.PathPrefixIdBased).Path("${
             item.buildHttpPathKey(index, item.findParamKey()!!)
         }").
-        Name("${item.parentNameAndName().capitalize()}").
+        Name("${item.dataTypeParentNameAndName().capitalize()}").
         HandlerFunc(o.QueryHandler.${item.name().capitalize()})"""
     }
 
@@ -140,7 +140,7 @@ fun Collection<CommandI<*>>.routerCommands(httpMethod: String) =
     router.Methods($httpMethod).PathPrefix(o.PathPrefix).Path("${
             item.buildHttpPath(index)
         }").
-        Name("${item.nameAndParentName().capitalize()}").
+        Name("${item.dataTypeNameAndParentName().capitalize()}").
         HandlerFunc(o.CommandHandler.${item.name().capitalize()})"""
     }
 
@@ -151,7 +151,7 @@ fun Collection<DataTypeOperationI<*>>.routerQueries(httpMethod: String) =
     joinWithIndexSurroundIfNotEmptyToString("") { index, item ->
         """
     router.Methods($httpMethod).PathPrefix(o.PathPrefix).Path("${item.buildHttpPath(index)}").
-        Name("${item.parentNameAndName().capitalize()}").
+        Name("${item.dataTypeParentNameAndName().capitalize()}").
         HandlerFunc(o.QueryHandler.${item.name().capitalize()})"""
     }
 

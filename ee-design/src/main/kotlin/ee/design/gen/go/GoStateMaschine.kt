@@ -3,7 +3,6 @@ package ee.design.gen.go
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.joinWithIndexSurroundIfNotEmptyToString
 import ee.common.ext.then
-import ee.common.ext.toSingular
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.*
@@ -140,7 +139,7 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerExecuteBody(
     }""", emptyString = notSupported
         ) { executor ->
             """
-    case ${executor.nameAndParentName().capitalize()}Command:
+    case ${executor.dataTypeNameAndParentName().capitalize()}Command:
         err = o.${executor.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${
                 executor.toGo(c, api)
             }), $entityParamName, store)"""
@@ -326,7 +325,7 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerApplyEvent(
         }) { eventHandlers ->
             val event = eventHandlers.event
             """
-    case ${event.parentNameAndName().capitalize()}Event:
+    case ${event.dataTypeParentNameAndName().capitalize()}Event:
         err = o.${event.name().capitalize()}${DesignDerivedType.Handler}(event, ${
                 event.hasData().then("event.Data().(${event.toGo(c, api)}), ")
             }$entityParamName)${

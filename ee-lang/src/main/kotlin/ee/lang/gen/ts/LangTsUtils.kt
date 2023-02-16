@@ -10,19 +10,25 @@ object angular : StructureUnit({namespace("@angular").name("angular")}) {
     object core : StructureUnit() {
         object Component : ExternalType() {
         }
+        object Input : ExternalType() {
+        }
         object OnInit : ExternalType() {
         }
     }
 }
 
-open class TsContext : GenerationContext {
-
-    constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src/app/shared",
-        genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.ts".toRegex(),
-        derivedController: DerivedController, macroController: MacroController)
-            : super(namespace, moduleFolder, genFolder,
-        genFolderDeletable, genFolderPatternDeletable, derivedController, macroController) {
-    }
+open class TsContext(
+    var alwaysImportTypes: Boolean = false,
+    namespace: String = "",
+    moduleFolder: String = "",
+    genFolder: String = "src/app",
+    genFolderDeletable: Boolean = false,
+    genFolderPatternDeletable: Regex? = ".*Base.ts".toRegex(),
+    derivedController: DerivedController,
+    macroController: MacroController) : GenerationContext(
+    namespace, moduleFolder, genFolder,
+    genFolderDeletable, genFolderPatternDeletable, derivedController, macroController
+) {
 
     override fun complete(content: String, indent: String): String {
         return "${toHeader(indent)}${toPackage(indent)}${toImports(indent)}$content${toFooter(indent)}"
@@ -34,15 +40,18 @@ open class TsContext : GenerationContext {
 
     private fun toImports(indent: String): String {
         return types.isNotEmpty().then {
-            val outsideTypes = types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }
+            val outsideTypes = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }
                 .groupBy { it.findParentMust(StructureUnitI::class.java) }
+
             outsideTypes.isNotEmpty().then {
                 "${outsideTypes.map { (su, items) ->
+                    
+                    
+                    
                     """${indent}import {${items.sortedBy { it.name() }.joinToString(", ") {
                         it.name().capitalize()
-                    }}} from '@${su.parent().name().decapitalize()}/${su.name().equals("shared", true).not().then {
-                        "${su.name().decapitalize()}/"
-                    }}${su.name().capitalize()}ApiBase'"""
+                    }}} from "../${su.name().decapitalize()}/${su.name().capitalize()}ApiBase""""
                 }.toHashSet().sorted().joinToString(nL)}$nL$nL"
             }
         }
@@ -63,7 +72,7 @@ fun <T : StructureUnitI<*>> T.initsForTsGeneration(): T {
 }
 
 fun <T : StructureUnitI<*>> T.extendForTsGenerationLang(): T {
-    //declare as 'isBase' all compilation units with non implemented operations.
+    //declare as 'isBase' all compilation units with non-implemented operations.
     declareAsBaseWithNonImplementedOperation()
 
     prepareAttributesOfEnums()
@@ -73,6 +82,8 @@ fun <T : StructureUnitI<*>> T.extendForTsGenerationLang(): T {
     defineConstructorNoProps()
     return this
 }
+
+val angularBasicComponent = AngularNames()
 
 val itemAndTemplateNameAsTsFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("${it.name().capitalize()}${name.capitalize()}.ts")
@@ -102,4 +113,17 @@ val templateNameAsCSSFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
 }
 val itemNameAsCSSFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("${it.name()}.scss")
+}
+
+class AngularNames {
+
+    val ts: TemplateI<*>.(CompositeI<*>) -> Names = baseName("ts")
+
+    val html: TemplateI<*>.(CompositeI<*>) -> Names = baseName("html")
+
+    val scss: TemplateI<*>.(CompositeI<*>) -> Names = baseName("scss")
+
+    private fun baseName(extension: String): TemplateI<*>.(CompositeI<*>) -> Names = {
+        Names("${it.toAngularComponentFileNameBase()}.$extension")
+    }
 }

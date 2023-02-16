@@ -27,7 +27,6 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
     override fun buildGoContextFactory() = DesignGoContextFactory(targetAsSingleModule)
     override fun buildGoTemplates() = DesignGoTemplates(itemNameAsGoFileName)
 
-    override fun buildTsContextFactory() = DesignTsContextFactory()
     override fun buildTsTemplates() = DesignTsTemplates(itemNameAsTsFileName)
 
     fun buildAngularContextFactory() = DesignAngularContextFactory()
@@ -238,7 +237,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                     "modulesGenerators",
                     items = modules, generators = moduleGenerators
                 ),
-                Generator("swaggerComponent", contextBuilder = swaggerContextBuilder, items = components,
+                GeneratorItems("swaggerComponent", contextBuilder = swaggerContextBuilder, items = components,
                     templates = { listOf(swaggerTemplates.model()) })
             )
         )
@@ -397,7 +396,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
     open fun typeScriptApiBase(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
         val tsTemplates = buildTsTemplates()
-        val tsContextFactory = buildTsContextFactory()
+        val tsContextFactory = buildAngularContextFactory()
         val tsContextBuilder = tsContextFactory.buildForImplOnly()
 
         val components: StructureUnitI<*>.() -> List<CompI<*>> = {
@@ -444,8 +443,8 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
         val moduleGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
         val generator = GeneratorGroup(
-            "angular",
-            listOf(GeneratorGroupItems("angularModules", items = modules, generators = moduleGenerators))
+            "TypeScript",
+            listOf(GeneratorGroupItems("TypeScriptApiBase", items = modules, generators = moduleGenerators))
         )
 
         moduleGenerators.addAll(
@@ -471,16 +470,85 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
         return GeneratorContexts(generator, tsContextBuilder)
     }
 
-    open fun angularTypeScriptComponent(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
-        val tsTemplates = buildTsTemplates()
-        val tsContextFactory = buildTsContextFactory()
-        val tsContextBuilder = tsContextFactory.buildForImplOnly()
+
+    open fun angular(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
+        val angularTemplates = DesignAngularTemplates(itemNameAsTsFileName)
+        val tsTemplates = DesignTsTemplates(itemNameAsTsFileName)
+        val tsContextFactory = buildTsContextFactoryAngular()
 
         val components: StructureUnitI<*>.() -> List<CompI<*>> = {
             if (this is CompI<*>) listOf(this) else findDownByType(CompI::class.java)
         }
         val modules: StructureUnitI<*>.() -> List<ModuleI<*>> = {
             if (this is ModuleI<*>) listOf(this) else findDownByType(ModuleI::class.java)
+        }
+
+        val commands: StructureUnitI<*>.() -> List<CommandI<*>> = { findDownByType(CommandI::class.java) }
+        val commandEnums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
+            findDownByType(EnumTypeI::class.java).filter {
+                it.parent() is ControllerI<*> && it.name().endsWith("CommandType")
+            }
+        }
+
+        val events: StructureUnitI<*>.() -> List<EventI<*>> = { findDownByType(EventI::class.java) }
+        val eventEnums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
+            findDownByType(EnumTypeI::class.java).filter {
+                it.parent() is ControllerI<*> && it.name().endsWith("EventType")
+            }
+        }
+
+        val enums: StructureUnitI<*>.() -> List<EnumTypeI<*>> = {
+            findDownByType(EnumTypeI::class.java).filter {
+                it.parent() is StructureUnitI<*> && it.derivedAsType().isEmpty()
+            }.sortedBy { it.name() }
+        }
+
+        val values: StructureUnitI<*>.() -> List<ValuesI<*>> = {
+            findDownByType(ValuesI::class.java).filter { it.derivedAsType().isEmpty() }
+                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+
+        val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
+            findDownByType(BasicI::class.java).filter { it.derivedAsType().isEmpty() }
+                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+
+        val entities: StructureUnitI<*>.() -> List<EntityI<*>> = {
+            findDownByType(EntityI::class.java).filter { it.derivedAsType().isEmpty() }
+                .sortedBy { "${it.javaClass.simpleName} ${name()}" }
+        }
+
+        val moduleGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
+        val generator = GeneratorGroup(
+            "Angular",
+            listOf(GeneratorGroupItems("AngularModules", items = modules, generators = moduleGenerators))
+        )
+
+        val basicsContextBuilder = tsContextFactory.buildForImplOnly("/basics")
+        moduleGenerators.add(GeneratorItems("AngularBasics",
+            contextBuilder = basicsContextBuilder, items = basics,
+
+            templates = {
+                listOf(
+                    tsTemplates.basicTypeScript(angularBasicComponent.ts),
+                    angularTemplates.basicHTML(angularBasicComponent.html),
+                    angularTemplates.basicSCSS(angularBasicComponent.scss),
+            ) }))
+        return GeneratorContexts(generator, basicsContextBuilder)
+    }
+
+
+    open fun angularTypeScriptComponent(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
+        val tsTemplates = buildTsTemplates()
+        val tsContextFactory = buildTsContextFactory()
+        val tsContextBuilder = tsContextFactory.buildForImplOnly()
+
+        val modules: StructureUnitI<*>.() -> List<ModuleI<*>> = {
+            if (this is ModuleI<*>) listOf(this) else findDownByType(ModuleI::class.java)
+        }
+
+        val components: StructureUnitI<*>.() -> List<CompI<*>> = {
+            if (this is CompI<*>) listOf(this) else findDownByType(CompI::class.java)
         }
 
         val basics: StructureUnitI<*>.() -> List<BasicI<*>> = {
@@ -594,7 +662,9 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                                     listOf(
                                         ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
                                             fragments = {
-                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.basicTypeScript()).filter { this.name() == basic.name() } }),
+                                                listOf<Template<CompilationUnitI<*>>>(tsTemplates.basicTypeScript()).filter {
+                                                    this.name() == basic.name()
+                                                } }),
                                     )
                                 }
                             )
@@ -606,6 +676,9 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
         return GeneratorContexts(generator, tsContextBuilder)
     }
+
+    private fun buildTsContextFactory() = LangTsContextFactory(false)
+    private fun buildTsContextFactoryAngular() = DesignTsContextFactory(true)
 
     open fun angularModules(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
         val angularTemplates = buildAngularTemplates()

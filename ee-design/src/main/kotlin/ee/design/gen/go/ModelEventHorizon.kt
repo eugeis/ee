@@ -126,7 +126,7 @@ fun StructureUnitI<*>.addEsArtifacts() {
 
                         *cliParams.map { (entityName, it) ->
                             val entityClient = httpClients[entityName]!!
-                            p(it) { default().value("New${it.name()}(client.${entityClient.parentNameAndName()})") }
+                            p(it) { default().value("New${it.name()}(client.${entityClient.dataTypeParentNameAndName()})") }
                         }.toTypedArray()
                     )
                     macrosBeforeBody(ConstructorI<*>::toGoCliBeforeBody.name)
@@ -299,7 +299,7 @@ private fun EntityI<*>.addEsArtifacts(
             name("${entity.name()}EventType")
             derivedAsType(DesignDerivedType.AggregateEvents)
             events.forEach {
-                lit { name(it.parentNameAndName().capitalize()) }
+                lit { name(it.dataTypeParentNameAndName().capitalize()) }
             }
         }
 
@@ -308,7 +308,7 @@ private fun EntityI<*>.addEsArtifacts(
             name("${entity.name()}CommandType")
             derivedAsType(DesignDerivedType.AggregateCommands)
             commands.forEach {
-                lit { name(it.nameAndParentName().capitalize()) }
+                lit { name(it.dataTypeNameAndParentName().capitalize()) }
             }
         }
     }

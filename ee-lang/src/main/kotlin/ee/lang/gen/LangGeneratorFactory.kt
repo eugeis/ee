@@ -350,7 +350,6 @@ open class LangGeneratorFactory(protected val targetAsSingleModule: Boolean = tr
     protected open fun buildGoContextFactory() = LangGoContextFactory(targetAsSingleModule)
     protected open fun buildGoTemplates() = LangGoTemplates(itemNameAsGoFileName)
 
-    protected open fun buildTsContextFactory() = LangTsContextFactory()
     protected open fun buildTsTemplates() = LangTsTemplates()
 
     protected open fun buildSwaggerContextFactory() = LangCommonContextFactory()

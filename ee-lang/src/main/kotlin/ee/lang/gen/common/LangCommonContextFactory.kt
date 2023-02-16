@@ -29,11 +29,14 @@ open class LangCommonContextFactory(val targetAsSingleModule: Boolean = true) {
         derived.registerKind(LangDerivedKind.IMPL, { "${name()}Impl" }, isNotPartOfNativeTypes)
     }
 
-    protected open fun contextBuilder(derived: DerivedController): ContextBuilder<StructureUnitI<*>> {
+    protected open fun contextBuilder(derived: DerivedController, buildNamespace: StructureUnitI<*>.()->String = {
+        namespace().toLowerCase() }): ContextBuilder<StructureUnitI<*>> {
+
         return ContextBuilder(CONTEXT_COMMON, macroController) {
+            val structureUnit = this
             GenerationContext(
-                    namespace = namespace().toLowerCase(),
-                    moduleFolder = computeModuleFolder(),
+                    namespace = structureUnit.buildNamespace(),
+                    moduleFolder = structureUnit.computeModuleFolder(),
                     derivedController = derived, macroController = macroController)
         }
     }

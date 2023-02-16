@@ -84,25 +84,6 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
 </div>
 """
 
-fun <T : CompilationUnitI<*>> T.toAngularBasicHTML(): String =
-    """
-<fieldset>
-    <legend>{{parentName}} ${this.name().capitalize()}</legend>
-        ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        when(it.type()) {
-            is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name())
-            is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
-            is EntityI<*> -> it.toHTMLObjectFormEntity(it.type().name())
-            else -> when(it.type().name().toLowerCase()) {
-                "boolean" -> it.toHTMLBooleanForm("")
-                "date", "list" -> it.toHTMLDateForm("")
-                else -> {it.toHTMLStringForm("")}
-            }
-        }
-    }}
-</fieldset>
-"""
-
 fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
@@ -230,18 +211,6 @@ fieldset {
     form {
         left: 5%;
         max-width: 50%;
-    }
-}
-"""
-
-fun <T : ItemI<*>> T.toAngularBasicSCSS(): String =
-    """fieldset {
-    width: 80%;
-    padding: 20px;
-    border: round(30) 1px;
-
-    .mat-form-field {
-        padding: 10px 0;
     }
 }
 """

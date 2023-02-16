@@ -57,13 +57,12 @@ fun <T : ItemI<*>> T.toAngularGenerateEnumElementBasic(c: GenerationContext, ind
 
 fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                  api: String = LangDerivedKind.API): String {
-    return """import {Component, Input, OnInit} from '@angular/core';
+    return """
+${this.toAngularComponentAnnotation(c)}
+${isOpen().then("export ")}class ${c.n(this)}Component implements ${c.n(angular.core.OnInit)} {
 
-${this.toAngularBasicGenerateComponentPart(c)}
-${isOpen().then("export ")}class ${c.n(this)}Component implements ${c.n("OnInit")} {
-
-    @${c.n("Input")}() ${c.n(this).toLowerCase()}: ${c.n(this)};
-    @${c.n("Input")}() parentName: String;
+    @${c.n(angular.core.Input)}() ${name()}: ${c.n(this, derived)};
+    @${c.n(angular.core.Input)}() parentName: String;
 ${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
     it.type().toAngularGenerateEnumElementBasic(c, tab)
 }}
@@ -85,7 +84,7 @@ ${if (props().any { it.type() is EnumTypeI<*> }) {
         }
         ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { 
             it.toTypeScriptInitEmptyProps(c)
-    }.trim()}
+    }}
     }
 }
 """
