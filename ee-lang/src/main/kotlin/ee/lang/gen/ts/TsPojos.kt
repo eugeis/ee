@@ -176,7 +176,7 @@ export class ${c.n(this)}EnumComponent implements ${c.n("OnInit")} {
     
     enumElements: Array<string>;
     
-    constructor(private tableDataService: ${c.n("TableDataService")}) { }
+    constructor(private tableDataService: ${c.n("TableDataService")}<${c.n(parent)}>) { }
     
     ngOnInit(): void {
         this.enumElements = this.${c.n("tableDataService")}.loadEnumElement(${c.n(this)}, '${c.n(parent).toLowerCase()}', '${c.n(this).toLowerCase()}Enum');
