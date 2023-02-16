@@ -327,6 +327,27 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
         localStorage.map = JSON.stringify(Array.from(data.entries()));
         localStorage.setItem(this.itemName, localStorage.map);
     }
+    
+    retrieveItemsFromCache(itemName?): Map<string, ${c.n(this)}> {
+        return new Map(JSON.parse(localStorage.getItem(itemName? itemName : this.itemName)));
+    }
+
+    applyFilter(event: Event) {
+        const filterValue = (event.target as HTMLInputElement).value;
+        this.dataSources.filter = filterValue.trim().toLowerCase();
+    }
+
+    allRowsSelected() {
+        const totalRowSelected = this.selection.selected.length;
+        const totalRow = this.dataSources.data.length;
+        return totalRowSelected === totalRow;
+    }
+
+    masterToggle() {
+        this.allRowsSelected() ?
+            this.selection.clear() :
+            this.dataSources.data.forEach(element => this.selection.select(element));
+    }
 }
 
 declare global {
