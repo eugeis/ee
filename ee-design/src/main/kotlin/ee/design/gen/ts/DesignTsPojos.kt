@@ -117,11 +117,6 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
 }}
 import {Injectable} from '@angular/core';
 import {TableDataService} from '@template/services/data.service';
-import {FormControl} from '@angular/forms';
-import {Observable} from 'rxjs';
-import {map, startWith} from 'rxjs/operators';
-import {SelectionModel} from '@angular/cdk/collections';
-import {MatTableDataSource} from '@angular/material/table';
 
 @${c.n("Injectable")}({ providedIn: 'root' })
 ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataService<${c.n(this)}> {
