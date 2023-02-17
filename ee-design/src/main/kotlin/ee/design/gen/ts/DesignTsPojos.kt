@@ -8,8 +8,7 @@ import ee.lang.gen.ts.*
 
 fun <T : ModuleI<*>> T.toAngularModuleTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                  api: String = LangDerivedKind.API): String {
-    return """import {Component, Input} from '@angular/core';
-${this.toAngularModuleImportServices()}
+    return """${this.toAngularModuleImportServices()}
 ${this.toAngularGenerateComponentPart(c, "module", "view", hasProviders = true, hasClass = false)}
 export class ${this.name()}ViewComponent {${"\n"}  
 ${this.toAngularModuleConstructor(tab)}
@@ -33,12 +32,11 @@ fun <T : ModuleI<*>> T.toAngularModuleService(modules: List<ModuleI<*>>, c: Gene
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                               api: String = LangDerivedKind.API): String {
-    return """import {Component, OnInit} from '@angular/core';
-import {TableDataService} from '@template/services/data.service';
+    return """import {TableDataService} from '@template/services/data.service';
 import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 
 ${this.toAngularGenerateComponentPart(c, "entity", "view", hasProviders = true, hasClass = true)}
-${isOpen().then("export ")}class ${c.n(this)}ViewComponent implements ${c.n("OnInit")} {
+${isOpen().then("export ")}class ${c.n(this)}ViewComponent implements ${c.n(angular.core.OnInit)} {
 
 ${this.toTypeScriptEntityProp(c, tab)}
 ${this.toAngularConstructorDataService(tab)}
@@ -49,8 +47,7 @@ ${this.toAngularViewOnInit(c, tab)}
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                               api: String = LangDerivedKind.API): String {
-    return """import {Component, OnInit, Input} from '@angular/core';
-import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
+    return """import {${c.n(this)}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
     when(it.type()) {
         is EntityI<*>, is ValuesI<*> -> it.type().toAngularImportEntityComponent(it.type().findParentNonInternal())
@@ -59,7 +56,7 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
 }}
     
 ${this.toAngularGenerateComponentPart(c, "entity", "form", hasProviders = false, hasClass = false)}
-${isOpen().then("export ")}class ${c.n(this)}FormComponent implements ${c.n("OnInit")} {
+${isOpen().then("export ")}class ${c.n(this)}FormComponent implements ${c.n(angular.core.OnInit)} {
 
 ${this.toTypeScriptFormProp(c, tab)}
     constructor(public ${this.name().toLowerCase()}DataService: ${this.name()}DataService, 
@@ -76,22 +73,21 @@ ${this.toAngularFormOnInit(c, tab)}
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityListTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                               api: String = LangDerivedKind.API): String {
-    return """import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
-import {TableDataService} from '@template/services/data.service';
+    return """import {TableDataService} from '@template/services/data.service';
 import {${this.name()}DataService} from '@${this.parent().parent().name().toLowerCase()}/${this.parent().name().toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';
 import {MatTableDataSource} from '@angular/material/table';
 import {MatSort} from '@angular/material/sort';
 
 ${this.toAngularGenerateComponentPart(c, "entity", "list", hasProviders = true, hasClass = true)}
-${isOpen().then("export ")}class ${c.n(this)}ListComponent implements ${c.n("OnInit")}, ${c.n("AfterViewInit")} {
+${isOpen().then("export ")}class ${c.n(this)}ListComponent implements ${c.n(angular.core.OnInit)}, ${c.n(angular.core.AfterViewInit)} {
 
 ${this.toTypeScriptEntityPropInit(c, tab)}
     tableHeader: Array<String> = [];
     
-    @ViewChild(MatSort) sort: MatSort;
+    @${c.n(angular.core.ViewChild)}(MatSort) sort: MatSort;
 
 ${this.toAngularConstructorDataService(tab)}
-    ngAfterViewInit() {
+    ng${c.n(angular.core.AfterViewInit)}() {
         this.${this.name().toLowerCase()}DataService.dataSources.sort = this.sort;
     }
 ${this.toAngularListOnInit(tab)}
@@ -115,10 +111,9 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
         else -> ""
     }
 }}
-import {Injectable} from '@angular/core';
 import {TableDataService} from '@template/services/data.service';
 
-@${c.n("Injectable")}({ providedIn: 'root' })
+@${c.n(angular.core.Injectable)}({ providedIn: 'root' })
 ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataService<${c.n(this)}> {
     itemName = '${c.n(this).toLowerCase()}';
 
@@ -142,7 +137,7 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlService()
+            is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlService(c)
             else -> ""
         }
     }}
@@ -173,7 +168,7 @@ ${isOpen().then("export ")}class ${c.n(this)}DataService extends TableDataServic
     initObservable() {
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> it.type().toAngularInitObservable(it.type().props().first { element -> element.type().name() == "String" })
+            is EntityI<*>, is ValuesI<*> -> it.type().toAngularInitObservable(c, it.type().props().first { element -> element.type().name() == "String" })
             else -> ""
         }
     }}

@@ -3,6 +3,8 @@ import ee.common.ext.then
 import ee.common.ext.toCamelCase
 import ee.design.EntityI
 import ee.lang.*
+import ee.lang.gen.ts.angular
+import ee.lang.gen.ts.rxjs
 
 fun <T : ItemI<*>> T.toAngularConstructorDataService(indent: String): String {
     return """${indent}constructor(public ${this.name().toLowerCase()}DataService: ${this.name()}DataService) {}$nL"""
@@ -20,11 +22,11 @@ fun <T : TypeI<*>> T.toAngularControlServiceImport(findParentNonInternal: ItemI<
     return """import {${this.name().toCamelCase().capitalize()}} from '@${this.parent().parent().name().toLowerCase()}/${findParentNonInternal?.name()?.toLowerCase()}/${findParentNonInternal?.name()?.capitalize()}ApiBase';$nL"""
 }
 
-fun <T : TypeI<*>> T.toAngularControlService(): String {
+fun <T : TypeI<*>> T.toAngularControlService(c: GenerationContext): String {
     return """
-    control${this.name().toCamelCase().capitalize()} = new FormControl<${this.name().toCamelCase().capitalize()}>(new ${this.name().toCamelCase().capitalize()}());
+    control${this.name().toCamelCase().capitalize()} = new ${c.n(angular.forms.FormControl)}<${this.name().toCamelCase().capitalize()}>(new ${this.name().toCamelCase().capitalize()}());
     option${this.name().toCamelCase().capitalize()}: Array<${this.name().toCamelCase().capitalize()}>;
-    filteredOptions${this.name().toCamelCase().capitalize()}: Observable<${this.name().toCamelCase().capitalize()}[]>;$nL"""
+    filteredOptions${this.name().toCamelCase().capitalize()}: ${c.n(rxjs.empty.Observable)}<${this.name().toCamelCase().capitalize()}[]>;$nL"""
 }
 
 fun <T : TypeI<*>> T.toAngularControlServiceFunctions(key: AttributeI<*>): String {
@@ -38,11 +40,11 @@ fun <T : TypeI<*>> T.toAngularControlServiceFunctions(key: AttributeI<*>): Strin
     }$nL"""
 }
 
-fun <T : TypeI<*>> T.toAngularInitObservable(key: AttributeI<*>): String {
+fun <T : TypeI<*>> T.toAngularInitObservable(c: GenerationContext, key: AttributeI<*>): String {
     return """
         this.filteredOptions${this.name().toCamelCase().capitalize()} = this.control${this.name().toCamelCase().capitalize()}.valueChanges.pipe(
-            startWith(''),
-            map((value: ${this.name().toCamelCase().capitalize()}) => {
+            ${c.n(rxjs.operators.startWith)}(''),
+            ${c.n(rxjs.operators.map)}((value: ${this.name().toCamelCase().capitalize()}) => {
                 const name = typeof value === 'string' ? value : value.${key.name()};
                 return name ?
                     this.filter${this.name().toCamelCase().capitalize()}(name as string, this.option${this.name().toCamelCase().capitalize()})
@@ -90,7 +92,7 @@ fun <T : TypeI<*>> T.toAngularModuleTabElement(): String =
     "'${this.name()}'"
 
 fun <T : ItemI<*>> T.toAngularGenerateComponentPart(c: GenerationContext, element: String, type: String, hasProviders: Boolean, hasClass: Boolean): String =
-    """@${c.n("Component")}({
+    """@${c.n(angular.core.Component)}({
   selector: 'app-${this.name().toLowerCase()}${(element == "entity").then("-${type}")}',
   templateUrl: './${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.html',
   styleUrls: ['./${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.scss'],
@@ -118,7 +120,7 @@ fun <T : ItemI<*>> T.toTypeScriptEntityProp(c: GenerationContext, indent: String
 }
 
 fun <T : ItemI<*>> T.toTypeScriptFormProp(c: GenerationContext, indent: String): String {
-    return """${indent}@${c.n("Input")}() ${this.name().toLowerCase()}: ${c.n(this)};$nL"""
+    return """${indent}@${c.n(angular.core.Input)}() ${this.name().toLowerCase()}: ${c.n(this)};$nL"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptEntityPropInit(c: GenerationContext, indent: String): String {

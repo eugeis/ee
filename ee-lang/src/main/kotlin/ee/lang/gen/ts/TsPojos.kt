@@ -65,8 +65,7 @@ fun <T : ItemI<*>> T.toAngularGenerateEnumElementBasic(c: GenerationContext, ind
 
 fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                                  api: String = LangDerivedKind.API): String {
-    return """import {Component, Input, OnInit} from '@angular/core';
-${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
+    return """${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
     """
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
     when(it.type()) {
@@ -74,17 +73,14 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
         else -> ""
     }
 }}
-import {map, startWith} from 'rxjs/operators';
-import {FormControl} from '@angular/forms';
-import {Observable} from 'rxjs';
 """
 }else{""}}
 
 ${this.toAngularGenerateComponentPart(c, "basic", "", hasProviders = false, hasClass = false)}
-${isOpen().then("export ")}class ${c.n(this)}Component implements ${c.n("OnInit")} {
+${isOpen().then("export ")}class ${c.n(this)}Component implements ${c.n(angular.core.OnInit)} {
 
-    @${c.n("Input")}() ${c.n(this).toLowerCase()}: ${c.n(this)};
-    @${c.n("Input")}() parentName: String;
+    @${c.n(angular.core.Input)}() ${c.n(this).toLowerCase()}: ${c.n(this)};
+    @${c.n(angular.core.Input)}() parentName: String;
 ${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
     it.type().toAngularGenerateEnumElementBasic(c, tab)
 }}
@@ -92,7 +88,7 @@ ${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString(""
 ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
         """${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
             when(it.type()) {
-                is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlService()
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlService(c)
                 else -> ""
             }
         }}        
@@ -109,7 +105,7 @@ ${if (props().any { it.type() is EnumTypeI<*> }) {
     """
     loadEnumElement(enumElement: any) {
         let tempArray = [];
-        Object.keys(enumElement).map((element, index) => {
+        Object.keys(enumElement).${c.n(rxjs.operators.map)}((element, index) => {
             tempArray.push(enumElement[index]);
         })
         tempArray = tempArray.filter((item) => item);
@@ -149,7 +145,7 @@ ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
     initObservable() {
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
             when(it.type()) {
-                is EntityI<*>, is ValuesI<*> -> it.type().toAngularInitObservable(it.type().props().first { element -> element.type().name() == "String" })
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularInitObservable(c, it.type().props().first { element -> element.type().name() == "String" })
                 else -> ""
             }
         }}
@@ -165,14 +161,13 @@ fun <T : ItemI<*>> T.toAngularInitOptionBasic(elementType: String): String {
 
 fun <T : CompilationUnitI<*>> T.toAngularEnumTSComponent(parent: ItemI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                           api: String = LangDerivedKind.API): String {
-    return """import {Component, Input, OnInit} from '@angular/core';
-import {TableDataService} from '@template/services/data.service';
+    return """import {TableDataService} from '@template/services/data.service';
 
 ${this.toAngularGenerateComponentPart(c, "enum", "", hasProviders = false, hasClass = false)}
 
-export class ${c.n(this)}EnumComponent implements ${c.n("OnInit")} {
+export class ${c.n(this)}EnumComponent implements ${c.n(angular.core.OnInit)} {
 
-    @${c.n("Input")}() ${c.n(parent).toLowerCase()}: ${c.n(parent)};
+    @${c.n(angular.core.Input)}() ${c.n(parent).toLowerCase()}: ${c.n(parent)};
     
     enumElements: Array<string>;
     

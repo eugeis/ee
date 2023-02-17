@@ -10,19 +10,49 @@ object angular : StructureUnit({namespace("@angular").name("angular")}) {
     object core : StructureUnit() {
         object Component : ExternalType() {
         }
+        object Input : ExternalType() {
+        }
         object OnInit : ExternalType() {
+        }
+        object AfterViewInit : ExternalType() {
+        }
+        object ViewChild : ExternalType() {
+        }
+        object Injectable : ExternalType() {
+        }
+    }
+    object forms : StructureUnit() {
+        object FormControl : ExternalType() {
         }
     }
 }
 
-open class TsContext : GenerationContext {
-
-    constructor(namespace: String = "", moduleFolder: String = "", genFolder: String = "src/app/shared",
-        genFolderDeletable: Boolean = false, genFolderPatternDeletable: Regex? = ".*Base.ts".toRegex(),
-        derivedController: DerivedController, macroController: MacroController)
-            : super(namespace, moduleFolder, genFolder,
-        genFolderDeletable, genFolderPatternDeletable, derivedController, macroController) {
+object rxjs : StructureUnit({namespace("rxjs").name("rxjs")}) {
+    object empty : StructureUnit({namespace("").name("")}) {
+        object Observable : ExternalType() {
+        }
     }
+
+    object operators : StructureUnit({namespace("").name("")}) {
+        object map : ExternalType() {
+        }
+        object startWith : ExternalType() {
+        }
+    }
+}
+
+open class TsContext(
+    var alwaysImportTypes: Boolean = false,
+    namespace: String = "",
+    moduleFolder: String = "",
+    genFolder: String = "src/app/shared",
+    genFolderDeletable: Boolean = false,
+    genFolderPatternDeletable: Regex? = ".*Base.ts".toRegex(),
+    derivedController: DerivedController,
+    macroController: MacroController) : GenerationContext(
+    namespace, moduleFolder, genFolder,
+    genFolderDeletable, genFolderPatternDeletable, derivedController, macroController
+) {
 
     override fun complete(content: String, indent: String): String {
         return "${toHeader(indent)}${toPackage(indent)}${toImports(indent)}$content${toFooter(indent)}"
@@ -34,15 +64,22 @@ open class TsContext : GenerationContext {
 
     private fun toImports(indent: String): String {
         return types.isNotEmpty().then {
-            val outsideTypes = types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }
+            val outsideTypes = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
+            else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }
                 .groupBy { it.findParentMust(StructureUnitI::class.java) }
+
             outsideTypes.isNotEmpty().then {
                 "${outsideTypes.map { (su, items) ->
                     """${indent}import {${items.sortedBy { it.name() }.joinToString(", ") {
-                        it.name().capitalize()
-                    }}} from '@${su.parent().name().decapitalize()}/${su.name().equals("shared", true).not().then {
-                        "${su.name().decapitalize()}/"
-                    }}${su.name().capitalize()}ApiBase'"""
+                        it.name()
+                    }}} from ${if (su.name().equals("empty", true)) {
+                        """'${su.parent().name()}'"""
+                    } 
+                    else {
+                        """'${(su.parent().name().decapitalize() !in arrayOf("rxjs")).then { "@" }}${su.parent().name().decapitalize()}/${su.name().equals("shared", true).not().then {
+                            su.name().decapitalize()
+                        }}${(su.parent().name().decapitalize() !in arrayOf("angular", "rxjs")).then { "/${su.name().capitalize()}ApiBase" }}'"""
+                    }}"""
                 }.toHashSet().sorted().joinToString(nL)}$nL$nL"
             }
         }
@@ -58,6 +95,7 @@ fun <T : StructureUnitI<*>> T.prepareForTsGeneration(): T {
 fun <T : StructureUnitI<*>> T.initsForTsGeneration(): T {
     ts.initObjectTree()
     angular.initObjectTrees()
+    rxjs.initObjectTrees()
     initObjectTrees()
     return this
 }
