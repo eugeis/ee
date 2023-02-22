@@ -94,7 +94,7 @@ ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
         }}        
     constructor(${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
             when(it.type()) {
-                is EntityI<*>, is ValuesI<*> -> it.type().toAngularPropOnConstructor()
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularPropOnConstructor(c)
                 else -> "" }
             }.trim()
         }) {}
@@ -137,7 +137,7 @@ ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
         """    
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
             when(it.type()) {
-                is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlServiceFunctions(it.type().props().first { element -> element.type().name() == "String" })
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlServiceFunctions(c, it.type().props().first { element -> element.type().name() == "String" })
                 else -> ""
             }
         }}
@@ -161,8 +161,7 @@ fun <T : ItemI<*>> T.toAngularInitOptionBasic(elementType: String): String {
 
 fun <T : CompilationUnitI<*>> T.toAngularEnumTSComponent(parent: ItemI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                           api: String = LangDerivedKind.API): String {
-    return """import {TableDataService} from '@template/services/data.service';
-
+    return """
 ${this.toAngularGenerateComponentPart(c, "enum", "", hasProviders = false, hasClass = false)}
 
 export class ${c.n(this)}EnumComponent implements ${c.n(angular.core.OnInit)} {
@@ -171,10 +170,10 @@ export class ${c.n(this)}EnumComponent implements ${c.n(angular.core.OnInit)} {
     
     enumElements: Array<string>;
     
-    constructor(private tableDataService: ${c.n("TableDataService")}<${c.n(parent)}>) { }
+    constructor(private tableDataService: ${c.n(service.template.DataService)}<${c.n(parent)}>) { }
     
     ngOnInit(): void {
-        this.enumElements = this.${c.n("tableDataService")}.loadEnumElement(${c.n(this)}, '${c.n(parent).toLowerCase()}', '${c.n(this).toLowerCase()}Enum');
+        this.enumElements = this.tableDataService.loadEnumElement(${c.n(this)}, '${c.n(parent).toLowerCase()}', '${c.n(this).toLowerCase()}Enum');
     }
 
 }

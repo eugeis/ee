@@ -234,7 +234,7 @@ fun <T : OperationI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String
     }"""
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularListOnInit(indent: String): String {
+fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent: String): String {
     return """${indent}ngOnInit(): void {
         this.tableHeader = this.generateTableHeader();
         this.${this.name().toLowerCase()}DataService.checkSearchRoute();
@@ -242,7 +242,7 @@ fun <T : CompilationUnitI<*>> T.toAngularListOnInit(indent: String): String {
             this.${this.name().toLowerCase()}DataService.loadSearchData()
         } else {
             this.${this.name().toLowerCase()}DataService.dataSources =
-                new MatTableDataSource(this.${this.name().toLowerCase()}DataService.changeMapToArray(
+                new ${c.n(angular.material.table.MatTableDataSource)}(this.${this.name().toLowerCase()}DataService.changeMapToArray(
                     this.${this.name().toLowerCase()}DataService.retrieveItemsFromCache()));
         }      
     }"""

@@ -5,12 +5,13 @@ import ee.design.EntityI
 import ee.lang.*
 import ee.lang.gen.ts.angular
 import ee.lang.gen.ts.rxjs
+import ee.lang.gen.ts.service
 
-fun <T : ItemI<*>> T.toAngularConstructorDataService(indent: String): String {
-    return """${indent}constructor(public ${this.name().toLowerCase()}DataService: ${this.name()}DataService) {}$nL"""
+fun <T : ItemI<*>> T.toAngularConstructorDataService(c: GenerationContext, indent: String): String {
+    return """${indent}constructor(public ${this.name().toLowerCase()}DataService: ${this.name()}${c.n(service.own.DataService, "-${this.name()}").substringBeforeLast("-")}) {}$nL"""
 }
 
-fun <T : TypeI<*>> T.toAngularPropOnConstructor(): String {
+fun <T : TypeI<*>> T.toAngularPropOnConstructor(c: GenerationContext): String {
     return """${tab + tab}public ${this.name().toLowerCase()}DataService: ${this.name().toCamelCase().capitalize()}DataService, $nL"""
 }
 
@@ -24,39 +25,39 @@ fun <T : TypeI<*>> T.toAngularControlServiceImport(findParentNonInternal: ItemI<
 
 fun <T : TypeI<*>> T.toAngularControlService(c: GenerationContext): String {
     return """
-    control${this.name().toCamelCase().capitalize()} = new ${c.n(angular.forms.FormControl)}<${this.name().toCamelCase().capitalize()}>(new ${this.name().toCamelCase().capitalize()}());
-    option${this.name().toCamelCase().capitalize()}: Array<${this.name().toCamelCase().capitalize()}>;
-    filteredOptions${this.name().toCamelCase().capitalize()}: ${c.n(rxjs.empty.Observable)}<${this.name().toCamelCase().capitalize()}[]>;$nL"""
+    control${c.n(this).toCamelCase().capitalize()} = new ${c.n(angular.forms.FormControl)}<${c.n(this).toCamelCase().capitalize()}>(new ${c.n(this).toCamelCase().capitalize()}());
+    option${c.n(this).toCamelCase().capitalize()}: Array<${c.n(this).toCamelCase().capitalize()}>;
+    filteredOptions${c.n(this).toCamelCase().capitalize()}: ${c.n(rxjs.empty.Observable)}<${c.n(this).toCamelCase().capitalize()}[]>;$nL"""
 }
 
-fun <T : TypeI<*>> T.toAngularControlServiceFunctions(key: AttributeI<*>): String {
+fun <T : TypeI<*>> T.toAngularControlServiceFunctions(c: GenerationContext, key: AttributeI<*>): String {
     return """
-    display${this.name().toCamelCase().capitalize()}(${this.name().toCamelCase()}: ${this.name().toCamelCase().capitalize()}): string {
-        return ${this.name().toCamelCase()} ? ${this.name().toCamelCase()}.${key.name()} : '';
+    display${c.n(this).toCamelCase().capitalize()}(${c.n(this).toCamelCase()}: ${c.n(this).toCamelCase().capitalize()}): string {
+        return ${c.n(this).toCamelCase()} ? ${c.n(this).toCamelCase()}.${key.name()} : '';
     }
     
-    filter${this.name().toCamelCase().capitalize()}(name: string, array: Array<${this.name().toCamelCase().capitalize()}>): ${this.name().toCamelCase().capitalize()}[] {
+    filter${c.n(this).toCamelCase().capitalize()}(name: string, array: Array<${c.n(this).toCamelCase().capitalize()}>): ${c.n(this).toCamelCase().capitalize()}[] {
         return array.filter(option => option.${key.name()}.toLowerCase().includes(name.toLowerCase()));
     }$nL"""
 }
 
 fun <T : TypeI<*>> T.toAngularInitObservable(c: GenerationContext, key: AttributeI<*>): String {
     return """
-        this.filteredOptions${this.name().toCamelCase().capitalize()} = this.control${this.name().toCamelCase().capitalize()}.valueChanges.pipe(
+        this.filteredOptions${c.n(this).toCamelCase().capitalize()} = this.control${c.n(this).toCamelCase().capitalize()}.valueChanges.pipe(
             ${c.n(rxjs.operators.startWith)}(''),
-            ${c.n(rxjs.operators.map)}((value: ${this.name().toCamelCase().capitalize()}) => {
+            ${c.n(rxjs.operators.map)}((value: ${c.n(this).toCamelCase().capitalize()}) => {
                 const name = typeof value === 'string' ? value : value.${key.name()};
                 return name ?
-                    this.filter${this.name().toCamelCase().capitalize()}(name as string, this.option${this.name().toCamelCase().capitalize()})
-                    : this.option${this.name().toCamelCase().capitalize()}.slice();
+                    this.filter${c.n(this).toCamelCase().capitalize()}(name as string, this.option${c.n(this).toCamelCase().capitalize()})
+                    : this.option${c.n(this).toCamelCase().capitalize()}.slice();
             }),
         );$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): String {
     return """${indent}ngOnInit(): void {
-        this.${this.name().toLowerCase()} = this.${this.name().toLowerCase()}DataService.getFirst();
-        this.${this.name().toLowerCase()}DataService.checkRoute(this.${this.name().toLowerCase()});
+        this.${c.n(this).toLowerCase()} = this.${c.n(this).toLowerCase()}DataService.getFirst();
+        this.${c.n(this).toLowerCase()}DataService.checkRoute(this.${c.n(this).toLowerCase()});
     }"""
 }
 
@@ -96,15 +97,15 @@ fun <T : ItemI<*>> T.toAngularGenerateComponentPart(c: GenerationContext, elemen
   selector: 'app-${this.name().toLowerCase()}${(element == "entity").then("-${type}")}',
   templateUrl: './${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.html',
   styleUrls: ['./${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.scss'],
-  ${this.checkProvider(hasProviders, hasClass).trim()}
+  ${this.checkProvider(c, hasProviders, hasClass).trim()}
 })
 """
 
-fun <T : ItemI<*>> T.checkProvider(hasProviders: Boolean, hasClass: Boolean): String {
+fun <T : ItemI<*>> T.checkProvider(c: GenerationContext, hasProviders: Boolean, hasClass: Boolean): String {
     val text: String = if (hasProviders && !hasClass) {
         "providers: [${this.name().capitalize()}ViewService]"
     } else if (hasProviders && hasClass) {
-        "providers: [{provide: TableDataService, useClass: ${this.name().capitalize()}DataService}]"
+        "providers: [{provide: ${c.n(service.template.DataService)}, useClass: ${this.name().capitalize()}${c.n(service.own.DataService, "-${this.name()}").substringBeforeLast("-")}}]"
     } else {
         ""
     }
@@ -171,11 +172,6 @@ $indent{ path: '${this.name().toLowerCase()}/edit/:id', component: ${this.name()
 $indent{ path: '${this.name().toLowerCase()}/search', component: ${this.name().capitalize()}ListComponent }"""
 }
 
-
-fun <T : ItemI<*>> T.toAngularModuleImportServices(): String {
-    return """import {${this.name()}ViewService} from '@${this.parent().name().decapitalize()}/${this.name()}/service/${this.name().toLowerCase()}-module-view.service';$nL"""
-}
-
-fun <T : ItemI<*>> T.toAngularModuleConstructor(indent: String): String {
-    return """${indent}constructor(public ${this.name().toLowerCase()}ViewService: ${this.name()}ViewService) {}$nL"""
+fun <T : ItemI<*>> T.toAngularModuleConstructor(c: GenerationContext, indent: String): String {
+    return """${indent}constructor(public ${this.name().toLowerCase()}ViewService: ${this.name()}${c.n(service.module.ViewService, "-${this.name()}").substringBeforeLast('-')}) {}$nL"""
 }

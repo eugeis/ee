@@ -25,6 +25,16 @@ object angular : StructureUnit({namespace("@angular").name("angular")}) {
         object FormControl : ExternalType() {
         }
     }
+    object material : StructureUnit() {
+        object table : StructureUnit() {
+            object MatTableDataSource : ExternalType() {
+            }
+        }
+        object sort : StructureUnit() {
+            object MatSort : ExternalType() {
+            }
+        }
+    }
 }
 
 object rxjs : StructureUnit({namespace("rxjs").name("rxjs")}) {
@@ -39,6 +49,31 @@ object rxjs : StructureUnit({namespace("rxjs").name("rxjs")}) {
         object startWith : ExternalType() {
         }
     }
+}
+
+object service: StructureUnit({namespace("service").name("service")}) {
+
+    object own: StructureUnit({namespace("own").name("own")}) {
+        // ../../service/...-data.service
+        object DataService: ExternalType() {
+        }
+    }
+    object template: StructureUnit({namespace("template").name("template")}) {
+        // @template/service/data.service
+        object DataService: ExternalType() {
+        }
+    }
+    object module: StructureUnit({namespace("module").name("module")}) {
+        // ../../service/...-module-view.service
+        object ViewService: ExternalType() {
+        }
+    }
+    object other: StructureUnit({namespace("other").name("other")}) {
+        // ../../../abc/service/abc-module-view.service
+        object DataService: ExternalType() {
+        }
+    }
+
 }
 
 open class TsContext(
@@ -71,10 +106,26 @@ open class TsContext(
             outsideTypes.isNotEmpty().then {
                 "${outsideTypes.map { (su, items) ->
                     """${indent}import {${items.sortedBy { it.name() }.joinToString(", ") {
-                        it.name()
+                        if (it.name().contains('-')) {"""${it.name().substringAfterLast('-')}${it.name().substringBeforeLast('-')}"""} else {it.name()}
                     }}} from ${if (su.name().equals("empty", true)) {
                         """'${su.parent().name()}'"""
-                    } 
+                    } else if (su.parent().name().equals("service", true)) {
+                        if (su.name().equals("template", true)) {
+                            """'@template/services/data.service'"""
+                        } else if (su.name().equals("own", true)) {
+                            """'../../service/${items.sortedBy { it.name() }.joinToString(", ") {
+                                it.name().substringAfterLast('-').toLowerCase()
+                            }}-data.service'"""
+                        } else if (su.name().equals("module", true)) {
+                            """'../../service/${items.sortedBy { it.name() }.joinToString(", ") {
+                                it.name().substringAfterLast('-').toLowerCase()
+                            }}-module-view.service'"""
+                        } else {
+                            """''"""
+                        }
+                    } else if (su.parent().name().equals("material", true)) {
+                        """'@${su.parent().parent().name()}/${su.parent().name()}/${su.name()}'"""
+                    }
                     else {
                         """'${(su.parent().name().decapitalize() !in arrayOf("rxjs")).then { "@" }}${su.parent().name().decapitalize()}/${su.name().equals("shared", true).not().then {
                             su.name().decapitalize()
@@ -96,6 +147,7 @@ fun <T : StructureUnitI<*>> T.initsForTsGeneration(): T {
     ts.initObjectTree()
     angular.initObjectTrees()
     rxjs.initObjectTrees()
+    service.initObjectTrees()
     initObjectTrees()
     return this
 }
