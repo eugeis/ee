@@ -19,10 +19,6 @@ fun <T : TypeI<*>> T.toAngularImportEntityComponent(findParentNonInternal: ItemI
     return """import {${this.name().toCamelCase().capitalize()}DataService} from '@${this.parent().parent().name().toLowerCase()}/${findParentNonInternal?.name()?.toLowerCase()}/${this.name().toLowerCase()}/service/${this.name().toLowerCase()}-data.service';$nL"""
 }
 
-fun <T : TypeI<*>> T.toAngularControlServiceImport(findParentNonInternal: ItemI<*>?): String {
-    return """import {${this.name().toCamelCase().capitalize()}} from '@${this.parent().parent().name().toLowerCase()}/${findParentNonInternal?.name()?.toLowerCase()}/${findParentNonInternal?.name()?.capitalize()}ApiBase';$nL"""
-}
-
 fun <T : TypeI<*>> T.toAngularControlService(c: GenerationContext): String {
     return """
     control${c.n(this).toCamelCase().capitalize()} = new ${c.n(angular.forms.FormControl)}<${c.n(this).toCamelCase().capitalize()}>(new ${c.n(this).toCamelCase().capitalize()}());

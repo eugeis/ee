@@ -2,23 +2,14 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.design.ModuleI
 import ee.lang.*
+import ee.lang.gen.ts.angular
+import ee.lang.gen.ts.module
+import ee.lang.gen.ts.ngxtranslate
+import ee.lang.gen.ts.ownComponent
 
 fun <T : ModuleI<*>> T.toAngularModule(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                 api: String = LangDerivedKind.API): String {
-    return """import { NgModule } from '@angular/core';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-
-import {${this.name().capitalize()}RoutingModules} from './${this.name().toLowerCase()}-routing.module';
-import {CommonModule} from '@angular/common';
-import {TemplateModule} from '@template/template.module';
-import {MaterialModule} from '@template/material.module';
-
-import {HttpClient} from '@angular/common/http';
-import {TranslateHttpLoader} from '@ngx-translate/http-loader';
-import {TemplateTranslateService} from '@template/services/translate.service';
-import {TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
-
-import {${this.name().capitalize()}ViewComponent} from './components/view/${this.name().toLowerCase()}-module-view.component';
+    return """
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleImportEntities()
     }}
@@ -34,13 +25,13 @@ ${this.entities().any { entity ->
         }
     }.then {this.toAngularImportOtherModules()}}    
 
-export function HttpLoaderFactory(http: ${c.n("HttpClient")}) {
-    return new TranslateHttpLoader(http);
+export function HttpLoaderFactory(http: ${c.n(angular.commonhttp.HttpClient)}) {
+    return new ${c.n(ngxtranslate.httploader.TranslateHttpLoader)}(http);
 }
 
-@${c.n("NgModule")}({
+@${c.n(angular.core.NgModule)}({
     declarations: [
-        ${this.name().capitalize()}ViewComponent,
+        ${this.name().capitalize()}${c.n(ownComponent.view.ViewComponent, "-${this.name()}").substringBeforeLast("-")},
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleDeclarationEntities(tab + tab)
     }}
@@ -52,14 +43,14 @@ ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
     }}
     ],
     imports: [
-        ${this.name().capitalize()}RoutingModules,
-        TemplateModule,
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MaterialModule,
-        ${c.n("TranslateModule")}.forChild({
-            loader: {provide: ${c.n("TranslateLoader")}, useFactory: HttpLoaderFactory, deps: [${c.n("HttpClient")}]},
+        ${this.name().capitalize()}${c.n(ownComponent.routing.RoutingModules, "-${this.name()}").substringBeforeLast("-")},
+        ${c.n(module.template.TemplateModule)},
+        ${c.n(angular.common.CommonModule)},
+        ${c.n(angular.forms.FormsModule)},
+        ${c.n(angular.forms.ReactiveFormsModule)},
+        ${c.n(module.material.MaterialModule)},
+        ${c.n(ngxtranslate.core.TranslateModule)}.forChild({
+            loader: {provide: ${c.n(ngxtranslate.core.TranslateLoader)}, useFactory: HttpLoaderFactory, deps: [${c.n(angular.commonhttp.HttpClient)}]},
         }),
         ${this.entities().any { entity ->
         entity.props().any {
@@ -68,7 +59,7 @@ ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
     }.then {this.toAngularImportOtherModulesOnImportPart()}}
     ],
     providers: [
-        { provide: ${c.n("TranslateService")}, useExisting: ${c.n("TemplateTranslateService")} }
+        { provide: ${c.n(ngxtranslate.core.TranslateService)}, useExisting: ${c.n(module.services.TemplateTranslateService)} }
     ],
     exports: [
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
@@ -116,24 +107,21 @@ fun <T : ModuleI<*>> T.toAngularImportOtherModulesOnImportPart(): String {
 
 fun <T : ModuleI<*>> T.toAngularRoutingModule(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                        api: String = LangDerivedKind.API): String {
-    return """import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-
-import {${this.name().capitalize()}ViewComponent} from './components/view/${this.name().toLowerCase()}-module-view.component';
+    return """
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleImportEntitiesRouting()
     }}
 
-const routes: Routes = [
-    { path: '', component: ${this.name().capitalize()}ViewComponent },
+const routes: ${c.n(angular.router.Routes)} = [
+    { path: '', component: ${this.name().capitalize()}${c.n(ownComponent.view.ViewComponent, "-${this.name()}").substringBeforeLast("-")} },
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
         it.toAngularModulePath(tab)
     }}
 ];
 
-@NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule],
+@${c.n(angular.core.NgModule)}({
+    imports: [${c.n(angular.router.RouterModule)}.forChild(routes)],
+    exports: [${c.n(angular.router.RouterModule)}],
 })
 export class ${this.name().capitalize()}RoutingModules {}
 

@@ -1,5 +1,6 @@
 package ee.lang.gen.ts
 
+import ee.common.ext.fileName
 import ee.common.ext.then
 import ee.lang.*
 
@@ -20,9 +21,15 @@ object angular : StructureUnit({namespace("@angular").name("angular")}) {
         }
         object Injectable : ExternalType() {
         }
+        object NgModule : ExternalType() {
+        }
     }
     object forms : StructureUnit() {
         object FormControl : ExternalType() {
+        }
+        object FormsModule : ExternalType() {
+        }
+        object ReactiveFormsModule : ExternalType() {
         }
     }
     object material : StructureUnit() {
@@ -33,6 +40,20 @@ object angular : StructureUnit({namespace("@angular").name("angular")}) {
         object sort : StructureUnit() {
             object MatSort : ExternalType() {
             }
+        }
+    }
+    object common : StructureUnit() {
+        object CommonModule: ExternalType() {
+        }
+    }
+    object commonhttp : StructureUnit({(namespace("common/http").name("common/http"))}) {
+        object HttpClient : ExternalType() {
+        }
+    }
+    object router : StructureUnit() {
+        object Routes : ExternalType() {
+        }
+        object RouterModule : ExternalType() {
         }
     }
 }
@@ -73,7 +94,45 @@ object service: StructureUnit({namespace("service").name("service")}) {
         object DataService: ExternalType() {
         }
     }
+}
 
+object module: StructureUnit({namespace("module").name("module")}) {
+    object template : StructureUnit() {
+        object TemplateModule : ExternalType() {
+        }
+    }
+    object material : StructureUnit() {
+        object MaterialModule : ExternalType() {
+        }
+    }
+    object services : StructureUnit() {
+        object TemplateTranslateService : ExternalType() {
+        }
+    }
+}
+
+object ngxtranslate: StructureUnit({namespace("ngx-translate").name("ngx-translate")}) {
+    object core : StructureUnit() {
+        object TranslateLoader : ExternalType() {
+        }
+        object TranslateModule : ExternalType() {
+        }
+        object TranslateService : ExternalType() {
+        }
+    }
+    object httploader : StructureUnit({namespace("http-loader").name("http-loader")}) {
+        object TranslateHttpLoader : ExternalType() {
+        }
+    }
+}
+
+object ownComponent : StructureUnit({namespace("ownComponent").name("ownComponent")}) {
+    object routing : StructureUnit() {
+        object RoutingModules : ExternalType()
+    }
+    object view : StructureUnit() {
+        object ViewComponent : ExternalType()
+    }
 }
 
 open class TsContext(
@@ -125,11 +184,19 @@ open class TsContext(
                         }
                     } else if (su.parent().name().equals("material", true)) {
                         """'@${su.parent().parent().name()}/${su.parent().name()}/${su.name()}'"""
+                    } else if (su.parent().name().equals("module", true)) {
+                        """'@template/${if(su.name().equals("services", true)) {"""${su.name()}/translate.service"""} else {"""${su.name()}.module"""}}'"""
+                    } else if (su.parent().name().equals("ownComponent", true)) {
+                        """'./${if(su.name().equals("routing", true)) {"""${items.sortedBy { it.name() }.joinToString(", ") {
+                            it.name().substringAfterLast('-').toLowerCase()
+                        }}-routing.module"""} else {"""components/view/${items.sortedBy { it.name() }.joinToString(", ") {
+                            it.name().substringAfterLast('-').toLowerCase()
+                        }}-module-view.component"""}}'"""
                     }
                     else {
                         """'${(su.parent().name().decapitalize() !in arrayOf("rxjs")).then { "@" }}${su.parent().name().decapitalize()}/${su.name().equals("shared", true).not().then {
                             su.name().decapitalize()
-                        }}${(su.parent().name().decapitalize() !in arrayOf("angular", "rxjs")).then { "/${su.name().capitalize()}ApiBase" }}'"""
+                        }}${(su.parent().name().decapitalize() !in arrayOf("angular", "rxjs", "ngx-translate")).then { "/${su.name().capitalize()}ApiBase" }}'"""
                     }}"""
                 }.toHashSet().sorted().joinToString(nL)}$nL$nL"
             }
@@ -148,6 +215,9 @@ fun <T : StructureUnitI<*>> T.initsForTsGeneration(): T {
     angular.initObjectTrees()
     rxjs.initObjectTrees()
     service.initObjectTrees()
+    module.initObjectTrees()
+    ngxtranslate.initObjectTrees()
+    ownComponent.initObjectTrees()
     initObjectTrees()
     return this
 }
