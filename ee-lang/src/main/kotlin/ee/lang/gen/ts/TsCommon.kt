@@ -1,7 +1,6 @@
 package ee.lang.gen.ts
 
 import ee.common.ext.*
-import ee.design.EntityI
 import ee.lang.*
 import ee.lang.gen.java.j
 import javax.swing.text.html.parser.Entity
@@ -256,16 +255,6 @@ fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent
         }
     }
 }*/
-fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext, parentName: String = ""): String {
-    return when (this.type()) {
-        is EntityI<*>, is ValuesI<*> -> """'${this.name().toLowerCase()}-entity'"""
-        is BasicI<*> -> this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
-                            it.toAngularGenerateTableHeader(c, this.name())
-                        }
-        is EnumTypeI<*> -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}'"""
-        else -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}'"""
-    }
-}
 
 /*fun <T : AttributeI<*>> T.toTypeScriptTypeProperty(c: GenerationContext, elementParent: AttributeI<*>): String {
     return when (this.type()) {

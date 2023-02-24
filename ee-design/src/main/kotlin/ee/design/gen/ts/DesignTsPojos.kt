@@ -95,6 +95,17 @@ ${this.toAngularListOnInit(c, tab)}
 """
 }
 
+fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext, parentName: String = ""): String {
+    return when (this.type()) {
+        is EntityI<*>, is ValuesI<*> -> """'${this.name().toLowerCase()}-entity'"""
+        is BasicI<*> -> this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
+            it.toAngularGenerateTableHeader(c, this.name())
+        }
+        is EnumTypeI<*> -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}'"""
+        else -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}'"""
+    }
+}
+
 fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(
     entities: List<EntityI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
     api: String = LangDerivedKind.API): String {
@@ -232,5 +243,126 @@ declare global {
     }
 }
 window.${c.n(this).toLowerCase()}DataService = new ${c.n(this)}DataService();
+"""
+}
+
+fun <T : ItemI<*>> T.toAngularGenerateEnumElementBasic(c: GenerationContext, indent: String): String {
+    return """${indent}${c.n(this).toLowerCase()}Enum = this.loadEnumElement(${c.n(this).capitalize()});"""
+}
+
+fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                          api: String = LangDerivedKind.API): String {
+    return """${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
+        """
+${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+            when(it.type()) {
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularImportEntityComponent(it.type().findParentNonInternal())
+                else -> ""
+            }
+        }}
+"""
+    }else{""}}
+
+${this.toAngularGenerateComponentPart(c, "basic", "", hasProviders = false, hasClass = false)}
+${isOpen().then("export ")}class ${c.n(this)}Component implements ${c.n(angular.core.OnInit)} {
+
+    @${c.n(angular.core.Input)}() ${c.n(this).toLowerCase()}: ${c.n(this)};
+    @${c.n(angular.core.Input)}() parentName: String;
+${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
+        it.type().toAngularGenerateEnumElementBasic(c, tab)
+    }}
+
+${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
+        """${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+            when(it.type()) {
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlService(c)
+                else -> ""
+            }
+        }}        
+    constructor(${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+            when(it.type()) {
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularPropOnConstructor(c)
+                else -> "" }
+        }.trim()
+        }) {}
+"""
+    }else{""}}
+
+${if (props().any { it.type() is EnumTypeI<*> }) {
+        """
+    loadEnumElement(enumElement: any) {
+        let tempArray = [];
+        Object.keys(enumElement).${c.n(rxjs.operators.map)}((element, index) => {
+            tempArray.push(enumElement[index]);
+        })
+        tempArray = tempArray.filter((item) => item);
+        return tempArray;
+    }"""
+    } else {""}}
+    ngOnInit() {
+        if (this.${c.n(this).toLowerCase()} === undefined) {
+            this.${c.n(this).toLowerCase()} = new ${this.name().capitalize()}();
+        }
+        ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toTypeScriptInitEmptyProps(c)
+    }.trim()}
+    
+    ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
+        """
+        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+            when(it.type()) {
+                is EntityI<*>, is ValuesI<*> -> it.toAngularInitOptionBasic(it.type().name())
+                else -> ""
+            }
+        }}
+    
+        this.initObservable();"""
+    } else {""}}
+    }
+    
+${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
+        """    
+        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+            when(it.type()) {
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlServiceFunctions(c, it.type().props().first { element -> element.type().name() == "String" })
+                else -> ""
+            }
+        }}
+    
+    initObservable() {
+        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+            when(it.type()) {
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularInitObservable(c, it.type().props().first { element -> element.type().name() == "String" })
+                else -> ""
+            }
+        }}
+    }"""
+    } else {""}}
+}
+"""
+}
+
+fun <T : ItemI<*>> T.toAngularInitOptionBasic(elementType: String): String {
+    return """this.option${elementType.capitalize()} = this.${elementType.toLowerCase()}DataService.changeMapToArray(this.${elementType.toLowerCase()}DataService.retrieveItemsFromCache()); $nL"""
+}
+
+fun <T : CompilationUnitI<*>> T.toAngularEnumTSComponent(parent: ItemI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                         api: String = LangDerivedKind.API): String {
+    return """
+${this.toAngularGenerateComponentPart(c, "enum", "", hasProviders = false, hasClass = false)}
+
+export class ${c.n(this)}EnumComponent implements ${c.n(angular.core.OnInit)} {
+
+    @${c.n(angular.core.Input)}() ${c.n(parent).toLowerCase()}: ${c.n(parent)};
+    
+    enumElements: Array<string>;
+    
+    constructor(private tableDataService: ${c.n(service.template.DataService)}<${c.n(parent)}>) { }
+    
+    ngOnInit(): void {
+        this.enumElements = this.tableDataService.loadEnumElement(${c.n(this)}, '${c.n(parent).toLowerCase()}', '${c.n(this).toLowerCase()}Enum');
+    }
+
+}
 """
 }

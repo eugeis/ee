@@ -4,12 +4,12 @@ import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.LangTsTemplates
-import ee.lang.gen.ts.toAngularBasicTSComponent
-import ee.lang.gen.ts.toAngularEnumTSComponent
+import toAngularBasicTSComponent
 import toAngularEntityDataService
 import toAngularEntityListTypeScript
 import toAngularEntityViewTypeScript
 import toAngularEntityFormTypeScript
+import toAngularEnumTSComponent
 import toAngularModuleService
 import toAngularModuleTypeScript
 
