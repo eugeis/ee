@@ -43,16 +43,17 @@ ${this.toAngularViewOnInit(c, tab)}
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                              api: String = LangDerivedKind.API): String {
-    return """
+/*
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
     when(it.type()) {
         is EntityI<*>, is ValuesI<*> -> it.type().toAngularImportEntityComponent(it.type().findParentNonInternal())
         else -> ""
     }
 }}
-    
+ */
+fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                              api: String = LangDerivedKind.API): String {
+    return """
 ${this.toAngularGenerateComponentPart(c, "entity", "form", hasProviders = false, hasClass = false)}
 ${isOpen().then("export ")}class ${c.n(this)}FormComponent implements ${c.n(angular.core.OnInit)} {
 

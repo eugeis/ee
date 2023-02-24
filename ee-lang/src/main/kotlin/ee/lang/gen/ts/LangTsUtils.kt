@@ -165,38 +165,35 @@ open class TsContext(
             outsideTypes.isNotEmpty().then {
                 "${outsideTypes.map { (su, items) ->
                     """${indent}import {${items.sortedBy { it.name() }.joinToString(", ") {
-                        if (it.name().contains('-')) {"""${it.name().substringAfterLast('-')}${it.name().substringBeforeLast('-')}"""} else {it.name()}
-                    }}} from ${if (su.name().equals("empty", true)) {
-                        """'${su.parent().name()}'"""
-                    } else if (su.parent().name().equals("service", true)) {
-                        if (su.name().equals("template", true)) {
-                            """'@template/services/data.service'"""
-                        } else if (su.name().equals("own", true)) {
-                            """'../../service/${items.sortedBy { it.name() }.joinToString(", ") {
+                        if (it.name().contains('/')) {"""${it.name().substringAfterLast('-')}${it.name().substringBefore('-')}"""} else if(it.name().contains('-')) {"""${it.name().substringAfterLast('-')}${it.name().substringBeforeLast('-')}"""} else {it.name()}
+                    }}} from ${when(su.parent().name()) {
+                        "service" -> when(su.name()) {
+                            "template" -> "'@template/services/data.service'"
+                            "own" -> """'../../service/${items.sortedBy { it.name() }.joinToString(", ") {
                                 it.name().substringAfterLast('-').toLowerCase()
                             }}-data.service'"""
-                        } else if (su.name().equals("module", true)) {
-                            """'../../service/${items.sortedBy { it.name() }.joinToString(", ") {
+                            "module" -> """'../../service/${items.sortedBy { it.name() }.joinToString(", ") {
                                 it.name().substringAfterLast('-').toLowerCase()
                             }}-module-view.service'"""
-                        } else {
-                            """''"""
+                            else -> "'@schkola${items.sortedBy { it.name() }.joinToString(", ") {
+                                it.name().substringBeforeLast('-').substringAfter("-").toLowerCase()
+                            }}/service/${items.sortedBy { it.name() }.joinToString(", ") {
+                                it.name().substringAfterLast('-').toLowerCase()
+                            }}-data.service'"
                         }
-                    } else if (su.parent().name().equals("material", true)) {
-                        """'@${su.parent().parent().name()}/${su.parent().name()}/${su.name()}'"""
-                    } else if (su.parent().name().equals("module", true)) {
-                        """'@template/${if(su.name().equals("services", true)) {"""${su.name()}/translate.service"""} else {"""${su.name()}.module"""}}'"""
-                    } else if (su.parent().name().equals("ownComponent", true)) {
-                        """'./${if(su.name().equals("routing", true)) {"""${items.sortedBy { it.name() }.joinToString(", ") {
+                        "material" -> """'@${su.parent().parent().name()}/${su.parent().name()}/${su.name()}'"""
+                        "module" -> """'@template/${if(su.name().equals("services", true)) {"""${su.name()}/translate.service"""} else {"""${su.name()}.module"""}}'"""
+                        "ownComponent" -> """'./${if(su.name().equals("routing", true)) {"""${items.sortedBy { it.name() }.joinToString(", ") {
                             it.name().substringAfterLast('-').toLowerCase()
                         }}-routing.module"""} else {"""components/view/${items.sortedBy { it.name() }.joinToString(", ") {
                             it.name().substringAfterLast('-').toLowerCase()
                         }}-module-view.component"""}}'"""
-                    }
-                    else {
-                        """'${(su.parent().name().decapitalize() !in arrayOf("rxjs")).then { "@" }}${su.parent().name().decapitalize()}/${su.name().equals("shared", true).not().then {
-                            su.name().decapitalize()
-                        }}${(su.parent().name().decapitalize() !in arrayOf("angular", "rxjs", "ngx-translate")).then { "/${su.name().capitalize()}ApiBase" }}'"""
+                        else -> when(su.name()) {
+                            "empty" -> """'${su.parent().name()}'"""
+                            else -> """'${(su.parent().name().decapitalize() !in arrayOf("rxjs")).then { "@" }}${su.parent().name().decapitalize()}/${su.name().equals("shared", true).not().then {
+                                su.name().decapitalize()
+                            }}${(su.parent().name().decapitalize() !in arrayOf("angular", "rxjs", "ngx-translate")).then { "/${su.name().capitalize()}ApiBase" }}'"""
+                        }
                     }}"""
                 }.toHashSet().sorted().joinToString(nL)}$nL$nL"
             }

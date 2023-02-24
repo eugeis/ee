@@ -12,7 +12,7 @@ fun <T : ItemI<*>> T.toAngularConstructorDataService(c: GenerationContext, inden
 }
 
 fun <T : TypeI<*>> T.toAngularPropOnConstructor(c: GenerationContext): String {
-    return """${tab + tab}public ${this.name().toLowerCase()}DataService: ${this.name().toCamelCase().capitalize()}DataService, $nL"""
+    return """${tab + tab}public ${this.name().toLowerCase()}DataService: ${this.name().toCamelCase().capitalize()}${c.n(service.other.DataService, "-/${this.parent().name()}/${this.name()}-${this.name()}").substringBefore("-")}, $nL"""
 }
 
 fun <T : TypeI<*>> T.toAngularImportEntityComponent(findParentNonInternal: ItemI<*>?): String {
