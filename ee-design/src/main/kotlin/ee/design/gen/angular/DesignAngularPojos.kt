@@ -73,7 +73,7 @@ ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
     }}
     ]
 })
-export class ${this.name().capitalize()}Module {}"""
+export class ${c.n(this, AngularDerivedType.Module)} {}"""
 }
 
 fun <T : ModuleI<*>> T.toAngularImportOtherModules(): String {

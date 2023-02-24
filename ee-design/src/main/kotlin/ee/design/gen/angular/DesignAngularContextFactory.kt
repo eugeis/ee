@@ -12,6 +12,11 @@ open class DesignAngularContextFactory : DesignTsContextFactory() {
 
     override fun registerForImplOnly(derived: DerivedController) {
         super.registerForImplOnly(derived)
+        derived.registerKinds(
+            listOf( AngularDerivedType.DataService, AngularDerivedType.ViewService, AngularDerivedType.ViewComponent),
+            { "${this.name().capitalize()}-${it}" },
+            isNotPartOfNativeTypes)
+
     }
 
     override fun buildName(item: ItemI<*>, kind: String): String {
