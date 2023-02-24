@@ -8,11 +8,11 @@ import ee.lang.gen.ts.rxjs
 import ee.lang.gen.ts.service
 
 fun <T : ItemI<*>> T.toAngularConstructorDataService(c: GenerationContext, indent: String): String {
-    return """${indent}constructor(public ${this.name().toLowerCase()}DataService: ${this.name()}${c.n(service.own.DataService, "-${this.name()}").substringBeforeLast("-")}) {}$nL"""
+    return """${indent}constructor(public ${c.n(this, AngularDerivedType.DataService).decapitalize()}: ${c.n(this, AngularDerivedType.DataService)}) {}$nL"""
 }
 
 fun <T : TypeI<*>> T.toAngularPropOnConstructor(c: GenerationContext): String {
-    return """${tab + tab}public ${this.name().toLowerCase()}DataService: ${this.name().toCamelCase().capitalize()}DataService, $nL"""
+    return """${tab + tab}public ${c.n(this, AngularDerivedType.DataService).decapitalize()}: ${c.n(this, AngularDerivedType.DataService)}, $nL"""
 }
 
 fun <T : TypeI<*>> T.toAngularImportEntityComponent(findParentNonInternal: ItemI<*>?): String {
@@ -51,32 +51,32 @@ fun <T : TypeI<*>> T.toAngularInitObservable(c: GenerationContext, key: Attribut
 }
 
 fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): String {
-    return """${indent}ngOnInit(): void {
-        this.${c.n(this).toLowerCase()} = this.${c.n(this).toLowerCase()}DataService.getFirst();
-        this.${c.n(this).toLowerCase()}DataService.checkRoute(this.${c.n(this).toLowerCase()});
+    return """${indent}ng${c.n(angular.core.OnInit)}(): void {
+        this.${c.n(this).toLowerCase()} = this.${c.n(this, AngularDerivedType.DataService).decapitalize()}.getFirst();
+        this.${c.n(this, AngularDerivedType.DataService).decapitalize()}.checkRoute(this.${c.n(this).toLowerCase()});
     }"""
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent: String): String {
 
-    return """${indent}ngOnInit(): void {
+    return """${indent}ng${c.n(angular.core.OnInit)}(): void {
         ${this.props().filter { it.type() is BasicI<*> || it.type() is EntityI<*> || it.type() is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL + tab) {
         it.toAngularEmptyProps(c, indent, it.type())
     }.trim()}
     
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
 when(it.type()) {
-    is EntityI<*>, is ValuesI<*> -> it.toAngularInitOption(it.type().name())
+    is EntityI<*>, is ValuesI<*> -> it.toAngularInitOption(c, it.type().name())
     else -> ""
 }
     }}
     
-        this.${this.name().toLowerCase()}DataService.initObservable();
+        this.${c.n(this, AngularDerivedType.DataService).decapitalize()}.initObservable();
     }"""
 }
 
-fun <T : ItemI<*>> T.toAngularInitOption(elementType: String): String {
-    return """${tab + tab}this.${this.parent().name().toLowerCase()}DataService.option${elementType.capitalize()} = this.${elementType.toLowerCase()}DataService.changeMapToArray(this.${elementType.toLowerCase()}DataService.retrieveItemsFromCache()); $nL"""
+fun <T : ItemI<*>> T.toAngularInitOption(c: GenerationContext, elementType: String): String {
+    return """${tab + tab}this.${c.n(this.parent(), AngularDerivedType.DataService).decapitalize()}.option${elementType.capitalize()} = this.${c.n(elementType, AngularDerivedType.DataService).decapitalize()}.changeMapToArray(this.${c.n(elementType, AngularDerivedType.DataService).decapitalize()}.retrieveItemsFromCache()); $nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, elementType: TypeI<*>): String {
@@ -99,17 +99,13 @@ fun <T : ItemI<*>> T.toAngularGenerateComponentPart(c: GenerationContext, elemen
 
 fun <T : ItemI<*>> T.checkProvider(c: GenerationContext, hasProviders: Boolean, hasClass: Boolean): String {
     val text: String = if (hasProviders && !hasClass) {
-        "providers: [${this.name().capitalize()}ViewService]"
+        "providers: [${c.n(this, AngularDerivedType.ViewService)}]"
     } else if (hasProviders && hasClass) {
-        "providers: [{provide: ${c.n(service.template.DataService)}, useClass: ${this.name().capitalize()}${c.n(service.own.DataService, "-${this.name()}").substringBeforeLast("-")}}]"
+        "providers: [{provide: ${c.n(service.template.DataService)}, useClass: ${c.n(this, AngularDerivedType.ViewService)}}]"
     } else {
         ""
     }
     return text
-}
-
-fun <T : ItemI<*>> T.toAngularGenerateEnumElement(c: GenerationContext, indent: String, element: T): String {
-    return """${indent}${c.n(this).toLowerCase()}Enum = this.${element.name().toLowerCase()}DataService.loadEnumElement(${c.n(this).capitalize()});"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptEntityProp(c: GenerationContext, indent: String): String {
@@ -143,31 +139,31 @@ fun <T : ItemI<*>> T.toAngularModuleImportEnums(): String {
     return """import {${this.name().capitalize()}EnumComponent} from '@${this.parent().parent().name().decapitalize()}/${this.parent().name().toLowerCase()}/enums/${this.name().toLowerCase()}/${this.name().toLowerCase()}-enum.component';"""
 }
 
-fun <T : ItemI<*>> T.toAngularModuleDeclarationEntities(indent: String): String {
-    return """$indent${this.name().capitalize()}ViewComponent,
-$indent${this.name().capitalize()}ListComponent,
-$indent${this.name().capitalize()}FormComponent,"""
+fun <T : ItemI<*>> T.toAngularModuleDeclarationEntities(c: GenerationContext, indent: String): String {
+    return """$indent${c.n(this, AngularDerivedType.ViewComponent)},
+$indent${c.n(this, AngularDerivedType.ListComponent)},
+$indent${c.n(this, AngularDerivedType.FormComponent)},"""
 }
 
-fun <T : ItemI<*>> T.toAngularModuleExportViews(indent: String): String {
-    return """$indent${this.name().capitalize()}FormComponent,"""
+fun <T : ItemI<*>> T.toAngularModuleExportViews(c: GenerationContext, indent: String): String {
+    return """$indent${c.n(this, AngularDerivedType.FormComponent)},"""
 }
 
-fun <T : ItemI<*>> T.toAngularModuleDeclarationBasics(indent: String): String {
-    return """$indent${this.name().capitalize()}Component,"""
+fun <T : ItemI<*>> T.toAngularModuleDeclarationBasics(c: GenerationContext, indent: String): String {
+    return """$indent${c.n(this, AngularDerivedType.Component)},"""
 }
 
-fun <T : ItemI<*>> T.toAngularModuleDeclarationEnums(indent: String): String {
-    return """$indent${this.name().capitalize()}EnumComponent,"""
+fun <T : ItemI<*>> T.toAngularModuleDeclarationEnums(c: GenerationContext, indent: String): String {
+    return """$indent${c.n(this, AngularDerivedType.EnumComponent)},"""
 }
 
-fun <T : ItemI<*>> T.toAngularModulePath(indent: String): String {
-    return """$indent{ path: '${this.name().toLowerCase()}', component: ${this.name().capitalize()}ListComponent },
-$indent{ path: '${this.name().toLowerCase()}/new', component: ${this.name().capitalize()}ViewComponent },
-$indent{ path: '${this.name().toLowerCase()}/edit/:id', component: ${this.name().capitalize()}ViewComponent },
-$indent{ path: '${this.name().toLowerCase()}/search', component: ${this.name().capitalize()}ListComponent }"""
+fun <T : ItemI<*>> T.toAngularModulePath(c: GenerationContext, indent: String): String {
+    return """$indent{ path: '${this.name().toLowerCase()}', component: ${c.n(this, AngularDerivedType.ListComponent)} },
+$indent{ path: '${this.name().toLowerCase()}/new', component: ${c.n(this, AngularDerivedType.ViewComponent)} },
+$indent{ path: '${this.name().toLowerCase()}/edit/:id', component: ${c.n(this, AngularDerivedType.ViewComponent)} },
+$indent{ path: '${this.name().toLowerCase()}/search', component: ${c.n(this, AngularDerivedType.ListComponent)} }"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleConstructor(c: GenerationContext, indent: String): String {
-    return """${indent}constructor(public ${this.name().toLowerCase()}ViewService: ${this.name()}${c.n(service.module.ViewService, "-${this.name()}").substringBeforeLast('-')}) {}$nL"""
+    return """${indent}constructor(public ${c.n(this, AngularDerivedType.ViewService).decapitalize()}: ${c.n(this, AngularDerivedType.ViewService)}) {}$nL"""
 }

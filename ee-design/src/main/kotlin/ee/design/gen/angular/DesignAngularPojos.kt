@@ -23,7 +23,7 @@ ${this.entities().any { entity ->
         entity.props().any {
             it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase()
         }
-    }.then {this.toAngularImportOtherModules()}}    
+    }.then {this.toAngularImportOtherModules(c)}}    
 
 export function HttpLoaderFactory(http: ${c.n(angular.commonhttp.HttpClient)}) {
     return new ${c.n(ngxtranslate.httploader.TranslateHttpLoader)}(http);
@@ -31,19 +31,19 @@ export function HttpLoaderFactory(http: ${c.n(angular.commonhttp.HttpClient)}) {
 
 @${c.n(angular.core.NgModule)}({
     declarations: [
-        ${this.name().capitalize()}${c.n(ownComponent.view.ViewComponent, "-${this.name()}").substringBeforeLast("-")},
+        ${this.name().capitalize()}${c.n(this, AngularDerivedType.ViewComponent)},
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleDeclarationEntities(tab + tab)
+        it.toAngularModuleDeclarationEntities(c, tab + tab)
     }}
 ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleDeclarationBasics(tab + tab)
+        it.toAngularModuleDeclarationBasics(c, tab + tab)
     }}
 ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleDeclarationEnums(tab + tab) 
+        it.toAngularModuleDeclarationEnums(c, tab + tab) 
     }}
     ],
     imports: [
-        ${this.name().capitalize()}${c.n(ownComponent.routing.RoutingModules, "-${this.name()}").substringBeforeLast("-")},
+        ${this.name().capitalize()}${c.n(this, AngularDerivedType.RoutingModules)},
         ${c.n(module.template.TemplateModule)},
         ${c.n(angular.common.CommonModule)},
         ${c.n(angular.forms.FormsModule)},
@@ -56,32 +56,32 @@ ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         entity.props().any {
             it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase()
         }
-    }.then {this.toAngularImportOtherModulesOnImportPart()}}
+    }.then {this.toAngularImportOtherModulesOnImportPart(c)}}
     ],
     providers: [
         { provide: ${c.n(ngxtranslate.core.TranslateService)}, useExisting: ${c.n(module.services.TemplateTranslateService)} }
     ],
     exports: [
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleExportViews(tab + tab)
+        it.toAngularModuleExportViews(c, tab + tab)
     }}
 ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleDeclarationBasics(tab + tab)
+        it.toAngularModuleDeclarationBasics(c, tab + tab)
     }}
 ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleDeclarationEnums(tab + tab)
+        it.toAngularModuleDeclarationEnums(c, tab + tab)
     }}
     ]
 })
 export class ${c.n(this, AngularDerivedType.Module)} {}"""
 }
 
-fun <T : ModuleI<*>> T.toAngularImportOtherModules(): String {
+fun <T : ModuleI<*>> T.toAngularImportOtherModules(c: GenerationContext): String {
     val sb = StringBuilder()
     val importedOtherModules: MutableList<String> = ArrayList()
     this.entities().forEach { entity ->
         entity.props().filter { it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase() }.forEach {
-            importedOtherModules.add("import {${it.type().parent().name()}Module} from '@${it.type().parent().parent().name().toLowerCase()}/${it.type().parent().name().toLowerCase()}/${it.type().parent().name().toLowerCase()}-model.module';")
+            importedOtherModules.add("import {${c.n(it.type().parent(), AngularDerivedType.Module)}} from '@${it.type().parent().parent().name().toLowerCase()}/${it.type().parent().name().toLowerCase()}/${it.type().parent().name().toLowerCase()}-model.module';")
         }
     }
     importedOtherModules.distinct().forEach {
@@ -90,12 +90,12 @@ fun <T : ModuleI<*>> T.toAngularImportOtherModules(): String {
     return sb.toString()
 }
 
-fun <T : ModuleI<*>> T.toAngularImportOtherModulesOnImportPart(): String {
+fun <T : ModuleI<*>> T.toAngularImportOtherModulesOnImportPart(c: GenerationContext): String {
     val sb = StringBuilder()
     val importedOtherModules: MutableList<String> = ArrayList()
     this.entities().forEach { entity ->
         entity.props().filter { it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase() }.forEach {
-            importedOtherModules.add("${it.type().parent().name()}Module,")
+            importedOtherModules.add("${c.n(it.type().parent(), AngularDerivedType.Module)},")
         }
     }
     importedOtherModules.distinct().forEach {
@@ -113,9 +113,9 @@ ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
     }}
 
 const routes: ${c.n(angular.router.Routes)} = [
-    { path: '', component: ${this.name().capitalize()}${c.n(ownComponent.view.ViewComponent, "-${this.name()}").substringBeforeLast("-")} },
+    { path: '', component: ${this.name().capitalize()}${c.n(this, AngularDerivedType.ViewComponent)} },
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
-        it.toAngularModulePath(tab)
+        it.toAngularModulePath(c, tab)
     }}
 ];
 
@@ -123,7 +123,7 @@ ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL"
     imports: [${c.n(angular.router.RouterModule)}.forChild(routes)],
     exports: [${c.n(angular.router.RouterModule)}],
 })
-export class ${this.name().capitalize()}RoutingModules {}
+export class ${c.n(this, AngularDerivedType.RoutingModules)} {}
 
 """
 }

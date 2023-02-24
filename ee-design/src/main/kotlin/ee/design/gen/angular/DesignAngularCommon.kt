@@ -3,13 +3,20 @@ import ee.common.ext.toCamelCase
 import ee.design.DesignDerivedTypeNames
 import ee.design.EntityI
 import ee.lang.*
+import java.awt.Component
 
 
 open class AngularDerivedKindNames {
     val DataService = "DataService"
     val ViewService = "ViewService"
-    val ViewComponent = "Component"
+    val ViewComponent = "ViewComponent"
+    val ListComponent = "ListComponent"
+    val FormComponent = "FormComponent"
+    val Component = "Component"
+    val Enum = "Enum"
+    val EnumComponent = "EnumComponent"
     val Module = "Module"
+    val RoutingModules = "RoutingModules"
 }
 
 object AngularDerivedType : AngularDerivedKindNames()
