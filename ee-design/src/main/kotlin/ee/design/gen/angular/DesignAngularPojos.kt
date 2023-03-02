@@ -5,33 +5,18 @@ import ee.lang.*
 import ee.lang.gen.ts.angular
 import ee.lang.gen.ts.module
 import ee.lang.gen.ts.ngxtranslate
-import ee.lang.gen.ts.ownComponent
 
+// TODO: implement c.n on component's module name
 fun <T : ModuleI<*>> T.toAngularModule(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                 api: String = LangDerivedKind.API): String {
-    return """
-${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleImportEntities()
-    }}
-${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleImportBasics()
-    }}
-${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleImportEnums()
-    }}
-${this.entities().any { entity ->
-        entity.props().any {
-            it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase()
-        }
-    }.then {this.toAngularImportOtherModules(c)}}    
-
+    return """ 
 export function HttpLoaderFactory(http: ${c.n(angular.commonhttp.HttpClient)}) {
     return new ${c.n(ngxtranslate.httploader.TranslateHttpLoader)}(http);
 }
 
 @${c.n(angular.core.NgModule)}({
     declarations: [
-        ${this.name().capitalize()}${c.n(this, AngularDerivedType.ViewComponent)},
+        ${c.n(this, AngularDerivedType.ViewComponent)},
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleDeclarationEntities(c, tab + tab)
     }}
@@ -43,7 +28,7 @@ ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
     }}
     ],
     imports: [
-        ${this.name().capitalize()}${c.n(this, AngularDerivedType.RoutingModules)},
+        ${c.n(this, AngularDerivedType.RoutingModules)},
         ${c.n(module.template.TemplateModule)},
         ${c.n(angular.common.CommonModule)},
         ${c.n(angular.forms.FormsModule)},
@@ -73,21 +58,7 @@ ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
     }}
     ]
 })
-export class ${c.n(this, AngularDerivedType.Module)} {}"""
-}
-
-fun <T : ModuleI<*>> T.toAngularImportOtherModules(c: GenerationContext): String {
-    val sb = StringBuilder()
-    val importedOtherModules: MutableList<String> = ArrayList()
-    this.entities().forEach { entity ->
-        entity.props().filter { it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase() }.forEach {
-            importedOtherModules.add("import {${c.n(it.type().parent(), AngularDerivedType.Module)}} from '@${it.type().parent().parent().name().toLowerCase()}/${it.type().parent().name().toLowerCase()}/${it.type().parent().name().toLowerCase()}-model.module';")
-        }
-    }
-    importedOtherModules.distinct().forEach {
-        sb.append(it + "\n")
-    }
-    return sb.toString()
+export class ${this.name()}Module {}"""
 }
 
 fun <T : ModuleI<*>> T.toAngularImportOtherModulesOnImportPart(c: GenerationContext): String {
@@ -105,15 +76,12 @@ fun <T : ModuleI<*>> T.toAngularImportOtherModulesOnImportPart(c: GenerationCont
     return sb.toString()
 }
 
+// TODO: implement c.n on component's module name
 fun <T : ModuleI<*>> T.toAngularRoutingModule(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                        api: String = LangDerivedKind.API): String {
     return """
-${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.toAngularModuleImportEntitiesRouting()
-    }}
-
 const routes: ${c.n(angular.router.Routes)} = [
-    { path: '', component: ${this.name().capitalize()}${c.n(this, AngularDerivedType.ViewComponent)} },
+    { path: '', component: ${c.n(this, AngularDerivedType.ViewComponent)} },
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
         it.toAngularModulePath(c, tab)
     }}
@@ -123,7 +91,7 @@ ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL"
     imports: [${c.n(angular.router.RouterModule)}.forChild(routes)],
     exports: [${c.n(angular.router.RouterModule)}],
 })
-export class ${c.n(this, AngularDerivedType.RoutingModules)} {}
+export class ${this.name()}RoutingModules {}
 
 """
 }

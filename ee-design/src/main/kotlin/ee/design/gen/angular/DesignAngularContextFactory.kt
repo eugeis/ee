@@ -1,5 +1,6 @@
 package ee.design.gen.angular
 
+import AngularDerivedType
 import ee.design.EntityI
 import ee.design.gen.ts.DesignTsContextFactory
 import ee.lang.*
@@ -12,9 +13,23 @@ open class DesignAngularContextFactory : DesignTsContextFactory() {
 
     override fun registerForImplOnly(derived: DerivedController) {
         super.registerForImplOnly(derived)
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.ViewComponent,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-entity-view.component" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.ListComponent,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-entity-list.component" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.FormComponent,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-entity-form.component" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.EnumComponent,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-enum.component" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.BasicComponent,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-basic.component" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.Module,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-model.module" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.RoutingModules,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-routing.module" }, isNotPartOfNativeTypes))
         derived.registerKinds(
-            listOf( AngularDerivedType.DataService, AngularDerivedType.ViewService, AngularDerivedType.ViewComponent),
-            { "${this.name().capitalize()}-${it}" },
+            listOf(AngularDerivedType.Enum, AngularDerivedType.Component, AngularDerivedType.DataService, AngularDerivedType.ViewService),
+            { "${this.name().capitalize()}${it}" },
             isNotPartOfNativeTypes)
 
     }

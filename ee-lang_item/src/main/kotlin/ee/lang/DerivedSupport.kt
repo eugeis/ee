@@ -30,16 +30,27 @@ open class DerivedKind<T : ItemI<*>> {
     }
 }
 
-open class DerivedByTransformer(name: String, transformer: ItemI<*>.(String) -> String,
-    support: ItemI<*>.() -> Boolean = { true }) : DerivedKind<ItemI<*>>(name, support, {
+open class NameTransformer(name: String, nameTransformer: ItemI<*>.(String) -> String,
+                           support: ItemI<*>.() -> Boolean = { true }) : DerivedKind<ItemI<*>>(name, support, {
     if (this.support()) {
-        this.deriveWithParent { name(transformer(it)) }
+        this.deriveWithParent { name(nameTransformer(it)) }
+    } else this
+})
+
+open class NameAndNamespaceTransformers(name: String, nameTransformer: ItemI<*>.(String) -> String,
+                                        namespaceTransformer: ItemI<*>.(String) -> String,
+                                        support: ItemI<*>.() -> Boolean = { true }) : DerivedKind<ItemI<*>>(name, support, {
+    if (this.support()) {
+        this.deriveWithParent {
+            namespace(namespaceTransformer(it))
+            name(nameTransformer(it))
+        }
     } else this
 })
 
 open class DerivedController {
     val nameToDerivedKind = HashMap<String, DerivedKind<*>>()
-    var dynamicTransformer: DerivedByTransformer = DerivedByTransformer("DYNAMIC", { "${name()}$it" })
+    var dynamicTransformer: NameTransformer = NameTransformer("DYNAMIC", { "${name()}$it" })
     val storage: DerivedStorage<ItemI<*>>
 
     constructor(storage: DerivedStorage<ItemI<*>> = DerivedStorage()) {
@@ -48,12 +59,12 @@ open class DerivedController {
 
     open fun registerKinds(kinds: Collection<String>, transformer: ItemI<*>.(String) -> String,
         support: ItemI<*>.() -> Boolean = { true }) {
-        kinds.forEach { register(DerivedByTransformer(it, transformer, support)) }
+        kinds.forEach { register(NameTransformer(it, transformer, support)) }
     }
 
     open fun registerKind(kind: String, transformer: ItemI<*>.(String) -> String,
         support: ItemI<*>.() -> Boolean = { true }): DerivedKind<*> {
-        return register(DerivedByTransformer(kind, transformer, support))
+        return register(NameTransformer(kind, transformer, support))
     }
 
     open fun <T : ItemI<*>> register(kind: DerivedKind<T>): DerivedKind<T> {

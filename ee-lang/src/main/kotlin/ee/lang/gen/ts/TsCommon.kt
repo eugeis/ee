@@ -236,13 +236,13 @@ fun <T : OperationI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String
 fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent: String): String {
     return """${indent}ngOnInit(): void {
         this.tableHeader = this.generateTableHeader();
-        this.${this.name().toLowerCase()}DataService.checkSearchRoute();
-        if (this.${this.name().toLowerCase()}DataService.isSearch) {
-            this.${this.name().toLowerCase()}DataService.loadSearchData()
+        this.${this.name().decapitalize()}DataService.checkSearchRoute();
+        if (this.${this.name().decapitalize()}DataService.isSearch) {
+            this.${this.name().decapitalize()}DataService.loadSearchData()
         } else {
-            this.${this.name().toLowerCase()}DataService.dataSources =
-                new ${c.n(angular.material.table.MatTableDataSource)}(this.${this.name().toLowerCase()}DataService.changeMapToArray(
-                    this.${this.name().toLowerCase()}DataService.retrieveItemsFromCache()));
+            this.${this.name().decapitalize()}DataService.dataSources =
+                new ${c.n(angular.material.table.MatTableDataSource)}(this.${this.name().decapitalize()}DataService.changeMapToArray(
+                    this.${this.name().decapitalize()}DataService.retrieveItemsFromCache()));
         }      
     }"""
 }

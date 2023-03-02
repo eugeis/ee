@@ -9,12 +9,14 @@ import java.awt.Component
 open class AngularDerivedKindNames {
     val DataService = "DataService"
     val ViewService = "ViewService"
+    val Service = "Service"
     val ViewComponent = "ViewComponent"
     val ListComponent = "ListComponent"
     val FormComponent = "FormComponent"
     val Component = "Component"
     val Enum = "Enum"
     val EnumComponent = "EnumComponent"
+    val BasicComponent = "BasicComponent"
     val Module = "Module"
     val RoutingModules = "RoutingModules"
 }
@@ -30,17 +32,17 @@ fun <T : ItemI<*>> T.toAngularEntityViewHTML(): String =
 
 <app-${this.name().toLowerCase()}-form [${this.name().toLowerCase()}]="${this.name().toLowerCase()}"></app-${this.name().toLowerCase()}-form>
 
-<ng-container *ngIf="${this.name().toLowerCase()}DataService.isEdit; else notEdit">
+<ng-container *ngIf="${this.name().decapitalize()}DataService.isEdit; else notEdit">
     <button mat-raised-button [routerLink]="'../../'"
             routerLinkActive="active-link">{{'cancel edit' | translate}}</button>
-    <button mat-raised-button (click)="${this.name().toLowerCase()}DataService.editElement(${this.name().toLowerCase()})" [routerLink]="'../../'"
+    <button mat-raised-button (click)="${this.name().decapitalize()}DataService.editElement(${this.name().toLowerCase()})" [routerLink]="'../../'"
             routerLinkActive="active-link">{{'save changes' | translate}}</button>
 </ng-container>
 
 <ng-template #notEdit>
     <button mat-raised-button [routerLink]="'../'"
             routerLinkActive="active-link">{{'cancel' | translate}}</button>
-    <button mat-raised-button (click)="${this.name().toLowerCase()}DataService.inputElement(${this.name().toLowerCase()})" [routerLink]="'../'"
+    <button mat-raised-button (click)="${this.name().decapitalize()}DataService.inputElement(${this.name().toLowerCase()})" [routerLink]="'../'"
             routerLinkActive="active-link">{{'save' | translate}}</button>
 </ng-template>
 """
@@ -67,7 +69,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormHTML(): String =
     
             ${this.props().filter { it.type().name().toLowerCase() == "blob" }.joinSurroundIfNotEmptyToString(nL) {
                 """<div>
-                <img *ngFor='let preview of ${it.parent().name().toLowerCase()}DataService.previews' [src]="preview" class="preview">
+                <img *ngFor='let preview of ${it.parent().name().decapitalize()}DataService.previews' [src]="preview" class="preview">
             </div>"""
     }}
         </fieldset>
@@ -141,7 +143,7 @@ fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
             ${indent}<mat-label>{{"table.${this.name().toLowerCase()}" | translate}}</mat-label>
-            ${indent}<input matInput name="${this.name().toLowerCase()}" type="file" (change)="${this.parent().name().toLowerCase()}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
+            ${indent}<input matInput name="${this.name().toLowerCase()}" type="file" (change)="${this.parent().name().decapitalize()}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
 
@@ -187,9 +189,9 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: Attri
             <legend>{{"table.${elementType.toCamelCase().toLowerCase()}" | translate}}</legend>
             <mat-form-field appearance="fill">
                 <mat-label>{{"select" | translate}} {{"table.${elementType.toCamelCase().toLowerCase()}" | translate}}</mat-label>
-                <input type="text" matInput [formControl]="${this.parent().name().toLowerCase()}DataService.control${elementType.toCamelCase().capitalize()}" [matAutocomplete]="auto${elementType.toCamelCase().capitalize()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
-                <mat-autocomplete #auto${elementType.toCamelCase().capitalize()}="matAutocomplete" [displayWith]="${this.parent().name().toLowerCase()}DataService.display${elementType.toCamelCase().capitalize()}">
-                    <mat-option *ngFor="let option of ${this.parent().name().toLowerCase()}DataService.filteredOptions${elementType.toCamelCase().capitalize()} | async" [value]="option">
+                <input type="text" matInput [formControl]="${this.parent().name().decapitalize()}DataService.control${elementType.toCamelCase().capitalize()}" [matAutocomplete]="auto${elementType.toCamelCase().capitalize()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
+                <mat-autocomplete #auto${elementType.toCamelCase().capitalize()}="matAutocomplete" [displayWith]="${this.parent().name().decapitalize()}DataService.display${elementType.toCamelCase().capitalize()}">
+                    <mat-option *ngFor="let option of ${this.parent().name().decapitalize()}DataService.filteredOptions${elementType.toCamelCase().capitalize()} | async" [value]="option">
                         {{option.${key.name()}}}
                     </mat-option>
                 </mat-autocomplete>
@@ -205,41 +207,41 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
         <mat-icon>add_circle_outline</mat-icon> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
     </a>
     
-    <ng-container *ngIf="${this.name().toLowerCase()}DataService.isHidden; else showed">
-        <a class="showButton" (click)="${this.name().toLowerCase()}DataService.toggleHidden()">
+    <ng-container *ngIf="${this.name().decapitalize()}DataService.isHidden; else showed">
+        <a class="showButton" (click)="${this.name().decapitalize()}DataService.toggleHidden()">
             <mat-icon>delete_outline</mat-icon> {{"delete" | translate}}...
         </a>
     </ng-container>
     
     <ng-template #showed>
-        <a class="deleteButton" (click)="${this.name().toLowerCase()}DataService.clearMultipleItems(${this.name().toLowerCase()}DataService.selection.selected); ${this.name().toLowerCase()}DataService.toggleHidden()">
+        <a class="deleteButton" (click)="${this.name().decapitalize()}DataService.clearMultipleItems(${this.name().decapitalize()}DataService.selection.selected); ${this.name().decapitalize()}DataService.toggleHidden()">
             <mat-icon>delete_outline</mat-icon> {{"delete" | translate}} {{"item" | translate}}
         </a>
     </ng-template>
     
     <mat-form-field class="filter">
         <mat-label>{{"filter" | translate}}</mat-label>
-        <input matInput (keyup)="${this.name().toLowerCase()}DataService.applyFilter(${"$"}event)" placeholder="Input Filter..." [ngModel]="${this.name().toLowerCase()}DataService.filterValue">
+        <input matInput (keyup)="${this.name().decapitalize()}DataService.applyFilter(${"$"}event)" placeholder="Input Filter..." [ngModel]="${this.name().decapitalize()}DataService.filterValue">
     </mat-form-field>
 </div>
 
 <div class="mat-elevation-z8 ${this.name().toLowerCase()}-list" style="overflow-x: scroll">
-    <table mat-table matSort [dataSource]="${this.name().toLowerCase()}DataService.dataSources">
+    <table mat-table matSort [dataSource]="${this.name().decapitalize()}DataService.dataSources">
         <ng-container matColumnDef="Box">
             <th mat-header-cell *matHeaderCellDef>
-                <section [style.visibility]="${this.name().toLowerCase()}DataService.isHidden? 'hidden': 'visible'">
+                <section [style.visibility]="${this.name().decapitalize()}DataService.isHidden? 'hidden': 'visible'">
                     <mat-checkbox color="warn"
-                                  (change)="${"$"}event ? ${this.name().toLowerCase()}DataService.masterToggle() : null"
-                                  [checked]="${this.name().toLowerCase()}DataService.selection.hasValue() && ${this.name().toLowerCase()}DataService.allRowsSelected()"
-                                  [indeterminate]="${this.name().toLowerCase()}DataService.selection.hasValue() && !${this.name().toLowerCase()}DataService.allRowsSelected()"></mat-checkbox>
+                                  (change)="${"$"}event ? ${this.name().decapitalize()}DataService.masterToggle() : null"
+                                  [checked]="${this.name().decapitalize()}DataService.selection.hasValue() && ${this.name().decapitalize()}DataService.allRowsSelected()"
+                                  [indeterminate]="${this.name().decapitalize()}DataService.selection.hasValue() && !${this.name().decapitalize()}DataService.allRowsSelected()"></mat-checkbox>
                 </section>
             </th>
             <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'box'">
-                <section [style.visibility]="${this.name().toLowerCase()}DataService.isHidden? 'hidden': 'visible'">
+                <section [style.visibility]="${this.name().decapitalize()}DataService.isHidden? 'hidden': 'visible'">
                     <mat-checkbox color="warn"
                                   (click)="${"$"}event.stopPropagation()"
-                                  (change)="${"$"}event ? ${this.name().toLowerCase()}DataService.selection.toggle(element) : null"
-                                  [checked]="${this.name().toLowerCase()}DataService.selection.isSelected(element)"></mat-checkbox>
+                                  (change)="${"$"}event ? ${this.name().decapitalize()}DataService.selection.toggle(element) : null"
+                                  [checked]="${this.name().decapitalize()}DataService.selection.isSelected(element)"></mat-checkbox>
                 </section>
             </td>
         </ng-container>
@@ -249,9 +251,9 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTML(): String =
             <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'actions'">
                 <mat-menu #appMenu="matMenu">
                     <ng-template matMenuContent>
-                        <button mat-menu-item (click)="${this.name().toLowerCase()}DataService.editItems(i, element)"><mat-icon>edit</mat-icon>
+                        <button mat-menu-item (click)="${this.name().decapitalize()}DataService.editItems(i, element)"><mat-icon>edit</mat-icon>
                             <span>{{"edit" | translate}}</span></button>
-                        <button mat-menu-item (click)="${this.name().toLowerCase()}DataService.removeItem(element)"><mat-icon>delete</mat-icon>
+                        <button mat-menu-item (click)="${this.name().decapitalize()}DataService.removeItem(element)"><mat-icon>delete</mat-icon>
                             <span>{{"delete" | translate}}</span></button>
                     </ng-template>
                 </mat-menu>
@@ -274,7 +276,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNon
     """
         <ng-container matColumnDef="${this.name().toLowerCase()}-entity">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().toUpperCase()} </th>
-            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${this.parent().name().toLowerCase()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${this.parent().name().toLowerCase()}')">{{element['${this.name().toLowerCase()}']}}</a> </td>
+            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${this.parent().name().decapitalize()}DataService.searchItems(i, element['${this.name().toLowerCase()}'], '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${this.parent().name().toLowerCase()}')">{{element['${this.name().toLowerCase()}']}}</a> </td>
         </ng-container>
 """
 
@@ -306,7 +308,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
     """
         <ng-container matColumnDef="${this.name().toLowerCase()}-entity">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().toLowerCase()}" | translate}}</th>
-            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.toLowerCase()}DataService.searchItems(i, element${if(isChild) "['${this.parent().name().toLowerCase()}']['${this.name().toLowerCase()}']" else "['${this.name().toLowerCase()}']"}, '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{element${if(isChild) "['${this.parent().name().toLowerCase()}']['${this.name().toLowerCase()}']['${key.name()}']" else "['${this.name().toLowerCase()}']['${key.name()}']"}}}</a> </td>
+            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.decapitalize()}DataService.searchItems(i, element${if(isChild) "['${this.parent().name().toLowerCase()}']['${this.name().toLowerCase()}']" else "['${this.name().toLowerCase()}']"}, '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{element${if(isChild) "['${this.parent().name().toLowerCase()}']['${this.name().toLowerCase()}']['${key.name()}']" else "['${this.name().toLowerCase()}']['${key.name()}']"}}}</a> </td>
         </ng-container>
 """
 

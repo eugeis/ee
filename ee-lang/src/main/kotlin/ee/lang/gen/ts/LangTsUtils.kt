@@ -1,6 +1,6 @@
 package ee.lang.gen.ts
 
-import ee.common.ext.fileName
+import AngularDerivedType
 import ee.common.ext.then
 import ee.lang.*
 
@@ -73,24 +73,8 @@ object rxjs : StructureUnit({namespace("rxjs").name("rxjs")}) {
 }
 
 object service: StructureUnit({namespace("service").name("service")}) {
-
-    object own: StructureUnit({namespace("own").name("own")}) {
-        // ../../service/...-data.service
-        object DataService: ExternalType() {
-        }
-    }
     object template: StructureUnit({namespace("template").name("template")}) {
         // @template/service/data.service
-        object DataService: ExternalType() {
-        }
-    }
-    object module: StructureUnit({namespace("module").name("module")}) {
-        // ../../service/...-module-view.service
-        object ViewService: ExternalType() {
-        }
-    }
-    object other: StructureUnit({namespace("other").name("other")}) {
-        // ../../../abc/service/abc-module-view.service
         object DataService: ExternalType() {
         }
     }
@@ -126,15 +110,6 @@ object ngxtranslate: StructureUnit({namespace("ngx-translate").name("ngx-transla
     }
 }
 
-object ownComponent : StructureUnit({namespace("ownComponent").name("ownComponent")}) {
-    object routing : StructureUnit() {
-        object RoutingModules : ExternalType()
-    }
-    object view : StructureUnit() {
-        object ViewComponent : ExternalType()
-    }
-}
-
 open class TsContext(
     var alwaysImportTypes: Boolean = false,
     namespace: String = "",
@@ -157,51 +132,248 @@ open class TsContext(
     }
 
     private fun toImports(indent: String): String {
-        return types.isNotEmpty().then {
-            val outsideTypes = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-            else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace }
-                .groupBy { it.findParentMust(StructureUnitI::class.java) }
+        fun toImportsOutsideTypes(): String {
+            return types.isNotEmpty().then {
+                val outsideTypes = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace &&
+                        ((!it.name().contains(AngularDerivedType.Component, true) && !it.name().contains(AngularDerivedType.RoutingModules, true)
+                                && !it.name().contains(AngularDerivedType.Enum, true) && !it.name().contains(AngularDerivedType.ViewService, true)
+                                && !it.name().contains(AngularDerivedType.DataService, true) && !it.namespace().contains(".module")) ||
+                                it.name().equals(AngularDerivedType.Component, true)) }
+                    .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
-            outsideTypes.isNotEmpty().then {
-                "${outsideTypes.map { (su, items) ->
-                    """${indent}import {${items.sortedBy { it.name() }.joinToString(", ") {
-                        if (it.name().contains('-')) {"""${it.name().substringAfterLast('-')}${it.name().substringBeforeLast('-')}"""} else {it.name()}
-                    }}} from ${if (su.name().equals("empty", true)) {
-                        """'${su.parent().name()}'"""
-                    } else if (su.parent().name().equals("service", true)) {
-                        if (su.name().equals("template", true)) {
-                            """'@template/services/data.service'"""
-                        } else if (su.name().equals("own", true)) {
-                            """'../../service/${items.sortedBy { it.name() }.joinToString(", ") {
-                                it.name().substringAfterLast('-').toLowerCase()
-                            }}-data.service'"""
-                        } else if (su.name().equals("module", true)) {
-                            """'../../service/${items.sortedBy { it.name() }.joinToString(", ") {
-                                it.name().substringAfterLast('-').toLowerCase()
-                            }}-module-view.service'"""
-                        } else {
-                            """''"""
-                        }
-                    } else if (su.parent().name().equals("material", true)) {
-                        """'@${su.parent().parent().name()}/${su.parent().name()}/${su.name()}'"""
-                    } else if (su.parent().name().equals("module", true)) {
-                        """'@template/${if(su.name().equals("services", true)) {"""${su.name()}/translate.service"""} else {"""${su.name()}.module"""}}'"""
-                    } else if (su.parent().name().equals("ownComponent", true)) {
-                        """'./${if(su.name().equals("routing", true)) {"""${items.sortedBy { it.name() }.joinToString(", ") {
-                            it.name().substringAfterLast('-').toLowerCase()
-                        }}-routing.module"""} else {"""components/view/${items.sortedBy { it.name() }.joinToString(", ") {
-                            it.name().substringAfterLast('-').toLowerCase()
-                        }}-module-view.component"""}}'"""
-                    }
-                    else {
-                        """'${(su.parent().name().decapitalize() !in arrayOf("rxjs")).then { "@" }}${su.parent().name().decapitalize()}/${su.name().equals("shared", true).not().then {
-                            su.name().decapitalize()
-                        }}${(su.parent().name().decapitalize() !in arrayOf("angular", "rxjs", "ngx-translate")).then { "/${su.name().capitalize()}ApiBase" }}'"""
-                    }}"""
-                }.toHashSet().sorted().joinToString(nL)}$nL$nL"
+                outsideTypes.isNotEmpty().then {
+                    "${outsideTypes.map { (su, items) ->
+                        """${indent}import {${items.sortedBy { it.name() }.
+                        joinToString(", ") {
+                            it.name()
+                        }}} from ${when(su.parent().name()) {
+                            "material" -> """'@${su.parent().parent().name()}/${su.parent().name()}/${su.name()}'"""
+                            "module" -> """'@template/${if(su.name().equals("services", true)) {"""${su.name()}/translate.service"""} else {"""${su.name()}.module"""}}'"""
+                            else -> when(su.name()) {
+                                "empty" -> """'${su.parent().name()}'"""
+                                else -> """'${(su.parent().name().decapitalize() !in arrayOf("rxjs")).then { "@" }}${su.parent().name().decapitalize()}/${su.name().equals("shared", true).not().then {
+                                    su.name().decapitalize()
+                                }}${(su.parent().name().decapitalize() !in arrayOf("angular", "rxjs", "ngx-translate")).then { "/${su.name().capitalize()}ApiBase" }}'"""
+                            }
+                        }}"""
+                    }.toHashSet().sorted().joinToString(nL)}$nL$nL"
+                }
             }
         }
+
+        fun toImportsViewComponent(): String {
+            return types.isNotEmpty().then {
+                val viewComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.ViewComponent, true) }
+                    .groupBy { it.findParentMust(StructureUnitI::class.java) }
+
+                viewComponent.isNotEmpty().then {
+                    "${viewComponent.map { (su, items) ->
+                        items.filter { it.namespace().contains("-entity-view.component") }.sortedBy { it.name() }.
+                        joinToString("\n") {
+                            """import {${it.name()}} from '@${
+                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
+                                else {su.parent().name().decapitalize()}}${
+                                    if (namespace.contains(su.name(), true)) {""}
+                                    else {"/${su.name().toLowerCase()}"}}/${it.name().replace(AngularDerivedType.ViewComponent, "").toLowerCase()}/components/view/${
+                                        if (namespace.contains(su.name(), true)) {"${it.name().replace(AngularDerivedType.ViewComponent, "").toLowerCase()}-module-view.component"}
+                                        else {"${it.name().replace(AngularDerivedType.ViewComponent, "").toLowerCase()}-${
+                                            it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}"}}'"""
+                            
+                        }
+                    }.joinToString(nL)}$nL$nL"
+                }
+            }
+        }
+
+        fun toImportsListComponent(): String {
+            return types.isNotEmpty().then {
+                val listComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.ListComponent, true) }
+                    .groupBy { it.findParentMust(StructureUnitI::class.java) }
+
+                listComponent.isNotEmpty().then {
+                    "${listComponent.map { (su, items) ->
+                        items.filter { it.namespace().contains("-entity-list.component") }.sortedBy { it.name() }.
+                        joinToString("\n") {
+                            """import {${it.name()}} from '@${
+                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
+                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/${it.name().replace(AngularDerivedType.ListComponent, "").toLowerCase()}/components/list/${
+                                    it.name().replace(AngularDerivedType.ListComponent, "").toLowerCase()}-${
+                                    it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
+                        }
+                    }.joinToString(nL)}$nL$nL"
+                }
+            }
+        }
+
+        fun toImportsFormComponent(): String {
+            return types.isNotEmpty().then {
+                val formComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.FormComponent, true) }
+                    .groupBy { it.findParentMust(StructureUnitI::class.java) }
+
+                formComponent.isNotEmpty().then {
+                    "${formComponent.map { (su, items) ->
+                        items.filter { it.namespace().contains("-entity-form.component") }.sortedBy { it.name() }.
+                        joinToString("\n") {
+                            """import {${it.name()}} from '@${
+                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
+                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/${it.name().replace(AngularDerivedType.FormComponent, "").toLowerCase()}/components/form/${
+                                    it.name().replace(AngularDerivedType.FormComponent, "").toLowerCase()}-${
+                                    it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
+                        }
+                    }.joinToString(nL)}$nL$nL"
+                }
+            }
+        }
+
+        fun toImportsEnumComponent(): String {
+            return types.isNotEmpty().then {
+                val enumComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.EnumComponent, true) }
+                    .groupBy { it.findParentMust(StructureUnitI::class.java) }
+
+                enumComponent.isNotEmpty().then {
+                    "${enumComponent.map { (su, items) ->
+                        items.filter { it.namespace().contains("-enum.component") }.sortedBy { it.name() }.
+                        joinToString("\n") {
+                            """import {${it.name()}} from '@${
+                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
+                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/enums/${it.name().replace(AngularDerivedType.EnumComponent, "").toLowerCase()}/${
+                                    it.name().replace(AngularDerivedType.EnumComponent, "").toLowerCase()}-${
+                                    it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
+                        }
+                    }.joinToString(nL)}$nL$nL"
+                }
+            }
+        }
+
+        fun toImportsBasicComponent(): String {
+            return types.isNotEmpty().then {
+                val basicComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.BasicComponent, true) }
+                    .groupBy { it.findParentMust(StructureUnitI::class.java) }
+
+                basicComponent.isNotEmpty().then {
+                    "${basicComponent.map { (su, items) ->
+                        items.filter { it.namespace().contains("-basic.component") }.sortedBy { it.name() }.
+                        joinToString("\n") {
+                            """import {${it.name()}} from '@${
+                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
+                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/basics/${it.name().replace(AngularDerivedType.BasicComponent, "").toLowerCase()}/${
+                                    it.name().replace(AngularDerivedType.BasicComponent, "").toLowerCase()}-${
+                                    it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
+                        }
+                    }.joinToString(nL)}$nL$nL"
+                }
+            }
+        }
+
+        fun toImportsViewService(): String {
+            return types.isNotEmpty().then {
+                val viewService = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.ViewService, true) }
+                    .groupBy { it.findParentMust(StructureUnitI::class.java) }
+
+                viewService.isNotEmpty().then {
+                    "${viewService.map { (su, items) ->
+                        items.sortedBy { it.name() }.
+                        joinToString("\n") {
+                            """import {${it.name()}} from '@${
+                                if (su.parent().isEMPTY()) {su.name().decapitalize()} 
+                                else {su.parent().name().decapitalize()}}/${
+                                    it.name().replace(AngularDerivedType.ViewService, "").decapitalize()}/service/${
+                                        it.name().replace(AngularDerivedType.ViewService, "").toLowerCase()}-${
+                                            it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
+                        }
+                    }.joinToString(nL)}$nL$nL"
+                }
+            }
+        }
+
+        //TODO: filter service so that it will not be generate on its own service component
+        // for now c.n usage is removed on its component name
+        fun toImportsDataService(): String {
+            return types.isNotEmpty().then {
+                val dataService = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.DataService, true) }
+                    .groupBy { it.findParentMust(StructureUnitI::class.java) }
+
+                dataService.isNotEmpty().then {
+                    "${dataService.map { (su, items) ->
+                        items.sortedBy { it.name() }.
+                        joinToString("\n") {
+                            if (it.name().equals(AngularDerivedType.DataService, true)) {"""import {${it.name()}} from '@template/services/data.service'"""} 
+                            else {"""import {${it.name()}} from '@${
+                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
+                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/${it.name().replace(AngularDerivedType.DataService, "").toLowerCase()}/service/${
+                                    it.name().replace(AngularDerivedType.DataService, "").toLowerCase()}-${
+                                    it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""}
+                        }
+                    }.joinToString(nL)}$nL$nL"
+                }
+            }
+        }
+
+        fun toImportsRoutingModules(): String {
+            return types.isNotEmpty().then {
+                val routingModules = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.RoutingModules, true) }
+                    .groupBy { it.findParentMust(StructureUnitI::class.java) }
+
+                routingModules.isNotEmpty().then {
+                    "${routingModules.map { (su, items) ->
+                        items.filter { it.namespace().contains("-routing.module") }.sortedBy { it.name() }.
+                        joinToString("\n") {
+                            """import {${it.name()}} from '@${
+                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
+                                else {su.parent().name().decapitalize()}}/${it.name().replace(AngularDerivedType.RoutingModules, "").decapitalize()}/${
+                                    it.name().replace(AngularDerivedType.RoutingModules, "").decapitalize()}-${
+                                    it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
+                        }
+                    }.joinToString(nL)}$nL$nL"
+                }
+            }
+        }
+
+        //TODO: filter module so that it will not be generate on its own module component
+        // for now c.n usage is removed on its component name
+        fun toImportsElementModules(): String {
+            return types.isNotEmpty().then {
+                val elementModules = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.Module, true)
+                        && it.namespace().contains("-model.module", true) }
+                    .groupBy { it.findParentMust(StructureUnitI::class.java) }
+
+                elementModules.isNotEmpty().then {
+                    "${elementModules.map { (su, items) ->
+                        items.filter { it.namespace().contains("-model.module") }.sortedBy { it.name() }.
+                        joinToString("\n") {
+                            """import {${it.name()}} from '@${
+                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
+                                else {su.parent().name().decapitalize()}}/${it.name().replace(AngularDerivedType.Module, "").decapitalize()}/${
+                                    it.name().replace(AngularDerivedType.Module, "").decapitalize()}-${
+                                    it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
+                        }
+                    }.joinToString(nL)}$nL$nL"
+                }
+            }
+        }
+
+        return toImportsOutsideTypes().trimIndent() +
+                toImportsViewComponent().trimIndent() +
+                toImportsListComponent().trimIndent() +
+                toImportsFormComponent().trimIndent() +
+                toImportsEnumComponent().trimIndent() +
+                toImportsBasicComponent().trimIndent() +
+                toImportsViewService().trimIndent() +
+                toImportsDataService().trimIndent() +
+                toImportsRoutingModules().trimIndent() +
+                toImportsElementModules().trimIndent()
     }
+
 }
 
 fun <T : StructureUnitI<*>> T.prepareForTsGeneration(): T {
@@ -217,7 +389,6 @@ fun <T : StructureUnitI<*>> T.initsForTsGeneration(): T {
     service.initObjectTrees()
     module.initObjectTrees()
     ngxtranslate.initObjectTrees()
-    ownComponent.initObjectTrees()
     initObjectTrees()
     return this
 }

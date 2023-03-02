@@ -1,5 +1,6 @@
 package ee.lang.gen.common
 
+import AngularDerivedType
 import ee.lang.*
 import ee.lang.gen.go.GoContext
 import ee.lang.gen.go.GoContextBuilder
@@ -20,6 +21,21 @@ open class LangCommonContextFactory(val targetAsSingleModule: Boolean = true) {
     protected open fun registerForImplOnly(derived: DerivedController) {
         derived.registerKinds(listOf(LangDerivedKind.API, LangDerivedKind.IMPL), { buildName(this, it) },
                 isNotPartOfNativeTypes)
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.DataService,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-data.service" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.ViewService,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-module-view.service" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.Module,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-model.module" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.RoutingModules,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-routing.module" }, isNotPartOfNativeTypes))
+
+        derived.registerKinds(
+            listOf(AngularDerivedType.ViewComponent, AngularDerivedType.ListComponent,
+                AngularDerivedType.FormComponent, AngularDerivedType.EnumComponent, AngularDerivedType.BasicComponent,
+                AngularDerivedType.Enum, AngularDerivedType.Component),
+            { "${this.name().capitalize()}${it}" },
+            isNotPartOfNativeTypes)
         //derived.dynamicTransformer = DerivedByTransformer("DYNAMIC", { buildNameDynamic(this, it) }, isNotPartOfNativeTypes)
 
     }
