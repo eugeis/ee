@@ -1,6 +1,5 @@
 package ee.lang.gen.ts
 
-import AngularDerivedType
 import ee.common.ext.then
 import ee.lang.*
 
@@ -136,10 +135,10 @@ open class TsContext(
             return types.isNotEmpty().then {
                 val outsideTypes = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
                 else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace &&
-                        ((!it.name().contains(AngularDerivedType.Component, true) && !it.name().contains(AngularDerivedType.RoutingModules, true)
-                                && !it.name().contains(AngularDerivedType.Enum, true) && !it.name().contains(AngularDerivedType.ViewService, true)
-                                && !it.name().contains(AngularDerivedType.DataService, true) && !it.namespace().contains(".module")) ||
-                                it.name().equals(AngularDerivedType.Component, true)) }
+                        ((!it.name().contains("Component", true) && !it.name().contains("RoutingModules", true)
+                                && !it.name().contains("Enum", true) && !it.name().contains("ViewService", true)
+                                && !it.name().contains("DataService", true) && !it.namespace().contains(".module")) ||
+                                it.name().equals("Component", true)) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 outsideTypes.isNotEmpty().then {
@@ -165,7 +164,7 @@ open class TsContext(
         fun toImportsViewComponent(): String {
             return types.isNotEmpty().then {
                 val viewComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.ViewComponent, true) }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains("ViewComponent", true) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 viewComponent.isNotEmpty().then {
@@ -176,9 +175,9 @@ open class TsContext(
                                 if (su.parent().isEMPTY()) {su.name().decapitalize()}
                                 else {su.parent().name().decapitalize()}}${
                                     if (namespace.contains(su.name(), true)) {""}
-                                    else {"/${su.name().toLowerCase()}"}}/${it.name().replace(AngularDerivedType.ViewComponent, "").toLowerCase()}/components/view/${
-                                        if (namespace.contains(su.name(), true)) {"${it.name().replace(AngularDerivedType.ViewComponent, "").toLowerCase()}-module-view.component"}
-                                        else {"${it.name().replace(AngularDerivedType.ViewComponent, "").toLowerCase()}-${
+                                    else {"/${su.name().toLowerCase()}"}}/${it.name().replace("ViewComponent", "").toLowerCase()}/components/view/${
+                                        if (namespace.contains(su.name(), true)) {"${it.name().replace("ViewComponent", "").toLowerCase()}-module-view.component"}
+                                        else {"${it.name().replace("ViewComponent", "").toLowerCase()}-${
                                             it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}"}}'"""
                             
                         }
@@ -190,7 +189,7 @@ open class TsContext(
         fun toImportsListComponent(): String {
             return types.isNotEmpty().then {
                 val listComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.ListComponent, true) }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains("ListComponent", true) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 listComponent.isNotEmpty().then {
@@ -199,8 +198,8 @@ open class TsContext(
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
                                 if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/${it.name().replace(AngularDerivedType.ListComponent, "").toLowerCase()}/components/list/${
-                                    it.name().replace(AngularDerivedType.ListComponent, "").toLowerCase()}-${
+                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/${it.name().replace("ListComponent", "").toLowerCase()}/components/list/${
+                                    it.name().replace("ListComponent", "").toLowerCase()}-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -211,7 +210,7 @@ open class TsContext(
         fun toImportsFormComponent(): String {
             return types.isNotEmpty().then {
                 val formComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.FormComponent, true) }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains("FormComponent", true) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 formComponent.isNotEmpty().then {
@@ -220,8 +219,8 @@ open class TsContext(
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
                                 if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/${it.name().replace(AngularDerivedType.FormComponent, "").toLowerCase()}/components/form/${
-                                    it.name().replace(AngularDerivedType.FormComponent, "").toLowerCase()}-${
+                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/${it.name().replace("FormComponent", "").toLowerCase()}/components/form/${
+                                    it.name().replace("FormComponent", "").toLowerCase()}-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -232,7 +231,7 @@ open class TsContext(
         fun toImportsEnumComponent(): String {
             return types.isNotEmpty().then {
                 val enumComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.EnumComponent, true) }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains("EnumComponent", true) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 enumComponent.isNotEmpty().then {
@@ -241,8 +240,8 @@ open class TsContext(
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
                                 if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/enums/${it.name().replace(AngularDerivedType.EnumComponent, "").toLowerCase()}/${
-                                    it.name().replace(AngularDerivedType.EnumComponent, "").toLowerCase()}-${
+                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/enums/${it.name().replace("EnumComponent", "").toLowerCase()}/${
+                                    it.name().replace("EnumComponent", "").toLowerCase()}-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -253,7 +252,7 @@ open class TsContext(
         fun toImportsBasicComponent(): String {
             return types.isNotEmpty().then {
                 val basicComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.BasicComponent, true) }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains("BasicComponent", true) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 basicComponent.isNotEmpty().then {
@@ -262,8 +261,8 @@ open class TsContext(
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
                                 if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/basics/${it.name().replace(AngularDerivedType.BasicComponent, "").toLowerCase()}/${
-                                    it.name().replace(AngularDerivedType.BasicComponent, "").toLowerCase()}-${
+                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/basics/${it.name().replace("BasicComponent", "").toLowerCase()}/${
+                                    it.name().replace("BasicComponent", "").toLowerCase()}-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -274,7 +273,7 @@ open class TsContext(
         fun toImportsViewService(): String {
             return types.isNotEmpty().then {
                 val viewService = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.ViewService, true) }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains("ViewService", true) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 viewService.isNotEmpty().then {
@@ -284,8 +283,8 @@ open class TsContext(
                             """import {${it.name()}} from '@${
                                 if (su.parent().isEMPTY()) {su.name().decapitalize()} 
                                 else {su.parent().name().decapitalize()}}/${
-                                    it.name().replace(AngularDerivedType.ViewService, "").decapitalize()}/service/${
-                                        it.name().replace(AngularDerivedType.ViewService, "").toLowerCase()}-${
+                                    it.name().replace("ViewService", "").decapitalize()}/service/${
+                                        it.name().replace("ViewService", "").toLowerCase()}-${
                                             it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -298,18 +297,18 @@ open class TsContext(
         fun toImportsDataService(): String {
             return types.isNotEmpty().then {
                 val dataService = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.DataService, true) }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains("DataService", true) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 dataService.isNotEmpty().then {
                     "${dataService.map { (su, items) ->
                         items.sortedBy { it.name() }.
                         joinToString("\n") {
-                            if (it.name().equals(AngularDerivedType.DataService, true)) {"""import {${it.name()}} from '@template/services/data.service'"""} 
+                            if (it.name().equals("DataService", true)) {"""import {${it.name()}} from '@template/services/data.service'"""} 
                             else {"""import {${it.name()}} from '@${
                                 if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/${it.name().replace(AngularDerivedType.DataService, "").toLowerCase()}/service/${
-                                    it.name().replace(AngularDerivedType.DataService, "").toLowerCase()}-${
+                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/${it.name().replace("DataService", "").toLowerCase()}/service/${
+                                    it.name().replace("DataService", "").toLowerCase()}-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""}
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -320,7 +319,7 @@ open class TsContext(
         fun toImportsRoutingModules(): String {
             return types.isNotEmpty().then {
                 val routingModules = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.RoutingModules, true) }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains("RoutingModules", true) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 routingModules.isNotEmpty().then {
@@ -329,8 +328,8 @@ open class TsContext(
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
                                 if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${it.name().replace(AngularDerivedType.RoutingModules, "").decapitalize()}/${
-                                    it.name().replace(AngularDerivedType.RoutingModules, "").decapitalize()}-${
+                                else {su.parent().name().decapitalize()}}/${it.name().replace("RoutingModules", "").decapitalize()}/${
+                                    it.name().replace("RoutingModules", "").decapitalize()}-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -343,7 +342,7 @@ open class TsContext(
         fun toImportsElementModules(): String {
             return types.isNotEmpty().then {
                 val elementModules = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.Module, true)
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains("Module", true)
                         && it.namespace().contains("-model.module", true) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
@@ -353,8 +352,8 @@ open class TsContext(
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
                                 if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${it.name().replace(AngularDerivedType.Module, "").decapitalize()}/${
-                                    it.name().replace(AngularDerivedType.Module, "").decapitalize()}-${
+                                else {su.parent().name().decapitalize()}}/${it.name().replace("Module", "").decapitalize()}/${
+                                    it.name().replace("Module", "").decapitalize()}-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"

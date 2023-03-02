@@ -22,6 +22,22 @@ open class DesignTsContextFactory : LangTsContextFactory() {
 
     override fun registerForImplOnly(derived: DerivedController) {
         super.registerForImplOnly(derived)
+
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.DataService,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-data.service" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.ViewService,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-module-view.service" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.Module,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-model.module" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.RoutingModules,
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-routing.module" }, isNotPartOfNativeTypes))
+
+        derived.registerKinds(
+            listOf(AngularDerivedType.ViewComponent, AngularDerivedType.ListComponent,
+                AngularDerivedType.FormComponent, AngularDerivedType.EnumComponent, AngularDerivedType.BasicComponent,
+                AngularDerivedType.Enum, AngularDerivedType.Component),
+            { "${this.name().capitalize()}${it}" },
+            isNotPartOfNativeTypes)
     }
 
     override fun buildName(item: ItemI<*>, kind: String): String {
