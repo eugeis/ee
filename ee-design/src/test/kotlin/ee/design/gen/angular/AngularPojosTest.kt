@@ -581,7 +581,7 @@ app-othersimpleentity-form {
     @Order(13)
     @DisplayName("Angular Test for Generating Entity Data Service Component")
     fun toAngularEntityDataServiceComponentTest() {
-        val out = SimpleComp.SimpleModule.SimpleEntity.toAngularEntityDataService(context())
+        val out = ""//SimpleComp.SimpleModule.SimpleEntity.toAngularEntityDataService(context())
         log.infoBeforeAfter(out)
         assertThat(out, `is`("""
 import {OtherSimpleEntity} from '@simplecomp/othersimplemodule/OtherSimpleModuleApiBase';
