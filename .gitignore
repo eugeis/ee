@@ -35,3 +35,4 @@ gradle-app.setting
 /ee-task/out/production/classes/
 /ee-task_des/out/production/classes/
 forks
+/ee-lang/logs/
