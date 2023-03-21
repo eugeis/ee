@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import ee.common.ext.*
 import org.slf4j.LoggerFactory
+import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
@@ -187,74 +188,81 @@ open class GeneratorAngular<M>(name: String, contextBuilder: ContextBuilder<M>, 
         var path = pkg.resolve(template.name(model).fileName)
 
         with(path.toString()) {
-            val lastIndex = path.toString().lastIndexOf("\\") + 1
+            val lastIndex = if (isWindows) path.toString().lastIndexOf("\\") + 1 else path.toString().lastIndexOf("/") + 1
             val newFileName = template.name(model).fileName.substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.length)
 
             when {
                 contains("-routing.module") || contains("-model.module") -> {
-                    pkg = Paths.get(pkg.toString() +
-                        "\\${template.name(model).fileName.
-                        substring(0, template.name(model).fileName.indexOf("-"))}")
+                    pkg = Paths.get(pkg.toString() + File.separator +
+                            template.name(model).fileName.
+                            substring(0, template.name(model).fileName.indexOf("-"))
+                    )
                     path = pkg.resolve(template.name(model).fileName)
                 }
                 contains("module-view.component") -> {
-                    pkg = Paths.get(pkg.toString() +
-                        "\\${template.name(model).fileName.
-                        substring(0, template.name(model).fileName.indexOf("-"))}\\components\\view")
+                    pkg = Paths.get(pkg.toString() + File.separator +
+                            template.name(model).fileName.
+                            substring(0, template.name(model).fileName.indexOf("-")) + File.separator + "components" + File.separator + "view")
                     path = pkg.resolve(template.name(model).fileName)
                 }
                 contains("entity-view.component") -> {
                     val lastIndexOfParent = path.toString().lastIndexOf("_")
                     val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-                    pkg = Paths.get(pkg.toString() +
-                            "\\${parentName.toLowerCase()}\\${template.name(model).fileName.
-                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\view")
+                    pkg = Paths.get(pkg.toString() + File.separator +
+                            parentName.toLowerCase() + File.separator + template.name(model).fileName.
+                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))
+                            + File.separator + "components" + File.separator + "view")
                     path = pkg.resolve(newFileName)
                 }
                 contains("entity-form.component") -> {
                     val lastIndexOfParent = path.toString().lastIndexOf("_")
                     val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-                    pkg = Paths.get(pkg.toString() +
-                            "\\${parentName.toLowerCase()}\\${template.name(model).fileName.
-                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\form")
+                    pkg = Paths.get(pkg.toString() + File.separator +
+                            parentName.toLowerCase() + File.separator + template.name(model).fileName.
+                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))
+                            + File.separator + "components" + File.separator + "form")
                     path = pkg.resolve(newFileName)
                 }
                 contains("entity-list.component") -> {
                     val lastIndexOfParent = path.toString().lastIndexOf("_")
                     val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-                    pkg = Paths.get(pkg.toString() +
-                            "\\${parentName.toLowerCase()}\\${template.name(model).fileName.
-                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\components\\list")
+                    pkg = Paths.get(pkg.toString() + File.separator +
+                            parentName.toLowerCase() + File.separator + template.name(model).fileName.
+                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))
+                            + File.separator + "components" + File.separator + "list")
                     path = pkg.resolve(newFileName)
                 }
                 contains("data.service") -> {
                     val lastIndexOfParent = path.toString().lastIndexOf("_")
                     val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-                    pkg = Paths.get(pkg.toString() +
-                            "\\${parentName.toLowerCase()}\\${template.name(model).fileName.
-                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}\\service")
+                    pkg = Paths.get(pkg.toString() + File.separator +
+                            parentName.toLowerCase() + File.separator + template.name(model).fileName.
+                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))
+                            + File.separator + "service")
                     path = pkg.resolve(newFileName)
                 }
                 contains("module-view.service") -> {
-                    pkg = Paths.get(pkg.toString() +
-                            "\\${template.name(model).fileName.
-                            substring(0, template.name(model).fileName.indexOf("-"))}\\service")
+                    pkg = Paths.get(pkg.toString() + File.separator +
+                            template.name(model).fileName.
+                            substring(0, template.name(model).fileName.indexOf("-")) + File.separator + "service")
                     path = pkg.resolve(template.name(model).fileName)
                 }
                 contains("basic.component") -> {
                     val lastIndexOfParent = path.toString().lastIndexOf("_")
                     val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-                    pkg = Paths.get(pkg.toString() +
-                            "\\${parentName}\\basics\\${template.name(model).fileName.
-                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}")
+                    pkg = Paths.get(pkg.toString() + File.separator +
+                            parentName + File.separator + "basics" + File.separator + template.name(model).fileName.
+                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))
+                    )
                     path = pkg.resolve(newFileName)
                 }
                 contains("enum.component") -> {
                     val lastIndexOfParent = path.toString().lastIndexOf("_")
                     val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-                    pkg = Paths.get(pkg.toString() +
-                            "\\${parentName}\\enums\\${template.name(model).fileName.
-                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))}")
+                    pkg = Paths.get(pkg.toString() + File.separator +
+                            parentName + File.separator + "enums" + File.separator + template.name(model).fileName.
+                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))
+                    )
                     path = pkg.resolve(newFileName)
                 }
             }
