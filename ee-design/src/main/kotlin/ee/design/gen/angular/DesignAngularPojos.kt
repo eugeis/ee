@@ -2,11 +2,11 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.design.ModuleI
 import ee.lang.*
+import ee.lang.gen.ts.AngularDerivedType
 import ee.lang.gen.ts.angular
 import ee.lang.gen.ts.module
 import ee.lang.gen.ts.ngxtranslate
 
-// TODO: implement c.n on component's module name
 fun <T : ModuleI<*>> T.toAngularModule(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                 api: String = LangDerivedKind.API): String {
     return """ 
@@ -58,7 +58,7 @@ ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
     }}
     ]
 })
-export class ${this.name()}Module {}"""
+export class ${c.n(this, AngularDerivedType.OwnModule)} {}"""
 }
 
 fun <T : ModuleI<*>> T.toAngularImportOtherModulesOnImportPart(c: GenerationContext): String {
@@ -76,7 +76,6 @@ fun <T : ModuleI<*>> T.toAngularImportOtherModulesOnImportPart(c: GenerationCont
     return sb.toString()
 }
 
-// TODO: implement c.n on component's module name
 fun <T : ModuleI<*>> T.toAngularRoutingModule(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                        api: String = LangDerivedKind.API): String {
     return """
@@ -91,7 +90,7 @@ ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL"
     imports: [${c.n(angular.router.RouterModule)}.forChild(routes)],
     exports: [${c.n(angular.router.RouterModule)}],
 })
-export class ${this.name()}RoutingModules {}
+export class ${c.n(this, AngularDerivedType.OwnRoutingModules)} {}
 
 """
 }

@@ -1,27 +1,7 @@
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.toCamelCase
-import ee.design.DesignDerivedTypeNames
 import ee.design.EntityI
 import ee.lang.*
-import java.awt.Component
-
-
-open class AngularDerivedKindNames {
-    val DataService = "DataService"
-    val ViewService = "ViewService"
-    val Service = "Service"
-    val ViewComponent = "ViewComponent"
-    val ListComponent = "ListComponent"
-    val FormComponent = "FormComponent"
-    val Component = "Component"
-    val Enum = "Enum"
-    val EnumComponent = "EnumComponent"
-    val BasicComponent = "BasicComponent"
-    val Module = "Module"
-    val RoutingModules = "RoutingModules"
-}
-
-object AngularDerivedType : AngularDerivedKindNames()
 
 fun <T : ItemI<*>> T.toAngularModuleHTML(): String =
     """<app-page [pageName]="${this.name().toLowerCase()}ViewService.pageName" [pageElement]="${this.name().toLowerCase()}ViewService.pageElement" [tabElement]="${this.name().toLowerCase()}ViewService.tabElement"></app-page>

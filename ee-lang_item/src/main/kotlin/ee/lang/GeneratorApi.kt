@@ -188,7 +188,7 @@ open class GeneratorAngular<M>(name: String, contextBuilder: ContextBuilder<M>, 
         var path = pkg.resolve(template.name(model).fileName)
 
         with(path.toString()) {
-            val lastIndex = if (isWindows) path.toString().lastIndexOf("\\") + 1 else path.toString().lastIndexOf("/") + 1
+            val lastIndex = path.toString().lastIndexOf(File.separator) + 1
             val newFileName = template.name(model).fileName.substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.length)
 
             when {

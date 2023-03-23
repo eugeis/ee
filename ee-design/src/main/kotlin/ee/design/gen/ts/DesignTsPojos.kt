@@ -15,7 +15,6 @@ export class ${c.n(this, AngularDerivedType.ViewComponent)} {${"\n"}
 }"""
 }
 
-// TODO: implement c.n on component's module name
 fun <T : ModuleI<*>> T.toAngularModuleService(modules: List<ModuleI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                        api: String = LangDerivedKind.API): String {
     return """export class ${this.name()}ViewService {
@@ -100,14 +99,13 @@ fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext, par
     }
 }
 
-// TODO: implement c.n on component's service name & declare global function
 fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(
     entities: List<EntityI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
     api: String = LangDerivedKind.API): String {
     return """
 
 @${c.n(angular.core.Injectable)}({ providedIn: 'root' })
-${isOpen().then("export ")}class ${this.name()}DataService extends ${c.n(service.template.DataService)}<${c.n(this)}> {
+${isOpen().then("export ")}class ${c.n(this, AngularDerivedType.OwnDataService)} extends ${c.n(service.template.DataService)}<${c.n(this)}> {
     itemName = '${c.n(this).toLowerCase()}';
 
     pageName = '${c.n(this, AngularDerivedType.Component)}';
@@ -234,10 +232,10 @@ ${isOpen().then("export ")}class ${this.name()}DataService extends ${c.n(service
 
 declare global {
     interface Window {
-        ${this.name().decapitalize()}DataService: ${this.name()}DataService;
+        ${c.n(this, AngularDerivedType.OwnDataService).decapitalize()}: ${c.n(this, AngularDerivedType.OwnDataService)};
     }
 }
-window.${this.name().decapitalize()}DataService = new ${this.name()}DataService();
+window.${c.n(this, AngularDerivedType.OwnDataService).decapitalize()} = new ${c.n(this, AngularDerivedType.OwnDataService)}();
 """
 }
 

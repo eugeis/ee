@@ -4,10 +4,7 @@ import ee.design.CommandI
 import ee.design.CompI
 import ee.design.EventI
 import ee.lang.*
-import ee.lang.gen.ts.LangTsContextFactory
-import ee.lang.gen.ts.TsContext
-import ee.lang.gen.ts.TsContextBuilder
-import kotlin.reflect.typeOf
+import ee.lang.gen.ts.*
 
 open class DesignTsContextFactory : LangTsContextFactory() {
     override fun contextBuilder(derived: DerivedController): TsContextBuilder<StructureUnitI<*>> {
@@ -24,18 +21,20 @@ open class DesignTsContextFactory : LangTsContextFactory() {
         super.registerForImplOnly(derived)
 
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.DataService,
-            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-data.service" }, isNotPartOfNativeTypes))
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.DataService}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.ViewService,
-            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-module-view.service" }, isNotPartOfNativeTypes))
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.ModuleViewService}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.Module,
-            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-model.module" }, isNotPartOfNativeTypes))
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.Module}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.RoutingModules,
-            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}-routing.module" }, isNotPartOfNativeTypes))
+            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.RoutingModule}" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.OwnDataService,
+            { "${this.name().capitalize()}${AngularDerivedType.DataService}" }, { "${this.namespace()}${it}" }, isNotPartOfNativeTypes))
 
         derived.registerKinds(
             listOf(AngularDerivedType.ViewComponent, AngularDerivedType.ListComponent,
                 AngularDerivedType.FormComponent, AngularDerivedType.EnumComponent, AngularDerivedType.BasicComponent,
-                AngularDerivedType.Enum, AngularDerivedType.Component),
+                AngularDerivedType.Enum, AngularDerivedType.Component, AngularDerivedType.OwnRoutingModules, AngularDerivedType.OwnModule),
             { "${this.name().capitalize()}${it}" },
             isNotPartOfNativeTypes)
     }

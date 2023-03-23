@@ -2,8 +2,8 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.common.ext.toCamelCase
 import ee.design.EntityI
-import ee.design.ModuleI
 import ee.lang.*
+import ee.lang.gen.ts.AngularDerivedType
 import ee.lang.gen.ts.angular
 import ee.lang.gen.ts.rxjs
 import ee.lang.gen.ts.service
