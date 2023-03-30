@@ -8,6 +8,7 @@ open class AngularDerivedKindNames {
     val ViewService = "ViewService"
     val Service = "Service"
     val ViewComponent = "ViewComponent"
+    val ModuleViewComponent = "ModuleViewComponent"
     val ListComponent = "ListComponent"
     val FormComponent = "FormComponent"
     val Component = "Component"
@@ -16,6 +17,18 @@ open class AngularDerivedKindNames {
     val BasicComponent = "BasicComponent"
     val Module = "Module"
     val RoutingModules = "RoutingModules"
+}
+
+open class AngularOwnDerivedComponent {
+    val OwnViewService = "OwnViewService"
+    val OwnViewComponent = "OwnViewComponent"
+    val OwnModuleViewComponent = "OwnModuleViewComponent"
+    val OwnListComponent = "OwnListComponent"
+    val OwnFormComponent = "OwnFormComponent"
+    val OwnComponent = "OwnComponent"
+    val OwnEnum = "OwnEnum"
+    val OwnEnumComponent = "OwnEnumComponent"
+    val OwnBasicComponent = "OwnBasicComponent"
     val OwnDataService = "OwnDataService"
     val OwnModule = "OwnModule"
     val OwnRoutingModules = "OwnRoutingModules"
@@ -35,6 +48,8 @@ open class AngularFileFormatNames {
 }
 
 object AngularDerivedType : AngularDerivedKindNames()
+
+object AngularOwnComponent : AngularOwnDerivedComponent()
 
 object AngularFileFormat : AngularFileFormatNames()
 
@@ -164,6 +179,7 @@ open class TsContext(
         return "" //namespaceLastPart.isNotEmpty().then { "${indent}package $namespaceLastPart${nL}${nL}" }
     }
 
+    // TODO: FIX import for APIBASE and normal component
     private fun toImports(indent: String): String {
         fun toImportsOutsideTypes(): String {
             return types.isNotEmpty().then {
@@ -171,8 +187,8 @@ open class TsContext(
                 else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace &&
                         ((!it.name().contains(AngularDerivedType.Component, true) && !it.name().contains(AngularDerivedType.RoutingModules, true)
                                 && !it.name().contains(AngularDerivedType.Enum, true) && !it.name().contains(AngularDerivedType.ViewService, true)
-                                && !it.name().contains(AngularDerivedType.DataService, true) && !it.namespace().contains(AngularDerivedType.OwnDataService, true)
-                                && !it.namespace().contains(AngularDerivedType.OwnModule, true) && !it.namespace().contains(AngularDerivedType.OwnRoutingModules, true)
+                                && !it.name().contains(AngularDerivedType.DataService, true) && !it.namespace().contains(AngularOwnComponent.OwnDataService, true)
+                                && !it.namespace().contains(AngularOwnComponent.OwnModule, true) && !it.namespace().contains(AngularOwnComponent.OwnRoutingModules, true)
                                 && !it.namespace().contains(".module")) ||
                                 it.name().equals(AngularDerivedType.Component, true)) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
@@ -200,21 +216,20 @@ open class TsContext(
         fun toImportsViewComponent(): String {
             return types.isNotEmpty().then {
                 val viewComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.ViewComponent, true) }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && (it.name().contains(AngularDerivedType.ViewComponent, true) || it.name().contains(AngularDerivedType.ModuleViewComponent, true)) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 viewComponent.isNotEmpty().then {
                     "${viewComponent.map { (su, items) ->
-                        items.filter { it.namespace().contains(AngularFileFormat.EntityViewComponent) }.sortedBy { it.name() }.
+                        items.filter { it.namespace().contains(AngularFileFormat.EntityViewComponent) || it.namespace().contains(AngularFileFormat.ModuleViewComponent) }.sortedBy { it.name() }.
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
                                 if (su.parent().isEMPTY()) {su.name().decapitalize()}
                                 else {su.parent().name().decapitalize()}}${
-                                    if (namespace.contains(su.name(), true)) {""}
+                                    if (su.parent().isEMPTY()) {""}
                                     else {"/${su.name().toLowerCase()}"}}/${it.name().replace(AngularDerivedType.ViewComponent, "").toLowerCase()}/components/view/${
-                                        if (namespace.contains(su.name(), true)) {"${it.name().replace(AngularDerivedType.ViewComponent, "").toLowerCase()}${AngularFileFormat.ModuleViewComponent}"}
-                                        else {"${it.name().replace(AngularDerivedType.ViewComponent, "").toLowerCase()}-${
-                                            it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}"}}'"""
+                                    it.name().replace(AngularDerivedType.ViewComponent, "").toLowerCase()}-${
+                                    it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                             
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -332,7 +347,7 @@ open class TsContext(
             return types.isNotEmpty().then {
                 val dataService = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
                 else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.DataService, true)
-                        && !it.namespace().contains(AngularDerivedType.OwnDataService, true)
+                        && !it.namespace().contains(AngularOwnComponent.OwnDataService, true)
                 }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
@@ -356,7 +371,7 @@ open class TsContext(
             return types.isNotEmpty().then {
                 val routingModules = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
                 else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.RoutingModules, true)
-                        && !it.namespace().contains(AngularDerivedType.OwnRoutingModules, true) }
+                        && !it.namespace().contains(AngularOwnComponent.OwnRoutingModules, true) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 routingModules.isNotEmpty().then {
@@ -378,7 +393,7 @@ open class TsContext(
             return types.isNotEmpty().then {
                 val elementModules = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
                 else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.Module, true)
-                        && it.namespace().contains(AngularFileFormat.Module, true) && !it.namespace().contains(AngularDerivedType.OwnModule, true)
+                        && it.namespace().contains(AngularFileFormat.Module, true) && !it.namespace().contains(AngularOwnComponent.OwnModule, true)
                 }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
@@ -440,6 +455,17 @@ fun <T : StructureUnitI<*>> T.extendForTsGenerationLang(): T {
     return this
 }
 
+val angularBasicComponent = AngularNames("basic", true, "component")
+val angularModuleViewComponent = AngularNames("module-view", false, "component")
+val angularModule = AngularNames("model", false, "module")
+val angularModuleService = AngularNames("module-view", false, "service")
+val angularEntityViewComponent = AngularEntitiesComponentNames("entity-view", "components/view", "component")
+val angularEntityFormComponent = AngularEntitiesComponentNames("entity-form", "components/form", "component")
+val angularEntityListComponent = AngularEntitiesComponentNames("entity-list", "components/list", "component")
+val angularEntityService = AngularEntitiesComponentNames("data", "service", "service")
+val angularRoutingModule = AngularNames("routing", false, "module")
+val angularEnumComponent = AngularNames("enum", true, "component")
+
 val itemAndTemplateNameAsTsFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("${it.name().capitalize()}${name.capitalize()}.ts")
 }
@@ -468,4 +494,30 @@ val templateNameAsCSSFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
 }
 val itemNameAsCSSFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("${it.name()}.scss")
+}
+
+class AngularNames(private val elementType: String, private val isChild: Boolean, private val componentName: String) {
+
+    val ts: TemplateI<*>.(CompositeI<*>) -> Names = baseName("ts")
+
+    val html: TemplateI<*>.(CompositeI<*>) -> Names = baseName("html")
+
+    val scss: TemplateI<*>.(CompositeI<*>) -> Names = baseName("scss")
+
+    private fun baseName(extension: String): TemplateI<*>.(CompositeI<*>) -> Names = {
+        Names("${it.toAngularComponentFileNameBase(elementType, isChild, componentName)}.$extension")
+    }
+}
+
+class AngularEntitiesComponentNames(private val elementType: String, private val componentName: String, private val format: String) {
+
+    val ts: TemplateI<*>.(CompositeI<*>) -> Names = baseName("ts")
+
+    val html: TemplateI<*>.(CompositeI<*>) -> Names = baseName("html")
+
+    val scss: TemplateI<*>.(CompositeI<*>) -> Names = baseName("scss")
+
+    private fun baseName(extension: String): TemplateI<*>.(CompositeI<*>) -> Names = {
+        Names("${it.toAngularEntityFileNameBase(elementType, componentName, format)}.$extension")
+    }
 }

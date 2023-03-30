@@ -233,6 +233,27 @@ fun <T : OperationI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String
     }"""
 }
 
+/*fun <T : ItemI<*>> T.toAngularComponentAnnotation(c: GenerationContext): String {
+    val selector = toAngularComponentSelector()
+    val componentFileName = toAngularComponentFileNameBase()
+    return """@${c.n(angular.core.Component)}({
+  selector: '$selector',
+  templateUrl: '$componentFileName.html',
+  styleUrls: ['$componentFileName.scss'],
+})"""
+}*/
+
+// name().toLowerCase() in file name and path
+fun <T : ItemI<*>> T.toAngularComponentFileNameBase(elementType: String, isChild: Boolean, componentName: String): String {
+    return "${isChild.then { "${name().toLowerCase()}/" }}${name().toLowerCase()}-${elementType}.${componentName.toLowerCase()}"
+}
+fun <T : ItemI<*>> T.toAngularEntityFileNameBase(elementType: String, componentType: String, format: String): String {
+    return "${name().toLowerCase()}/${componentType}/${name().toLowerCase()}-${elementType}.${format}"
+}
+fun <T : ItemI<*>> T.toAngularComponentSelector(): String {
+    return fullParentNameAndName().toHyphenLowerCase()
+}
+
 fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent: String): String {
     return """${indent}ngOnInit(): void {
         this.tableHeader = this.generateTableHeader();

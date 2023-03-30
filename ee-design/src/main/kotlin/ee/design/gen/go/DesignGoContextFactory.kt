@@ -9,7 +9,8 @@ import ee.lang.gen.go.GoContextBuilder
 import ee.lang.gen.go.LangGoContextFactory
 
 open class DesignGoContextFactory(targetAsSingleModule: Boolean = true) : LangGoContextFactory(targetAsSingleModule) {
-    override fun contextBuilder(derived: DerivedController): GoContextBuilder<StructureUnitI<*>> {
+    override fun contextBuilder(
+        derived: DerivedController, buildNamespace: StructureUnitI<*>.()->String): GoContextBuilder<StructureUnitI<*>> {
         return GoContextBuilder(CONTEXT_GO, macroController) {
             GoContext(namespace = namespace().toLowerCase(), moduleFolder = computeModuleFolder(),
                     derivedController = derived, macroController = macroController)
@@ -33,6 +34,6 @@ open class DesignGoContextFactory(targetAsSingleModule: Boolean = true) : LangGo
         }
     }
 
-    protected open fun buildNameForCommand(item: CommandI<*>, kind: String) = item.nameAndParentName().capitalize()
-    protected open fun buildNameForEvent(item: EventI<*>, kind: String) = item.parentNameAndName().capitalize()
+    protected open fun buildNameForCommand(item: CommandI<*>, kind: String) = item.dataTypeNameAndParentName().capitalize()
+    protected open fun buildNameForEvent(item: EventI<*>, kind: String) = item.dataTypeParentNameAndName().capitalize()
 }

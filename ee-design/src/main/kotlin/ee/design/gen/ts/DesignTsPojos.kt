@@ -10,7 +10,7 @@ fun <T : ModuleI<*>> T.toAngularModuleTypeScript(c: GenerationContext, derived: 
                                                  api: String = LangDerivedKind.API): String {
     return """
 ${this.toAngularGenerateComponentPart(c, "module", "view", hasProviders = true, hasClass = false)}
-export class ${c.n(this, AngularDerivedType.ViewComponent)} {${"\n"}  
+export class ${c.n(this, AngularOwnComponent.OwnViewComponent)} {${"\n"}  
     constructor(public ${c.n(this, AngularDerivedType.ViewService).decapitalize()}: ${c.n(this, AngularDerivedType.ViewService)}) {}$nL
 }"""
 }
@@ -34,7 +34,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewTypeScript(c: GenerationConte
                                                               api: String = LangDerivedKind.API): String {
     return """
 ${this.toAngularGenerateComponentPart(c, "entity", "view", hasProviders = true, hasClass = true)}
-${isOpen().then("export ")}class ${c.n(this, AngularDerivedType.ViewComponent)} implements ${c.n(angular.core.OnInit)} {
+${isOpen().then("export ")}class ${c.n(this, AngularOwnComponent.OwnViewComponent)} implements ${c.n(angular.core.OnInit)} {
 
 ${this.toTypeScriptEntityProp(c, tab)}
 ${this.toAngularConstructorDataService(c, tab)}
@@ -47,7 +47,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationConte
                                                               api: String = LangDerivedKind.API): String {
     return """
 ${this.toAngularGenerateComponentPart(c, "entity", "form", hasProviders = false, hasClass = false)}
-${isOpen().then("export ")}class ${c.n(this, AngularDerivedType.FormComponent)} implements ${c.n(angular.core.OnInit)} {
+${isOpen().then("export ")}class ${c.n(this, AngularOwnComponent.OwnFormComponent)} implements ${c.n(angular.core.OnInit)} {
 
 ${this.toTypeScriptFormProp(c, tab)}
     constructor(public ${c.n(this, AngularDerivedType.DataService).decapitalize()}: ${c.n(this, AngularDerivedType.DataService)}, 
@@ -66,7 +66,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListTypeScript(c: GenerationConte
                                                               api: String = LangDerivedKind.API): String {
     return """
 ${this.toAngularGenerateComponentPart(c, "entity", "list", hasProviders = true, hasClass = true)}
-${isOpen().then("export ")}class ${c.n(this, AngularDerivedType.ListComponent)} implements ${c.n(angular.core.OnInit)}, ${c.n(angular.core.AfterViewInit)} {
+${isOpen().then("export ")}class ${c.n(this, AngularOwnComponent.OwnListComponent)} implements ${c.n(angular.core.OnInit)}, ${c.n(angular.core.AfterViewInit)} {
 
 ${this.toTypeScriptEntityPropInit(c, tab)}
     tableHeader: Array<String> = [];
@@ -105,7 +105,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(
     return """
 
 @${c.n(angular.core.Injectable)}({ providedIn: 'root' })
-${isOpen().then("export ")}class ${c.n(this, AngularDerivedType.OwnDataService)} extends ${c.n(service.template.DataService)}<${c.n(this)}> {
+${isOpen().then("export ")}class ${c.n(this, AngularOwnComponent.OwnDataService)} extends ${c.n(service.template.DataService)}<${c.n(this)}> {
     itemName = '${c.n(this).toLowerCase()}';
 
     pageName = '${c.n(this, AngularDerivedType.Component)}';
@@ -232,10 +232,10 @@ ${isOpen().then("export ")}class ${c.n(this, AngularDerivedType.OwnDataService)}
 
 declare global {
     interface Window {
-        ${c.n(this, AngularDerivedType.OwnDataService).decapitalize()}: ${c.n(this, AngularDerivedType.OwnDataService)};
+        ${c.n(this, AngularOwnComponent.OwnDataService).decapitalize()}: ${c.n(this, AngularOwnComponent.OwnDataService)};
     }
 }
-window.${c.n(this, AngularDerivedType.OwnDataService).decapitalize()} = new ${c.n(this, AngularDerivedType.OwnDataService)}();
+window.${c.n(this, AngularOwnComponent.OwnDataService).decapitalize()} = new ${c.n(this, AngularOwnComponent.OwnDataService)}();
 """
 }
 
@@ -247,7 +247,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, 
                                                           api: String = LangDerivedKind.API): String {
     return """
 ${this.toAngularGenerateComponentPart(c, "basic", "", hasProviders = false, hasClass = false)}
-${isOpen().then("export ")}class ${c.n(this, AngularDerivedType.BasicComponent)} implements ${c.n(angular.core.OnInit)} {
+${isOpen().then("export ")}class ${c.n(this, AngularOwnComponent.OwnBasicComponent)} implements ${c.n(angular.core.OnInit)} {
 
     @${c.n(angular.core.Input)}() ${c.n(this).toLowerCase()}: ${c.n(this)};
     @${c.n(angular.core.Input)}() parentName: String;
@@ -329,21 +329,31 @@ fun <T : ItemI<*>> T.toAngularInitOptionBasic(c: GenerationContext, elementType:
     return """this.option${elementType.capitalize()} = this.${elementType.toLowerCase()}DataService.changeMapToArray(this.${elementType.toLowerCase()}DataService.retrieveItemsFromCache()); $nL"""
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEnumTSComponent(parent: ItemI<*>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+fun <T : CompilationUnitI<*>> T.toAngularEnumTSComponent(entities: List<EntityI<*>>, basics: List<BasicI<*>>, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                          api: String = LangDerivedKind.API): String {
+    var basicParentName : AttributeI<*>? = null
+    var entityParentName : AttributeI<*>? = null
+    basics.forEach {
+        it.props().filter { typ -> typ.type() is EnumTypeI<*> && typ.type().name().equals(this.name()) }.forEach {
+            basicParentName = it
+        } }
+    entities.forEach {
+        it.props().filter { typ -> typ.type() is EnumTypeI<*> && typ.type().name().equals(this.name()) }.forEach {
+            entityParentName = it
+        } }
     return """
 ${this.toAngularGenerateComponentPart(c, "enum", "", hasProviders = false, hasClass = false)}
 
-export class ${c.n(this, AngularDerivedType.EnumComponent)} implements ${c.n(angular.core.OnInit)} {
+export class ${c.n(this, AngularOwnComponent.OwnEnumComponent)} implements ${c.n(angular.core.OnInit)} {
 
-    @${c.n(angular.core.Input)}() ${c.n(parent).toLowerCase()}: ${c.n(parent)};
+    @${c.n(angular.core.Input)}() ${if (basicParentName.isEMPTY()) {c.n(entityParentName?.parent()).toLowerCase()} else {c.n(basicParentName?.parent()).toLowerCase()}}: ${if (basicParentName.isEMPTY()) {c.n(entityParentName?.parent())} else {c.n(basicParentName?.parent())}};
     
     enumElements: Array<string>;
     
-    constructor(private tableDataService: ${c.n(service.template.DataService)}<${c.n(parent)}>) { }
+    constructor(private tableDataService: ${c.n(service.template.DataService)}<${if (basicParentName.isEMPTY()) {c.n(entityParentName?.parent())} else {c.n(basicParentName?.parent())}}>) { }
     
     ngOnInit(): void {
-        this.enumElements = this.tableDataService.loadEnumElement(${c.n(this)}, '${c.n(parent).toLowerCase()}', '${c.n(this).toLowerCase()}Enum');
+        this.enumElements = this.tableDataService.loadEnumElement(${c.n(this)}, '${if (basicParentName.isEMPTY()) {c.n(entityParentName?.parent()).toLowerCase()} else {c.n(basicParentName?.parent()).toLowerCase()}}', '${c.n(this).toLowerCase()}Enum');
     }
 
 }

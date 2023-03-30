@@ -10,18 +10,18 @@ import ee.lang.gen.go.*
 fun <T : EntityI<*>> T.toGoCommandTypes(c: GenerationContext): String {
     val items = findDownByType(CommandI::class.java)
     return items.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
-        """     ${it.nameAndParentName().capitalize()}${DesignDerivedType.Command} ${
+        """     ${it.dataTypeNameAndParentName().capitalize()}${DesignDerivedType.Command} ${
             c.n(g.eh.CommandType)
-        } = "${it.nameAndParentName().capitalize()}""""
+        } = "${it.dataTypeNameAndParentName().capitalize()}""""
     }
 }
 
 fun <T : EntityI<*>> T.toGoEventTypes(c: GenerationContext): String {
     val items = findDownByType(EventI::class.java)
     return items.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
-        """     ${it.parentNameAndName().capitalize()}${DesignDerivedType.Event} ${
+        """     ${it.dataTypeParentNameAndName().capitalize()}${DesignDerivedType.Event} ${
             c.n(g.eh.EventType)
-        } = "${it.parentNameAndName().capitalize()}""""
+        } = "${it.dataTypeParentNameAndName().capitalize()}""""
     }
 }
 
@@ -48,7 +48,7 @@ fun <T : OperationI<*>> T.toGoFindByBody(
     }"""
         }, {
             """
-    err = ${c.n(g.gee.eh.QueryNotImplemented, api)}("${nameAndParentName()}")"""
+    err = ${c.n(g.gee.eh.QueryNotImplemented, api)}("${dataTypeNameAndParentName()}")"""
         })
     })
 }
@@ -72,7 +72,7 @@ fun <T : OperationI<*>> T.toGoExistByBody(
     }"""
         }, {
             """
-    err = ${c.n(g.gee.eh.QueryNotImplemented, api)}("${nameAndParentName()}")"""
+    err = ${c.n(g.gee.eh.QueryNotImplemented, api)}("${dataTypeNameAndParentName()}")"""
         })
     })
 }
@@ -97,7 +97,7 @@ fun <T : OperationI<*>> T.toGoCountByBody(
     }"""
         }, {
             """
-    err = ${c.n(g.gee.eh.QueryNotImplemented, api)}("${nameAndParentName()}")"""
+    err = ${c.n(g.gee.eh.QueryNotImplemented, api)}("${dataTypeNameAndParentName()}")"""
         })
     })
 }
@@ -124,7 +124,7 @@ fun <T : OperationI<*>> T.toGoHttpHandlerBody(
         }
     }
     ret, err := o.QueryRepository.${queryHandler.toGoCall(c, api, api)}
-    o.HandleResult(ret, err, "${parentNameAndName()}", w, r)"""
+    o.HandleResult(ret, err, "${dataTypeParentNameAndName()}", w, r)"""
 }
 
 fun <T : OperationI<*>> T.toGoHttpHandlerCommandBody(
@@ -142,7 +142,7 @@ fun <T : OperationI<*>> T.toGoHttpHandlerCommandBody(
     $propName, _ := ${c.n(g.google.uuid.Parse, api)}(vars["$propName"])"""
             }
         }
-    command := &${command.nameAndParentName().capitalize()}{${
+    command := &${command.dataTypeNameAndParentName().capitalize()}{${
             varProps.joinSurroundIfNotEmptyToString(", ") { propKey ->
                 """${propKey.capitalize()}: ${propKey.decapitalize()}"""
             }
@@ -169,7 +169,7 @@ fun <T : OperationI<*>> T.toGoHttpHandlerIdBasedBody(
     return """
     vars := ${c.n(g.mux.Vars, api)}(r)
     id := vars["${entity.propIdOrAdd().name().decapitalize()}"]
-    ${c.n(g.fmt.Fprintf, api)}(w, "id=%v, %q from ${parentNameAndName()}", id, ${
+    ${c.n(g.fmt.Fprintf, api)}(w, "id=%v, %q from ${dataTypeParentNameAndName()}", id, ${
         c.n(
             g.html.EscapeString,
             api
@@ -181,7 +181,7 @@ fun <T : CommandI<*>> T.toGoStoreEvent(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
 
-    return """store.AppendEvent(${event().parentNameAndName()}${DesignDerivedType.Event}, ${
+    return """store.AppendEvent(${event().dataTypeParentNameAndName()}${DesignDerivedType.Event}, ${
         event().hasData().ifElse(
             """&${c.n(event(), api)}{${
                 propsNoMetaNoValueNoId().joinSurroundIfNotEmptyToString(", ") { prop ->
@@ -228,7 +228,7 @@ fun <T : OperationI<*>> T.toGoEventHandlerApplyEvent(
 	}"""
         ) { event ->
             """
-    case ${event.parentNameAndName().capitalize()}Event:
+    case ${event.dataTypeParentNameAndName().capitalize()}Event:
         err = o.${event.name().capitalize()}${DesignDerivedType.Handler}(event, ${
                 event.hasData().then("event.Data().(${event.toGo(c, api)}), ")
             }entity.(${entity.toGo(c, api)}))"""
@@ -360,7 +360,7 @@ fun <T : CompilationUnitI<*>> T.toGoAggregateEngineRegisterForEvents(
         events.joinSurroundIfNotEmptyToString(nL, nL) {
             """
 func (o *$name) RegisterFor${it.name().capitalize()}(handler ${c.n(g.eh.EventHandler)}) error {
-    return o.RegisterForEvent(handler, ${entity.name()}EventTypes().${it.parentNameAndName().capitalize()}())
+    return o.RegisterForEvent(handler, ${entity.name()}EventTypes().${it.dataTypeParentNameAndName().capitalize()}())
 }"""
         }
     }
@@ -461,7 +461,7 @@ fun <T : CommandI<*>> T.toGoCommandImpl(
         ${toGoImpl(c, derived, api, true)}
 func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)} { return o.${entity.propIdOrAdd().nameForGoMember()} }
 func (o *$name) AggregateType() ${c.n(g.eh.AggregateType)} { return ${entity.name()}${DesignDerivedType.AggregateType} }
-func (o *$name) CommandType() ${c.n(g.eh.CommandType)} { return ${nameAndParentName().capitalize()}${DesignDerivedType.Command} }
+func (o *$name) CommandType() ${c.n(g.eh.CommandType)} { return ${dataTypeNameAndParentName().capitalize()}${DesignDerivedType.Command} }
 """
 }
 

@@ -15,7 +15,7 @@ open class LangDerivedKindNames {
 
 object LangDerivedKind : LangDerivedKindNames()
 
-fun ItemI<*>.parentNameAndName(): String = storage.getOrPut(this, "parentNameAndName") {
+fun ItemI<*>.dataTypeParentNameAndName(): String = storage.getOrPut(this, "parentNameAndName") {
     val parent = findParent(DataTypeI::class.java)
     if (parent != null) {
         /*
@@ -29,7 +29,7 @@ fun ItemI<*>.parentNameAndName(): String = storage.getOrPut(this, "parentNameAnd
     }
 }
 
-fun ItemI<*>.nameAndParentName(): String = storage.getOrPut(this, "nameAndParentName") {
+fun ItemI<*>.dataTypeNameAndParentName(): String = storage.getOrPut(this, "nameAndParentName") {
     val parent = findParent(DataTypeI::class.java)
     if (parent != null) {
         /*
@@ -40,6 +40,22 @@ fun ItemI<*>.nameAndParentName(): String = storage.getOrPut(this, "nameAndParent
         "${name()}${parent.name().capitalize()}"
     } else {
         name()
+    }
+}
+
+fun ItemI<*>.fullParentNameAndName(): String = storage.getOrPut(this, "fullParentNameAndName") {
+    if (parent().isNotEMPTY()) {
+        "${parent().fullParentNameAndName()}${name().capitalize()}"
+    } else {
+        name()
+    }
+}
+
+fun ItemI<*>.fullParentNameAndNameAsPath(): String = storage.getOrPut(this, "fullParentNameAndNameAsPath") {
+    if (parent().isNotEMPTY()) {
+        "${parent().fullParentNameAndNameAsPath()}/${name().decapitalize()}"
+    } else {
+        name().decapitalize()
     }
 }
 

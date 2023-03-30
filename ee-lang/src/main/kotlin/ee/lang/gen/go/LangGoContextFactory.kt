@@ -9,7 +9,8 @@ open class GoContextBuilder<M>(name: String, macroController: MacroController, b
 
 open class LangGoContextFactory(targetAsSingleModule: Boolean) : LangCommonContextFactory(targetAsSingleModule) {
 
-    override fun contextBuilder(derived: DerivedController): GoContextBuilder<StructureUnitI<*>> {
+    override fun contextBuilder(
+        derived: DerivedController, buildNamespace: StructureUnitI<*>.()->String): GoContextBuilder<StructureUnitI<*>> {
         return GoContextBuilder(CONTEXT_GO, macroController) {
             val structureUnit = this
             GoContext(

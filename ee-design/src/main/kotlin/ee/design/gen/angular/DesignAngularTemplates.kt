@@ -1,5 +1,6 @@
 package ee.design.gen.angular
 
+import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.LangTsTemplates
@@ -57,8 +58,8 @@ open class DesignAngularTemplates : LangTsTemplates {
     open fun <T : CompilationUnitI<*>> basicSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("BasicSCSSComponent", nameBuilder) { item, c -> item.toAngularBasicSCSSComponent(c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> enumHTML(parent: ItemI<*>, elementName: String, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EnumHTMLComponent", nameBuilder) { item, c -> item.toAngularEnumHTMLComponent(parent, elementName, c, LangDerivedKind.API) }
+    open fun <T : CompilationUnitI<*>> enumHTML(entities: List<EntityI<*>>, basics: List<BasicI<*>>, elementName: String, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EnumHTMLComponent", nameBuilder) { item, c -> item.toAngularEnumHTMLComponent(entities, basics, elementName, c, LangDerivedKind.API) }
 
     open fun <T : CompilationUnitI<*>> enumSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EnumSCSSComponent", nameBuilder) { item, c -> item.toAngularEnumSCSSComponent(c, LangDerivedKind.API) }

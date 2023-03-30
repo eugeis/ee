@@ -12,24 +12,29 @@ open class DesignAngularGenerator(val model: StructureUnitI<*>) {
         val generatorFactory = DesignGeneratorFactory()
         model.prepareForTsGeneration()
 
-        val generatorContextsApiBase = generatorFactory.typeScriptApiBase("", model)
-        val generatorApiBase = generatorContextsApiBase.generator
-        val generatorContextsComponent = generatorFactory.angularTypeScriptComponent("", model)
+        val generatorApiBase = generatorFactory.typeScriptApiBase("", model).generator
+        val generatorAngular = generatorFactory.angular("", model).generator
+
+        /*val generatorContextsComponent = generatorFactory.angularTypeScriptComponent("", model)
         val generatorComponent = generatorContextsComponent.generator
 
         val generatorAngularModule = generatorFactory.angularModules("", model)
         val generatorModule = generatorAngularModule.generator
         val generatorAngularHtmlAndScss = generatorFactory.angularHtmlAndScssComponent("", model)
-        val generatorHtmlAndScss = generatorAngularHtmlAndScss.generator
+        val generatorHtmlAndScss = generatorAngularHtmlAndScss.generator*/
 
         generatorApiBase.delete(target, model)
-        generatorComponent.delete(target, model)
-        generatorModule.delete(target, model)
-        generatorHtmlAndScss.delete(target, model)
+        generatorAngular.delete(target, model)
 
         generatorApiBase.generate(target, model)
-        generatorComponent.generate(target, model)
+        generatorAngular.generate(target, model)
+
+        /*generatorComponent.delete(target, model)
+        generatorModule.delete(target, model)
+        generatorHtmlAndScss.delete(target, model)*/
+
+        /*generatorComponent.generate(target, model)
         generatorModule.generate(target, model)
-        generatorHtmlAndScss.generate(target, model)
+        generatorHtmlAndScss.generate(target, model)*/
     }
 }

@@ -1,11 +1,9 @@
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
+import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
-import ee.lang.gen.ts.AngularDerivedType
-import ee.lang.gen.ts.angular
-import ee.lang.gen.ts.module
-import ee.lang.gen.ts.ngxtranslate
+import ee.lang.gen.ts.*
 
 fun <T : ModuleI<*>> T.toAngularModule(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                 api: String = LangDerivedKind.API): String {
@@ -16,7 +14,7 @@ export function HttpLoaderFactory(http: ${c.n(angular.commonhttp.HttpClient)}) {
 
 @${c.n(angular.core.NgModule)}({
     declarations: [
-        ${c.n(this, AngularDerivedType.ViewComponent)},
+        ${c.n(this, AngularDerivedType.ModuleViewComponent)},
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleDeclarationEntities(c, tab + tab)
     }}
@@ -58,7 +56,7 @@ ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
     }}
     ]
 })
-export class ${c.n(this, AngularDerivedType.OwnModule)} {}"""
+export class ${c.n(this, AngularOwnComponent.OwnModule)} {}"""
 }
 
 fun <T : ModuleI<*>> T.toAngularImportOtherModulesOnImportPart(c: GenerationContext): String {
@@ -80,7 +78,7 @@ fun <T : ModuleI<*>> T.toAngularRoutingModule(c: GenerationContext, derived: Str
                                                        api: String = LangDerivedKind.API): String {
     return """
 const routes: ${c.n(angular.router.Routes)} = [
-    { path: '', component: ${c.n(this, AngularDerivedType.ViewComponent)} },
+    { path: '', component: ${c.n(this, AngularDerivedType.ModuleViewComponent)} },
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
         it.toAngularModulePath(c, tab)
     }}
@@ -90,7 +88,7 @@ ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL"
     imports: [${c.n(angular.router.RouterModule)}.forChild(routes)],
     exports: [${c.n(angular.router.RouterModule)}],
 })
-export class ${c.n(this, AngularDerivedType.OwnRoutingModules)} {}
+export class ${c.n(this, AngularOwnComponent.OwnRoutingModules)} {}
 
 """
 }
@@ -145,9 +143,9 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(c: GenerationContext
     return this.toAngularBasicSCSS()
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEnumHTMLComponent(parent: ItemI<*>, elementName: String, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
-                                                            api: String = LangDerivedKind.API): String {
-    return this.toAngularEnumHTML(parent, elementName)
+fun <T : CompilationUnitI<*>> T.toAngularEnumHTMLComponent(entities: List<EntityI<*>>, basics: List<BasicI<*>>, elementName: String, c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                           api: String = LangDerivedKind.API): String {
+    return this.toAngularEnumHTML(entities, basics, elementName)
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEnumSCSSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import ee.common.ext.*
 import org.slf4j.LoggerFactory
-import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
@@ -83,23 +82,45 @@ open class GeneratorGroupItems<M, I>(facet: String, val generators: Collection<G
 }
 
 private fun Collection<GeneratorI<*>>.names(name: String): List<String> =
-        mutableListOf(name).apply {
-            this@names.forEach {
-                if (it is GeneratorGroupI<*>) {
-                    addAll(it.names("$name."))
-                } else {
-                    add("$name.${it.name()}")
-                }
+    mutableListOf(name).apply {
+        this@names.forEach {
+            if (it is GeneratorGroupI<*>) {
+                addAll(it.names("$name."))
+            } else {
+                add("$name.${it.name()}")
             }
         }
+    }
 
 abstract class GeneratorBase<M>(name: String, val contextBuilder: ContextBuilder<M>) :
-        AbstractGenerator<M>(name) {
+    AbstractGenerator<M>(name) {
 
-    protected open fun prepareNamespace(module: Path, context: GenerationContext): Path {
-        val ret = context.resolveFolder(module)
+    protected open fun resolveModulePath(module: Path, context: GenerationContext): Path {
+        val ret = context.resolveNamespaceFolder(module)
         ret.mkdirs()
         return ret
+    }
+
+    protected fun <T> generateForTemplate(
+        template: TemplateI<T>, pkg: Path, model: T, target: Path, metaData: GenerationMetaData, c: GenerationContext
+    ): Boolean {
+        var metaDataChanged = false
+        val path = pkg.resolve(template.name(model).relativeFilePath)
+        val relative = target.relativize(path).toString()
+        if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
+            log.debug("generate $path for $model")
+            val body = template.generate(model, c)
+            if (body.isNotBlank()) {
+                val text = c.complete(body)
+                path.toFile().writeText(text)
+                metaData.track(relative, path.lastModified())
+            }
+            c.clear()
+            metaDataChanged = true
+        } else {
+            log.debug("File exists $path and was modified after generation, skip generation.")
+        }
+        return metaDataChanged
     }
 
     override fun delete(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
@@ -119,55 +140,46 @@ abstract class GeneratorBase<M>(name: String, val contextBuilder: ContextBuilder
 }
 
 open class GeneratorSimple<M>(
-        name: String, contextBuilder: ContextBuilder<M>,
-        val template: TemplateI<M>) : GeneratorBase<M>(name, contextBuilder) {
+    name: String, contextBuilder: ContextBuilder<M>,
+    val template: TemplateI<M>) : GeneratorBase<M>(name, contextBuilder) {
 
     override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
         if (shallSkip(model)) return
 
         val c = contextBuilder.builder.invoke(model)
-        val module = target.resolve(c.moduleFolder)
-        val metaData = module.loadMetaData()
+        val modulePath = target.resolve(c.moduleFolder)
+        val metaData = modulePath.loadMetaData()
 
-        val pkg = prepareNamespace(module, c)
-        val path = pkg.resolve(template.name(model).fileName)
-        val relative = target.relativize(path).toString()
-        if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
-            log.debug("generate $path for $model")
-            val body = template.generate(model, c)
-            if (body.isNotBlank()) {
-                val text = c.complete(body)
-                path.toFile().writeText(text)
-                metaData.track(relative, path.lastModified())
-            }
-            c.clear()
-            metaData.store(module)
-        } else {
-            log.debug("File exists $path and was modified after generation, skip generation.")
+        val pkg = resolveModulePath(modulePath, c)
+
+        val currentTemplate = template
+        if (generateForTemplate(currentTemplate, pkg, model, target, metaData, c)) {
+            metaData.store(modulePath)
         }
     }
 }
 
-open class Generator<M, I>(name: String, contextBuilder: ContextBuilder<M>, val items: M.() -> Collection<I>,
-                           val templates: I.() -> Collection<Template<I>>) : GeneratorBase<M>(name, contextBuilder) {
-
+open class GeneratorItems<M, I>(name: String, contextBuilder: ContextBuilder<M>, val items: M.() -> Collection<I>,
+                                val templates: I.() -> Collection<Template<I>>) : GeneratorBase<M>(name, contextBuilder) {
     override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
         if (shallSkip(model)) return
 
-        val c = contextBuilder.builder.invoke(model)
-        val module = target.resolve(c.moduleFolder)
+        val context = contextBuilder.builder.invoke(model)
+        val module = target.resolve(context.moduleFolder)
         val metaData = module.loadMetaData()
 
         model.items().forEach { item ->
             item.templates().forEach { template ->
-                val pkg = prepareNamespace(module, c)
-                val path = pkg.resolve(template.name(item).fileName)
+                val pkg = context.resolveNamespaceFolder(module)
+                val path = pkg.resolve(template.name(item).relativeFilePath)
+                path.parent.mkdirs()
                 val relative = target.relativize(path).toString()
                 if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
                     log.debug("generate $path for $model")
-                    path.toFile().writeText(c.complete(template.generate(template, item, c)))
+                    val content = template.generate(template, item, context)
+                    path.toFile().writeText(context.complete(content))
                     metaData.track(relative, path.lastModified())
-                    c.clear()
+                    context.clear()
                 } else {
                     log.debug("File exists $path and was modified after generation, skip generation.")
                 }
@@ -177,123 +189,11 @@ open class Generator<M, I>(name: String, contextBuilder: ContextBuilder<M>, val 
     }
 }
 
-open class GeneratorAngular<M>(name: String, contextBuilder: ContextBuilder<M>, val template: TemplateI<M>) : GeneratorBase<M>(name, contextBuilder) {
-    override fun generate(target: Path, model: M, shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
-        if (shallSkip(model)) return
-        val c = contextBuilder.builder.invoke(model)
-        val module = target.resolve(c.moduleFolder)
-        val metaData = module.loadMetaData()
-
-        var pkg = prepareNamespace(module, c)
-        var path = pkg.resolve(template.name(model).fileName)
-
-        with(path.toString()) {
-            val lastIndex = path.toString().lastIndexOf(File.separator) + 1
-            val newFileName = template.name(model).fileName.substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.length)
-
-            when {
-                contains("-routing.module") || contains("-model.module") -> {
-                    pkg = Paths.get(pkg.toString() + File.separator +
-                            template.name(model).fileName.
-                            substring(0, template.name(model).fileName.indexOf("-"))
-                    )
-                    path = pkg.resolve(template.name(model).fileName)
-                }
-                contains("module-view.component") -> {
-                    pkg = Paths.get(pkg.toString() + File.separator +
-                            template.name(model).fileName.
-                            substring(0, template.name(model).fileName.indexOf("-")) + File.separator + "components" + File.separator + "view")
-                    path = pkg.resolve(template.name(model).fileName)
-                }
-                contains("entity-view.component") -> {
-                    val lastIndexOfParent = path.toString().lastIndexOf("_")
-                    val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-                    pkg = Paths.get(pkg.toString() + File.separator +
-                            parentName.toLowerCase() + File.separator + template.name(model).fileName.
-                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))
-                            + File.separator + "components" + File.separator + "view")
-                    path = pkg.resolve(newFileName)
-                }
-                contains("entity-form.component") -> {
-                    val lastIndexOfParent = path.toString().lastIndexOf("_")
-                    val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-                    pkg = Paths.get(pkg.toString() + File.separator +
-                            parentName.toLowerCase() + File.separator + template.name(model).fileName.
-                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))
-                            + File.separator + "components" + File.separator + "form")
-                    path = pkg.resolve(newFileName)
-                }
-                contains("entity-list.component") -> {
-                    val lastIndexOfParent = path.toString().lastIndexOf("_")
-                    val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-                    pkg = Paths.get(pkg.toString() + File.separator +
-                            parentName.toLowerCase() + File.separator + template.name(model).fileName.
-                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))
-                            + File.separator + "components" + File.separator + "list")
-                    path = pkg.resolve(newFileName)
-                }
-                contains("data.service") -> {
-                    val lastIndexOfParent = path.toString().lastIndexOf("_")
-                    val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-                    pkg = Paths.get(pkg.toString() + File.separator +
-                            parentName.toLowerCase() + File.separator + template.name(model).fileName.
-                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))
-                            + File.separator + "service")
-                    path = pkg.resolve(newFileName)
-                }
-                contains("module-view.service") -> {
-                    pkg = Paths.get(pkg.toString() + File.separator +
-                            template.name(model).fileName.
-                            substring(0, template.name(model).fileName.indexOf("-")) + File.separator + "service")
-                    path = pkg.resolve(template.name(model).fileName)
-                }
-                contains("basic.component") -> {
-                    val lastIndexOfParent = path.toString().lastIndexOf("_")
-                    val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-                    pkg = Paths.get(pkg.toString() + File.separator +
-                            parentName + File.separator + "basics" + File.separator + template.name(model).fileName.
-                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))
-                    )
-                    path = pkg.resolve(newFileName)
-                }
-                contains("enum.component") -> {
-                    val lastIndexOfParent = path.toString().lastIndexOf("_")
-                    val parentName = path.toString().substring(lastIndex, lastIndexOfParent)
-                    pkg = Paths.get(pkg.toString() + File.separator +
-                            parentName + File.separator + "enums" + File.separator + template.name(model).fileName.
-                            substring(template.name(model).fileName.indexOf("_") + 1, template.name(model).fileName.indexOf("-"))
-                    )
-                    path = pkg.resolve(newFileName)
-                }
-            }
-        }
-
-        if(!pkg.exists()) {
-            pkg.mkdirs()
-        }
-
-        val relative = target.relativize(path).toString()
-        if (!path.exists() || !metaData.wasModified(relative, path.lastModified())) {
-            log.debug("generate $path for $model")
-            val body = template.generate(model, c)
-            if (body.isNotBlank()) {
-                val text = c.complete(body)
-                path.toFile().writeText(text)
-                metaData.track(relative, path.lastModified())
-            }
-            c.clear()
-            metaData.store(module)
-        } else {
-            log.debug("File exists $path and was modified after generation, skip generation.")
-        }
-    }
-}
-
 interface NamesI {
-    val fileName: String
+    val relativeFilePath: Path
 }
 
-open class Names(override val fileName: String) : NamesI
+open class Names(val fileName: String, override val relativeFilePath: Path = Paths.get(fileName)) : NamesI
 
 interface FragmentI<I> {
     val name: String
@@ -305,8 +205,8 @@ interface TemplateI<I> : FragmentI<I> {
 }
 
 open class Template<I>(
-        override val name: String, val nameBuilder: TemplateI<I>.(I) -> NamesI,
-        val generate: TemplateI<I>.(item: I, context: GenerationContext) -> String) : TemplateI<I> {
+    override val name: String, val nameBuilder: TemplateI<I>.(I) -> NamesI,
+    val generate: TemplateI<I>.(item: I, context: GenerationContext) -> String) : TemplateI<I> {
 
     override fun generate(item: I, context: GenerationContext): String = generate(this, item, context)
 
@@ -316,8 +216,8 @@ open class Template<I>(
 }
 
 open class FragmentsTemplate<M>(
-        override val name: String,
-        val fragments: M.() -> Collection<FragmentI<M>>, val nameBuilder: TemplateI<M>.(M) -> NamesI) : TemplateI<M> {
+    override val name: String,
+    val fragments: M.() -> Collection<FragmentI<M>>, val nameBuilder: TemplateI<M>.(M) -> NamesI) : TemplateI<M> {
 
     override fun generate(item: M, context: GenerationContext): String {
         val buffer = StringBuffer()
@@ -334,8 +234,8 @@ open class FragmentsTemplate<M>(
 }
 
 open class ItemsFragment<M, I>(
-        override val name: String = "",
-        val items: M.() -> Collection<I>, val fragments: I.() -> Collection<FragmentI<I>>) : FragmentI<M> {
+    override val name: String = "",
+    val items: M.() -> Collection<I>, val fragments: I.() -> Collection<FragmentI<I>>) : FragmentI<M> {
 
     override fun generate(item: M, context: GenerationContext): String {
         val buffer = StringBuffer()
@@ -350,8 +250,8 @@ open class ItemsFragment<M, I>(
 }
 
 open class ItemsTemplate<M, I>(
-        name: String, items: M.() -> Collection<I>, fragments: I.() -> Collection<FragmentI<I>>,
-        val nameBuilder: TemplateI<M>.(M) -> NamesI) : ItemsFragment<M, I>(name, items, fragments), TemplateI<M> {
+    name: String, items: M.() -> Collection<I>, fragments: I.() -> Collection<FragmentI<I>>,
+    val nameBuilder: TemplateI<M>.(M) -> NamesI) : ItemsFragment<M, I>(name, items, fragments), TemplateI<M> {
 
     override fun name(item: M): NamesI {
         return nameBuilder(this, item)
@@ -360,10 +260,10 @@ open class ItemsTemplate<M, I>(
 
 
 open class GenerationContext(
-        val namespace: String = "", val moduleFolder: String = "", val genFolder: String = "",
-        val genFolderDeletable: Boolean = false, val genFolderDeletePattern: Regex? = null,
-        val derivedController: DerivedController,
-        val macroController: MacroController) : Cloneable {
+    val namespace: String = "", val moduleFolder: String = "", val genFolder: String = "",
+    val genFolderDeletable: Boolean = false, val genFolderDeletePattern: Regex? = null,
+    val derivedController: DerivedController,
+    val macroController: MacroController) : Cloneable {
 
 
     var header: String = ""
@@ -374,7 +274,7 @@ open class GenerationContext(
 
     val types: MutableSet<ItemI<*>> = hashSetOf()
 
-    open fun resolveFolder(base: Path): Path {
+    open fun resolveNamespaceFolder(base: Path): Path {
         val folder = base.resolve(genFolder)
         return folder.resolve(namespace.toDotsAsPath())
     }
@@ -416,7 +316,7 @@ open class ContextBuilder<M>(val name: String, val macroController: MacroControl
 open class GeneratorContexts<M>(val generator: GeneratorGroupI<M>, vararg val contexts: ContextBuilder<M>)
 
 open class Macro<T : ItemI<*>>(
-        val name: String, val code: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
+    val name: String, val code: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
 
     companion object {
         val EMPTY = Macro<ItemI<*>>("EMPTY") { _, _, _ -> "" }
@@ -427,7 +327,7 @@ open class MacroController {
     private val nameToMacro = hashMapOf<String, Macro<*>>()
 
     open fun <T : ItemI<*>> registerMacro(
-            name: String, template: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
+        name: String, template: T.(c: GenerationContext, derivedKind: String, api: String) -> String) {
         nameToMacro[name] = Macro(name = name, code = template)
     }
 

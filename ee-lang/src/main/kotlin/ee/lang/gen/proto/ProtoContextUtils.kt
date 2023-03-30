@@ -52,7 +52,7 @@ open class ProtoContext(
 
     private val namespaceLastPart: String = namespace.substringAfterLast(".")
 
-    override fun resolveFolder(base: Path): Path {
+    override fun resolveNamespaceFolder(base: Path): Path {
         return base.resolve(genFolder)
     }
 

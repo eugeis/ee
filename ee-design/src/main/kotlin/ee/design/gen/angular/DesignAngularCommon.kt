@@ -371,13 +371,30 @@ a {
 }
 """
 
-fun <T : CompilationUnitI<*>> T.toAngularEnumHTML(parent: ItemI<*>, elementName: String): String =
-    """
+fun <T : CompilationUnitI<*>> T.toAngularEnumHTML(entities: List<EntityI<*>>, basics: List<BasicI<*>>, elementName: String): String {
+    var basicParentName : AttributeI<*>? = null
+    var entityParentName : AttributeI<*>? = null
+    var basicElementName = ""
+    var entityElementName = ""
+    basics.forEach {
+        it.props().filter { typ -> typ.type() is EnumTypeI<*> && typ.type().name().equals(this.name()) }.forEach {
+            basicParentName = it
+            basicElementName = it.name()
+        }
+    }
+    entities.forEach {
+        it.props().filter { typ -> typ.type() is EnumTypeI<*> && typ.type().name().equals(this.name()) }.forEach {
+            entityParentName = it
+            entityElementName = it.name()
+        }
+    }
+    return """
 <mat-form-field appearance="outline">
     <mat-label>{{"table.${this.name().toLowerCase()}" | translate}}</mat-label>
-    <mat-select [(value)]="${parent.name().toLowerCase()}.${elementName.toCamelCase()}">
+    <mat-select [(value)]="${if (basicParentName.isEMPTY()) {entityParentName?.parent()?.name()?.toLowerCase()} else {basicParentName?.parent()?.name()?.toLowerCase()}}.${if (basicElementName == "") {entityElementName} else {basicElementName}}">
         <mat-option *ngFor="let item of enumElements" [value]="item">{{item | translate}}</mat-option>
     </mat-select>
 </mat-form-field>
 """
+}
 

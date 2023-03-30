@@ -48,7 +48,7 @@ open class DesignTsTemplates : LangTsTemplates {
     open fun <T : CompilationUnitI<*>> basicTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("BasicTypeScriptComponent", nameBuilder) { item, c -> item.toAngularBasicTSComponent(c, LangDerivedKind.API) }
 
-    open fun <T : CompilationUnitI<*>> enumTypeScript(parent: ItemI<*>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EnumTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEnumTSComponent(parent, c, LangDerivedKind.API) }
+    open fun <T : CompilationUnitI<*>> enumTypeScript(entities: List<EntityI<*>>, basics: List<BasicI<*>>,nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EnumTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEnumTSComponent(entities, basics, c, LangDerivedKind.API) }
 
 }

@@ -29,7 +29,8 @@ open class LangCommonContextFactory(val targetAsSingleModule: Boolean = true) {
         derived.registerKind(LangDerivedKind.IMPL, { "${name()}Impl" }, isNotPartOfNativeTypes)
     }
 
-    protected open fun contextBuilder(derived: DerivedController): ContextBuilder<StructureUnitI<*>> {
+    protected open fun contextBuilder(derived: DerivedController, buildNamespace: StructureUnitI<*>.()->String = {
+        namespace().toLowerCase() }): ContextBuilder<StructureUnitI<*>> {
         return ContextBuilder(CONTEXT_COMMON, macroController) {
             GenerationContext(
                     namespace = namespace().toLowerCase(),
