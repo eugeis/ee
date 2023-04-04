@@ -304,7 +304,7 @@ fun <T : AttributeI<*>> T.toTypeScriptInitEmptyProps(c: GenerationContext): Stri
                 else -> {
                     """
         if (this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} === undefined) {
-            this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} = new ${c.n(this.type()).capitalize()}();
+            this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} = new ${c.n(this.type(), AngularDerivedType.ApiBase).capitalize()}();
         }"""
                 }
             }

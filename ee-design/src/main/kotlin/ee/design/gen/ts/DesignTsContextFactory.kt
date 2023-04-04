@@ -24,6 +24,8 @@ open class DesignTsContextFactory(alwaysImportTypes: Boolean = false) : LangTsCo
     override fun registerForImplOnly(derived: DerivedController) {
         super.registerForImplOnly(derived)
 
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.ApiBase,
+            { "${this.name().capitalize()}" }, { "${this.namespace()}${AngularDerivedType.ApiBase}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.ViewComponent,
             { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.EntityViewComponent}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularOwnComponent.OwnViewComponent,

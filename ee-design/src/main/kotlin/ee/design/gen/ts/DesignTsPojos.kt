@@ -105,8 +105,8 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(
     return """
 
 @${c.n(angular.core.Injectable)}({ providedIn: 'root' })
-${isOpen().then("export ")}class ${c.n(this, AngularOwnComponent.OwnDataService)} extends ${c.n(service.template.DataService)}<${c.n(this)}> {
-    itemName = '${c.n(this).toLowerCase()}';
+${isOpen().then("export ")}class ${c.n(this, AngularOwnComponent.OwnDataService)} extends ${c.n(service.template.DataService)}<${c.n(this, AngularDerivedType.ApiBase)}> {
+    itemName = '${c.n(this, AngularDerivedType.ApiBase).toLowerCase()}';
 
     pageName = '${c.n(this, AngularDerivedType.Component)}';
     
@@ -142,7 +142,7 @@ ${isOpen().then("export ")}class ${c.n(this, AngularOwnComponent.OwnDataService)
     }}
 
     getFirst() {
-        return new ${c.n(this)}();
+        return new ${c.n(this, AngularDerivedType.ApiBase)}();
     }
     
     toggleHidden() {
@@ -184,7 +184,7 @@ ${isOpen().then("export ")}class ${c.n(this, AngularOwnComponent.OwnDataService)
     """ 
     }}
 
-    editElement(element: ${c.n(this)}) {
+    editElement(element: ${c.n(this, AngularDerivedType.ApiBase)}) {
         this.items = this.retrieveItemsFromCache();
         const editItem = JSON.parse(localStorage.getItem('edit'));
         const editItemEntity = localStorage.getItem('edit-entity');
@@ -197,7 +197,7 @@ ${isOpen().then("export ")}class ${c.n(this, AngularOwnComponent.OwnDataService)
         this.editInheritedEntity(editItemEntity, element)
     }
     
-    editInheritedEntity(itemName: string, newElement: ${c.n(this)}) {
+    editInheritedEntity(itemName: string, newElement: ${c.n(this, AngularDerivedType.ApiBase)}) {
         const editItem = JSON.parse(localStorage.getItem('edit'));
         if (JSON.stringify(newElement) !== JSON.stringify(editItem)) {
         ${entities.filter { entity -> entity.props().any {property ->
@@ -210,7 +210,7 @@ ${isOpen().then("export ")}class ${c.n(this, AngularOwnComponent.OwnDataService)
         }.joinSurroundIfNotEmptyToString("") {
         
         """
-            const inheritedElement${it.name().capitalize()}: Map<string, ${c.n(it)}> = new Map(JSON.parse(localStorage.getItem(itemName)));
+            const inheritedElement${it.name().capitalize()}: Map<string, ${c.n(it, AngularDerivedType.ApiBase)}> = new Map(JSON.parse(localStorage.getItem(itemName)));
             inheritedElement${it.name().capitalize()}.forEach((value, key) => {
                 if (key.includes(JSON.stringify(editItem))) {
                     value${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
@@ -240,7 +240,7 @@ window.${c.n(this, AngularOwnComponent.OwnDataService).decapitalize()} = new ${c
 }
 
 fun <T : ItemI<*>> T.toAngularGenerateEnumElementBasic(c: GenerationContext, indent: String): String {
-    return """${indent}${c.n(this, AngularDerivedType.Enum).decapitalize()} = this.loadEnumElement(${c.n(this).capitalize()});"""
+    return """${indent}${c.n(this, AngularDerivedType.Enum).decapitalize()} = this.loadEnumElement(${c.n(this, AngularDerivedType.ApiBase).capitalize()});"""
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
@@ -249,7 +249,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, 
 ${this.toAngularGenerateComponentPart(c, "basic", "", hasProviders = false, hasClass = false)}
 ${isOpen().then("export ")}class ${c.n(this, AngularOwnComponent.OwnBasicComponent)} implements ${c.n(angular.core.OnInit)} {
 
-    @${c.n(angular.core.Input)}() ${c.n(this).toLowerCase()}: ${c.n(this)};
+    @${c.n(angular.core.Input)}() ${c.n(this, AngularDerivedType.ApiBase).toLowerCase()}: ${c.n(this, AngularDerivedType.ApiBase)};
     @${c.n(angular.core.Input)}() parentName: String;
 ${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
         it.type().toAngularGenerateEnumElementBasic(c, tab)
@@ -283,8 +283,8 @@ ${if (props().any { it.type() is EnumTypeI<*> }) {
     }"""
     } else {""}}
     ngOnInit() {
-        if (this.${c.n(this).toLowerCase()} === undefined) {
-            this.${c.n(this).toLowerCase()} = new ${this.name().capitalize()}();
+        if (this.${c.n(this, AngularDerivedType.ApiBase).toLowerCase()} === undefined) {
+            this.${c.n(this, AngularDerivedType.ApiBase).toLowerCase()} = new ${this.name().capitalize()}();
         }
         ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toTypeScriptInitEmptyProps(c)
@@ -353,7 +353,7 @@ export class ${c.n(this, AngularOwnComponent.OwnEnumComponent)} implements ${c.n
     constructor(private tableDataService: ${c.n(service.template.DataService)}<${if (basicParentName.isEMPTY()) {c.n(entityParentName?.parent())} else {c.n(basicParentName?.parent())}}>) { }
     
     ngOnInit(): void {
-        this.enumElements = this.tableDataService.loadEnumElement(${c.n(this)}, '${if (basicParentName.isEMPTY()) {c.n(entityParentName?.parent()).toLowerCase()} else {c.n(basicParentName?.parent()).toLowerCase()}}', '${c.n(this).toLowerCase()}Enum');
+        this.enumElements = this.tableDataService.loadEnumElement(${c.n(this, AngularDerivedType.ApiBase)}, '${if (basicParentName.isEMPTY()) {c.n(entityParentName?.parent()).toLowerCase()} else {c.n(basicParentName?.parent()).toLowerCase()}}', '${c.n(this, AngularDerivedType.ApiBase).toLowerCase()}Enum');
     }
 
 }

@@ -17,6 +17,7 @@ open class AngularDerivedKindNames {
     val BasicComponent = "BasicComponent"
     val Module = "Module"
     val RoutingModules = "RoutingModules"
+    val ApiBase = "ApiBase"
 }
 
 open class AngularOwnDerivedComponent {
@@ -179,7 +180,6 @@ open class TsContext(
         return "" //namespaceLastPart.isNotEmpty().then { "${indent}package $namespaceLastPart${nL}${nL}" }
     }
 
-    // TODO: FIX import for APIBASE and normal component
     private fun toImports(indent: String): String {
         fun toImportsOutsideTypes(): String {
             return types.isNotEmpty().then {

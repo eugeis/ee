@@ -18,39 +18,39 @@ fun <T : ItemI<*>> T.toAngularPropOnConstructor(c: GenerationContext): String {
 
 fun <T : TypeI<*>> T.toAngularControlService(c: GenerationContext): String {
     return """
-    control${c.n(this).toCamelCase().capitalize()} = new ${c.n(angular.forms.FormControl)}<${c.n(this).toCamelCase().capitalize()}>(new ${c.n(this).toCamelCase().capitalize()}());
-    option${c.n(this).toCamelCase().capitalize()}: Array<${c.n(this).toCamelCase().capitalize()}>;
-    filteredOptions${c.n(this).toCamelCase().capitalize()}: ${c.n(rxjs.empty.Observable)}<${c.n(this).toCamelCase().capitalize()}[]>;$nL"""
+    control${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()} = new ${c.n(angular.forms.FormControl)}<${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}>(new ${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}());
+    option${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}: Array<${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}>;
+    filteredOptions${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}: ${c.n(rxjs.empty.Observable)}<${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}[]>;$nL"""
 }
 
 fun <T : TypeI<*>> T.toAngularControlServiceFunctions(c: GenerationContext, key: AttributeI<*>): String {
     return """
-    display${c.n(this).toCamelCase().capitalize()}(${c.n(this).toCamelCase()}: ${c.n(this).toCamelCase().capitalize()}): string {
-        return ${c.n(this).toCamelCase()} ? ${c.n(this).toCamelCase()}.${key.name()} : '';
+    display${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}(${c.n(this, AngularDerivedType.ApiBase).toCamelCase()}: ${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}): string {
+        return ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()} ? ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()}.${key.name()} : '';
     }
     
-    filter${c.n(this).toCamelCase().capitalize()}(name: string, array: Array<${c.n(this).toCamelCase().capitalize()}>): ${c.n(this).toCamelCase().capitalize()}[] {
+    filter${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}(name: string, array: Array<${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}>): ${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}[] {
         return array.filter(option => option.${key.name()}.toLowerCase().includes(name.toLowerCase()));
     }$nL"""
 }
 
 fun <T : TypeI<*>> T.toAngularInitObservable(c: GenerationContext, key: AttributeI<*>): String {
     return """
-        this.filteredOptions${c.n(this).toCamelCase().capitalize()} = this.control${c.n(this).toCamelCase().capitalize()}.valueChanges.pipe(
+        this.filteredOptions${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()} = this.control${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}.valueChanges.pipe(
             ${c.n(rxjs.operators.startWith)}(''),
-            ${c.n(rxjs.operators.map)}((value: ${c.n(this).toCamelCase().capitalize()}) => {
+            ${c.n(rxjs.operators.map)}((value: ${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}) => {
                 const name = typeof value === 'string' ? value : value.${key.name()};
                 return name ?
-                    this.filter${c.n(this).toCamelCase().capitalize()}(name as string, this.option${c.n(this).toCamelCase().capitalize()})
-                    : this.option${c.n(this).toCamelCase().capitalize()}.slice();
+                    this.filter${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}(name as string, this.option${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()})
+                    : this.option${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}.slice();
             }),
         );$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): String {
     return """${indent}ng${c.n(angular.core.OnInit)}(): void {
-        this.${c.n(this).toLowerCase()} = this.${c.n(this, AngularDerivedType.DataService).decapitalize()}.getFirst();
-        this.${c.n(this, AngularDerivedType.DataService).decapitalize()}.checkRoute(this.${c.n(this).toLowerCase()});
+        this.${c.n(this, AngularDerivedType.ApiBase).toLowerCase()} = this.${c.n(this, AngularDerivedType.DataService).decapitalize()}.getFirst();
+        this.${c.n(this, AngularDerivedType.DataService).decapitalize()}.checkRoute(this.${c.n(this, AngularDerivedType.ApiBase).toLowerCase()});
     }"""
 }
 
@@ -78,7 +78,7 @@ fun <T : ItemI<*>> T.toAngularInitOption(c: GenerationContext, elementType: Stri
 
 fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, elementType: TypeI<*>): String {
     return """${indent}if (this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} === undefined) {
-            this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} = new ${c.n(elementType).capitalize()}();
+            this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} = new ${c.n(elementType, AngularDerivedType.ApiBase).capitalize()}();
         }"""
 }
 
@@ -106,15 +106,15 @@ fun <T : ItemI<*>> T.checkProvider(c: GenerationContext, hasProviders: Boolean, 
 }
 
 fun <T : ItemI<*>> T.toTypeScriptEntityProp(c: GenerationContext, indent: String): String {
-    return """${indent}${this.name().toLowerCase()}: ${c.n(this)};$nL"""
+    return """${indent}${this.name().toLowerCase()}: ${c.n(this, AngularDerivedType.ApiBase)};$nL"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptFormProp(c: GenerationContext, indent: String): String {
-    return """${indent}@${c.n(angular.core.Input)}() ${this.name().toLowerCase()}: ${c.n(this)};$nL"""
+    return """${indent}@${c.n(angular.core.Input)}() ${this.name().toLowerCase()}: ${c.n(this, AngularDerivedType.ApiBase)};$nL"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptEntityPropInit(c: GenerationContext, indent: String): String {
-    return """${indent}${this.name().toLowerCase()}: ${c.n(this)} = new ${c.n(this)}();$nL"""
+    return """${indent}${this.name().toLowerCase()}: ${c.n(this, AngularDerivedType.ApiBase)} = new ${c.n(this, AngularDerivedType.ApiBase)}();$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleDeclarationEntities(c: GenerationContext, indent: String): String {
