@@ -20,14 +20,6 @@ open class AngularDerivedKindNames {
     val ApiBase = "ApiBase"
 }
 
-open class AngularOwnDerivedComponent {
-    val OwnViewService = "OwnViewService"
-    val OwnViewComponent = "OwnViewComponent"
-    val OwnModuleViewComponent = "OwnModuleViewComponent"
-    val OwnListComponent = "OwnListComponent"
-    val OwnFormComponent = "OwnFormComponent"
-}
-
 open class AngularFileFormatNames {
     val DataService = "-data.service"
     val ModuleViewService = "-module-view.service"
@@ -45,8 +37,6 @@ open class AngularFileFormatNames {
 }
 
 object AngularDerivedType : AngularDerivedKindNames()
-
-object AngularOwnComponent : AngularOwnDerivedComponent()
 
 object AngularFileFormat : AngularFileFormatNames()
 
