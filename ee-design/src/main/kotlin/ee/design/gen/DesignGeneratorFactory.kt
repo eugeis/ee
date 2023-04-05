@@ -568,7 +568,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                 listOf(
                     tsTemplates.entityViewTypeScript(angularEntityViewComponent.ts),
                     angularTemplates.entityViewHTML(angularEntityViewComponent.html),
-                    angularTemplates.entityFormSCSS(angularEntityViewComponent.scss),
+                    angularTemplates.entityViewSCSS(angularEntityViewComponent.scss),
 
                     tsTemplates.entityFormTypeScript(angularEntityFormComponent.ts),
                     angularTemplates.entityFormHTML(angularEntityFormComponent.html),
@@ -600,8 +600,8 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
             templates = {
                 listOf(
-                    tsTemplates.enumTypeScript(entities.invoke(model), basics.invoke(model), angularEnumComponent.ts),
-                    angularTemplates.enumHTML(entities.invoke(model), basics.invoke(model), this.name(), angularEnumComponent.html),
+                    tsTemplates.enumTypeScript(angularEnumComponent.ts),
+                    angularTemplates.enumHTML(angularEnumComponent.html),
                     angularTemplates.enumSCSS(angularEnumComponent.scss),
                 ) }))
 

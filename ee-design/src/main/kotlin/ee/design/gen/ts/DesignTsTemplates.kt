@@ -3,6 +3,7 @@ package ee.design.gen.ts
 import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
+import ee.lang.gen.ts.AngularDerivedType
 import ee.lang.gen.ts.LangTsTemplates
 import toAngularBasicTSComponent
 import toAngularEntityDataService
@@ -28,27 +29,27 @@ open class DesignTsTemplates : LangTsTemplates {
 
 
     open fun <T : ModuleI<*>> moduleTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("ModuleTypeScriptComponent", nameBuilder) { item, c -> item.toAngularModuleTypeScript(c, LangDerivedKind.API) }
+        Template("ModuleTypeScriptComponent", nameBuilder) { item, c -> item.toAngularModuleTypeScript(c, ViewComponent = AngularDerivedType.ViewComponent) }
 
     open fun <T : ModuleI<*>> moduleService(modules: List<ModuleI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("ModuleService", nameBuilder) { item, c -> item.toAngularModuleService(modules, c, LangDerivedKind.API) }
+        Template("ModuleService", nameBuilder) { item, c -> item.toAngularModuleService(modules, c, ViewService = AngularDerivedType.ViewService) }
 
     open fun <T : CompilationUnitI<*>> entityViewTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityViewTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityViewTypeScript(c, LangDerivedKind.API)  }
+        Template("EntityViewTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityViewTypeScript(c, ViewComponent = AngularDerivedType.ViewComponent)  }
 
     open fun <T : CompilationUnitI<*>> entityFormTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityFormTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityFormTypeScript(c, LangDerivedKind.API) }
+        Template("EntityFormTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityFormTypeScript(c, FormComponent = AngularDerivedType.FormComponent) }
 
     open fun <T : CompilationUnitI<*>> entityListTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityListTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityListTypeScript(c, LangDerivedKind.API) }
+        Template("EntityListTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityListTypeScript(c, ListComponent = AngularDerivedType.ListComponent) }
 
     open fun <T : CompilationUnitI<*>> entityDataService(entites: List<EntityI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityDataService", nameBuilder) { item, c -> item.toAngularEntityDataService(entites, c, LangDerivedKind.API) }
+        Template("EntityDataService", nameBuilder) { item, c -> item.toAngularEntityDataService(entites, c, DataService = AngularDerivedType.DataService) }
 
     open fun <T : CompilationUnitI<*>> basicTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("BasicTypeScriptComponent", nameBuilder) { item, c -> item.toAngularBasicTSComponent(c, LangDerivedKind.API) }
+        Template("BasicTypeScriptComponent", nameBuilder) { item, c -> item.toAngularBasicTSComponent(c, BasicComponent = AngularDerivedType.BasicComponent) }
 
-    open fun <T : CompilationUnitI<*>> enumTypeScript(entities: List<EntityI<*>>, basics: List<BasicI<*>>,nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EnumTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEnumTSComponent(entities, basics, c, LangDerivedKind.API) }
+    open fun <T : CompilationUnitI<*>> enumTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EnumTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEnumTSComponent(c, EnumComponent = AngularDerivedType.EnumComponent, DataService = AngularDerivedType.DataService) }
 
 }

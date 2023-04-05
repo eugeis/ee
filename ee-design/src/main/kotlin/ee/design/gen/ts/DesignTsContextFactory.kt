@@ -44,24 +44,14 @@ open class DesignTsContextFactory(alwaysImportTypes: Boolean = false) : LangTsCo
             { "${this.name().capitalize()}${AngularDerivedType.FormComponent}" }, { "${this.namespace()}${it}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.EnumComponent,
             { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.EnumComponent}" }, isNotPartOfNativeTypes))
-        derived.register(NameAndNamespaceTransformers(AngularOwnComponent.OwnEnumComponent,
-            { "${this.name().capitalize()}${AngularDerivedType.EnumComponent}" }, { "${this.namespace()}${it}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.BasicComponent,
             { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.BasicComponent}" }, isNotPartOfNativeTypes))
-        derived.register(NameAndNamespaceTransformers(AngularOwnComponent.OwnBasicComponent,
-            { "${this.name().capitalize()}${AngularDerivedType.BasicComponent}" }, { "${this.namespace()}${it}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.Module,
             { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.Module}" }, isNotPartOfNativeTypes))
-        derived.register(NameAndNamespaceTransformers(AngularOwnComponent.OwnModule,
-            { "${this.name().capitalize()}${AngularDerivedType.Module}" }, { "${this.namespace()}${it}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.RoutingModules,
             { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.RoutingModule}" }, isNotPartOfNativeTypes))
-        derived.register(NameAndNamespaceTransformers(AngularOwnComponent.OwnRoutingModules,
-            { "${this.name().capitalize()}${AngularDerivedType.RoutingModules}" }, { "${this.namespace()}${it}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.DataService,
             { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.DataService}" }, isNotPartOfNativeTypes))
-        derived.register(NameAndNamespaceTransformers(AngularOwnComponent.OwnDataService,
-            { "${this.name().capitalize()}${AngularDerivedType.DataService}" }, { "${this.namespace()}${it}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.ViewService,
             { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.ModuleViewService}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularOwnComponent.OwnViewService,

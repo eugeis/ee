@@ -26,13 +26,6 @@ open class AngularOwnDerivedComponent {
     val OwnModuleViewComponent = "OwnModuleViewComponent"
     val OwnListComponent = "OwnListComponent"
     val OwnFormComponent = "OwnFormComponent"
-    val OwnComponent = "OwnComponent"
-    val OwnEnum = "OwnEnum"
-    val OwnEnumComponent = "OwnEnumComponent"
-    val OwnBasicComponent = "OwnBasicComponent"
-    val OwnDataService = "OwnDataService"
-    val OwnModule = "OwnModule"
-    val OwnRoutingModules = "OwnRoutingModules"
 }
 
 open class AngularFileFormatNames {
@@ -40,10 +33,13 @@ open class AngularFileFormatNames {
     val ModuleViewService = "-module-view.service"
     val ModuleViewComponent = "-module-view.component"
     val EntityViewComponent = "-entity-view.component"
-    val EntityListComponent = "-entity-list.component"
-    val EntityFormComponent = "-entity-form.component"
+    val EntityList = "entity-list"
+    val EntityListComponent = "-${EntityList}.component"
+    val EntityForm = "entity-form"
+    val EntityFormComponent = "-${EntityForm}.component"
     val EnumComponent = "-enum.component"
     val BasicComponent = "-basic.component"
+    val BasicForm = "-basic-form"
     val Module = "-model.module"
     val RoutingModule = "-routing.module"
 }
@@ -61,6 +57,10 @@ object angular : StructureUnit({namespace("@angular").name("angular")}) {
         object Component : ExternalType() {
         }
         object Input : ExternalType() {
+        }
+        object Output : ExternalType() {
+        }
+        object EventEmitter : ExternalType() {
         }
         object OnInit : ExternalType() {
         }
@@ -88,6 +88,10 @@ object angular : StructureUnit({namespace("@angular").name("angular")}) {
         }
         object sort : StructureUnit() {
             object MatSort : ExternalType() {
+            }
+        }
+        object select : StructureUnit() {
+            object MatSelectChange : ExternalType() {
             }
         }
     }
@@ -187,8 +191,7 @@ open class TsContext(
                 else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace &&
                         ((!it.name().contains(AngularDerivedType.Component, true) && !it.name().contains(AngularDerivedType.RoutingModules, true)
                                 && !it.name().contains(AngularDerivedType.Enum, true) && !it.name().contains(AngularDerivedType.ViewService, true)
-                                && !it.name().contains(AngularDerivedType.DataService, true) && !it.namespace().contains(AngularOwnComponent.OwnDataService, true)
-                                && !it.namespace().contains(AngularOwnComponent.OwnModule, true) && !it.namespace().contains(AngularOwnComponent.OwnRoutingModules, true)
+                                && !it.name().contains(AngularDerivedType.DataService, true)
                                 && !it.namespace().contains(".module")) ||
                                 it.name().equals(AngularDerivedType.Component, true)) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
@@ -347,7 +350,6 @@ open class TsContext(
             return types.isNotEmpty().then {
                 val dataService = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
                 else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.DataService, true)
-                        && !it.namespace().contains(AngularOwnComponent.OwnDataService, true)
                 }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
@@ -370,8 +372,7 @@ open class TsContext(
         fun toImportsRoutingModules(): String {
             return types.isNotEmpty().then {
                 val routingModules = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.RoutingModules, true)
-                        && !it.namespace().contains(AngularOwnComponent.OwnRoutingModules, true) }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.RoutingModules, true) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 routingModules.isNotEmpty().then {
@@ -393,7 +394,7 @@ open class TsContext(
             return types.isNotEmpty().then {
                 val elementModules = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
                 else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.Module, true)
-                        && it.namespace().contains(AngularFileFormat.Module, true) && !it.namespace().contains(AngularOwnComponent.OwnModule, true)
+                        && it.namespace().contains(AngularFileFormat.Module, true)
                 }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
