@@ -10,12 +10,15 @@ import ee.design.gen.ts.DesignTsContextFactory
 import ee.design.gen.ts.DesignTsTemplates
 import ee.design.gen.angular.DesignAngularContextFactory
 import ee.design.gen.angular.DesignAngularTemplates
+import ee.design.gen.puml.classdiagram.DesignCdContextFactory
+import ee.design.gen.puml.classdiagram.DesignCdTemplates
 import ee.lang.*
 import ee.lang.gen.LangGeneratorFactory
 import ee.lang.gen.common.LangCommonContextFactory
 import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
 import ee.lang.gen.go.itemNameAsGoFileName
 import ee.lang.gen.itemNameAsKotlinFileName
+import ee.lang.gen.puml.classdiagram.itemAndTemplateNameAsPumlFileName
 import ee.lang.gen.swagger.itemNameAsSwaggerFileName
 import ee.lang.gen.ts.*
 
@@ -29,6 +32,9 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
     override fun buildTsContextFactory() = DesignTsContextFactory()
     override fun buildTsTemplates() = DesignTsTemplates(itemNameAsTsFileName)
+
+    override fun buildCdContextFactory() = DesignCdContextFactory(targetAsSingleModule)
+    override fun buildCdTemplates() = DesignCdTemplates(itemNameAsTsFileName)
 
     fun buildAngularContextFactory() = DesignAngularContextFactory()
     fun buildAngularTemplates() = DesignAngularTemplates(itemNameAsTsFileName)
@@ -607,6 +613,39 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
         return GeneratorContexts(generator, moduleViewComponentContextBuilder, moduleModulesContextBuilder, moduleServiceContextBuilder,
             entityComponentContextBuilder, basicsContextBuilder, enumsContextBuilder,)
+    }
+
+    open fun pumlClassDiagram(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
+        val cdTemplates = buildCdTemplates()
+        val cdContextFactory = buildCdContextFactory()
+        val cdContextBuilder = cdContextFactory.buildForImplOnly()
+
+        val components: StructureUnitI<*>.() -> List<CompI<*>> = {
+            if (this is CompI<*>) listOf(this) else findDownByType(CompI::class.java)
+        }
+
+        val moduleGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
+        val generator = GeneratorGroup(
+            "puml",
+            listOf(GeneratorGroupItems("ClassDiagram", items = components, generators = moduleGenerators))
+        )
+
+        moduleGenerators.addAll(
+            listOf(
+                GeneratorSimple(
+                    "ClassDiagram", contextBuilder = cdContextBuilder,
+                    template = FragmentsTemplate(name = "${fileNamePrefix}ClassDiagram",
+                        nameBuilder = itemAndTemplateNameAsPumlFileName, fragments = {
+                            listOf(
+                                ItemsFragment(items = components,
+                                    fragments = { listOf(cdTemplates.generateComponent()) }),
+                            )
+                        })
+                ),
+            )
+        )
+
+        return GeneratorContexts(generator, cdContextBuilder)
     }
 
     protected fun registerGoMacros(contextFactory: LangCommonContextFactory) {

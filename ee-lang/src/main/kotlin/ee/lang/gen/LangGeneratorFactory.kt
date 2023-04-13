@@ -14,6 +14,8 @@ import ee.lang.gen.kt.LangKotlinContextFactory
 import ee.lang.gen.kt.LangKotlinTemplates
 import ee.lang.gen.kt.toKotlinInstanceDotEMPTY
 import ee.lang.gen.kt.toKotlinInstanceEMPTY
+import ee.lang.gen.puml.classdiagram.LangCdContextFactory
+import ee.lang.gen.puml.classdiagram.LangCdTemplates
 import ee.lang.gen.ts.LangTsContextFactory
 import ee.lang.gen.ts.LangTsTemplates
 
@@ -352,6 +354,9 @@ open class LangGeneratorFactory(protected val targetAsSingleModule: Boolean = tr
 
     protected open fun buildTsContextFactory() = LangTsContextFactory()
     protected open fun buildTsTemplates() = LangTsTemplates()
+
+    protected open fun buildCdContextFactory() = LangCdContextFactory()
+    protected open fun buildCdTemplates() = LangCdTemplates()
 
     protected open fun buildSwaggerContextFactory() = LangCommonContextFactory()
 
