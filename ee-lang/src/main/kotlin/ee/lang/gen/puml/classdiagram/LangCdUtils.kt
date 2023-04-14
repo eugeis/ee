@@ -63,3 +63,14 @@ val templateNameAsPumlFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
 val itemNameAsPumlFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("${it.name()}.puml")
 }
+
+val pumlClassDiagram = PumlNames("ClassDiagram")
+
+class PumlNames(private val elementType: String) {
+
+    val puml: TemplateI<*>.(CompositeI<*>) -> Names = baseName("puml")
+
+    private fun baseName(extension: String): TemplateI<*>.(CompositeI<*>) -> Names = {
+        Names("${it.toPumlCdFileNameBase(elementType)}.$extension")
+    }
+}

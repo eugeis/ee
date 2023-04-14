@@ -18,7 +18,7 @@ import ee.lang.gen.common.LangCommonContextFactory
 import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
 import ee.lang.gen.go.itemNameAsGoFileName
 import ee.lang.gen.itemNameAsKotlinFileName
-import ee.lang.gen.puml.classdiagram.itemAndTemplateNameAsPumlFileName
+import ee.lang.gen.puml.classdiagram.pumlClassDiagram
 import ee.lang.gen.swagger.itemNameAsSwaggerFileName
 import ee.lang.gen.ts.*
 
@@ -618,7 +618,6 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
     open fun pumlClassDiagram(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
         val cdTemplates = buildCdTemplates()
         val cdContextFactory = buildCdContextFactory()
-        val cdContextBuilder = cdContextFactory.buildForImplOnly()
 
         val components: StructureUnitI<*>.() -> List<CompI<*>> = {
             if (this is CompI<*>) listOf(this) else findDownByType(CompI::class.java)
@@ -630,20 +629,14 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             listOf(GeneratorGroupItems("ClassDiagram", items = components, generators = moduleGenerators))
         )
 
-        moduleGenerators.addAll(
-            listOf(
-                GeneratorSimple(
-                    "ClassDiagram", contextBuilder = cdContextBuilder,
-                    template = FragmentsTemplate(name = "${fileNamePrefix}ClassDiagram",
-                        nameBuilder = itemAndTemplateNameAsPumlFileName, fragments = {
-                            listOf(
-                                ItemsFragment(items = components,
-                                    fragments = { listOf(cdTemplates.generateComponent()) }),
-                            )
-                        })
-                ),
-            )
-        )
+        val cdContextBuilder = cdContextFactory.buildForImplOnly("")
+        moduleGenerators.add(GeneratorItems("ClassDiagram",
+            contextBuilder = cdContextBuilder, items = components,
+
+            templates = {
+                listOf(
+                    cdTemplates.generateCdComponent(pumlClassDiagram.puml)
+                ) }))
 
         return GeneratorContexts(generator, cdContextBuilder)
     }
