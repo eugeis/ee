@@ -116,26 +116,6 @@ subprojects {
     task allDeps(type: DependencyReportTask) {}
 }
 
-project(':ee:tornadoFxBom') {
-    if (Jvm.current().toString().startsWith('11')) {
-        apply plugin: "org.openjfx.javafxplugin"
-
-        javafx {
-            modules = ['javafx.controls']
-        }
-    }
-
-    dependencies {
-
-        compile("no.tornado:tornadofx:$version_tornadofx") {
-            exclude module: "kotlin-stdlib-jre8"
-            exclude module: "kotlin-reflect"
-            exclude module: "kotlin-stdlib-jdk7"
-            exclude module: "kotlin-stdlib-jdk8"
-        }
-    }
-}
-
 project(':ee:ee-common_java') {
 }
 
@@ -324,7 +304,7 @@ project(':ee:ee-lang_fx') {
 
     dependencies {
         compile project(':ee:ee-design_task')
-        compile project(':ee:tornadoFxBom')
+        // compile project(':ee:tornadoFxBom')
     }
 
     jar {
