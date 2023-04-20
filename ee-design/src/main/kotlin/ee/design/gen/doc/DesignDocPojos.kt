@@ -21,6 +21,7 @@ ${this.modules().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { i
 ${stopUml(startStopUml)}"""
 }
 
+// TODO: REMOVE DUPLICATE IF GENERIC TYPE HAVE ALREADY APPEARED
 fun <T : ModuleI<*>> T.toPlantUmlClassDiagramRelation(c: GenerationContext): String {
     return """${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { it.toPlantUmlClassDiagramEntityRelation(c) }}${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { it.toPlantUmlClassDiagramBasicRelation(c) }}"""
 }
@@ -32,15 +33,19 @@ ${this.props().checkEntityToEntityRelation(c)}${this.props().checkEntityToOtherR
 }
 
 fun <T : ListMultiHolder<AttributeI<*>>> T.checkEntityToEntityRelation(c: GenerationContext): String {
-    return this.filter { it.type() is EntityI<*> }.joinSurroundIfNotEmptyToString("") { nL + it.toPlantUmlClassDiagramGenerateRelationToEntity(c) }
+    return this.filter { it.type() is EntityI<*> || (it.type().generics().filter { genericType -> genericType.type() is EntityI<*> }).isNotEmpty() }.distinct().joinSurroundIfNotEmptyToString("") { nL + it.toPlantUmlClassDiagramGenerateRelationToEntity(c) }
 }
 
 fun <T : ListMultiHolder<AttributeI<*>>> T.checkEntityToOtherRelation(c: GenerationContext): String {
-    return this.filter { it.type() is BasicI<*> || it.type() is EnumTypeI<*> || (it.type().name().contains("list", true) && !it.type().toTypeScriptGenericTypes(c, "", it).contains("date", true)) }.joinSurroundIfNotEmptyToString("") { nL + it.toPlantUmlClassDiagramGenerateRelation(c) }
+    return this.filter { it.type() is BasicI<*> || it.type() is EnumTypeI<*>
+            || (it.type().name().contains("list", true)
+            && (it.type().generics().filter { genericType -> genericType.type() is BasicI<*> || genericType.type() is EnumTypeI<*> }).isNotEmpty()) }.distinct().joinSurroundIfNotEmptyToString("") { nL + it.toPlantUmlClassDiagramGenerateRelation(c) }
 }
 
 fun <T : BasicI<*>> T.toPlantUmlClassDiagramBasicRelation(c: GenerationContext): String {
-    return this.props().filter { it.type() is BasicI<*> || it.type() is EnumTypeI<*> || it.type() is EntityI<*> || it.type().name().contains("list", true) }.joinSurroundIfNotEmptyToString(nL) { it.toPlantUmlClassDiagramGenerateRelation(c) }
+    return this.props().filter { it.type() is BasicI<*> || it.type() is EnumTypeI<*> || it.type() is EntityI<*>
+            || (it.type().name().contains("list", true)
+            && (it.type().generics().filter { genericType -> genericType.type() is BasicI<*> || genericType.type() is EnumTypeI<*> || genericType.type() is EntityI<*> }).isNotEmpty()) }.distinct().joinSurroundIfNotEmptyToString(nL) { it.toPlantUmlClassDiagramGenerateRelation(c) }
 }
 
 fun <T : ModuleI<*>> T.toPlantUmlClassDiagramModule(c: GenerationContext, componentName: String, componentPart: String, generateComponentPart: Boolean): String {

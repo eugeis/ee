@@ -635,12 +635,12 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
         val moduleGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
         val generator = GeneratorGroup(
-            "puml",
-            listOf(GeneratorGroupItems("ClassDiagram", items = components, generators = moduleGenerators))
+            "doc",
+            listOf(GeneratorGroupItems("doc", items = components, generators = moduleGenerators))
         )
 
         val docContextBuilder = docContextFactory.buildForImplOnly("")
-        moduleGenerators.add(GeneratorItems("ClassDiagram",
+        moduleGenerators.add(GeneratorItems("PlantUmlClassDiagram",
             contextBuilder = docContextBuilder, items = components,
 
             templates = {
