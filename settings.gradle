@@ -4,17 +4,3 @@ include 'ee-common_java', 'ee-common', 'ee-lang_item',
         'ee-asm',
         'ee-design_ui', 'ee-design_ui_des', 'ee-design_ui_des_asm',
         'ee-axon_example'
-
-plugins {
-    id("com.gradle.ee") version("1.0")
-}
-
-gradleEnterprise {
-    if (System.getenv("CI") != null) {
-        buildScan {
-            publishAlways()
-            termsOfServiceUrl = "https://gradle.com/terms-of-service"
-            termsOfServiceAgree = "yes"
-        }
-    }
-}
