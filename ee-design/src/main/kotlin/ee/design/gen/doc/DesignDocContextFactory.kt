@@ -1,38 +1,37 @@
 package ee.design.gen.doc
 
-import ee.design.ModuleI
-import ee.design.gen.DesignGeneratorFactory
-import ee.design.renameControllersAccordingParentType
+import ee.design.*
 import ee.lang.*
-import ee.lang.gen.kt.prepareForKotlinGeneration
-import org.slf4j.LoggerFactory
-import java.nio.file.Path
+import ee.lang.gen.doc.LangMarkdownContextFactory
+import ee.lang.gen.doc.MkContext
+import ee.lang.gen.doc.MkContextBuilder
+import ee.lang.gen.puml.classdiagram.LangCdContextFactory
 
-open class DesignDocGenerator(val model: StructureUnitI<*>, targetAsSingleModule: Boolean = false) {
-    private val log = LoggerFactory.getLogger(javaClass)
-    val generatorFactory = DesignGeneratorFactory(targetAsSingleModule)
+open class DesignDocContextFactory(targetAsSingleModule: Boolean = false): LangMarkdownContextFactory(targetAsSingleModule) {
+    override fun contextBuilder(
+        derived: DerivedController, buildNamespace: StructureUnitI<*>.()->String): MkContextBuilder<StructureUnitI<*>> {
 
-    init {
-        model.extendForKotlinGeneration()
-    }
-
-    fun generate(target: Path, generatorContexts: GeneratorContexts<StructureUnitI<*>> = generatorFactory.devDoc(),
-                 shallSkip: GeneratorI<*>.(model: Any?) -> Boolean = { false }) {
-        val generator = generatorContexts.generator
-        log.info("generate ${generator.names()} to $target for ${model.name()}")
-        val modules = model.findDownByType(ModuleI::class.java)
-        modules.forEach { module ->
-            generator.delete(target, module, shallSkip)
-        }
-        modules.forEach { module ->
-            generator.generate(target, module, shallSkip)
+        return MkContextBuilder(LangCdContextFactory.CONTEXT_CLASS_DIAGRAM, macroController){
+            val structureUnit = this
+            val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: structureUnit
+            MkContext(
+                alwaysImportTypes = targetAsSingleModule,
+                moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}_ng",
+                namespace = structureUnit.buildNamespace(), derivedController = derived,
+                macroController = macroController)
         }
     }
 
-    protected fun StructureUnitI<*>.extendForKotlinGeneration() {
-        prepareForKotlinGeneration()
-
-        //define names for data type controllers
-        renameControllersAccordingParentType()
+    override fun buildName(item: ItemI<*>, kind: String): String {
+        return if (item is CommandI<*>) {
+            buildNameForCommand(item, kind)
+        } else if (item is EventI<*>) {
+            buildNameForEvent(item, kind)
+        } else {
+            super.buildName(item, kind)
+        }
     }
+
+    protected open fun buildNameForCommand(item: CommandI<*>, kind: String) = item.dataTypeNameAndParentName().capitalize()
+    protected open fun buildNameForEvent(item: EventI<*>, kind: String) = item.dataTypeParentNameAndName().capitalize()
 }

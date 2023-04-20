@@ -10,15 +10,18 @@ import ee.design.gen.ts.DesignTsContextFactory
 import ee.design.gen.ts.DesignTsTemplates
 import ee.design.gen.angular.DesignAngularContextFactory
 import ee.design.gen.angular.DesignAngularTemplates
+import ee.design.gen.doc.DesignDocContextFactory
+import ee.design.gen.doc.DesignDocTemplates
 import ee.design.gen.puml.classdiagram.DesignCdContextFactory
 import ee.design.gen.puml.classdiagram.DesignCdTemplates
 import ee.lang.*
 import ee.lang.gen.LangGeneratorFactory
 import ee.lang.gen.common.LangCommonContextFactory
+import ee.lang.gen.doc.markdownClassDiagram
 import ee.lang.gen.go.itemAndTemplateNameAsGoFileName
 import ee.lang.gen.go.itemNameAsGoFileName
 import ee.lang.gen.itemNameAsKotlinFileName
-import ee.lang.gen.puml.classdiagram.pumlClassDiagram
+import ee.lang.gen.puml.classdiagram.plantUmlClassDiagram
 import ee.lang.gen.swagger.itemNameAsSwaggerFileName
 import ee.lang.gen.ts.*
 
@@ -35,6 +38,9 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
     override fun buildCdContextFactory() = DesignCdContextFactory(targetAsSingleModule)
     override fun buildCdTemplates() = DesignCdTemplates(itemNameAsTsFileName)
+
+    override fun buildDocContextFactory() = DesignDocContextFactory(targetAsSingleModule)
+    override fun buildDocTemplates() = DesignDocTemplates(itemNameAsTsFileName)
 
     fun buildAngularContextFactory() = DesignAngularContextFactory()
     fun buildAngularTemplates() = DesignAngularTemplates(itemNameAsTsFileName)
@@ -615,6 +621,36 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             entityComponentContextBuilder, basicsContextBuilder, enumsContextBuilder,)
     }
 
+    open fun docMarkDown(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
+        val docTemplates = buildDocTemplates()
+        val docContextFactory = buildDocContextFactory()
+
+        val components: StructureUnitI<*>.() -> List<CompI<*>> = {
+            if (this is CompI<*>) listOf(this) else findDownByType(CompI::class.java)
+        }
+
+        val compilationUnit: StructureUnitI<*>.() -> List<CompilationUnitI<*>> = {
+            if (this is CompilationUnitI<*>) listOf(this) else findDownByType(CompilationUnitI::class.java)
+        }
+
+        val moduleGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
+        val generator = GeneratorGroup(
+            "puml",
+            listOf(GeneratorGroupItems("ClassDiagram", items = components, generators = moduleGenerators))
+        )
+
+        val docContextBuilder = docContextFactory.buildForImplOnly("")
+        moduleGenerators.add(GeneratorItems("ClassDiagram",
+            contextBuilder = docContextBuilder, items = components,
+
+            templates = {
+                listOf(
+                    docTemplates.generatePlantUmlClassDiagramComponent(markdownClassDiagram.puml)
+                ) }))
+
+        return GeneratorContexts(generator, docContextBuilder)
+    }
+
     open fun pumlClassDiagram(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
         val cdTemplates = buildCdTemplates()
         val cdContextFactory = buildCdContextFactory()
@@ -635,7 +671,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
             templates = {
                 listOf(
-                    cdTemplates.generateCdComponent(pumlClassDiagram.puml)
+                    cdTemplates.generateCdComponent(plantUmlClassDiagram.puml)
                 ) }))
 
         return GeneratorContexts(generator, cdContextBuilder)
