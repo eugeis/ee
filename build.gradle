@@ -116,19 +116,19 @@ subprojects {
     task allDeps(type: DependencyReportTask) {}
 }
 
-project(':ee:ee-common_java') {
+project(':ee-common_java') {
 }
 
-project(':ee:ee-common') {
+project(':ee-common') {
     dependencies {
-        compile project(':ee:ee-common_java')
+        compile project(':ee-common_java')
         compile "org.slf4j:slf4j-api"
         compile "org.jetbrains.kotlin:kotlin-stdlib"
         compile "org.jetbrains.kotlinx:kotlinx-coroutines-core"
     }
 }
 
-project(':ee:ee-asm') {
+project(':ee-asm') {
     if (Jvm.current().toString().startsWith('11')) {
         apply plugin: "org.openjfx.javafxplugin"
 
@@ -138,14 +138,14 @@ project(':ee:ee-asm') {
     }
 
     dependencies {
-        compile project(':ee:ee-common')
+        compile project(':ee-common')
         compile "org.ow2.asm:asm:${version_asm}"
         compile "org.ow2.asm:asm-tree:${version_asm}"
     }
 }
 
 /*
-project(':ee:ee-axon_example') {
+project(':ee-axon_example') {
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
@@ -162,9 +162,9 @@ project(':ee:ee-axon_example') {
 }
 */
 
-project(':ee:ee-lang_item') {
+project(':ee-lang_item') {
     dependencies {
-        compile project(':ee:ee-common')
+        compile project(':ee-common')
         compile("com.fasterxml.jackson.module:jackson-module-kotlin") {
             exclude module: "kotlin-reflect"
         }
@@ -172,32 +172,32 @@ project(':ee:ee-lang_item') {
     }
 }
 
-project(':ee:ee-design') {
+project(':ee-design') {
     dependencies {
-        compile project(':ee:ee-lang')
+        compile project(':ee-lang')
     }
 }
 
-project(':ee:ee-design_gen') {
+project(':ee-design_gen') {
     dependencies {
-        compile project(':ee:ee-lang')
+        compile project(':ee-lang')
     }
 }
 
-project(':ee:ee-design_ui') {
+project(':ee-design_ui') {
     dependencies {
-        compile project(':ee:ee-design')
+        compile project(':ee-design')
     }
 }
 
-project(':ee:ee-design_ui_des') {
+project(':ee-design_ui_des') {
     dependencies {
-        compile project(':ee:ee-design')
-        compile project(':ee:ee-asm')
+        compile project(':ee-design')
+        compile project(':ee-asm')
     }
 }
 
-project(':ee:ee-design_ui_des_asm') {
+project(':ee-design_ui_des_asm') {
     if (Jvm.current().toString().startsWith('11')) {
         apply plugin: "org.openjfx.javafxplugin"
 
@@ -207,8 +207,8 @@ project(':ee:ee-design_ui_des_asm') {
     }
 
     dependencies {
-        compile project(':ee:ee-design')
-        compile project(':ee:ee-asm')
+        compile project(':ee-design')
+        compile project(':ee-asm')
     }
 
     sourceSets {
@@ -220,77 +220,77 @@ project(':ee:ee-design_ui_des_asm') {
     }
 }
 
-project(':ee:ee-design_swagger') {
+project(':ee-design_swagger') {
     dependencies {
-        compile project(':ee:ee-design')
+        compile project(':ee-design')
         compile "io.swagger:swagger-parser:${version_swagger}"
     }
 }
 
-project(':ee:ee-design_json') {
+project(':ee-design_json') {
     dependencies {
-        compile project(':ee:ee-design')
+        compile project(':ee-design')
 
         compile "com.worldturner.medeia:medeia-validator-jackson:${version_json_schema_medeia}"
         compile "com.github.everit-org.json-schema:org.everit.json.schema:1.12.1"
     }
 }
 
-project(':ee:ee-design_xsd') {
+project(':ee-design_xsd') {
     dependencies {
-        compile project(':ee:ee-design')
+        compile project(':ee-design')
         compile "com.sun.xsom:xsom:${version_xsom}"
     }
 }
 
-project(':ee:ee-lang') {
+project(':ee-lang') {
     dependencies {
-        compile project(':ee:ee-lang_item')
+        compile project(':ee-lang_item')
         compile("com.fasterxml.jackson.module:jackson-module-kotlin") {
             exclude module: "kotlin-reflect"
         }
     }
 }
 
-project(':ee:ee-lang_gen') {
+project(':ee-lang_gen') {
     dependencies {
-        compile project(':ee:ee-lang_item')
+        compile project(':ee-lang_item')
     }
 }
 
-project(':ee:ee-task') {
+project(':ee-task') {
     dependencies {
-        compile project(':ee:ee-lang')
+        compile project(':ee-lang')
     }
 }
 
-project(':ee:ee-task_des') {
+project(':ee-task_des') {
     dependencies {
-        compile project(':ee:ee-design')
+        compile project(':ee-design')
     }
 }
 
-project(':ee:ee-system_des') {
+project(':ee-system_des') {
     dependencies {
-        compile project(':ee:ee-task_des')
+        compile project(':ee-task_des')
         compile "org.jetbrains.kotlin:kotlin-reflect"
     }
 }
 
-project(':ee:ee-system') {
+project(':ee-system') {
     dependencies {
-        compile project(':ee:ee-task')
+        compile project(':ee-task')
     }
 }
 
-project(':ee:ee-design_task') {
+project(':ee-design_task') {
     dependencies {
-        compile project(':ee:ee-design')
-        compile project(':ee:ee-system')
+        compile project(':ee-design')
+        compile project(':ee-system')
     }
 }
 
-project(':ee:ee-lang_fx') {
+project(':ee-lang_fx') {
     apply plugin: 'application'
     if (Jvm.current().toString().startsWith('11')) {
         apply plugin: "org.openjfx.javafxplugin"
@@ -303,8 +303,8 @@ project(':ee:ee-lang_fx') {
     mainClassName = 'ee.lang.fx.ModelApp'
 
     dependencies {
-        compile project(':ee:ee-design_task')
-        // compile project(':ee:tornadoFxBom')
+        compile project(':ee-design_task')
+        // compile project(':tornadoFxBom')
     }
 
     jar {

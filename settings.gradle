@@ -1,6 +1,8 @@
 include 'ee-common_java', 'ee-common', 'ee-lang_item',
-        'ee-lang_gen', 'ee-lang',
+        'ee-lang_fx', 'ee-lang_gen', 'ee-lang',
         'ee-design', 'ee-design_task', 'ee-design_json', 'ee-design_swagger', 'ee-design_gen',
         'ee-asm',
-        'ee-design_ui', 'ee-design_ui_des', 'ee-design_ui_des_asm',
+        'ee-design_ui', 'ee-design_ui_des', 'ee-design_ui_des_asm', 'ee-design_xsd',
+        'ee-system', 'ee-system_des',
+        'ee-task', 'ee-task_des'
         'ee-axon_example'
