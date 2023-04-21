@@ -47,10 +47,8 @@ subprojects {
     }
 
     sourceSets {
-        named("main") {
-            kotlin {
-                srcDirs = ['src/main/kotlin', 'src-gen/main/kotlin']
-            }
+        main {
+            kotlin.srcDirs = ['src/main/kotlin', 'src-gen/main/kotlin']
         }
     }
 
@@ -128,40 +126,6 @@ project(':ee-common') {
     }
 }
 
-project(':ee-asm') {
-    if (Jvm.current().toString().startsWith('11')) {
-        apply plugin: "org.openjfx.javafxplugin"
-
-        javafx {
-            modules = ['javafx.controls']
-        }
-    }
-
-    dependencies {
-        compile project(':ee-common')
-        compile "org.ow2.asm:asm:${version_asm}"
-        compile "org.ow2.asm:asm-tree:${version_asm}"
-    }
-}
-
-/*
-project(':ee-axon_example') {
-    apply plugin: 'org.springframework.boot'
-    apply plugin: 'io.spring.dependency-management'
-
-    dependencies {
-        compile('org.springframework.boot:spring-boot-starter-data-jpa')
-        compile('org.springframework.boot:spring-boot-starter-jersey')
-        compile('org.springframework.boot:spring-boot-starter-web')
-        runtime('org.hsqldb:hsqldb')
-        compileOnly('org.projectlombok:lombok')
-        testCompile('org.springframework.boot:spring-boot-starter-test')
-        compile("org.axonframework:axon-spring:${version_axon}")
-        testCompile("org.axonframework:axon-test:${version_axon}")
-    }
-}
-*/
-
 project(':ee-lang_item') {
     dependencies {
         compile project(':ee-common')
@@ -181,42 +145,6 @@ project(':ee-design') {
 project(':ee-design_gen') {
     dependencies {
         compile project(':ee-lang')
-    }
-}
-
-project(':ee-design_ui') {
-    dependencies {
-        compile project(':ee-design')
-    }
-}
-
-project(':ee-design_ui_des') {
-    dependencies {
-        compile project(':ee-design')
-        compile project(':ee-asm')
-    }
-}
-
-project(':ee-design_ui_des_asm') {
-    if (Jvm.current().toString().startsWith('11')) {
-        apply plugin: "org.openjfx.javafxplugin"
-
-        javafx {
-            modules = ['javafx.controls']
-        }
-    }
-
-    dependencies {
-        compile project(':ee-design')
-        compile project(':ee-asm')
-    }
-
-    sourceSets {
-        named("main") {
-            kotlin {
-                srcDirs = ['src/main/kotlin']
-            }
-        }
     }
 }
 
@@ -255,65 +183,5 @@ project(':ee-lang') {
 project(':ee-lang_gen') {
     dependencies {
         compile project(':ee-lang_item')
-    }
-}
-
-project(':ee-task') {
-    dependencies {
-        compile project(':ee-lang')
-    }
-}
-
-project(':ee-task_des') {
-    dependencies {
-        compile project(':ee-design')
-    }
-}
-
-project(':ee-system_des') {
-    dependencies {
-        compile project(':ee-task_des')
-        compile "org.jetbrains.kotlin:kotlin-reflect"
-    }
-}
-
-project(':ee-system') {
-    dependencies {
-        compile project(':ee-task')
-    }
-}
-
-project(':ee-design_task') {
-    dependencies {
-        compile project(':ee-design')
-        compile project(':ee-system')
-    }
-}
-
-project(':ee-lang_fx') {
-    apply plugin: 'application'
-    if (Jvm.current().toString().startsWith('11')) {
-        apply plugin: "org.openjfx.javafxplugin"
-
-        javafx {
-            modules = ['javafx.controls']
-        }
-    }
-
-    mainClassName = 'ee.lang.fx.ModelApp'
-
-    dependencies {
-        compile project(':ee-design_task')
-        // compile project(':tornadoFxBom')
-    }
-
-    jar {
-        manifest {
-            attributes(
-                    'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-                    'Main-Class': 'ee.lang.fx.ModelApp'
-            )
-        }
-        from configurations.compile.collect { entry -> zipTree(entry) }
     }
 }
