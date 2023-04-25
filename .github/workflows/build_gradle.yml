@@ -10,7 +10,7 @@ jobs:
     - name: Checkout Project Sources
       uses: actions/checkout@v2
     - name: Set up Kotlin
-      uses: actions/setup-kotlin@v1
+      uses: fwilhe2/setup-kotlin@main
       with:
         kotlin-version: '1.7.20'
     - name: Setup Gradle
