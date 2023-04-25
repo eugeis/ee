@@ -1,4 +1,4 @@
-name: Build Gradle project
+name: Build & Publish Gradle Project
 
 on:
   push:
@@ -7,9 +7,17 @@ jobs:
   build-gradle-project:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout project sources
+    - name: Checkout Project Sources
       uses: actions/checkout@v2
+    - name: Set up Kotlin
+      uses: actions/setup-kotlin@v1
+      with:
+        kotlin-version: '1.7.20'
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
-    - name: Run build with Gradle Wrapper
+    - name: Build Gradle
       run: ./gradlew build
+    - name: Publish Gradle
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: ./gradlew publish
