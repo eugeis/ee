@@ -4,7 +4,7 @@ on:
   push:
 
 env:
-  APP_VERSION: ${{ gradle.properties.eeVersion }}
+  APP_VERSION: ${{ env.GRADLE_PROPERTIES.eeVersion }}
 
 jobs:
   build-gradle-project:
