@@ -22,7 +22,8 @@ jobs:
       run: ./gradlew build --refresh-dependencies
     - name: Delete Existing Package
       uses: curl-actions/delete@v1
-      run: -X DELETE -u ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} "https://maven.pkg.github.com/eugeis/ee"
+      with:
+        args: -X DELETE -u ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} "https://maven.pkg.github.com/eugeis/ee"
     - name: Publish Gradle
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
