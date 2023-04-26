@@ -94,7 +94,7 @@ subprojects {
         }
     }
 
-    task register("deleteBeforePublish") {
+    task.register("deleteBeforePublish") {
         dependsOn("publish")
         doLast {
             exec {
