@@ -1,0 +1,10 @@
+ee:ee-common:1.4.2
+ee:ee-common_java:1.4.2
+ee:ee-design:1.4.2
+ee:ee-design_gen:1.4.2
+ee:ee-design_json:1.4.2
+ee:ee-design_swagger:1.4.2
+ee:ee-design_xsd:1.4.2
+ee:ee-lang:1.4.2
+ee:ee-lang_gen:1.4.2
+ee:ee-lang_item:1.4.2

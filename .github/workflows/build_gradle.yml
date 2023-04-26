@@ -20,8 +20,19 @@ jobs:
       uses: gradle/gradle-build-action@v2
     - name: Build Gradle
       run: ./gradlew build --refresh-dependencies
+    - name: Read packages.txt file
+      run: |
+        echo "PACKAGE_LIST=$(cat packages.txt)" >> $GITHUB_ENV
     - name: Delete Existing Package
-      run: curl -X DELETE -u ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} "https://maven.pkg.github.com/eugeis/ee"
+      if: success()
+      run: |
+        for PACKAGE in $PACKAGE_LIST; do
+          PACKAGE_NAME="$(echo $PACKAGE | cut -d':' -f1)"
+          PACKAGE_VERSION="$(echo $PACKAGE | cut -d':' -f2)"
+          curl -X DELETE \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://maven.pkg.github.com/eugeis/ee/${PACKAGE_NAME}/${PACKAGE_VERSION}"
+        done
     - name: Publish Gradle
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
