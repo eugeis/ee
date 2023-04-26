@@ -12,8 +12,6 @@ jobs:
     steps:
     - name: Checkout Project Sources
       uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
     - name: Set up Kotlin
       uses: fwilhe2/setup-kotlin@main
       with:
@@ -22,18 +20,27 @@ jobs:
       uses: gradle/gradle-build-action@v2
     #- name: Build Gradle
     #  run: ./gradlew build --refresh-dependencies
-    - name: Read packages.txt file
-      run: |
-        echo "PACKAGE_LIST=$(cat packages.txt)" >> $GITHUB_ENV
     - name: Delete Existing Package
       if: success()
       run: |
+        PACKAGE_LIST=(
+          "ee-common:1.4.2"
+          "ee-common_java:1.4.2"
+          "ee-design:1.4.2"
+          "ee-design_gen:1.4.2"
+          "ee-design_json:1.4.2"
+          "ee-design_swagger:1.4.2"
+          "ee-design_xsd:1.4.2"
+          "ee-lang:1.4.2"
+          "ee-lang_gen:1.4.2"
+          "ee-lang_item:1.4.2"
+        )
         for PACKAGE in $PACKAGE_LIST; do
           PACKAGE_NAME="$(echo $PACKAGE | cut -d':' -f1)"
           PACKAGE_VERSION="$(echo $PACKAGE | cut -d':' -f2)"
           curl -X DELETE \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://maven.pkg.github.com/eugeis/ee/${PACKAGE_NAME}/${PACKAGE_VERSION}"
+            "https://maven.pkg.github.com/eugeis/ee/ee/${PACKAGE_NAME}/${PACKAGE_VERSION}"
         done
     - name: Publish Gradle
       env:
