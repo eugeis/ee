@@ -20,8 +20,8 @@ jobs:
       uses: gradle/gradle-build-action@v2
     #- name: Build Gradle
     #  run: ./gradlew build --refresh-dependencies
-    - name: Delete Existing Package
-      uses: actions/delete-package-versions@v4
+    - name: Delete Package Versions
+      uses: actions/delete-package-versions@v4.1.1
       with:
         owner: ${{ github.repository_owner }}
         package-name: 'ee'
