@@ -18,9 +18,9 @@ jobs:
         kotlin-version: '1.7.20'
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
-    - name: Build Gradle
-      run: ./gradlew build --refresh-dependencies
+    # - name: Build Gradle
+    #  run: ./gradlew build --refresh-dependencies
     - name: Publish Gradle
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: ./gradlew publish --no-build-cache
+      run: ./gradlew publish --allow-overwrite
