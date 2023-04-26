@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout Project Sources
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Set up Kotlin
       uses: fwilhe2/setup-kotlin@main
       with:
@@ -22,7 +24,7 @@ jobs:
     #  run: ./gradlew build --refresh-dependencies
     - name: Read packages.txt file
       run: |
-        echo "PACKAGE_LIST=$(cat ./packages.txt)" >> $GITHUB_ENV
+        echo "PACKAGE_LIST=$(cat packages.txt)" >> $GITHUB_ENV
     - name: Delete Existing Package
       if: success()
       run: |
