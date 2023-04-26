@@ -18,11 +18,11 @@ jobs:
         kotlin-version: '1.7.20'
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
-    - name: Build Gradle
-      run: ./gradlew build --refresh-dependencies
+    #- name: Build Gradle
+    #  run: ./gradlew build --refresh-dependencies
     - name: Read packages.txt file
       run: |
-        echo "PACKAGE_LIST=$(cat packages.txt)" >> $GITHUB_ENV
+        echo "PACKAGE_LIST=$(cat ./packages.txt)" >> $GITHUB_ENV
     - name: Delete Existing Package
       if: success()
       run: |
