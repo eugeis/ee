@@ -18,16 +18,9 @@ jobs:
         kotlin-version: '1.7.20'
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
-    #- name: Build Gradle
-    #  run: ./gradlew build --refresh-dependencies
-    - name: Delete Package Versions
-      uses: actions/delete-package-versions@v4.1.1
-      with:
-        owner: ${{ github.repository_owner }}
-        package-name: 'ee'
-        package-type: 'maven'
-        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build Gradle
+      run: ./gradlew build --refresh-dependencies
     - name: Publish Gradle
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: ./gradlew publish
+      run: ./gradlew publish --no-build-cache
