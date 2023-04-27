@@ -79,8 +79,8 @@ subprojects {
                 name = "EEPackage"
                 url = uri("https://maven.pkg.github.com/eugeis/ee")
                 credentials {
-                    username = System.getenv("GITHUB_ACTOR")
-                    password = System.getenv("GITHUB_TOKEN")
+                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                    password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
                 }
             }
         }
@@ -90,25 +90,6 @@ subprojects {
                 from components.java
 
                 artifact sourcesJar
-            }
-        }
-    }
-
-    task.register("deleteBeforePublish") {
-        dependsOn("publish")
-        doLast {
-            exec {
-                commandLine "curl",
-                    "-X", "DELETE",
-                    "-H", "Authorization: token ${System.getenv("GITHUB_TOKEN")}",
-                    "https://api.github.com/packages/${project.group}/${project.name}/${project.version}"
-            }
-            exec {
-                commandLine "gradle",
-                    "publish",
-                    "--no-daemon",
-                    "--no-parallel",
-                    "--allow-untrusted"
             }
         }
     }
