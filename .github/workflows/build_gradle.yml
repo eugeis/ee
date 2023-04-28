@@ -15,7 +15,7 @@ jobs:
     - name: Set up Kotlin
       uses: fwilhe2/setup-kotlin@main
       with:
-        kotlin-version: '1.7.20'
+        kotlin-version: '1.8.21'
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
     - name: Build Gradle
