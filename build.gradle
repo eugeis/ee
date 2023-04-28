@@ -1,25 +1,15 @@
-import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.internal.jvm.Jvm
-
 buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        maven { url 'https://repo.spring.io/snapshot' }
-        maven { url 'https://repo.spring.io/milestone' }
-        //maven { url 'http://dl.bintray.com/kotlin/kotlin-eap' }
-        //maven { url 'http://dl.bintray.com/kotlin/kotlin-dev' }
         maven { url "https://plugins.gradle.org/m2/" }
     }
 
     dependencies {
         classpath(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
         classpath(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$kotlinCoroutinesVersion"))
-        classpath(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
-        classpath "org.openjfx:javafx-plugin:0.0.9"
     }
 }
 
@@ -30,22 +20,7 @@ allprojects {
 
 subprojects {
     apply plugin: "org.jetbrains.kotlin.jvm"
-    apply plugin: 'maven'
     apply plugin: 'maven-publish'
-
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-
-    compileKotlin {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-
-        kotlinOptions {
-            jvmTarget = "1.8"
-            apiVersion = "1.4"
-            languageVersion = "1.4"
-        }
-    }
 
     sourceSets {
         main {
@@ -55,17 +30,12 @@ subprojects {
 
     repositories {
         mavenLocal()
-        maven { url "https://repo.spring.io/snapshot" }
-        maven { url "https://repo.spring.io/milestone" }
-        //maven { url 'http://dl.bintray.com/kotlin/kotlin-eap' }
-        //maven { url 'http://dl.bintray.com/kotlin/kotlin-dev' }
-        jcenter()
         mavenCentral()
         maven { url "https://jitpack.io" }
     }
 
     task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
+        archiveClassifier = 'sources'
         from sourceSets.main.allSource
     }
 
@@ -100,20 +70,16 @@ subprojects {
     }
 
     dependencies {
-        //implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
         implementation(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$kotlinCoroutinesVersion"))
         implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
-        //implementation(platform("org.springframework:spring-framework-bom:$springVersion"))
 
-        //implementation(platform("io.ktor:ktor-bom:$versionKtor"))
+        testImplementation "org.hamcrest:hamcrest-library"
+        testImplementation "org.junit.jupiter:junit-jupiter-api"
 
-        testCompile "org.hamcrest:hamcrest-library"
-        testCompile "org.junit.jupiter:junit-jupiter-api"
+        runtimeOnly "org.junit.jupiter:junit-jupiter-engine"
+        runtimeOnly "org.junit.platform:junit-platform-launcher"
 
-        runtime "org.junit.jupiter:junit-jupiter-engine"
-        runtime "org.junit.platform:junit-platform-launcher"
-
-        runtime "ch.qos.logback:logback-classic"
+        runtimeOnly "ch.qos.logback:logback-classic"
     }
 
     task allDeps(type: DependencyReportTask) {}
@@ -124,62 +90,62 @@ project(':ee-common_java') {
 
 project(':ee-common') {
     dependencies {
-        compile project(':ee-common_java')
-        compile "org.slf4j:slf4j-api"
-        compile "org.jetbrains.kotlin:kotlin-stdlib"
-        compile "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+        api project(':ee-common_java')
+        api "org.slf4j:slf4j-api"
+        api "org.jetbrains.kotlin:kotlin-stdlib"
+        api "org.jetbrains.kotlinx:kotlinx-coroutines-core"
     }
 }
 
 project(':ee-lang_item') {
     dependencies {
-        compile project(':ee-common')
-        compile("com.fasterxml.jackson.module:jackson-module-kotlin") {
+        api project(':ee-common')
+        implementation("com.fasterxml.jackson.module:jackson-module-kotlin") {
             exclude module: "kotlin-reflect"
         }
-        compile "org.jetbrains.kotlin:kotlin-reflect"
+        implementation "org.jetbrains.kotlin:kotlin-reflect"
     }
 }
 
 project(':ee-design') {
     dependencies {
-        compile project(':ee-lang')
+        api project(':ee-lang')
     }
 }
 
 project(':ee-design_gen') {
     dependencies {
-        compile project(':ee-lang')
+        api project(':ee-lang')
     }
 }
 
 project(':ee-design_swagger') {
     dependencies {
-        compile project(':ee-design')
-        compile "io.swagger:swagger-parser:${version_swagger}"
+        api project(':ee-design')
+        implementation "io.swagger:swagger-parser:${version_swagger}"
     }
 }
 
 project(':ee-design_json') {
     dependencies {
-        compile project(':ee-design')
+        api project(':ee-design')
 
-        compile "com.worldturner.medeia:medeia-validator-jackson:${version_json_schema_medeia}"
-        compile "com.github.everit-org.json-schema:org.everit.json.schema:1.12.1"
+        implementation "com.worldturner.medeia:medeia-validator-jackson:${version_json_schema_medeia}"
+        implementation "com.github.everit-org.json-schema:org.everit.json.schema:1.12.1"
     }
 }
 
 project(':ee-design_xsd') {
     dependencies {
-        compile project(':ee-design')
-        compile "com.sun.xsom:xsom:${version_xsom}"
+        api project(':ee-design')
+        implementation "com.sun.xsom:xsom:${version_xsom}"
     }
 }
 
 project(':ee-lang') {
     dependencies {
-        compile project(':ee-lang_item')
-        compile("com.fasterxml.jackson.module:jackson-module-kotlin") {
+        api project(':ee-lang_item')
+        implementation("com.fasterxml.jackson.module:jackson-module-kotlin") {
             exclude module: "kotlin-reflect"
         }
     }
@@ -187,6 +153,6 @@ project(':ee-lang') {
 
 project(':ee-lang_gen') {
     dependencies {
-        compile project(':ee-lang_item')
+        api project(':ee-lang_item')
     }
 }
