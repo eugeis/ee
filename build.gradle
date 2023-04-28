@@ -1,3 +1,4 @@
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.internal.jvm.Jvm
 
 buildscript {
@@ -90,6 +91,10 @@ subprojects {
                 from components.java
 
                 artifact sourcesJar
+            }
+
+            gpr(MavenPublication) {
+                from components.java
             }
         }
     }
