@@ -1,3 +1,4 @@
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.internal.jvm.Jvm
 
 buildscript {
@@ -79,8 +80,8 @@ subprojects {
                 name = "EEPackage"
                 url = uri("https://maven.pkg.github.com/eugeis/ee")
                 credentials {
-                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-                    password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
                 }
             }
         }
@@ -90,6 +91,10 @@ subprojects {
                 from components.java
 
                 artifact sourcesJar
+            }
+
+            gpr(MavenPublication) {
+                from components.java
             }
         }
     }
