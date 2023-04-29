@@ -3,7 +3,7 @@ package ee.lang.gen.doc
 import ee.common.ext.*
 import ee.lang.*
 
-open class MkContext (
+open class DocContext (
     var alwaysImportTypes: Boolean = false,
     namespace: String = "",
     moduleFolder: String = "",
