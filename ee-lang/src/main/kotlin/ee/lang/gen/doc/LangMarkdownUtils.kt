@@ -7,7 +7,7 @@ open class MkContext (
     var alwaysImportTypes: Boolean = false,
     namespace: String = "",
     moduleFolder: String = "",
-    genFolder: String = "src/main/doc",
+    genFolder: String = "doc",
     genFolderDeletable: Boolean = false,
     genFolderPatternDeletable: Regex? = ".*Base.mk".toRegex(),
     derivedController: DerivedController,

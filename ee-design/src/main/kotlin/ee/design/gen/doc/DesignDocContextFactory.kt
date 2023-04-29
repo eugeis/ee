@@ -16,7 +16,7 @@ open class DesignDocContextFactory(targetAsSingleModule: Boolean = false): LangM
             val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: structureUnit
             MkContext(
                 alwaysImportTypes = targetAsSingleModule,
-                moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}_ng",
+                moduleFolder = compOrStructureUnit.artifact(),
                 namespace = structureUnit.buildNamespace(), derivedController = derived,
                 macroController = macroController)
         }
