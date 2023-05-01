@@ -28,9 +28,9 @@ open class DesignGoGenerator(val models: List<StructureUnitI<*>>, targetAsSingle
         }
     }
 
-    fun StructureUnitI<*>.generate(
-            target: Path, generatorContexts: GeneratorContexts<StructureUnitI<*>> = generatorFactory.go(),
-            shallSkip: GeneratorI<*>.(model: Any?) -> Boolean = { false }) {
+    protected fun StructureUnitI<*>.generate(
+            target: Path, generatorContexts: GeneratorContexts<StructureUnitI<*>> ,
+            shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
 
         val model = this
         val generator = generatorContexts.generator
