@@ -48,7 +48,7 @@ fun <T : OperationI<*>> T.toGoFindByBody(
     }"""
         }, {
             """
-    err = ${c.n(g.gee.eh.QueryNotImplemented, api)}("${dataTypeNameAndParentName()}")"""
+    err = ${c.n(g.gee.ehu.QueryNotImplemented, api)}("${dataTypeNameAndParentName()}")"""
         })
     })
 }
@@ -72,7 +72,7 @@ fun <T : OperationI<*>> T.toGoExistByBody(
     }"""
         }, {
             """
-    err = ${c.n(g.gee.eh.QueryNotImplemented, api)}("${dataTypeNameAndParentName()}")"""
+    err = ${c.n(g.gee.ehu.QueryNotImplemented, api)}("${dataTypeNameAndParentName()}")"""
         })
     })
 }
@@ -97,7 +97,7 @@ fun <T : OperationI<*>> T.toGoCountByBody(
     }"""
         }, {
             """
-    err = ${c.n(g.gee.eh.QueryNotImplemented, api)}("${dataTypeNameAndParentName()}")"""
+    err = ${c.n(g.gee.ehu.QueryNotImplemented, api)}("${dataTypeNameAndParentName()}")"""
         })
     })
 }
@@ -266,7 +266,7 @@ fun <T : OperationI<*>> T.toGoEventHandlerSetupBody(
                 }"""
             } else {
                 """
-        err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(event, api)}${DesignDerivedType.Event})"""
+        err = ${c.n(g.gee.ehu.EventHandlerNotImplemented, api)}(${c.n(event, api)}${DesignDerivedType.Event})"""
             }
         }
         return
@@ -302,7 +302,7 @@ fun <T : ConstructorI<*>> T.toGoAggregateEngineBody(
     entityFactory := func() ${c.n(g.eh.Entity)} { return ${
         entity.primaryOrFirstConstructorOrFull().toGoCall(c, derived, api)
     } }
-    aggregateEngine := ${c.n(g.gee.eh.AggregateEngine.NewAggregateEngine)}(middleware, $aggregateType,
+    aggregateEngine := ${c.n(g.gee.ehu.AggregateEngine.NewAggregateEngine)}(middleware, $aggregateType,
         func(id ${c.n(g.google.uuid.UUID)}) ${c.n(g.eh.Aggregate)} {
             return &$entityNameAggregate{
                 AggregateBase:             ${c.n(g.eh.NewAggregateBase)}($aggregateType, id),
@@ -471,7 +471,7 @@ fun <T : OperationI<*>> T.toGoAggregateEngineRegisterCommands(
 
     val entity = findParentMust(EntityI::class.java)
     //TODO find a way to get correct name for xxxAggregateType
-    return """${c.n(g.gee.eh.AggregateEngine.RegisterForAllEvents)}(handler, ${c.n(entity, api)} AggregateType, ${
+    return """${c.n(g.gee.ehu.AggregateEngine.RegisterForAllEvents)}(handler, ${c.n(entity, api)} AggregateType, ${
         entity.name()
     } CommandTypes().Literals())"""
 }

@@ -24,7 +24,7 @@ fun StructureUnitI<*>.addEsArtifacts() {
 
             val esEngine = controller {
                 name(DesignDerivedType.EsEngine).derivedAsType(DesignDerivedType.Aggregate)
-                val middleware = prop { name("middleware").type(g.gee.eh.Middleware).anonymous() }
+                val middleware = prop { name("middleware").type(g.gee.ehu.Middleware).anonymous() }
 
                 val aggregateInitializerProps = aggregateInitializers.map { (entityName, item) ->
                     prop {
@@ -263,7 +263,7 @@ private fun EntityI<*>.addEsArtifacts(
     val aggrInitializer = controller {
         name(DesignDerivedType.AggregateEngine).derivedAsType(DesignDerivedType.Aggregate)
         prop {
-            type(g.gee.eh.AggregateEngine)
+            type(g.gee.ehu.AggregateEngine)
                 .anonymous(true).name("aggregateInitializer")
         }
 
@@ -284,7 +284,7 @@ private fun EntityI<*>.addEsArtifacts(
 
         constr {
             params(
-                p { type(g.gee.eh.Middleware).name("middleware") }
+                p { type(g.gee.ehu.Middleware).name("middleware") }
             )
             macrosBody(ConstructorI<*>::toGoAggregateEngineBody.name)
         }
@@ -368,7 +368,7 @@ private fun StateMachineI<*>.addStateMachineArtifacts(
             name("Execute")
             p("cmd", g.eh.Command)
             p(entityParamName, entity)
-            p("store", g.gee.eh.AggregateStoreEvent)
+            p("store", g.gee.ehu.AggregateStoreEvent)
         }
     }
 
@@ -443,7 +443,7 @@ private fun StateMachineI<*>.addStateMachineArtifacts(
                         type(lambda {
                             p(command.name(), command)
                             p(entityParamName, entity)
-                            p("store", g.gee.eh.AggregateStoreEvent)
+                            p("store", g.gee.ehu.AggregateStoreEvent)
 
                         }).name("${command.name()}${DesignDerivedType.Handler}")
                     }
@@ -470,7 +470,7 @@ private fun StateMachineI<*>.addStateMachineArtifacts(
                     name("Execute")
                     p("cmd", g.eh.Command)
                     p(entityParamName, entity)
-                    p("store", g.gee.eh.AggregateStoreEvent)
+                    p("store", g.gee.ehu.AggregateStoreEvent)
 
                     macrosBody(OperationI<*>::toGoStateCommandHandlerExecuteBody.name)
                 }
@@ -563,7 +563,7 @@ private fun StateMachineI<*>.addStateMachineArtifacts(
             name("Execute")
             p("cmd", g.eh.Command)
             p(entityParamName, entity)
-            p("store", g.gee.eh.AggregateStoreEvent)
+            p("store", g.gee.ehu.AggregateStoreEvent)
 
             macrosBody(OperationI<*>::toGoStatesCommandHandlerExecute.name)
         }
@@ -670,7 +670,7 @@ private fun EntityI<*>.addHttpQueryHandler(queryRepository: BusinessControllerI<
     return controller {
         name(DesignDerivedType.HttpQueryHandler).derivedAsType(DesignDerivedType.Http)
         prop {
-            type(g.gee.eh.HttpQueryHandler)
+            type(g.gee.ehu.HttpQueryHandler)
                 .anonymous(true).name(DesignDerivedType.HttpQueryHandler.decapitalize())
         }
         prop { type(queryRepository).name("queryRepository") }
@@ -720,7 +720,7 @@ private fun EntityI<*>.addHttpCommandHandler(): BusinessControllerI<*> {
     return controller {
         name(DesignDerivedType.HttpCommandHandler).derivedAsType(DesignDerivedType.Http)
         prop {
-            type(g.gee.eh.HttpCommandHandler)
+            type(g.gee.ehu.HttpCommandHandler)
                 .anonymous(true).name(DesignDerivedType.HttpCommandHandler.decapitalize())
         }
 

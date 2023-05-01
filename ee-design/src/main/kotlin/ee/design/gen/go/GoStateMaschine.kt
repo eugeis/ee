@@ -20,7 +20,7 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerSetupBody(
         """
     o.$handler = func(command ${command.toGo(c, api)}, entity ${
             entity.toGo(c, api)
-        }, store ${g.gee.eh.AggregateStoreEvent.toGo(c, api)}) (err error) {${
+        }, store ${g.gee.ehu.AggregateStoreEvent.toGo(c, api)}) (err error) {${
             if (command is CreateByI<*> && command.event().isNotEMPTY()) {
                 """${command.toGoCheckInitValuesId(c)}
         ${command.toGoStoreEvent(c, derived, api)}"""
@@ -35,7 +35,7 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerSetupBody(
         if command.${command.type().propIdNameParentCap()} == uuid.Nil {
             err = ${
                     c.n(
-                        g.gee.eh.EntityChildIdNotDefined,
+                        g.gee.ehu.EntityChildIdNotDefined,
                         api
                     )
                 }(command.AggregateID(), command.AggregateType(), "${command.child().name()}")
@@ -48,7 +48,7 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerSetupBody(
         ${command.toGoStoreEvent(c, derived, api)}"""
             } else {
                 """
-        err = ${c.n(g.gee.eh.CommandHandlerNotImplemented, api)}(${c.n(command, api)}${DesignDerivedType.Command})"""
+        err = ${c.n(g.gee.ehu.CommandHandlerNotImplemented, api)}(${c.n(command, api)}${DesignDerivedType.Command})"""
             }
         }
         return
@@ -80,7 +80,7 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerAddCommandPreparerBody(
     prevHandler := o.$handlerName
 	o.$handlerName = func(command *${c.n(command, api)}, entity *${c.n(entity, api)}, store ${
         c.n(
-            g.gee.eh.AggregateStoreEvent, api
+            g.gee.ehu.AggregateStoreEvent, api
         )
     }) (err error) {
 		if err = preparer(command, entity); err == nil {
@@ -421,7 +421,7 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerSetupBody(
         if _, child := entity.${event.child().toGoFindMethodName()}(eventData.${
                     event.type().propIdNameParentCap()
                 }); child == nil {
-            err = ${c.n(g.gee.eh.EntityChildNotExists, api)}(event.AggregateID(), event.AggregateType(), 
+            err = ${c.n(g.gee.ehu.EntityChildNotExists, api)}(event.AggregateID(), event.AggregateType(), 
                 eventData.${event.type().propIdNameParentCap()}, "${event.child().name()}")           
         } else {${event.toGoApplyEvent(c, derived, setOf(event.type().propIdNameParentCap()), "    child")}
         }"""
@@ -430,12 +430,12 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerSetupBody(
         if oldItem := entity.${event.child().toGoRemoveMethodName()}(eventData.${
                     event.type().propIdNameParentCap()
                 }); oldItem == nil {
-            err = ${c.n(g.gee.eh.EntityChildNotExists, api)}(event.AggregateID(), event.AggregateType(), 
+            err = ${c.n(g.gee.ehu.EntityChildNotExists, api)}(event.AggregateID(), event.AggregateType(), 
                 eventData.${event.type().propIdNameParentCap()}, "${event.child().name()}")           
         }"""
             } else {
                 """
-        err = ${c.n(g.gee.eh.EventHandlerNotImplemented, api)}(${c.n(event, api)}${DesignDerivedType.Event})"""
+        err = ${c.n(g.gee.ehu.EventHandlerNotImplemented, api)}(${c.n(event, api)}${DesignDerivedType.Event})"""
             }
         }
         return

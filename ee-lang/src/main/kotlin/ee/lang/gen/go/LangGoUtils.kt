@@ -104,7 +104,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             val GetItems = Operation()
         }
 
-        object eh : StructureUnit({ namespace("$geeUtils.eh") }) {
+        object ehu : StructureUnit({ namespace("$geeUtils.ehu") }) {
             object AggregateEngine : ExternalType() {
                 val RegisterForAllEvents = Operation()
                 val RegisterForEvent = Operation()
@@ -120,7 +120,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             object AggregateBase : ExternalType()
 
             object Entity : ExternalType({
-                namespace("$geeUtils.eh")
+                namespace("$geeUtils.ehu")
                 constructorNoProps()
             }) {
                 val id = prop(n.UUID).key()
