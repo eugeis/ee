@@ -43,6 +43,32 @@ subprojects {
         archives sourcesJar
     }
 
+    publishing {
+        repositories {
+            mavenLocal()
+            maven {
+                name = "ee"
+                url = uri("https://maven.pkg.github.com/eugeis/ee")
+                credentials {
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+
+                artifact sourcesJar
+            }
+
+            gpr(MavenPublication) {
+                from components.java
+            }
+        }
+    }
+
     dependencies {
         implementation(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$kotlinCoroutinesVersion"))
         implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
