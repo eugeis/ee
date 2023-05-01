@@ -47,8 +47,8 @@ private class SwaggerToDesignExecutor(
         return DslTypes(name = swagger.info?.title ?: "", desc = "", types = typesToFill)
     }
 
-    private fun extractTypeDefsFromPrimitiveAliases(): Map<String, io.swagger.models.Model> {
-        val ret = mutableMapOf<String, io.swagger.models.Model>()
+    private fun extractTypeDefsFromPrimitiveAliases(): Map<String, Model> {
+        val ret = mutableMapOf<String, Model>()
 
         swagger.definitions?.entries?.forEach { (defName, def) ->
             if (!ignoreTypes.contains(defName)) {
@@ -83,7 +83,7 @@ private class SwaggerToDesignExecutor(
                 { this!!.entries.joinToString(nL, nL) { it.value.toDslProp(it.key) } }, { "" })
     }
 
-    private fun io.swagger.models.properties.Property.toDslProp(name: String): String {
+    private fun Property.toDslProp(name: String): String {
         val nameCamelCase = name.toCamelCase()
         return "        val $nameCamelCase = prop { ${(name != nameCamelCase)
                 .then { "externalName(\"$name\")." }}${toDslInit(nameCamelCase)} }"
@@ -97,7 +97,7 @@ private class SwaggerToDesignExecutor(
         }, { "" })
     }
 
-    private fun io.swagger.models.Model.toDslValues(name: String) {
+    private fun Model.toDslValues(name: String) {
         if (this is ComposedModel) {
             typesToFill[name] = """
     object ${name.toDslTypeName()} : Values({ ${
@@ -136,7 +136,7 @@ private class SwaggerToDesignExecutor(
         }
     }
 
-    private fun io.swagger.models.properties.StringProperty.toDslEnum(name: String): String {
+    private fun StringProperty.toDslEnum(name: String): String {
         return """
     object $name : EnumType(${description.toDslDoc("{", "}")}) {${
         enum.joinToString(nL, nL) {
@@ -148,13 +148,13 @@ private class SwaggerToDesignExecutor(
     }"""
     }
 
-    private fun io.swagger.models.properties.ObjectProperty.toDslType(name: String): String {
+    private fun ObjectProperty.toDslType(name: String): String {
         return """
     object $name : Values(${description.toDslDoc("{", "}")}) {${properties.toDslProperties()}
     }"""
     }
 
-    private fun io.swagger.models.properties.Property.toDslTypeName(name: String): String {
+    private fun Property.toDslTypeName(name: String): String {
         val prop = this
 
         return when (prop) {
@@ -257,13 +257,17 @@ private class SwaggerToDesignExecutor(
     }
 
     private fun ObjectProperty.toDslTypeName(): String = properties.keys.joinToString(
-            "") { it.capitalize() }.toDslTypeName()
+            "") { it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } }.toDslTypeName()
 
     private fun String.toDslTypeName(): String {
-        return typeToPrimitive[this] ?: namesToTypeName.getOrPut(this) { toCamelCase().capitalize() }
+        return typeToPrimitive[this] ?: namesToTypeName.getOrPut(this) { toCamelCase().replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(
+                Locale.getDefault()
+            ) else it.toString()
+        } }
     }
 
-    private fun io.swagger.models.properties.Property.toDslInit(name: String): String {
+    private fun Property.toDslInit(name: String): String {
 
         return if (this is RefProperty) {
             if (swagger.parameters != null && swagger.parameters.containsKey(simpleRef)) {
@@ -283,13 +287,13 @@ private class SwaggerToDesignExecutor(
         return "type($typeName)${required.not().then { ".nullable()" }}${description.toDslDoc(".")}"
     }
 
-    private fun io.swagger.models.properties.Property.toDslInitDirect(name: String): String {
+    private fun Property.toDslInitDirect(name: String): String {
         val typeName = toDslTypeName(name)
         return "type($typeName)${required.not().then { ".nullable()" }}${(this is PasswordProperty)
                 .then { ".hidden()" }}${toDslPropValue(typeName, ".")}${description.toDslDoc(".")}"
     }
 
-    private fun io.swagger.models.Model.toValues(name: String): Values {
+    private fun Model.toValues(name: String): Values {
         val model = this
         return Values {
             name(name).doc(model.description ?: "")

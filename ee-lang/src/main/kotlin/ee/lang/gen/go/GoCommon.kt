@@ -3,6 +3,7 @@ package ee.lang.gen.go
 import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
+import java.util.*
 
 
 fun <T : MacroCompositeI<*>> T.toGoMacrosBefore(c: GenerationContext, derived: String, api: String): String =
@@ -22,7 +23,7 @@ fun <T : MacroCompositeI<*>> T.toGoMacrosAfter(c: GenerationContext, derived: St
     macrosAfter().joinToString("$nL        ") { c.body(it, this, derived, api) }
 
 fun AttributeI<*>.toGoInitVariables(c: GenerationContext, derived: String, parentConstrName: String = ""): String {
-    val name = "${name().decapitalize()} := "
+    val name = "${name().replaceFirstChar { it.lowercase(Locale.getDefault()) }} := "
     return name + if (isDefault() || value() != null) {
         toGoValue(c, derived, parentConstrName)
     } else {
@@ -35,7 +36,7 @@ fun AttributeI<*>.toGoInitVariablesExplodedAnonymous(
     derived: String,
     parentConstrName: String = ""
 ): String {
-    val name = "${name().decapitalize()} := "
+    val name = "${name().replaceFirstChar { it.lowercase(Locale.getDefault()) }} := "
     return name + if (isDefault() || value() != null) {
         toGoValue(c, derived, parentConstrName)
     } else if (isAnonymous()) {
@@ -83,7 +84,11 @@ fun AttributeI<*>.toGoInitForConstructor(c: GenerationContext, derived: String):
 }
 
 fun AttributeI<*>.toGoInitForConstructorEnum(c: GenerationContext, derived: String): String {
-    val name = "${isAnonymous().ifElse({ type().toGoCall(c, derived) }, { nameForGoMember().decapitalize() })}: "
+    val name = "${isAnonymous().ifElse({ type().toGoCall(c, derived) }, { nameForGoMember().replaceFirstChar {
+        it.lowercase(
+            Locale.getDefault()
+        )
+    } })}: "
     return name + if (isDefault() || value() != null) {
         toGoValue(c, derived)
     } else if (isAnonymous()) {
@@ -94,7 +99,11 @@ fun AttributeI<*>.toGoInitForConstructorEnum(c: GenerationContext, derived: Stri
 }
 
 fun AttributeI<*>.toGoInitForConstructorFunc(c: GenerationContext, derived: String): String =
-    "${isAnonymous().ifElse({ type().toGoCall(c, derived) }, { nameForGoMember() })}: ${name().decapitalize()}"
+    "${isAnonymous().ifElse({ type().toGoCall(c, derived) }, { nameForGoMember() })}: ${name().replaceFirstChar {
+        it.lowercase(
+            Locale.getDefault()
+        )
+    }}"
 
 fun <T : AttributeI<*>> T.toGoTypeDef(c: GenerationContext, api: String): String =
     "${type().toGo(c, api)}${toGoMacrosAfterBody(c, api, api)}"
@@ -158,7 +167,11 @@ fun <T : AttributeI<*>> T.toGoValueByPropName(
 ): String {
     val baseType = type().findDerivedOrThis()
     val ret = when (baseType) {
-        n.String, n.Text, n.Any -> "${c.n(g.fmt.Sprintf)}(\"${name().capitalize()} %v\", $saltIntName)"
+        n.String, n.Text, n.Any -> "${c.n(g.fmt.Sprintf)}(\"${name().replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(
+                Locale.getDefault()
+            ) else it.toString()
+        }} %v\", $saltIntName)"
         n.Boolean -> "false"
         n.Byte -> saltIntName
         n.Int -> saltIntName
@@ -171,7 +184,7 @@ fun <T : AttributeI<*>> T.toGoValueByPropName(
         n.Double -> "float64($saltIntName)"
         n.Date -> "${c.n(g.gee.PtrTime)}(${g.time.Now.toGoCall(c, derived, derived)})"
         n.Path -> "\"/\""
-        n.Blob -> "[]byte(${c.n(g.fmt.Sprintf)}(\"${name().capitalize()} %v\", $saltIntName))"
+        n.Blob -> "[]byte(${c.n(g.fmt.Sprintf)}(\"${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} %v\", $saltIntName))"
         n.Void -> ""
         n.Error -> "nil"
         n.Exception -> "nil"
@@ -227,7 +240,7 @@ fun <T : TypeI<*>> T.toGoIfNative(c: GenerationContext, derived: String): String
     }
 }
 
-fun <T : TypeI<*>> T.toGoNilOrEmpty(c: GenerationContext): String? {
+fun <T : TypeI<*>> T.toGoNilOrEmpty(c: GenerationContext): String {
     val baseType = findDerivedOrThis()
     return when (baseType) {
         n.String, n.UUID -> "\"\""
@@ -244,7 +257,7 @@ fun <T : TypeI<*>> T.toGo(c: GenerationContext, derived: String): String =
 
 fun OperationI<*>.toGoIfc(c: GenerationContext, api: String = LangDerivedKind.API): String {
     return """
-	${name().capitalize()}(${params().toGoSignature(c, api)}) ${toGoReturns(c, api)}"""
+	${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${params().toGoSignature(c, api)}) ${toGoReturns(c, api)}"""
 }
 
 fun List<AttributeI<*>>.toGoSignature(c: GenerationContext, api: String): String =
@@ -274,7 +287,7 @@ fun <T : AttributeI<*>> T.toGoMember(c: GenerationContext, api: String): String 
 fun <T : AttributeI<*>> T.toGoJsonTags(): String {
     val replaceable = isReplaceable()
     return (replaceable != null && !replaceable).ifElse({ "" },
-        { """ `json:"${externalName() ?: name().decapitalize()},omitempty" eh:"optional"`""" })
+        { """ `json:"${externalName() ?: name().replaceFirstChar { it.lowercase(Locale.getDefault()) }},omitempty" eh:"optional"`""" })
 }
 
 fun <T : AttributeI<*>> T.toGoEnumMember(c: GenerationContext, api: String): String =
@@ -334,7 +347,7 @@ func ${c.n(this, derived)}(${
 }
 
 fun <T : AttributeI<*>> T.toGoAssign(o: String): String =
-    "$o.${isMutable().setAndTrue().ifElse({ name().capitalize() }, { name().decapitalize() })} = ${name()}"
+    "$o.${isMutable().setAndTrue().ifElse({ name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } }, { name().replaceFirstChar { it.lowercase(Locale.getDefault()) } })} = ${name()}"
 
 fun <T : LogicUnitI<*>> T.toGoCall(c: GenerationContext, derived: String, api: String): String =
     if (isNotEMPTY()) """${c.n(this, derived)}(${
@@ -363,7 +376,15 @@ fun List<AttributeI<*>>.toGoTypes(c: GenerationContext, derived: String): String
 fun <T : OperationI<*>> T.toGoLambda(c: GenerationContext, derived: String): String =
     """func (${params().toGoTypes(c, derived)}) ${toGoReturns(c, derived)}"""
 
-fun <T : LogicUnitI<*>> T.toGoName(): String = isVisible().ifElse({ name().capitalize() }, { name().decapitalize() })
+fun <T : LogicUnitI<*>> T.toGoName(): String = isVisible().ifElse({ name().replaceFirstChar {
+    if (it.isLowerCase()) it.titlecase(
+        Locale.getDefault()
+    ) else it.toString()
+} }, { name().replaceFirstChar {
+    it.lowercase(
+        Locale.getDefault()
+    )
+} })
 
 fun <T : OperationI<*>> T.toGoImpl(o: String, c: GenerationContext, api: String): String {
     return hasMacros().then {

@@ -5,12 +5,14 @@ import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.*
+import java.util.*
 
 fun <T : ModuleI<*>> T.toAngularModuleTypeScript(c: GenerationContext, ViewComponent: String = AngularDerivedType.ViewComponent): String {
     return """
 ${this.toAngularGenerateComponentPart(c, "module", "view", hasProviders = true, hasClass = false)}
 export class ${this.name()}${ViewComponent} {${"\n"}  
-    constructor(public ${c.n(this, AngularDerivedType.ViewService).decapitalize()}: ${c.n(this, AngularDerivedType.ViewService)}) {}$nL
+    constructor(public ${c.n(this, AngularDerivedType.ViewService)
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.ViewService)}) {}$nL
 }"""
 }
 
@@ -19,7 +21,7 @@ fun <T : ModuleI<*>> T.toAngularModuleService(modules: List<ModuleI<*>>, c: Gene
 
     pageElement = [${modules.filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") { """'${it.name()}'""" }}];
 
-    tabElement = [${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString() {
+    tabElement = [${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString {
         it.toAngularModuleTabElement()
     }}];
 
@@ -46,7 +48,8 @@ ${this.toAngularGenerateComponentPart(c, "entity", "form", hasProviders = false,
 ${isOpen().then("export ")}class ${this.name()}${FormComponent} implements ${c.n(angular.core.OnInit)} {
 
 ${this.toTypeScriptFormProp(c, tab)}
-    constructor(public ${c.n(this, AngularDerivedType.DataService).decapitalize()}: ${c.n(this, AngularDerivedType.DataService)}, 
+    constructor(public ${c.n(this, AngularDerivedType.DataService)
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.DataService)}, 
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
     when(it.type()) {
         is EntityI<*>, is ValuesI<*> -> it.type().toAngularPropOnConstructor(c)
@@ -70,7 +73,7 @@ ${this.toTypeScriptEntityPropInit(c, tab)}
 
 ${this.toAngularConstructorDataService(c, tab)}
     ng${c.n(angular.core.AfterViewInit)}() {
-        this.${c.n(this, AngularDerivedType.DataService).decapitalize()}.dataSources.sort = this.sort;
+        this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.dataSources.sort = this.sort;
     }
 ${this.toAngularListOnInit(c, tab)}
 
@@ -85,7 +88,7 @@ ${this.toAngularListOnInit(c, tab)}
 
 fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext, parentName: String = ""): String {
     return when (this.type()) {
-        is EntityI<*>, is ValuesI<*> -> """'${this.name().toLowerCase()}-entity'"""
+        is EntityI<*>, is ValuesI<*> -> """'${this.name().lowercase(Locale.getDefault())}-entity'"""
         is BasicI<*> -> this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
             it.toAngularGenerateTableHeader(c, this.name())
         }
@@ -100,7 +103,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(
 
 @${c.n(angular.core.Injectable)}({ providedIn: 'root' })
 ${isOpen().then("export ")}class ${this.name()}${DataService} extends ${c.n(service.template.DataService)}<${c.n(this, AngularDerivedType.ApiBase)}> {
-    itemName = '${c.n(this, AngularDerivedType.ApiBase).toLowerCase()}';
+    itemName = '${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}';
 
     pageName = '${c.n(this, AngularDerivedType.Component)}';
     
@@ -127,7 +130,7 @@ ${isOpen().then("export ")}class ${this.name()}${DataService} extends ${c.n(serv
         }
     }}
     
-    ${this.props().filter { it.type().name().toLowerCase() == "blob" }.joinSurroundIfNotEmptyToString { 
+    ${this.props().filter { it.type().name().lowercase(Locale.getDefault()) == "blob" }.joinSurroundIfNotEmptyToString { 
         """
     selectedFiles?: FileList;
     
@@ -159,7 +162,7 @@ ${isOpen().then("export ")}class ${this.name()}${DataService} extends ${c.n(serv
     }}
     }
     
-    ${this.props().filter { it.type().name().toLowerCase() == "blob" }.joinSurroundIfNotEmptyToString {
+    ${this.props().filter { it.type().name().lowercase(Locale.getDefault()) == "blob" }.joinSurroundIfNotEmptyToString {
         """
     selectFiles(event: any): void {
         this.selectedFiles = event.target.files;
@@ -204,20 +207,25 @@ ${isOpen().then("export ")}class ${this.name()}${DataService} extends ${c.n(serv
         }.joinSurroundIfNotEmptyToString("") {
         
         """
-            const inheritedElement${it.name().capitalize()}: Map<string, ${c.n(it, AngularDerivedType.ApiBase)}> = new Map(JSON.parse(localStorage.getItem(itemName)));
-            inheritedElement${it.name().capitalize()}.forEach((value, key) => {
+            const inheritedElement${it.name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: Map<string, ${c.n(it, AngularDerivedType.ApiBase)}> = new Map(JSON.parse(localStorage.getItem(itemName)));
+            inheritedElement${it.name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.forEach((value, key) => {
                 if (key.includes(JSON.stringify(editItem))) {
                     value${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
                 ) }.joinSurroundIfNotEmptyToString("") { elementName -> """.${elementName.name()}""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*>) && ( 
                 property.type().props().any { childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
                 ) }.joinSurroundIfNotEmptyToString("") { elementName -> """.${elementName.name()}.${this.name().toCamelCase()}""" }} = newElement;
                     const newId = itemName + JSON.stringify(value);
-                    inheritedElement${it.name().capitalize()}.set(newId, value);
-                    inheritedElement${it.name().capitalize()}.delete(key);
+                    inheritedElement${it.name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.set(newId, value);
+                    inheritedElement${it.name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.delete(key);
                 }
             });
-            localStorage.${it.name().toLowerCase()} = JSON.stringify(Array.from(inheritedElement${it.name().capitalize()}.entries()));
-            localStorage.setItem('${it.name().toLowerCase()}', localStorage.${it.name().toLowerCase()});
+            localStorage.${it.name().lowercase(Locale.getDefault())} = JSON.stringify(Array.from(inheritedElement${it.name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.entries()));
+            localStorage.setItem('${it.name().lowercase(Locale.getDefault())}', localStorage.${it.name().lowercase(Locale.getDefault())});
         """
     }}
         }
@@ -226,15 +234,16 @@ ${isOpen().then("export ")}class ${this.name()}${DataService} extends ${c.n(serv
 
 declare global {
     interface Window {
-        ${this.name().decapitalize()}${DataService}: ${this.name()}${DataService};
+        ${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}: ${this.name()}${DataService};
     }
 }
-window.${this.name().decapitalize()}${DataService} = new ${this.name()}${DataService}();
+window.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService} = new ${this.name()}${DataService}();
 """
 }
 
 fun <T : ItemI<*>> T.toAngularGenerateEnumElementBasic(c: GenerationContext, indent: String): String {
-    return """${indent}${c.n(this, AngularDerivedType.Enum).decapitalize()} = this.loadEnumElement(${c.n(this, AngularDerivedType.ApiBase).capitalize()});"""
+    return """${indent}${c.n(this, AngularDerivedType.Enum).replaceFirstChar { it.lowercase(Locale.getDefault()) }} = this.loadEnumElement(${c.n(this, AngularDerivedType.ApiBase)
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }});"""
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, BasicComponent: String = AngularDerivedType.BasicComponent): String {
@@ -242,7 +251,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, 
 ${this.toAngularGenerateComponentPart(c, "basic", "", hasProviders = false, hasClass = false)}
 ${isOpen().then("export ")}class ${this.name()}${BasicComponent} implements ${c.n(angular.core.OnInit)} {
 
-    @${c.n(angular.core.Input)}() ${c.n(this, AngularDerivedType.ApiBase).toLowerCase()}: ${c.n(this, AngularDerivedType.ApiBase)};
+    @${c.n(angular.core.Input)}() ${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}: ${c.n(this, AngularDerivedType.ApiBase)};
     @${c.n(angular.core.Input)}() parentName: String;
 ${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
         it.type().toAngularGenerateEnumElementBasic(c, tab)
@@ -276,8 +285,9 @@ ${if (props().any { it.type() is EnumTypeI<*> }) {
     }"""
     } else {""}}
     ngOnInit() {
-        if (this.${c.n(this, AngularDerivedType.ApiBase).toLowerCase()} === undefined) {
-            this.${c.n(this, AngularDerivedType.ApiBase).toLowerCase()} = new ${this.name().capitalize()}();
+        if (this.${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())} === undefined) {
+            this.${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())} = new ${this.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}();
         }
         ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toTypeScriptInitEmptyProps(c)
@@ -319,7 +329,9 @@ ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
 }
 
 fun <T : ItemI<*>> T.toAngularInitOptionBasic(c: GenerationContext, elementType: String): String {
-    return """this.option${elementType.capitalize()} = this.${elementType.toLowerCase()}DataService.changeMapToArray(this.${elementType.toLowerCase()}DataService.retrieveItemsFromCache()); $nL"""
+    return """this.option${elementType.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = this.${elementType.lowercase(Locale.getDefault())}DataService.changeMapToArray(this.${elementType.lowercase(
+        Locale.getDefault()
+    )}DataService.retrieveItemsFromCache()); $nL"""
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEnumTSComponent(c: GenerationContext, EnumComponent: String = AngularDerivedType.EnumComponent,
@@ -329,20 +341,22 @@ ${this.toAngularGenerateComponentPart(c, "enum", "", hasProviders = false, hasCl
 
 export class ${this.name()}${EnumComponent} implements ${c.n(angular.core.OnInit)} {
 
-    @${c.n(angular.core.Input)}() ${c.n(this, AngularDerivedType.ApiBase).toLowerCase()}: ${c.n(this, AngularDerivedType.ApiBase).capitalize()};
-    @${c.n(angular.core.Output)}() ${c.n(this, AngularDerivedType.ApiBase).toLowerCase()}Change = new ${c.n(angular.core.EventEmitter)}<${c.n(this, AngularDerivedType.ApiBase).capitalize()}>();
+    @${c.n(angular.core.Input)}() ${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}: ${c.n(this, AngularDerivedType.ApiBase)
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }};
+    @${c.n(angular.core.Output)}() ${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}Change = new ${c.n(angular.core.EventEmitter)}<${c.n(this, AngularDerivedType.ApiBase)
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>();
     
     enumElements: Array<string>;
     
-    constructor(private ${DataService.decapitalize()}: ${c.n(service.template.DataService)}<any>) { }
+    constructor(private ${DataService.replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(service.template.DataService)}<any>) { }
     
     ngOnInit(): void {
-        this.enumElements = this.${DataService.decapitalize()}.loadEnumElement(${c.n(this, AngularDerivedType.ApiBase)});
+        this.enumElements = this.${DataService.replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadEnumElement(${c.n(this, AngularDerivedType.ApiBase)});
     }
     
     changeValue(event: ${c.n(angular.material.select.MatSelectChange)}) {
-        this.${c.n(this, AngularDerivedType.ApiBase).toLowerCase()} = event.value;
-        this.${c.n(this, AngularDerivedType.ApiBase).toLowerCase()}Change.emit(event.value);
+        this.${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())} = event.value;
+        this.${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}Change.emit(event.value);
     }
 
 }

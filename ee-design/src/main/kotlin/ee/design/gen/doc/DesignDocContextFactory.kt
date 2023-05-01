@@ -6,6 +6,7 @@ import ee.lang.gen.doc.LangMarkdownContextFactory
 import ee.lang.gen.doc.DocContext
 import ee.lang.gen.doc.DocContextBuilder
 import ee.lang.gen.puml.classdiagram.LangCdContextFactory
+import java.util.*
 
 open class DesignDocContextFactory(targetAsSingleModule: Boolean = false): LangMarkdownContextFactory(targetAsSingleModule) {
     override fun contextBuilder(
@@ -30,6 +31,8 @@ open class DesignDocContextFactory(targetAsSingleModule: Boolean = false): LangM
         }
     }
 
-    protected open fun buildNameForCommand(item: CommandI<*>, kind: String) = item.dataTypeNameAndParentName().capitalize()
-    protected open fun buildNameForEvent(item: EventI<*>, kind: String) = item.dataTypeParentNameAndName().capitalize()
+    protected open fun buildNameForCommand(item: CommandI<*>, kind: String) = item.dataTypeNameAndParentName()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    protected open fun buildNameForEvent(item: EventI<*>, kind: String) = item.dataTypeParentNameAndName()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 }

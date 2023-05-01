@@ -2,6 +2,7 @@ package ee.lang.gen.go
 
 import ee.common.ext.*
 import ee.lang.*
+import java.util.*
 
 object g : StructureUnit({ namespace("").name("Go") }) {
     val error = ExternalType { ifc() }
@@ -70,9 +71,9 @@ object g : StructureUnit({ namespace("").name("Go") }) {
     }
 
     object mux : StructureUnit({ namespace("github.com.gorilla.mux") }) {
-        object Router : ExternalType() {}
+        object Router : ExternalType()
 
-        object Vars : ExternalType() {}
+        object Vars : ExternalType()
     }
 
     object mgo2 : StructureUnit({ namespace("gopkg.in.mgo.v2.bson") }) {
@@ -151,15 +152,14 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
             object HttpCommandHandler : ExternalType({ constructorFull() }) {
                 val ctx = prop { type(context.Context) }
-                val commandBus = prop { type(g.eh.CommandHandler) }
+                val commandBus = prop { type(eh.CommandHandler) }
             }
 
-            object HttpQueryHandler : ExternalType({ constructorFull() }) {
-            }
+            object HttpQueryHandler : ExternalType({ constructorFull() })
 
-            object Projector : ExternalType() {}
+            object Projector : ExternalType()
 
-            object NewProjector : Operation() {}
+            object NewProjector : Operation()
 
             // errors
             object CommandError : ExternalType()
@@ -180,7 +180,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
 
     object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("eh") }) {
 
-        object Aggregate : ExternalType({}) {}
+        object Aggregate : ExternalType({})
 
         object AggregateBase : ExternalType({
             name("AggregateBase")
@@ -191,28 +191,28 @@ object g : StructureUnit({ namespace("").name("Go") }) {
                 p("t", AggregateType)
                 p("id", n.UUID)
             }
-        }) {}
+        })
 
         object NewAggregateBase : Operation({
             namespace("github.com.looplab.eventhorizon.aggregatestore.events")
-        }) {}
+        })
 
-        object RegisterEventData : Operation() {}
+        object RegisterEventData : Operation()
 
-        object EventData : ExternalType({ ifc() }) {}
+        object EventData : ExternalType({ ifc() })
 
-        object AggregateType : ExternalType() {}
+        object AggregateType : ExternalType()
 
-        object Command : ExternalType({ ifc() }) {}
+        object Command : ExternalType({ ifc() })
 
         object CommandHandler : ExternalType({ ifc() })
 
         object CommandBus : ExternalType({
             name("CommandHandler")
             namespace("github.com.looplab.eventhorizon.commandhandler.bus")
-        }) {}
+        })
 
-        object CommandType : ExternalType() {}
+        object CommandType : ExternalType()
 
         object AggregateCommandHandler : ExternalType({ ifc() }) {
             object SetAggregate : Operation() {
@@ -221,7 +221,7 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             }
         }
 
-        object Entity : ExternalType({ ifc() }) {}
+        object Entity : ExternalType({ ifc() })
 
         object EventStore : ExternalType({ ifc() }) {
             object Save : Operation() {
@@ -229,31 +229,25 @@ object g : StructureUnit({ namespace("").name("Go") }) {
             }
         }
 
-        object EventBus : ExternalType({ ifc() }) {}
+        object EventBus : ExternalType({ ifc() })
 
-        object EventPublisher : ExternalType({ ifc() }) {}
+        object EventPublisher : ExternalType({ ifc() })
 
-        object EventHandler : ExternalType({ ifc() }) {}
+        object EventHandler : ExternalType({ ifc() })
 
-        object Event : ExternalType({ ifc() }) {}
+        object Event : ExternalType({ ifc() })
 
-        object EventType : ExternalType() {}
+        object EventType : ExternalType()
 
-        object ReadRepo : ExternalType({ ifc() }) {
+        object ReadRepo : ExternalType({ ifc() })
 
-        }
+        object WriteRepo : ExternalType({ ifc() })
 
-        object WriteRepo : ExternalType({ ifc() }) {
+        object ReadWriteRepo : ExternalType({ ifc() })
 
-        }
+        object Projector : ExternalType({ namespace("github.com.looplab.eventhorizon.eventhandler.projector") })
 
-        object ReadWriteRepo : ExternalType({ ifc() }) {
-
-        }
-
-        object Projector : ExternalType({ namespace("github.com.looplab.eventhorizon.eventhandler.projector") }) {}
-
-        object Type : ExternalType({ namespace("github.com.looplab.eventhorizon.eventhandler.projector") }) {}
+        object Type : ExternalType({ namespace("github.com.looplab.eventhorizon.eventhandler.projector") })
     }
 
 
@@ -308,14 +302,14 @@ open class GoContext(
                     .joinSurroundIfNotEmptyToString(nL, "${indent}import ($nL", "$nL)") {
                         if (it.startsWith("ee.")) {
                             """    "${
-                                it.toLowerCase().toDotsAsPath()
+                                it.lowercase(Locale.getDefault()).toDotsAsPath()
                                     .replace("ee/", "github.com/go-ee/")
                                     .replace("github/com", "github.com")
                                     .replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")
                             }""""
                         } else {
                             """    "${
-                                it.toLowerCase().toDotsAsPath()
+                                it.lowercase(Locale.getDefault()).toDotsAsPath()
                                     .replace("github/com", "github.com")
                                     .replace("gopkg/in/mgo/v2", "gopkg.in/mgo.v2")
                             }""""
@@ -330,7 +324,7 @@ open class GoContext(
         if (derived.namespace().isEmpty() || derived.namespace().equals(namespace, true)) {
             return derived.name()
         } else {
-            return """${derived.namespace().substringAfterLast(".").toLowerCase()}.${derived.name()}"""
+            return """${derived.namespace().substringAfterLast(".").lowercase(Locale.getDefault())}.${derived.name()}"""
         }
     }
 }
@@ -362,9 +356,9 @@ fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
 fun AttributeI<*>.nameForGoMember(): String = storage.getOrPut(this, "nameForGoMember", {
     val name = name()
     isReplaceable().notSetOrTrue().ifElse({
-        name.capitalize()
+        name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     }, {
-        name.decapitalize()
+        name.replaceFirstChar { it.lowercase(Locale.getDefault()) }
     })
 })
 

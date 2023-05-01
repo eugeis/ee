@@ -5,6 +5,7 @@ import ee.lang.ContextBuilder
 import ee.lang.gen.KotlinContext
 import ee.lang.gen.KotlinContextBuilder
 import ee.lang.gen.common.LangCommonContextFactory
+import java.util.*
 
 open class LangKotlinContextFactory(targetAsSingleModule: Boolean) : LangCommonContextFactory(targetAsSingleModule) {
 
@@ -28,7 +29,8 @@ open class LangKotlinContextFactory(targetAsSingleModule: Boolean) : LangCommonC
 
     protected open fun contextBuilder(controller: DerivedController, scope: String): ContextBuilder<StructureUnitI<*>> {
         return KotlinContextBuilder(CONTEXT_COMMON, scope, macroController) {
-            KotlinContext(namespace().toLowerCase(), artifact(), "src-gen/$scope/kotlin",
+            KotlinContext(
+                namespace().lowercase(Locale.getDefault()), artifact(), "src-gen/$scope/kotlin",
                     derivedController = controller, macroController = macroController)
         }
     }

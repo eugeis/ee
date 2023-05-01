@@ -6,6 +6,7 @@ import ee.design.*
 import ee.lang.*
 import ee.lang.gen.doc.*
 import ee.lang.gen.ts.toTypeScriptGenericTypes
+import java.util.*
 
 val nL3Tab = nL + tab + tab + tab
 val nL2Tab = nL + tab + tab
@@ -14,7 +15,8 @@ fun <T : CompI<*>> T.toPlantUmlClassDiagramComp(c: GenerationContext, startStopU
                                                 componentPart: String, generateComponentPart: Boolean = true ): String {
     return """
 ${startUml(startStopUml)}
-$componentName ${this.name().capitalize()}$componentPart {
+$componentName ${this.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}$componentPart {
     ${this.modules().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { it.toPlantUmlClassDiagramModule(c, moduleComponentName,modulePart(generateComponentPart), generateComponentPart) }}
 }
 ${this.modules().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) { it.toPlantUmlClassDiagramRelation(c) }}
@@ -50,7 +52,8 @@ fun <T : BasicI<*>> T.toPlantUmlClassDiagramBasicRelation(c: GenerationContext):
 
 fun <T : ModuleI<*>> T.toPlantUmlClassDiagramModule(c: GenerationContext, componentName: String, componentPart: String, generateComponentPart: Boolean): String {
     return """
-    $componentName ${this.name().capitalize()}$componentPart {
+    $componentName ${this.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}$componentPart {
         ${this.entities().generateEntitiesComponents(c)}${this.basics().generateBasicsComponents(c, generateComponentPart)}${this.enums().generateEnumsComponents(c)}
     }"""
 }
@@ -69,7 +72,8 @@ fun <T : ListMultiHolder<EnumTypeI<*>>> T.generateEnumsComponents(c: GenerationC
 
 fun <T : CompilationUnitI<*>> T.toPlantUmlClassDiagramComponent(c: GenerationContext, componentName: String, componentPart: String): String {
     return """
-        $componentName ${this.name().capitalize()}$componentPart {
+        $componentName ${this.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}$componentPart {
             ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL3Tab) { it.toPlantUmlClassDiagramGeneratePropAndType(c) }}
             ${operations().isNotEmpty().then { """
             {method} $nL ${operations().joinSurroundIfNotEmptyToString(""){ nL3Tab + "${it.toKotlinPacketOperation(c,genOperations = true)}()"}}
@@ -80,7 +84,8 @@ fun <T : CompilationUnitI<*>> T.toPlantUmlClassDiagramComponent(c: GenerationCon
 
 fun <T : EnumTypeI<*>> T.toPlantUmlClassDiagramEnum(c: GenerationContext, componentName: String): String {
     return """
-        $componentName ${this.name().capitalize()} {
+        $componentName ${this.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} {
             ${this.literals().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL3Tab) { it.toPlantUmlClassDiagramGenerateEnumProp(c) }}
         }
         ${this.literals().filter { !it.doc().isEMPTY() }.joinSurroundIfNotEmptyToString(nL2Tab) { it.toPlantUmlClassDiagramGenerateEnumDoc(c) }}"""

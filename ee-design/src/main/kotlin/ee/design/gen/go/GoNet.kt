@@ -4,6 +4,7 @@ import ee.common.ext.*
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.*
+import java.util.*
 
 fun <T : CommandI<*>> T.toGoHandler(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
@@ -25,7 +26,7 @@ func (o *$name) CommandType() ${
         c.n(
             g.eh.CommandType
         )
-    }      { return ${dataTypeNameAndParentName().capitalize()}${DesignDerivedType.Command} }
+    }      { return ${dataTypeNameAndParentName().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${DesignDerivedType.Command} }
 """
 }
 
@@ -107,8 +108,10 @@ fun Collection<CommandI<*>>.routerCommandsWithKey(httpMethod: String) =
     router.Methods($httpMethod).PathPrefix(o.PathPrefixIdBased).Path("${
             command.buildHttpPathKey(index, command.findPropKey()!!)
         }").
-        Name("${command.dataTypeNameAndParentName().capitalize()}").
-        HandlerFunc(o.CommandHandler.${command.name().capitalize()})"""
+        Name("${command.dataTypeNameAndParentName()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}").
+        HandlerFunc(o.CommandHandler.${command.name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }})"""
     }
 
 fun Collection<DataTypeOperationI<*>>.routerQueriesWithKeyGet(c: GenerationContext, api: String) =
@@ -120,8 +123,10 @@ fun Collection<DataTypeOperationI<*>>.routerQueriesWithKey(httpMethod: String) =
     router.Methods($httpMethod).PathPrefix(o.PathPrefixIdBased).Path("${
             item.buildHttpPathKey(index, item.findParamKey()!!)
         }").
-        Name("${item.dataTypeParentNameAndName().capitalize()}").
-        HandlerFunc(o.QueryHandler.${item.name().capitalize()})"""
+        Name("${item.dataTypeParentNameAndName()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}").
+        HandlerFunc(o.QueryHandler.${item.name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }})"""
     }
 
 
@@ -140,8 +145,10 @@ fun Collection<CommandI<*>>.routerCommands(httpMethod: String) =
     router.Methods($httpMethod).PathPrefix(o.PathPrefix).Path("${
             item.buildHttpPath(index)
         }").
-        Name("${item.dataTypeNameAndParentName().capitalize()}").
-        HandlerFunc(o.CommandHandler.${item.name().capitalize()})"""
+        Name("${item.dataTypeNameAndParentName()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}").
+        HandlerFunc(o.CommandHandler.${item.name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }})"""
     }
 
 fun Collection<DataTypeOperationI<*>>.routerQueriesGet(c: GenerationContext, api: String) =
@@ -151,8 +158,10 @@ fun Collection<DataTypeOperationI<*>>.routerQueries(httpMethod: String) =
     joinWithIndexSurroundIfNotEmptyToString("") { index, item ->
         """
     router.Methods($httpMethod).PathPrefix(o.PathPrefix).Path("${item.buildHttpPath(index)}").
-        Name("${item.dataTypeParentNameAndName().capitalize()}").
-        HandlerFunc(o.QueryHandler.${item.name().capitalize()})"""
+        Name("${item.dataTypeParentNameAndName()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}").
+        HandlerFunc(o.QueryHandler.${item.name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }})"""
     }
 
 private fun ItemI<*>.buildHttpChildPathKey(): String {
@@ -165,9 +174,9 @@ private fun ItemI<*>.buildHttpChildPathKey(): String {
 
 private fun ItemI<*>.buildHttpPathKey(index: Int, keyParam: AttributeI<*>): String {
     return if (index == 0) {
-        "/{${keyParam.name().decapitalize()}}"
+        "/{${keyParam.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}}"
     } else {
-        "/{${keyParam.name().decapitalize()}}/${name().removeSuffixForRoute().toHyphenLowerCase()}${
+        "/{${keyParam.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}}/${name().removeSuffixForRoute().toHyphenLowerCase()}${
             buildHttpChildPathKey()}"
     }
 }
@@ -197,9 +206,9 @@ fun <T : ConstructorI<*>> T.toGoHttpRouterBeforeBody(
 ): String {
     val entity = findParentMust(EntityI::class.java)
     return """
-    pathPrefixIdBased := pathPrefix + "/" + "${entity.name().decapitalize()}"
-    pathPrefix = pathPrefix + "/" + "${entity.name().toPlural().decapitalize()}"   
-    ctx := newContext("${entity.name().decapitalize()}")
+    pathPrefixIdBased := pathPrefix + "/" + "${entity.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}"
+    pathPrefix = pathPrefix + "/" + "${entity.name().toPlural().replaceFirstChar { it.lowercase(Locale.getDefault()) }}"   
+    ctx := newContext("${entity.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}")
     httpQueryHandler := eh.NewHttpQueryHandlerFull()
     httpCommandHandler := eh.NewHttpCommandHandlerFull(ctx, commandBus)
     """
@@ -212,22 +221,23 @@ fun <T : ConstructorI<*>> T.toGoHttpModuleRouterBeforeBody(
     val structureUnit = findParentMust(StructureUnitI::class.java)
     val entities = structureUnit.findDownByType(EntityI::class.java)
     return """
-    pathPrefix = pathPrefix + "/" + "${structureUnit.name().decapitalize()}"
+    pathPrefix = pathPrefix + "/" + "${structureUnit.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}"
     ${
         entities.joinSurroundIfNotEmptyToString("") { entity ->
             val aggregateHandler = "${entity.name()}AggregateHandler"
             val projectEventHandler = "${entity.name()}Projector"
 
             """
-    var ${projectEventHandler.decapitalize()} *$projectEventHandler
-    if  ${projectEventHandler.decapitalize()}, err = esEngine.${entity.name()}.Register${
+    var ${projectEventHandler.replaceFirstChar { it.lowercase(Locale.getDefault()) }} *$projectEventHandler
+    if  ${projectEventHandler.replaceFirstChar { it.lowercase(Locale.getDefault()) }}, err = esEngine.${entity.name()}.Register${
         projectEventHandler}(string(${entity.name()}${DesignDerivedType.AggregateType}), 
              esEngine.${entity.name()}.AggregateHandlers, esEngine.${entity.name()}.Events); err != nil {
         return
     }
      
-    ${entity.name().decapitalize()}Router := New${entity.name()}Router(pathPrefix, newContext, esEngine.CommandBus,  ${
-        projectEventHandler.decapitalize()}.Repo)       
+    ${entity.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}Router := New${entity.name()}Router(pathPrefix, newContext, esEngine.CommandBus,  ${
+                projectEventHandler.replaceFirstChar { it.lowercase(Locale.getDefault()) }
+            }.Repo)       
        """
         }
     }"""

@@ -5,6 +5,7 @@ import ee.lang.DerivedController
 import ee.lang.MacroController
 import ee.lang.StructureUnitI
 import ee.lang.gen.common.LangCommonContextFactory
+import java.util.*
 
 open class DocContextBuilder<M>(name: String, macroController: MacroController, builder: M.() -> DocContext)
     : ContextBuilder<M>(name, macroController, builder)
@@ -17,7 +18,7 @@ open class LangMarkdownContextFactory(protected val alwaysImportTypes: Boolean =
     open fun buildForImplOnly(suffixNamespace: String): DocContextBuilder<StructureUnitI<*>> {
         val derivedController = DerivedController()
         registerForImplOnly(derivedController)
-        return contextBuilder(derivedController) { "${namespace().toLowerCase()}$suffixNamespace" }
+        return contextBuilder(derivedController) { "${namespace().lowercase(Locale.getDefault())}$suffixNamespace" }
     }
 
     override fun contextBuilder(

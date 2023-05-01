@@ -96,9 +96,9 @@ var eeAppHome: String = {
     ret
 }()
 
-val isWindows: Boolean = osName.toLowerCase().contains("windows")
-val isMac: Boolean = osName.toLowerCase().contains("mac")
-val isLinux: Boolean = osName.toLowerCase().contains("linux")
+val isWindows: Boolean = osName.lowercase(Locale.getDefault()).contains("windows")
+val isMac: Boolean = osName.lowercase(Locale.getDefault()).contains("mac")
+val isLinux: Boolean = osName.lowercase(Locale.getDefault()).contains("linux")
 
 val executableFileExtension = if (isWindows) ".exe" else ""
 
@@ -129,7 +129,7 @@ fun <T : Serializable> T.deepCopy(): T {
 }
 
 //String
-fun String.fileExt(): String = substringAfterLast(".").toLowerCase()
+fun String.fileExt(): String = substringAfterLast(".").lowercase(Locale.getDefault())
 
 fun String.fileName(): String = substringBeforeLast(".")
 
@@ -148,7 +148,7 @@ fun String.toConvertUmlauts(): String = Umlauts.replaceUmlauts(this)
 
 fun String.toKey(): String = toConvertUmlauts().replace("[^a-zA-Z0-9.]".toRegex(), "_").replace("_+".toRegex(), "_")
 
-fun String.toUrlKey(): String = toConvertUmlauts().toLowerCase().replace("[^a-z0-9]".toRegex(), "-")
+fun String.toUrlKey(): String = toConvertUmlauts().lowercase(Locale.getDefault()).replace("[^a-z0-9]".toRegex(), "-")
     .replace("_+".toRegex(), "-")
 
 val allBig = "[A-Z]*".toRegex()
@@ -158,22 +158,23 @@ val bigsBigSmall = "([A-Z]+)([A-Z].*)".toRegex()
 val strToCamelCase = WeakHashMap<String, String>()
 fun String.toCamelCase(): String = strToCamelCase.getOrPut(this) {
     return if (allBig.matches(this)) {
-        toLowerCase()
+        lowercase(Locale.getDefault())
     } else if (allSmall.matches(this)) {
         this
     } else {
         val parts = split('_')
         val item = if (parts.size > 1) parts.joinToString("") {
-            it.toLowerCase().capitalize()
+            it.lowercase(Locale.getDefault())
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         } else {
             this
         }
 
         val ps = bigsBigSmall.matchEntire(item)
         if (ps != null) {
-            "${ps.groupValues[1].toLowerCase()}${ps.groupValues[2]}"
+            "${ps.groupValues[1].lowercase(Locale.getDefault())}${ps.groupValues[2]}"
         } else {
-            item.decapitalize()
+            item.replaceFirstChar { it.lowercase(Locale.getDefault()) }
         }
     }
 }
@@ -186,7 +187,7 @@ val camelCase = "([a-z])([A-Z]+)".toRegex()
 
 val strToUnderscoredUpper = WeakHashMap<String, String>()
 fun String.toUnderscoredUpperCase(): String = strToUnderscoredUpper.getOrPut(this) {
-    toUnderscoredLowerCase().toUpperCase()
+    toUnderscoredLowerCase().uppercase(Locale.getDefault())
 }
 
 val strToUnderscoredLower = WeakHashMap<String, String>()
@@ -194,14 +195,14 @@ fun String.toUnderscoredLowerCase(): String = strToUnderscoredLower.getOrPut(thi
     val ret = if (smallLettersOrNumbers.matches(this)) {
         this
     } else if (bigLettersOrNumbers.matches(this)) {
-        toLowerCase()
+        lowercase(Locale.getDefault())
     } else {
         val underscored = replace(camelCase, "$1_$2")
 
         //if(underscored.startsWith("_")) {
         //    underscored = underscored.substring(1)
         //}
-        underscored.toLowerCase()
+        underscored.lowercase(Locale.getDefault())
     }
     ret
 }
@@ -210,9 +211,9 @@ fun String.toHyphenLowerCase(): String = strToUnderscoredLower.getOrPut(this) {
     if (smallLettersOrNumbers.matches(this)) {
         this
     } else if (bigLettersOrNumbers.matches(this)) {
-        toLowerCase()
+        lowercase(Locale.getDefault())
     } else {
-        replace(bAZ, "-$1").toLowerCase()
+        replace(bAZ, "-$1").lowercase(Locale.getDefault())
     }
 }
 

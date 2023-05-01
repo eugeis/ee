@@ -6,6 +6,7 @@ import ee.common.ext.then
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.*
+import java.util.*
 
 
 fun <T : OperationI<*>> T.toGoStateCommandHandlerSetupBody(
@@ -16,7 +17,8 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerSetupBody(
     val commands = state.uniqueCommands()
 
     return commands.joinSurroundIfNotEmptyToString("") { command ->
-        val handler = c.n(command, DesignDerivedType.Handler).capitalize()
+        val handler = c.n(command, DesignDerivedType.Handler)
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         """
     o.$handler = func(command ${command.toGo(c, api)}, entity ${
             entity.toGo(c, api)
@@ -58,10 +60,12 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerSetupBody(
 
 private fun CommandI<*>.toGoCheckInitValuesId(c: GenerationContext) =
     propsCollectionValues().joinSurroundIfNotEmptyToString("") {
-        val idName = it.type().propIdOrAdd().name().capitalize()
+        val idName = it.type().propIdOrAdd().name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         """
         
-        for _, item := range command.${it.name().capitalize()} {
+        for _, item := range command.${it.name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} {
             if item.$idName == uuid.Nil {
                 item.$idName = ${c.n(g.google.uuid.New)}()
             }
@@ -74,7 +78,8 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerAddCommandPreparerBody(
 
     val entity = findParentMust(EntityI::class.java)
     val command = derivedFrom()
-    val handlerName = c.n(command, DesignDerivedType.Handler).capitalize()
+    val handlerName = c.n(command, DesignDerivedType.Handler)
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
     return """
     prevHandler := o.$handlerName
@@ -117,7 +122,7 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerExecuteBody(
     val entity = findParentMust(EntityI::class.java)
     val state = findParentMust(ControllerI::class.java).derivedFrom() as StateI<*>
     val commands = state.uniqueCommands()
-    val entityParamName = entity.name().decapitalize()
+    val entityParamName = entity.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
 
     val notSupported = """err = ${c.n(g.errors.New, api)}(${
         c.n(g.fmt.Sprintf, api)
@@ -139,8 +144,10 @@ fun <T : OperationI<*>> T.toGoStateCommandHandlerExecuteBody(
     }""", emptyString = notSupported
         ) { executor ->
             """
-    case ${executor.dataTypeNameAndParentName().capitalize()}Command:
-        err = o.${executor.name().capitalize()}${DesignDerivedType.Handler}(cmd.(${
+    case ${executor.dataTypeNameAndParentName()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}Command:
+        err = o.${executor.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${DesignDerivedType.Handler}(cmd.(${
                 executor.toGo(c, api)
             }), $entityParamName, store)"""
         }
@@ -167,7 +174,7 @@ fun <T : OperationI<*>> T.toGoStatesCommandHandlerExecute(
     val entity = findParentMust(EntityI::class.java)
     val stateMachine = findParentMust(StateMachineI::class.java)
 
-    val entityParamName = entity.name().decapitalize()
+    val entityParamName = entity.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
     val stateMachinePrefix = stateMachine.sourceArtifactsPrefix()
     val entityStateMachinePrefix = "${entity.name()}$stateMachinePrefix"
 
@@ -240,7 +247,7 @@ fun <T : OperationI<*>> T.toGoStatesEventHandlerApplyEvent(
     val entity = findParentMust(EntityI::class.java)
     val stateMachine = findParentMust(StateMachineI::class.java)
 
-    val entityParamName = entity.name().decapitalize()
+    val entityParamName = entity.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
     val stateMachinePrefix = stateMachine.sourceArtifactsPrefix()
     val entityStateMachinePrefix = "${entity.name()}$stateMachinePrefix"
 
@@ -304,7 +311,7 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerApplyEvent(
     val entity = findParentMust(EntityI::class.java)
     val state = findParentMust(ControllerI::class.java).derivedFrom() as StateI<*>
     val eventHandlersList = state.eventHandlers()
-    val entityParamName = entity.name().decapitalize()
+    val entityParamName = entity.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
     val stateMachine = findParentMust(StateMachineI::class.java)
 
     val stateMachinePrefix = stateMachine.sourceArtifactsPrefix()
@@ -325,8 +332,10 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerApplyEvent(
         }) { eventHandlers ->
             val event = eventHandlers.event
             """
-    case ${event.dataTypeParentNameAndName().capitalize()}Event:
-        err = o.${event.name().capitalize()}${DesignDerivedType.Handler}(event, ${
+    case ${event.dataTypeParentNameAndName()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}Event:
+        err = o.${event.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${DesignDerivedType.Handler}(event, ${
                 event.hasData().then("event.Data().(${event.toGo(c, api)}), ")
             }$entityParamName)${
                 eventHandlers.handlers.filter {
@@ -385,9 +394,11 @@ fun <T : OperationI<*>> T.toGoStateEventHandlerSetupBody(
 
     val events = state.uniqueEvents()
 
-    val id = entity.propIdOrAdd().name().capitalize()
+    val id = entity.propIdOrAdd().name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     return events.joinSurroundIfNotEmptyToString("") { event ->
-        val handler = c.n(event, DesignDerivedType.Handler).capitalize()
+        val handler = c.n(event, DesignDerivedType.Handler)
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         """
         ${event.toGoRegisterEventData(c, api, derived)}
 	//default event handler implementation

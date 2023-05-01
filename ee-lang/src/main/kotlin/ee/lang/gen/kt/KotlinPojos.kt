@@ -2,11 +2,13 @@ package ee.lang.gen.kt
 
 import ee.common.ext.*
 import ee.lang.*
+import java.util.*
 
 fun LiteralI<*>.toKotlin(): String = name().toUnderscoredUpperCase()
 
 fun LiteralI<*>.toKotlinIsMethod(): String {
-    return "is${name().toCamelCase().capitalize()}()"
+    return "is${name().toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}()"
 }
 
 fun LiteralI<*>.toKotlinIsMethodDef(): String {
@@ -131,7 +133,7 @@ fun <T : EnumTypeI<*>> T.isKotlinExternalNameNeeded(): Boolean {
 
 
 
-fun AttributeI<*>.toByName() = """By${name().capitalize()}"""
+fun AttributeI<*>.toByName() = """By${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""
 
 fun <T : CompilationUnitI<*>> T.toKotlinIfc(
         c: GenerationContext, derived: String = LangDerivedKind.IMPL,

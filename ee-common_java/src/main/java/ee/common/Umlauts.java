@@ -1,14 +1,14 @@
 package ee.common;
 
 public class Umlauts {
-    private static String[][] UMLAUT_REPLACEMENTS =
-            {{new String("Ä"), "Ae"}, {new String("Ü"), "Ue"},
-                    {new String("Ö"), "Oe"}, {new String("ä"), "ae"},
-                    {new String("ü"), "ue"}, {new String("ö"), "oe"}, {new String("ß"), "ss"},
-                    {new String("Ã¤"), "ae"}, {new String("Ã„"), "Ae"},
-                    {new String("Ã¶"), "oe"}, {new String("Ã–"), "Oe"},
-                    {new String("Ã¼"), "ue"}, {new String("Ãœ"), "Ue"},
-                    {new String("ÃŸ"), "ss"}
+    private static final String[][] UMLAUT_REPLACEMENTS =
+            {{"Ä", "Ae"}, {"Ü", "Ue"},
+                    {"Ö", "Oe"}, {"ä", "ae"},
+                    {"ü", "ue"}, {"ö", "oe"}, {"ß", "ss"},
+                    {"Ã¤", "ae"}, {"Ã„", "Ae"},
+                    {"Ã¶", "oe"}, {"Ã–", "Oe"},
+                    {"Ã¼", "ue"}, {"Ãœ", "Ue"},
+                    {"ÃŸ", "ss"}
 
             };
 

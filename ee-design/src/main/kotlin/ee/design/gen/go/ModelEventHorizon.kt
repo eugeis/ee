@@ -4,6 +4,7 @@ import ee.common.ext.toPlural
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.g
+import java.util.*
 
 fun StructureUnitI<*>.addEsArtifacts() {
 
@@ -50,14 +51,15 @@ fun StructureUnitI<*>.addEsArtifacts() {
                 entities.forEach { entity ->
                     val entityProj = "${entity.name()}Projector"
                     val p = prop {
-                        name(entityProj.decapitalize()).type(Type().name(entityProj)).default().notInitByDefaultTypeValue()
+                        name(entityProj.replaceFirstChar { it.lowercase(Locale.getDefault()) }).type(Type().name(entityProj)).default().notInitByDefaultTypeValue()
                     }
                     projectors.add(p)
                 }
                 val pathPrefix = propS { name("pathPrefix") }
                 val httpRouterParams = httpRouters.map { (_, item) ->
                     prop {
-                        type(item).name("${item.parent().name()}${item.name().capitalize()}")
+                        type(item).name("${item.parent().name()}${item.name()
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}")
                     }
                 }
                 op {
@@ -90,7 +92,8 @@ fun StructureUnitI<*>.addEsArtifacts() {
 
                 val httpClientParams = httpClients.mapValues { (_, item) ->
                     prop {
-                        type(item).name("${item.parent().name()}${item.name().capitalize()}")
+                        type(item).name("${item.parent().name()}${item.name()
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}")
                     }
                 }
 
@@ -116,7 +119,8 @@ fun StructureUnitI<*>.addEsArtifacts() {
 
                 val cliParams = entityClis.mapValues { (_, item) ->
                     prop {
-                        type(item).name("${item.parent().name()}${item.name().capitalize()}")
+                        type(item).name("${item.parent().name()}${item.name()
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}")
                     }
                 }
 
@@ -228,14 +232,16 @@ private fun EntityI<*>.addEsArtifacts(
         }
 
         op {
-            name("DeleteBy${propId.name().toPlural().capitalize()}")
+            name("DeleteBy${propId.name().toPlural()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}")
             params(p { name("itemIds").type(n.List.GT(entity.propIdOrAdd().type())) })
 
             macrosBody(OperationI<*>::toGoHttpClientDeleteByIdsBody.name)
         }
 
         op {
-            name("DeleteBy${propId.name().capitalize()}")
+            name("DeleteBy${propId.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}")
             params(p { name("itemId").type(g.google.uuid.UUID) })
 
             macrosBody(OperationI<*>::toGoHttpClientDeleteByIdBody.name)
@@ -299,7 +305,8 @@ private fun EntityI<*>.addEsArtifacts(
             name("${entity.name()}EventType")
             derivedAsType(DesignDerivedType.AggregateEvents)
             events.forEach {
-                lit { name(it.dataTypeParentNameAndName().capitalize()) }
+                lit { name(it.dataTypeParentNameAndName()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }) }
             }
         }
 
@@ -308,7 +315,8 @@ private fun EntityI<*>.addEsArtifacts(
             name("${entity.name()}CommandType")
             derivedAsType(DesignDerivedType.AggregateCommands)
             commands.forEach {
-                lit { name(it.dataTypeNameAndParentName().capitalize()) }
+                lit { name(it.dataTypeNameAndParentName()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }) }
             }
         }
     }
@@ -338,7 +346,7 @@ private fun StateMachineI<*>.addStateMachineArtifacts(
 
     val stateMachine = this
 
-    val entityParamName = entity.name().decapitalize()
+    val entityParamName = entity.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
 
     val stateMachinePrefix = sourceArtifactsPrefix()
     val entityStateMachinePrefix = "${entity.name()}$stateMachinePrefix"
@@ -449,7 +457,8 @@ private fun StateMachineI<*>.addStateMachineArtifacts(
                     }
 
                     op {
-                        name("Add${command.name().capitalize()}Preparer").notErr()
+                        name("Add${command.name()
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}Preparer").notErr()
                         p("preparer", lambda {
                             p("cmd", command)
                             p(entityParamName, entity)
@@ -500,7 +509,7 @@ private fun StateMachineI<*>.addStateMachineArtifacts(
             .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(stateMachine)
 
         handlers.forEach {
-            prop { type(it).name(it.derivedFrom().name().decapitalize()).default() }
+            prop { type(it).name(it.derivedFrom().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }).default() }
         }
 
         prop {
@@ -539,7 +548,7 @@ private fun StateMachineI<*>.addStateMachineArtifacts(
             .derivedAsType(DesignDerivedType.StateMachine).derivedFrom(stateMachine)
 
         executors.forEach {
-            prop { type(it).name(it.derivedFrom().name().decapitalize()).default() }
+            prop { type(it).name(it.derivedFrom().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }).default() }
         }
 
         prop {
@@ -580,8 +589,8 @@ private fun StateMachineI<*>.addStateMachineArtifacts(
         name(entityStateMachinePrefix).derivedAsType(DesignDerivedType.StateMachine)
         prop { name("aggregateBase").type(g.eh.AggregateBase).anonymous() }
         prop { name(entityParamName).type(entity) }
-        prop { name("$stateMachinePrefix${DesignDerivedType.Executors}".decapitalize()).type(commandsHandler) }
-        prop { name("$stateMachinePrefix${DesignDerivedType.Handlers}".decapitalize()).type(eventsHandler) }
+        prop { name("$stateMachinePrefix${DesignDerivedType.Executors}".replaceFirstChar { it.lowercase(Locale.getDefault()) }).type(commandsHandler) }
+        prop { name("$stateMachinePrefix${DesignDerivedType.Handlers}".replaceFirstChar { it.lowercase(Locale.getDefault()) }).type(eventsHandler) }
 
         op {
             name("ApplyEvent")
@@ -651,13 +660,15 @@ private fun EntityI<*>.addCli(client: ControllerI<*>): BusinessControllerI<*> {
         }
 
         op {
-            name("BuildCommandDeleteBy${propId.name().toPlural().capitalize()}")
+            name("BuildCommandDeleteBy${propId.name().toPlural()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}")
             ret(g.cli.Command).notErr()
             macrosBody(OperationI<*>::toGoCliDeleteByIdsBody.name)
         }
 
         op {
-            name("BuildCommandDeleteBy${propId.name().capitalize()}")
+            name("BuildCommandDeleteBy${propId.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}")
             ret(g.cli.Command).notErr()
             macrosBody(OperationI<*>::toGoCliDeleteByIdBody.name)
         }
@@ -671,13 +682,14 @@ private fun EntityI<*>.addHttpQueryHandler(queryRepository: BusinessControllerI<
         name(DesignDerivedType.HttpQueryHandler).derivedAsType(DesignDerivedType.Http)
         prop {
             type(g.gee.ehu.HttpQueryHandler)
-                .anonymous(true).name(DesignDerivedType.HttpQueryHandler.decapitalize())
+                .anonymous(true).name(DesignDerivedType.HttpQueryHandler.replaceFirstChar { it.lowercase(Locale.getDefault()) })
         }
         prop { type(queryRepository).name("queryRepository") }
 
         dataTypeOperations.forEach {
             op {
-                name(it.name().capitalize()).notErr()
+                name(it.name()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }).notErr()
                 p("w", g.net.http.ResponseWriter)
                 p("r", g.net.http.Request)
                 derivedFrom(it)
@@ -721,13 +733,14 @@ private fun EntityI<*>.addHttpCommandHandler(): BusinessControllerI<*> {
         name(DesignDerivedType.HttpCommandHandler).derivedAsType(DesignDerivedType.Http)
         prop {
             type(g.gee.ehu.HttpCommandHandler)
-                .anonymous(true).name(DesignDerivedType.HttpCommandHandler.decapitalize())
+                .anonymous(true).name(DesignDerivedType.HttpCommandHandler.replaceFirstChar { it.lowercase(Locale.getDefault()) })
         }
 
         //commands
         commands.forEach {
             op {
-                name(it.name().capitalize()).notErr()
+                name(it.name()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }).notErr()
                 p("w", g.net.http.ResponseWriter)
                 p("r", g.net.http.Request)
                 derivedFrom(it)

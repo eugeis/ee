@@ -2,27 +2,28 @@ package ee.lang.gen.go
 
 import ee.common.ext.*
 import ee.lang.*
+import java.util.*
 
-fun LiteralI<*>.toGo(): String = name().capitalize()
-fun EnumTypeI<*>.toGoAccess(): String = "${name().capitalize()}s"
-fun EnumTypeI<*>.toGoLiterals(): String = toGoAccess().decapitalize()
+fun LiteralI<*>.toGo(): String = name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+fun EnumTypeI<*>.toGoAccess(): String = "${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}s"
+fun EnumTypeI<*>.toGoLiterals(): String = toGoAccess().replaceFirstChar { it.lowercase(Locale.getDefault()) }
 
 fun LiteralI<*>.toGoIsMethod(o: String, literals: String): String {
     return """
-func (o *$o) Is${name().capitalize()}() bool {
+func (o *$o) Is${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() bool {
     return o.name == _$literals.${toGo()}().name
 }"""
 }
 
 fun AttributeI<*>.toGoGetMethod(o: String, c: GenerationContext, api: String = LangDerivedKind.API): String {
     return """
-func (o *$o) ${name().capitalize()}() ${toGoType(c, api)} {
+func (o *$o) ${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() ${toGoType(c, api)} {
     return o.${name()}
 }"""
 }
 
 fun AttributeI<*>.toGoFindMethodName(): String {
-    return "${name().capitalize()}Find"
+    return "${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}Find"
 }
 
 fun AttributeI<*>.toGoFindMethod(o: String, c: GenerationContext, api: String = LangDerivedKind.API): String {
@@ -31,7 +32,8 @@ fun AttributeI<*>.toGoFindMethod(o: String, c: GenerationContext, api: String = 
     return """
 func (o *$o) ${toGoFindMethodName()}(${propId.name()} ${propId.type().toGo(c, api)}) (int, ${genericType.toGo(c, api)}) {
     for i, item := range o.${nameForGoMember()} {
-        if ${propId.name()} == item.${propId.name().capitalize()} {
+        if ${propId.name()} == item.${propId.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} {
             return i, item
         }
     }
@@ -40,7 +42,7 @@ func (o *$o) ${toGoFindMethodName()}(${propId.name()} ${propId.type().toGo(c, ap
 }
 
 fun AttributeI<*>.toGoRemoveMethodName(): String {
-    return "${name().capitalize()}Remove"
+    return "${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}Remove"
 }
 
 fun AttributeI<*>.toGoRemoveMethod(o: String, c: GenerationContext, api: String = LangDerivedKind.API): String {
@@ -57,7 +59,7 @@ func (o *$o) ${toGoRemoveMethodName()}(${propId.name()} ${propId.type().toGo(c, 
 }
 
 fun AttributeI<*>.toGoAddMethodName(): String {
-    return "${name().capitalize()}Add"
+    return "${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}Add"
 }
 
 fun AttributeI<*>.toGoAddMethod(o: String, c: GenerationContext, api: String = LangDerivedKind.API): String {
@@ -71,7 +73,7 @@ func (o *$o) ${toGoAddMethodName()}(item $type) $type {
 }
 
 fun AttributeI<*>.toGoReplaceMethodName(): String {
-    return "${name().capitalize()}Replace"
+    return "${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}Replace"
 }
 
 fun AttributeI<*>.toGoReplaceMethod(o: String, c: GenerationContext, api: String = LangDerivedKind.API): String {
@@ -81,7 +83,8 @@ fun AttributeI<*>.toGoReplaceMethod(o: String, c: GenerationContext, api: String
     return """
 func (o *$o) ${toGoReplaceMethodName()}(item $type) (ret $type) {
     var index int
-    if index, ret = o.${toGoFindMethodName()}(item.${propId.name().capitalize()}); index >= 0 {
+    if index, ret = o.${toGoFindMethodName()}(item.${propId.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}); index >= 0 {
         o.${nameForGoMember()}[index] = item
     }
     return
@@ -90,7 +93,7 @@ func (o *$o) ${toGoReplaceMethodName()}(item $type) (ret $type) {
 
 fun EnumLiteralI<*>.toGoLitMethod(index: Int, enum: String, literals: String): String {
     return """
-func (o *$literals) ${name().capitalize()}() *$enum {
+func (o *$literals) ${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() *$enum {
     return o.values[$index]
 }"""
 }
@@ -307,7 +310,8 @@ func $constrName(intSalt int) (ret *$name)  {
     ${
         propsNoMetaNoValue().joinSurroundIfNotEmptyToString("\n    ") { prop ->
             if (!prop.isAnonymous()) {
-                "ret.${prop.name().capitalize()} = ${
+                "ret.${prop.name()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = ${
                     prop.toGoValueByPropName(c, derived, "intSalt", constr.name())
                 }"
             } else {

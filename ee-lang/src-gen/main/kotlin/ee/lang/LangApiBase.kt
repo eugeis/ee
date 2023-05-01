@@ -8,9 +8,7 @@ open class Action(adapt: Action.() -> Unit = {}) : ActionB<Action>(adapt) {
     }
 }
 
-open class ActionB<B : ActionI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<B>(adapt), ActionI<B> {
-}
-
+open class ActionB<B : ActionI<B>>(adapt: B.() -> Unit = {}) : LogicUnitB<B>(adapt), ActionI<B>
 
 
 open class AndPredicate(adapt: AndPredicate.() -> Unit = {}) : AndPredicateB<AndPredicate>(adapt) {
@@ -20,9 +18,7 @@ open class AndPredicate(adapt: AndPredicate.() -> Unit = {}) : AndPredicateB<And
     }
 }
 
-open class AndPredicateB<B : AndPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicatesPredicateB<B>(adapt), AndPredicateI<B> {
-}
-
+open class AndPredicateB<B : AndPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicatesPredicateB<B>(adapt), AndPredicateI<B>
 
 
 open class ApplyAction(adapt: ApplyAction.() -> Unit = {}) : ApplyActionB<ApplyAction>(adapt) {
@@ -55,9 +51,7 @@ open class AssignAction(adapt: AssignAction.() -> Unit = {}) : AssignActionB<Ass
     }
 }
 
-open class AssignActionB<B : AssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), AssignActionI<B> {
-}
-
+open class AssignActionB<B : AssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), AssignActionI<B>
 
 
 open class Attribute(adapt: Attribute.() -> Unit = {}) : AttributeB<Attribute>(adapt) {
@@ -170,9 +164,7 @@ open class Basic(adapt: Basic.() -> Unit = {}) : BasicB<Basic>(adapt) {
     }
 }
 
-open class BasicB<B : BasicI<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adapt), BasicI<B> {
-}
-
+open class BasicB<B : BasicI<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adapt), BasicI<B>
 
 
 open class CompilationUnit(adapt: CompilationUnit.() -> Unit = {}) : CompilationUnitB<CompilationUnit>(adapt) {
@@ -220,9 +212,7 @@ open class DataType(adapt: DataType.() -> Unit = {}) : DataTypeB<DataType>(adapt
     }
 }
 
-open class DataTypeB<B : DataTypeI<B>>(adapt: B.() -> Unit = {}) : CompilationUnitB<B>(adapt), DataTypeI<B> {
-}
-
+open class DataTypeB<B : DataTypeI<B>>(adapt: B.() -> Unit = {}) : CompilationUnitB<B>(adapt), DataTypeI<B>
 
 
 open class DataTypeOperation(adapt: DataTypeOperation.() -> Unit = {}) : DataTypeOperationB<DataTypeOperation>(adapt) {
@@ -232,9 +222,7 @@ open class DataTypeOperation(adapt: DataTypeOperation.() -> Unit = {}) : DataTyp
     }
 }
 
-open class DataTypeOperationB<B : DataTypeOperationI<B>>(adapt: B.() -> Unit = {}) : OperationB<B>(adapt), DataTypeOperationI<B> {
-}
-
+open class DataTypeOperationB<B : DataTypeOperationI<B>>(adapt: B.() -> Unit = {}) : OperationB<B>(adapt), DataTypeOperationI<B>
 
 
 open class DecrementExpression(adapt: DecrementExpression.() -> Unit = {}) : DecrementExpressionB<DecrementExpression>(adapt) {
@@ -244,9 +232,7 @@ open class DecrementExpression(adapt: DecrementExpression.() -> Unit = {}) : Dec
     }
 }
 
-open class DecrementExpressionB<B : DecrementExpressionI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>(adapt), DecrementExpressionI<B> {
-}
-
+open class DecrementExpressionB<B : DecrementExpressionI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>(adapt), DecrementExpressionI<B>
 
 
 open class DivideAssignAction(adapt: DivideAssignAction.() -> Unit = {}) : DivideAssignActionB<DivideAssignAction>(adapt) {
@@ -256,9 +242,7 @@ open class DivideAssignAction(adapt: DivideAssignAction.() -> Unit = {}) : Divid
     }
 }
 
-open class DivideAssignActionB<B : DivideAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), DivideAssignActionI<B> {
-}
-
+open class DivideAssignActionB<B : DivideAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), DivideAssignActionI<B>
 
 
 open class DivideExpression(adapt: DivideExpression.() -> Unit = {}) : DivideExpressionB<DivideExpression>(adapt) {
@@ -268,9 +252,7 @@ open class DivideExpression(adapt: DivideExpression.() -> Unit = {}) : DivideExp
     }
 }
 
-open class DivideExpressionB<B : DivideExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), DivideExpressionI<B> {
-}
-
+open class DivideExpressionB<B : DivideExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), DivideExpressionI<B>
 
 
 open class EnumLiteral(adapt: EnumLiteral.() -> Unit = {}) : EnumLiteralB<EnumLiteral>(adapt) {
@@ -325,9 +307,7 @@ open class EqPredicate(adapt: EqPredicate.() -> Unit = {}) : EqPredicateB<EqPred
     }
 }
 
-open class EqPredicateB<B : EqPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), EqPredicateI<B> {
-}
-
+open class EqPredicateB<B : EqPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), EqPredicateI<B>
 
 
 open class Expression(adapt: Expression.() -> Unit = {}) : ExpressionB<Expression>(adapt) {
@@ -337,9 +317,7 @@ open class Expression(adapt: Expression.() -> Unit = {}) : ExpressionB<Expressio
     }
 }
 
-open class ExpressionB<B : ExpressionI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(adapt), ExpressionI<B> {
-}
-
+open class ExpressionB<B : ExpressionI<B>>(adapt: B.() -> Unit = {}) : MacroCompositeB<B>(adapt), ExpressionI<B>
 
 
 open class ExternalType(adapt: ExternalType.() -> Unit = {}) : ExternalTypeB<ExternalType>(adapt) {
@@ -349,9 +327,7 @@ open class ExternalType(adapt: ExternalType.() -> Unit = {}) : ExternalTypeB<Ext
     }
 }
 
-open class ExternalTypeB<B : ExternalTypeI<B>>(adapt: B.() -> Unit = {}) : TypeB<B>(adapt), ExternalTypeI<B> {
-}
-
+open class ExternalTypeB<B : ExternalTypeI<B>>(adapt: B.() -> Unit = {}) : TypeB<B>(adapt), ExternalTypeI<B>
 
 
 open class Generic(adapt: Generic.() -> Unit = {}) : GenericB<Generic>(adapt) {
@@ -380,9 +356,7 @@ open class GtPredicate(adapt: GtPredicate.() -> Unit = {}) : GtPredicateB<GtPred
     }
 }
 
-open class GtPredicateB<B : GtPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), GtPredicateI<B> {
-}
-
+open class GtPredicateB<B : GtPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), GtPredicateI<B>
 
 
 open class GtePredicate(adapt: GtePredicate.() -> Unit = {}) : GtePredicateB<GtePredicate>(adapt) {
@@ -392,9 +366,7 @@ open class GtePredicate(adapt: GtePredicate.() -> Unit = {}) : GtePredicateB<Gte
     }
 }
 
-open class GtePredicateB<B : GtePredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), GtePredicateI<B> {
-}
-
+open class GtePredicateB<B : GtePredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), GtePredicateI<B>
 
 
 open class IncrementExpression(adapt: IncrementExpression.() -> Unit = {}) : IncrementExpressionB<IncrementExpression>(adapt) {
@@ -404,9 +376,7 @@ open class IncrementExpression(adapt: IncrementExpression.() -> Unit = {}) : Inc
     }
 }
 
-open class IncrementExpressionB<B : IncrementExpressionI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>(adapt), IncrementExpressionI<B> {
-}
-
+open class IncrementExpressionB<B : IncrementExpressionI<B>>(adapt: B.() -> Unit = {}) : LiteralB<B>(adapt), IncrementExpressionI<B>
 
 
 open class Lambda(adapt: Lambda.() -> Unit = {}) : LambdaB<Lambda>(adapt) {
@@ -576,9 +546,7 @@ open class LtPredicate(adapt: LtPredicate.() -> Unit = {}) : LtPredicateB<LtPred
     }
 }
 
-open class LtPredicateB<B : LtPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), LtPredicateI<B> {
-}
-
+open class LtPredicateB<B : LtPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), LtPredicateI<B>
 
 
 open class LtePredicate(adapt: LtePredicate.() -> Unit = {}) : LtePredicateB<LtePredicate>(adapt) {
@@ -588,9 +556,7 @@ open class LtePredicate(adapt: LtePredicate.() -> Unit = {}) : LtePredicateB<Lte
     }
 }
 
-open class LtePredicateB<B : LtePredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), LtePredicateI<B> {
-}
-
+open class LtePredicateB<B : LtePredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), LtePredicateI<B>
 
 
 open class MacroComposite(adapt: MacroComposite.() -> Unit = {}) : MacroCompositeB<MacroComposite>(adapt) {
@@ -649,9 +615,7 @@ open class MinusAssignAction(adapt: MinusAssignAction.() -> Unit = {}) : MinusAs
     }
 }
 
-open class MinusAssignActionB<B : MinusAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), MinusAssignActionI<B> {
-}
-
+open class MinusAssignActionB<B : MinusAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), MinusAssignActionI<B>
 
 
 open class MinusExpression(adapt: MinusExpression.() -> Unit = {}) : MinusExpressionB<MinusExpression>(adapt) {
@@ -661,9 +625,7 @@ open class MinusExpression(adapt: MinusExpression.() -> Unit = {}) : MinusExpres
     }
 }
 
-open class MinusExpressionB<B : MinusExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), MinusExpressionI<B> {
-}
-
+open class MinusExpressionB<B : MinusExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), MinusExpressionI<B>
 
 
 open class NativeType(adapt: NativeType.() -> Unit = {}) : NativeTypeB<NativeType>(adapt) {
@@ -673,9 +635,7 @@ open class NativeType(adapt: NativeType.() -> Unit = {}) : NativeTypeB<NativeTyp
     }
 }
 
-open class NativeTypeB<B : NativeTypeI<B>>(adapt: B.() -> Unit = {}) : TypeB<B>(adapt), NativeTypeI<B> {
-}
-
+open class NativeTypeB<B : NativeTypeI<B>>(adapt: B.() -> Unit = {}) : TypeB<B>(adapt), NativeTypeI<B>
 
 
 open class NePredicate(adapt: NePredicate.() -> Unit = {}) : NePredicateB<NePredicate>(adapt) {
@@ -685,9 +645,7 @@ open class NePredicate(adapt: NePredicate.() -> Unit = {}) : NePredicateB<NePred
     }
 }
 
-open class NePredicateB<B : NePredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), NePredicateI<B> {
-}
-
+open class NePredicateB<B : NePredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicateB<B>(adapt), NePredicateI<B>
 
 
 open class NotPredicate(adapt: NotPredicate.() -> Unit = {}) : NotPredicateB<NotPredicate>(adapt) {
@@ -761,9 +719,7 @@ open class OrPredicate(adapt: OrPredicate.() -> Unit = {}) : OrPredicateB<OrPred
     }
 }
 
-open class OrPredicateB<B : OrPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicatesPredicateB<B>(adapt), OrPredicateI<B> {
-}
-
+open class OrPredicateB<B : OrPredicateI<B>>(adapt: B.() -> Unit = {}) : LeftRightPredicatesPredicateB<B>(adapt), OrPredicateI<B>
 
 
 open class PlusAssignAction(adapt: PlusAssignAction.() -> Unit = {}) : PlusAssignActionB<PlusAssignAction>(adapt) {
@@ -773,9 +729,7 @@ open class PlusAssignAction(adapt: PlusAssignAction.() -> Unit = {}) : PlusAssig
     }
 }
 
-open class PlusAssignActionB<B : PlusAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), PlusAssignActionI<B> {
-}
-
+open class PlusAssignActionB<B : PlusAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), PlusAssignActionI<B>
 
 
 open class PlusExpression(adapt: PlusExpression.() -> Unit = {}) : PlusExpressionB<PlusExpression>(adapt) {
@@ -785,9 +739,7 @@ open class PlusExpression(adapt: PlusExpression.() -> Unit = {}) : PlusExpressio
     }
 }
 
-open class PlusExpressionB<B : PlusExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), PlusExpressionI<B> {
-}
-
+open class PlusExpressionB<B : PlusExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), PlusExpressionI<B>
 
 
 open class Predicate(adapt: Predicate.() -> Unit = {}) : PredicateB<Predicate>(adapt) {
@@ -797,9 +749,7 @@ open class Predicate(adapt: Predicate.() -> Unit = {}) : PredicateB<Predicate>(a
     }
 }
 
-open class PredicateB<B : PredicateI<B>>(adapt: B.() -> Unit = {}) : ExpressionB<B>(adapt), PredicateI<B> {
-}
-
+open class PredicateB<B : PredicateI<B>>(adapt: B.() -> Unit = {}) : ExpressionB<B>(adapt), PredicateI<B>
 
 
 open class PropsRef(adapt: PropsRef.() -> Unit = {}) : PropsRefB<PropsRef>(adapt) {
@@ -839,9 +789,7 @@ open class RemainderAssignAction(adapt: RemainderAssignAction.() -> Unit = {}) :
     }
 }
 
-open class RemainderAssignActionB<B : RemainderAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), RemainderAssignActionI<B> {
-}
-
+open class RemainderAssignActionB<B : RemainderAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), RemainderAssignActionI<B>
 
 
 open class RemainderExpression(adapt: RemainderExpression.() -> Unit = {}) : RemainderExpressionB<RemainderExpression>(adapt) {
@@ -851,9 +799,7 @@ open class RemainderExpression(adapt: RemainderExpression.() -> Unit = {}) : Rem
     }
 }
 
-open class RemainderExpressionB<B : RemainderExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), RemainderExpressionI<B> {
-}
-
+open class RemainderExpressionB<B : RemainderExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), RemainderExpressionI<B>
 
 
 open class StructureUnit(adapt: StructureUnit.() -> Unit = {}) : StructureUnitB<StructureUnit>(adapt) {
@@ -890,9 +836,7 @@ open class TimesAssignAction(adapt: TimesAssignAction.() -> Unit = {}) : TimesAs
     }
 }
 
-open class TimesAssignActionB<B : TimesAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), TimesAssignActionI<B> {
-}
-
+open class TimesAssignActionB<B : TimesAssignActionI<B>>(adapt: B.() -> Unit = {}) : ApplyActionB<B>(adapt), TimesAssignActionI<B>
 
 
 open class TimesExpression(adapt: TimesExpression.() -> Unit = {}) : TimesExpressionB<TimesExpression>(adapt) {
@@ -902,9 +846,7 @@ open class TimesExpression(adapt: TimesExpression.() -> Unit = {}) : TimesExpres
     }
 }
 
-open class TimesExpressionB<B : TimesExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), TimesExpressionI<B> {
-}
-
+open class TimesExpressionB<B : TimesExpressionI<B>>(adapt: B.() -> Unit = {}) : LeftRightLiteralB<B>(adapt), TimesExpressionI<B>
 
 
 open class Type(adapt: Type.() -> Unit = {}) : TypeB<Type>(adapt) {
@@ -1007,7 +949,6 @@ open class Values(adapt: Values.() -> Unit = {}) : ValuesB<Values>(adapt) {
     }
 }
 
-open class ValuesB<B : ValuesI<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adapt), ValuesI<B> {
-}
+open class ValuesB<B : ValuesI<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adapt), ValuesI<B>
 
 

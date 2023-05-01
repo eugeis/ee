@@ -3,6 +3,7 @@ package ee.lang.gen.go
 import ee.common.ext.ifElse
 import ee.lang.*
 import ee.lang.gen.common.LangCommonContextFactory
+import java.util.*
 
 open class GoContextBuilder<M>(name: String, macroController: MacroController, builder: M.() -> GoContext)
     : ContextBuilder<M>(name, macroController, builder)
@@ -15,7 +16,7 @@ open class LangGoContextFactory(targetAsSingleModule: Boolean) : LangCommonConte
             val structureUnit = this
             GoContext(
                     moduleFolder = structureUnit.artifact(),
-                    namespace = structureUnit.namespace().toLowerCase(),
+                    namespace = structureUnit.namespace().lowercase(Locale.getDefault()),
                     derivedController = derived,
                     macroController = macroController)
         }
@@ -44,12 +45,20 @@ open class LangGoContextFactory(targetAsSingleModule: Boolean) : LangCommonConte
     }
 
     override fun buildNameForConstructor(item: ConstructorI<*>, kind: String) =
-            (item.name() == item.parent().name()).ifElse({ "New${buildNameCommon(item, kind).capitalize()}" }, {
-                "New${buildNameCommon(item.parent(), kind).capitalize()}${buildNameCommon(item, kind).capitalize()}"
+            (item.name() == item.parent().name()).ifElse({ "New${buildNameCommon(item, kind).replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(
+                    Locale.getDefault()
+                ) else it.toString()
+            }}" }, {
+                "New${buildNameCommon(item.parent(), kind).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${buildNameCommon(item, kind).replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(
+                        Locale.getDefault()
+                    ) else it.toString()
+                }}"
             })
 
     override fun buildNameForOperation(item: OperationI<*>, kind: String): String {
-        return buildNameCommon(item, kind).capitalize()
+        return buildNameCommon(item, kind).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     }
 
     companion object {

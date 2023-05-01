@@ -6,6 +6,7 @@ import ee.lang.MacroController
 import ee.lang.StructureUnitI
 import ee.lang.gen.common.LangCommonContextFactory
 import ee.lang.gen.go.GoContext
+import java.util.*
 
 open class TsContextBuilder<M>(name: String, macroController: MacroController, builder: M.() -> TsContext)
     : ContextBuilder<M>(name, macroController, builder)
@@ -18,7 +19,7 @@ open class LangTsContextFactory(protected val alwaysImportTypes: Boolean = false
     open fun buildForImplOnly(suffixNamespace: String): TsContextBuilder<StructureUnitI<*>> {
         val derivedController = DerivedController()
         registerForImplOnly(derivedController)
-        return contextBuilder(derivedController) { "${namespace().toLowerCase()}$suffixNamespace" }
+        return contextBuilder(derivedController) { "${namespace().lowercase(Locale.getDefault())}$suffixNamespace" }
     }
 
     override fun contextBuilder(

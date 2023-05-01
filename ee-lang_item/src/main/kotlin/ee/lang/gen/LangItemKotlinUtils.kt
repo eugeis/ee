@@ -2,6 +2,7 @@ package ee.lang.gen
 
 import ee.common.ext.then
 import ee.lang.*
+import java.util.*
 
 open class KotlinContextBuilder<M>(name: String, val scope: String, macroController: MacroController,
                                    builder: M.() -> KotlinContext) : ContextBuilder<M>(name, macroController, builder)
@@ -39,7 +40,7 @@ open class KotlinContext : GenerationContext {
 }
 
 val itemAndTemplateNameAsKotlinFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${it.name().capitalize()}${name.capitalize()}.kt")
+    Names("${it.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.kt")
 }
 
 val templateNameAsKotlinFileName: TemplateI<*>.(CompositeI<*>) -> Names = {

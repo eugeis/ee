@@ -7,12 +7,13 @@ import ee.lang.*
 import ee.lang.gen.go.GoContext
 import ee.lang.gen.go.GoContextBuilder
 import ee.lang.gen.go.LangGoContextFactory
+import java.util.*
 
 open class DesignGoContextFactory(targetAsSingleModule: Boolean = true) : LangGoContextFactory(targetAsSingleModule) {
     override fun contextBuilder(
         derived: DerivedController, buildNamespace: StructureUnitI<*>.()->String): GoContextBuilder<StructureUnitI<*>> {
         return GoContextBuilder(CONTEXT_GO, macroController) {
-            GoContext(namespace = namespace().toLowerCase(), moduleFolder = computeModuleFolder(),
+            GoContext(namespace = namespace().lowercase(Locale.getDefault()), moduleFolder = computeModuleFolder(),
                     derivedController = derived, macroController = macroController)
         }
     }
@@ -34,6 +35,8 @@ open class DesignGoContextFactory(targetAsSingleModule: Boolean = true) : LangGo
         }
     }
 
-    protected open fun buildNameForCommand(item: CommandI<*>, kind: String) = item.dataTypeNameAndParentName().capitalize()
-    protected open fun buildNameForEvent(item: EventI<*>, kind: String) = item.dataTypeParentNameAndName().capitalize()
+    protected open fun buildNameForCommand(item: CommandI<*>, kind: String) = item.dataTypeNameAndParentName()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    protected open fun buildNameForEvent(item: EventI<*>, kind: String) = item.dataTypeParentNameAndName()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 }

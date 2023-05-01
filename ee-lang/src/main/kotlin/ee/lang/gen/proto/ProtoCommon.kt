@@ -3,6 +3,7 @@ package ee.lang.gen.proto
 import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
+import java.util.*
 
 fun String.toProtoPackage(): String {
     return toUnderscoredUpperCase().replace(".", "_")
@@ -213,7 +214,15 @@ fun List<AttributeI<*>>.toProtoTypes(c: GenerationContext, derived: String): Str
 fun <T : OperationI<*>> T.toProtoLambda(c: GenerationContext, derived: String): String =
         """func (${params().toProtoTypes(c, derived)}) ${toProtoReturns(c, derived)}"""
 
-fun <T : LogicUnitI<*>> T.toProtoName(): String = isVisible().ifElse({ name().capitalize() }, { name().decapitalize() })
+fun <T : LogicUnitI<*>> T.toProtoName(): String = isVisible().ifElse({ name().replaceFirstChar {
+    if (it.isLowerCase()) it.titlecase(
+        Locale.getDefault()
+    ) else it.toString()
+} }, { name().replaceFirstChar {
+    it.lowercase(
+        Locale.getDefault()
+    )
+} })
 
 fun <T : OperationI<*>> T.toProtoImpl(o: String, c: GenerationContext, api: String): String {
     return hasMacros().then {

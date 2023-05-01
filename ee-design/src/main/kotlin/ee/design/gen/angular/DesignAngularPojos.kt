@@ -4,6 +4,8 @@ import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 fun <T : ModuleI<*>> T.toAngularModule(c: GenerationContext, Module: String = AngularDerivedType.Module): String {
     return """ 
@@ -93,7 +95,9 @@ export class ${this.name()}${RoutingModules} {}
 
 fun <T : ModuleI<*>> T.toAngularModuleHTMLComponent(c: GenerationContext, ViewService: String = AngularDerivedType.ViewService): String {
     return """
-<app-page [pageName]="${this.name().toLowerCase()}${ViewService}.pageName" [pageElement]="${this.name().toLowerCase()}${ViewService}.pageElement" [tabElement]="${this.name().toLowerCase()}${ViewService}.tabElement"></app-page>
+<app-page [pageName]="${this.name().lowercase(Locale.getDefault())}${ViewService}.pageName" [pageElement]="${this.name()
+        .lowercase(Locale.getDefault())}${ViewService}.pageElement" [tabElement]="${this.name()
+        .lowercase(Locale.getDefault())}${ViewService}.tabElement"></app-page>
 """
 }
 
@@ -103,21 +107,24 @@ fun <T : ModuleI<*>> T.toAngularDefaultSCSS(c: GenerationContext): String {
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
     return """
-<app-${this.parent().name().toLowerCase()}></app-${this.parent().name().toLowerCase()}>
+<app-${this.parent().name().lowercase(Locale.getDefault())}></app-${this.parent().name().lowercase(Locale.getDefault())}>
 
-<app-${this.name().toLowerCase()}-form [${this.name().toLowerCase()}]="${this.name().toLowerCase()}"></app-${this.name().toLowerCase()}-form>
+<app-${this.name().lowercase(Locale.getDefault())}-form [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}"></app-${this.name()
+        .lowercase(Locale.getDefault())}-form>
 
-<ng-container *ngIf="${this.name().decapitalize()}${DataService}.isEdit; else notEdit">
+<ng-container *ngIf="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isEdit; else notEdit">
     <button mat-raised-button [routerLink]="'../../'"
             routerLinkActive="active-link">{{'cancel edit' | translate}}</button>
-    <button mat-raised-button (click)="${this.name().decapitalize()}${DataService}.editElement(${this.name().toLowerCase()})" [routerLink]="'../../'"
+    <button mat-raised-button (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editElement(${this.name()
+        .lowercase(Locale.getDefault())})" [routerLink]="'../../'"
             routerLinkActive="active-link">{{'save changes' | translate}}</button>
 </ng-container>
 
 <ng-template #notEdit>
     <button mat-raised-button [routerLink]="'../'"
             routerLinkActive="active-link">{{'cancel' | translate}}</button>
-    <button mat-raised-button (click)="${this.name().decapitalize()}${DataService}.inputElement(${this.name().toLowerCase()})" [routerLink]="'../'"
+    <button mat-raised-button (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.inputElement(${this.name()
+        .lowercase(Locale.getDefault())})" [routerLink]="'../'"
             routerLinkActive="active-link">{{'save' | translate}}</button>
 </ng-template>
 """
@@ -135,12 +142,12 @@ button {
 
 fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
     return """
-<div class="${this.name().toLowerCase()}-form">
+<div class="${this.name().lowercase(Locale.getDefault())}-form">
     <form>
         <fieldset>
-            <legend>{{"table.${this.name().toLowerCase()}" | translate}}</legend>
+            <legend>{{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             ${this.props().filter { it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL) {
-        when(it.type().name().toLowerCase()) {
+        when(it.type().name().lowercase(Locale.getDefault())) {
             "boolean" -> it.toHTMLBooleanForm(tab)
             "date", "list" -> it.toHTMLDateForm(tab)
             "string", "text" -> it.toHTMLStringForm(tab)
@@ -153,9 +160,9 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
         }
     }}
     
-            ${this.props().filter { it.type().name().toLowerCase() == "blob" }.joinSurroundIfNotEmptyToString(nL) {
+            ${this.props().filter { it.type().name().lowercase(Locale.getDefault()) == "blob" }.joinSurroundIfNotEmptyToString(nL) {
         """<div>
-                <img *ngFor='let preview of ${it.parent().name().decapitalize()}${DataService}.previews' [src]="preview" class="preview">
+                <img *ngFor='let preview of ${it.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.previews' [src]="preview" class="preview">
             </div>"""
     }}
         </fieldset>
@@ -175,7 +182,7 @@ fun <T : CompilationUnitI<*>> T.toAngularFormSCSSComponent(c: GenerationContext,
     return """
 @import "src/styles";
 
-.${this.name().toLowerCase()}-form {
+.${this.name().lowercase(Locale.getDefault())}-form {
     @extend .${derived}
 }
 
@@ -191,48 +198,55 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
     return """
-<app-${this.parent().name().toLowerCase()}></app-${this.parent().name().toLowerCase()}>
-<div class="${this.name().toLowerCase()}-list-button">
+<app-${this.parent().name().lowercase(Locale.getDefault())}></app-${this.parent().name().lowercase(Locale.getDefault())}>
+<div class="${this.name().lowercase(Locale.getDefault())}-list-button">
     <a class="newButton" [routerLink]="'./new'"
             routerLinkActive="active-link">
         <mat-icon>add_circle_outline</mat-icon> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
     </a>
     
-    <ng-container *ngIf="${this.name().decapitalize()}${DataService}.isHidden; else showed">
-        <a class="showButton" (click)="${this.name().decapitalize()}${DataService}.toggleHidden()">
+    <ng-container *ngIf="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden; else showed">
+        <a class="showButton" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.toggleHidden()">
             <mat-icon>delete_outline</mat-icon> {{"delete" | translate}}...
         </a>
     </ng-container>
     
     <ng-template #showed>
-        <a class="deleteButton" (click)="${this.name().decapitalize()}${DataService}.clearMultipleItems(${this.name().decapitalize()}${DataService}.selection.selected); ${this.name().decapitalize()}${DataService}.toggleHidden()">
+        <a class="deleteButton" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.clearMultipleItems(${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.selected); ${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.toggleHidden()">
             <mat-icon>delete_outline</mat-icon> {{"delete" | translate}} {{"item" | translate}}
         </a>
     </ng-template>
     
     <mat-form-field class="filter">
         <mat-label>{{"filter" | translate}}</mat-label>
-        <input matInput (keyup)="${this.name().decapitalize()}${DataService}.applyFilter(${"$"}event)" placeholder="Input Filter..." [ngModel]="${this.name().decapitalize()}${DataService}.filterValue">
+        <input matInput (keyup)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.applyFilter(${"$"}event)" placeholder="Input Filter..." [ngModel]="${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.filterValue">
     </mat-form-field>
 </div>
 
-<div class="mat-elevation-z8 ${this.name().toLowerCase()}-list" style="overflow-x: scroll">
-    <table mat-table matSort [dataSource]="${this.name().decapitalize()}${DataService}.dataSources">
+<div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list" style="overflow-x: scroll">
+    <table mat-table matSort [dataSource]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.dataSources">
         <ng-container matColumnDef="Box">
             <th mat-header-cell *matHeaderCellDef>
-                <section [style.visibility]="${this.name().decapitalize()}${DataService}.isHidden? 'hidden': 'visible'">
+                <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
                     <mat-checkbox color="warn"
-                                  (change)="${"$"}event ? ${this.name().decapitalize()}${DataService}.masterToggle() : null"
-                                  [checked]="${this.name().decapitalize()}${DataService}.selection.hasValue() && ${this.name().decapitalize()}${DataService}.allRowsSelected()"
-                                  [indeterminate]="${this.name().decapitalize()}${DataService}.selection.hasValue() && !${this.name().decapitalize()}${DataService}.allRowsSelected()"></mat-checkbox>
+                                  (change)="${"$"}event ? ${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.masterToggle() : null"
+                                  [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && ${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()"
+                                  [indeterminate]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && !${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()"></mat-checkbox>
                 </section>
             </th>
             <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'box'">
-                <section [style.visibility]="${this.name().decapitalize()}${DataService}.isHidden? 'hidden': 'visible'">
+                <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
                     <mat-checkbox color="warn"
                                   (click)="${"$"}event.stopPropagation()"
-                                  (change)="${"$"}event ? ${this.name().decapitalize()}${DataService}.selection.toggle(element) : null"
-                                  [checked]="${this.name().decapitalize()}${DataService}.selection.isSelected(element)"></mat-checkbox>
+                                  (change)="${"$"}event ? ${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.toggle(element) : null"
+                                  [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.isSelected(element)"></mat-checkbox>
                 </section>
             </td>
         </ng-container>
@@ -242,9 +256,11 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
             <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'actions'">
                 <mat-menu #appMenu="matMenu">
                     <ng-template matMenuContent>
-                        <button mat-menu-item (click)="${this.name().decapitalize()}${DataService}.editItems(i, element)"><mat-icon>edit</mat-icon>
+                        <button mat-menu-item (click)="${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editItems(i, element)"><mat-icon>edit</mat-icon>
                             <span>{{"edit" | translate}}</span></button>
-                        <button mat-menu-item (click)="${this.name().decapitalize()}${DataService}.removeItem(element)"><mat-icon>delete</mat-icon>
+                        <button mat-menu-item (click)="${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.removeItem(element)"><mat-icon>delete</mat-icon>
                             <span>{{"delete" | translate}}</span></button>
                     </ng-template>
                 </mat-menu>
@@ -268,7 +284,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListSCSSComponent(c: GenerationCo
     return """
 @import "src/styles";
 
-.${this.name().toLowerCase()}-list {
+.${this.name().lowercase(Locale.getDefault())}-list {
     @extend .${derived};
     position: absolute;
     width: 80% !important;
@@ -277,7 +293,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListSCSSComponent(c: GenerationCo
     left: 10%;
 }
 
-.${this.name().toLowerCase()}-list-button {
+.${this.name().lowercase(Locale.getDefault())}-list-button {
     @extend .${derived}-button
 }
 
@@ -289,15 +305,15 @@ a {
 
 fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext, derived: String = AngularFileFormat.BasicForm): String {
     return """
-<div class="${this.name().toLowerCase()}${derived}">
+<div class="${this.name().lowercase(Locale.getDefault())}${derived}">
     <fieldset>
-        <legend>{{"table."+ parentName | translate}} {{"table.${this.name().toLowerCase()}" | translate}}</legend>
+        <legend>{{"table."+ parentName | translate}} {{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
             is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name())
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
             is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityForBasic(it.type().name(), it.type().props().first { element -> element.type().name() == "String" })
-            else -> when(it.type().name().toLowerCase()) {
+            else -> when(it.type().name().lowercase(Locale.getDefault())) {
                 "boolean" -> it.toHTMLBooleanForm("")
                 "date", "list" -> it.toHTMLDateForm("")
                 "float", "int" -> it.toHTMLNumberForm("")
@@ -315,7 +331,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(c: GenerationContext
     return """
 @import "src/styles";
 
-.${this.name().toLowerCase()}${derived} {
+.${this.name().lowercase(Locale.getDefault())}${derived} {
     @extend .fieldset-form
 }
 """
@@ -324,8 +340,8 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(c: GenerationContext
 fun <T : CompilationUnitI<*>> T.toAngularEnumHTMLComponent(c: GenerationContext): String {
     return """
 <mat-form-field appearance="outline">
-    <mat-label>{{"table.${this.name().toLowerCase()}" | translate}}</mat-label>
-    <mat-select [(ngModel)]="${this.name().toLowerCase()}" (selectionChange)="changeValue(${"$"}event)">
+    <mat-label>{{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+    <mat-select [(ngModel)]="${this.name().lowercase(Locale.getDefault())}" (selectionChange)="changeValue(${"$"}event)">
         <mat-option *ngFor="let item of enumElements" [value]="item">{{item | translate}}</mat-option>
     </mat-select>
 </mat-form-field>

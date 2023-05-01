@@ -2,6 +2,7 @@ package ee.lang.gen.kt
 
 import ee.common.ext.*
 import ee.lang.*
+import java.util.*
 
 const val derivedBuilder = "BuilderI"
 const val derivedBuilderB = "BuilderB"
@@ -64,16 +65,16 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethodsI(c: GenerationContext, api: Str
     val value = (name() == "value").ifElse("aValue", "value")
     val bool = (type() == n.Boolean)
     return """
-    fun ${bool.ifElse({ "is${name().capitalize()}" }, { name() })}(): ${toKotlinTypeDef(c, api)}${type().isMulti().ifElse({
+    fun ${bool.ifElse({ "is${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" }, { name() })}(): ${toKotlinTypeDef(c, api)}${type().isMulti().ifElse({
         """
     fun ${name()}(vararg $value: ${toKotlinTypeGenerics(c, api)}): $builderType
-    fun clear${name().capitalize()}(): $builderType"""
+    fun clear${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(): $builderType"""
     }, {
         """
     fun ${name()}($value: ${toKotlinTypeDef(c, api)}): $builderType${bool.then {
             """
     fun ${name()}(): $builderType = ${name()}(true)
-    fun not${name().capitalize()}(): $builderType = ${name()}(false)"""
+    fun not${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(): $builderType = ${name()}(false)"""
         }}"""
     })}${nonFluent().isNotBlank().then {
         """
@@ -94,10 +95,14 @@ fun <T : AttributeI<*>> T.toKotlinBuilderMethods(
     ${override}fun ${name()}(vararg $value: ${toKotlinTypeGenerics(c, api)
         }): $B = $applyB {
         ${name()}.${type().isOrDerived(n.Map).ifElse("putAll", "addAll")}(value.asList()) }
-    ${override}fun clear${name().capitalize()}(): $B = $applyB { ${name()}.clear() }"""
+    ${override}fun clear${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(): $B = $applyB { ${name()}.clear() }"""
     }, {
         """
-    ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().capitalize()}" },
+    ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(
+                Locale.getDefault()
+            ) else it.toString()
+        }}" },
                 { name() })}(): ${toKotlinTypeDef(c, api)} = ${name()}
     ${override}fun ${name()}($value: ${toKotlinTypeDef(c, api)}): $B = $applyB { ${name()} = $value }"""
     })}${nonFluent().isNotBlank().then {
@@ -164,7 +169,8 @@ fun List<AttributeI<*>>.toKotlinCallParamsBuilder(
         c: GenerationContext, wrapIdent: String = "                    "): String =
         joinWrappedToString(", ", wrapIdent) {
             (it.type() == n.Boolean).ifElse(
-                    { "is${it.name().capitalize()}()" },
+                    { "is${it.name()
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}()" },
                     { "${it.name()}()" }
             )
         }

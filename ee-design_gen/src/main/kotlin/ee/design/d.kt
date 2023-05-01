@@ -33,7 +33,7 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val moduleGroups = prop(ModuleGroup).multi(true)
     }
 
-    object Event : CompilationUnit({ superUnit(l.DataType) }) {}
+    object Event : CompilationUnit({ superUnit(l.DataType) })
 
     object BusinessEvent : CompilationUnit({ superUnit(Event) })
 
@@ -70,11 +70,11 @@ object d : StructureUnit({ artifact("ee-design").namespace("ee.design").name("De
         val controllers = prop(BusinessController).multi(true).nonFluent("controller")
     }
 
-    object Saga : CompilationUnit({ superUnit(StateMachine) }) {}
+    object Saga : CompilationUnit({ superUnit(StateMachine) })
 
-    object Projector : CompilationUnit({ superUnit(StateMachine) }) {}
+    object Projector : CompilationUnit({ superUnit(StateMachine) })
 
-    object AggregateHandler : CompilationUnit({ superUnit(StateMachine) }) {}
+    object AggregateHandler : CompilationUnit({ superUnit(StateMachine) })
 
     object State : CompilationUnit({ superUnit(Controller) }) {
         val timeout = propL()

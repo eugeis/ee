@@ -2,6 +2,7 @@ package ee.lang
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import ee.common.ext.*
@@ -377,7 +378,16 @@ fun GenerationMetaData.store(path: Path, name: String = "ee.json") {
 }
 
 private fun jsonMapper(): ObjectMapper {
-    val mapper = ObjectMapper().registerModule(KotlinModule())
+    val mapper = ObjectMapper().registerModule(
+        KotlinModule.Builder()
+            .withReflectionCacheSize(512)
+            .configure(KotlinFeature.NullToEmptyCollection, false)
+            .configure(KotlinFeature.NullToEmptyMap, false)
+            .configure(KotlinFeature.NullIsSameAsDefault, false)
+            .configure(KotlinFeature.SingletonSupport, false)
+            .configure(KotlinFeature.StrictNullChecks, false)
+            .build()
+    )
     mapper.enable(SerializationFeature.INDENT_OUTPUT)
     return mapper
 }

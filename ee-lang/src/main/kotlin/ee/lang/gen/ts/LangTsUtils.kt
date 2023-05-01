@@ -2,6 +2,7 @@ package ee.lang.gen.ts
 
 import ee.common.ext.then
 import ee.lang.*
+import java.util.*
 
 open class AngularDerivedKindNames {
     val DataService = "DataService"
@@ -40,116 +41,86 @@ object AngularDerivedType : AngularDerivedKindNames()
 
 object AngularFileFormat : AngularFileFormatNames()
 
-object ts : StructureUnit({ namespace("").name("TypeScript") }) {}
+object ts : StructureUnit({ namespace("").name("TypeScript") })
 
 object angular : StructureUnit({namespace("@angular").name("angular")}) {
     object core : StructureUnit() {
-        object Component : ExternalType() {
-        }
-        object Input : ExternalType() {
-        }
-        object Output : ExternalType() {
-        }
-        object EventEmitter : ExternalType() {
-        }
-        object OnInit : ExternalType() {
-        }
-        object AfterViewInit : ExternalType() {
-        }
-        object ViewChild : ExternalType() {
-        }
-        object Injectable : ExternalType() {
-        }
-        object NgModule : ExternalType() {
-        }
+        object Component : ExternalType()
+        object Input : ExternalType()
+        object Output : ExternalType()
+        object EventEmitter : ExternalType()
+        object OnInit : ExternalType()
+        object AfterViewInit : ExternalType()
+        object ViewChild : ExternalType()
+        object Injectable : ExternalType()
+        object NgModule : ExternalType()
     }
     object forms : StructureUnit() {
-        object FormControl : ExternalType() {
-        }
-        object FormsModule : ExternalType() {
-        }
-        object ReactiveFormsModule : ExternalType() {
-        }
+        object FormControl : ExternalType()
+        object FormsModule : ExternalType()
+        object ReactiveFormsModule : ExternalType()
     }
     object material : StructureUnit() {
         object table : StructureUnit() {
-            object MatTableDataSource : ExternalType() {
-            }
+            object MatTableDataSource : ExternalType()
         }
         object sort : StructureUnit() {
-            object MatSort : ExternalType() {
-            }
+            object MatSort : ExternalType()
         }
         object select : StructureUnit() {
-            object MatSelectChange : ExternalType() {
-            }
+            object MatSelectChange : ExternalType()
         }
     }
     object common : StructureUnit() {
-        object CommonModule: ExternalType() {
-        }
+        object CommonModule: ExternalType()
     }
     object commonhttp : StructureUnit({(namespace("common/http").name("common/http"))}) {
-        object HttpClient : ExternalType() {
-        }
+        object HttpClient : ExternalType()
     }
     object router : StructureUnit() {
-        object Routes : ExternalType() {
-        }
-        object RouterModule : ExternalType() {
-        }
+        object Routes : ExternalType()
+        object RouterModule : ExternalType()
     }
 }
 
 object rxjs : StructureUnit({namespace("rxjs").name("rxjs")}) {
     object empty : StructureUnit({namespace("").name("")}) {
-        object Observable : ExternalType() {
-        }
+        object Observable : ExternalType()
     }
 
     object operators : StructureUnit({namespace("").name("")}) {
-        object map : ExternalType() {
-        }
-        object startWith : ExternalType() {
-        }
+        object map : ExternalType()
+        object startWith : ExternalType()
     }
 }
 
 object service: StructureUnit({namespace("service").name("service")}) {
     object template: StructureUnit({namespace("template").name("template")}) {
         // @template/service/data.service
-        object DataService: ExternalType() {
-        }
+        object DataService: ExternalType()
     }
 }
 
 object module: StructureUnit({namespace("module").name("module")}) {
     object template : StructureUnit() {
-        object TemplateModule : ExternalType() {
-        }
+        object TemplateModule : ExternalType()
     }
     object material : StructureUnit() {
-        object MaterialModule : ExternalType() {
-        }
+        object MaterialModule : ExternalType()
     }
     object services : StructureUnit() {
-        object TemplateTranslateService : ExternalType() {
-        }
+        object TemplateTranslateService : ExternalType()
     }
 }
 
 object ngxtranslate: StructureUnit({namespace("ngx-translate").name("ngx-translate")}) {
     object core : StructureUnit() {
-        object TranslateLoader : ExternalType() {
-        }
-        object TranslateModule : ExternalType() {
-        }
-        object TranslateService : ExternalType() {
-        }
+        object TranslateLoader : ExternalType()
+        object TranslateModule : ExternalType()
+        object TranslateService : ExternalType()
     }
     object httploader : StructureUnit({namespace("http-loader").name("http-loader")}) {
-        object TranslateHttpLoader : ExternalType() {
-        }
+        object TranslateHttpLoader : ExternalType()
     }
 }
 
@@ -196,9 +167,11 @@ open class TsContext(
                             "module" -> """'@template/${if(su.name().equals("services", true)) {"""${su.name()}/translate.service"""} else {"""${su.name()}.module"""}}'"""
                             else -> when(su.name()) {
                                 "empty" -> """'${su.parent().name()}'"""
-                                else -> """'${(su.parent().name().decapitalize() !in arrayOf("rxjs")).then { "@" }}${su.parent().name().decapitalize()}/${su.name().equals("shared", true).not().then {
-                                    su.name().decapitalize()
-                                }}${(su.parent().name().decapitalize() !in arrayOf("angular", "rxjs", "ngx-translate")).then { "/${su.name().capitalize()}ApiBase" }}'"""
+                                else -> """'${(su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) } !in arrayOf("rxjs")).then { "@" }}${su.parent().name()
+                                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}/${su.name().equals("shared", true).not().then {
+                                    su.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }}${(su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) } !in arrayOf("angular", "rxjs", "ngx-translate")).then { "/${su.name()
+                                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}ApiBase" }}'"""
                             }
                         }}"""
                     }.toHashSet().sorted().joinToString(nL)}$nL$nL"
@@ -217,11 +190,17 @@ open class TsContext(
                         items.filter { it.namespace().contains(AngularFileFormat.EntityViewComponent) || it.namespace().contains(AngularFileFormat.ModuleViewComponent) }.sortedBy { it.name() }.
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
-                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}${
+                                if (su.parent().isEMPTY()) {
+                                    su.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }
+                                else {
+                                    su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }}${
                                     if (su.parent().isEMPTY()) {""}
-                                    else {"/${su.name().toLowerCase()}"}}/${it.name().replace(AngularDerivedType.ViewComponent, "").toLowerCase()}/components/view/${
-                                    it.name().replace(AngularDerivedType.ViewComponent, "").toLowerCase()}-${
+                                    else {"/${su.name().lowercase(Locale.getDefault())}"}}/${it.name().replace(AngularDerivedType.ViewComponent, "")
+                                .lowercase(Locale.getDefault())}/components/view/${
+                                it.name().replace(AngularDerivedType.ViewComponent, "").lowercase(Locale.getDefault())
+                            }-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                             
                         }
@@ -241,9 +220,15 @@ open class TsContext(
                         items.filter { it.namespace().contains(AngularFileFormat.EntityListComponent) }.sortedBy { it.name() }.
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
-                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/${it.name().replace(AngularDerivedType.ListComponent, "").toLowerCase()}/components/list/${
-                                    it.name().replace(AngularDerivedType.ListComponent, "").toLowerCase()}-${
+                                if (su.parent().isEMPTY()) {
+                                    su.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }
+                                else {
+                                    su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }}/${su.name().lowercase(Locale.getDefault())}/${it.name().replace(AngularDerivedType.ListComponent, "")
+                                .lowercase(Locale.getDefault())}/components/list/${
+                                it.name().replace(AngularDerivedType.ListComponent, "").lowercase(Locale.getDefault())
+                            }-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -262,9 +247,15 @@ open class TsContext(
                         items.filter { it.namespace().contains(AngularFileFormat.EntityFormComponent) }.sortedBy { it.name() }.
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
-                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/${it.name().replace(AngularDerivedType.FormComponent, "").toLowerCase()}/components/form/${
-                                    it.name().replace(AngularDerivedType.FormComponent, "").toLowerCase()}-${
+                                if (su.parent().isEMPTY()) {
+                                    su.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }
+                                else {
+                                    su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }}/${su.name().lowercase(Locale.getDefault())}/${it.name().replace(AngularDerivedType.FormComponent, "")
+                                .lowercase(Locale.getDefault())}/components/form/${
+                                it.name().replace(AngularDerivedType.FormComponent, "").lowercase(Locale.getDefault())
+                            }-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -283,9 +274,15 @@ open class TsContext(
                         items.filter { it.namespace().contains(AngularFileFormat.EnumComponent) }.sortedBy { it.name() }.
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
-                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/enums/${it.name().replace(AngularDerivedType.EnumComponent, "").toLowerCase()}/${
-                                    it.name().replace(AngularDerivedType.EnumComponent, "").toLowerCase()}-${
+                                if (su.parent().isEMPTY()) {
+                                    su.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }
+                                else {
+                                    su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }}/${su.name().lowercase(Locale.getDefault())}/enums/${it.name().replace(AngularDerivedType.EnumComponent, "")
+                                .lowercase(Locale.getDefault())}/${
+                                it.name().replace(AngularDerivedType.EnumComponent, "").lowercase(Locale.getDefault())
+                            }-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -304,9 +301,15 @@ open class TsContext(
                         items.filter { it.namespace().contains(AngularFileFormat.BasicComponent) }.sortedBy { it.name() }.
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
-                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/basics/${it.name().replace(AngularDerivedType.BasicComponent, "").toLowerCase()}/${
-                                    it.name().replace(AngularDerivedType.BasicComponent, "").toLowerCase()}-${
+                                if (su.parent().isEMPTY()) {
+                                    su.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }
+                                else {
+                                    su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }}/${su.name().lowercase(Locale.getDefault())}/basics/${it.name().replace(AngularDerivedType.BasicComponent, "")
+                                .lowercase(Locale.getDefault())}/${
+                                it.name().replace(AngularDerivedType.BasicComponent, "").lowercase(Locale.getDefault())
+                            }-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -325,10 +328,17 @@ open class TsContext(
                         items.sortedBy { it.name() }.
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
-                                if (su.parent().isEMPTY()) {su.name().decapitalize()} 
-                                else {su.parent().name().decapitalize()}}/${
-                                    it.name().replace(AngularDerivedType.ViewService, "").decapitalize()}/service/${
-                                        it.name().replace(AngularDerivedType.ViewService, "").toLowerCase()}-${
+                                if (su.parent().isEMPTY()) {
+                                    su.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                } 
+                                else {
+                                    su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }}/${
+                                it.name().replace(AngularDerivedType.ViewService, "")
+                                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                            }/service/${
+                                it.name().replace(AngularDerivedType.ViewService, "").lowercase(Locale.getDefault())
+                            }-${
                                             it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -349,9 +359,15 @@ open class TsContext(
                         joinToString("\n") {
                             if (it.name().equals(AngularDerivedType.DataService, true)) {"""import {${it.name()}} from '@template/services/data.service'"""} 
                             else {"""import {${it.name()}} from '@${
-                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${su.name().toLowerCase()}/${it.name().replace(AngularDerivedType.DataService, "").toLowerCase()}/service/${
-                                    it.name().replace(AngularDerivedType.DataService, "").toLowerCase()}-${
+                                if (su.parent().isEMPTY()) {
+                                    su.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }
+                                else {
+                                    su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }}/${su.name().lowercase(Locale.getDefault())}/${it.name().replace(AngularDerivedType.DataService, "")
+                                .lowercase(Locale.getDefault())}/service/${
+                                it.name().replace(AngularDerivedType.DataService, "").lowercase(Locale.getDefault())
+                            }-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""}
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -370,9 +386,16 @@ open class TsContext(
                         items.filter { it.namespace().contains(AngularFileFormat.RoutingModule) }.sortedBy { it.name() }.
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
-                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${it.name().replace(AngularDerivedType.RoutingModules, "").decapitalize()}/${
-                                    it.name().replace(AngularDerivedType.RoutingModules, "").decapitalize()}-${
+                                if (su.parent().isEMPTY()) {
+                                    su.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }
+                                else {
+                                    su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }}/${it.name().replace(AngularDerivedType.RoutingModules, "")
+                                .replaceFirstChar { it.lowercase(Locale.getDefault()) }}/${
+                                it.name().replace(AngularDerivedType.RoutingModules, "")
+                                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                            }-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -393,9 +416,16 @@ open class TsContext(
                         items.filter { it.namespace().contains(AngularFileFormat.Module) }.sortedBy { it.name() }.
                         joinToString("\n") {
                             """import {${it.name()}} from '@${
-                                if (su.parent().isEMPTY()) {su.name().decapitalize()}
-                                else {su.parent().name().decapitalize()}}/${it.name().replace(AngularDerivedType.Module, "").decapitalize()}/${
-                                    it.name().replace(AngularDerivedType.Module, "").decapitalize()}-${
+                                if (su.parent().isEMPTY()) {
+                                    su.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }
+                                else {
+                                    su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }}/${it.name().replace(AngularDerivedType.Module, "")
+                                .replaceFirstChar { it.lowercase(Locale.getDefault()) }}/${
+                                it.name().replace(AngularDerivedType.Module, "")
+                                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                            }-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
                     }.joinToString(nL)}$nL$nL"
@@ -458,7 +488,7 @@ val angularRoutingModule = AngularNames("routing", false, "module")
 val angularEnumComponent = AngularNames("enum", true, "component")
 
 val itemAndTemplateNameAsTsFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${it.name().capitalize()}${name.capitalize()}.ts")
+    Names("${it.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.ts")
 }
 val templateNameAsTsFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("$name.ts")
@@ -468,7 +498,7 @@ val itemNameAsTsFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
 }
 
 val itemAndTemplateNameAsHTMLFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${it.name().capitalize()}${name.capitalize()}.html")
+    Names("${it.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.html")
 }
 val templateNameAsHTMLFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("$name.html")
@@ -478,7 +508,7 @@ val itemNameAsHTMLFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
 }
 
 val itemAndTemplateNameAsCSSFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${it.name().capitalize()}${name.capitalize()}.scss")
+    Names("${it.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.scss")
 }
 val templateNameAsCSSFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("$name.scss")

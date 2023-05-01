@@ -5,6 +5,7 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
+import java.util.*
 
 fun <T : AttributeI<*>> T.toKotlinTypeSingleB(c: GenerationContext, api: String): String {
     return type().isNative().ifElse({ c.n(type(), api) }, { "${c.n(type(), api)}<*>" })
@@ -19,7 +20,7 @@ fun <T : AttributeI<*>> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: 
     val value = (name() == "value").ifElse("aValue", "value")
     val bool = (type() == n.Boolean)
     return """
-    fun ${bool.ifElse({ "is${name().capitalize()}" }, { name() })}(): ${toKotlinDslTypeDef(c, api)}${isMulti().ifElse({
+    fun ${bool.ifElse({ "is${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" }, { name() })}(): ${toKotlinDslTypeDef(c, api)}${isMulti().ifElse({
         """
     fun ${name()}(vararg $value: ${toKotlinTypeSingleB(c, api)}): B"""
     }, {
@@ -27,7 +28,7 @@ fun <T : AttributeI<*>> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: 
     fun ${name()}($value: ${toKotlinDslTypeDef(c, api)}): B${bool.then {
             """
     fun ${name()}(): B = ${name()}(true)
-    fun not${name().capitalize()}(): B = ${name()}(false)"""
+    fun not${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(): B = ${name()}(false)"""
         }}"""
     })}${nonFluent().isNotBlank().then {
         """
@@ -47,7 +48,11 @@ fun <T : AttributeI<*>> T.toKotlinDslBuilderMethods(c: GenerationContext, derive
                 api)}): B = apply { ${name()}().addItems(value.asList()) }"""
     }, {
         """
-    ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().capitalize()}" }, { name() })}(): ${toKotlinDslTypeDef(c,
+    ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(
+                Locale.getDefault()
+            ) else it.toString()
+        }}" }, { name() })}(): ${toKotlinDslTypeDef(c,
                 api)} = attr(${name().toUnderscoredUpperCase()}${isNullable().not().then {
             ", { ${(value() == null || value().toString().isEmpty()).ifElse(toKotlinEMPTY(c, derived), value())} }"
         }})
@@ -106,6 +111,6 @@ open class $B<B : $B<B>>(adapt: B.() -> Unit = {}) : ${c.n(superUnit(),
 
 fun String?.toDslDoc(suffix: String = "", prefix: String = ""): String =
         if (this != null) {
-            "${suffix}doc(${(this!!.contains("\"") || contains("\n") || contains("\\")).ifElse(
+            "${suffix}doc(${(this.contains("\"") || contains("\n") || contains("\\")).ifElse(
                     "\"\"\"$this\"\"\"", "\"$this\"")})$prefix"
         } else ""

@@ -3,6 +3,7 @@ package ee.design.gen.swagger
 import ee.design.CompI
 import ee.lang.*
 import ee.lang.gen.common.LangCommonContextFactory
+import java.util.*
 
 open class DesignSwaggerContextFactory : LangCommonContextFactory() {
     override fun contextBuilder(
@@ -12,7 +13,7 @@ open class DesignSwaggerContextFactory : LangCommonContextFactory() {
             val compOrStructureUnit = this.findThisOrParentUnsafe(CompI::class.java) ?: structureUnit
             GenerationContext(moduleFolder = "${compOrStructureUnit.artifact()}/${compOrStructureUnit.artifact()}",
                 genFolder = "src-gen/main/swagger", genFolderDeletable = true,
-                namespace = structureUnit.namespace().toLowerCase(), derivedController = derived,
+                namespace = structureUnit.namespace().lowercase(Locale.getDefault()), derivedController = derived,
                 macroController = macroController)
         }
     }

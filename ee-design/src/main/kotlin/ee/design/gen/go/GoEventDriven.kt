@@ -6,22 +6,27 @@ import ee.common.ext.then
 import ee.design.*
 import ee.lang.*
 import ee.lang.gen.go.*
+import java.util.*
 
 fun <T : EntityI<*>> T.toGoCommandTypes(c: GenerationContext): String {
     val items = findDownByType(CommandI::class.java)
     return items.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
-        """     ${it.dataTypeNameAndParentName().capitalize()}${DesignDerivedType.Command} ${
+        """     ${it.dataTypeNameAndParentName()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${DesignDerivedType.Command} ${
             c.n(g.eh.CommandType)
-        } = "${it.dataTypeNameAndParentName().capitalize()}""""
+        } = "${it.dataTypeNameAndParentName()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}""""
     }
 }
 
 fun <T : EntityI<*>> T.toGoEventTypes(c: GenerationContext): String {
     val items = findDownByType(EventI::class.java)
     return items.joinSurroundIfNotEmptyToString(nL, "${nL}const ($nL", "$nL)") {
-        """     ${it.dataTypeParentNameAndName().capitalize()}${DesignDerivedType.Event} ${
+        """     ${it.dataTypeParentNameAndName()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${DesignDerivedType.Event} ${
             c.n(g.eh.EventType)
-        } = "${it.dataTypeParentNameAndName().capitalize()}""""
+        } = "${it.dataTypeParentNameAndName()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}""""
     }
 }
 
@@ -137,14 +142,15 @@ fun <T : OperationI<*>> T.toGoHttpHandlerCommandBody(
         """
     vars := ${c.n(g.mux.Vars, api)}(r)${
             varProps.joinSurroundIfNotEmptyToString("") { propKey ->
-                val propName = propKey.decapitalize()
+                val propName = propKey.replaceFirstChar { it.lowercase(Locale.getDefault()) }
                 """
     $propName, _ := ${c.n(g.google.uuid.Parse, api)}(vars["$propName"])"""
             }
         }
-    command := &${command.dataTypeNameAndParentName().capitalize()}{${
+    command := &${command.dataTypeNameAndParentName()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}{${
             varProps.joinSurroundIfNotEmptyToString(", ") { propKey ->
-                """${propKey.capitalize()}: ${propKey.decapitalize()}"""
+                """${propKey.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: ${propKey.replaceFirstChar { it.lowercase(Locale.getDefault()) }}"""
             }
         }}
     o.HandleCommand(command, w, r)"""
@@ -168,7 +174,7 @@ fun <T : OperationI<*>> T.toGoHttpHandlerIdBasedBody(
     val entity = findParentMust(EntityI::class.java)
     return """
     vars := ${c.n(g.mux.Vars, api)}(r)
-    id := vars["${entity.propIdOrAdd().name().decapitalize()}"]
+    id := vars["${entity.propIdOrAdd().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}"]
     ${c.n(g.fmt.Fprintf, api)}(w, "id=%v, %q from ${dataTypeParentNameAndName()}", id, ${
         c.n(
             g.html.EscapeString,
@@ -191,7 +197,9 @@ fun <T : CommandI<*>> T.toGoStoreEvent(
                             "${prop.type().name()}: command.${prop.type().name()}"
                         },
                             {
-                                "${prop.name().capitalize()}: command.${prop.name().capitalize()}"
+                                "${prop.name()
+                                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: command.${prop.name()
+                                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                             })
                     }"""
                 }
@@ -207,9 +215,9 @@ fun <T : EventI<*>> T.toGoApplyEvent(
         .joinSurroundIfNotEmptyToString("") { it.toGoApplyEventProp(c, derived, variableName) }
 
 fun <T : AttributeI<*>> T.toGoApplyEventProp(c: GenerationContext, derived: String, variableName: String): String = """
-		$variableName.${name().capitalize()} = ${
+		$variableName.${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = ${
     (value() != null).ifElse({ toGoValue(c, derived) },
-        { "eventData.${name().capitalize()}" })
+        { "eventData.${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" })
 }"""
 
 fun <T : OperationI<*>> T.toGoEventHandlerApplyEvent(
@@ -228,8 +236,10 @@ fun <T : OperationI<*>> T.toGoEventHandlerApplyEvent(
 	}"""
         ) { event ->
             """
-    case ${event.dataTypeParentNameAndName().capitalize()}Event:
-        err = o.${event.name().capitalize()}${DesignDerivedType.Handler}(event, ${
+    case ${event.dataTypeParentNameAndName()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}Event:
+        err = o.${event.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${DesignDerivedType.Handler}(event, ${
                 event.hasData().then("event.Data().(${event.toGo(c, api)}), ")
             }entity.(${entity.toGo(c, api)}))"""
         }
@@ -242,9 +252,11 @@ fun <T : OperationI<*>> T.toGoEventHandlerSetupBody(
 ): String {
     val entity = findParentMust(EntityI::class.java)
     val events = entity.findDownByType(EventI::class.java)
-    val id = entity.propIdOrAdd().name().capitalize()
+    val id = entity.propIdOrAdd().name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     return events.joinSurroundIfNotEmptyToString("") { event ->
-        val handler = c.n(event, DesignDerivedType.Handler).capitalize()
+        val handler = c.n(event, DesignDerivedType.Handler)
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         """${event.toGoRegisterEventData(c, api, derived)}
     //default command handler implementation
     o.$handler = func(event ${c.n(g.eh.Event, api)}, ${
@@ -290,7 +302,7 @@ fun <T : ConstructorI<*>> T.toGoAggregateEngineBody(
     api: String = DesignDerivedKind.API
 ): String {
     val entity = findParentMust(EntityI::class.java)
-    val entityNameDec = entity.name().decapitalize()
+    val entityNameDec = entity.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
     val entityNameDecAggregate = "${entityNameDec}Aggregate"
     val entityNameAggregate = "${entity.name()}Aggregate"
     val aggregateType = "${entity.name()}${DesignDerivedType.AggregateType}"
@@ -359,8 +371,10 @@ fun <T : CompilationUnitI<*>> T.toGoAggregateEngineRegisterForEvents(
     return """${
         events.joinSurroundIfNotEmptyToString(nL, nL) {
             """
-func (o *$name) RegisterFor${it.name().capitalize()}(handler ${c.n(g.eh.EventHandler)}) error {
-    return o.RegisterForEvent(handler, ${entity.name()}EventTypes().${it.dataTypeParentNameAndName().capitalize()}())
+func (o *$name) RegisterFor${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(handler ${c.n(g.eh.EventHandler)}) error {
+    return o.RegisterForEvent(handler, ${entity.name()}EventTypes().${it.dataTypeParentNameAndName()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}())
 }"""
         }
     }
@@ -424,8 +438,10 @@ fun <T : ConstructorI<*>> T.toGoEhEngineBody(
 	ret = &$name{eventStore: eventStore, eventBus: eventBus,
             commandBus: commandBus, ${
         entities.joinSurroundIfNotEmptyToString(",$nL    ", "$nL    ") {
-            """${it.name().capitalize()}${DesignDerivedType.AggregateEngine}: New${
-                it.name().capitalize()
+            """${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${DesignDerivedType.AggregateEngine}: New${
+                it.name()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
             }${DesignDerivedType.AggregateEngine}(eventStore, eventBus, commandBus)"""
         }
     }}
@@ -442,7 +458,8 @@ fun <T : OperationI<*>> T.toGoEhEngineSetupBody(
     return """${
         entities.joinSurroundIfNotEmptyToString("$nL    ", "$nL    ") { entity ->
             """
-    if err = o.${entity.name().capitalize()}.Setup(); err != nil {
+    if err = o.${entity.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.Setup(); err != nil {
         return
     }"""
         }
@@ -461,7 +478,11 @@ fun <T : CommandI<*>> T.toGoCommandImpl(
         ${toGoImpl(c, derived, api, true)}
 func (o *$name) AggregateID() ${c.n(g.google.uuid.UUID)} { return o.${entity.propIdOrAdd().nameForGoMember()} }
 func (o *$name) AggregateType() ${c.n(g.eh.AggregateType)} { return ${entity.name()}${DesignDerivedType.AggregateType} }
-func (o *$name) CommandType() ${c.n(g.eh.CommandType)} { return ${dataTypeNameAndParentName().capitalize()}${DesignDerivedType.Command} }
+func (o *$name) CommandType() ${c.n(g.eh.CommandType)} { return ${dataTypeNameAndParentName().replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase(
+            Locale.getDefault()
+        ) else it.toString()
+    }}${DesignDerivedType.Command} }
 """
 }
 

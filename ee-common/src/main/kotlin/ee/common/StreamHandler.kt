@@ -2,6 +2,7 @@ package ee.common
 
 import org.slf4j.Logger
 import java.io.InputStream
+import java.util.*
 
 open class StreamHandler : Thread {
     val inputStream: InputStream
@@ -22,7 +23,7 @@ open class StreamHandler : Thread {
     override fun run() {
         if (this.filter) {
             inputStream.reader().forEachLine {
-                if (filterPattern.matches(it.toLowerCase())) {
+                if (filterPattern.matches(it.lowercase(Locale.getDefault()))) {
                     it.process()
                 }
             }

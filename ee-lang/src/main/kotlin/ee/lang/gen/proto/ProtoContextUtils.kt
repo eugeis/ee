@@ -4,6 +4,7 @@ import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.common.LangCommonContextFactory
 import java.nio.file.Path
+import java.util.*
 
 open class ProtoContextBuilder<M>(name: String, macroController: MacroController, builder: M.() -> ProtoContext)
     : ContextBuilder<M>(name, macroController, builder)
@@ -19,7 +20,7 @@ open class LangProtoContextFactory(targetAsSingleModule: Boolean = true) : LangC
     protected open fun contextBuilder(derived: DerivedController, scope: String): ProtoContextBuilder<StructureUnitI<*>> {
         return ProtoContextBuilder(CONTEXT_PROTO, macroController) {
             val structureUnit = this
-            ProtoContext(namespace = structureUnit.namespace().toLowerCase(), moduleFolder = computeModuleFolder(),
+            ProtoContext(namespace = structureUnit.namespace().lowercase(Locale.getDefault()), moduleFolder = computeModuleFolder(),
                     derivedController = derived, macroController = macroController)
         }
     }
@@ -35,7 +36,7 @@ open class LangProtoContextFactory(targetAsSingleModule: Boolean = true) : LangC
     }
 
     override fun buildNameForOperation(item: OperationI<*>, kind: String): String {
-        return buildNameCommon(item, kind).capitalize()
+        return buildNameCommon(item, kind).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     }
 
     companion object {
@@ -79,7 +80,7 @@ open class ProtoContext(
                     it.namespace()
                 }.map { "$indent${it.namespace().substringAfterLast(".")}" }.toSortedSet()
                         .joinSurroundIfNotEmptyToString("") {
-                            """import "${it.toLowerCase()}_base.proto";$nL"""
+                            """import "${it.lowercase(Locale.getDefault())}_base.proto";$nL"""
                         }
             }
         }
@@ -96,7 +97,7 @@ open class ProtoContext(
 }
 
 fun AttributeI<*>.nameForProtoMember(): String = storage.getOrPut(this, "nameForProtoMember", {
-    name().decapitalize()
+    name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
 })
 
 val itemAndTemplateNameAsProtoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
@@ -118,8 +119,7 @@ object proto : StructureUnit({ namespace("").name("Proto") }) {
         val New = Operation { ret(error) }
     }
 
-    object io : StructureUnit({ namespace("io") }) {
-    }
+    object io : StructureUnit({ namespace("io") })
 
     object time : StructureUnit({ namespace("time") }) {
         val Time = ExternalType()
@@ -137,8 +137,9 @@ object proto : StructureUnit({ namespace("").name("Proto") }) {
     }
 
     object encoding : StructureUnit({ namespace("encoding") }) {
-        object json : StructureUnit() {
-        }            val NewDecoder = Operation()
+        object json : StructureUnit()
+
+        val NewDecoder = Operation()
             val Decoder = ExternalType()
             val Marshal = Operation()
             val Unmarshal = Operation()
@@ -166,8 +167,8 @@ object proto : StructureUnit({ namespace("").name("Proto") }) {
 
     object eh : StructureUnit({ namespace("github.com.looplab.eventhorizon").name("eh") }) {
 
-        object Command : ExternalType({ ifc(true) }) {}
+        object Command : ExternalType({ ifc(true) })
 
-        object Entity : ExternalType({ ifc(true) }) {}
+        object Entity : ExternalType({ ifc(true) })
     }
 }
