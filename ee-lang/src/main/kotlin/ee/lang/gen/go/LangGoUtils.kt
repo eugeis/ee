@@ -155,7 +155,13 @@ object g : StructureUnit({ namespace("").name("Go") }) {
                 val commandBus = prop { type(eh.CommandHandler) }
             }
 
+            object NewHttpCommandHandlerFull : Operation() {
+            }
+
             object HttpQueryHandler : ExternalType({ constructorFull() })
+
+            object NewHttpQueryHandlerFull : Operation() {
+            }
 
             object Projector : ExternalType()
 

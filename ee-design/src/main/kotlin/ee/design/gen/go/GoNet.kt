@@ -209,8 +209,8 @@ fun <T : ConstructorI<*>> T.toGoHttpRouterBeforeBody(
     pathPrefixIdBased := pathPrefix + "/" + "${entity.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}"
     pathPrefix = pathPrefix + "/" + "${entity.name().toPlural().replaceFirstChar { it.lowercase(Locale.getDefault()) }}"   
     ctx := newContext("${entity.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}")
-    httpQueryHandler := eh.NewHttpQueryHandlerFull()
-    httpCommandHandler := eh.NewHttpCommandHandlerFull(ctx, commandBus)
+    httpQueryHandler := ${c.n(g.gee.ehu.NewHttpQueryHandlerFull)}()
+    httpCommandHandler := ${c.n(g.gee.ehu.NewHttpCommandHandlerFull)}(ctx, commandBus)
     """
 }
 
