@@ -111,8 +111,7 @@ fun <T : AttributeI<*>> T.toGoTypeDef(c: GenerationContext, api: String): String
 fun <T : TypeI<*>> T.toGoDefault(
     c: GenerationContext, derived: String, attr: AttributeI<*>, parentConstrName: String = ""
 ): String {
-    val baseType = findDerivedOrThis()
-    return when (baseType) {
+    return when (val baseType = findDerivedOrThis()) {
         n.String, n.Text -> "\"\""
         n.Boolean -> "false"
         n.Int -> "0"
@@ -128,14 +127,11 @@ fun <T : TypeI<*>> T.toGoDefault(
         n.Map -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("hashMapOf()", "emptyMap()")
         n.List -> (attr.isNotEMPTY() && attr.isMutable().setAndTrue()).ifElse("arrayListOf()", "arrayListOf()")
         else -> {
-            if (baseType is LiteralI) {
-                baseType.toGoValue(c, derived)
-            } else if (baseType is EnumTypeI) {
-                "${c.n(this, derived)}.${baseType.literals().first().toGoValue(c, derived)}"
-            } else if (baseType is TypeI<*>) {
-                toGoInstance(c, derived, derived, parentConstrName)
-            } else {
-                (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
+            when(baseType) {
+                is LiteralI -> baseType.toGoValue(c, derived)
+                is EnumTypeI -> "${c.n(this, derived)}.${baseType.literals().first().toGoValue(c, derived)}"
+                is TypeI<*> -> toGoInstance(c, derived, derived, parentConstrName)
+                else -> (this.parent() == n).ifElse("\"\"") { "${c.n(this, derived)}.EMPTY" }
             }
         }
     }

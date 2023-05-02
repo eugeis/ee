@@ -7,9 +7,9 @@ import ee.lang.gen.go.initsForGoGeneration
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
-open class DesignGoGenerator(val models: List<StructureUnitI<*>>, targetAsSingleModule: Boolean = true) {
+open class DesignGoGenerator(private val models: List<StructureUnitI<*>>, targetAsSingleModule: Boolean = true) {
     private val log = LoggerFactory.getLogger(javaClass)
-    val generatorFactory = DesignGeneratorFactory(targetAsSingleModule)
+    private val generatorFactory = DesignGeneratorFactory(targetAsSingleModule)
 
     init {
         models.extendForGoGeneration()
@@ -28,7 +28,7 @@ open class DesignGoGenerator(val models: List<StructureUnitI<*>>, targetAsSingle
         }
     }
 
-    protected fun StructureUnitI<*>.generate(
+    private fun StructureUnitI<*>.generate(
             target: Path, generatorContexts: GeneratorContexts<StructureUnitI<*>> ,
             shallSkip: GeneratorI<*>.(model: Any?) -> Boolean) {
 
@@ -44,13 +44,13 @@ open class DesignGoGenerator(val models: List<StructureUnitI<*>>, targetAsSingle
         }
     }
 
-    protected fun List<StructureUnitI<*>>.extendForGoGeneration() {
+    private fun List<StructureUnitI<*>>.extendForGoGeneration() {
         forEach {
             it.extendForGoGeneration()
         }
     }
 
-    protected fun StructureUnitI<*>.extendForGoGeneration() {
+    private fun StructureUnitI<*>.extendForGoGeneration() {
         initsForGoGeneration()
 
         addIdPropToEntityValues()
