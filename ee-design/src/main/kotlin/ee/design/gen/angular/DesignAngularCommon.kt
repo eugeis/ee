@@ -99,7 +99,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String, parentName: Stri
     )}>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: AttributeI<*>): String {
+fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: ListMultiHolder<AttributeI<*>>): String {
     return """
         <fieldset>
             <legend>{{"table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
@@ -117,7 +117,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: Attri
                     <mat-option *ngFor="let option of ${this.parent().name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filteredOptions${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} | async" [value]="option">
-                        {{option.${key.name()}}}
+                        {{ ${if(key.any { it.type().name() == "String" }) {"option." + key.first { it.type().name() == "String" }.name()} else {"option"}} }}
                     </mat-option>
                 </mat-autocomplete>
             </mat-form-field>
@@ -150,7 +150,7 @@ fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = "", isChild: Bo
 fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = "", basicParentName: String = "", isChild: Boolean): String =
     this.props().filter { !isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props().first { element -> element.type().name() == "String" }, isChild)
+            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props(), isChild)
             is BasicI<*> -> it.type().toAngularTableListBasic(parentName, it.name(), it.parent().name(),true)
             is EnumTypeI<*> -> it.toAngularTableListEnum(basicName, isChild)
             else -> {
@@ -163,7 +163,7 @@ fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName:
     }
 
 
-fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: AttributeI<*>, isChild: Boolean): String =
+fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean): String =
     """
         <ng-container matColumnDef="${this.name().lowercase(Locale.getDefault())}-entity">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</th>
@@ -181,8 +181,8 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
         Locale.getDefault()
     )}')">{{element${if(isChild) "['${this.parent().name()
         .lowercase(Locale.getDefault())}']['${this.name()
-        .lowercase(Locale.getDefault())}']['${key.name()}']" else "['${this.name()
-        .lowercase(Locale.getDefault())}']['${key.name()}']"}}}</a> </td>
+        .lowercase(Locale.getDefault())}']${if (key.any { it.type().name() == "String" }) { "['" + key.first { it.type().name() == "String" }.name() + "']" } else {""}}" else "['${this.name()
+        .lowercase(Locale.getDefault())}']${if (key.any { it.type().name() == "String" }) { "['" + key.first { it.type().name() == "String" }.name() + "']" } else {""}}"}}}</a> </td>
         </ng-container>
 """
 

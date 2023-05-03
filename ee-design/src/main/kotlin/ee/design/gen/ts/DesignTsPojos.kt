@@ -156,7 +156,7 @@ ${isOpen().then("export ")}class ${this.name()
     
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlServiceFunctions(c, it.type().props().first { element -> element.type().name() == "String" })
+            is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlServiceFunctions(c, it.type().props())
             else -> ""
         }
     }}
@@ -164,7 +164,7 @@ ${isOpen().then("export ")}class ${this.name()
     initObservable() {
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> it.type().toAngularInitObservable(c, it.type().props().first { element -> element.type().name() == "String" })
+            is EntityI<*>, is ValuesI<*> -> it.type().toAngularInitObservable(c, it.type().props())
             else -> ""
         }
     }}
@@ -321,7 +321,7 @@ ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
         """    
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
             when(it.type()) {
-                is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlServiceFunctions(c, it.type().props().first { element -> element.type().name() == "String" })
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlServiceFunctions(c, it.type().props())
                 else -> ""
             }
         }}
@@ -329,7 +329,7 @@ ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
     initObservable() {
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
             when(it.type()) {
-                is EntityI<*>, is ValuesI<*> -> it.type().toAngularInitObservable(c, it.type().props().first { element -> element.type().name() == "String" })
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularInitObservable(c, it.type().props())
                 else -> ""
             }
         }}
