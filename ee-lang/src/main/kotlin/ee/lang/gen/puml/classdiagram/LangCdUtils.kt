@@ -1,6 +1,7 @@
 package ee.lang.gen.puml.classdiagram
 
 import ee.lang.*
+import java.util.*
 
 open class CdContext(
     var alwaysImportTypes: Boolean = false,
@@ -53,7 +54,7 @@ fun <T : StructureUnitI<*>> T.extendForCdGenerationLang(): T {
 }
 
 val itemAndTemplateNameAsPumlFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${it.name().capitalize()}${name.capitalize()}.puml")
+    Names("${it.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.puml")
 }
 
 val templateNameAsPumlFileName: TemplateI<*>.(CompositeI<*>) -> Names = {

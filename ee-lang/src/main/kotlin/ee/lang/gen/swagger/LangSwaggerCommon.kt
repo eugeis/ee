@@ -3,6 +3,7 @@ package ee.lang.gen.swagger
 import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.go.nameForGoMember
+import java.util.*
 
 fun <T : AttributeI<*>> T.toSwaggerTypeDef(c: GenerationContext, api: String, indent: String = "        "): String {
     return "$indent${type().toSwagger(c, api, indent)}${type().toSwaggerFormatIfNative(indent)}"
@@ -78,7 +79,7 @@ query:
             description: this string will be added to the url of the service
  */
 fun <T : AttributeI<*>> T.toSwaggerMember(c: GenerationContext, api: String, indent: String = "        "): String {
-    return "$indent${nameForGoMember().decapitalize()}:${toSwaggerTypeDef(c, api, "$indent  ")}"
+    return "$indent${nameForGoMember().replaceFirstChar { it.lowercase(Locale.getDefault()) }}:${toSwaggerTypeDef(c, api, "$indent  ")}"
 }
 
 fun <T : AttributeI<*>> T.toSwaggerEnumMember(c: GenerationContext, api: String): String {
@@ -100,7 +101,15 @@ fun List<AttributeI<*>>.toSwaggerTypes(c: GenerationContext, derived: String, in
 fun <T : OperationI<*>> T.toSwaggerLambda(c: GenerationContext, derived: String, indent: String): String =
     """func (${params().toSwaggerTypes(c, derived, indent)}) ${retFirst().toSwaggerType(c, derived, indent)}"""
 
-fun <T : LogicUnitI<*>> T.toSwaggerName(): String = isVisible().ifElse({ name().capitalize() }, { name().decapitalize() })
+fun <T : LogicUnitI<*>> T.toSwaggerName(): String = isVisible().ifElse({ name().replaceFirstChar {
+    if (it.isLowerCase()) it.titlecase(
+        Locale.getDefault()
+    ) else it.toString()
+} }, { name().replaceFirstChar {
+    it.lowercase(
+        Locale.getDefault()
+    )
+} })
 
 fun <T : CompilationUnitI<*>> T.toSwaggerPath(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
     api: String = LangDerivedKind.API): String {

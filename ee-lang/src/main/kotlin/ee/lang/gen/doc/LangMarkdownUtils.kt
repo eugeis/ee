@@ -2,12 +2,13 @@ package ee.lang.gen.doc
 
 import ee.common.ext.*
 import ee.lang.*
+import java.util.*
 
-open class MkContext (
+open class DocContext (
     var alwaysImportTypes: Boolean = false,
     namespace: String = "",
     moduleFolder: String = "",
-    genFolder: String = "src/main/doc",
+    genFolder: String = "doc",
     genFolderDeletable: Boolean = false,
     genFolderPatternDeletable: Regex? = ".*Base.mk".toRegex(),
     derivedController: DerivedController,
@@ -33,7 +34,7 @@ open class MkContext (
         if (derived.namespace().isEmpty() || derived.namespace().equals(namespace, true)) {
             return derived.name()
         } else {
-            return """${derived.namespace().substringAfterLast(".").toLowerCase()}.${derived.name()}"""
+            return """${derived.namespace().substringAfterLast(".").lowercase(Locale.getDefault())}.${derived.name()}"""
         }
     }
 }
@@ -62,7 +63,7 @@ fun <T : StructureUnitI<*>> T.extendForMarkdownGenerationLang(): T {
 }
 
 val itemAndTemplateNameAsMkFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
-    Names("${it.name().capitalize()}${name.capitalize()}.puml")
+    Names("${it.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.puml")
 }
 
 val templateNameAsMarkdownFileName: TemplateI<*>.(CompositeI<*>) -> Names = {

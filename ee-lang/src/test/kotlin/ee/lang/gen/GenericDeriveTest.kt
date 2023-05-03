@@ -10,9 +10,9 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 
 private object TestModel2 : StructureUnit() {
-    object Type1 : CompilationUnit() {}
+    object Type1 : CompilationUnit()
 
-    object Type2 : CompilationUnit() {}
+    object Type2 : CompilationUnit()
 
     object Pojo : CompilationUnit() {
         val prop1 = prop { type(GT(Type1)) }

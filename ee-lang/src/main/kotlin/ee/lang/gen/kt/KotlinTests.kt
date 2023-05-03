@@ -4,10 +4,12 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 import ee.lang.gen.java.junit
+import java.util.*
 
 fun <T : EnumTypeI<*>> T.toKotlinEnumParseAndIsMethodsTests(
         c: GenerationContext, derived: String = LangDerivedKind.API): String {
-    val name = c.n(this, derived).capitalize()
+    val name = c.n(this, derived)
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     val toByName = "to${name}ByName"
     var prev = literals().last()
 
@@ -72,7 +74,8 @@ fun <T : CompilationUnitI<*>> T.toKotlinFieldTest(
     if (generics().isNotEmpty())
         return ""
 
-    val name = c.n(this, derived).capitalize()
+    val name = c.n(this, derived)
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     val timeProps = primaryConstructor().params().filter {
         it.type() == n.Date
     }.associateBy({ it.name() }) {

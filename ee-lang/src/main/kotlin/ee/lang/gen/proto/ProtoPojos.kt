@@ -3,12 +3,13 @@ package ee.lang.gen.proto
 import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.kt.*
+import java.util.*
 
-fun LiteralI<*>.toProto(): String = name().capitalize()
+fun LiteralI<*>.toProto(): String = name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
 fun AttributeI<*>.toProtoGetMethod(o: String, c: GenerationContext, api: String = LangDerivedKind.API): String {
     return """
-func (o *$o) ${name().capitalize()}() ${toProtoType(c, api)} {
+func (o *$o) ${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() ${toProtoType(c, api)} {
     return o.${name()}
 }"""
 }
@@ -16,7 +17,7 @@ func (o *$o) ${name().capitalize()}() ${toProtoType(c, api)} {
 fun AttributeI<*>.toProtoAddMethod(o: String, c: GenerationContext, api: String = LangDerivedKind.API): String {
     val type = type().generics()[0].toProto(c, api)
     return """
-func (o *$o) AddTo${name().capitalize()}(item $type) $type {
+func (o *$o) AddTo${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(item $type) $type {
     o.${nameForProtoMember()} = append(o.${nameForProtoMember()}, item)
     return item
 }"""

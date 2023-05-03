@@ -7,50 +7,73 @@ import ee.lang.gen.ts.AngularDerivedType
 import ee.lang.gen.ts.angular
 import ee.lang.gen.ts.rxjs
 import ee.lang.gen.ts.service
+import java.util.*
 
 fun <T : ItemI<*>> T.toAngularConstructorDataService(c: GenerationContext, indent: String): String {
-    return """${indent}constructor(public ${c.n(this, AngularDerivedType.DataService).decapitalize()}: ${c.n(this, AngularDerivedType.DataService)}) {}$nL"""
+    return """${indent}constructor(public ${c.n(this, AngularDerivedType.DataService)
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.DataService)}) {}$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularPropOnConstructor(c: GenerationContext): String {
-    return """${tab + tab}public ${c.n(this, AngularDerivedType.DataService).decapitalize()}: ${c.n(this, AngularDerivedType.DataService)}, $nL"""
+    return """${tab + tab}public ${c.n(this, AngularDerivedType.DataService)
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.DataService)}, $nL"""
 }
 
 fun <T : TypeI<*>> T.toAngularControlService(c: GenerationContext): String {
     return """
-    control${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()} = new ${c.n(angular.forms.FormControl)}<${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}>(new ${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}());
-    option${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}: Array<${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}>;
-    filteredOptions${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}: ${c.n(rxjs.empty.Observable)}<${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}[]>;$nL"""
+    control${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = new ${c.n(angular.forms.FormControl)}<${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>(new ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}());
+    option${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: Array<${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>;
+    filteredOptions${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: ${c.n(rxjs.empty.Observable)}<${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[]>;$nL"""
 }
 
-fun <T : TypeI<*>> T.toAngularControlServiceFunctions(c: GenerationContext, key: ListMultiHolder<AttributeI<*>>): String {
+fun <T : TypeI<*>> T.toAngularControlServiceFunctions(c: GenerationContext, key: AttributeI<*>): String {
     return """
-    display${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}(${c.n(this, AngularDerivedType.ApiBase).toCamelCase()}: ${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}): string {
-        return ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()} ? ${if(key.any { it.type().name() == "String" }) {c.n(this, AngularDerivedType.ApiBase).toCamelCase() + "." + key.first { it.type().name() == "String" }.name()} else {"JSON.stringify(${c.n(this, AngularDerivedType.ApiBase).toCamelCase()})"}} : '';
+    display${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${c.n(this, AngularDerivedType.ApiBase).toCamelCase()}: ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}): string {
+        return ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()} ? ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()}.${key.name()} : '';
     }
     
-    filter${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}(name: string, array: Array<${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}>): ${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}[] {
-        return array.filter(option => ${if(key.any { it.type().name() == "String" }) {"option." + key.first { it.type().name() == "String" }.name()} else {"JSON.stringify(option)"}}.toLowerCase().includes(name.toLowerCase()));
+    filter${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(name: string, array: Array<${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>): ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[] {
+        return array.filter(option => option.${key.name()}.toLowerCase().includes(name.toLowerCase()));
     }$nL"""
 }
 
-fun <T : TypeI<*>> T.toAngularInitObservable(c: GenerationContext, key: ListMultiHolder<AttributeI<*>>): String {
+fun <T : TypeI<*>> T.toAngularInitObservable(c: GenerationContext, key: AttributeI<*>): String {
     return """
-        this.filteredOptions${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()} = this.control${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}.valueChanges.pipe(
+        this.filteredOptions${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = this.control${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.valueChanges.pipe(
             ${c.n(rxjs.operators.startWith)}(''),
-            ${c.n(rxjs.operators.map)}((value: ${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}) => {
-                const name = typeof value === 'string' ? value : ${if(key.any { it.type().name() == "String" }) {"value." + key.first { it.type().name() == "String" }.name()} else {"JSON.stringify(value)"}};
+            ${c.n(rxjs.operators.map)}((value: ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}) => {
+                const name = typeof value === 'string' ? value : value.${key.name()};
                 return name ?
-                    this.filter${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}(name as string, this.option${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()})
-                    : this.option${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}.slice();
+                    this.filter${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(name as string, this.option${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }})
+                    : this.option${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.slice();
             }),
         );$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): String {
     return """${indent}ng${c.n(angular.core.OnInit)}(): void {
-        this.${c.n(this, AngularDerivedType.ApiBase).toLowerCase()} = this.${c.n(this, AngularDerivedType.DataService).decapitalize()}.getFirst();
-        this.${c.n(this, AngularDerivedType.DataService).decapitalize()}.checkRoute(this.${c.n(this, AngularDerivedType.ApiBase).toLowerCase()});
+        this.${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())} = this.${c.n(this, AngularDerivedType.DataService)
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getFirst();
+        this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.checkRoute(this.${c.n(this, AngularDerivedType.ApiBase)
+        .lowercase(Locale.getDefault())});
     }"""
 }
 
@@ -68,28 +91,42 @@ when(it.type()) {
 }
     }}
     
-        this.${c.n(this, AngularDerivedType.DataService).decapitalize()}.initObservable();
+        this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.initObservable();
     }"""
 }
 
 fun <T : ItemI<*>> T.toAngularInitOption(c: GenerationContext, elementType: String): String {
-    return """${tab + tab}this.${c.n(this.parent(), AngularDerivedType.DataService).decapitalize()}.option${elementType.capitalize()} = this.${elementType.decapitalize()}DataService.changeMapToArray(this.${elementType.decapitalize()}DataService.retrieveItemsFromCache()); $nL"""
+    return """${tab + tab}this.${c.n(this.parent(), AngularDerivedType.DataService)
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${elementType.replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase(
+            Locale.getDefault()
+        ) else it.toString()
+    }} = this.${elementType.replaceFirstChar {
+        it.lowercase(
+            Locale.getDefault()
+        )
+    }}DataService.changeMapToArray(this.${elementType.replaceFirstChar {
+        it.lowercase(
+            Locale.getDefault()
+        )
+    }}DataService.retrieveItemsFromCache()); $nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, elementType: TypeI<*>): String {
-    return """${indent}if (this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} === undefined) {
-            this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} = new ${c.n(elementType, AngularDerivedType.ApiBase).capitalize()}();
+    return """${indent}if (this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} === undefined) {
+            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = new ${c.n(elementType, AngularDerivedType.ApiBase)
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}();
         }"""
 }
 
 fun <T : TypeI<*>> T.toAngularModuleTabElement(): String =
     "'${this.name()}'"
 
-fun <T : ItemI<*>> T.toAngularGenerateComponentPart(c: GenerationContext, selectorName: String,element: String, type: String, hasProviders: Boolean, hasClass: Boolean): String =
+fun <T : ItemI<*>> T.toAngularGenerateComponentPart(c: GenerationContext, element: String, type: String, hasProviders: Boolean, hasClass: Boolean): String =
     """@${c.n(angular.core.Component)}({
-  selector: '${selectorName}-${this.name().toLowerCase()}${(element == "entity").then("-${type}")}',
-  templateUrl: './${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.html',
-  styleUrls: ['./${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.scss'],
+  selector: 'app-${this.name().lowercase(Locale.getDefault())}${(element == "entity").then("-${type}")}',
+  templateUrl: './${this.name().lowercase(Locale.getDefault())}-${element}${type.isNotEmpty().then("-${type}")}.component.html',
+  styleUrls: ['./${this.name().lowercase(Locale.getDefault())}-${element}${type.isNotEmpty().then("-${type}")}.component.scss'],
   ${this.checkProvider(c, hasProviders, hasClass).trim()}
 })
 """
@@ -106,15 +143,15 @@ fun <T : ItemI<*>> T.checkProvider(c: GenerationContext, hasProviders: Boolean, 
 }
 
 fun <T : ItemI<*>> T.toTypeScriptEntityProp(c: GenerationContext, indent: String): String {
-    return """${indent}${this.name().toLowerCase()}: ${c.n(this, AngularDerivedType.ApiBase)};$nL"""
+    return """${indent}${this.name().lowercase(Locale.getDefault())}: ${c.n(this, AngularDerivedType.ApiBase)};$nL"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptFormProp(c: GenerationContext, indent: String): String {
-    return """${indent}@${c.n(angular.core.Input)}() ${this.name().toLowerCase()}: ${c.n(this, AngularDerivedType.ApiBase)};$nL"""
+    return """${indent}@${c.n(angular.core.Input)}() ${this.name().lowercase(Locale.getDefault())}: ${c.n(this, AngularDerivedType.ApiBase)};$nL"""
 }
 
 fun <T : ItemI<*>> T.toTypeScriptEntityPropInit(c: GenerationContext, indent: String): String {
-    return """${indent}${this.name().toLowerCase()}: ${c.n(this, AngularDerivedType.ApiBase)} = new ${c.n(this, AngularDerivedType.ApiBase)}();$nL"""
+    return """${indent}${this.name().lowercase(Locale.getDefault())}: ${c.n(this, AngularDerivedType.ApiBase)} = new ${c.n(this, AngularDerivedType.ApiBase)}();$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularModuleDeclarationEntities(c: GenerationContext, indent: String): String {
@@ -136,8 +173,8 @@ fun <T : ItemI<*>> T.toAngularModuleDeclarationEnums(c: GenerationContext, inden
 }
 
 fun <T : ItemI<*>> T.toAngularModulePath(c: GenerationContext, indent: String): String {
-    return """$indent{ path: '${this.name().toLowerCase()}', component: ${c.n(this, AngularDerivedType.ListComponent)} },
-$indent{ path: '${this.name().toLowerCase()}/new', component: ${c.n(this, AngularDerivedType.ViewComponent)} },
-$indent{ path: '${this.name().toLowerCase()}/edit/:id', component: ${c.n(this, AngularDerivedType.ViewComponent)} },
-$indent{ path: '${this.name().toLowerCase()}/search', component: ${c.n(this, AngularDerivedType.ListComponent)} }"""
+    return """$indent{ path: '${this.name().lowercase(Locale.getDefault())}', component: ${c.n(this, AngularDerivedType.ListComponent)} },
+$indent{ path: '${this.name().lowercase(Locale.getDefault())}/new', component: ${c.n(this, AngularDerivedType.ViewComponent)} },
+$indent{ path: '${this.name().lowercase(Locale.getDefault())}/edit/:id', component: ${c.n(this, AngularDerivedType.ViewComponent)} },
+$indent{ path: '${this.name().lowercase(Locale.getDefault())}/search', component: ${c.n(this, AngularDerivedType.ListComponent)} }"""
 }

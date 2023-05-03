@@ -5,6 +5,7 @@ import ee.design.CompI
 import ee.design.EventI
 import ee.lang.*
 import ee.lang.gen.ts.*
+import java.util.*
 
 open class DesignTsContextFactory(alwaysImportTypes: Boolean = false) : LangTsContextFactory(alwaysImportTypes) {
     override fun contextBuilder(
@@ -25,31 +26,43 @@ open class DesignTsContextFactory(alwaysImportTypes: Boolean = false) : LangTsCo
         super.registerForImplOnly(derived)
 
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.ApiBase,
-            { "${this.name().capitalize()}" }, { "${this.namespace()}${AngularDerivedType.ApiBase}" }, isNotPartOfNativeTypes))
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" }, { "${this.namespace()}${AngularDerivedType.ApiBase}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.ViewComponent,
-            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.EntityViewComponent}" }, isNotPartOfNativeTypes))
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.EntityViewComponent}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.ModuleViewComponent,
-            { "${this.name().capitalize()}${AngularDerivedType.ViewComponent}" }, { "${this.namespace()}${AngularFileFormat.ModuleViewComponent}" }, isNotPartOfNativeTypes))
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${AngularDerivedType.ViewComponent}" }, { "${this.namespace()}${AngularFileFormat.ModuleViewComponent}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.ListComponent,
-            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.EntityListComponent}" }, isNotPartOfNativeTypes))
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.EntityListComponent}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.FormComponent,
-            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.EntityFormComponent}" }, isNotPartOfNativeTypes))
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.EntityFormComponent}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.EnumComponent,
-            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.EnumComponent}" }, isNotPartOfNativeTypes))
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.EnumComponent}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.BasicComponent,
-            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.BasicComponent}" }, isNotPartOfNativeTypes))
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.BasicComponent}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.Module,
-            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.Module}" }, isNotPartOfNativeTypes))
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.Module}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.RoutingModules,
-            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.RoutingModule}" }, isNotPartOfNativeTypes))
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.RoutingModule}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.DataService,
-            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.DataService}" }, isNotPartOfNativeTypes))
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.DataService}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.ViewService,
-            { "${this.name().capitalize()}${it}" }, { "${this.namespace()}${AngularFileFormat.ModuleViewService}" }, isNotPartOfNativeTypes))
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.ModuleViewService}" }, isNotPartOfNativeTypes))
 
         derived.registerKinds(
             listOf(AngularDerivedType.Enum, AngularDerivedType.Component),
-            { "${this.name().capitalize()}${it}" },
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" },
             isNotPartOfNativeTypes)
     }
 
@@ -63,6 +76,8 @@ open class DesignTsContextFactory(alwaysImportTypes: Boolean = false) : LangTsCo
         }
     }
 
-    protected open fun buildNameForCommand(item: CommandI<*>, kind: String) = item.dataTypeNameAndParentName().capitalize()
-    protected open fun buildNameForEvent(item: EventI<*>, kind: String) = item.dataTypeParentNameAndName().capitalize()
+    protected open fun buildNameForCommand(item: CommandI<*>, kind: String) = item.dataTypeNameAndParentName()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    protected open fun buildNameForEvent(item: EventI<*>, kind: String) = item.dataTypeParentNameAndName()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 }

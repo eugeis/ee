@@ -4,11 +4,12 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
+import java.util.*
 
 
 fun LiteralI<*>.toTypeScript(): String = name().toUnderscoredUpperCase()
 fun LiteralI<*>.toTypeScriptIsMethod(): String {
-    return """is${name().capitalize()}() : boolean {
+    return """is${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() : boolean {
         return this == ${toTypeScript()};
 }"""
 }

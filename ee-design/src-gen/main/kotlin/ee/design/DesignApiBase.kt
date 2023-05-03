@@ -33,8 +33,7 @@ open class AddChildBy(adapt: AddChildBy.() -> Unit = {}) : AddChildByB<AddChildB
     }
 }
 
-open class AddChildByB<B : AddChildByB<B>>(adapt: B.() -> Unit = {}) : ChildCommandByB<B>(adapt), AddChildByI<B> {
-}
+open class AddChildByB<B : AddChildByB<B>>(adapt: B.() -> Unit = {}) : ChildCommandByB<B>(adapt), AddChildByI<B>
 
 
 open class AggregateHandler(adapt: AggregateHandler.() -> Unit = {}) : AggregateHandlerB<AggregateHandler>(adapt) {
@@ -44,8 +43,7 @@ open class AggregateHandler(adapt: AggregateHandler.() -> Unit = {}) : Aggregate
     }
 }
 
-open class AggregateHandlerB<B : AggregateHandlerB<B>>(adapt: B.() -> Unit = {}) : StateMachineB<B>(adapt), AggregateHandlerI<B> {
-}
+open class AggregateHandlerB<B : AggregateHandlerB<B>>(adapt: B.() -> Unit = {}) : StateMachineB<B>(adapt), AggregateHandlerI<B>
 
 
 open class Bundle(adapt: Bundle.() -> Unit = {}) : BundleB<Bundle>(adapt) {
@@ -78,8 +76,7 @@ open class BusinessCommand(adapt: BusinessCommand.() -> Unit = {}) : BusinessCom
     }
 }
 
-open class BusinessCommandB<B : BusinessCommandB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), BusinessCommandI<B> {
-}
+open class BusinessCommandB<B : BusinessCommandB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), BusinessCommandI<B>
 
 
 open class BusinessController(adapt: BusinessController.() -> Unit = {}) : BusinessControllerB<BusinessController>(adapt) {
@@ -89,8 +86,7 @@ open class BusinessController(adapt: BusinessController.() -> Unit = {}) : Busin
     }
 }
 
-open class BusinessControllerB<B : BusinessControllerB<B>>(adapt: B.() -> Unit = {}) : ControllerB<B>(adapt), BusinessControllerI<B> {
-}
+open class BusinessControllerB<B : BusinessControllerB<B>>(adapt: B.() -> Unit = {}) : ControllerB<B>(adapt), BusinessControllerI<B>
 
 
 open class BusinessEvent(adapt: BusinessEvent.() -> Unit = {}) : BusinessEventB<BusinessEvent>(adapt) {
@@ -100,8 +96,7 @@ open class BusinessEvent(adapt: BusinessEvent.() -> Unit = {}) : BusinessEventB<
     }
 }
 
-open class BusinessEventB<B : BusinessEventB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), BusinessEventI<B> {
-}
+open class BusinessEventB<B : BusinessEventB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), BusinessEventI<B>
 
 
 open class ChildAdded(adapt: ChildAdded.() -> Unit = {}) : ChildAddedB<ChildAdded>(adapt) {
@@ -111,8 +106,7 @@ open class ChildAdded(adapt: ChildAdded.() -> Unit = {}) : ChildAddedB<ChildAdde
     }
 }
 
-open class ChildAddedB<B : ChildAddedB<B>>(adapt: B.() -> Unit = {}) : ChildEventB<B>(adapt), ChildAddedI<B> {
-}
+open class ChildAddedB<B : ChildAddedB<B>>(adapt: B.() -> Unit = {}) : ChildEventB<B>(adapt), ChildAddedI<B>
 
 
 open class ChildCommandBy(adapt: ChildCommandBy.() -> Unit = {}) : ChildCommandByB<ChildCommandBy>(adapt) {
@@ -166,8 +160,7 @@ open class ChildRemoved(adapt: ChildRemoved.() -> Unit = {}) : ChildRemovedB<Chi
     }
 }
 
-open class ChildRemovedB<B : ChildRemovedB<B>>(adapt: B.() -> Unit = {}) : ChildEventB<B>(adapt), ChildRemovedI<B> {
-}
+open class ChildRemovedB<B : ChildRemovedB<B>>(adapt: B.() -> Unit = {}) : ChildEventB<B>(adapt), ChildRemovedI<B>
 
 
 open class ChildUpdated(adapt: ChildUpdated.() -> Unit = {}) : ChildUpdatedB<ChildUpdated>(adapt) {
@@ -177,8 +170,7 @@ open class ChildUpdated(adapt: ChildUpdated.() -> Unit = {}) : ChildUpdatedB<Chi
     }
 }
 
-open class ChildUpdatedB<B : ChildUpdatedB<B>>(adapt: B.() -> Unit = {}) : ChildEventB<B>(adapt), ChildUpdatedI<B> {
-}
+open class ChildUpdatedB<B : ChildUpdatedB<B>>(adapt: B.() -> Unit = {}) : ChildEventB<B>(adapt), ChildUpdatedI<B>
 
 
 open class Command(adapt: Command.() -> Unit = {}) : CommandB<Command>(adapt) {
@@ -317,8 +309,7 @@ open class CountBy(adapt: CountBy.() -> Unit = {}) : CountByB<CountBy>(adapt) {
     }
 }
 
-open class CountByB<B : CountByB<B>>(adapt: B.() -> Unit = {}) : DataTypeOperationB<B>(adapt), CountByI<B> {
-}
+open class CountByB<B : CountByB<B>>(adapt: B.() -> Unit = {}) : DataTypeOperationB<B>(adapt), CountByI<B>
 
 
 open class CreateBy(adapt: CreateBy.() -> Unit = {}) : CreateByB<CreateBy>(adapt) {
@@ -328,8 +319,7 @@ open class CreateBy(adapt: CreateBy.() -> Unit = {}) : CreateByB<CreateBy>(adapt
     }
 }
 
-open class CreateByB<B : CreateByB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), CreateByI<B> {
-}
+open class CreateByB<B : CreateByB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), CreateByI<B>
 
 
 open class Created(adapt: Created.() -> Unit = {}) : CreatedB<Created>(adapt) {
@@ -339,8 +329,7 @@ open class Created(adapt: Created.() -> Unit = {}) : CreatedB<Created>(adapt) {
     }
 }
 
-open class CreatedB<B : CreatedB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), CreatedI<B> {
-}
+open class CreatedB<B : CreatedB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), CreatedI<B>
 
 
 open class DeleteBy(adapt: DeleteBy.() -> Unit = {}) : DeleteByB<DeleteBy>(adapt) {
@@ -350,8 +339,7 @@ open class DeleteBy(adapt: DeleteBy.() -> Unit = {}) : DeleteByB<DeleteBy>(adapt
     }
 }
 
-open class DeleteByB<B : DeleteByB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), DeleteByI<B> {
-}
+open class DeleteByB<B : DeleteByB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), DeleteByI<B>
 
 
 open class Deleted(adapt: Deleted.() -> Unit = {}) : DeletedB<Deleted>(adapt) {
@@ -361,8 +349,7 @@ open class Deleted(adapt: Deleted.() -> Unit = {}) : DeletedB<Deleted>(adapt) {
     }
 }
 
-open class DeletedB<B : DeletedB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), DeletedI<B> {
-}
+open class DeletedB<B : DeletedB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), DeletedI<B>
 
 
 open class DynamicState(adapt: DynamicState.() -> Unit = {}) : DynamicStateB<DynamicState>(adapt) {
@@ -604,8 +591,7 @@ open class Event(adapt: Event.() -> Unit = {}) : EventB<Event>(adapt) {
     }
 }
 
-open class EventB<B : EventB<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adapt), EventI<B> {
-}
+open class EventB<B : EventB<B>>(adapt: B.() -> Unit = {}) : DataTypeB<B>(adapt), EventI<B>
 
 
 open class Executor(adapt: Executor.() -> Unit = {}) : ExecutorB<Executor>(adapt) {
@@ -665,8 +651,7 @@ open class ExistBy(adapt: ExistBy.() -> Unit = {}) : ExistByB<ExistBy>(adapt) {
     }
 }
 
-open class ExistByB<B : ExistByB<B>>(adapt: B.() -> Unit = {}) : DataTypeOperationB<B>(adapt), ExistByI<B> {
-}
+open class ExistByB<B : ExistByB<B>>(adapt: B.() -> Unit = {}) : DataTypeOperationB<B>(adapt), ExistByI<B>
 
 
 open class ExternalModule(adapt: ExternalModule.() -> Unit = {}) : ExternalModuleB<ExternalModule>(adapt) {
@@ -699,8 +684,7 @@ open class Facet(adapt: Facet.() -> Unit = {}) : FacetB<Facet>(adapt) {
     }
 }
 
-open class FacetB<B : FacetB<B>>(adapt: B.() -> Unit = {}) : ModuleGroupB<B>(adapt), FacetI<B> {
-}
+open class FacetB<B : FacetB<B>>(adapt: B.() -> Unit = {}) : ModuleGroupB<B>(adapt), FacetI<B>
 
 
 open class FindBy(adapt: FindBy.() -> Unit = {}) : FindByB<FindBy>(adapt) {
@@ -909,8 +893,7 @@ open class Projector(adapt: Projector.() -> Unit = {}) : ProjectorB<Projector>(a
     }
 }
 
-open class ProjectorB<B : ProjectorB<B>>(adapt: B.() -> Unit = {}) : StateMachineB<B>(adapt), ProjectorI<B> {
-}
+open class ProjectorB<B : ProjectorB<B>>(adapt: B.() -> Unit = {}) : StateMachineB<B>(adapt), ProjectorI<B>
 
 
 open class RemoveChildBy(adapt: RemoveChildBy.() -> Unit = {}) : RemoveChildByB<RemoveChildBy>(adapt) {
@@ -920,8 +903,7 @@ open class RemoveChildBy(adapt: RemoveChildBy.() -> Unit = {}) : RemoveChildByB<
     }
 }
 
-open class RemoveChildByB<B : RemoveChildByB<B>>(adapt: B.() -> Unit = {}) : ChildCommandByB<B>(adapt), RemoveChildByI<B> {
-}
+open class RemoveChildByB<B : RemoveChildByB<B>>(adapt: B.() -> Unit = {}) : ChildCommandByB<B>(adapt), RemoveChildByI<B>
 
 
 open class Saga(adapt: Saga.() -> Unit = {}) : SagaB<Saga>(adapt) {
@@ -931,8 +913,7 @@ open class Saga(adapt: Saga.() -> Unit = {}) : SagaB<Saga>(adapt) {
     }
 }
 
-open class SagaB<B : SagaB<B>>(adapt: B.() -> Unit = {}) : StateMachineB<B>(adapt), SagaI<B> {
-}
+open class SagaB<B : SagaB<B>>(adapt: B.() -> Unit = {}) : StateMachineB<B>(adapt), SagaI<B>
 
 
 open class State(adapt: State.() -> Unit = {}) : StateB<State>(adapt) {
@@ -1054,8 +1035,7 @@ open class UpdateBy(adapt: UpdateBy.() -> Unit = {}) : UpdateByB<UpdateBy>(adapt
     }
 }
 
-open class UpdateByB<B : UpdateByB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), UpdateByI<B> {
-}
+open class UpdateByB<B : UpdateByB<B>>(adapt: B.() -> Unit = {}) : CommandB<B>(adapt), UpdateByI<B>
 
 
 open class UpdateChildBy(adapt: UpdateChildBy.() -> Unit = {}) : UpdateChildByB<UpdateChildBy>(adapt) {
@@ -1065,8 +1045,7 @@ open class UpdateChildBy(adapt: UpdateChildBy.() -> Unit = {}) : UpdateChildByB<
     }
 }
 
-open class UpdateChildByB<B : UpdateChildByB<B>>(adapt: B.() -> Unit = {}) : ChildCommandByB<B>(adapt), UpdateChildByI<B> {
-}
+open class UpdateChildByB<B : UpdateChildByB<B>>(adapt: B.() -> Unit = {}) : ChildCommandByB<B>(adapt), UpdateChildByI<B>
 
 
 open class Updated(adapt: Updated.() -> Unit = {}) : UpdatedB<Updated>(adapt) {
@@ -1076,8 +1055,7 @@ open class Updated(adapt: Updated.() -> Unit = {}) : UpdatedB<Updated>(adapt) {
     }
 }
 
-open class UpdatedB<B : UpdatedB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), UpdatedI<B> {
-}
+open class UpdatedB<B : UpdatedB<B>>(adapt: B.() -> Unit = {}) : EventB<B>(adapt), UpdatedI<B>
 
 
 open class Widget(adapt: Widget.() -> Unit = {}) : WidgetB<Widget>(adapt) {
@@ -1087,6 +1065,5 @@ open class Widget(adapt: Widget.() -> Unit = {}) : WidgetB<Widget>(adapt) {
     }
 }
 
-open class WidgetB<B : WidgetB<B>>(adapt: B.() -> Unit = {}) : CompilationUnitB<B>(adapt), WidgetI<B> {
-}
+open class WidgetB<B : WidgetB<B>>(adapt: B.() -> Unit = {}) : CompilationUnitB<B>(adapt), WidgetI<B>
 

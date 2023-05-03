@@ -7,12 +7,14 @@ import ee.lang.findThisOrParentUnsafe
 import ee.lang.gen.KotlinContext
 import ee.lang.gen.KotlinContextBuilder
 import ee.lang.gen.kt.LangKotlinContextFactory
+import java.util.*
 
 open class DesignKotlinContextFactory(targetAsSingleModule: Boolean) : LangKotlinContextFactory(targetAsSingleModule) {
 
     override fun contextBuilder(controller: DerivedController, scope: String): KotlinContextBuilder<StructureUnitI<*>> {
         return KotlinContextBuilder(KotlinContext.CONTEXT_KOTLIN, scope, macroController){
-            KotlinContext(namespace().toLowerCase(), computeModuleFolder(), "src-gen/$scope/kotlin",
+            KotlinContext(
+                namespace().lowercase(Locale.getDefault()), computeModuleFolder(), "src-gen/$scope/kotlin",
                     derivedController = controller, macroController = macroController)
         }
     }

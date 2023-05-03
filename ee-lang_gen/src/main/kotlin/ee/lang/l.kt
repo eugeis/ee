@@ -173,7 +173,7 @@ object l : Composite({ namespace("ee.lang") }) {
     object IncrementExpression : Composite({ derivedFrom(Literal) })
     object DecrementExpression : Composite({ derivedFrom(Literal) })
 
-    object Action : Composite({ derivedFrom(l.LogicUnit) })
+    object Action : Composite({ derivedFrom(LogicUnit) })
 
     object ApplyAction : Composite({ derivedFrom(Action) }) {
         val target = AttributeI { type(Attribute) }
@@ -191,7 +191,7 @@ object l : Composite({ namespace("ee.lang") }) {
 
 //help model types
 open class AttributeI : Item {
-    private var type: ItemI<*> = ItemB.EMPTY
+    private var type: ItemI<*> = EMPTY
     private var value: Any = ""
     private var nullable: Boolean = false
     private var multi: Boolean = false

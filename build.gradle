@@ -1,0 +1,160 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+
+    dependencies {
+        classpath(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
+        classpath(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$kotlinCoroutinesVersion"))
+
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+}
+
+allprojects {
+    group = 'ee'
+    version = eeVersion
+}
+
+subprojects {
+    apply plugin: "org.jetbrains.kotlin.jvm"
+    apply plugin: 'maven-publish'
+
+    sourceSets {
+        main {
+            kotlin.srcDirs = ['src/main/kotlin', 'src-gen/main/kotlin']
+        }
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        archiveClassifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    artifacts {
+        archives sourcesJar
+    }
+
+    publishing {
+        repositories {
+            mavenLocal()
+            maven {
+                name = "ee"
+                url = uri("https://maven.pkg.github.com/eugeis/ee")
+                credentials {
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+
+                artifact sourcesJar
+            }
+
+            gpr(MavenPublication) {
+                from components.java
+            }
+        }
+    }
+
+    dependencies {
+        implementation(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$kotlinCoroutinesVersion"))
+        implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
+
+        testImplementation "org.hamcrest:hamcrest-library"
+        testImplementation "org.junit.jupiter:junit-jupiter-api"
+
+        runtimeOnly "org.junit.jupiter:junit-jupiter-engine"
+        runtimeOnly "org.junit.platform:junit-platform-launcher"
+
+        runtimeOnly "ch.qos.logback:logback-classic"
+    }
+
+    /*
+    task allDeps(type: DependencyReportTask) {}
+     */
+}
+
+project(':ee-common_java') {
+}
+
+project(':ee-common') {
+    dependencies {
+        api project(':ee-common_java')
+        api "org.slf4j:slf4j-api"
+        api "org.jetbrains.kotlin:kotlin-stdlib"
+        api "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+    }
+}
+
+project(':ee-lang_item') {
+    dependencies {
+        api project(':ee-common')
+        implementation("com.fasterxml.jackson.module:jackson-module-kotlin") {
+            exclude module: "kotlin-reflect"
+        }
+        implementation "org.jetbrains.kotlin:kotlin-reflect"
+    }
+}
+
+project(':ee-design') {
+    dependencies {
+        api project(':ee-lang')
+    }
+}
+
+project(':ee-design_gen') {
+    dependencies {
+        api project(':ee-lang')
+    }
+}
+
+project(':ee-design_swagger') {
+    dependencies {
+        api project(':ee-design')
+        implementation "io.swagger:swagger-parser:${version_swagger}"
+    }
+}
+
+project(':ee-design_json') {
+    dependencies {
+        api project(':ee-design')
+
+        implementation "com.worldturner.medeia:medeia-validator-jackson:${version_json_schema_medeia}"
+        implementation "com.github.everit-org.json-schema:org.everit.json.schema:1.12.1"
+    }
+}
+
+project(':ee-design_xsd') {
+    dependencies {
+        api project(':ee-design')
+        implementation "com.sun.xsom:xsom:${version_xsom}"
+    }
+}
+
+project(':ee-lang') {
+    dependencies {
+        api project(':ee-lang_item')
+        implementation("com.fasterxml.jackson.module:jackson-module-kotlin") {
+            exclude module: "kotlin-reflect"
+        }
+    }
+}
+
+project(':ee-lang_gen') {
+    dependencies {
+        api project(':ee-lang_item')
+    }
+}

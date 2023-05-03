@@ -4,6 +4,7 @@ import ee.common.ext.ifElse
 import ee.common.ext.setAndTrue
 import ee.common.ext.toSingular
 import org.slf4j.LoggerFactory
+import java.util.*
 
 private val log = LoggerFactory.getLogger("LangUtils")
 
@@ -23,7 +24,7 @@ fun ItemI<*>.dataTypeParentNameAndName(): String = storage.getOrPut(this, "paren
          if (regexp.containsMatchIn(name())) name().replaceFirst(regexp,
                  "$1${parent.name().capitalize()}") else "${parent.name()}${name().capitalize()}"
          */
-        "${parent.name()}${name().capitalize()}"
+        "${parent.name()}${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
     } else {
         name()
     }
@@ -37,7 +38,8 @@ fun ItemI<*>.dataTypeNameAndParentName(): String = storage.getOrPut(this, "nameA
         if (regexp.containsMatchIn(name())) name().replaceFirst(regexp,
                 "${parent.name().capitalize()}\$1") else "${name()}${parent.name().capitalize()}"
          */
-        "${name()}${parent.name().capitalize()}"
+        "${name()}${parent.name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
     } else {
         name()
     }
@@ -45,7 +47,7 @@ fun ItemI<*>.dataTypeNameAndParentName(): String = storage.getOrPut(this, "nameA
 
 fun ItemI<*>.fullParentNameAndName(): String = storage.getOrPut(this, "fullParentNameAndName") {
     if (parent().isNotEMPTY()) {
-        "${parent().fullParentNameAndName()}${name().capitalize()}"
+        "${parent().fullParentNameAndName()}${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
     } else {
         name()
     }
@@ -53,9 +55,9 @@ fun ItemI<*>.fullParentNameAndName(): String = storage.getOrPut(this, "fullParen
 
 fun ItemI<*>.fullParentNameAndNameAsPath(): String = storage.getOrPut(this, "fullParentNameAndNameAsPath") {
     if (parent().isNotEMPTY()) {
-        "${parent().fullParentNameAndNameAsPath()}/${name().decapitalize()}"
+        "${parent().fullParentNameAndNameAsPath()}/${name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}"
     } else {
-        name().decapitalize()
+        name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
     }
 }
 
@@ -276,7 +278,7 @@ fun TypeI<*>.propsMapValues(): List<AttributeI<*>> = storage.getOrPut(this, "pro
 }
 
 fun AttributeI<*>.propIdNameAttrCap(): String = storage.getOrPut(this, "propIdNameAttrCap") {
-    propIdNameAttr().capitalize()
+    propIdNameAttr().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 }
 
 fun AttributeI<*>.nameSingular(): String = storage.getOrPut(this, "nameSingular") {
@@ -288,7 +290,7 @@ fun AttributeI<*>.propIdNameAttr(): String = storage.getOrPut(this, "propIdNameA
 }
 
 fun TypeI<*>.propIdNameCap(): String = storage.getOrPut(this, "propIdNameCap") {
-    propIdName().capitalize()
+    propIdName().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 }
 
 fun TypeI<*>.propIdName(): String = storage.getOrPut(this, "propIdName") {
@@ -296,11 +298,11 @@ fun TypeI<*>.propIdName(): String = storage.getOrPut(this, "propIdName") {
 }
 
 fun TypeI<*>.propIdNameParentCap(): String = storage.getOrPut(this, "propIdNameParentCap") {
-    propIdNameParent().capitalize()
+    propIdNameParent().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 }
 
 fun TypeI<*>.propIdNameParent(): String = storage.getOrPut(this, "propIdNameParent") {
-    "${name().decapitalize()}${propIdNameCap()}"
+    "${name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${propIdNameCap()}"
 }
 
 fun TypeI<*>.propsAnonymous(): List<AttributeI<*>> = storage.getOrPut(this, "propsAnonymous") {
@@ -377,7 +379,7 @@ fun TypeI<*>.propIdOrAdd(): AttributeI<*> = storage.getOrPut(this, "propId") {
 
 fun TypeI<*>.propIdFullName(): AttributeI<*>? = if (propId() != null) {
     propIdOrAdd().derive {
-        name("${this@propIdFullName.name()}${name().capitalize()}")
+        name("${this@propIdFullName.name()}${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}")
         notKey()
     }
 } else {
@@ -401,7 +403,7 @@ interface TypedAttributeI<T : TypeI<*>, B : TypedAttributeI<T, B>> : AttributeI<
     fun sub(subType: T.() -> AttributeI<*>): AttributeI<*> {
         initIfNotInitialized()
         //TODO create new structure with parent and sub type
-        return (type() as T).subType()
+        return type().subType()
     }
 
     fun typeT(value: T): B
@@ -495,7 +497,7 @@ fun AttributeI<*>.accessibleAndMutable(): Boolean = storage.getOrPut(this, "acce
 }
 
 fun AttributeI<*>.nameDecapitalize(): String = storage.getOrPut(this, "nameDecapitalize") {
-    name().decapitalize()
+    name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
 }
 
 fun AttributeI<*>.asParam(paramValue: Any): AttributeI<*> = derive { value(paramValue) }
@@ -717,7 +719,7 @@ fun <T : StructureUnitI<*>> T.initObjectTree(): T {
             if (parent.namespace().isBlank())
                 ""
             else
-                parent.deriveNamespace(name().toLowerCase())
+                parent.deriveNamespace(name().lowercase(Locale.getDefault()))
         } else {
             parent().namespace()
         }
@@ -733,7 +735,7 @@ fun <T : StructureUnitI<*>> T.initFullNameArtifacts() {
         fullName(name())
     }
 
-    val name = name().toLowerCase()
+    val name = name().lowercase(Locale.getDefault())
     val parent = findParent(StructureUnitI::class.java)
 
     if (artifact().isBlank()) {

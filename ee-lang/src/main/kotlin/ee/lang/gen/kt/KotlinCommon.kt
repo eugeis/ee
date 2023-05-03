@@ -4,6 +4,7 @@ import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
 import ee.lang.gen.java.jackson
+import java.util.*
 
 private const val wrapInitBySize: Int = 20
 
@@ -331,7 +332,8 @@ fun Any.toKotlinValue(c: GenerationContext, derived: String, type: TypeI<*>, mut
             is EnumLiteralI<*> ->
                 if (literal.parent().parent() == n) {
                     "${(literal.parent() as EnumTypeI<*>).toKotlin(c, derived, mutable)}.${
-                    literal.toKotlin().toUpperCase()}"
+                        literal.toKotlin().uppercase(Locale.getDefault())
+                    }"
                 } else {
                     "${(literal.parent() as EnumTypeI<*>).toKotlin(c, derived, mutable)}.${literal.toKotlin()}"
                 }

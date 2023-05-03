@@ -4,6 +4,7 @@ import ee.common.ext.then
 import ee.design.gen.go.toGoPropOptionalAfterBody
 import ee.lang.*
 import org.slf4j.LoggerFactory
+import java.util.*
 
 private val log = LoggerFactory.getLogger("DesignUtils")
 
@@ -105,7 +106,7 @@ fun <T : CommandI<*>> List<T>.filterCommandsWithoutKey(): List<T> =
 
 
 fun CommandI<*>.deriveEventName(): String {
-    var ret = name().capitalize()
+    var ret = name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     ret = when {
         ret.contains("Send") -> {
             ret.replace("Send", "Sent")
@@ -190,9 +191,10 @@ fun StructureUnitI<*>.renameControllersAccordingParentType() {
         item.extendAdapt {
             val parent = findParent(CompilationUnitI::class.java)
             if (parent != null) {
-                val parentPrefix = parent.name().capitalize()
+                val parentPrefix = parent.name()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
                 if (!name().startsWith(parentPrefix)) {
-                    name("$parentPrefix${name().capitalize()}")
+                    name("$parentPrefix${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}")
                 }
             }
         }

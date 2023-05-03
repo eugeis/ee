@@ -3,6 +3,7 @@ package ee.lang.gen.ts
 import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
+import java.util.*
 import javax.swing.text.html.parser.Entity
 
 fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
@@ -245,10 +246,12 @@ fun <T : OperationI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String
 
 // name().toLowerCase() in file name and path
 fun <T : ItemI<*>> T.toAngularComponentFileNameBase(elementType: String, isChild: Boolean, componentName: String): String {
-    return "${isChild.then { "${name().toLowerCase()}/" }}${name().toLowerCase()}-${elementType}.${componentName.toLowerCase()}"
+    return "${isChild.then { "${name().lowercase(Locale.getDefault())}/" }}${name().lowercase(Locale.getDefault())}-${elementType}.${componentName.lowercase(
+        Locale.getDefault()
+    )}"
 }
 fun <T : ItemI<*>> T.toAngularEntityFileNameBase(elementType: String, componentType: String, format: String): String {
-    return "${name().toLowerCase()}/${componentType}/${name().toLowerCase()}-${elementType}.${format}"
+    return "${name().lowercase(Locale.getDefault())}/${componentType}/${name().lowercase(Locale.getDefault())}-${elementType}.${format}"
 }
 fun <T : ItemI<*>> T.toAngularComponentSelector(): String {
     return fullParentNameAndName().toHyphenLowerCase()
@@ -257,13 +260,14 @@ fun <T : ItemI<*>> T.toAngularComponentSelector(): String {
 fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent: String): String {
     return """${indent}ngOnInit(): void {
         this.tableHeader = this.generateTableHeader();
-        this.${this.name().decapitalize()}DataService.checkSearchRoute();
-        if (this.${this.name().decapitalize()}DataService.isSearch) {
-            this.${this.name().decapitalize()}DataService.loadSearchData()
+        this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.checkSearchRoute();
+        if (this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.isSearch) {
+            this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.loadSearchData()
         } else {
-            this.${this.name().decapitalize()}DataService.dataSources =
-                new ${c.n(angular.material.table.MatTableDataSource)}(this.${this.name().decapitalize()}DataService.changeMapToArray(
-                    this.${this.name().decapitalize()}DataService.retrieveItemsFromCache()));
+            this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources =
+                new ${c.n(angular.material.table.MatTableDataSource)}(this.${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.changeMapToArray(
+                    this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.retrieveItemsFromCache()));
         }      
     }"""
 }
@@ -303,8 +307,9 @@ fun <T : AttributeI<*>> T.toTypeScriptInitEmptyProps(c: GenerationContext): Stri
                 0 -> ""
                 else -> {
                     """
-        if (this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} === undefined) {
-            this.${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} = new ${c.n(this.type(), AngularDerivedType.ApiBase).capitalize()}();
+        if (this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} === undefined) {
+            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = new ${c.n(this.type(), AngularDerivedType.ApiBase)
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}();
         }"""
                 }
             }

@@ -4,6 +4,7 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.design.DesignDerivedKind
 import ee.design.HandlerI
 import ee.lang.*
+import java.util.*
 
 
 fun <T : HandlerI<*>> T.toGoPredicates(
@@ -89,5 +90,5 @@ fun <T : NePredicateI<*>> T.toGo(
 fun <T : LiteralI<*>> T.toGoAccess(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
-    return "${parent().name().decapitalize()}.${name().capitalize()}"
+    return "${parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
 }

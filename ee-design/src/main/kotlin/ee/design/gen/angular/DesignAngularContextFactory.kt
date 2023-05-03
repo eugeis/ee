@@ -8,17 +8,9 @@ import ee.lang.gen.ts.AngularDerivedType
 import ee.lang.gen.ts.AngularFileFormat
 import ee.lang.gen.ts.TsContext
 import ee.lang.gen.ts.TsContextBuilder
+import java.util.*
 
 open class DesignAngularContextFactory : DesignTsContextFactory() {
-    override fun contextBuilder(
-        derived: DerivedController, buildNamespace: StructureUnitI<*>.()->String): TsContextBuilder<StructureUnitI<*>> {
-
-        return super.contextBuilder(derived, buildNamespace)
-    }
-
-    override fun registerForImplOnly(derived: DerivedController) {
-        super.registerForImplOnly(derived)
-    }
 
     override fun buildName(item: ItemI<*>, kind: String): String {
         return if (item is EntityI<*>) {
@@ -30,6 +22,8 @@ open class DesignAngularContextFactory : DesignTsContextFactory() {
         }
     }
 
-    protected open fun buildNameForEntity(item: EntityI<*>, kind: String) = item.dataTypeNameAndParentName().capitalize()
-    protected open fun buildNameForBasic(item: BasicI<*>, kind: String) = item.name().capitalize()
+    protected open fun buildNameForEntity(item: EntityI<*>, kind: String) = item.dataTypeNameAndParentName()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    protected open fun buildNameForBasic(item: BasicI<*>, kind: String) = item.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 }

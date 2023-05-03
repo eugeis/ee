@@ -199,7 +199,7 @@ fun <B : MultiHolderI<I, *>, I> B.initObjectTree(
         try {
             val name = f.name
             val getter = javaClass.declaredMethods.find {
-                it.name == "get${name.capitalize()}" ||
+                it.name == "get${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" ||
                         //isXy getters
                         it.name == name
             }

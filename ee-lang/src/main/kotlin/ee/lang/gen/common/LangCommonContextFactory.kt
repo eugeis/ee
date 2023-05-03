@@ -6,6 +6,7 @@ import ee.lang.gen.go.GoContextBuilder
 import ee.lang.gen.go.LangGoContextFactory
 import ee.lang.gen.java.j
 import ee.lang.gen.kt.k
+import java.util.*
 
 open class LangCommonContextFactory(val targetAsSingleModule: Boolean = true) {
     val isNotPartOfNativeTypes: ItemI<*>.() -> Boolean = { n != parent() && j != parent() && k != parent() }
@@ -30,10 +31,11 @@ open class LangCommonContextFactory(val targetAsSingleModule: Boolean = true) {
     }
 
     protected open fun contextBuilder(derived: DerivedController, buildNamespace: StructureUnitI<*>.()->String = {
-        namespace().toLowerCase() }): ContextBuilder<StructureUnitI<*>> {
+        namespace().lowercase(Locale.getDefault())
+    }): ContextBuilder<StructureUnitI<*>> {
         return ContextBuilder(CONTEXT_COMMON, macroController) {
             GenerationContext(
-                    namespace = namespace().toLowerCase(),
+                    namespace = namespace().lowercase(Locale.getDefault()),
                     moduleFolder = computeModuleFolder(),
                     derivedController = derived, macroController = macroController)
         }

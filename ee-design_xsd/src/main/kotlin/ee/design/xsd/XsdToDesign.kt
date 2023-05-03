@@ -289,7 +289,7 @@ private class XsdToDesignExecutor(val xsdFile: Path,
         second.joinSurroundIfNotEmptyToString(".", " { $externalName", " }", "()") { it }}"
     }
 
-    private fun Item.toPropBodyCheckImplode(): Pair<String, List<String>>? =
+    private fun Item.toPropBodyCheckImplode(): Pair<String, List<String>> =
             (implodeTypeToPropItem[type] ?: this).toPropBody()
 
     private fun Item.toPropBody(): Pair<String, MutableList<String>> {
@@ -336,7 +336,7 @@ private class XsdToDesignExecutor(val xsdFile: Path,
 
     private fun String.toDslTypeName(): String {
         return primitiveTypes[this] ?: typeToPrimitive[this]
-        ?: namesToTypeName.getOrPut(this) { toCamelCase().capitalize() }
+        ?: namesToTypeName.getOrPut(this) { toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } }
     }
 }
 

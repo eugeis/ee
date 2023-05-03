@@ -5,6 +5,7 @@ import ee.design.DesignDerivedKind
 import ee.design.EntityI
 import ee.lang.*
 import ee.lang.gen.go.g
+import java.util.*
 
 
 fun <T : OperationI<*>> T.toGoHttpClientReadFileJsonBody(
@@ -99,7 +100,7 @@ fun <T : ConstructorI<*>> T.toGoHttpModuleClientBeforeBody(
 
     val item = findParentMust(StructureUnitI::class.java)
     return """
-    url = url + "/" + "${item.name().decapitalize()}""""
+    url = url + "/" + "${item.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}""""
 }
 
 fun <T : ConstructorI<*>> T.toGoHttpClientBeforeBody(
@@ -108,8 +109,8 @@ fun <T : ConstructorI<*>> T.toGoHttpClientBeforeBody(
 
     val item = findParentMust(EntityI::class.java)
     return """
-    urlIdBased := url + "/" + "${item.name().decapitalize()}"
-    url = url + "/" + "${item.name().toPlural().decapitalize()}""""
+    urlIdBased := url + "/" + "${item.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}"
+    url = url + "/" + "${item.name().toPlural().replaceFirstChar { it.lowercase(Locale.getDefault()) }}""""
 }
 
 fun <T : ConstructorI<*>> T.toGoCliBeforeBody(
@@ -158,7 +159,8 @@ fun <T : OperationI<*>> T.toGoCliDeleteByIdsBody(
 
     return """
 	ret = cli.Command{
-		Name:  "deleteBy${propId.name().toPlural().capitalize()}",
+		Name:  "deleteBy${propId.name().toPlural()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}",
 		Usage: "delete ${entity.name()} by ${propId.name().toPlural()}",
 		Flags: []cli.Flag{&cli.StringFlag{
 			Name:     "${propId.name().toPlural()}",
@@ -176,7 +178,8 @@ fun <T : OperationI<*>> T.toGoCliDeleteByIdsBody(
 				}
 				${propId.name().toPlural()} = append(${propId.name().toPlural()}, ${propId.name()})
 			}
-            err = o.Client.DeleteBy${propId.name().toPlural().capitalize()}(${propId.name().toPlural()})
+            err = o.Client.DeleteBy${propId.name().toPlural()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${propId.name().toPlural()})
             return
 		},
 	}"""
@@ -191,7 +194,8 @@ fun <T : OperationI<*>> T.toGoCliDeleteByIdBody(
 
     return """
 	ret = cli.Command{
-		Name:  "deleteBy${propId.name().capitalize()}",
+		Name:  "deleteBy${propId.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}",
 		Usage: "delete ${entity.name()} by ${propId.name()}",
 		Flags: []cli.Flag{&cli.StringFlag{
 			Name:     "${propId.name()}",
@@ -201,7 +205,8 @@ fun <T : OperationI<*>> T.toGoCliDeleteByIdBody(
 		Action: func(c *cli.Context) (err error) {
 			var ${propId.name()} ${c.n(g.google.uuid.UUID, api)}
 			if ${propId.name()}, err = uuid.Parse(c.String("${propId.name()}")); err == nil {
-				err = o.Client.DeleteBy${propId.name().capitalize()}(&${propId.name()})	
+				err = o.Client.DeleteBy${propId.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(&${propId.name()})	
 			}
 			return
 		},

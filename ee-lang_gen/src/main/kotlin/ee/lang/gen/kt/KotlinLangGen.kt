@@ -7,6 +7,7 @@ import ee.common.ext.toUnderscoredUpperCase
 import ee.lang.*
 import ee.lang.gen.DerivedNames
 import ee.lang.gen.isNative
+import java.util.*
 
 
 fun <T : ItemI<*>> T.toKotlinEMPTY(c: GenerationContext, derived: String): String {
@@ -51,7 +52,7 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethodsIB(c: GenerationContext, api: St
     fun ${name()}($value: ${toKotlinDslTypeDef(c, api)}): B${bool.then {
             """
     fun ${name()}(): B = ${name()}(true)
-    fun not${name().capitalize()}(): B = ${name()}(false)"""
+    fun not${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(): B = ${name()}(false)"""
         }}"""
     })
 }
@@ -59,7 +60,11 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethodsIB(c: GenerationContext, api: St
 fun <T : AttributeI> T.toKotlinDslBuilderMethodsI(c: GenerationContext, api: String): String {
     val value = (name() == "value").ifElse("aValue", "value")
     return """
-    fun ${(type() == n.Boolean && !isMulti()).ifElse({ "is${name().capitalize()}" },
+    fun ${(type() == n.Boolean && !isMulti()).ifElse({ "is${name().replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase(
+            Locale.getDefault()
+        ) else it.toString()
+    }}" },
         { name() })}(): ${toKotlinDslTypeDef(c, api)}${nonFluent().isNotBlank().then {
         """
     fun ${nonFluent()}($value: ${toKotlinTypeSingle(c, api)}): ${toKotlinTypeSingle(c, api)}
@@ -79,7 +84,11 @@ fun <T : AttributeI> T.toKotlinDslBuilderMethods(c: GenerationContext, derived: 
             api)}): B = apply { ${name()}().addItems(value.asList()) }"""
     }, {
         """
-    ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().capitalize()}" }, { name() })}(): ${toKotlinDslTypeDef(
+    ${override}fun ${(type() == n.Boolean).ifElse({ "is${name().replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(
+                Locale.getDefault()
+            ) else it.toString()
+        }}" }, { name() })}(): ${toKotlinDslTypeDef(
             c,
             api)} = attr(${name().toUnderscoredUpperCase()}${isNullable().not().then {
             ", { ${value().toString().isEmpty().ifElse(toKotlinEMPTY(c, derived), value())} }"

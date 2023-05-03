@@ -20,7 +20,9 @@ class JsonToDesign(private val pathsToEntityNames: MutableMap<String, String> = 
                    private val ignoreTypes: MutableSet<String> = mutableSetOf()) {
 
     fun toDslTypes(schemaFile: Path, rootTypeName: String =
-            schemaFile.fileName.toString().fileName().toCamelCase().capitalize()): DslTypes =
+        schemaFile.fileName.toString().fileName().toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    ): DslTypes =
 
             JsonToDesignExecutor(schemaFile, rootTypeName, namesToTypeName, ignoreTypes).toDslTypes()
 
@@ -218,15 +220,16 @@ private class JsonToDesignExecutor(swaggerFile: Path, val rootTypeName: String,
     private fun CombinedSchema.toDslTypeName(): String {
         val typeName = when {
             schemaLocation != null && schemaLocation.startsWith("#/definitions/") -> {
-                val combinedSchemaName = schemaLocation.substringAfterLast("#/definitions/").capitalize()
+                val combinedSchemaName = schemaLocation.substringAfterLast("#/definitions/")
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
                 combinedSchemaName.split("/").filter { it != "properties" }.joinToString("") {
-                    it.capitalize()
+                    it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
                 }
             }
             else -> {
                 subschemas.filterIsInstance<ObjectSchema>().map {
                     it.toDslTypeName()
-                }.joinToString("") { it.capitalize() }
+                }.joinToString("") { it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } }
             }
         }
 
@@ -239,10 +242,11 @@ private class JsonToDesignExecutor(swaggerFile: Path, val rootTypeName: String,
     private fun ObjectSchema.toDslTypeName(): String {
         val typeName = when {
             schemaLocation.startsWith("#/definitions/") -> {
-                schemaLocation.substringAfterLast("#/definitions/").capitalize()
+                schemaLocation.substringAfterLast("#/definitions/")
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
             }
             else -> {
-                propertySchemas.keys.joinToString("") { it.capitalize() }
+                propertySchemas.keys.joinToString("") { it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } }
             }
         }
         log.debug("name '{}' for '{}'", typeName, this)
@@ -250,6 +254,10 @@ private class JsonToDesignExecutor(swaggerFile: Path, val rootTypeName: String,
     }
 
     private fun String.toDslTypeName(): String {
-        return typeToPrimitive[this] ?: namesToTypeName.getOrPut(this) { toCamelCase().capitalize() }
+        return typeToPrimitive[this] ?: namesToTypeName.getOrPut(this) { toCamelCase().replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(
+                Locale.getDefault()
+            ) else it.toString()
+        } }
     }
 }
