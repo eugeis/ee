@@ -122,9 +122,9 @@ fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, e
 fun <T : TypeI<*>> T.toAngularModuleTabElement(): String =
     "'${this.name()}'"
 
-fun <T : ItemI<*>> T.toAngularGenerateComponentPart(c: GenerationContext, element: String, type: String, hasProviders: Boolean, hasClass: Boolean): String =
+fun <T : ItemI<*>> T.toAngularGenerateComponentPart(c: GenerationContext, selectorName: String, element: String, type: String, hasProviders: Boolean, hasClass: Boolean): String =
     """@${c.n(angular.core.Component)}({
-  selector: 'app-${this.name().lowercase(Locale.getDefault())}${(element == "entity").then("-${type}")}',
+  selector: '${selectorName}-${this.name().lowercase(Locale.getDefault())}${(element == "entity").then("-${type}")}',
   templateUrl: './${this.name().lowercase(Locale.getDefault())}-${element}${type.isNotEmpty().then("-${type}")}.component.html',
   styleUrls: ['./${this.name().lowercase(Locale.getDefault())}-${element}${type.isNotEmpty().then("-${type}")}.component.scss'],
   ${this.checkProvider(c, hasProviders, hasClass).trim()}

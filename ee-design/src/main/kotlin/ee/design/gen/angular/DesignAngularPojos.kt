@@ -107,9 +107,9 @@ fun <T : ModuleI<*>> T.toAngularDefaultSCSS(c: GenerationContext): String {
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
     return """
-<app-${this.parent().name().lowercase(Locale.getDefault())}></app-${this.parent().name().lowercase(Locale.getDefault())}>
+<module-${this.parent().name().lowercase(Locale.getDefault())}></module-${this.parent().name().lowercase(Locale.getDefault())}>
 
-<app-${this.name().lowercase(Locale.getDefault())}-form [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}"></app-${this.name()
+<entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
         .lowercase(Locale.getDefault())}-form>
 
 <ng-container *ngIf="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isEdit; else notEdit">
@@ -154,7 +154,7 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
             "blob" -> it.toHTMLUploadForm(tab)
             "float", "int" -> it.toHTMLNumberForm(tab)
             else -> when(it.type()) {
-                is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name())
+                is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name(), it.type().parent().name())
                 else -> ""
             }
         }
@@ -168,7 +168,7 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
         </fieldset>
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
-            is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
+            is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name())
             is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntity(it.type().name(), it.type().props().first { element -> element.type().name() == "String" })
             else -> ""
         }
@@ -198,7 +198,7 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
     return """
-<app-${this.parent().name().lowercase(Locale.getDefault())}></app-${this.parent().name().lowercase(Locale.getDefault())}>
+<module-${this.parent().name().lowercase(Locale.getDefault())}></module-${this.parent().name().lowercase(Locale.getDefault())}>
 <div class="${this.name().lowercase(Locale.getDefault())}-list-button">
     <a class="newButton" [routerLink]="'./new'"
             routerLinkActive="active-link">
@@ -310,9 +310,9 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext
         <legend>{{"table."+ parentName | translate}} {{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
-            is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name())
-            is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
-            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityForBasic(it.type().name(), it.type().props().first { element -> element.type().name() == "String" })
+            is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name(), it.type().parent().name())
+            is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name())
+            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityForBasic(it.type().name(), it.type().props())
             else -> when(it.type().name().lowercase(Locale.getDefault())) {
                 "boolean" -> it.toHTMLBooleanForm("")
                 "date", "list" -> it.toHTMLDateForm("")

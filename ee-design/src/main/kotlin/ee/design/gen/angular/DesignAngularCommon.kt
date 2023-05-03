@@ -4,7 +4,7 @@ import ee.design.EntityI
 import ee.lang.*
 import java.util.*
 
-fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, key: AttributeI<*>): String {
+fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, key: ListMultiHolder<AttributeI<*>>): String {
     return """
         <fieldset>
             <legend>${elementType.toCamelCase()
@@ -20,7 +20,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
                     <mat-option *ngFor="let option of filteredOptions${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} | async" [value]="option">
-                        {{option.${key.name()}}}
+                        {{ ${if(key.any { it.type().name() == "String" }) {"option." + key.first { it.type().name() == "String" }.name()} else {"option"}} }}
                     </mat-option>
                 </mat-autocomplete>
             </mat-form-field>
@@ -78,23 +78,23 @@ fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String): String {
         ${indent}</mat-form-field>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementType: String): String {
+fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementType: String, parentName: String): String {
     return """
-        ${indent}<app-${elementType.lowercase(Locale.getDefault())} [${elementType.lowercase(Locale.getDefault())}]="${this.parent().name()
+        ${indent}<enum-${parentName.lowercase()}-${elementType.lowercase(Locale.getDefault())} [${elementType.lowercase(Locale.getDefault())}]="${this.parent().name()
         .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" (${elementType.lowercase(
         Locale.getDefault()
     )}Change) = '${this.parent().name()
-        .lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = ${"$"}event'></app-${elementType.lowercase(
+        .lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = ${"$"}event'></enum-${parentName.lowercase()}-${elementType.lowercase(
         Locale.getDefault()
     )}>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String): String {
+fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String, parentName: String): String {
     return """
-        <app-${elementType.lowercase(Locale.getDefault())} [parentName]="'${this.parent().name().lowercase(Locale.getDefault())}'" [${elementType.lowercase(
+        <basic-${parentName.lowercase()}-${elementType.lowercase(Locale.getDefault())} [parentName]="'${this.parent().name().lowercase(Locale.getDefault())}'" [${elementType.lowercase(
         Locale.getDefault()
     )}]="${this.parent().name()
-        .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"></app-${elementType.lowercase(
+        .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"></basic-${parentName.lowercase()}-${elementType.lowercase(
         Locale.getDefault()
     )}>"""
 }
