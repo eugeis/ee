@@ -8,15 +8,20 @@ open class AngularDerivedKindNames {
     val DataService = "DataService"
     val ViewService = "ViewService"
     val Service = "Service"
+    val Entity = "Entity"
     val ViewComponent = "ViewComponent"
-    val ModuleViewComponent = "ModuleViewComponent"
+    val EntityViewComponent = Entity + ViewComponent
     val ListComponent = "ListComponent"
+    val EntityListComponent = Entity + ListComponent
     val FormComponent = "FormComponent"
+    val EntityFormComponent = Entity + FormComponent
     val Component = "Component"
     val Enum = "Enum"
     val EnumComponent = "EnumComponent"
+    val Basic = "Basic"
     val BasicComponent = "BasicComponent"
     val Module = "Module"
+    val ModuleViewComponent = Module + ViewComponent
     val RoutingModules = "RoutingModules"
     val ApiBase = "ApiBase"
 }

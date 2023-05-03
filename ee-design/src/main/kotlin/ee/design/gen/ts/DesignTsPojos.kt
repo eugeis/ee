@@ -9,11 +9,11 @@ import java.util.*
 
 val tabs5 = tab + tab + tab + tab + tab
 
-fun <T : ModuleI<*>> T.toAngularModuleTypeScript(c: GenerationContext, ViewComponent: String = AngularDerivedType.ViewComponent): String {
+fun <T : ModuleI<*>> T.toAngularModuleTypeScript(c: GenerationContext, Model: String = AngularDerivedType.Module,ViewComponent: String = AngularDerivedType.ViewComponent): String {
     return """
 ${this.toAngularGenerateComponentPart(c, "module", "module", "view", hasProviders = true, hasClass = false)}
 export class ${this.name()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${ViewComponent} {${"\n"}  
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${ViewComponent} {${"\n"}  
     constructor(public ${c.n(this, AngularDerivedType.ViewService)
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.ViewService)}) {}$nL
 }"""
@@ -34,11 +34,11 @@ fun <T : ModuleI<*>> T.toAngularModuleService(modules: List<ModuleI<*>>, c: Gene
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityViewTypeScript(c: GenerationContext, ViewComponent: String = AngularDerivedType.ViewComponent): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityViewTypeScript(c: GenerationContext, Model: String = AngularDerivedType.Entity, ViewComponent: String = AngularDerivedType.ViewComponent): String {
     return """
 ${this.toAngularGenerateComponentPart(c, "entity-${this.parent().name().lowercase(Locale.getDefault())}", "entity", "view", hasProviders = true, hasClass = true)}
 ${isOpen().then("export ")}class ${this.name()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${ViewComponent} implements ${c.n(angular.core.OnInit)} {
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${ViewComponent} implements ${c.n(angular.core.OnInit)} {
 
 ${this.toTypeScriptEntityProp(c, tab)}
 ${this.toAngularConstructorDataService(c, tab)}
@@ -47,11 +47,11 @@ ${this.toAngularViewOnInit(c, tab)}
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationContext, FormComponent: String = AngularDerivedType.FormComponent): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationContext, Model: String = AngularDerivedType.Entity, FormComponent: String = AngularDerivedType.FormComponent): String {
     return """
 ${this.toAngularGenerateComponentPart(c, "entity-${this.parent().name().lowercase(Locale.getDefault())}", "entity", "form", hasProviders = false, hasClass = false)}
 ${isOpen().then("export ")}class ${this.name()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${FormComponent} implements ${c.n(angular.core.OnInit)} {
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${FormComponent} implements ${c.n(angular.core.OnInit)} {
 
 ${this.toTypeScriptFormProp(c, tab)}
     constructor(public ${c.n(this, AngularDerivedType.DataService)
@@ -67,11 +67,11 @@ ${this.toAngularFormOnInit(c, tab)}
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityListTypeScript(c: GenerationContext, ListComponent: String = AngularDerivedType.ListComponent): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityListTypeScript(c: GenerationContext, Model: String = AngularDerivedType.Entity, ListComponent: String = AngularDerivedType.ListComponent): String {
     return """
 ${this.toAngularGenerateComponentPart(c, "entity-${this.parent().name().lowercase(Locale.getDefault())}", "entity", "list", hasProviders = true, hasClass = true)}
 ${isOpen().then("export ")}class ${this.name()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${ListComponent} implements ${c.n(angular.core.OnInit)}, ${c.n(angular.core.AfterViewInit)} {
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${ListComponent} implements ${c.n(angular.core.OnInit)}, ${c.n(angular.core.AfterViewInit)} {
 
 ${this.toTypeScriptEntityPropInit(c, tab)}
     tableHeader: Array<String> = [];
@@ -242,11 +242,13 @@ ${isOpen().then("export ")}class ${this.name()
 
 declare global {
     interface Window {
-        ${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}: ${this.name()
+        ${this.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${DataService}: ${this.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${DataService};
     }
 }
-window.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService} = new ${this.name()
+window.${this.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${DataService} = new ${this.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${DataService}();
 """
 }
