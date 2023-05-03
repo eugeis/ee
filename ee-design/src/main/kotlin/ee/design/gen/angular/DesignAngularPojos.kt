@@ -103,9 +103,9 @@ fun <T : ModuleI<*>> T.toAngularDefaultSCSS(c: GenerationContext): String {
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
     return """
-<app-${this.parent().name().toLowerCase()}></app-${this.parent().name().toLowerCase()}>
+<module-${this.parent().name().toLowerCase()}></module-${this.parent().name().toLowerCase()}>
 
-<app-${this.name().toLowerCase()}-form [${this.name().toLowerCase()}]="${this.name().toLowerCase()}"></app-${this.name().toLowerCase()}-form>
+<entity-${this.parent().name().toLowerCase()}-${this.name().toLowerCase()}-form [${this.name().toLowerCase()}]="${this.name().toLowerCase()}"></entity-${this.parent().name().toLowerCase()}-${this.name().toLowerCase()}-form>
 
 <ng-container *ngIf="${this.name().decapitalize()}${DataService}.isEdit; else notEdit">
     <button mat-raised-button [routerLink]="'../../'"
@@ -147,7 +147,7 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
             "blob" -> it.toHTMLUploadForm(tab)
             "float", "int" -> it.toHTMLNumberForm(tab)
             else -> when(it.type()) {
-                is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name())
+                is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name(), it.type().parent().name())
                 else -> ""
             }
         }
@@ -161,8 +161,8 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
         </fieldset>
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
-            is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
-            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntity(it.type().name(), it.type().props().first { element -> element.type().name() == "String" })
+            is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name())
+            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntity(it.type().name(), it.type().props())
             else -> ""
         }
     }}
@@ -191,7 +191,7 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
     return """
-<app-${this.parent().name().toLowerCase()}></app-${this.parent().name().toLowerCase()}>
+<module-${this.parent().name().toLowerCase()}></module-${this.parent().name().toLowerCase()}>
 <div class="${this.name().toLowerCase()}-list-button">
     <a class="newButton" [routerLink]="'./new'"
             routerLinkActive="active-link">
@@ -294,9 +294,9 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext
         <legend>{{"table."+ parentName | translate}} {{"table.${this.name().toLowerCase()}" | translate}}</legend>
             ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
-            is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name())
-            is BasicI<*> -> it.toHTMLObjectForm(it.type().name())
-            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityForBasic(it.type().name(), it.type().props().first { element -> element.type().name() == "String" })
+            is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name(), it.type().parent().name())
+            is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name())
+            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityForBasic(it.type().name(), it.type().props())
             else -> when(it.type().name().toLowerCase()) {
                 "boolean" -> it.toHTMLBooleanForm("")
                 "date", "list" -> it.toHTMLDateForm("")

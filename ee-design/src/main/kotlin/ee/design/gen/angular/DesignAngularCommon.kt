@@ -3,7 +3,7 @@ import ee.common.ext.toCamelCase
 import ee.design.EntityI
 import ee.lang.*
 
-fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, key: AttributeI<*>): String {
+fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, key: ListMultiHolder<AttributeI<*>>): String {
     return """
         <fieldset>
             <legend>${elementType.toCamelCase().capitalize()}</legend>
@@ -12,7 +12,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
                 <input type="text" matInput [formControl]="control${elementType.toCamelCase().capitalize()}" [matAutocomplete]="auto${elementType.toCamelCase().capitalize()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
                 <mat-autocomplete #auto${elementType.toCamelCase().capitalize()}="matAutocomplete" [displayWith]="display${elementType.toCamelCase().capitalize()}">
                     <mat-option *ngFor="let option of filteredOptions${elementType.toCamelCase().capitalize()} | async" [value]="option">
-                        {{option.${key.name()}}}
+                        {{ ${if(key.any { it.type().name() == "String" }) {"option." + key.first { it.type().name() == "String" }.name()} else {"option"}} }}
                     </mat-option>
                 </mat-autocomplete>
             </mat-form-field>
@@ -64,17 +64,17 @@ fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String): String {
         ${indent}</mat-form-field>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementType: String): String {
+fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementType: String, parentName: String): String {
     return """
-        ${indent}<app-${elementType.toLowerCase()} [${elementType.toLowerCase()}]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}" (${elementType.toLowerCase()}Change) = '${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} = ${"$"}event'></app-${elementType.toLowerCase()}>"""
+        ${indent}<enum-${parentName.toLowerCase()}-${elementType.toLowerCase()} [${elementType.toLowerCase()}]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}" (${elementType.toLowerCase()}Change) = '${this.parent().name().toLowerCase()}.${this.name().toCamelCase()} = ${"$"}event'></enum-${parentName.toLowerCase()}-${elementType.toLowerCase()}>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String): String {
+fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String, parentName: String): String {
     return """
-        <app-${elementType.toLowerCase()} [parentName]="'${this.parent().name().toLowerCase()}'" [${elementType.toLowerCase()}]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}"></app-${elementType.toLowerCase()}>"""
+        <basic-${parentName.toLowerCase()}-${elementType.toLowerCase()} [parentName]="'${this.parent().name().toLowerCase()}'" [${elementType.toLowerCase()}]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}"></basic-${parentName.toLowerCase()}-${elementType.toLowerCase()}>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: AttributeI<*>): String {
+fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: ListMultiHolder<AttributeI<*>>): String {
     return """
         <fieldset>
             <legend>{{"table.${elementType.toCamelCase().toLowerCase()}" | translate}}</legend>
@@ -83,7 +83,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: Attri
                 <input type="text" matInput [formControl]="${this.parent().name().decapitalize()}DataService.control${elementType.toCamelCase().capitalize()}" [matAutocomplete]="auto${elementType.toCamelCase().capitalize()}" [(ngModel)]="${this.parent().name().toLowerCase()}.${this.name().toCamelCase()}">
                 <mat-autocomplete #auto${elementType.toCamelCase().capitalize()}="matAutocomplete" [displayWith]="${this.parent().name().decapitalize()}DataService.display${elementType.toCamelCase().capitalize()}">
                     <mat-option *ngFor="let option of ${this.parent().name().decapitalize()}DataService.filteredOptions${elementType.toCamelCase().capitalize()} | async" [value]="option">
-                        {{option.${key.name()}}}
+                        {{ ${if(key.any { it.type().name() == "String" }) {"option." + key.first { it.type().name() == "String" }.name()} else {"option"}} }}
                     </mat-option>
                 </mat-autocomplete>
             </mat-form-field>
@@ -109,7 +109,7 @@ fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = "", isChild: Bo
 fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = "", basicParentName: String = "", isChild: Boolean): String =
     this.props().filter { !isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props().first { element -> element.type().name() == "String" }, isChild)
+            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props(), isChild)
             is BasicI<*> -> it.type().toAngularTableListBasic(parentName, it.name(), it.parent().name(),true)
             is EnumTypeI<*> -> it.toAngularTableListEnum(basicName, isChild)
             else -> {
@@ -122,11 +122,11 @@ fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName:
     }
 
 
-fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: AttributeI<*>, isChild: Boolean): String =
+fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean): String =
     """
         <ng-container matColumnDef="${this.name().toLowerCase()}-entity">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().toLowerCase()}" | translate}}</th>
-            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.decapitalize()}DataService.searchItems(i, element${if(isChild) "['${this.parent().name().toLowerCase()}']['${this.name().toLowerCase()}']" else "['${this.name().toLowerCase()}']"}, '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{element${if(isChild) "['${this.parent().name().toLowerCase()}']['${this.name().toLowerCase()}']['${key.name()}']" else "['${this.name().toLowerCase()}']['${key.name()}']"}}}</a> </td>
+            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.decapitalize()}DataService.searchItems(i, element${if(isChild) "['${this.parent().name().toLowerCase()}']['${this.name().toLowerCase()}']" else "['${this.name().toLowerCase()}']"}, '${findParentNonInternal?.name()?.toLowerCase()}/${elementName.toLowerCase()}', '${parentName.toLowerCase()}')">{{element${if(isChild) "['${this.parent().name().toLowerCase()}']['${this.name().toLowerCase()}']${if(key.any { it.type().name() == "String" }) {"['" + key.first { it.type().name() == "String" }.name() + "']"} else {""}}" else "['${this.name().toLowerCase()}']${if(key.any { it.type().name() == "String" }) {"['" + key.first { it.type().name() == "String" }.name() + "']"} else {""}}"}}}</a> </td>
         </ng-container>
 """
 

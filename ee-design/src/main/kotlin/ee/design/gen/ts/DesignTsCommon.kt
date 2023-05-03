@@ -23,23 +23,23 @@ fun <T : TypeI<*>> T.toAngularControlService(c: GenerationContext): String {
     filteredOptions${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}: ${c.n(rxjs.empty.Observable)}<${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}[]>;$nL"""
 }
 
-fun <T : TypeI<*>> T.toAngularControlServiceFunctions(c: GenerationContext, key: AttributeI<*>): String {
+fun <T : TypeI<*>> T.toAngularControlServiceFunctions(c: GenerationContext, key: ListMultiHolder<AttributeI<*>>): String {
     return """
     display${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}(${c.n(this, AngularDerivedType.ApiBase).toCamelCase()}: ${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}): string {
-        return ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()} ? ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()}.${key.name()} : '';
+        return ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()} ? ${if(key.any { it.type().name() == "String" }) {c.n(this, AngularDerivedType.ApiBase).toCamelCase() + "." + key.first { it.type().name() == "String" }.name()} else {"JSON.stringify(${c.n(this, AngularDerivedType.ApiBase).toCamelCase()})"}} : '';
     }
     
     filter${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}(name: string, array: Array<${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}>): ${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}[] {
-        return array.filter(option => option.${key.name()}.toLowerCase().includes(name.toLowerCase()));
+        return array.filter(option => ${if(key.any { it.type().name() == "String" }) {"option." + key.first { it.type().name() == "String" }.name()} else {"JSON.stringify(option)"}}.toLowerCase().includes(name.toLowerCase()));
     }$nL"""
 }
 
-fun <T : TypeI<*>> T.toAngularInitObservable(c: GenerationContext, key: AttributeI<*>): String {
+fun <T : TypeI<*>> T.toAngularInitObservable(c: GenerationContext, key: ListMultiHolder<AttributeI<*>>): String {
     return """
         this.filteredOptions${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()} = this.control${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}.valueChanges.pipe(
             ${c.n(rxjs.operators.startWith)}(''),
             ${c.n(rxjs.operators.map)}((value: ${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}) => {
-                const name = typeof value === 'string' ? value : value.${key.name()};
+                const name = typeof value === 'string' ? value : ${if(key.any { it.type().name() == "String" }) {"value." + key.first { it.type().name() == "String" }.name()} else {"JSON.stringify(value)"}};
                 return name ?
                     this.filter${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}(name as string, this.option${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()})
                     : this.option${c.n(this, AngularDerivedType.ApiBase).toCamelCase().capitalize()}.slice();
@@ -85,9 +85,9 @@ fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, e
 fun <T : TypeI<*>> T.toAngularModuleTabElement(): String =
     "'${this.name()}'"
 
-fun <T : ItemI<*>> T.toAngularGenerateComponentPart(c: GenerationContext, element: String, type: String, hasProviders: Boolean, hasClass: Boolean): String =
+fun <T : ItemI<*>> T.toAngularGenerateComponentPart(c: GenerationContext, selectorName: String,element: String, type: String, hasProviders: Boolean, hasClass: Boolean): String =
     """@${c.n(angular.core.Component)}({
-  selector: 'app-${this.name().toLowerCase()}${(element == "entity").then("-${type}")}',
+  selector: '${selectorName}-${this.name().toLowerCase()}${(element == "entity").then("-${type}")}',
   templateUrl: './${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.html',
   styleUrls: ['./${this.name().toLowerCase()}-${element}${type.isNotEmpty().then("-${type}")}.component.scss'],
   ${this.checkProvider(c, hasProviders, hasClass).trim()}
