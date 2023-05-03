@@ -587,6 +587,28 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                     tsTemplates.entityDataService(entities.invoke(model), angularEntityService.ts)
                 ) }))
 
+        // View, List, Form, Service Components for Values
+        val valuesComponentContextBuilder = tsContextFactory.buildForImplOnly()
+        moduleGenerators.add(GeneratorItems("AngularValuesComponent",
+            contextBuilder = entityComponentContextBuilder, items = values,
+
+            templates = {
+                listOf(
+                    tsTemplates.valueViewTypeScript(angularEntityViewComponent.ts),
+                    angularTemplates.entityViewHTML(angularEntityViewComponent.html),
+                    angularTemplates.entityViewSCSS(angularEntityViewComponent.scss),
+
+                    tsTemplates.valueFormTypeScript(angularEntityFormComponent.ts),
+                    angularTemplates.entityFormHTML(angularEntityFormComponent.html),
+                    angularTemplates.entityFormSCSS(angularEntityFormComponent.scss),
+
+                    tsTemplates.valueListTypeScript(angularEntityListComponent.ts),
+                    angularTemplates.entityListHTML(angularEntityListComponent.html),
+                    angularTemplates.entityListSCSS(angularEntityListComponent.scss),
+
+                    tsTemplates.entityDataService(entities.invoke(model), angularEntityService.ts)
+                ) }))
+
         // Basics Components
         val basicsContextBuilder = tsContextFactory.buildForImplOnly("/basics")
         moduleGenerators.add(GeneratorItems("AngularBasics",
@@ -612,7 +634,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                 ) }))
 
         return GeneratorContexts(generator, moduleViewComponentContextBuilder, moduleModulesContextBuilder, moduleServiceContextBuilder,
-            entityComponentContextBuilder, basicsContextBuilder, enumsContextBuilder,)
+            entityComponentContextBuilder, valuesComponentContextBuilder, basicsContextBuilder, enumsContextBuilder,)
     }
 
     open fun docMarkDown(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {

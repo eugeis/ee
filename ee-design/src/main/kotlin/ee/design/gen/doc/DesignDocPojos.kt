@@ -45,9 +45,9 @@ fun <T : ListMultiHolder<AttributeI<*>>> T.checkEntityToOtherRelation(c: Generat
 }
 
 fun <T : BasicI<*>> T.toPlantUmlClassDiagramBasicRelation(c: GenerationContext): String {
-    return this.props().filter { it.type() is BasicI<*> || it.type() is EnumTypeI<*> || it.type() is EntityI<*>
+    return this.props().filter { it.type() is BasicI<*> || it.type() is EnumTypeI<*> || it.type() is EntityI<*> || it.type() is ValuesI<*>
             || (it.type().name().contains("list", true)
-            && (it.type().generics().filter { genericType -> genericType.type() is BasicI<*> || genericType.type() is EnumTypeI<*> || genericType.type() is EntityI<*> }).isNotEmpty()) }.distinct().joinSurroundIfNotEmptyToString(nL) { it.toPlantUmlClassDiagramGenerateRelation(c) }
+            && (it.type().generics().filter { genericType -> genericType.type() is BasicI<*> || genericType.type() is EnumTypeI<*> || genericType.type() is EntityI<*> || genericType.type() is ValuesI<*> }).isNotEmpty()) }.distinct().joinSurroundIfNotEmptyToString(nL) { it.toPlantUmlClassDiagramGenerateRelation(c) }
 }
 
 fun <T : ModuleI<*>> T.toPlantUmlClassDiagramModule(c: GenerationContext, componentName: String, componentPart: String, generateComponentPart: Boolean): String {

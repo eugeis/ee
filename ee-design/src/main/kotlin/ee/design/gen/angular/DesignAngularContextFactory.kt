@@ -15,6 +15,8 @@ open class DesignAngularContextFactory : DesignTsContextFactory() {
     override fun buildName(item: ItemI<*>, kind: String): String {
         return if (item is EntityI<*>) {
             buildNameForEntity(item, kind)
+        } else if (item is ValuesI<*>) {
+            buildNameForValues(item, kind)
         } else if (item is BasicI<*>) {
             buildNameForBasic(item, kind)
         } else {
@@ -23,6 +25,8 @@ open class DesignAngularContextFactory : DesignTsContextFactory() {
     }
 
     protected open fun buildNameForEntity(item: EntityI<*>, kind: String) = item.dataTypeNameAndParentName()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    protected open fun buildNameForValues(item: ValuesI<*>, kind: String) = item.dataTypeNameAndParentName()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     protected open fun buildNameForBasic(item: BasicI<*>, kind: String) = item.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }

@@ -19,6 +19,9 @@ export function HttpLoaderFactory(http: ${c.n(angular.commonhttp.HttpClient)}) {
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleDeclarationEntities(c, tab + tab)
     }}
+${this.values().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toAngularModuleDeclarationValuesImport(c, tab + tab)
+    }}
 ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleDeclarationBasics(c, tab + tab)
     }}
@@ -55,6 +58,9 @@ ${this.basics().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
 ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleDeclarationEnums(c, tab + tab)
     }}
+${this.values().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toAngularModuleDeclarationValues(c, tab + tab)
+    }}
     ]
 })
 export class ${this.name()}${Module} {}"""
@@ -64,7 +70,7 @@ fun <T : ModuleI<*>> T.toAngularImportOtherModulesOnImportPart(c: GenerationCont
     val sb = StringBuilder()
     val importedOtherModules: MutableList<String> = ArrayList()
     this.entities().forEach { entity ->
-        entity.props().filter { it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase() }.forEach {
+        entity.props().filter { it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase() && it.type().parent().name() != "List" }.forEach {
             importedOtherModules.add("${c.n(it.type().parent(), AngularDerivedType.Module)},")
         }
     }

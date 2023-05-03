@@ -206,7 +206,7 @@ ${isOpen().then("export ")}class ${this.name()
         const editItem = JSON.parse(localStorage.getItem('edit'));
         if (JSON.stringify(newElement) !== JSON.stringify(editItem)) {
         ${entities.filter { entity -> entity.props().any {property ->
-            (property.type() is BasicI<*> || property.type() is EntityI<*>) && ( entity.props().any {
+            (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
                 childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) } ||
                 property.type().props().any {
                         childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
@@ -220,8 +220,8 @@ ${isOpen().then("export ")}class ${this.name()
             inheritedElement${it.name()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.forEach((value, key) => {
                 if (key.includes(JSON.stringify(editItem))) {
-                    ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
-                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*>) && (
+                    ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
                 property.type().props().any { childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
                 ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}.${this.name().toCamelCase()} = newElement;""" }}
                     const newId = itemName + JSON.stringify(value);

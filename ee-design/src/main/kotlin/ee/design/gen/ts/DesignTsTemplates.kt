@@ -37,11 +37,20 @@ open class DesignTsTemplates : LangTsTemplates {
     open fun <T : CompilationUnitI<*>> entityViewTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityViewTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityViewTypeScript(c, Model = AngularDerivedType.Entity, ViewComponent = AngularDerivedType.ViewComponent)  }
 
+    open fun <T : CompilationUnitI<*>> valueViewTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EntityViewTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityViewTypeScript(c, Model = AngularDerivedType.Value, ViewComponent = AngularDerivedType.ViewComponent)  }
+
     open fun <T : CompilationUnitI<*>> entityFormTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityFormTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityFormTypeScript(c, Model = AngularDerivedType.Entity, FormComponent = AngularDerivedType.FormComponent) }
 
+    open fun <T : CompilationUnitI<*>> valueFormTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EntityFormTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityFormTypeScript(c, Model = AngularDerivedType.Value, FormComponent = AngularDerivedType.FormComponent) }
+
     open fun <T : CompilationUnitI<*>> entityListTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityListTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityListTypeScript(c, Model = AngularDerivedType.Entity, ListComponent = AngularDerivedType.ListComponent) }
+
+    open fun <T : CompilationUnitI<*>> valueListTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EntityListTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityListTypeScript(c, Model = AngularDerivedType.Value, ListComponent = AngularDerivedType.ListComponent) }
 
     open fun <T : CompilationUnitI<*>> entityDataService(entites: List<EntityI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityDataService", nameBuilder) { item, c -> item.toAngularEntityDataService(entites, c, DataService = AngularDerivedType.DataService) }

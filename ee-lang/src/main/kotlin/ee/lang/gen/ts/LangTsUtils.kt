@@ -20,6 +20,10 @@ open class AngularDerivedKindNames {
     val EnumComponent = "EnumComponent"
     val Basic = "Basic"
     val BasicComponent = "BasicComponent"
+    val Value = "Value"
+    val ValueViewComponent = Value + ViewComponent
+    val ValueListComponent = Value + ListComponent
+    val ValueFormComponent = Value + FormComponent
     val Module = "Module"
     val ModuleViewComponent = Module + ViewComponent
     val RoutingModules = "RoutingModules"
@@ -187,7 +191,7 @@ open class TsContext(
         fun toImportsViewComponent(): String {
             return types.isNotEmpty().then {
                 val viewComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && (it.name().contains(AngularDerivedType.ViewComponent, true) || it.name().contains(AngularDerivedType.ModuleViewComponent, true)) }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && (it.name().contains(AngularDerivedType.ViewComponent, true) || it.name().contains(AngularDerivedType.ModuleViewComponent, true) || it.name().contains(AngularDerivedType.ValueViewComponent, true)) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 viewComponent.isNotEmpty().then {
@@ -202,9 +206,9 @@ open class TsContext(
                                     su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
                                 }}${
                                     if (su.parent().isEMPTY()) {""}
-                                    else {"/${su.name().lowercase(Locale.getDefault())}"}}/${it.name().replace(AngularDerivedType.ViewComponent, "")
+                                    else {"/${su.name().lowercase(Locale.getDefault())}"}}/${it.name().replace(AngularDerivedType.EntityViewComponent, "").replace(AngularDerivedType.ModuleViewComponent, "").replace(AngularDerivedType.ValueViewComponent, "")
                                 .lowercase(Locale.getDefault())}/components/view/${
-                                it.name().replace(AngularDerivedType.ViewComponent, "").lowercase(Locale.getDefault())
+                                it.name().replace(AngularDerivedType.EntityViewComponent, "").replace(AngularDerivedType.ModuleViewComponent, "").replace(AngularDerivedType.ValueViewComponent, "").lowercase(Locale.getDefault())
                             }-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                             
@@ -217,7 +221,7 @@ open class TsContext(
         fun toImportsListComponent(): String {
             return types.isNotEmpty().then {
                 val listComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.ListComponent, true) }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && (it.name().contains(AngularDerivedType.ListComponent, true) || it.name().contains(AngularDerivedType.ValueListComponent, true))}
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 listComponent.isNotEmpty().then {
@@ -230,9 +234,9 @@ open class TsContext(
                                 }
                                 else {
                                     su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
-                                }}/${su.name().lowercase(Locale.getDefault())}/${it.name().replace(AngularDerivedType.ListComponent, "")
+                                }}/${su.name().lowercase(Locale.getDefault())}/${it.name().replace(AngularDerivedType.EntityListComponent, "").replace(AngularDerivedType.ValueListComponent, "")
                                 .lowercase(Locale.getDefault())}/components/list/${
-                                it.name().replace(AngularDerivedType.ListComponent, "").lowercase(Locale.getDefault())
+                                it.name().replace(AngularDerivedType.EntityListComponent, "").replace(AngularDerivedType.ValueListComponent, "").lowercase(Locale.getDefault())
                             }-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }
@@ -244,7 +248,7 @@ open class TsContext(
         fun toImportsFormComponent(): String {
             return types.isNotEmpty().then {
                 val formComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
-                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && it.name().contains(AngularDerivedType.FormComponent, true) }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && (it.name().contains(AngularDerivedType.FormComponent, true) || it.name().contains(AngularDerivedType.ValueFormComponent, true)) }
                     .groupBy { it.findParentMust(StructureUnitI::class.java) }
 
                 formComponent.isNotEmpty().then {
@@ -257,9 +261,9 @@ open class TsContext(
                                 }
                                 else {
                                     su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
-                                }}/${su.name().lowercase(Locale.getDefault())}/${it.name().replace(AngularDerivedType.FormComponent, "")
+                                }}/${su.name().lowercase(Locale.getDefault())}/${it.name().replace(AngularDerivedType.EntityFormComponent, "").replace(AngularDerivedType.ValueFormComponent, "")
                                 .lowercase(Locale.getDefault())}/components/form/${
-                                it.name().replace(AngularDerivedType.FormComponent, "").lowercase(Locale.getDefault())
+                                it.name().replace(AngularDerivedType.EntityFormComponent, "").replace(AngularDerivedType.ValueFormComponent, "").lowercase(Locale.getDefault())
                             }-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                         }

@@ -160,6 +160,12 @@ $indent${c.n(this, AngularDerivedType.EntityListComponent)},
 $indent${c.n(this, AngularDerivedType.EntityFormComponent)},"""
 }
 
+fun <T : ItemI<*>> T.toAngularModuleDeclarationValuesImport(c: GenerationContext, indent: String): String {
+    return """$indent${c.n(this, AngularDerivedType.ValueViewComponent)},
+$indent${c.n(this, AngularDerivedType.ValueListComponent)},
+$indent${c.n(this, AngularDerivedType.ValueFormComponent)},"""
+}
+
 fun <T : ItemI<*>> T.toAngularModuleExportViews(c: GenerationContext, indent: String): String {
     return """$indent${c.n(this, AngularDerivedType.EntityFormComponent)},"""
 }
@@ -170,6 +176,10 @@ fun <T : ItemI<*>> T.toAngularModuleDeclarationBasics(c: GenerationContext, inde
 
 fun <T : ItemI<*>> T.toAngularModuleDeclarationEnums(c: GenerationContext, indent: String): String {
     return """$indent${c.n(this, AngularDerivedType.EnumComponent)},"""
+}
+
+fun <T : ItemI<*>> T.toAngularModuleDeclarationValues(c: GenerationContext, indent: String): String {
+    return """$indent${c.n(this, AngularDerivedType.ValueFormComponent)},"""
 }
 
 fun <T : ItemI<*>> T.toAngularModulePath(c: GenerationContext, indent: String): String {
