@@ -4,7 +4,6 @@ import ee.common.ext.*
 import ee.lang.*
 import ee.lang.gen.java.j
 import java.util.*
-import javax.swing.text.html.parser.Entity
 
 fun <T : TypeI<*>> T.toTypeScriptDefault(c: GenerationContext, derived: String, attr: AttributeI<*>): String {
     val baseType = findDerivedOrThis()
@@ -126,7 +125,7 @@ fun OperationI<*>.toTypeScriptGenerics(c: GenerationContext, derived: String): S
 
 fun <T : TypeI<*>> T.toTypeScript(c: GenerationContext, derived: String,
                                   attr: AttributeI<*> = Attribute.EMPTY): String =
-    toTypeScriptIfNative(c, derived, attr) ?: "${c.n(this, derived)}${this.toTypeScriptGenericTypes(c, derived, attr)}"
+    toTypeScriptIfNative(c, derived, attr) ?: "${c.n(this, LangDerivedKind.WithParentAsName)}${this.toTypeScriptGenericTypes(c, derived, attr)}"
 
 fun <T : AttributeI<*>> T.toTypeScriptValue(c: GenerationContext, derived: String): String {
     if (value() != null) {

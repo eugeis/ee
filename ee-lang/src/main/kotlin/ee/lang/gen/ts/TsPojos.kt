@@ -41,7 +41,7 @@ fun <T : EnumTypeI<*>> T.toTypeScriptEnumParseMethod(c: GenerationContext,
 
 fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
                                                  api: String = LangDerivedKind.API): String {
-    return """${isOpen().then("export ")}class ${c.n(this, derived)}${toTypeScriptExtends(c, derived,
+    return """${isOpen().then("export ")}class ${c.n(this, LangDerivedKind.WithParentAsName)}${toTypeScriptExtends(c, derived,
         api)} {${props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toTypeScriptMember(c, derived, api, false, tab)
     }}${constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL) {

@@ -30,7 +30,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
     override fun buildGoContextFactory() = DesignGoContextFactory(targetAsSingleModule)
     override fun buildGoTemplates() = DesignGoTemplates(itemNameAsGoFileName)
 
-    override fun buildTsContextFactory() = DesignTsContextFactory()
+    override fun buildTsContextFactory() = DesignTsContextFactory(false)
     override fun buildTsTemplates() = DesignTsTemplates(itemNameAsTsFileName)
 
     override fun buildDocContextFactory() = DesignDocContextFactory(targetAsSingleModule)

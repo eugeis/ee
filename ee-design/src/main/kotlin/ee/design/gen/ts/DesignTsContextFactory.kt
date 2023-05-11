@@ -25,9 +25,13 @@ open class DesignTsContextFactory(alwaysImportTypes: Boolean = false) : LangTsCo
     override fun registerForImplOnly(derived: DerivedController) {
         super.registerForImplOnly(derived)
 
+        derived.registerKind(LangDerivedKind.WithParentAsName, { if (this.parent().name().equals(this.name(), true)) { this.name() } else {"${this.parent().name()}${this.name()}"} }, isNotPartOfNativeTypes)
+
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.ApiBase,
-            { "${this.name()
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" }, { "${this.namespace()}${AngularDerivedType.ApiBase}" }, isNotPartOfNativeTypes))
+            {
+                this.name()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+            }, { "${this.namespace()}${AngularDerivedType.ApiBase}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.ViewComponent,
             { "${this.name()
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.EntityViewComponent}" }, isNotPartOfNativeTypes))

@@ -1,11 +1,7 @@
 package ee.lang.gen.ts
 
-import ee.lang.ContextBuilder
-import ee.lang.DerivedController
-import ee.lang.MacroController
-import ee.lang.StructureUnitI
+import ee.lang.*
 import ee.lang.gen.common.LangCommonContextFactory
-import ee.lang.gen.go.GoContext
 import java.util.*
 
 open class TsContextBuilder<M>(name: String, macroController: MacroController, builder: M.() -> TsContext)

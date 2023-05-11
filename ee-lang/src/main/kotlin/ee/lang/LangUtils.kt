@@ -11,6 +11,7 @@ private val log = LoggerFactory.getLogger("LangUtils")
 open class LangDerivedKindNames {
     val API = "Api"
     val IMPL = "Impl"
+    val WithParentAsName = "WithParentAsName"
     val MANUAL = "MANUAL"
 }
 
