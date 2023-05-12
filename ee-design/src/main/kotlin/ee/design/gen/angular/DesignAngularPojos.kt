@@ -96,8 +96,11 @@ fun <T : ModuleI<*>> T.toAngularRoutingModule(c: GenerationContext, RoutingModul
     return """
 const routes: ${c.n(angular.router.Routes)} = [
     { path: '', component: ${c.n(this, AngularDerivedType.ModuleViewComponent)} },
-${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(",$nL") {
-        it.toAngularModulePath(c, tab)
+${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toAngularEntityModulePath(c, tab)
+    }}
+${this.values().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.toAngularValueModulePath(c, tab)
     }}
 ];
 
@@ -161,28 +164,33 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
     return """
 <div class="${this.name().lowercase(Locale.getDefault())}-form">
     <form>
+        ${this.props().any {  it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.then { 
+            """
         <fieldset>
             <legend>{{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             ${this.props().filter { it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL) {
-        when(it.type().name().lowercase(Locale.getDefault())) {
-            "boolean" -> it.toHTMLBooleanForm(tab)
-            "date", "list" -> it.toHTMLDateForm(tab)
-            "string", "text" -> it.toHTMLStringForm(tab)
-            "blob" -> it.toHTMLUploadForm(tab)
-            "float", "int" -> it.toHTMLNumberForm(tab)
-            else -> when(it.type()) {
-                is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name(), it.type().parent().name())
-                else -> ""
-            }
-        }
-    }}
+                when(it.type().name().lowercase(Locale.getDefault())) {
+                    "boolean" -> it.toHTMLBooleanForm(tab)
+                    "date", "list" -> it.toHTMLDateForm(tab)
+                    "string", "text" -> it.toHTMLStringForm(tab)
+                    "blob" -> it.toHTMLUploadForm(tab)
+                    "float", "int" -> it.toHTMLNumberForm(tab)
+                    else -> when(it.type()) {
+                        is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name(), it.type().parent().name())
+                        else -> ""
+                    }
+                }
+            }}
     
             ${this.props().filter { it.type().name().lowercase(Locale.getDefault()) == "blob" }.joinSurroundIfNotEmptyToString(nL) {
-        """<div>
+                """<div>
                 <img *ngFor='let preview of ${it.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.previews' [src]="preview" class="preview">
             </div>"""
-    }}
+            }}
         </fieldset>
+            """
+    }}
+       
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name())

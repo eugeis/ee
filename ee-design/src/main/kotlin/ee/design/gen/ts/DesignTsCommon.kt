@@ -181,9 +181,16 @@ fun <T : ItemI<*>> T.toAngularModuleDeclarationValues(c: GenerationContext, inde
     return """$indent${c.n(this, AngularDerivedType.ValueFormComponent)},"""
 }
 
-fun <T : ItemI<*>> T.toAngularModulePath(c: GenerationContext, indent: String): String {
+fun <T : ItemI<*>> T.toAngularEntityModulePath(c: GenerationContext, indent: String): String {
     return """$indent{ path: '${this.name().lowercase(Locale.getDefault())}', component: ${c.n(this, AngularDerivedType.EntityListComponent)} },
 $indent{ path: '${this.name().lowercase(Locale.getDefault())}/new', component: ${c.n(this, AngularDerivedType.EntityViewComponent)} },
 $indent{ path: '${this.name().lowercase(Locale.getDefault())}/edit/:id', component: ${c.n(this, AngularDerivedType.EntityViewComponent)} },
-$indent{ path: '${this.name().lowercase(Locale.getDefault())}/search', component: ${c.n(this, AngularDerivedType.EntityListComponent)} }"""
+$indent{ path: '${this.name().lowercase(Locale.getDefault())}/search', component: ${c.n(this, AngularDerivedType.EntityListComponent)} },"""
+}
+
+fun <T : ItemI<*>> T.toAngularValueModulePath(c: GenerationContext, indent: String): String {
+    return """$indent{ path: '${this.name().lowercase(Locale.getDefault())}', component: ${c.n(this, AngularDerivedType.ValueListComponent)} },
+$indent{ path: '${this.name().lowercase(Locale.getDefault())}/new', component: ${c.n(this, AngularDerivedType.ValueViewComponent)} },
+$indent{ path: '${this.name().lowercase(Locale.getDefault())}/edit/:id', component: ${c.n(this, AngularDerivedType.ValueViewComponent)} },
+$indent{ path: '${this.name().lowercase(Locale.getDefault())}/search', component: ${c.n(this, AngularDerivedType.ValueListComponent)} },"""
 }

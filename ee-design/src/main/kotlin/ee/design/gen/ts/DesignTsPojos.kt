@@ -27,6 +27,8 @@ fun <T : ModuleI<*>> T.toAngularModuleService(modules: List<ModuleI<*>>, c: Gene
 
     tabElement = [${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString {
         it.toAngularModuleTabElement()
+    }}, ${this.values().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString {
+        it.toAngularModuleTabElement()
     }}];
 
     pageName = '${this.name()}';
