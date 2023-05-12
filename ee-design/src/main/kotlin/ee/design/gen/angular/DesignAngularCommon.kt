@@ -13,8 +13,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
                 <mat-label>{{"select" | translate}} {{"table.${elementType.lowercase(Locale.getDefault())}" | translate}}</mat-label>
                 <input type="text" matInput [formControl]="control${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [matAutocomplete]="auto${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [(ngModel)]="${this.parent().name()
-        .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
                 <mat-autocomplete #auto${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}="matAutocomplete" [displayWith]="display${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
@@ -31,8 +30,7 @@ fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
             ${indent}<mat-label>{{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
-            ${indent}<input matInput name="${this.name().lowercase(Locale.getDefault())}" [(ngModel)]="${this.parent().name()
-        .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+            ${indent}<input matInput name="${this.name().lowercase(Locale.getDefault())}" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
 
@@ -40,8 +38,7 @@ fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
             ${indent}<mat-label>{{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
-            ${indent}<input matInput name="${this.name().lowercase(Locale.getDefault())}" type="number" [(ngModel)]="${this.parent().name()
-        .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+            ${indent}<input matInput name="${this.name().lowercase(Locale.getDefault())}" type="number" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
 
@@ -50,8 +47,7 @@ fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String): String {
         ${indent}<mat-form-field appearance="outline">
             ${indent}<mat-label>{{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
             ${indent}<input matInput name="${this.name().lowercase(Locale.getDefault())}" type="file" (change)="${this.parent().name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name()
-        .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
 
@@ -69,9 +65,7 @@ fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
             ${indent}<mat-label>{{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
-            ${indent}<input matInput [matDatepicker]="picker" [(ngModel)]="${this.parent().name()
-        .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name()
-        .lowercase(Locale.getDefault())}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'">
+            ${indent}<input matInput [matDatepicker]="picker" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'">
             ${indent}<mat-hint>MM/DD/YYYY</mat-hint>
             ${indent}<mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             ${indent}<mat-datepicker #picker></mat-datepicker>
@@ -108,8 +102,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: ListM
                 <input type="text" matInput [formControl]="${this.parent().name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.control${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [matAutocomplete]="auto${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [(ngModel)]="${this.parent().name()
-        .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
                 <mat-autocomplete #auto${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}="matAutocomplete" [displayWith]="${this.parent().name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.display${elementType.toCamelCase()

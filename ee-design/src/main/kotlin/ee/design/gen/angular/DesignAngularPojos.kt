@@ -44,6 +44,12 @@ ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
             it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase()
         }
     }.then {this.toAngularImportOtherModulesOnImportPart(c)}}
+        ${this.values().any { value ->
+        value.props().any {
+            it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase()
+        }
+    }.then {this.toAngularImportOtherModulesOnImportPart(c)}}
+        
     ],
     providers: [
         { provide: ${c.n(ngxtranslate.core.TranslateService)}, useExisting: ${c.n(module.services.TemplateTranslateService)} }
@@ -71,6 +77,11 @@ fun <T : ModuleI<*>> T.toAngularImportOtherModulesOnImportPart(c: GenerationCont
     val importedOtherModules: MutableList<String> = ArrayList()
     this.entities().forEach { entity ->
         entity.props().filter { it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase() && it.type().parent().name() != "List" }.forEach {
+            importedOtherModules.add("${c.n(it.type().parent(), AngularDerivedType.Module)},")
+        }
+    }
+    this.values().forEach { value ->
+        value.props().filter { it.type().parent().name() != this.name() && it.type().parent().name().first().isUpperCase() && it.type().parent().name() != "List" }.forEach {
             importedOtherModules.add("${c.n(it.type().parent(), AngularDerivedType.Module)},")
         }
     }

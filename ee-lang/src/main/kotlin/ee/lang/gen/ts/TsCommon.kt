@@ -307,8 +307,7 @@ fun <T : AttributeI<*>> T.toTypeScriptInitEmptyProps(c: GenerationContext): Stri
                 else -> {
                     """
         if (this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} === undefined) {
-            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = new ${c.n(this.type(), AngularDerivedType.ApiBase)
-                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}();
+            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = new ${c.n(this.type(), AngularDerivedType.ApiBase)}();
         }"""
                 }
             }

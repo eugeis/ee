@@ -21,27 +21,27 @@ fun <T : ItemI<*>> T.toAngularPropOnConstructor(c: GenerationContext): String {
 
 fun <T : TypeI<*>> T.toAngularControlService(c: GenerationContext): String {
     return """
-    control${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+    control${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = new ${c.n(angular.forms.FormControl)}<${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>(new ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}());
-    option${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+    option${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: Array<${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>;
-    filteredOptions${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+    filteredOptions${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: ${c.n(rxjs.empty.Observable)}<${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[]>;$nL"""
 }
 
 fun <T : TypeI<*>> T.toAngularControlServiceFunctions(c: GenerationContext, key: ListMultiHolder<AttributeI<*>>): String {
     return """
-    display${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+    display${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${c.n(this, AngularDerivedType.ApiBase).toCamelCase()}: ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}): string {
         return ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()} ? ${if(key.any { it.type().name() == "String" }) {c.n(this, AngularDerivedType.ApiBase).toCamelCase() + "." + key.first { it.type().name() == "String" }.name()} else {"JSON.stringify(${c.n(this, AngularDerivedType.ApiBase).toCamelCase()})"}} : '';
     }
     
-    filter${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+    filter${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(name: string, array: Array<${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>): ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[] {
@@ -51,18 +51,18 @@ fun <T : TypeI<*>> T.toAngularControlServiceFunctions(c: GenerationContext, key:
 
 fun <T : TypeI<*>> T.toAngularInitObservable(c: GenerationContext, key: ListMultiHolder<AttributeI<*>>): String {
     return """
-        this.filteredOptions${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = this.control${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        this.filteredOptions${this.name().toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = this.control${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.valueChanges.pipe(
             ${c.n(rxjs.operators.startWith)}(''),
             ${c.n(rxjs.operators.map)}((value: ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}) => {
                 const name = typeof value === 'string' ? value : ${if(key.any { it.type().name() == "String" }) {"value." + key.first { it.type().name() == "String" }.name()} else {"JSON.stringify(value)"}};
                 return name ?
-                    this.filter${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(name as string, this.option${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+                    this.filter${this.name().toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(name as string, this.option${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }})
-                    : this.option${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+                    : this.option${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.slice();
             }),
         );$nL"""
@@ -70,10 +70,9 @@ fun <T : TypeI<*>> T.toAngularInitObservable(c: GenerationContext, key: ListMult
 
 fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): String {
     return """${indent}ng${c.n(angular.core.OnInit)}(): void {
-        this.${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())} = this.${c.n(this, AngularDerivedType.DataService)
+        this.${this.name().lowercase(Locale.getDefault())} = this.${c.n(this, AngularDerivedType.DataService)
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getFirst();
-        this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.checkRoute(this.${c.n(this, AngularDerivedType.ApiBase)
-        .lowercase(Locale.getDefault())});
+        this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.checkRoute(this.${this.name().lowercase(Locale.getDefault())});
     }"""
 }
 
