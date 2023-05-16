@@ -87,7 +87,7 @@ ${this.toAngularConstructorDataService(c, tab)}
 ${this.toAngularListOnInit(c, tab)}
 
     generateTableHeader() {
-        return ['Box', 'Actions', ${props().filter { !it.isEMPTY() && !it.type().props().isEmpty() }.joinSurroundIfNotEmptyToString(", ") {
+        return ['Box', 'Actions', ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         it.toAngularGenerateTableHeader(c)
     }}];
     }
@@ -97,12 +97,12 @@ ${this.toAngularListOnInit(c, tab)}
 
 fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext, parentName: String = ""): String {
     return when (this.type()) {
-        is EntityI<*>, is ValuesI<*> -> """'${this.name().lowercase(Locale.getDefault())}-entity'"""
-        is BasicI<*> -> this.type().props().filter { !it.isEMPTY() && !it.type().props().isEMPTY() }.joinSurroundIfNotEmptyToString(", ") {
+        is EntityI<*>, is ValuesI<*> -> """'${this.name().lowercase(Locale.getDefault())}-entity', """
+        is BasicI<*> -> this.type().props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
             it.toAngularGenerateTableHeader(c, this.name())
         }
-        is EnumTypeI<*> -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}'"""
-        else -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}'"""
+        is EnumTypeI<*> -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}', """
+        else -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}', """
     }
 }
 
