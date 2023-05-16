@@ -110,7 +110,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: ListM
                     <mat-option *ngFor="let option of ${this.parent().name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filteredOptions${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} | async" [value]="option">
-                        {{ ${if(key.any { it.type().name() == "String" }) {"option." + key.first { it.type().name() == "String" }.name()} else {"option"}} }}
+                        <div matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseEnter(option)" (mouseleave)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseLeave()">${elementType.toCamelCase().lowercase(Locale.getDefault())}</div>
                     </mat-option>
                 </mat-autocomplete>
             </mat-form-field>
@@ -160,7 +160,10 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
     """
         <ng-container matColumnDef="${this.name().lowercase(Locale.getDefault())}-entity">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</th>
-            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${parentName.replaceFirstChar {
+            <td mat-cell *matCellDef="let element; let i = index"> <a matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${parentName.lowercase(Locale.getDefault())}DataService.onMouseEnter(element${if(isChild) "['${this.parent().name()
+        .lowercase(Locale.getDefault())}']['${this.name()
+        .lowercase(Locale.getDefault())}']" else "['${this.name()
+        .lowercase(Locale.getDefault())}']"})" (mouseleave)="${parentName.lowercase(Locale.getDefault())}DataService.onMouseLeave()" (click)="${parentName.replaceFirstChar {
         it.lowercase(
             Locale.getDefault()
         )
@@ -172,10 +175,10 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
         Locale.getDefault()
     )}', '${parentName.lowercase(
         Locale.getDefault()
-    )}')">{{element${if(isChild) "['${this.parent().name()
-        .lowercase(Locale.getDefault())}']['${this.name()
-        .lowercase(Locale.getDefault())}']${if (key.any { it.type().name() == "String" }) { "['" + key.first { it.type().name() == "String" }.name() + "']" } else {""}}" else "['${this.name()
-        .lowercase(Locale.getDefault())}']${if (key.any { it.type().name() == "String" }) { "['" + key.first { it.type().name() == "String" }.name() + "']" } else {""}}"}}}</a> </td>
+    )}')">${if(isChild) "${this.parent().name()
+        .lowercase(Locale.getDefault())}-${this.name()
+        .lowercase(Locale.getDefault())}${if (key.any { it.type().name() == "String" }) { key.first { it.type().name() == "String" }.name() } else {""}}" else "${this.name()
+        .lowercase(Locale.getDefault())}${if (key.any { it.type().name() == "String" }) { key.first { it.type().name() == "String" }.name() } else {""}}"}</a> </td>
         </ng-container>
 """
 

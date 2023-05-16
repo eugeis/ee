@@ -25,10 +25,10 @@ fun <T : ModuleI<*>> T.toAngularModuleService(modules: List<ModuleI<*>>, c: Gene
 
     pageElement = [${modules.filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") { """'${it.name()}'""" }}];
 
-    tabElement = [${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString {
-        it.toAngularModuleTabElement()
-    }}, ${this.values().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString {
-        it.toAngularModuleTabElement()
+    tabElement = [${this.entities().filter { !it.isEMPTY() && !it.props().isEmpty() }.joinSurroundIfNotEmptyToString() {
+        it.toAngularModuleTabElementEntity()
+    }} ${this.values().filter { !it.isEMPTY() && !it.props().isEmpty() }.joinSurroundIfNotEmptyToString("") {
+        it.toAngularModuleTabElementValue()
     }}];
 
     pageName = '${this.name()}';
@@ -87,7 +87,7 @@ ${this.toAngularConstructorDataService(c, tab)}
 ${this.toAngularListOnInit(c, tab)}
 
     generateTableHeader() {
-        return ['Box', 'Actions', ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") {
+        return ['Box', 'Actions', ${props().filter { !it.isEMPTY() && !it.type().props().isEmpty() }.joinSurroundIfNotEmptyToString(", ") {
         it.toAngularGenerateTableHeader(c)
     }}];
     }
@@ -98,7 +98,7 @@ ${this.toAngularListOnInit(c, tab)}
 fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext, parentName: String = ""): String {
     return when (this.type()) {
         is EntityI<*>, is ValuesI<*> -> """'${this.name().lowercase(Locale.getDefault())}-entity'"""
-        is BasicI<*> -> this.type().props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(", ") {
+        is BasicI<*> -> this.type().props().filter { !it.isEMPTY() && !it.type().props().isEMPTY() }.joinSurroundIfNotEmptyToString(", ") {
             it.toAngularGenerateTableHeader(c, this.name())
         }
         is EnumTypeI<*> -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}'"""

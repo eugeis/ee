@@ -30,7 +30,17 @@ fun <T : TypeI<*>> T.toAngularControlService(c: GenerationContext): String {
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>;
     filteredOptions${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: ${c.n(rxjs.empty.Observable)}<${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[]>;$nL"""
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[]>;
+    tooltipText = '';
+
+    onMouseEnter(object: ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}) {
+        this.tooltipText = JSON.stringify(object);
+    }
+
+    onMouseLeave() {
+        this.tooltipText = '';
+    }$nL"""
 }
 
 fun <T : TypeI<*>> T.toAngularControlServiceFunctions(c: GenerationContext, key: ListMultiHolder<AttributeI<*>>): String {
@@ -118,8 +128,11 @@ fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, e
         }"""
 }
 
-fun <T : TypeI<*>> T.toAngularModuleTabElement(): String =
+fun <T : TypeI<*>> T.toAngularModuleTabElementEntity(): String =
     "'${this.name()}'"
+
+fun <T : TypeI<*>> T.toAngularModuleTabElementValue(): String =
+    ", '${this.name()}'"
 
 fun <T : ItemI<*>> T.toAngularGenerateComponentPart(c: GenerationContext, selectorName: String, element: String, type: String, hasProviders: Boolean, hasClass: Boolean): String =
     """@${c.n(angular.core.Component)}({
