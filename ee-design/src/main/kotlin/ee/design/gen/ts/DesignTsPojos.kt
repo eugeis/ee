@@ -49,7 +49,7 @@ ${this.toAngularViewOnInit(c, tab)}
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationContext, Model: String = AngularDerivedType.Entity, FormComponent: String = AngularDerivedType.FormComponent): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityFormTypeScript(c: GenerationContext, Model: String = AngularDerivedType.Entity, FormComponent: String = AngularDerivedType.FormComponent, DataService: String = AngularDerivedType.DataService): String {
     return """
 ${this.toAngularGenerateComponentPart(c, "entity-${this.parent().name().lowercase(Locale.getDefault())}", "entity", "form", hasProviders = false, hasClass = false)}
 ${isOpen().then("export ")}class ${this.name()
@@ -58,10 +58,17 @@ ${isOpen().then("export ")}class ${this.name()
 ${this.toTypeScriptFormProp(c, tab)}
     constructor(public ${c.n(this, AngularDerivedType.DataService)
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.DataService)}, 
-${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.distinctBy { it.type().name() }.joinSurroundIfNotEmptyToString("") {
+${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
     when(it.type()) {
         is EntityI<*>, is ValuesI<*> -> it.type().toAngularPropOnConstructor(c)
-        else -> ""
+        else -> when(it.type().name().lowercase(Locale.getDefault())) {
+            "list" -> when(it.type().generics().first().type()) {
+                is EntityI<*>, is ValuesI<*> -> it.type().generics().first().type().toAngularPropOnConstructor(c)
+                is EnumTypeI<*> -> "public ${DataService.replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(service.template.DataService)}<any>"
+                else -> ""
+            }
+            else -> ""
+        }
     }
 }}) {}
 ${this.toAngularFormOnInit(c, tab)}
@@ -102,7 +109,14 @@ fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext, par
             it.toAngularGenerateTableHeader(c, this.name())
         }
         is EnumTypeI<*> -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}', """
-        else -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}', """
+        else -> when(this.type().name().lowercase(Locale.getDefault())) {
+            "list" -> when(this.type().generics().first().type()) {
+                is EntityI<*>, is ValuesI<*> -> """'${this.name().lowercase(Locale.getDefault())}-entity', """
+                is EnumTypeI<*> -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}', """
+                else -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}', """
+            }
+            else -> """'${if(parentName.isEmpty()) "" else "$parentName-"}${this.name().toCamelCase()}', """
+        }
     }
 }
 
@@ -133,10 +147,17 @@ ${isOpen().then("export ")}class ${this.name()
         }
     }}];   
     
-    ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.distinctBy { it.type().name() }.joinSurroundIfNotEmptyToString("") {
+    ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlService(c)
-            else -> ""
+            is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlService(c, false)
+            else -> when(it.type().name().lowercase(Locale.getDefault())) {
+                "list" -> when(it.type().generics().first().type()) {
+                    is EntityI<*>, is ValuesI<*> -> it.type().generics().first().type().toAngularControlService(c, false)
+                    is EnumTypeI<*> -> it.type().generics().first().type().toAngularControlService(c, true)
+                    else -> ""
+                }
+                    else -> ""
+            }
         }
     }}
     
@@ -156,18 +177,30 @@ ${isOpen().then("export ")}class ${this.name()
         this.isHidden = !this.isHidden;
     }
     
-    ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.distinctBy { it.type().name() }.joinSurroundIfNotEmptyToString("") {
+    ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
             is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlServiceFunctions(c, it.type().props())
-            else -> ""
+            else -> when(it.type().name().lowercase(Locale.getDefault())) {
+                "list" -> when(it.type().generics().first().type()) {
+                    is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> it.type().generics().first().type().toAngularControlServiceFunctions(c, it.type().generics().first().type().props())
+                    else -> ""
+                }
+                else -> ""
+            }
         }
     }}
     
     initObservable() {
-    ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.distinctBy { it.type().name() }.joinSurroundIfNotEmptyToString("") {
+    ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
             is EntityI<*>, is ValuesI<*> -> it.type().toAngularInitObservable(c, it.type().props())
-            else -> ""
+            else -> when(it.type().name().lowercase(Locale.getDefault())) {
+                "list" -> when(it.type().generics().first().type()) {
+                    is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> it.type().generics().first().type().toAngularInitObservable(c, it.type().generics().first().type().props())
+                    else -> ""
+                }
+                else -> ""
+            }
         }
     }}
     }
@@ -260,7 +293,7 @@ fun <T : ItemI<*>> T.toAngularGenerateEnumElementBasic(c: GenerationContext, ind
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }});"""
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, BasicComponent: String = AngularDerivedType.BasicComponent): String {
+fun <T : CompilationUnitI<*>> T.toAngularBasicTSComponent(c: GenerationContext, BasicComponent: String = AngularDerivedType.BasicComponent, DataService: String = AngularDerivedType.DataService): String {
     return """
 ${this.toAngularGenerateComponentPart(c, "basic-${this.parent().name().lowercase(Locale.getDefault())}", "basic", "", hasProviders = false, hasClass = false)}
 ${isOpen().then("export ")}class ${this.name()
@@ -272,17 +305,31 @@ ${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString(""
         it.type().toAngularGenerateEnumElementBasic(c, tab)
     }}
 
-${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
-        """${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.distinctBy { it.type().name() }.joinSurroundIfNotEmptyToString("") {
+${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> || it.type().generics().any {genericType -> genericType.type() is EntityI<*> || genericType.type() is ValuesI<*> ||genericType.type() is BasicI<*> || genericType.type() is EnumTypeI<*>}}) {
+        """${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
             when(it.type()) {
-                is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlService(c)
-                else -> ""
+                is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlService(c, false)
+                else -> when(it.type().name().lowercase(Locale.getDefault())) {
+                    "list" -> when(it.type().generics().first().type()) {
+                        is EntityI<*>, is ValuesI<*> -> it.type().generics().first().type().toAngularControlService(c, false)
+                        is EnumTypeI<*> -> it.type().generics().first().type().toAngularControlService(c, true)
+                        else -> ""
+                    }
+                    else -> ""
+                }
             }
         }}        
-    constructor(${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.distinctBy { it.type().name() }.joinSurroundIfNotEmptyToString("") {
+    constructor(${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
             when(it.type()) {
                 is EntityI<*>, is ValuesI<*> -> it.type().toAngularPropOnConstructor(c)
-                else -> "" }
+                else -> when(it.type().name().lowercase(Locale.getDefault())) {
+                    "list" -> when(it.type().generics().first().type()) {
+                        is EntityI<*>, is ValuesI<*> -> it.type().generics().first().type().toAngularPropOnConstructor(c)
+                        is EnumTypeI<*> -> "public ${DataService.replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(service.template.DataService)}<any>"
+                        else -> ""
+                    }
+                    else -> ""
+                } }
         }.trim()
         }) {}
 """
@@ -307,12 +354,21 @@ ${if (props().any { it.type() is EnumTypeI<*> }) {
         it.toTypeScriptInitEmptyProps(c)
     }.trim()}
     
-    ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
+    ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> || it.type().generics().any {genericType -> genericType.type() is EntityI<*> || genericType.type() is ValuesI<*> ||genericType.type() is BasicI<*> || genericType.type() is EnumTypeI<*>} }) {
         """
-        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString("") {
             when(it.type()) {
                 is EntityI<*>, is ValuesI<*> -> it.toAngularInitOptionBasic(c, it.type().name())
-                else -> ""
+                else -> when(it.type().name().lowercase(Locale.getDefault())) {
+                    "list" -> when(it.type().generics().first().type()) {
+                        is EntityI<*>, is ValuesI<*> -> it.toAngularInitOptionBasic(c, it.type().generics().first().type().name())
+                        is EnumTypeI<*> -> "this.option${it.type().generics().first().type().name()
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = this.dataService.loadEnumElement(${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase)
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }});"
+                        else -> ""
+                    }
+                    else -> ""
+                }
             }
         }}
     
@@ -320,20 +376,32 @@ ${if (props().any { it.type() is EnumTypeI<*> }) {
     } else {""}}
     }
     
-${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
+${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> || it.type().generics().any {genericType -> genericType.type() is EntityI<*> || genericType.type() is ValuesI<*> ||genericType.type() is BasicI<*> || genericType.type() is EnumTypeI<*>} }) {
         """    
-        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.distinctBy { it.type().name() }.joinSurroundIfNotEmptyToString("") {
+        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
             when(it.type()) {
                 is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlServiceFunctions(c, it.type().props())
-                else -> ""
+                else -> when(it.type().name().lowercase(Locale.getDefault())) {
+                    "list" -> when(it.type().generics().first().type()) {
+                        is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> it.type().generics().first().type().toAngularControlServiceFunctions(c, it.type().generics().first().type().props())
+                        else -> ""
+                    }
+                    else -> ""
+                }
             }
         }}
     
     initObservable() {
-        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.distinctBy { it.type().name() }.joinSurroundIfNotEmptyToString("") {
+        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
             when(it.type()) {
                 is EntityI<*>, is ValuesI<*> -> it.type().toAngularInitObservable(c, it.type().props())
-                else -> ""
+                else -> when(it.type().name().lowercase(Locale.getDefault())) {
+                    "list" -> when(it.type().generics().first().type()) {
+                        is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> it.type().generics().first().type().toAngularInitObservable(c, it.type().generics().first().type().props())
+                        else -> ""
+                    }
+                    else -> ""
+                }
             }
         }}
     }"""
@@ -343,9 +411,7 @@ ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> }) {
 }
 
 fun <T : ItemI<*>> T.toAngularInitOptionBasic(c: GenerationContext, elementType: String): String {
-    return """this.option${elementType.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = this.${elementType.lowercase(Locale.getDefault())}DataService.changeMapToArray(this.${elementType.lowercase(
-        Locale.getDefault()
-    )}DataService.retrieveItemsFromCache()); $nL"""
+    return """this.option${elementType.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = this.${elementType.toCamelCase()}DataService.changeMapToArray(this.${elementType.toCamelCase()}DataService.retrieveItemsFromCache()); $nL"""
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEnumTSComponent(c: GenerationContext, EnumComponent: String = AngularDerivedType.EnumComponent,
@@ -363,7 +429,7 @@ export class ${this.name()
     
     enumElements: Array<string>;
     
-    constructor(private ${DataService.replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(service.template.DataService)}<any>) { }
+    constructor(public ${DataService.replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(service.template.DataService)}<any>) { }
     
     ngOnInit(): void {
         this.enumElements = this.${DataService.replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadEnumElement(${c.n(this, AngularDerivedType.ApiBase)});

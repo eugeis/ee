@@ -167,12 +167,12 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
         ${this.props().any {  it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.then { 
             """
         <fieldset>
-            <legend>{{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
+            <legend>{{"table.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             ${this.props().filter { it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL) {
                 when(it.type().name().lowercase(Locale.getDefault())) {
                     "boolean" -> it.toHTMLBooleanForm(tab)
-                    "date", "list" -> it.toHTMLDateForm(tab)
-                    "string", "text" -> it.toHTMLStringForm(tab)
+                    "date" -> it.toHTMLDateForm(tab)
+                    "string", "text" -> it.toHTMLStringForm(tab, this.parent().name().lowercase(Locale.getDefault()))
                     "blob" -> it.toHTMLUploadForm(tab)
                     "float", "int" -> it.toHTMLNumberForm(tab)
                     else -> when(it.type()) {
@@ -195,7 +195,16 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
         when(it.type()) {
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name())
             is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntity(it.type().name(), it.type().props())
-            else -> ""
+            else ->  when(it.type().name().lowercase(Locale.getDefault())) {
+                "list" -> when(it.type().generics().first().type()) {
+                    is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityMultiple(it.type().generics().first().type().name())
+                    is EnumTypeI<*> -> it.toHTMLObjectFormEnumMultiple(it.type().generics().first().type().name(),
+                        this.parent().name().lowercase(Locale.getDefault())
+                    )
+                    else -> ""
+                }
+                else -> ""
+            }
         }
     }}
     </form>
@@ -332,7 +341,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext
     return """
 <div class="${this.name().lowercase(Locale.getDefault())}${derived}">
     <fieldset>
-        <legend>{{"table."+ parentName | translate}} {{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
+        <legend>{{"table."+ parentName | translate}} {{"table.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
             is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name(), it.type().parent().name())
@@ -340,10 +349,17 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext
             is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityForBasic(it.type().name(), it.type().props())
             else -> when(it.type().name().lowercase(Locale.getDefault())) {
                 "boolean" -> it.toHTMLBooleanForm("")
-                "date", "list" -> it.toHTMLDateForm("")
+                "date" -> it.toHTMLDateForm("")
                 "float", "int" -> it.toHTMLNumberForm("")
                 "blob" -> it.toHTMLUploadForm("")
-                else -> {it.toHTMLStringForm("")}
+                "list" -> when(it.type().generics().first().type()) {
+                    is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormBasicFromEntityMultiple(it.type().generics().first().type().name())
+                    is EnumTypeI<*> -> it.toHTMLObjectFormEnumMultiple(it.type().generics().first().type().name(),
+                        this.parent().name().lowercase(Locale.getDefault())
+                    )
+                    else -> {it.toHTMLStringForm("", this.parent().name().lowercase(Locale.getDefault()))}
+                }
+                else -> {it.toHTMLStringForm("", this.parent().name().lowercase(Locale.getDefault()))}
             }
         }
     }}
@@ -365,7 +381,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(c: GenerationContext
 fun <T : CompilationUnitI<*>> T.toAngularEnumHTMLComponent(c: GenerationContext): String {
     return """
 <mat-form-field appearance="outline">
-    <mat-label>{{"table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+    <mat-label>{{"table.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
     <mat-select [(ngModel)]="${this.name().lowercase(Locale.getDefault())}" (selectionChange)="changeValue(${"$"}event)">
         <mat-option *ngFor="let item of enumElements" [value]="item">{{item | translate}}</mat-option>
     </mat-select>

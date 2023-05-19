@@ -19,28 +19,18 @@ fun <T : ItemI<*>> T.toAngularPropOnConstructor(c: GenerationContext): String {
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.DataService)}, $nL"""
 }
 
-fun <T : TypeI<*>> T.toAngularControlService(c: GenerationContext): String {
+fun <T : TypeI<*>> T.toAngularControlService(c: GenerationContext, isEnum: Boolean): String {
     return """
     control${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = new ${c.n(angular.forms.FormControl)}<${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>(new ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}());
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>(${if (isEnum) {"0"} else {"new ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}()"}});
     option${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: Array<${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>;
     filteredOptions${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: ${c.n(rxjs.empty.Observable)}<${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[]>;
-    tooltipText = '';
-
-    onMouseEnter(object: ${c.n(this, AngularDerivedType.ApiBase).toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}) {
-        this.tooltipText = JSON.stringify(object);
-    }
-
-    onMouseLeave() {
-        this.tooltipText = '';
-    }$nL"""
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[]>;$nL"""
 }
 
 fun <T : TypeI<*>> T.toAngularControlServiceFunctions(c: GenerationContext, key: ListMultiHolder<AttributeI<*>>): String {
@@ -93,10 +83,19 @@ fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent
         it.toAngularEmptyProps(c, indent, it.type())
     }.trim()}
     
-${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString("") {
+${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString("") {
 when(it.type()) {
     is EntityI<*>, is ValuesI<*> -> it.toAngularInitOption(c, it.type().name())
-    else -> ""
+    else -> when(it.type().name().lowercase(Locale.getDefault())) {
+        "list" -> when(it.type().generics().first().type()) {
+            is EntityI<*>, is ValuesI<*> -> it.toAngularInitOption(c, it.type().generics().first().type().name())
+            is EnumTypeI<*> -> "this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${it.type().generics().first().type().name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = this.dataService.loadEnumElement(${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase)
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }});"
+            else -> ""
+        }
+        else -> ""
+    }
 }
     }}
     
