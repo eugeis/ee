@@ -11,7 +11,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
             <legend>${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}</legend>
             <mat-form-field appearance="fill">
-                <mat-label>{{"select" | translate}} {{"table.${elementType.lowercase(Locale.getDefault())}" | translate}}</mat-label>
+                <mat-label>{{"select" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.lowercase(Locale.getDefault())}" | translate}}</mat-label>
                 <input type="text" matInput [formControl]="control${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [matAutocomplete]="auto${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
@@ -30,7 +30,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
 fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, elementName: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"table.${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+            ${indent}<mat-label>{{"${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
             ${indent}<input matInput name="${this.name().lowercase(Locale.getDefault())}" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
@@ -38,7 +38,7 @@ fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, elementName: String):
 fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"table.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+            ${indent}<mat-label>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
             ${indent}<input matInput name="${this.name().lowercase(Locale.getDefault())}" type="number" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
@@ -46,7 +46,7 @@ fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String): String {
 fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"table.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+            ${indent}<mat-label>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
             ${indent}<input matInput name="${this.name().lowercase(Locale.getDefault())}" type="file" (change)="${this.parent().name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
@@ -55,7 +55,7 @@ fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String): String {
 fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"table.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+            ${indent}<mat-label>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
             ${indent}<mat-select [(value)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
                 ${indent}<mat-option *ngFor="let item of ['true', 'false']" [value]="item">{{item}}</mat-option>
             ${indent}</mat-select>
@@ -65,7 +65,7 @@ fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String): String {
 fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"table.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+            ${indent}<mat-label>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
             ${indent}<input matInput [matDatepicker]="picker" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'">
             ${indent}<mat-hint>MM/DD/YYYY</mat-hint>
             ${indent}<mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -97,9 +97,9 @@ fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String, parentName: Stri
 fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: ListMultiHolder<AttributeI<*>>): String {
     return """
         <fieldset>
-            <legend>{{"table.${this.parent().name().lowercase(Locale.getDefault())}.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
+            <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
             <mat-form-field appearance="fill">
-                <mat-label>{{"select" | translate}} {{"table.${this.parent().name().lowercase(Locale.getDefault())}.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+                <mat-label>{{"select" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</mat-label>
                 <input type="text" matInput [formControl]="${this.parent().name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.control${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [matAutocomplete]="auto${elementType.toCamelCase()
@@ -121,9 +121,9 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: ListM
 fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementType: String): String {
     return """
         <fieldset>
-            <legend>{{"table.${this.parent().name().lowercase(Locale.getDefault())}.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
+            <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
             <mat-form-field appearance="fill">
-                <mat-label>{{"select" | translate}} {{"table.${this.parent().name().lowercase(Locale.getDefault())}.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+                <mat-label>{{"select" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</mat-label>
                 <mat-select [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" multiple>
                     <mat-option *ngFor="let option of ${this.parent().name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filteredOptions${elementType.toCamelCase()
@@ -138,9 +138,9 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementType: String): S
 fun <T : AttributeI<*>> T.toHTMLObjectFormBasicFromEntityMultiple(elementType: String): String {
     return """
         <fieldset>
-            <legend>{{"table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
+            <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
             <mat-form-field appearance="fill">
-                <mat-label>{{"select" | translate}} {{"table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+                <mat-label>{{"select" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</mat-label>
                 <mat-select [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" multiple>
                     <mat-option *ngFor="let option of filteredOptions${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} | async" [value]="option">
@@ -154,9 +154,9 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormBasicFromEntityMultiple(elementType: S
 fun <T : AttributeI<*>> T.toHTMLObjectFormEnumMultiple(elementType: String, elementName: String): String {
     return """
         <fieldset>
-            <legend>{{"table.${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
+            <legend>{{"${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
             <mat-form-field appearance="fill">
-                <mat-label>{{"select" | translate}} {{"table.${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+                <mat-label>{{"select" | translate}} {{"${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</mat-label>
                 <mat-select [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" multiple>
                     <mat-option *ngFor="let option of filteredOptions${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} | async" [value]="option">
@@ -205,7 +205,7 @@ fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName:
 fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = "", isChild: Boolean): String =
     """
         <ng-container matColumnDef="${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${if(parentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."}  else "$parentName."}${this.name().lowercase(Locale.getDefault())}" | translate}} </th>
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${if(parentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."}  else "$parentName."}table.${this.name().lowercase(Locale.getDefault())}" | translate}} </th>
             <td mat-cell *matCellDef="let element"> {{element${if(parentName.isEmpty()) "" else if(isChild) "['$parentName']" else ""}['${this.name()}'] | translate}} </td>
         </ng-container>
 """
@@ -213,8 +213,8 @@ fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = "", isChild: Bo
 fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean, type: String): String =
     """
         <ng-container matColumnDef="${this.name().lowercase(Locale.getDefault())}-entity">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${findParentNonInternal?.name()
-        ?.lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}" | translate}}</th>
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${findParentNonInternal?.name()
+            ?.lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</th>
             <td mat-cell *matCellDef="let element; let i = index"> <a matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${parentName.lowercase(Locale.getDefault())}DataService.onMouseEnter(element${if(isChild) "['${this.parent().name()
         .lowercase(Locale.getDefault())}']['${this.name()
         .lowercase(Locale.getDefault())}']" else "['${this.name()
@@ -242,7 +242,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
 fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultipleEnums(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean, type: String): String =
     """
         <ng-container matColumnDef="${if(findParentNonInternal.isEMPTY()) "" else "${findParentNonInternal?.name()?.lowercase(Locale.getDefault())}-"}${this.name().lowercase(Locale.getDefault())}">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${if(findParentNonInternal.isEMPTY()) "" else "${findParentNonInternal?.name()?.lowercase(Locale.getDefault())}"}.${this.name().lowercase(Locale.getDefault())}" | translate}}</th>
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "."}table.${this.name().lowercase(Locale.getDefault())}" | translate}}</th>
             <td mat-cell *matCellDef="let element; let i = index"> <div matTooltip="{{ ${parentName.toCamelCase().replaceFirstChar {
         it.lowercase(
             Locale.getDefault()
@@ -261,7 +261,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultipleEnums(elementName:
 fun <T : ItemI<*>> T.toAngularTableListDate(parentName: String = ""): String =
     """
         <ng-container matColumnDef="${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${if(parentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$parentName."}${this.name()}.${this.name().lowercase(Locale.getDefault())}" | translate}} </th>
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${if(parentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$parentName."}table.${this.name()}.${this.name().lowercase(Locale.getDefault())}" | translate}} </th>
             <td mat-cell *matCellDef="let element"> {{element['${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}'] | DateTimeTranslation}} </td>
         </ng-container>
 """
@@ -269,7 +269,7 @@ fun <T : ItemI<*>> T.toAngularTableListDate(parentName: String = ""): String =
 fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: String = "", basicParentName: String = ""): String =
     """
         <ng-container matColumnDef="${if(elementName.isEmpty()) "" else "$elementName-"}${this.name()}">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"table.${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}${this.name().lowercase(Locale.getDefault())}" | translate}} </th>
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}" | translate}} </th>
             <td mat-cell *matCellDef="let element"> {{element${if(elementName.isEmpty()) "" else if(parentName.equals(basicParentName, ignoreCase = true)) "['$elementName']" else "['${basicParentName.lowercase(
         Locale.getDefault()
     )}']['$elementName']"}['${this.name()}']}} </td>

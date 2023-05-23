@@ -167,7 +167,7 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
         ${this.props().any {  it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.then { 
             """
         <fieldset>
-            <legend>{{"table.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
+            <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             ${this.props().filter { it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL) {
                 when(it.type().name().lowercase(Locale.getDefault())) {
                     "boolean" -> it.toHTMLBooleanForm(tab)
@@ -341,7 +341,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext
     return """
 <div class="${this.name().lowercase(Locale.getDefault())}${derived}">
     <fieldset>
-        <legend>{{"table."+ parentName | translate}} {{"table.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
+        <legend>{{"table."+ parentName | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
             is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name(), it.type().parent().name())
@@ -381,7 +381,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(c: GenerationContext
 fun <T : CompilationUnitI<*>> T.toAngularEnumHTMLComponent(c: GenerationContext): String {
     return """
 <mat-form-field appearance="outline">
-    <mat-label>{{"table.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+    <mat-label>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
     <mat-select [(ngModel)]="${this.name().lowercase(Locale.getDefault())}" (selectionChange)="changeValue(${"$"}event)">
         <mat-option *ngFor="let item of enumElements" [value]="item">{{item | translate}}</mat-option>
     </mat-select>

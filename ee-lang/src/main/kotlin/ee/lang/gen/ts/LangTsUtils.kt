@@ -168,7 +168,7 @@ open class TsContext(
 
                 outsideTypes.isNotEmpty().then {
                     "${outsideTypes.map { (su, items) ->
-                        """${indent}import {${items.sortedBy { it.name() }.
+                        """${indent}import {${items.sortedBy { it.name() }.distinctBy { it.name() }.
                         joinToString(", ") {
                             it.name()
                         }}} from ${when(su.parent().name()) {
