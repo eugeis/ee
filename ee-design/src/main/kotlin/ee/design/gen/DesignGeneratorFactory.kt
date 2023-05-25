@@ -637,6 +637,35 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
             entityComponentContextBuilder, valuesComponentContextBuilder, basicsContextBuilder, enumsContextBuilder,)
     }
 
+    open fun angularTranslate(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
+        val tsTemplates = DesignTsTemplates(itemNameAsJsonFileName)
+        val tsContextFactory = buildTsContextFactoryAngular()
+
+        val components: StructureUnitI<*>.() -> List<CompI<*>> = {
+            if (this is CompI<*>) listOf(this) else findDownByType(CompI::class.java)
+        }
+
+        val moduleGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
+        val generator = GeneratorGroup(
+                "AngularTranslate",
+                listOf(GeneratorGroupItems("AngularTranslate", items = components, generators = moduleGenerators))
+        )
+
+        val angularTranslateFileContextFactory = tsContextFactory.buildForImplOnly("/assets/i18n")
+        moduleGenerators.add(GeneratorItems("AngularTranslate",
+                contextBuilder = angularTranslateFileContextFactory, items = components,
+
+                templates = {
+                    listOf(
+                            tsTemplates.translateJson(english.json),
+                            tsTemplates.translateJson(germany.json),
+                            tsTemplates.translateJson(france.json),
+                            tsTemplates.translateJson(spain.json),
+                    ) }))
+
+        return GeneratorContexts(generator, angularTranslateFileContextFactory)
+    }
+
     open fun docMarkDown(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {
         val docTemplates = buildDocTemplates()
         val docContextFactory = buildDocContextFactory()

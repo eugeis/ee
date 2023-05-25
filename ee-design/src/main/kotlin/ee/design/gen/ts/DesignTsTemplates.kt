@@ -1,5 +1,6 @@
 package ee.design.gen.ts
 
+import ee.design.CompI
 import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
@@ -13,6 +14,7 @@ import toAngularEntityFormTypeScript
 import toAngularEnumTSComponent
 import toAngularModuleService
 import toAngularModuleTypeScript
+import toAngularTranslateJson
 
 open class DesignTsTemplates : LangTsTemplates {
     constructor(defaultNameBuilder: TemplateI<*>.(CompositeI<*>) -> NamesI) : super(defaultNameBuilder)
@@ -26,7 +28,8 @@ open class DesignTsTemplates : LangTsTemplates {
         isOpen fun eventTypes(nameBuilder: TemplateI<EntityI>.(CompilationUnitI) -> NamesI = defaultNameBuilder)
                 = Template<EntityI>("EventTypes", nameBuilder) { item, c -> item.toGoEventTypes(c) }
     */
-
+    open fun <T : CompI<*>> translateJson(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+            Template("AngularTranslateJson", nameBuilder) { item, c -> item.toAngularTranslateJson(c, Model = AngularDerivedType.Module, ViewComponent = AngularDerivedType.ViewComponent) }
 
     open fun <T : ModuleI<*>> moduleTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("ModuleTypeScriptComponent", nameBuilder) { item, c -> item.toAngularModuleTypeScript(c, Model = AngularDerivedType.Module, ViewComponent = AngularDerivedType.ViewComponent) }

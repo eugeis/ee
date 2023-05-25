@@ -2,12 +2,115 @@ import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.common.ext.toCamelCase
 import ee.design.EntityI
+import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.AngularDerivedType
 import ee.lang.gen.ts.angular
 import ee.lang.gen.ts.rxjs
 import ee.lang.gen.ts.service
 import java.util.*
+
+
+fun <T : ItemI<*>> T.toAngularGenerateDefaultTranslate(): String =
+        """
+    "add": "Add",
+    "new": "New",
+    "edit": "Edit",
+    "item": "Item",
+    "filter": "Filter",
+    "select": "Select",
+    "delete": "Delete",
+    "items": "Items",
+    "save": "Save",
+    "cancel": "Cancel",
+    "save changes": "Save Changes",
+    "cancel edit": "Cancel Edit",
+    "date": "Date",
+    "format": "Format",
+    "language": "Language",
+    
+    "shortDate": "Short Date",
+    "mediumDate": "Medium Date",
+    "longDate": "Long Date",
+    "fullDate": "Full Date",
+    
+    "table": {
+        "action": "Action"
+    },"""
+
+fun <T : ModuleI<*>> T.toAngularGenerateModuleEnumsTranslate(): String =
+    """
+    ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.literals().filter { literal -> !literal.isEMPTY() }.joinSurroundIfNotEmptyToString(nL + tab) {
+                literal -> """"${literal.name().uppercase(Locale.getDefault())}": "${literal.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}","""
+        }
+    }}
+"""
+
+fun <T : ModuleI<*>> T.toAngularGenerateModuleElementsTranslate(): String =
+        """
+    "${this.name().lowercase(Locale.getDefault())}": {
+        "navTitle": "${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}",
+        "table": {
+            ${this.basics().filter { !it.isEMPTY() && !(it.props().none { prop -> prop.type() !is BasicI<*> }) }.joinSurroundIfNotEmptyToString("$nL$tab$tab$tab") {
+                """"${it.name().lowercase(Locale.getDefault())}": "${it.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} ${it.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}","""
+            }}
+            ${this.entities().filter { !it.isEMPTY() && !(it.props().none { prop -> prop.type() !is BasicI<*> }) && (it.name().equals(it.parent().name(), true)) }.joinSurroundIfNotEmptyToString(",") {
+                it.toAngularGeneratePropsForTableTranslate()
+            }}
+            ${this.values().filter { !it.isEMPTY() && !(it.props().none { prop -> prop.type() !is BasicI<*> }) && (it.name().equals(it.parent().name(), true)) }.joinSurroundIfNotEmptyToString(",") {
+                it.toAngularGeneratePropsForTableTranslate()
+            }}
+            ${this.basics().filter { !it.isEMPTY() && !(it.props().none { prop -> prop.type() !is BasicI<*> }) }.joinSurroundIfNotEmptyToString(",") {
+                it.toAngularGeneratePropsForTableTranslate()
+            }}
+        }
+    },
+    ${this.entities().filter { !it.isEMPTY() && !(it.props().all { prop -> prop.type() is BasicI<*> }) && !(it.name().equals(it.parent().name(), true)) }.joinSurroundIfNotEmptyToString(nL) {
+            it.toAngularGeneratePropsFromEntityAndValuesTranslate()
+    }}
+    ${this.values().filter { !it.isEMPTY() && !(it.props().all { prop -> prop.type() is BasicI<*> }) && !(it.name().equals(it.parent().name(), true)) }.joinSurroundIfNotEmptyToString(nL) {
+            it.toAngularGeneratePropsFromEntityAndValuesTranslate()
+    }}
+    ${this.entities().filter { !it.isEMPTY() && (it.props().all { prop -> prop.type() is BasicI<*> }) && !(it.name().equals(it.parent().name(), true)) }.joinSurroundIfNotEmptyToString(nL) {
+            it.toAngularGeneratePropsFromEntityAndValuesOnlyBasicsTranslate()
+    }}
+    ${this.values().filter { !it.isEMPTY() && (it.props().all { prop -> prop.type() is BasicI<*> }) && !(it.name().equals(it.parent().name(), true)) }.joinSurroundIfNotEmptyToString(nL) {
+            it.toAngularGeneratePropsFromEntityAndValuesOnlyBasicsTranslate()
+    }}"""
+
+fun <T : TypeI<*>> T.toAngularGeneratePropsFromEntityAndValuesTranslate(): String =
+    """
+    "${this.name().lowercase(Locale.getDefault())}": {
+        "navTitle": "${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}",
+        "table": {
+            ${this.props().filter { !it.isEMPTY() && it.type() !is BasicI<*>}.joinSurroundIfNotEmptyToString(",$nL$tab$tab$tab") {
+                it.toAngularGenerateEntityPropsTranslate()
+            }}
+        }
+    },"""
+
+fun <T : TypeI<*>> T.toAngularGeneratePropsFromEntityAndValuesOnlyBasicsTranslate(): String =
+        """
+    "${this.name().lowercase(Locale.getDefault())}": {
+        "navTitle": "${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+    },
+    "table": {
+        "${this.name().lowercase(Locale.getDefault())}": "${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+    },"""
+
+fun <T : TypeI<*>> T.toAngularGeneratePropsForTableTranslate(): String =
+        """
+            ${this.props().filter { !it.isEMPTY() && it.type() !is BasicI<*>}.joinSurroundIfNotEmptyToString(",$nL$tab$tab$tab") {
+                it.toAngularGeneratePropsForTableTranslate()
+            }}
+            """
+
+fun <T : AttributeI<*>> T.toAngularGenerateEntityPropsTranslate(): String =
+        """"${this.name().lowercase(Locale.getDefault())}": "${this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} ${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}""""
+
+fun <T : AttributeI<*>> T.toAngularGeneratePropsForTableTranslate(): String =
+        """"${this.name().lowercase(Locale.getDefault())}": "${this.parent().parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} ${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}""""
 
 fun <T : ItemI<*>> T.toAngularConstructorDataService(c: GenerationContext, indent: String): String {
     return """${indent}constructor(public ${c.n(this, AngularDerivedType.DataService)

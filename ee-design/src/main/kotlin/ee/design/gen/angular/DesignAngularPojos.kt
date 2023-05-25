@@ -167,12 +167,12 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
         ${this.props().any {  it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.then { 
             """
         <fieldset>
-            <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
+            <legend>{{"${this.name().lowercase(Locale.getDefault())}.navTitle" | translate}}</legend>
             ${this.props().filter { it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL) {
                 when(it.type().name().lowercase(Locale.getDefault())) {
                     "boolean" -> it.toHTMLBooleanForm(tab)
                     "date" -> it.toHTMLDateForm(tab)
-                    "string", "text" -> it.toHTMLStringForm(tab, this.parent().name().lowercase(Locale.getDefault()))
+                    "string", "text" -> it.toHTMLStringForm(tab)
                     "blob" -> it.toHTMLUploadForm(tab)
                     "float", "int" -> it.toHTMLNumberForm(tab)
                     else -> when(it.type()) {
@@ -341,7 +341,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext
     return """
 <div class="${this.name().lowercase(Locale.getDefault())}${derived}">
     <fieldset>
-        <legend>{{"table."+ parentName | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
+        <legend>{{parentName + ".navTitle" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
             is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name(), it.type().parent().name())

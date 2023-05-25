@@ -14,6 +14,7 @@ open class DesignAngularGenerator(val model: StructureUnitI<*>) {
 
         val generatorApiBase = generatorFactory.typeScriptApiBase("", model).generator
         val generatorAngular = generatorFactory.angular("", model).generator
+        val generatorAngularTranslate = generatorFactory.angularTranslate("", model).generator
 
         /*val generatorContextsComponent = generatorFactory.angularTypeScriptComponent("", model)
         val generatorComponent = generatorContextsComponent.generator
@@ -25,9 +26,11 @@ open class DesignAngularGenerator(val model: StructureUnitI<*>) {
 
         generatorApiBase.delete(target, model)
         generatorAngular.delete(target, model)
+        generatorAngularTranslate.delete(target, model)
 
         generatorApiBase.generate(target, model)
         generatorAngular.generate(target, model)
+        generatorAngularTranslate.generate(target, model)
 
         /*generatorComponent.delete(target, model)
         generatorModule.delete(target, model)

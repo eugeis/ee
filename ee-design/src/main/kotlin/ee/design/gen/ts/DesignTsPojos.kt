@@ -1,6 +1,7 @@
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
 import ee.common.ext.toCamelCase
+import ee.design.CompI
 import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
@@ -8,6 +9,19 @@ import ee.lang.gen.ts.*
 import java.util.*
 
 val tabs5 = tab + tab + tab + tab + tab
+fun <T : CompI<*>> T.toAngularTranslateJson(c: GenerationContext, Model: String = AngularDerivedType.Module, ViewComponent: String = AngularDerivedType.ViewComponent): String {
+    return """
+{
+    ${this.toAngularGenerateDefaultTranslate()}  
+    ${this.modules().filter { !it.enums().isEmpty() }.joinSurroundIfNotEmptyToString(nL) {
+            it.toAngularGenerateModuleEnumsTranslate()
+    }}
+    ${this.modules().filter { !it.isEMPTY() }.distinctBy { it.name() }.joinSurroundIfNotEmptyToString(nL) {
+            it.toAngularGenerateModuleElementsTranslate()
+    }}
+    "": ""
+}"""
+}
 
 fun <T : ModuleI<*>> T.toAngularModuleTypeScript(c: GenerationContext, Model: String = AngularDerivedType.Module,ViewComponent: String = AngularDerivedType.ViewComponent): String {
     return """

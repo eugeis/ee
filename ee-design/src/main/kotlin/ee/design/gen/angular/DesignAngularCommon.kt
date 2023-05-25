@@ -27,10 +27,10 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
         </fieldset>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, elementName: String): String {
+fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, parentName: String = ""): String {
     return """
         ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+            ${indent}<mat-label>{{"${if (parentName.isBlank()) {this.parent().name().lowercase(Locale.getDefault())} else {parentName.lowercase(Locale.getDefault())}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
             ${indent}<input matInput name="${this.name().lowercase(Locale.getDefault())}" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
         ${indent}</mat-form-field>"""
 }
@@ -97,9 +97,9 @@ fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String, parentName: Stri
 fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: ListMultiHolder<AttributeI<*>>): String {
     return """
         <fieldset>
-            <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
+            <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             <mat-form-field appearance="fill">
-                <mat-label>{{"select" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+                <mat-label>{{"select" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
                 <input type="text" matInput [formControl]="${this.parent().name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.control${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [matAutocomplete]="auto${elementType.toCamelCase()
@@ -121,9 +121,9 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: ListM
 fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementType: String): String {
     return """
         <fieldset>
-            <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
+            <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             <mat-form-field appearance="fill">
-                <mat-label>{{"select" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</mat-label>
+                <mat-label>{{"select" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
                 <mat-select [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" multiple>
                     <mat-option *ngFor="let option of ${this.parent().name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filteredOptions${elementType.toCamelCase()
@@ -213,8 +213,7 @@ fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = "", isChild: Bo
 fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean, type: String): String =
     """
         <ng-container matColumnDef="${this.name().lowercase(Locale.getDefault())}-entity">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${findParentNonInternal?.name()
-            ?.lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</th>
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</th>
             <td mat-cell *matCellDef="let element; let i = index"> <a matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${parentName.lowercase(Locale.getDefault())}DataService.onMouseEnter(element${if(isChild) "['${this.parent().name()
         .lowercase(Locale.getDefault())}']['${this.name()
         .lowercase(Locale.getDefault())}']" else "['${this.name()

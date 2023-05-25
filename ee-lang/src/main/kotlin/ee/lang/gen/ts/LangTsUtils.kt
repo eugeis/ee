@@ -496,6 +496,11 @@ val angularEntityService = AngularEntitiesComponentNames("data", "service", "ser
 val angularRoutingModule = AngularNames("routing", false, "module")
 val angularEnumComponent = AngularNames("enum", true, "component")
 
+val english = TranslateNames("en")
+val germany = TranslateNames("de")
+val france = TranslateNames("fr")
+val spain = TranslateNames("es")
+
 val itemAndTemplateNameAsTsFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("${it.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.ts")
 }
@@ -504,6 +509,10 @@ val templateNameAsTsFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
 }
 val itemNameAsTsFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("${it.name()}.ts")
+}
+
+val itemNameAsJsonFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
+    Names("${it.name()}.json")
 }
 
 val itemAndTemplateNameAsHTMLFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
@@ -536,6 +545,15 @@ class AngularNames(private val elementType: String, private val isChild: Boolean
 
     private fun baseName(extension: String): TemplateI<*>.(CompositeI<*>) -> Names = {
         Names("${it.toAngularComponentFileNameBase(elementType, isChild, componentName)}.$extension")
+    }
+}
+
+class TranslateNames(private val element: String) {
+
+    val json: TemplateI<*>.(CompositeI<*>) -> Names = baseName("json")
+
+    private fun baseName(extension: String): TemplateI<*>.(CompositeI<*>) -> Names = {
+        Names("${element}.$extension")
     }
 }
 
