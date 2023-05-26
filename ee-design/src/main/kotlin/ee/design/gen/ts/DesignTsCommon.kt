@@ -33,19 +33,10 @@ fun <T : ItemI<*>> T.toAngularGenerateDefaultTranslate(): String =
     "mediumDate": "Medium Date",
     "longDate": "Long Date",
     "fullDate": "Full Date",
-    
-    "table": {
-        "action": "Action"
-    },"""
-
-fun <T : ModuleI<*>> T.toAngularGenerateModuleEnumsTranslate(): String =
     """
-    ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        it.literals().filter { literal -> !literal.isEMPTY() }.joinSurroundIfNotEmptyToString(nL + tab) {
-                literal -> """"${literal.name().uppercase(Locale.getDefault())}": "${literal.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}","""
-        }
-    }}
-"""
+
+fun <T : LiteralI<*>> T.toAngularGenerateModuleEnumsTranslate(): String =
+    """"${this.name().uppercase(Locale.getDefault())}": "${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}","""
 
 fun <T : ModuleI<*>> T.toAngularGenerateModuleElementsTranslate(): String =
         """
@@ -94,9 +85,6 @@ fun <T : TypeI<*>> T.toAngularGeneratePropsFromEntityAndValuesOnlyBasicsTranslat
         """
     "${this.name().lowercase(Locale.getDefault())}": {
         "navTitle": "${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-    },
-    "table": {
-        "${this.name().lowercase(Locale.getDefault())}": "${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
     },"""
 
 fun <T : TypeI<*>> T.toAngularGeneratePropsForTableTranslate(): String =
@@ -105,6 +93,9 @@ fun <T : TypeI<*>> T.toAngularGeneratePropsForTableTranslate(): String =
                 it.toAngularGeneratePropsForTableTranslate()
             }}
             """
+
+fun <T : TypeI<*>> T.toAngularGeneratePropsTranslate(): String =
+    """"${this.name().lowercase(Locale.getDefault())}": "${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}""""
 
 fun <T : AttributeI<*>> T.toAngularGenerateEntityPropsTranslate(): String =
         """"${this.name().lowercase(Locale.getDefault())}": "${this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} ${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}""""

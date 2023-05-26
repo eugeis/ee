@@ -29,7 +29,7 @@ open class DesignTsTemplates : LangTsTemplates {
                 = Template<EntityI>("EventTypes", nameBuilder) { item, c -> item.toGoEventTypes(c) }
     */
     open fun <T : CompI<*>> translateJson(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-            Template("AngularTranslateJson", nameBuilder) { item, c -> item.toAngularTranslateJson(c, Model = AngularDerivedType.Module, ViewComponent = AngularDerivedType.ViewComponent) }
+            Template("AngularTranslateJson", nameBuilder) { item, c -> item.toAngularTranslateJson() }
 
     open fun <T : ModuleI<*>> moduleTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("ModuleTypeScriptComponent", nameBuilder) { item, c -> item.toAngularModuleTypeScript(c, Model = AngularDerivedType.Module, ViewComponent = AngularDerivedType.ViewComponent) }

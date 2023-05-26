@@ -9,17 +9,29 @@ import ee.lang.gen.ts.*
 import java.util.*
 
 val tabs5 = tab + tab + tab + tab + tab
-fun <T : CompI<*>> T.toAngularTranslateJson(c: GenerationContext, Model: String = AngularDerivedType.Module, ViewComponent: String = AngularDerivedType.ViewComponent): String {
+fun <T : CompI<*>> T.toAngularTranslateJson(): String {
     return """
 {
     ${this.toAngularGenerateDefaultTranslate()}  
-    ${this.modules().filter { !it.enums().isEmpty() }.joinSurroundIfNotEmptyToString(nL) {
+    ${this.modules().filter { !it.enums().isEmpty() }.flatMap { it.enums() }.flatMap { it.literals() }.distinctBy { it.name() }.joinSurroundIfNotEmptyToString("$nL$tab") {
             it.toAngularGenerateModuleEnumsTranslate()
     }}
     ${this.modules().filter { !it.isEMPTY() }.distinctBy { it.name() }.joinSurroundIfNotEmptyToString(nL) {
             it.toAngularGenerateModuleElementsTranslate()
     }}
-    "": ""
+    "table": {
+        "action": "Action",
+        ${this.modules().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+            it.entities().filter { entity -> !entity.isEMPTY() && (entity.props().all { prop -> prop.type() is BasicI<*> }) && !(it.name().equals(it.parent().name(), true)) }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") { 
+                entity -> entity.toAngularGeneratePropsTranslate()
+            }
+        }}
+        ${this.modules().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+            it.values().filter { value -> !value.isEMPTY() && (value.props().all { prop -> prop.type() is BasicI<*> }) && !(it.name().equals(it.parent().name(), true)) }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
+                value -> value.toAngularGeneratePropsTranslate()
+            }
+        }}
+    }
 }"""
 }
 
