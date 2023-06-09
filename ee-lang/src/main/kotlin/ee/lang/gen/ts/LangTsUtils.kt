@@ -117,6 +117,9 @@ object module: StructureUnit({namespace("module").name("module")}) {
     object material : StructureUnit() {
         object MaterialModule : ExternalType()
     }
+    object simpl: StructureUnit() {
+        object SimplModule : ExternalType()
+    }
     object services : StructureUnit() {
         object TemplateTranslateService : ExternalType()
     }

@@ -36,6 +36,7 @@ ${this.enums().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         ${c.n(angular.forms.FormsModule)},
         ${c.n(angular.forms.ReactiveFormsModule)},
         ${c.n(module.material.MaterialModule)},
+        ${c.n(module.simpl.SimplModule)},
         ${c.n(ngxtranslate.core.TranslateModule)}.forChild({
             loader: {provide: ${c.n(ngxtranslate.core.TranslateLoader)}, useFactory: HttpLoaderFactory, deps: [${c.n(angular.commonhttp.HttpClient)}]},
         }),
@@ -129,21 +130,21 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
     return """
 <module-${this.parent().name().lowercase(Locale.getDefault())}></module-${this.parent().name().lowercase(Locale.getDefault())}>
 
-<entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
+<entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
         .lowercase(Locale.getDefault())}-form>
 
 <ng-container *ngIf="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isEdit; else notEdit">
-    <button mat-raised-button [routerLink]="'../../'"
+    <button type="button" class="first-button btn btn-outline-danger" [routerLink]="'../../'"
             routerLinkActive="active-link">{{'cancel edit' | translate}}</button>
-    <button mat-raised-button (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editElement(${this.name()
+    <button type="button" class="second-button btn btn-outline-success" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editElement(${this.name()
         .lowercase(Locale.getDefault())})" [routerLink]="'../../'"
             routerLinkActive="active-link">{{'save changes' | translate}}</button>
 </ng-container>
 
 <ng-template #notEdit>
-    <button mat-raised-button [routerLink]="'../'"
+    <button type="button" class="first-button btn btn-outline-danger" [routerLink]="'../'"
             routerLinkActive="active-link">{{'cancel' | translate}}</button>
-    <button mat-raised-button (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.inputElement(${this.name()
+    <button type="button" class="second-button btn btn-outline-success" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.inputElement(${this.name()
         .lowercase(Locale.getDefault())})" [routerLink]="'../'"
             routerLinkActive="active-link">{{'save' | translate}}</button>
 </ng-template>
@@ -152,12 +153,17 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(c: GenerationContext): String {
     return """
-button {
-    position: relative;
-    left: 10%;
+.first-button {
+    position: absolute;
+    left: 16%;
+    bottom: 14%;
 }
 
-"""
+.second-button {
+    position: absolute;
+    left: 22%;
+    bottom: 14%;
+}"""
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
@@ -234,30 +240,29 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
     return """
 <module-${this.parent().name().lowercase(Locale.getDefault())}></module-${this.parent().name().lowercase(Locale.getDefault())}>
 <div class="${this.name().lowercase(Locale.getDefault())}-list-button">
-    <a class="newButton" [routerLink]="'./new'"
+    <a class="newButton bg-dark normal-font-size" [routerLink]="'./new'"
             routerLinkActive="active-link">
-        <mat-icon>add_circle_outline</mat-icon> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
+        <span aria-hidden='true' class='iconUxt addCircle filled'></span> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
     </a>
     
     <ng-container *ngIf="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden; else showed">
-        <a class="showButton" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.toggleHidden()">
-            <mat-icon>delete_outline</mat-icon> {{"delete" | translate}}...
+        <a class="showButton bg-dark normal-font-size" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.toggleHidden()">
+            <span aria-hidden='true' class='iconUxt delete filled'></span> {{"delete" | translate}}...
         </a>
     </ng-container>
     
     <ng-template #showed>
-        <a class="deleteButton" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.clearMultipleItems(${this.name()
+        <a class="deleteButton bg-dark normal-font-size" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.clearMultipleItems(${this.name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.selected); ${this.name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.toggleHidden()">
-            <mat-icon>delete_outline</mat-icon> {{"delete" | translate}} {{"item" | translate}}
+            <span aria-hidden='true' class='iconUxt delete filled'></span> {{"delete" | translate}} {{"item" | translate}}
         </a>
     </ng-template>
     
-    <mat-form-field class="filter">
-        <mat-label>{{"filter" | translate}}</mat-label>
-        <input matInput (keyup)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.applyFilter(${"$"}event)" placeholder="Input Filter..." [ngModel]="${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.filterValue">
-    </mat-form-field>
+    <si-form-group label="{{'filter' | translate}}" class="filter">
+        <input id="enabledId" siFormControl (keyup)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.applyFilter(${"$"}event)" [(ngModel)]="${this.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.filterValue">
+    </si-form-group>
 </div>
 
 <div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list" style="overflow-x: scroll">

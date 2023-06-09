@@ -29,27 +29,24 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
 
 fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, parentName: String = ""): String {
     return """
-        ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"${if (parentName.isBlank()) {this.parent().name().lowercase(Locale.getDefault())} else {parentName.lowercase(Locale.getDefault())}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
-            ${indent}<input matInput name="${this.name().lowercase(Locale.getDefault())}" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
-        ${indent}</mat-form-field>"""
+        ${indent}<si-form-group label="{{'${if (parentName.isBlank()) {this.parent().name().lowercase(Locale.getDefault())} else {parentName.lowercase(Locale.getDefault())}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+            ${indent}<input siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+        ${indent}</si-form-group>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String): String {
     return """
-        ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
-            ${indent}<input matInput name="${this.name().lowercase(Locale.getDefault())}" type="number" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
-        ${indent}</mat-form-field>"""
+        ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+            ${indent}<input type="number" siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+        ${indent}</si-form-group>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String): String {
     return """
-        ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
-            ${indent}<input matInput name="${this.name().lowercase(Locale.getDefault())}" type="file" (change)="${this.parent().name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
-        ${indent}</mat-form-field>"""
+        ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+            ${indent}<input type="file" siFormControl (change)="${this.parent().name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+        ${indent}</si-form-group>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String): String {
