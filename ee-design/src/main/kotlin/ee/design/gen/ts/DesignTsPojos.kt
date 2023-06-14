@@ -173,6 +173,39 @@ ${isOpen().then("export ")}class ${this.name()
         }
     }}];   
     
+    form = new ${c.n(angular.forms.FormGroup)}({
+        ${this.props().filter {!it.isEMPTY()}.joinSurroundIfNotEmptyToString(nL + tab + tab) { 
+            when(it.type()) {
+                is EntityI<*>, is ValuesI<*> -> """control${it.type().name().toCamelCase()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}<${c.n(it.type(), AngularDerivedType.ApiBase).toCamelCase()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>(new ${c.n(it.type(), AngularDerivedType.ApiBase).toCamelCase()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}()),"""
+                is EnumTypeI<*> -> """control${it.type().name().toCamelCase()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}<${c.n(it.type(), AngularDerivedType.ApiBase).toCamelCase()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>(0),"""
+                else -> when(it.type().name().lowercase(Locale.getDefault())) {
+                    "list" -> when(it.type().generics().first().type()) {
+                        is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> """control${it.type().generics().first().type().name().toCamelCase()
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}<${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase()
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[]>([]),"""
+                        else -> ""
+                    }
+                    "string", "text" -> """control${it.name().toCamelCase()
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(''),"""
+                    "boolean" -> """control${it.name().toCamelCase()
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(true),"""
+                    "date" -> """control${it.name().toCamelCase()
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(new Date()),"""
+                    "blob" -> """control${it.name().toCamelCase()
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(new Blob),"""
+                    "float", "int" -> """control${it.name().toCamelCase()
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(0),"""
+                    else -> ""
+                }
+            }
+        }}
+    });
+    
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
             is EntityI<*>, is ValuesI<*> -> it.type().toAngularControlService(c, false)

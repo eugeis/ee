@@ -66,6 +66,7 @@ object angular : StructureUnit({namespace("@angular").name("angular")}) {
     }
     object forms : StructureUnit() {
         object FormControl : ExternalType()
+        object FormGroup : ExternalType()
         object FormsModule : ExternalType()
         object ReactiveFormsModule : ExternalType()
     }

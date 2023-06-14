@@ -1,5 +1,6 @@
 import ee.common.ext.joinSurroundIfNotEmptyToString
 import ee.common.ext.then
+import ee.common.ext.toCamelCase
 import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
@@ -169,7 +170,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(c: GenerationCo
 fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
     return """
 <div class="${this.name().lowercase(Locale.getDefault())}-form">
-    <form>
+    <form [formGroup]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.form">
         ${this.props().any {  it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.then { 
             """
         <fieldset>

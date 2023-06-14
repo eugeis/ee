@@ -30,44 +30,50 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
 fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, parentName: String = ""): String {
     return """
         ${indent}<si-form-group label="{{'${if (parentName.isBlank()) {this.parent().name().lowercase(Locale.getDefault())} else {parentName.lowercase(Locale.getDefault())}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-            ${indent}<input siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+            ${indent}<input siFormControl formControlName="control${this.name().toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
         ${indent}</si-form-group>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String): String {
     return """
         ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-            ${indent}<input type="number" siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+            ${indent}<input type="number" siFormControl formControlName="control${this.name().toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
         ${indent}</si-form-group>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String): String {
     return """
         ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-            ${indent}<input type="file" siFormControl (change)="${this.parent().name()
+            ${indent}<input type="file" siFormControl formControlName="control${this.name().toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" (change)="${this.parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
         ${indent}</si-form-group>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String): String {
     return """
-        ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
-            ${indent}<mat-select [(value)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
-                ${indent}<mat-option *ngFor="let item of ['true', 'false']" [value]="item">{{item}}</mat-option>
-            ${indent}</mat-select>
-        ${indent}</mat-form-field>"""
+        ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+            ${indent}<si-dropdown formControlName="control${this.name().toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                         ${indent}inputId="control${this.name().toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                         ${indent}[dropdownOptions]="['true', 'false']"
+                         ${indent}[(ngModel)]="project.${this.name().toCamelCase()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}">
+            ${indent}</si-dropdown>
+        ${indent}</si-form-group>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String): String {
     return """
-        ${indent}<mat-form-field appearance="outline">
-            ${indent}<mat-label>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
-            ${indent}<input matInput [matDatepicker]="picker" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'">
-            ${indent}<mat-hint>MM/DD/YYYY</mat-hint>
+        ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}} MM/DD/YYYY">
+            ${indent}<input siFormControl formControlName="control${this.name().toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [matDatepicker]="picker" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'">
             ${indent}<mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             ${indent}<mat-datepicker #picker></mat-datepicker>
-        ${indent}</mat-form-field>"""
+        ${indent}</si-form-group>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementType: String, parentName: String): String {
@@ -95,23 +101,19 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: ListM
     return """
         <fieldset>
             <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
-            <mat-form-field appearance="fill">
-                <mat-label>{{"select" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
-                <input type="text" matInput [formControl]="${this.parent().name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.control${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [matAutocomplete]="auto${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
-                <mat-autocomplete #auto${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}="matAutocomplete" [displayWith]="${this.parent().name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.display${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
-                    <mat-option *ngFor="let option of ${this.parent().name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filteredOptions${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} | async" [value]="option">
-                        <div matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseEnter(option)" (mouseleave)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseLeave()">${elementType.toCamelCase().lowercase(Locale.getDefault())}</div>
-                    </mat-option>
-                </mat-autocomplete>
-            </mat-form-field>
+            <si-form-group label="{{'select' | translate}} {{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+                <si-dropdown formControlName="control${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             inputId="control${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             [dropdownOptions]="${this.parent().name().lowercase(Locale.getDefault())}DataService.option${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+                    <ng-container *siDropdownOption="let value = value">
+                        <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseEnter(value)" (mouseleave)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseLeave()">${elementType.toCamelCase().lowercase(Locale.getDefault())}</span>
+                    </ng-container>
+                </si-dropdown>
+            </si-form-group>
         </fieldset>"""
 }
 
@@ -119,16 +121,20 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementType: String): S
     return """
         <fieldset>
             <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
-            <mat-form-field appearance="fill">
-                <mat-label>{{"select" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
-                <mat-select [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" multiple>
-                    <mat-option *ngFor="let option of ${this.parent().name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filteredOptions${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} | async" [value]="option">
-                        <div matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseEnter(option)" (mouseleave)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseLeave()">${elementType.toCamelCase().lowercase(Locale.getDefault())}</div>
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
+            <si-form-group label="{{'select' | translate}} {{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+                <si-dropdown formControlName="control${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             inputId="control${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             [dropdownOptions]="${this.parent().name().lowercase(Locale.getDefault())}DataService.option${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
+                             [multipleSelect]="true">
+                    <ng-container *siDropdownOption="let value = value">
+                        <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseEnter(value)" (mouseleave)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseLeave()">${elementType.toCamelCase().lowercase(Locale.getDefault())}</span>
+                    </ng-container>
+                </si-dropdown>
+            </si-form-group>
         </fieldset>"""
 }
 
@@ -136,15 +142,20 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormBasicFromEntityMultiple(elementType: S
     return """
         <fieldset>
             <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
-            <mat-form-field appearance="fill">
-                <mat-label>{{"select" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</mat-label>
-                <mat-select [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" multiple>
-                    <mat-option *ngFor="let option of filteredOptions${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} | async" [value]="option">
-                        <div matTooltip="{{ ${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.tooltipText }}" (mouseenter)="${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(option)" (mouseleave)="${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">${elementType.toCamelCase().lowercase(Locale.getDefault())}</div>
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
+            <si-form-group label="{{'select' | translate}} {{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+                <si-dropdown formControlName="control${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             inputId="control${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             [dropdownOptions]="filteredOptions${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
+                             [multipleSelect]="true">
+                    <ng-container *siDropdownOption="let value = value">
+                        <span matTooltip="{{ ${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.tooltipText }}" (mouseenter)="${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(option)" (mouseleave)="${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">${elementType.toCamelCase().lowercase(Locale.getDefault())}</span>
+                    </ng-container>
+                </si-dropdown>
+            </si-form-group>
         </fieldset>"""
 }
 
@@ -152,6 +163,21 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEnumMultiple(elementType: String, elem
     return """
         <fieldset>
             <legend>{{"${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
+            <si-form-group label="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}' | translate}}">
+                <si-dropdown formControlName="control${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             inputId="control${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             [dropdownOptions]="filteredOptions${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
+                             [multipleSelect]="true">
+                    <ng-container *siDropdownOption="let value = value">
+                        <span matTooltip="{{ dataService.tooltipText }}" (mouseenter)="dataService.onMouseEnter(value)" (mouseleave)="dataService.onMouseLeave()">{{ value }}</span>
+                    </ng-container>
+                </si-dropdown>
+            </si-form-group>
+            
             <mat-form-field appearance="fill">
                 <mat-label>{{"select" | translate}} {{"${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</mat-label>
                 <mat-select [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" multiple>
