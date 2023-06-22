@@ -1,62 +1,59 @@
 import ee.common.ext.joinSurroundIfNotEmptyToString
+import ee.common.ext.then
 import ee.common.ext.toCamelCase
 import ee.design.EntityI
 import ee.lang.*
 import ee.lang.gen.ts.AngularDerivedType
 import java.util.*
+import kotlin.math.ceil
+import kotlin.math.round
 
-fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, key: ListMultiHolder<AttributeI<*>>): String {
+fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, key: ListMultiHolder<AttributeI<*>>, toStr: List<AttributeI<*>>): String {
     return """
         <fieldset>
             <legend>${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}</legend>
-            <mat-form-field appearance="fill">
-                <mat-label>{{"select" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.lowercase(Locale.getDefault())}" | translate}}</mat-label>
-                <input type="text" matInput [formControl]="control${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [matAutocomplete]="auto${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
-                <mat-autocomplete #auto${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}="matAutocomplete" [displayWith]="display${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
-                    <mat-option *ngFor="let option of filteredOptions${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} | async" [value]="option">
-                        {{ ${if(key.any { it.type().name() == "String" }) {"option." + key.first { it.type().name() == "String" }.name()} else {"option"}} }}
-                    </mat-option>
-                </mat-autocomplete>
-            </mat-form-field>
+            <si-form-group label="{{'select' | translate}} {{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+                <si-dropdown inputId="control${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             [dropdownOptions]="option${elementType.toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                             [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+                    <ng-container *siDropdownOption="let value = value">
+                        <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseEnter(value)" (mouseleave)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseLeave()">{{value['${
+        toStr.isNotEmpty().then{ toStr.first().name() }}']}}</span>
+                    </ng-container>
+                </si-dropdown>
+            </si-form-group>
         </fieldset>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, parentName: String = ""): String {
+fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, parentName: String = "", isBasic: Boolean): String {
     return """
         ${indent}<si-form-group label="{{'${if (parentName.isBlank()) {this.parent().name().lowercase(Locale.getDefault())} else {parentName.lowercase(Locale.getDefault())}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-            ${indent}<input siFormControl formControlName="control${this.name().toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+            ${indent}<input siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
         ${indent}</si-form-group>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String): String {
+fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String, isBasic: Boolean): String {
     return """
         ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-            ${indent}<input type="number" siFormControl formControlName="control${this.name().toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+            ${indent}<input type="number" siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
         ${indent}</si-form-group>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String): String {
+fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String, isBasic: Boolean): String {
     return """
         ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-            ${indent}<input type="file" siFormControl formControlName="control${this.name().toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" (change)="${this.parent().name()
+            ${indent}<input type="file" siFormControl (change)="${this.parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
         ${indent}</si-form-group>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String): String {
+fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String, isBasic: Boolean): String {
     return """
         ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-            ${indent}<si-dropdown formControlName="control${this.name().toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+            ${indent}<si-dropdown 
                          ${indent}inputId="control${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                          ${indent}[dropdownOptions]="['true', 'false']"
@@ -66,11 +63,10 @@ fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String): String {
         ${indent}</si-form-group>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String): String {
+fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String, isBasic: Boolean): String {
     return """
         ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}} MM/DD/YYYY">
-            ${indent}<input siFormControl formControlName="control${this.name().toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" [matDatepicker]="picker" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'">
+            ${indent}<input siFormControl [matDatepicker]="picker" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'">
             ${indent}<mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             ${indent}<mat-datepicker #picker></mat-datepicker>
         ${indent}</si-form-group>"""
@@ -97,96 +93,82 @@ fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String, parentName: Stri
     )}>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: ListMultiHolder<AttributeI<*>>): String {
+fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: ListMultiHolder<AttributeI<*>>, toStr: List<AttributeI<*>>): String {
     return """
         <fieldset>
             <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             <si-form-group label="{{'select' | translate}} {{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-                <si-dropdown formControlName="control${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                             inputId="control${elementType.toCamelCase()
+                <si-dropdown inputId="control${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [dropdownOptions]="${this.parent().name().lowercase(Locale.getDefault())}DataService.option${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
                     <ng-container *siDropdownOption="let value = value">
-                        <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseEnter(value)" (mouseleave)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseLeave()">${elementType.toCamelCase().lowercase(Locale.getDefault())}</span>
+                        <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseEnter(value)" (mouseleave)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseLeave()">{{value['${
+        toStr.isNotEmpty().then{ toStr.first().name() }}']}}</span>
                     </ng-container>
                 </si-dropdown>
             </si-form-group>
         </fieldset>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementType: String): String {
+fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementType: String, toStr: List<AttributeI<*>>): String {
     return """
         <fieldset>
             <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             <si-form-group label="{{'select' | translate}} {{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-                <si-dropdown formControlName="control${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                             inputId="control${elementType.toCamelCase()
+                <si-dropdown inputId="control${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [dropdownOptions]="${this.parent().name().lowercase(Locale.getDefault())}DataService.option${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
                              [multipleSelect]="true">
                     <ng-container *siDropdownOption="let value = value">
-                        <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseEnter(value)" (mouseleave)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseLeave()">${elementType.toCamelCase().lowercase(Locale.getDefault())}</span>
+                        <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseEnter(value)" (mouseleave)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseLeave()">{{value['${
+        toStr.isNotEmpty().then{ toStr.first().name() }}']}}</span>
                     </ng-container>
                 </si-dropdown>
             </si-form-group>
         </fieldset>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLObjectFormBasicFromEntityMultiple(elementType: String): String {
+fun <T : AttributeI<*>> T.toHTMLObjectFormBasicFromEntityMultiple(elementType: String, toStr: List<AttributeI<*>>): String {
     return """
         <fieldset>
             <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
             <si-form-group label="{{'select' | translate}} {{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-                <si-dropdown formControlName="control${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                             inputId="control${elementType.toCamelCase()
+                <si-dropdown inputId="control${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [dropdownOptions]="filteredOptions${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
                              [multipleSelect]="true">
                     <ng-container *siDropdownOption="let value = value">
-                        <span matTooltip="{{ ${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.tooltipText }}" (mouseenter)="${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(option)" (mouseleave)="${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">${elementType.toCamelCase().lowercase(Locale.getDefault())}</span>
+                        <span matTooltip="{{ ${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.tooltipText }}" (mouseenter)="${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(value)" (mouseleave)="${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">{{value['${
+        toStr.isNotEmpty().then{ toStr.first().name() }}']}}</span>
                     </ng-container>
                 </si-dropdown>
             </si-form-group>
         </fieldset>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLObjectFormEnumMultiple(elementType: String, elementName: String): String {
+fun <T : AttributeI<*>> T.toHTMLObjectFormEnumMultiple(elementType: String, elementName: String, isBasic: Boolean, toStr: List<AttributeI<*>>): String {
     return """
         <fieldset>
             <legend>{{"${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
             <si-form-group label="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}' | translate}}">
-                <si-dropdown formControlName="control${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                             inputId="control${elementType.toCamelCase()
+                <si-dropdown inputId="control${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [dropdownOptions]="option${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
                              [multipleSelect]="true">
                     <ng-container *siDropdownOption="let value = value">
-                        <span matTooltip="{{ dataService.tooltipText }}" (mouseenter)="dataService.onMouseEnter(value)" (mouseleave)="dataService.onMouseLeave()">{{ value }}</span>
+                        <span matTooltip="{{ dataService.tooltipText }}" (mouseenter)="dataService.onMouseEnter(value)" (mouseleave)="dataService.onMouseLeave()">{{value['${
+        toStr.isNotEmpty().then{ toStr.first().name() }}']}}</span>
                     </ng-container>
                 </si-dropdown>
             </si-form-group>
-            
-            <mat-form-field appearance="fill">
-                <mat-label>{{"select" | translate}} {{"${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</mat-label>
-                <mat-select [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" multiple>
-                    <mat-option *ngFor="let option of filteredOptions${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} | async" [value]="option">
-                        <div matTooltip="{{ dataService.tooltipText }}" (mouseenter)="dataService.onMouseEnter(option)" (mouseleave)="dataService.onMouseLeave()">{{ option }}</div>
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
         </fieldset>"""
 }
 
@@ -205,46 +187,45 @@ fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNon
         </ng-container>
 """
 
-fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = "", basicParentName: String = "", isChild: Boolean): String =
+fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = "", basicParentName: String = "", isChild: Boolean, totalChild: Int): String =
     this.props().filter { !isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props(), isChild, "Object")
-            is BasicI<*> -> it.type().toAngularTableListBasic(parentName, it.name(), it.parent().name(),true)
-            is EnumTypeI<*> -> it.toAngularTableListEnum(basicName, isChild)
+            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props(), isChild, "Object", totalChild,  it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
+            is BasicI<*> -> it.toAngularTableListBasics(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props(), isChild, "Object", totalChild,
+                it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
+            // is BasicI<*> -> it.type().toAngularTableListBasic(parentName, it.name(), it.parent().name(),true, totalChild)
+            is EnumTypeI<*> -> it.toAngularTableListEnum(basicName, totalChild)
             else -> {
                 when(it.type().name()) {
-                    "Date" -> it.toAngularTableListDate(basicName)
+                    "Date" -> it.toAngularTableListDate(basicName, totalChild)
                     "List" -> when(it.type().generics().first().type()) {
-                        is EntityI<*>, is ValuesI<*> ->  it.toAngularTableListEntityFromBasic(it.type().generics().first().type().name(), it.type().generics().first().type().findParentNonInternal(), parentName, it.type().generics().first().type().props(), isChild, "List")
-                        is EnumTypeI<*> -> it.toAngularTableListEntityFromBasicMultipleEnums(it.type().generics().first().type().name(), it.type().generics().first().type().findParentNonInternal(), parentName, it.type().generics().first().type().props(), isChild, "List")
-                        else -> it.toAngularTableList(parentName, basicName, basicParentName)
+                        is EntityI<*>, is ValuesI<*> ->  it.toAngularTableListEntityFromBasicMultiple(it.type().generics().first().type().name(), it.type().generics().first().type().findParentNonInternal(), parentName, it.type().generics().first().type().props(), isChild, "List", totalChild,  it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
+                        is EnumTypeI<*> -> it.toAngularTableListEntityFromBasicMultipleEnums(it.type().generics().first().type().name(), it.type().generics().first().type().findParentNonInternal(), parentName, it.type().generics().first().type().props(), isChild, "List", totalChild,  it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
+                        else -> it.toAngularTableList(parentName, basicName, basicParentName, totalChild)
                     }
-                    else -> it.toAngularTableList(parentName, basicName, basicParentName)
+                    else -> it.toAngularTableList(parentName, basicName, basicParentName, totalChild)
                 }
             }
         }
     }
 
-fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = "", isChild: Boolean): String =
+fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = "", totalChild: Int): String =
     """
-        <ng-container matColumnDef="${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${if(parentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."}  else "$parentName."}table.${this.name().lowercase(Locale.getDefault())}" | translate}} </th>
-            <td mat-cell *matCellDef="let element"> {{element${if(parentName.isEmpty()) "" else if(isChild) "['$parentName']" else ""}['${this.name()}'] | translate}} </td>
-        </ng-container>
+        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${if(parentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."}  else "$parentName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}"></siTableColumn>
 """
 
-fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean, type: String): String =
+fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean, type: String, totalChild: Int, toStr: List<AttributeI<*>>): String =
     """
-        <ng-container matColumnDef="${this.name().lowercase(Locale.getDefault())}-entity">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</th>
-            <td mat-cell *matCellDef="let element; let i = index"> <a matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${parentName.lowercase(Locale.getDefault())}DataService.onMouseEnter(element${if(isChild) "['${this.parent().name()
+        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true">
+            <div *siTableCell="let row = row; let i = index">
+                <a matTooltip="{{ ${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.tooltipText }}" (mouseenter)="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(row${if(isChild) "['${this.parent().name()
         .lowercase(Locale.getDefault())}']['${this.name()
         .lowercase(Locale.getDefault())}']" else "['${this.name()
-        .lowercase(Locale.getDefault())}']"})" (mouseleave)="${parentName.lowercase(Locale.getDefault())}DataService.onMouseLeave()" (click)="${parentName.replaceFirstChar {
+        .lowercase(Locale.getDefault())}']"})" (mouseleave)="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()" (click)="${parentName.replaceFirstChar {
         it.lowercase(
             Locale.getDefault()
         )
-    }}DataService.searchItems(i, element${if(isChild) "['${this.parent().name()
+    }}DataService.searchItems(i, row${if(isChild) "['${this.parent().name()
         .lowercase(Locale.getDefault())}']['${this.name()
         .lowercase(Locale.getDefault())}']" else "['${this.name()
         .lowercase(Locale.getDefault())}']"}, '${findParentNonInternal?.name()
@@ -252,50 +233,93 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
         Locale.getDefault()
     )}', '${parentName.lowercase(
         Locale.getDefault()
-    )}')">${type}Of(${if(isChild) "${this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}-${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${if (key.any { it.type().name() == "String" }) { key.first { it.type().name() == "String" }.name() } else {""}}" else "${
-        this.name()
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-    }${if (key.any { it.type().name() == "String" }) {
-        key.first { it.type().name() == "String" }.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-    } else {""}}"})</a> </td>
-        </ng-container>
+    )}')">{{row['${this.name().lowercase(Locale.getDefault())}']['${toStr.isNotEmpty().then{ toStr.first().name() }}']}}</a>
+            </div>
+        </siTableColumn>
 """
 
-fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultipleEnums(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean, type: String): String =
+fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultiple(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean, type: String, totalChild: Int, toStr: List<AttributeI<*>>): String =
     """
-        <ng-container matColumnDef="${if(findParentNonInternal.isEMPTY()) "" else "${findParentNonInternal?.name()?.lowercase(Locale.getDefault())}-"}${this.name().lowercase(Locale.getDefault())}">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "."}table.${this.name().lowercase(Locale.getDefault())}" | translate}}</th>
-            <td mat-cell *matCellDef="let element; let i = index"> <div matTooltip="{{ ${parentName.toCamelCase().replaceFirstChar {
+        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true">
+            <div *siTableCell="let row = row; let i = index">
+                <a matTooltip="{{ ${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.tooltipText }}" (mouseenter)="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(row${if(isChild) "['${this.parent().name()
+        .lowercase(Locale.getDefault())}']['${this.name()
+        .lowercase(Locale.getDefault())}']" else "['${this.name()
+        .lowercase(Locale.getDefault())}']"})" (mouseleave)="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()" (click)="${parentName.replaceFirstChar {
+        it.lowercase(
+            Locale.getDefault()
+        )
+    }}DataService.searchItems(i, row${if(isChild) "['${this.parent().name()
+        .lowercase(Locale.getDefault())}']['${this.name()
+        .lowercase(Locale.getDefault())}']" else "['${this.name()
+        .lowercase(Locale.getDefault())}']"}, '${findParentNonInternal?.name()
+        ?.lowercase(Locale.getDefault())}/${elementName.lowercase(
+        Locale.getDefault()
+    )}', '${parentName.lowercase(
+        Locale.getDefault()
+    )}')">
+                    <ng-container *ngFor="let ${this.name().lowercase(Locale.getDefault())} of row['${this.name().lowercase(Locale.getDefault())}']">
+                        <span>{{${this.name().lowercase(Locale.getDefault())}['${toStr.isNotEmpty().then{ toStr.first().name() }}']}}</span>
+                    </ng-container>
+                </a>
+            </div>
+        </siTableColumn>
+"""
+
+/*${type}Of(${if(isChild) "${this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}-${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${if (key.any { it.type().name() == "String" }) { key.first { it.type().name() == "String" }.name() } else {""}}" else "${
+    this.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+}${if (key.any { it.type().name() == "String" }) {
+    key.first { it.type().name() == "String" }.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+} else {""}}"})*/
+fun <T : ItemI<*>> T.toAngularTableListBasics(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean, type: String, totalChild: Int, toStr: List<AttributeI<*>>): String =
+    """
+        <siTableColumn [widthFactor]="${roundToNearestHalf(if(findParentNonInternal.isEMPTY()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(this.findParentNonInternal()!!
+        .name().length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true">
+            <div *siTableCell="let row = row; let i = index">
+                <div matTooltip="{{ ${parentName.toCamelCase().replaceFirstChar {
         it.lowercase(
             Locale.getDefault()
         )
     }}DataService.tooltipText }}" (mouseenter)="${parentName.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(element${if(findParentNonInternal.isEMPTY()) "" else "['${findParentNonInternal?.name()?.lowercase(Locale.getDefault())}']"}['${this.name().lowercase(Locale.getDefault())}'])" (mouseleave)="${parentName.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">${type}Of(${if(isChild) "${this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}-${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${if (key.any { it.type().name() == "String" }) { key.first { it.type().name() == "String" }.name() } else {""}}" else "${
-        this.name()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-    }${if (key.any { it.type().name() == "String" }) {
-        key.first { it.type().name() == "String" }.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-    } else {""}}"})</div> </td>
-        </ng-container>
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(row['${this.name().lowercase(Locale.getDefault())}'])" (mouseleave)="${parentName.toCamelCase()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">{{row['${this.name().lowercase(Locale.getDefault())}']['${toStr.isNotEmpty().then{ toStr.first().name() }}']}}</div>
+            </div>
+        </siTableColumn>
 """
 
-fun <T : ItemI<*>> T.toAngularTableListDate(parentName: String = ""): String =
+fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultipleEnums(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean, type: String, totalChild: Int, toStr: List<AttributeI<*>>): String =
     """
-        <ng-container matColumnDef="${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${if(parentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$parentName."}table.${this.name()}.${this.name().lowercase(Locale.getDefault())}" | translate}} </th>
-            <td mat-cell *matCellDef="let element"> {{element['${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}'] | DateTimeTranslation}} </td>
-        </ng-container>
+        <siTableColumn [widthFactor]="${roundToNearestHalf(if(findParentNonInternal.isEMPTY()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(this.findParentNonInternal()!!
+        .name().length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true">
+            <div *siTableCell="let row = row; let i = index">
+                <div matTooltip="{{ ${parentName.toCamelCase().replaceFirstChar {
+        it.lowercase(
+            Locale.getDefault()
+        )
+    }}DataService.tooltipText }}" (mouseenter)="${parentName.toCamelCase()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(row${if(findParentNonInternal.isEMPTY()) "" else "['${findParentNonInternal?.name()?.lowercase(Locale.getDefault())}']"}['${this.name().lowercase(Locale.getDefault())}'])" (mouseleave)="${parentName.toCamelCase()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">
+                    <ng-container *ngFor="let ${this.name().lowercase(Locale.getDefault())} of row['${this.name().lowercase(Locale.getDefault())}']">
+                        <span>{{${this.name().lowercase(Locale.getDefault())}['${toStr.isNotEmpty().then{ toStr.first().name() }}']}}</span>
+                    </ng-container>
+                </div>
+            </div>
+        </siTableColumn>
 """
 
-fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: String = "", basicParentName: String = ""): String =
+fun <T : ItemI<*>> T.toAngularTableListDate(parentName: String = "", totalChild: Int): String =
     """
-        <ng-container matColumnDef="${if(elementName.isEmpty()) "" else "$elementName-"}${this.name()}">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> {{"${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}" | translate}} </th>
-            <td mat-cell *matCellDef="let element"> {{element${if(elementName.isEmpty()) "" else if(parentName.equals(basicParentName, ignoreCase = true)) "['$elementName']" else "['${basicParentName.lowercase(
-        Locale.getDefault()
-    )}']['$elementName']"}['${this.name()}']}} </td>
-        </ng-container>
+        <siTableColumn [widthFactor]="${roundToNearestHalf(if(parentName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(parentName.length + this.name().length).toDouble() / totalChild.toDouble()})}" name="{{'${if(parentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$parentName."}table.${this.name()}.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true">
+            <div *siTableCell="let row = row; let i = index">
+                {{element['${if(parentName.isEmpty()) "" else "$parentName-"}${this.name()}'] | DateTimeTranslation}}
+            </div>
+        </siTableColumn>
+"""
+
+fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: String = "", basicParentName: String = "", totalChild: Int): String =
+    """
+        <siTableColumn [widthFactor]="${roundToNearestHalf(if(elementName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(elementName.length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}"></siTableColumn>
 """
 
 fun <T : ItemI<*>> T.toAngularDefaultSCSS(): String =
@@ -307,4 +331,14 @@ fun <T : ItemI<*>> T.toSCSSOtherFormStyle(elementType: String): String =
     left: -10%;
 }
 """
+
+fun roundToNearestHalf(number: Double): Double {
+    val floorValue = number.toInt()
+
+    return when (number - floorValue) {
+        in 0.75 .. 0.99 -> ceil(number)
+        in 0.25..0.74 -> floorValue + 0.5
+        else -> floorValue.toDouble()
+    }
+}
 

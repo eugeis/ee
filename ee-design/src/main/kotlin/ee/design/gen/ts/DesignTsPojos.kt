@@ -20,7 +20,6 @@ fun <T : CompI<*>> T.toAngularTranslateJson(): String {
             it.toAngularGenerateModuleElementsTranslate()
     }}
     "table": {
-        "action": "Action",
         ${this.modules().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
             it.entities().filter { entity -> !entity.isEMPTY() && (entity.props().all { prop -> prop.type() is BasicI<*> }) && !(it.name().equals(it.parent().name(), true)) }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") { 
                 entity -> entity.toAngularGeneratePropsTranslate()
@@ -31,6 +30,7 @@ fun <T : CompI<*>> T.toAngularTranslateJson(): String {
                 value -> value.toAngularGeneratePropsTranslate()
             }
         }}
+        "action": "Action"
     }
 }"""
 }
@@ -106,7 +106,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListTypeScript(c: GenerationConte
     return """
 ${this.toAngularGenerateComponentPart(c, "entity-${this.parent().name().lowercase(Locale.getDefault())}", "entity", "list", hasProviders = true, hasClass = true)}
 ${isOpen().then("export ")}class ${this.name()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${ListComponent} implements ${c.n(angular.core.OnInit)}, ${c.n(angular.core.AfterViewInit)} {
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${ListComponent} implements ${c.n(angular.core.OnInit)} {
 
 ${this.toTypeScriptEntityPropInit(c, tab)}
     tableHeader: Array<String> = [];
@@ -114,9 +114,7 @@ ${this.toTypeScriptEntityPropInit(c, tab)}
     @${c.n(angular.core.ViewChild)}(${c.n(angular.material.sort.MatSort)}) sort: ${c.n(angular.material.sort.MatSort)};
 
 ${this.toAngularConstructorDataService(c, tab)}
-    ng${c.n(angular.core.AfterViewInit)}() {
-        this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.dataSources.sort = this.sort;
-    }
+
 ${this.toAngularListOnInit(c, tab)}
 
     generateTableHeader() {
@@ -174,36 +172,7 @@ ${isOpen().then("export ")}class ${this.name()
     }}];   
     
     form = new ${c.n(angular.forms.FormGroup)}({
-        ${this.props().filter {!it.isEMPTY()}.joinSurroundIfNotEmptyToString(nL + tab + tab) { 
-            when(it.type()) {
-                is EntityI<*>, is ValuesI<*> -> """control${it.type().name().toCamelCase()
-                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}<${c.n(it.type(), AngularDerivedType.ApiBase).toCamelCase()
-                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>(new ${c.n(it.type(), AngularDerivedType.ApiBase).toCamelCase()
-                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}()),"""
-                is EnumTypeI<*> -> """control${it.type().name().toCamelCase()
-                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}<${c.n(it.type(), AngularDerivedType.ApiBase).toCamelCase()
-                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>(0),"""
-                else -> when(it.type().name().lowercase(Locale.getDefault())) {
-                    "list" -> when(it.type().generics().first().type()) {
-                        is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> """control${it.type().generics().first().type().name().toCamelCase()
-                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}<${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase()
-                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[]>([]),"""
-                        else -> ""
-                    }
-                    "string", "text" -> """control${it.name().toCamelCase()
-                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(''),"""
-                    "boolean" -> """control${it.name().toCamelCase()
-                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(true),"""
-                    "date" -> """control${it.name().toCamelCase()
-                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(new Date()),"""
-                    "blob" -> """control${it.name().toCamelCase()
-                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(new Blob),"""
-                    "float", "int" -> """control${it.name().toCamelCase()
-                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(0),"""
-                    else -> ""
-                }
-            }
-        }}
+        ${this.props().toAngularForm(c)}
     });
     
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
@@ -347,6 +316,42 @@ window.${this.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault(
 """
 }
 
+fun <T : ListMultiHolder<AttributeI<*>>> T.toAngularForm(c: GenerationContext): String =
+    this.filter {!it.isEMPTY()}.joinSurroundIfNotEmptyToString(nL + tab + tab) {
+        when(it.type()) {
+            is EntityI<*>, is ValuesI<*> -> """control${it.type().name().toCamelCase()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}<${c.n(it.type(), AngularDerivedType.ApiBase).toCamelCase()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>(new ${c.n(it.type(), AngularDerivedType.ApiBase).toCamelCase()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}()),"""
+            is BasicI<*> -> """control${c.n(it.type(), AngularDerivedType.ApiBase).toCamelCase()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}<${c.n(it.type(), AngularDerivedType.ApiBase).toCamelCase()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>(new ${c.n(it.type(), AngularDerivedType.ApiBase).toCamelCase()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}()),"""
+            is EnumTypeI<*> -> """control${it.type().name().toCamelCase()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}<${c.n(it.type(), AngularDerivedType.ApiBase).toCamelCase()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>(0),"""
+            else -> when(it.type().name().lowercase(Locale.getDefault())) {
+                "list" -> when(it.type().generics().first().type()) {
+                    is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> """control${it.type().generics().first().type().name().toCamelCase()
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}<${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase()
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[]>([]),"""
+                    else -> ""
+                }
+                "string", "text" -> """control${it.name().toCamelCase()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(''),"""
+                "boolean" -> """control${it.name().toCamelCase()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(true),"""
+                "date" -> """control${it.name().toCamelCase()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(new Date()),"""
+                "blob" -> """control${it.name().toCamelCase()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(new Blob),"""
+                "float", "int" -> """control${it.name().toCamelCase()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: new ${c.n(angular.forms.FormControl)}(0),"""
+                else -> ""
+            }
+        }
+    }
+
 fun <T : ItemI<*>> T.toAngularGenerateEnumElementBasic(c: GenerationContext, indent: String): String {
     return """${indent}${c.n(this, AngularDerivedType.Enum).replaceFirstChar { it.lowercase(Locale.getDefault()) }} = this.loadEnumElement(${c.n(this, AngularDerivedType.ApiBase)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }});"""
@@ -360,9 +365,6 @@ ${isOpen().then("export ")}class ${this.name()
 
     @${c.n(angular.core.Input)}() ${this.name().lowercase(Locale.getDefault())}: ${c.n(this, AngularDerivedType.ApiBase)};
     @${c.n(angular.core.Input)}() parentName: String;
-${props().filter { it.type() is EnumTypeI<*> }.joinSurroundIfNotEmptyToString("") {
-        it.type().toAngularGenerateEnumElementBasic(c, tab)
-    }}
 
 ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> || it.type().generics().any {genericType -> genericType.type() is EntityI<*> || genericType.type() is ValuesI<*> ||genericType.type() is BasicI<*> || genericType.type() is EnumTypeI<*>}}) {
         """${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
@@ -394,17 +396,6 @@ ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> || it.typ
 """
     }else{""}}
 
-${if (props().any { it.type() is EnumTypeI<*> }) {
-        """
-    loadEnumElement(enumElement: any) {
-        let tempArray = [];
-        Object.keys(enumElement).${c.n(rxjs.operators.map)}((element, index) => {
-            tempArray.push(enumElement[index]);
-        })
-        tempArray = tempArray.filter((item) => item);
-        return tempArray;
-    }"""
-    } else {""}}
     ngOnInit() {
         if (this.${this.name().lowercase(Locale.getDefault())} === undefined) {
             this.${this.name().lowercase(Locale.getDefault())} = new ${c.n(this, AngularDerivedType.ApiBase)}();
@@ -494,9 +485,8 @@ export class ${this.name()
         this.enumElements = this.${DataService.replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadEnumElement(${c.n(this, AngularDerivedType.ApiBase)});
     }
     
-    changeValue(event: ${c.n(angular.material.select.MatSelectChange)}) {
-        this.${this.name().lowercase(Locale.getDefault())} = event.value;
-        this.${this.name().lowercase(Locale.getDefault())}Change.emit(event.value);
+    changeValue(event: any) {
+        this.${this.name().lowercase(Locale.getDefault())}Change.emit(this.${this.name().lowercase(Locale.getDefault())});
     }
 
 }

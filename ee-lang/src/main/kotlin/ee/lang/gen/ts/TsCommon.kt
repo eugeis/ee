@@ -264,7 +264,7 @@ fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent
             this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.loadSearchData()
         } else {
             this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources =
-                new ${c.n(angular.material.table.MatTableDataSource)}(this.${this.name()
+                ${c.n(rxjs.empty.of)} (this.${this.name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.changeMapToArray(
                     this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.retrieveItemsFromCache()));
         }      

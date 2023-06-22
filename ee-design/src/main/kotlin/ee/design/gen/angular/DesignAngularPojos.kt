@@ -170,18 +170,18 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(c: GenerationCo
 fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
     return """
 <div class="${this.name().lowercase(Locale.getDefault())}-form">
-    <form [formGroup]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.form">
+    <form>
         ${this.props().any {  it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.then { 
             """
         <fieldset>
             <legend>{{"${this.name().lowercase(Locale.getDefault())}.navTitle" | translate}}</legend>
             ${this.props().filter { it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL) {
                 when(it.type().name().lowercase(Locale.getDefault())) {
-                    "boolean" -> it.toHTMLBooleanForm(tab)
-                    "date" -> it.toHTMLDateForm(tab)
-                    "string", "text" -> it.toHTMLStringForm(tab)
-                    "blob" -> it.toHTMLUploadForm(tab)
-                    "float", "int" -> it.toHTMLNumberForm(tab)
+                    "boolean" -> it.toHTMLBooleanForm(tab, false)
+                    "date" -> it.toHTMLDateForm(tab, false)
+                    "string", "text" -> it.toHTMLStringForm(tab, "", false)
+                    "blob" -> it.toHTMLUploadForm(tab, false)
+                    "float", "int" -> it.toHTMLNumberForm(tab, false)
                     else -> when(it.type()) {
                         is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name(), it.type().parent().name())
                         else -> ""
@@ -201,12 +201,12 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name())
-            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntity(it.type().name(), it.type().props())
+            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntity(it.type().name(), it.type().props(), it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
             else ->  when(it.type().name().lowercase(Locale.getDefault())) {
                 "list" -> when(it.type().generics().first().type()) {
-                    is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityMultiple(it.type().generics().first().type().name())
+                    is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityMultiple(it.type().generics().first().type().name(), it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
                     is EnumTypeI<*> -> it.toHTMLObjectFormEnumMultiple(it.type().generics().first().type().name(),
-                        this.parent().name().lowercase(Locale.getDefault())
+                        this.parent().name().lowercase(Locale.getDefault()), false, it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() }
                     )
                     else -> ""
                 }
@@ -259,48 +259,42 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
             <span aria-hidden='true' class='iconUxt delete filled'></span> {{"delete" | translate}} {{"item" | translate}}
         </a>
     </ng-template>
-    
-    <si-form-group label="{{'filter' | translate}}" class="filter">
-        <input id="enabledId" siFormControl (keyup)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.applyFilter(${"$"}event)" [(ngModel)]="${this.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.filterValue">
-    </si-form-group>
 </div>
 
-<div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list" style="overflow-x: scroll">
-    <table mat-table matSort [dataSource]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.dataSources">
-        <ng-container matColumnDef="Box">
-            <th mat-header-cell *matHeaderCellDef>
+<div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list">
+    <si-table [rows]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async" [loading]="(${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async) === null" [bordered]="false" [condensed]="true" [rowsPerPage]="10">
+        <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.5" key="box" name="Action">
+            <div class="form-group" *siTableHeaderCell>
                 <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
-                    <mat-checkbox color="warn"
+                    <input class="form-check-input" type="checkbox"
                                   (change)="${"$"}event ? ${this.name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.masterToggle() : null"
                                   [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && ${this.name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()"
                                   [indeterminate]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && !${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()"></mat-checkbox>
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()">
                 </section>
-            </th>
-            <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'box'">
+            </div>
+
+            <div *siTableCell="let row = row; let i = index">
                 <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
-                    <mat-checkbox color="warn"
+                    <input class="form-check-input" type="checkbox"
                                   (click)="${"$"}event.stopPropagation()"
                                   (change)="${"$"}event ? ${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.toggle(element) : null"
-                                  [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.isSelected(element)"></mat-checkbox>
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.toggle(row) : null"
+                                  [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.isSelected(row)">
                 </section>
-            </td>
-        </ng-container>
-
-        <ng-container matColumnDef="Actions">
-            <th mat-header-cell *matHeaderCellDef> {{"table.action" | translate}} </th>
-            <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'actions'">
+            </div>
+        </siTableColumn>
+        <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.8" class="header-style" key="action" name="{{'table.action' | translate}}">
+            <div *siTableCell="let row = row; let i = index">
                 <mat-menu #appMenu="matMenu">
                     <ng-template matMenuContent>
                         <button mat-menu-item (click)="${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editItems(i, element)"><mat-icon>edit</mat-icon>
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editItems(i, row)"><mat-icon>edit</mat-icon>
                             <span>{{"edit" | translate}}</span></button>
                         <button mat-menu-item (click)="${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.removeItem(element)"><mat-icon>delete</mat-icon>
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.removeItem(row)"><mat-icon>delete</mat-icon>
                             <span>{{"delete" | translate}}</span></button>
                     </ng-template>
                 </mat-menu>
@@ -308,14 +302,14 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
                 <button mat-icon-button [matMenuTriggerFor]="appMenu">
                     <mat-icon>more_vert</mat-icon>
                 </button>
-            </td>
-        </ng-container>
-        
-        ${toAngularTableListBasic(this.name(), "", "",false)}
+            </div>
+        </siTableColumn>
+        ${toAngularTableListBasic(this.name(), "", "",false, this.props().size)}
 
-        <tr mat-header-row *matHeaderRowDef="tableHeader"></tr>
-        <tr mat-row *matRowDef="let row; columns: tableHeader;"></tr>
-    </table>
+        <div no-data>
+            Loading...
+        </div>
+    </si-table>
 </div>
 """
 }
@@ -331,7 +325,16 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListSCSSComponent(c: GenerationCo
     z-index: 1;
     top: 40%;
     left: 10%;
+    overflow-x: scroll;
+    overflow-y: scroll;
 }
+
+${if(this.props().size > 3) { 
+    """
+si-table {
+    width: ${(this.props().size * 200) + 300}px
+}"""
+} else {""}}
 
 .${this.name().lowercase(Locale.getDefault())}-list-button {
     @extend .${derived}-button
@@ -352,20 +355,20 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext
         when(it.type()) {
             is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name(), it.type().parent().name())
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name())
-            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityForBasic(it.type().name(), it.type().props())
+            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityForBasic(it.type().name(), it.type().props(), it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
             else -> when(it.type().name().lowercase(Locale.getDefault())) {
-                "boolean" -> it.toHTMLBooleanForm("")
-                "date" -> it.toHTMLDateForm("")
-                "float", "int" -> it.toHTMLNumberForm("")
-                "blob" -> it.toHTMLUploadForm("")
+                "boolean" -> it.toHTMLBooleanForm("", true)
+                "date" -> it.toHTMLDateForm("", true)
+                "float", "int" -> it.toHTMLNumberForm("", true)
+                "blob" -> it.toHTMLUploadForm("", true)
                 "list" -> when(it.type().generics().first().type()) {
-                    is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormBasicFromEntityMultiple(it.type().generics().first().type().name())
+                    is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormBasicFromEntityMultiple(it.type().generics().first().type().name(), it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
                     is EnumTypeI<*> -> it.toHTMLObjectFormEnumMultiple(it.type().generics().first().type().name(),
-                        this.parent().name().lowercase(Locale.getDefault())
+                        this.parent().name().lowercase(Locale.getDefault()), true, it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() }
                     )
-                    else -> {it.toHTMLStringForm("", this.parent().name().lowercase(Locale.getDefault()))}
+                    else -> {it.toHTMLStringForm("", this.parent().name().lowercase(Locale.getDefault()), true)}
                 }
-                else -> {it.toHTMLStringForm("", this.parent().name().lowercase(Locale.getDefault()))}
+                else -> {it.toHTMLStringForm("", this.parent().name().lowercase(Locale.getDefault()), true)}
             }
         }
     }}
@@ -386,12 +389,16 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(c: GenerationContext
 
 fun <T : CompilationUnitI<*>> T.toAngularEnumHTMLComponent(c: GenerationContext): String {
     return """
-<mat-form-field appearance="outline">
-    <mat-label>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</mat-label>
-    <mat-select [(ngModel)]="${this.name().lowercase(Locale.getDefault())}" (selectionChange)="changeValue(${"$"}event)">
-        <mat-option *ngFor="let item of enumElements" [value]="item">{{item | translate}}</mat-option>
-    </mat-select>
-</mat-form-field>
+<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+    <si-dropdown [dropdownOptions]="enumElements" (optionSelected)="changeValue(${'$'}event)" inputId="${this.parent().name().toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${this.name().toCamelCase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+                 [(ngModel)]="${this.name().lowercase(Locale.getDefault())}">
+        <ng-container *siDropdownOption="let value = value">
+            <span matTooltip="{{ dataService.tooltipText }}" (mouseenter)="dataService.onMouseEnter(value)" (mouseleave)="dataService.onMouseLeave()">{{ value }}</span>
+        </ng-container>
+    </si-dropdown>
+</si-form-group>
 """
 }
 
