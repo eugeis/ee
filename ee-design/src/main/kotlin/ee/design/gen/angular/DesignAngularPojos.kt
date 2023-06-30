@@ -20,6 +20,9 @@ export function HttpLoaderFactory(http: ${c.n(angular.commonhttp.HttpClient)}) {
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleDeclarationEntities(c, tab + tab)
     }}
+${this.entities().filter { !it.isEMPTY() && !it.props().isEmpty() && it.belongsToAggregate().isNotEMPTY()}.joinSurroundIfNotEmptyToString {
+        it.belongsToAggregate().toAngularModuleDeclarationAggregateEntities(c, tab + tab)
+    }}
 ${this.values().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularModuleDeclarationValuesImport(c, tab + tab)
     }}
@@ -101,6 +104,12 @@ const routes: ${c.n(angular.router.Routes)} = [
 ${this.entities().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularEntityModulePath(c, tab)
     }}
+${this.entities().filter { !it.isEMPTY() && !it.props().isEmpty() && it.belongsToAggregate().isNotEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.belongsToAggregate().toAngularAggregateEntityModulePath(c, tab)
+    }}
+${this.entities().filter { !it.isEMPTY() && !it.props().isEmpty() && it.belongsToAggregate().isNotEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        it.belongsToAggregate().toAngularAggregateEntityPropsModulePath(c, tab)
+    }}
 ${this.values().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         it.toAngularValueModulePath(c, tab)
     }}
@@ -119,7 +128,8 @@ fun <T : ModuleI<*>> T.toAngularModuleHTMLComponent(c: GenerationContext, ViewSe
     return """
 <app-page [pageName]="${this.name().lowercase(Locale.getDefault())}${ViewService}.pageName" [pageElement]="${this.name()
         .lowercase(Locale.getDefault())}${ViewService}.pageElement" [tabElement]="${this.name()
-        .lowercase(Locale.getDefault())}${ViewService}.tabElement"></app-page>
+        .lowercase(Locale.getDefault())}${ViewService}.tabElement"
+        [componentName]="${this.name().lowercase(Locale.getDefault())}${ViewService}.componentName"></app-page>
 """
 }
 
@@ -135,18 +145,18 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
         .lowercase(Locale.getDefault())}-form>
 
 <ng-container *ngIf="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isEdit; else notEdit">
-    <button type="button" class="first-button btn btn-outline-danger" [routerLink]="'../../'"
+    <button type="button" class="first-button btn btn-outline-danger" (click)="goBack()"
             routerLinkActive="active-link">{{'cancel edit' | translate}}</button>
     <button type="button" class="second-button btn btn-outline-success" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editElement(${this.name()
-        .lowercase(Locale.getDefault())})" [routerLink]="'../../'"
+        .lowercase(Locale.getDefault())}); goBack()"
             routerLinkActive="active-link">{{'save changes' | translate}}</button>
 </ng-container>
 
 <ng-template #notEdit>
-    <button type="button" class="first-button btn btn-outline-danger" [routerLink]="'../'"
+    <button type="button" class="first-button btn btn-outline-danger" (click)="goBack()"
             routerLinkActive="active-link">{{'cancel' | translate}}</button>
     <button type="button" class="second-button btn btn-outline-success" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.inputElement(${this.name()
-        .lowercase(Locale.getDefault())})" [routerLink]="'../'"
+        .lowercase(Locale.getDefault())}); goBack()"
             routerLinkActive="active-link">{{'save' | translate}}</button>
 </ng-template>
 """
@@ -170,7 +180,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(c: GenerationCo
 fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
     return """
 <div class="${this.name().lowercase(Locale.getDefault())}-form">
-    <form>
+    <form [formGroup]="form">
         ${this.props().any {  it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.then { 
             """
         <fieldset>
@@ -237,80 +247,138 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService, isAggregateView: Boolean = false, containAggregateProp: Boolean = false): String {
     return """
-<module-${this.parent().name().lowercase(Locale.getDefault())}></module-${this.parent().name().lowercase(Locale.getDefault())}>
-<div class="${this.name().lowercase(Locale.getDefault())}-list-button">
-    <a class="newButton bg-dark normal-font-size" [routerLink]="'./new'"
-            routerLinkActive="active-link">
-        <span aria-hidden='true' class='iconUxt addCircle filled'></span> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
-    </a>
-    
-    <ng-container *ngIf="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden; else showed">
-        <a class="showButton bg-dark normal-font-size" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.toggleHidden()">
-            <span aria-hidden='true' class='iconUxt delete filled'></span> {{"delete" | translate}}...
+<ng-container *ngIf="!isSpecificView">        
+    <module-${this.parent().name().lowercase(Locale.getDefault())} ${isAggregateView.then { """[tabElement]="tabElement" [componentName]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName"""" }}></module-${this.parent().name().lowercase(Locale.getDefault())}>
+    <div class="${this.name().lowercase(Locale.getDefault())}-list-button">
+        <a class="newButton bg-dark normal-font-size" [routerLink]="'./new'"
+                routerLinkActive="active-link">
+            <span aria-hidden='true' class='iconUxt addCircle filled'></span> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
         </a>
-    </ng-container>
+        
+        <ng-container *ngIf="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden; else showed">
+            <a class="showButton bg-dark normal-font-size" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.toggleHidden()">
+                <span aria-hidden='true' class='iconUxt delete filled'></span> {{"delete" | translate}}...
+            </a>
+        </ng-container>
+        
+        <ng-template #showed>
+            <a class="deleteButton bg-dark normal-font-size" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.clearMultipleItems(${this.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.selected); ${this.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.toggleHidden()">
+                <span aria-hidden='true' class='iconUxt delete filled'></span> {{"delete" | translate}} {{"item" | translate}}
+            </a>
+        </ng-template>
+    </div>
     
-    <ng-template #showed>
-        <a class="deleteButton bg-dark normal-font-size" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.clearMultipleItems(${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.selected); ${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.toggleHidden()">
-            <span aria-hidden='true' class='iconUxt delete filled'></span> {{"delete" | translate}} {{"item" | translate}}
-        </a>
-    </ng-template>
-</div>
-
-<div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list">
-    <si-table [rows]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async" [loading]="(${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async) === null" [bordered]="false" [condensed]="true" [rowsPerPage]="10">
-        <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.5" key="box" name="Action">
-            <div class="form-group" *siTableHeaderCell>
-                <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
-                    <input class="form-check-input" type="checkbox"
-                                  (change)="${"$"}event ? ${this.name()
+    <div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list">
+        <si-table [rows]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async" [loading]="(${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async) === null" [bordered]="false" [condensed]="true" [rowsPerPage]="10">
+            <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.5" key="box" name="Action">
+                <div class="form-group" *siTableHeaderCell>
+                    <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
+                        <input class="form-check-input" type="checkbox"
+                                      (change)="${"$"}event ? ${this.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.masterToggle() : null"
+                                      [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && ${this.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()"
+                                      [indeterminate]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && !${this.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()">
+                    </section>
+                </div>
+    
+                <div *siTableCell="let row = row; let i = index">
+                    <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
+                        <input class="form-check-input" type="checkbox"
+                                      (click)="${"$"}event.stopPropagation()"
+                                      (change)="${"$"}event ? ${this.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.toggle(row) : null"
+                                      [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.isSelected(row)">
+                    </section>
+                </div>
+            </siTableColumn>
+            <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.8" class="header-style" key="action" name="{{'table.action' | translate}}">
+                <div *siTableCell="let row = row; let i = index">
+                    <mat-menu #appMenu="matMenu">
+                        <ng-template matMenuContent>
+                            <button mat-menu-item (click)="${this.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editItems(i, row)"><mat-icon>edit</mat-icon>
+                                <span>{{"edit" | translate}}</span></button>
+                            <button mat-menu-item (click)="${this.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.removeItem(row)"><mat-icon>delete</mat-icon>
+                                <span>{{"delete" | translate}}</span></button>
+                        </ng-template>
+                    </mat-menu>
+    
+                    <button mat-icon-button [matMenuTriggerFor]="appMenu">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+                </div>
+            </siTableColumn>
+            ${toAngularTableListBasic(this.name(), "", "",false, this.props().size, containAggregateProp)}
+    
+            <div no-data>
+                Loading...
+            </div>
+        </si-table>
+    </div>
+</ng-container>
+    
+<ng-container *ngIf="isSpecificView">
+    <module-project [componentName]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName" [tabElement]="tabElement"></module-project>
+    
+    <div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list">
+        <si-table [rows]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async" [loading]="(${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async) === null" [bordered]="false" [condensed]="true" [rowsPerPage]="10">
+            <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.5" key="box" name="Action">
+                <div class="form-group" *siTableHeaderCell>
+                    <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
+                        <input class="form-check-input" type="checkbox"
+                                      (change)="${"$"}event ? ${this.name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.masterToggle() : null"
-                                  [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && ${this.name()
+                                      [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && ${this.name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()"
-                                  [indeterminate]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && !${this.name()
+                                      [indeterminate]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && !${this.name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()">
-                </section>
-            </div>
-
-            <div *siTableCell="let row = row; let i = index">
-                <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
-                    <input class="form-check-input" type="checkbox"
-                                  (click)="${"$"}event.stopPropagation()"
-                                  (change)="${"$"}event ? ${this.name()
+                    </section>
+                </div>
+    
+                <div *siTableCell="let row = row; let i = index">
+                    <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
+                        <input class="form-check-input" type="checkbox"
+                                      (click)="${"$"}event.stopPropagation()"
+                                      (change)="${"$"}event ? ${this.name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.toggle(row) : null"
-                                  [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.isSelected(row)">
-                </section>
-            </div>
-        </siTableColumn>
-        <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.8" class="header-style" key="action" name="{{'table.action' | translate}}">
-            <div *siTableCell="let row = row; let i = index">
-                <mat-menu #appMenu="matMenu">
-                    <ng-template matMenuContent>
-                        <button mat-menu-item (click)="${this.name()
+                                      [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.isSelected(row)">
+                    </section>
+                </div>
+            </siTableColumn>
+            <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.8" class="header-style" key="action" name="{{'table.action' | translate}}">
+                <div *siTableCell="let row = row; let i = index">
+                    <mat-menu #appMenu="matMenu">
+                        <ng-template matMenuContent>
+                            <button mat-menu-item (click)="${this.name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editItems(i, row)"><mat-icon>edit</mat-icon>
-                            <span>{{"edit" | translate}}</span></button>
-                        <button mat-menu-item (click)="${this.name()
+                                <span>{{"edit" | translate}}</span></button>
+                            <button mat-menu-item (click)="${this.name()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.removeItem(row)"><mat-icon>delete</mat-icon>
-                            <span>{{"delete" | translate}}</span></button>
-                    </ng-template>
-                </mat-menu>
-
-                <button mat-icon-button [matMenuTriggerFor]="appMenu">
-                    <mat-icon>more_vert</mat-icon>
-                </button>
+                                <span>{{"delete" | translate}}</span></button>
+                        </ng-template>
+                    </mat-menu>
+    
+                    <button mat-icon-button [matMenuTriggerFor]="appMenu">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+                </div>
+            </siTableColumn>
+            ${toAngularTableListBasic(this.name(), "", "",false, this.props().size, containAggregateProp)}
+    
+            <div no-data>
+                Loading...
             </div>
-        </siTableColumn>
-        ${toAngularTableListBasic(this.name(), "", "",false, this.props().size)}
+        </si-table>
+    </div>
+</ng-container>    
 
-        <div no-data>
-            Loading...
-        </div>
-    </si-table>
-</div>
 """
 }
 

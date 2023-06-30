@@ -1,5 +1,6 @@
 package ee.design.gen.angular
 
+import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.AngularDerivedType
@@ -47,10 +48,16 @@ open class DesignAngularTemplates : LangTsTemplates {
     open fun <T : CompilationUnitI<*>> entityFormSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityFormSCSSComponent", nameBuilder) { item, c -> item.toAngularFormSCSSComponent(c, derived = AngularFileFormat.EntityForm) }
 
-    open fun <T : CompilationUnitI<*>> entityListHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityListHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityListHTMLComponent(c, DataService = AngularDerivedType.DataService) }
+    open fun <T : CompilationUnitI<*>> entityListHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder, aggregateEntity: List<EntityI<*>>) =
+        Template("EntityListHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityListHTMLComponent(c, DataService = AngularDerivedType.DataService, false, (aggregateEntity.isNotEmpty() && aggregateEntity.any {prop -> prop.name().equals(item.name(), true)})) }
+
+    open fun <T : CompilationUnitI<*>> entityAggregateViewHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+            Template("EntityAggregateViewHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityListHTMLComponent(c, DataService = AngularDerivedType.DataService, true) }
 
     open fun <T : CompilationUnitI<*>> entityListSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+            Template("EntityListSCSSComponent", nameBuilder) { item, c -> item.toAngularEntityListSCSSComponent(c, derived = AngularFileFormat.EntityList) }
+
+    open fun <T : CompilationUnitI<*>> entityAggregateViewSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityListSCSSComponent", nameBuilder) { item, c -> item.toAngularEntityListSCSSComponent(c, derived = AngularFileFormat.EntityList) }
 
     open fun <T : CompilationUnitI<*>> basicHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =

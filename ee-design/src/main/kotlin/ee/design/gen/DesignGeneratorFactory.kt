@@ -526,6 +526,11 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                 .sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
+        val aggregateEntities: StructureUnitI<*>.() -> List<EntityI<*>> = {
+            findDownByType(EntityI::class.java).filter { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() }
+                    .sortedBy { "${it.belongsToAggregate().javaClass.simpleName} ${name()}" }.map { it.belongsToAggregate() }
+        }
+
         val moduleGenerators = mutableListOf<GeneratorI<StructureUnitI<*>>>()
         val generator = GeneratorGroup(
             "Angular",
@@ -581,16 +586,28 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                     angularTemplates.entityFormSCSS(angularEntityFormComponent.scss),
 
                     tsTemplates.entityListTypeScript(angularEntityListComponent.ts),
-                    angularTemplates.entityListHTML(angularEntityListComponent.html),
+                    angularTemplates.entityListHTML(angularEntityListComponent.html, aggregateEntities.invoke(model)),
                     angularTemplates.entityListSCSS(angularEntityListComponent.scss),
 
                     tsTemplates.entityDataService(entities.invoke(model), angularEntityService.ts)
                 ) }))
 
+        // View, List, Form Components for Aggregate Entity
+        val aggregateEntityComponentContextBuilder = tsContextFactory.buildForImplOnly()
+        moduleGenerators.add(GeneratorItems("AngularAggregateEntityComponent",
+            contextBuilder = aggregateEntityComponentContextBuilder, items = aggregateEntities,
+
+            templates = {
+                listOf(
+                    tsTemplates.entityAggregateViewTypeScript(angularAggregateEntityComponent.ts),
+                    angularTemplates.entityAggregateViewHTML(angularAggregateEntityComponent.html),
+                    angularTemplates.entityAggregateViewSCSS(angularAggregateEntityComponent.scss),
+                ) }))
+
         // View, List, Form, Service Components for Values
         val valuesComponentContextBuilder = tsContextFactory.buildForImplOnly()
         moduleGenerators.add(GeneratorItems("AngularValuesComponent",
-            contextBuilder = entityComponentContextBuilder, items = values,
+            contextBuilder = valuesComponentContextBuilder, items = values,
 
             templates = {
                 listOf(
@@ -603,7 +620,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                     angularTemplates.entityFormSCSS(angularEntityFormComponent.scss),
 
                     tsTemplates.valueListTypeScript(angularEntityListComponent.ts),
-                    angularTemplates.entityListHTML(angularEntityListComponent.html),
+                    angularTemplates.entityListHTML(angularEntityListComponent.html, aggregateEntities.invoke(model)),
                     angularTemplates.entityListSCSS(angularEntityListComponent.scss),
 
                     tsTemplates.entityDataService(entities.invoke(model), angularEntityService.ts)
@@ -634,7 +651,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                 ) }))
 
         return GeneratorContexts(generator, moduleViewComponentContextBuilder, moduleModulesContextBuilder, moduleServiceContextBuilder,
-            entityComponentContextBuilder, valuesComponentContextBuilder, basicsContextBuilder, enumsContextBuilder,)
+            entityComponentContextBuilder, aggregateEntityComponentContextBuilder, basicsContextBuilder, enumsContextBuilder,)
     }
 
     open fun angularTranslate(fileNamePrefix: String = "", model: StructureUnitI<*>): GeneratorContexts<StructureUnitI<*>> {

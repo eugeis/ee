@@ -39,9 +39,24 @@ fun <T : ModuleI<*>> T.toAngularModuleTypeScript(c: GenerationContext, Model: St
     return """
 ${this.toAngularGenerateComponentPart(c, "module", "module", "view", hasProviders = true, hasClass = false)}
 export class ${this.name()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${ViewComponent} {${"\n"}  
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${ViewComponent} implements ${c.n(angular.core.OnInit)} {${"\n"}  
+    
+    @${c.n(angular.core.Input)}() tabElement: Array<string>;
+    
+    @${c.n(angular.core.Input)}() componentName: string;
+    
     constructor(public ${c.n(this, AngularDerivedType.ViewService)
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.ViewService)}) {}$nL
+        
+    ngOnInit(): void {
+        if(this.tabElement !== undefined && this.tabElement.length > 0) {
+            this.${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}ViewService.tabElement = this.tabElement;
+        }
+        
+        if(this.componentName !== undefined && this.componentName.length > 0) {
+            this.${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}ViewService.componentName = this.componentName
+        }
+    }    
 }"""
 }
 
@@ -49,15 +64,17 @@ fun <T : ModuleI<*>> T.toAngularModuleService(modules: List<ModuleI<*>>, c: Gene
     return """export class ${this.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${ViewService} {
 
-    pageElement = [${modules.filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(", ") { """'${it.name()}'""" }}];
+    pageElement = [${modules.filter { !it.isEMPTY() && it.entities()
+        .any { entity -> entity.isBase() && entity.belongsToAggregate().isNotEMPTY() }
+    }.joinSurroundIfNotEmptyToString(", ") { """'${it.name()}'""" }}];
 
-    tabElement = [${this.entities().filter { !it.isEMPTY() && !it.props().isEmpty() }.joinSurroundIfNotEmptyToString() {
-        it.toAngularModuleTabElementEntity()
-    }} ${this.values().filter { !it.isEMPTY() && !it.props().isEmpty() }.joinSurroundIfNotEmptyToString("") {
-        it.toAngularModuleTabElementValue()
+    tabElement = [${this.entities().filter { !it.isEMPTY() && !it.props().isEmpty() && it.belongsToAggregate().isNotEMPTY() }.joinSurroundIfNotEmptyToString() {
+        it.belongsToAggregate().toAngularModuleTabElementEntity()
     }}];
 
     pageName = '${this.name()}';
+    
+    componentName = '';
 }
 """
 }
@@ -69,8 +86,12 @@ ${isOpen().then("export ")}class ${this.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${ViewComponent} implements ${c.n(angular.core.OnInit)} {
 
 ${this.toTypeScriptEntityProp(c, tab)}
-${this.toAngularConstructorDataService(c, tab)}
+${this.toAngularConstructorDataService(c, tab, true)}
 ${this.toAngularViewOnInit(c, tab)}
+
+    goBack() {
+        this._location.back();
+    }
 }
 """
 }
@@ -82,6 +103,9 @@ ${isOpen().then("export ")}class ${this.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${FormComponent} implements ${c.n(angular.core.OnInit)} {
 
 ${this.toTypeScriptFormProp(c, tab)}
+    
+    form: ${c.n(angular.forms.FormGroup)};
+    
     constructor(public ${c.n(this, AngularDerivedType.DataService)
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.DataService)}, 
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
@@ -102,28 +126,45 @@ ${this.toAngularFormOnInit(c, tab)}
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityListTypeScript(c: GenerationContext, Model: String = AngularDerivedType.Entity, ListComponent: String = AngularDerivedType.ListComponent): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityListTypeScript(c: GenerationContext, Model: String = AngularDerivedType.Entity, ListComponent: String = AngularDerivedType.ListComponent, isAggregateView: Boolean = false, componentType: String = "list"): String {
     return """
-${this.toAngularGenerateComponentPart(c, "entity-${this.parent().name().lowercase(Locale.getDefault())}", "entity", "list", hasProviders = true, hasClass = true)}
+${this.toAngularGenerateComponentPart(c, "entity-${this.parent().name().lowercase(Locale.getDefault())}", "entity", componentType, hasProviders = true, hasClass = true)}
 ${isOpen().then("export ")}class ${this.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${ListComponent} implements ${c.n(angular.core.OnInit)} {
 
 ${this.toTypeScriptEntityPropInit(c, tab)}
     tableHeader: Array<String> = [];
     
+    tabElement: Array<string>;
+    specificViewName: string;
+    isSpecificView: boolean = false;
+    
     @${c.n(angular.core.ViewChild)}(${c.n(angular.material.sort.MatSort)}) sort: ${c.n(angular.material.sort.MatSort)};
 
-${this.toAngularConstructorDataService(c, tab)}
+${this.toAngularConstructorDataService(c, tab, false)}
 
-${this.toAngularListOnInit(c, tab)}
+${this.toAngularListOnInit(c, tab, isAggregateView)}
 
-    generateTableHeader() {
-        return ['Box', 'Actions', ${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
-        it.toAngularGenerateTableHeader(c)
+    ${isAggregateView.then {"""generateTabElement() { 
+        return [${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
+        it.toAngularGenerateTabElement(c)
     }}];
-    }
+    }"""}}
 }
 """
+}
+
+fun <T : AttributeI<*>> T.toAngularGenerateTabElement(c: GenerationContext, parentName: String = ""): String {
+    return when (this.type()) {
+        is EntityI<*>, is ValuesI<*> -> """'${this.type().name().lowercase(Locale.getDefault())}', """
+        else -> when(this.type().name().lowercase(Locale.getDefault())) {
+            "list" -> when(this.type().generics().first().type()) {
+                is EntityI<*>, is ValuesI<*> -> """'${this.type().generics().first().type().name().lowercase(Locale.getDefault())}', """
+                else -> ""
+            }
+            else -> ""
+        }
+    }
 }
 
 fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext, parentName: String = ""): String {
@@ -154,6 +195,8 @@ ${isOpen().then("export ")}class ${this.name()
     itemName = '${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}';
 
     pageName = '${c.n(this, AngularDerivedType.Component)}';
+    
+    componentName = '';
     
     isHidden = true;
     

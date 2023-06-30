@@ -15,6 +15,8 @@ open class AngularDerivedKindNames {
     val EntityListComponent = Entity + ListComponent
     val FormComponent = "FormComponent"
     val EntityFormComponent = Entity + FormComponent
+    val AggregateViewComponent = "AggregateViewComponent"
+    val EntityAggregateViewComponent = Entity + AggregateViewComponent
     val Component = "Component"
     val Enum = "Enum"
     val EnumComponent = "EnumComponent"
@@ -36,6 +38,8 @@ open class AngularFileFormatNames {
     val ModuleViewComponent = "-module-view.component"
     val EntityViewComponent = "-entity-view.component"
     val EntityList = "entity-list"
+    val EntityAggregateView = "aggregate-view"
+    val EntityAggregateViewComponent = "-entity-" + EntityAggregateView + ".component"
     val EntityListComponent = "-${EntityList}.component"
     val EntityForm = "entity-form"
     val EntityFormComponent = "-${EntityForm}.component"
@@ -83,6 +87,7 @@ object angular : StructureUnit({namespace("@angular").name("angular")}) {
     }
     object common : StructureUnit() {
         object CommonModule: ExternalType()
+        object Location: ExternalType()
     }
     object commonhttp : StructureUnit({(namespace("common/http").name("common/http"))}) {
         object HttpClient : ExternalType()
@@ -90,6 +95,7 @@ object angular : StructureUnit({namespace("@angular").name("angular")}) {
     object router : StructureUnit() {
         object Routes : ExternalType()
         object RouterModule : ExternalType()
+        object ActivatedRoute: ExternalType()
     }
 }
 
@@ -217,6 +223,36 @@ open class TsContext(
                             }-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
                             
+                        }
+                    }.joinToString(nL)}$nL$nL"
+                }
+            }
+        }
+
+        fun toImportsAggregateViewComponent(): String {
+
+            return types.isNotEmpty().then {
+                val aggregateViewComponent = if (alwaysImportTypes) types.groupBy { it.findParentMust(StructureUnitI::class.java)  }
+                else types.filter { it.namespace().isNotEmpty() && it.namespace() != namespace && (it.name().contains(AngularDerivedType.AggregateViewComponent, true) ) }
+                    .groupBy { it.findParentMust(StructureUnitI::class.java) }
+
+                aggregateViewComponent.isNotEmpty().then {
+                    "${aggregateViewComponent.map { (su, items) ->
+                        items.filter { it.namespace().contains(AngularFileFormat.EntityAggregateView) }.sortedBy { it.name() }.
+                        joinToString("\n") {
+                            """import {${it.name()}} from '@${
+                                if (su.parent().isEMPTY()) {
+                                    su.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }
+                                else {
+                                    su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                                }}${
+                                if (su.parent().isEMPTY()) {""}
+                                else {"/${su.name().lowercase(Locale.getDefault())}"}}/${it.name().replace(AngularDerivedType.EntityAggregateViewComponent, "").lowercase(Locale.getDefault())}/components/aggregateView/${
+                                it.name().replace(AngularDerivedType.EntityAggregateViewComponent, "").lowercase(Locale.getDefault())
+                            }-${
+                                it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""
+
                         }
                     }.joinToString(nL)}$nL$nL"
                 }
@@ -449,6 +485,7 @@ open class TsContext(
 
         return toImportsOutsideTypes().trimIndent() +
                 toImportsViewComponent().trimIndent() +
+                toImportsAggregateViewComponent().trimIndent() +
                 toImportsListComponent().trimIndent() +
                 toImportsFormComponent().trimIndent() +
                 toImportsEnumComponent().trimIndent() +
@@ -497,6 +534,7 @@ val angularModuleService = AngularNames("module-view", false, "service")
 val angularEntityViewComponent = AngularEntitiesComponentNames("entity-view", "components/view", "component")
 val angularEntityFormComponent = AngularEntitiesComponentNames("entity-form", "components/form", "component")
 val angularEntityListComponent = AngularEntitiesComponentNames("entity-list", "components/list", "component")
+val angularAggregateEntityComponent = AngularEntitiesComponentNames("entity-aggregate-view", "components/aggregateView", "component")
 val angularEntityService = AngularEntitiesComponentNames("data", "service", "service")
 val angularRoutingModule = AngularNames("routing", false, "module")
 val angularEnumComponent = AngularNames("enum", true, "component")

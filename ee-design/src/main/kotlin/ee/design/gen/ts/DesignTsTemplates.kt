@@ -5,6 +5,8 @@ import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.AngularDerivedType
+import ee.lang.gen.ts.AngularFileFormat
+import ee.lang.gen.ts.AngularFileFormatNames
 import ee.lang.gen.ts.LangTsTemplates
 import toAngularBasicTSComponent
 import toAngularEntityDataService
@@ -50,7 +52,10 @@ open class DesignTsTemplates : LangTsTemplates {
         Template("EntityFormTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityFormTypeScript(c, Model = AngularDerivedType.Value, FormComponent = AngularDerivedType.FormComponent) }
 
     open fun <T : CompilationUnitI<*>> entityListTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityListTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityListTypeScript(c, Model = AngularDerivedType.Entity, ListComponent = AngularDerivedType.ListComponent) }
+        Template("EntityListTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityListTypeScript(c, Model = AngularDerivedType.Entity, ListComponent = AngularDerivedType.ListComponent, false) }
+
+    open fun <T : CompilationUnitI<*>> entityAggregateViewTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+            Template("EntityAggregateViewTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityListTypeScript(c, Model = AngularDerivedType.Entity, ListComponent = AngularDerivedType.AggregateViewComponent, true, AngularFileFormat.EntityAggregateView) }
 
     open fun <T : CompilationUnitI<*>> valueListTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityListTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityListTypeScript(c, Model = AngularDerivedType.Value, ListComponent = AngularDerivedType.ListComponent) }

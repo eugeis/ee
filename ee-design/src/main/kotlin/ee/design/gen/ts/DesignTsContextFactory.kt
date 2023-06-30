@@ -36,6 +36,9 @@ open class DesignTsContextFactory(alwaysImportTypes: Boolean = false) : LangTsCo
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.ViewComponent,
             { "${this.name()
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.EntityViewComponent}" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.AggregateViewComponent,
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.EntityAggregateViewComponent}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.ModuleViewComponent,
             { "${this.name()
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${AngularDerivedType.ModuleViewComponent}" }, { "${this.namespace()}${AngularFileFormat.ModuleViewComponent}" }, isNotPartOfNativeTypes))
@@ -48,6 +51,9 @@ open class DesignTsContextFactory(alwaysImportTypes: Boolean = false) : LangTsCo
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.EntityViewComponent,
             { "${this.name()
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.EntityViewComponent}" }, isNotPartOfNativeTypes))
+        derived.register(NameAndNamespaceTransformers(AngularDerivedType.EntityAggregateViewComponent,
+            { "${this.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.EntityAggregateViewComponent}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.EntityListComponent,
             { "${this.name()
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.EntityListComponent}" }, isNotPartOfNativeTypes))

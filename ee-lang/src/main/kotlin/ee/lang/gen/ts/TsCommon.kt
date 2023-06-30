@@ -252,22 +252,32 @@ fun <T : ItemI<*>> T.toAngularComponentFileNameBase(elementType: String, isChild
 fun <T : ItemI<*>> T.toAngularEntityFileNameBase(elementType: String, componentType: String, format: String): String {
     return "${name().lowercase(Locale.getDefault())}/${componentType}/${name().lowercase(Locale.getDefault())}-${elementType}.${format}"
 }
+
+fun <T : ItemI<*>> T.toAngularEntityAggregateViewFileNameBase(elementType: String, componentType: String, format: String): String {
+    return "${name().lowercase(Locale.getDefault())}/${componentType}/${name().lowercase(Locale.getDefault())}-${elementType}.${format}"
+}
+
 fun <T : ItemI<*>> T.toAngularComponentSelector(): String {
     return fullParentNameAndName().toHyphenLowerCase()
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent: String): String {
+fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent: String, isAggregateView: Boolean = false): String {
     return """${indent}ngOnInit(): void {
-        this.tableHeader = this.generateTableHeader();
-        this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.checkSearchRoute();
-        if (this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.isSearch) {
-            this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.loadSearchData()
-        } else {
-            this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources =
-                ${c.n(rxjs.empty.of)} (this.${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.changeMapToArray(
-                    this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.retrieveItemsFromCache()));
-        }      
+        this._route.queryParams.subscribe(param => {
+            this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName = param['name'];
+            this.tabElement = param['tabElement'];
+        })
+
+        this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources =
+            ${c.n(rxjs.empty.of)} (this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.changeMapToArray(
+                this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.retrieveItemsFromCache()));
+
+        if(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName !== undefined && this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName.length > 0) {
+            this.isSpecificView = true;
+            this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources = this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources.pipe(${c.n(rxjs.operators.map)}(datas => datas.filter((data) => JSON.stringify(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.getSpecificData()).includes(JSON.stringify(data)))))
+        }
+
+        ${isAggregateView.then {"""this.tabElement = this.generateTabElement();"""}} 
     }"""
 }
 

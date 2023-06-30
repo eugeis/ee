@@ -103,9 +103,9 @@ fun <T : AttributeI<*>> T.toAngularGenerateEntityPropsTranslate(): String =
 fun <T : AttributeI<*>> T.toAngularGeneratePropsForTableTranslate(): String =
         """"${this.name().lowercase(Locale.getDefault())}": "${this.parent().parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} ${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}""""
 
-fun <T : ItemI<*>> T.toAngularConstructorDataService(c: GenerationContext, indent: String): String {
+fun <T : ItemI<*>> T.toAngularConstructorDataService(c: GenerationContext, indent: String, needLocation: Boolean): String {
     return """${indent}constructor(public ${c.n(this, AngularDerivedType.DataService)
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.DataService)}) {}$nL"""
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.DataService)} ${needLocation.then { """, private _location: ${c.n(angular.common.Location)}""" }}, private _route: ${c.n(angular.router.ActivatedRoute)}) {}$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularPropOnConstructor(c: GenerationContext): String {
@@ -176,6 +176,15 @@ fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent
         ${this.props().filter { it.type() is BasicI<*> || it.type() is EntityI<*> || it.type() is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL + tab) {
         it.toAngularEmptyProps(c, indent, it.type())
     }.trim()}
+    
+    this.form = new ${c.n(angular.forms.FormGroup)}({ 
+        ${this.props().filter { !it.isEMPTY() && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
+            """${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${it.name().toCamelCase()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} : new ${c.n(angular.forms.FormControl)}<${if(it.type().name().equals("list", true)) {c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase) + "[]"} else {c.n(it.type(), AngularDerivedType.ApiBase)}}>(this.${this.name()
+                .lowercase(Locale.getDefault())}.${it.name()
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }})"""
+        }}
+    })
     
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString("") {
 when(it.type()) {
@@ -265,6 +274,10 @@ $indent${c.n(this, AngularDerivedType.EntityListComponent)},
 $indent${c.n(this, AngularDerivedType.EntityFormComponent)},"""
 }
 
+fun <T : ItemI<*>> T.toAngularModuleDeclarationAggregateEntities(c: GenerationContext, indent: String): String {
+    return """$indent${c.n(this, AngularDerivedType.EntityAggregateViewComponent)},"""
+}
+
 fun <T : ItemI<*>> T.toAngularModuleDeclarationValuesImport(c: GenerationContext, indent: String): String {
     return """$indent${c.n(this, AngularDerivedType.ValueViewComponent)},
 $indent${c.n(this, AngularDerivedType.ValueListComponent)},
@@ -292,6 +305,20 @@ fun <T : ItemI<*>> T.toAngularEntityModulePath(c: GenerationContext, indent: Str
 $indent{ path: '${this.name().lowercase(Locale.getDefault())}/new', component: ${c.n(this, AngularDerivedType.EntityViewComponent)} },
 $indent{ path: '${this.name().lowercase(Locale.getDefault())}/edit/:id', component: ${c.n(this, AngularDerivedType.EntityViewComponent)} },
 $indent{ path: '${this.name().lowercase(Locale.getDefault())}/search', component: ${c.n(this, AngularDerivedType.EntityListComponent)} },"""
+}
+
+fun <T : ItemI<*>> T.toAngularAggregateEntityModulePath(c: GenerationContext, indent: String): String {
+    return """$indent{ path: '${this.name().lowercase(Locale.getDefault())}/view/:id', component: ${c.n(this, AngularDerivedType.EntityAggregateViewComponent)} },"""
+}
+
+fun <T : EntityI<*>> T.toAngularAggregateEntityPropsModulePath(c: GenerationContext, indent: String): String {
+    return """$indent${this.props().filter { !it.isEMPTY() && (it.type() is EntityI<*> || (it.type().name().equals("list", true) && it.type().generics().first().type() is EntityI<*>)) }.joinSurroundIfNotEmptyToString(nL + indent) { """{ path: '${this.name().lowercase(Locale.getDefault())}/view/:id/${if(it.type().generics().isEmpty()) {
+        it.type().name().lowercase(Locale.getDefault())
+    } else {it.type().generics().first().type().name().lowercase(Locale.getDefault())}}', component: ${if(it.type().generics().isEmpty()) {c.n(it.type(), AngularDerivedType.EntityListComponent)} else {c.n(it.type().generics().first().type(), AngularDerivedType.EntityListComponent)}} },""" }}
+    
+$indent${this.props().filter { !it.isEMPTY() && (it.type() is ValuesI<*> || (it.type().name().equals("list", true) && it.type().generics().first().type() is ValuesI<*>)) }.joinSurroundIfNotEmptyToString(nL + indent) { """{ path: '${this.name().lowercase(Locale.getDefault())}/view/:id/${if(it.type().generics().isEmpty()) {
+        it.type().name().lowercase(Locale.getDefault())
+    } else {it.type().generics().first().type().name().lowercase(Locale.getDefault())}}', component: ${if(it.type().generics().isEmpty()) {c.n(it.type(), AngularDerivedType.ValueListComponent)} else {c.n(it.type().generics().first().type(), AngularDerivedType.ValueListComponent)}} },""" }}"""
 }
 
 fun <T : ItemI<*>> T.toAngularValueModulePath(c: GenerationContext, indent: String): String {
