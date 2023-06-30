@@ -16,7 +16,8 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [dropdownOptions]="option${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                             [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}">
+                             [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
+                            [isDisabled]="isDisabled">
                     <ng-container *siDropdownOption="let value = value">
                         <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseEnter(value)" (mouseleave)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseLeave()">{{value${
         toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}</span>
@@ -29,7 +30,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, ke
 fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, parentName: String = "", isBasic: Boolean): String {
     return """
         ${indent}<si-form-group label="{{'${if (parentName.isBlank()) {this.parent().name().lowercase(Locale.getDefault())} else {parentName.lowercase(Locale.getDefault())}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-            ${indent}<input siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.not().then { """formControlName="${if (parentName.isBlank()) {
+            ${indent}<input siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${if (parentName.isBlank()) {
         this.parent().name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }
     } else {
         parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }
@@ -41,7 +42,7 @@ fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, parentName: String = 
 fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String, isBasic: Boolean): String {
     return """
         ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-            ${indent}<input type="number" siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
+            ${indent}<input type="number" siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}>
         ${indent}</si-form-group>"""
@@ -51,7 +52,7 @@ fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String, isBasic: Boolean): St
     return """
         ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
             ${indent}<input type="file" siFormControl (change)="${this.parent().name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}>
         ${indent}</si-form-group>"""
@@ -66,6 +67,7 @@ fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String, isBasic: Boolean): S
                          ${indent}[dropdownOptions]="['true', 'false']"
                          ${indent}[(ngModel)]="project.${this.name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}"
+                         ${indent}${isBasic.then { """[disabled]="isDisabled"""" }}
                          ${isBasic.not().then { """${indent}formControlName="${this.parent().name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}>
@@ -76,7 +78,7 @@ fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String, isBasic: Boolean): S
 fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String, isBasic: Boolean): String {
     return """
         ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}} MM/DD/YYYY">
-            ${indent}<input siFormControl [matDatepicker]="picker" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'" ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
+            ${indent}<input siFormControl [matDatepicker]="picker" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}>
             ${indent}<mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -84,10 +86,10 @@ fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String, isBasic: Boolean): Stri
         ${indent}</si-form-group>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementType: String, parentName: String): String {
+fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementType: String, parentName: String, isBasic: Boolean): String {
     return """
         ${indent}<enum-${parentName.lowercase()}-${elementType.lowercase(Locale.getDefault())} [${elementType.lowercase(Locale.getDefault())}]="${this.parent().name()
-        .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" (${elementType.lowercase(
+        .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" [isDisabled]="isDisabled" (${elementType.lowercase(
         Locale.getDefault()
     )}Change) = '${this.parent().name()
         .lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = ${"$"}event'></enum-${parentName.lowercase()}-${elementType.lowercase(
@@ -95,9 +97,9 @@ fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementType: String, pa
     )}>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String, parentName: String): String {
+fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String, parentName: String, isBasic: Boolean): String {
     return """
-        <basic-${parentName.lowercase()}-${elementType.lowercase(Locale.getDefault())} [parentName]="'${this.parent().name().lowercase(Locale.getDefault())}'" [${elementType.lowercase(
+        <basic-${parentName.lowercase()}-${elementType.lowercase(Locale.getDefault())} [isDisabled]="isDisabled" [parentName]="'${this.parent().name().lowercase(Locale.getDefault())}'" [${elementType.lowercase(
         Locale.getDefault()
     )}]="${this.parent().name()
         .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"></basic-${parentName.lowercase()}-${elementType.lowercase(
@@ -167,7 +169,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormBasicFromEntityMultiple(elementType: S
                              [dropdownOptions]="filteredOptions${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
-                             >
+                             [isDisabled]="isDisabled">
                     <ng-container *siDropdownOption="let value = value">
                         <span matTooltip="{{ ${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.tooltipText }}" (mouseenter)="${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(value)" (mouseleave)="${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">{{value${
         toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}</span>
@@ -187,6 +189,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEnumMultiple(elementType: String, elem
                              [dropdownOptions]="option${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
+                             ${isBasic.then { """[disabled]="isDisabled"""" }}
                              ${isBasic.not().then { """formControlName="${this.parent().name().lowercase(Locale.getDefault())}${this.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}>
                     <ng-container *siDropdownOption="let value = value">
@@ -356,9 +359,8 @@ fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: St
         ${isAggregateView.then { """
         <siTableColumn [widthFactor]="${roundToNearestHalf(if(elementName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(elementName.length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
             <div *siTableCell="let row = row; let i = index">
-                <a [routerLink]="'./view/' + row${elementName.isNotEmpty().then { "['${elementName.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" }}['${this.name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" [queryParams]="{name: row['${this.name().lowercase(Locale.getDefault())}']}" (click)="${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault())} else elementName}DataService.saveSpecificData(row)">{{row['${this.name().toCamelCase()
+                <a [routerLink]="'./view'" (click)="${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault())} else elementName}DataService.saveSpecificData(row, row['${this.name().toCamelCase()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}'])">{{row['${this.name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']}}</a>
             </div>
         </siTableColumn>

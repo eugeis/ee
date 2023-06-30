@@ -139,26 +139,36 @@ fun <T : ModuleI<*>> T.toAngularDefaultSCSS(c: GenerationContext): String {
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
     return """
-<module-${this.parent().name().lowercase(Locale.getDefault())}></module-${this.parent().name().lowercase(Locale.getDefault())}>
+<module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${this.name().toCamelCase()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
 
-<entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
+<ng-container *ngIf="isSpecificView; else normalForm">
+    <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}" [isDisabled]="true"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
         .lowercase(Locale.getDefault())}-form>
-
-<ng-container *ngIf="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isEdit; else notEdit">
-    <button type="button" class="first-button btn btn-outline-danger" (click)="goBack()"
-            routerLinkActive="active-link">{{'cancel edit' | translate}}</button>
-    <button type="button" class="second-button btn btn-outline-success" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editElement(${this.name()
-        .lowercase(Locale.getDefault())}); goBack()"
-            routerLinkActive="active-link">{{'save changes' | translate}}</button>
 </ng-container>
 
-<ng-template #notEdit>
-    <button type="button" class="first-button btn btn-outline-danger" (click)="goBack()"
-            routerLinkActive="active-link">{{'cancel' | translate}}</button>
-    <button type="button" class="second-button btn btn-outline-success" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.inputElement(${this.name()
-        .lowercase(Locale.getDefault())}); goBack()"
-            routerLinkActive="active-link">{{'save' | translate}}</button>
+<ng-template #normalForm>
+    <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
+        .lowercase(Locale.getDefault())}-form>
 </ng-template>
+
+<ng-container *ngIf="!isSpecificView">
+    <ng-container *ngIf="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isEdit; else notEdit">
+        <button type="button" class="first-button btn btn-outline-danger" (click)="goBack()"
+                routerLinkActive="active-link">{{'cancel edit' | translate}}</button>
+        <button type="button" class="second-button btn btn-outline-success" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editElement(${this.name()
+            .lowercase(Locale.getDefault())}); goBack()"
+                routerLinkActive="active-link">{{'save changes' | translate}}</button>
+    </ng-container>
+    
+    <ng-template #notEdit>
+        <button type="button" class="first-button btn btn-outline-danger" (click)="goBack()"
+                routerLinkActive="active-link">{{'cancel' | translate}}</button>
+        <button type="button" class="second-button btn btn-outline-success" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.inputElement(${this.name()
+            .lowercase(Locale.getDefault())}); goBack()"
+                routerLinkActive="active-link">{{'save' | translate}}</button>
+    </ng-template>
+</ng-container>
 """
 }
 
@@ -193,7 +203,7 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
                     "blob" -> it.toHTMLUploadForm(tab, false)
                     "float", "int" -> it.toHTMLNumberForm(tab, false)
                     else -> when(it.type()) {
-                        is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name(), it.type().parent().name())
+                        is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name(), it.type().parent().name(), true)
                         else -> ""
                     }
                 }
@@ -210,7 +220,7 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
        
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
-            is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name())
+            is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name(), false)
             is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntity(it.type().name(), it.type().props(), it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
             else ->  when(it.type().name().lowercase(Locale.getDefault())) {
                 "list" -> when(it.type().generics().first().type()) {
@@ -250,7 +260,7 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
 fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService, isAggregateView: Boolean = false, containAggregateProp: Boolean = false): String {
     return """
 <ng-container *ngIf="!isSpecificView">        
-    <module-${this.parent().name().lowercase(Locale.getDefault())} ${isAggregateView.then { """[tabElement]="tabElement" [componentName]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName"""" }}></module-${this.parent().name().lowercase(Locale.getDefault())}>
+    <module-${this.parent().name().lowercase(Locale.getDefault())}></module-${this.parent().name().lowercase(Locale.getDefault())}>
     <div class="${this.name().lowercase(Locale.getDefault())}-list-button">
         <a class="newButton bg-dark normal-font-size" [routerLink]="'./new'"
                 routerLinkActive="active-link">
@@ -382,6 +392,16 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
 """
 }
 
+fun <T : CompilationUnitI<*>> T.toAngularEntityAggregateViewHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService, isAggregateView: Boolean = false, containAggregateProp: Boolean = false): String {
+    return """
+<module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
+    
+<entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}" [isDisabled]="true"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
+    .lowercase(Locale.getDefault())}-form>   
+
+"""
+}
+
 fun <T : CompilationUnitI<*>> T.toAngularEntityListSCSSComponent(c: GenerationContext, derived: String = AngularFileFormat.EntityList): String {
     return """
 @import "src/styles";
@@ -421,8 +441,8 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext
         <legend>{{parentName + ".navTitle" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
-            is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name(), it.type().parent().name())
-            is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name())
+            is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name(), it.type().parent().name(), true)
+            is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name(), true)
             is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityForBasic(it.type().name(), it.type().props(), it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
             else -> when(it.type().name().lowercase(Locale.getDefault())) {
                 "boolean" -> it.toHTMLBooleanForm("", true)
@@ -461,7 +481,8 @@ fun <T : CompilationUnitI<*>> T.toAngularEnumHTMLComponent(c: GenerationContext)
     <si-dropdown [dropdownOptions]="enumElements" (optionSelected)="changeValue(${'$'}event)" inputId="${this.parent().name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                 [(ngModel)]="${this.name().lowercase(Locale.getDefault())}">
+                 [(ngModel)]="${this.name().lowercase(Locale.getDefault())}"
+                 [disabled]="isDisabled">
         <ng-container *siDropdownOption="let value = value">
             <span matTooltip="{{ dataService.tooltipText }}" (mouseenter)="dataService.onMouseEnter(value)" (mouseleave)="dataService.onMouseLeave()">{{ value }}</span>
         </ng-container>

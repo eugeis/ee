@@ -18,6 +18,7 @@ import toAngularEntityListHTMLComponent
 import toAngularEntityListSCSSComponent
 import toAngularBasicHTMLComponent
 import toAngularBasicSCSSComponent
+import toAngularEntityAggregateViewHTMLComponent
 import toAngularEnumHTMLComponent
 import toAngularEnumSCSSComponent
 
@@ -52,7 +53,7 @@ open class DesignAngularTemplates : LangTsTemplates {
         Template("EntityListHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityListHTMLComponent(c, DataService = AngularDerivedType.DataService, false, (aggregateEntity.isNotEmpty() && aggregateEntity.any {prop -> prop.name().equals(item.name(), true)})) }
 
     open fun <T : CompilationUnitI<*>> entityAggregateViewHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-            Template("EntityAggregateViewHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityListHTMLComponent(c, DataService = AngularDerivedType.DataService, true) }
+            Template("EntityAggregateViewHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityAggregateViewHTMLComponent(c, DataService = AngularDerivedType.DataService, true) }
 
     open fun <T : CompilationUnitI<*>> entityListSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
             Template("EntityListSCSSComponent", nameBuilder) { item, c -> item.toAngularEntityListSCSSComponent(c, derived = AngularFileFormat.EntityList) }

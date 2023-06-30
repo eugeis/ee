@@ -86,6 +86,9 @@ ${isOpen().then("export ")}class ${this.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${ViewComponent} implements ${c.n(angular.core.OnInit)} {
 
 ${this.toTypeScriptEntityProp(c, tab)}
+    tabElement: Array<string>;
+    isSpecificView: boolean = false;
+    
 ${this.toAngularConstructorDataService(c, tab, true)}
 ${this.toAngularViewOnInit(c, tab)}
 
@@ -102,6 +105,7 @@ ${this.toAngularGenerateComponentPart(c, "entity-${this.parent().name().lowercas
 ${isOpen().then("export ")}class ${this.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${FormComponent} implements ${c.n(angular.core.OnInit)} {
 
+    @${c.n(angular.core.Input)}() isDisabled: boolean = false;
 ${this.toTypeScriptFormProp(c, tab)}
     
     form: ${c.n(angular.forms.FormGroup)};
@@ -137,6 +141,32 @@ ${this.toTypeScriptEntityPropInit(c, tab)}
     
     tabElement: Array<string>;
     specificViewName: string;
+    isSpecificView: boolean = false;
+    
+    @${c.n(angular.core.ViewChild)}(${c.n(angular.material.sort.MatSort)}) sort: ${c.n(angular.material.sort.MatSort)};
+
+${this.toAngularConstructorDataService(c, tab, false)}
+
+${this.toAngularListOnInit(c, tab, isAggregateView)}
+
+    ${isAggregateView.then {"""generateTabElement() { 
+        return [${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
+        it.toAngularGenerateTabElement(c)
+    }}];
+    }"""}}
+}
+"""
+}
+
+fun <T : CompilationUnitI<*>> T.toAngularEntityAggregateViewTypeScript(c: GenerationContext, Model: String = AngularDerivedType.Entity, ListComponent: String = AngularDerivedType.ListComponent, isAggregateView: Boolean = false, componentType: String = "list"): String {
+    return """
+${this.toAngularGenerateComponentPart(c, "entity-${this.parent().name().lowercase(Locale.getDefault())}", "entity", componentType, hasProviders = true, hasClass = true)}
+${isOpen().then("export ")}class ${this.name()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${ListComponent} implements ${c.n(angular.core.OnInit)} {
+
+${this.toTypeScriptEntityPropInit(c, tab)}
+    
+    tabElement: Array<string>;
     isSpecificView: boolean = false;
     
     @${c.n(angular.core.ViewChild)}(${c.n(angular.material.sort.MatSort)}) sort: ${c.n(angular.material.sort.MatSort)};
@@ -195,8 +225,6 @@ ${isOpen().then("export ")}class ${this.name()
     itemName = '${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}';
 
     pageName = '${c.n(this, AngularDerivedType.Component)}';
-    
-    componentName = '';
     
     isHidden = true;
     
@@ -408,6 +436,7 @@ ${isOpen().then("export ")}class ${this.name()
 
     @${c.n(angular.core.Input)}() ${this.name().lowercase(Locale.getDefault())}: ${c.n(this, AngularDerivedType.ApiBase)};
     @${c.n(angular.core.Input)}() parentName: String;
+    @${c.n(angular.core.Input)}() isDisabled: boolean = false;
 
 ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> || it.type().generics().any {genericType -> genericType.type() is EntityI<*> || genericType.type() is ValuesI<*> ||genericType.type() is BasicI<*> || genericType.type() is EnumTypeI<*>}}) {
         """${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
@@ -517,6 +546,7 @@ export class ${this.name()
 
     @${c.n(angular.core.Input)}() ${this.name().lowercase(Locale.getDefault())}: ${c.n(this, AngularDerivedType.ApiBase)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }};
+    @${c.n(angular.core.Input)}() isDisabled: boolean = false;
     @${c.n(angular.core.Output)}() ${this.name().lowercase(Locale.getDefault())}Change = new ${c.n(angular.core.EventEmitter)}<${c.n(this, AngularDerivedType.ApiBase)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>();
     
