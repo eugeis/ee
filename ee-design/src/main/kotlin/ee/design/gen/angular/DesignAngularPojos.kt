@@ -400,7 +400,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListSCSSComponent(c: GenerationCo
 ${if(this.props().size > 3) { 
     """
 si-table {
-    width: ${(this.props().size * 200) + 300}px
+    width: ${(this.props().size * 300) + 300}px
 }"""
 } else {""}}
 
