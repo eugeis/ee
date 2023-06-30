@@ -325,7 +325,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
 </ng-container>
     
 <ng-container *ngIf="isSpecificView">
-    <module-project [componentName]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName" [tabElement]="tabElement"></module-project>
+    <module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
     
     <div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list">
         <si-table [rows]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async" [loading]="(${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async) === null" [bordered]="false" [condensed]="true" [rowsPerPage]="10">
