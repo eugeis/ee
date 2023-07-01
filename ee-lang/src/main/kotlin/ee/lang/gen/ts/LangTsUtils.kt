@@ -68,6 +68,12 @@ object angular : StructureUnit({namespace("@angular").name("angular")}) {
         object Injectable : ExternalType()
         object NgModule : ExternalType()
     }
+    object cdk : StructureUnit() {
+        object keycodes: StructureUnit() {
+            object COMMA: ExternalType()
+            object ENTER: ExternalType()
+        }
+    }
     object forms : StructureUnit() {
         object FormControl : ExternalType()
         object FormGroup : ExternalType()
@@ -83,6 +89,12 @@ object angular : StructureUnit({namespace("@angular").name("angular")}) {
         }
         object select : StructureUnit() {
             object MatSelectChange : ExternalType()
+        }
+        object chips: StructureUnit() {
+            object MatChipInputEvent : ExternalType()
+        }
+        object autocomplete: StructureUnit() {
+            object MatAutocompleteSelectedEvent : ExternalType()
         }
     }
     object common : StructureUnit() {
@@ -183,7 +195,7 @@ open class TsContext(
                         joinToString(", ") {
                             it.name()
                         }}} from ${when(su.parent().name()) {
-                            "material" -> """'@${su.parent().parent().name()}/${su.parent().name()}/${su.name()}'"""
+                            "material", "cdk" -> """'@${su.parent().parent().name()}/${su.parent().name()}/${su.name()}'"""
                             "module" -> """'@template/${if(su.name().equals("services", true)) {"""${su.name()}/translate.service"""} else {"""${su.name()}.module"""}}'"""
                             else -> when(su.name()) {
                                 "empty" -> """'${su.parent().name()}'"""

@@ -198,14 +198,26 @@ fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent
         it.toAngularEmptyProps(c, indent, it.type())
     }.trim()}
     
-    this.form = new ${c.n(angular.forms.FormGroup)}({ 
-        ${this.props().filter { !it.isEMPTY() && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
-            """${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${it.name().toCamelCase()
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} : new ${c.n(angular.forms.FormControl)}<${if(it.type().name().equals("list", true)) {c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase) + "[]"} else {c.n(it.type(), AngularDerivedType.ApiBase)}}>({value: this.${this.name()
+        ${this.props().filter { !it.isEMPTY() && it.type().name().equals("list", true) }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
+        """
+        if (this.${this.name()
                 .lowercase(Locale.getDefault())}.${it.name()
-                .replaceFirstChar { it.lowercase(Locale.getDefault()) }}, disabled: this.isDisabled})"""
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }} == null) {
+            this.${this.name()
+                .lowercase(Locale.getDefault())}.${it.name()
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }} = JSON.parse(localStorage.getItem('list-item-${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase)
+            .lowercase(Locale.getDefault())}')) || [];
+        }"""
         }}
-    })
+    
+        this.form = new ${c.n(angular.forms.FormGroup)}({ 
+            ${this.props().filter { !it.isEMPTY() && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
+                """${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${it.name().toCamelCase()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} : new ${c.n(angular.forms.FormControl)}<${if(it.type().name().equals("list", true)) {c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase) + "[]"} else {c.n(it.type(), AngularDerivedType.ApiBase)}}>({value: this.${this.name()
+                    .lowercase(Locale.getDefault())}.${it.name()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}, disabled: this.isDisabled})"""
+            }}
+        })
     
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString("") {
 when(it.type()) {

@@ -154,9 +154,9 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
 
 <ng-container *ngIf="!isSpecificView">
     <ng-container *ngIf="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isEdit; else notEdit">
-        <button type="button" class="first-button btn btn-outline-danger" (click)="goBack()"
+        <button type="button" class="first-button-edit btn btn-outline-danger" (click)="goBack()"
                 routerLinkActive="active-link">{{'cancel edit' | translate}}</button>
-        <button type="button" class="second-button btn btn-outline-success" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editElement(${this.name()
+        <button type="button" class="second-button-edit btn btn-outline-success" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editElement(${this.name()
             .lowercase(Locale.getDefault())}); goBack()"
                 routerLinkActive="active-link">{{'save changes' | translate}}</button>
     </ng-container>
@@ -174,16 +174,29 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(c: GenerationContext): String {
     return """
+
 .first-button {
     position: absolute;
-    left: 16%;
-    bottom: 14%;
+    left: 17%;
+    bottom: 15%;
 }
 
 .second-button {
     position: absolute;
-    left: 22%;
-    bottom: 14%;
+    left: 23%;
+    bottom: 15%;
+}
+
+.first-button-edit {
+    position: absolute;
+    left: 17%;
+    bottom: 15%;
+}
+
+.second-button-edit {
+    position: absolute;
+    left: 25%;
+    bottom: 15%;
 }"""
 }
 
@@ -259,7 +272,7 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService, isAggregateView: Boolean = false, containAggregateProp: Boolean = false): String {
     return """
-<ng-container *ngIf="!isSpecificView">        
+<ng-container *ngIf="!isSpecificView; else isSpecific">        
     <module-${this.parent().name().lowercase(Locale.getDefault())}></module-${this.parent().name().lowercase(Locale.getDefault())}>
     <div class="${this.name().lowercase(Locale.getDefault())}-list-button">
         <a class="newButton bg-dark normal-font-size" [routerLink]="'./new'"
@@ -281,115 +294,62 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
             </a>
         </ng-template>
     </div>
-    
-    <div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list">
-        <si-table [rows]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async" [loading]="(${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async) === null" [bordered]="false" [condensed]="true" [rowsPerPage]="10">
-            <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.5" key="box" name="Action">
-                <div class="form-group" *siTableHeaderCell>
-                    <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
-                        <input class="form-check-input" type="checkbox"
-                                      (change)="${"$"}event ? ${this.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.masterToggle() : null"
-                                      [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && ${this.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()"
-                                      [indeterminate]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && !${this.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()">
-                    </section>
-                </div>
-    
-                <div *siTableCell="let row = row; let i = index">
-                    <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
-                        <input class="form-check-input" type="checkbox"
-                                      (click)="${"$"}event.stopPropagation()"
-                                      (change)="${"$"}event ? ${this.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.toggle(row) : null"
-                                      [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.isSelected(row)">
-                    </section>
-                </div>
-            </siTableColumn>
-            <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.8" class="header-style" key="action" name="{{'table.action' | translate}}">
-                <div *siTableCell="let row = row; let i = index">
-                    <mat-menu #appMenu="matMenu">
-                        <ng-template matMenuContent>
-                            <button mat-menu-item (click)="${this.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editItems(i, row)"><mat-icon>edit</mat-icon>
-                                <span>{{"edit" | translate}}</span></button>
-                            <button mat-menu-item (click)="${this.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.removeItem(row)"><mat-icon>delete</mat-icon>
-                                <span>{{"delete" | translate}}</span></button>
-                        </ng-template>
-                    </mat-menu>
-    
-                    <button mat-icon-button [matMenuTriggerFor]="appMenu">
-                        <mat-icon>more_vert</mat-icon>
-                    </button>
-                </div>
-            </siTableColumn>
-            ${toAngularTableListBasic(this.name(), "", "",false, this.props().size, containAggregateProp)}
-    
-            <div no-data>
-                Loading...
-            </div>
-        </si-table>
-    </div>
 </ng-container>
-    
-<ng-container *ngIf="isSpecificView">
-    <module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
-    
-    <div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list">
-        <si-table [rows]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async" [loading]="(${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async) === null" [bordered]="false" [condensed]="true" [rowsPerPage]="10">
-            <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.5" key="box" name="Action">
-                <div class="form-group" *siTableHeaderCell>
-                    <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
-                        <input class="form-check-input" type="checkbox"
-                                      (change)="${"$"}event ? ${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.masterToggle() : null"
-                                      [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && ${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()"
-                                      [indeterminate]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && !${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()">
-                    </section>
-                </div>
-    
-                <div *siTableCell="let row = row; let i = index">
-                    <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
-                        <input class="form-check-input" type="checkbox"
-                                      (click)="${"$"}event.stopPropagation()"
-                                      (change)="${"$"}event ? ${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.toggle(row) : null"
-                                      [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.isSelected(row)">
-                    </section>
-                </div>
-            </siTableColumn>
-            <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.8" class="header-style" key="action" name="{{'table.action' | translate}}">
-                <div *siTableCell="let row = row; let i = index">
-                    <mat-menu #appMenu="matMenu">
-                        <ng-template matMenuContent>
-                            <button mat-menu-item (click)="${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editItems(i, row)"><mat-icon>edit</mat-icon>
-                                <span>{{"edit" | translate}}</span></button>
-                            <button mat-menu-item (click)="${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.removeItem(row)"><mat-icon>delete</mat-icon>
-                                <span>{{"delete" | translate}}</span></button>
-                        </ng-template>
-                    </mat-menu>
-    
-                    <button mat-icon-button [matMenuTriggerFor]="appMenu">
-                        <mat-icon>more_vert</mat-icon>
-                    </button>
-                </div>
-            </siTableColumn>
-            ${toAngularTableListBasic(this.name(), "", "",false, this.props().size, containAggregateProp)}
-    
-            <div no-data>
-                Loading...
-            </div>
-        </si-table>
-    </div>
-</ng-container>    
 
-"""
+<ng-template #isSpecific>
+    <module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
+</ng-template>
+    
+<div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list">
+    <si-table [rows]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async" [loading]="(${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async) === null" [bordered]="false" [condensed]="true" [rowsPerPage]="10">
+        <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.5" key="box" name="Action">
+            <div class="form-group" *siTableHeaderCell>
+                <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
+                    <input class="form-check-input" type="checkbox"
+                                  (change)="${"$"}event ? ${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.masterToggle() : null"
+                                  [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && ${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()"
+                                  [indeterminate]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && !${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()">
+                </section>
+            </div>
+
+            <div *siTableCell="let row = row; let i = index">
+                <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
+                    <input class="form-check-input" type="checkbox"
+                                  (click)="${"$"}event.stopPropagation()"
+                                  (change)="${"$"}event ? ${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.toggle(row) : null"
+                                  [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.isSelected(row)">
+                </section>
+            </div>
+        </siTableColumn>
+        <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.8" class="header-style" key="action" name="{{'table.action' | translate}}">
+            <div *siTableCell="let row = row; let i = index">
+                <mat-menu #appMenu="matMenu">
+                    <ng-template matMenuContent>
+                        <button mat-menu-item (click)="${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editItems(i, row)"><mat-icon>edit</mat-icon>
+                            <span>{{"edit" | translate}}</span></button>
+                        <button mat-menu-item (click)="${this.name()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.removeItem(row)"><mat-icon>delete</mat-icon>
+                            <span>{{"delete" | translate}}</span></button>
+                    </ng-template>
+                </mat-menu>
+
+                <button mat-icon-button [matMenuTriggerFor]="appMenu">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+            </div>
+        </siTableColumn>
+        ${toAngularTableListBasic(this.name(), "", "",false, this.props().size, containAggregateProp)}
+
+        <div no-data>
+            Loading...
+        </div>
+    </si-table>
+</div>"""
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityAggregateViewHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService, isAggregateView: Boolean = false, containAggregateProp: Boolean = false): String {

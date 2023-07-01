@@ -278,11 +278,12 @@ fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent
         """ }}
         
         if(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName !== undefined && this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName.length > 0) {
+            ${isAggregateView.not().then { """
             this.isSpecificView = true;
+            this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources = this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources.pipe(${c.n(rxjs.operators.map)}(datas => datas.filter((data) => JSON.stringify(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.getSpecificData()).includes(JSON.stringify(data)))))
+        """ }}
             ${isAggregateView.then { """this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }} = this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.getFirst();
             this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.checkRoute(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }});""" }}
-            ${isAggregateView.not().then { """this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources = this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources.pipe(${c.n(rxjs.operators.map)}(datas => datas.filter((data) => JSON.stringify(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.getSpecificData()).includes(JSON.stringify(data)))))
-        """ }}
         }
 
         ${isAggregateView.then {"""this.tabElement = this.generateTabElement();"""}} 
