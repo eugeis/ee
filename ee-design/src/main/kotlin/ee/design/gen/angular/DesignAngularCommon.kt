@@ -303,17 +303,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultiple(elementName: Stri
                     <span matTooltip="{{ ${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.tooltipText }}" (mouseenter)="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(row${if(isChild) "['${this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']['${this.name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" else "['${this.name().toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"})" (mouseleave)="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()" (click)="${parentName.replaceFirstChar {
-            it.lowercase(
-                Locale.getDefault()
-            )
-        }}DataService.searchItems(i, row${if(isChild) "['${this.parent().name().toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']['${this.name().toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" else "['${this.name().toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}, '${findParentNonInternal?.name()
-            ?.toCamelCase()?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}/${elementName.toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}', '${parentName.toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}')">
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"})" (mouseleave)="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">
                         {{  ${elementName.toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}  }}
                     </span>

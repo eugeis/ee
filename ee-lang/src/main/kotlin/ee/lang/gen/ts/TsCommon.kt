@@ -269,7 +269,7 @@ fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent
         })""" }}
         
         ${isAggregateView.then { """this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = JSON.parse(localStorage.getItem("componentName"));
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = JSON.parse(localStorage.getItem('componentName'));
         """ }}
         
         ${isAggregateView.not().then { """this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources =

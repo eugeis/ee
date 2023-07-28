@@ -87,7 +87,7 @@ ${isOpen().then("export ")}class ${this.name()
 
 ${this.toTypeScriptEntityProp(c, tab)}
     tabElement: Array<string>;
-    isSpecificView: boolean = false;
+    isSpecificView = false;
     
 ${this.toAngularConstructorDataService(c, tab, true)}
 ${this.toAngularViewOnInit(c, tab)}
@@ -105,7 +105,7 @@ ${this.toAngularGenerateComponentPart(c, "entity-${this.parent().name().lowercas
 ${isOpen().then("export ")}class ${this.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${Model}${FormComponent} implements ${c.n(angular.core.OnInit)} {
 
-    @${c.n(angular.core.Input)}() isDisabled: boolean = false;
+    @${c.n(angular.core.Input)}() isDisabled = false;
 ${this.toTypeScriptFormProp(c, tab)}
     
     form: ${c.n(angular.forms.FormGroup)};
@@ -175,7 +175,7 @@ ${isOpen().then("export ")}class ${this.name()
 ${this.toTypeScriptEntityPropInit(c, tab)}
     
     tabElement: Array<string>;
-    isSpecificView: boolean = false;
+    isSpecificView = false;
     
     @${c.n(angular.core.ViewChild)}(${c.n(angular.material.sort.MatSort)}) sort: ${c.n(angular.material.sort.MatSort)};
 
@@ -383,6 +383,46 @@ ${isOpen().then("export ")}class ${this.name()
             localStorage.setItem('${it.name().lowercase(Locale.getDefault())}', localStorage.${it.name().lowercase(Locale.getDefault())});
         """
     }}
+        
+        ${entities.filter { entity -> entity.props().any {property ->
+        (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
+            childProperty -> childProperty.type().name().equals("list", true) && childProperty.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && childProperty.type().generics().first().type().namespace().equals(this.namespace(), true) } ||
+                property.type().props().any {
+                    childProperty -> childProperty.type().name().equals("list", true) && childProperty.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && childProperty.type().generics().first().type().namespace().equals(this.namespace(), true) }
+                )
+            } 
+        }.joinSurroundIfNotEmptyToString("") {
+            val listElementName = it.props().filter { property -> property.type().name().equals("list", true) && property.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && property.type().generics().first().type().namespace().equals(this.namespace(), true) }.joinSurroundIfNotEmptyToString { it.name() }
+            val listPropName = it.props().filter { property -> property.type().name().equals("list", true) && property.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && property.type().generics().first().type().namespace().equals(this.namespace(), true) }.joinSurroundIfNotEmptyToString { it.type().generics().first().type().name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) } };
+        """
+            const inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: Map<string, ${c.n(it, AngularDerivedType.ApiBase)}> = new Map(JSON.parse(localStorage.getItem(itemName)));
+            inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.forEach((value, key) => {
+                if (JSON.stringify(value.${listElementName}).includes(JSON.stringify(editItem))) {               
+                    ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}.${this.name().toCamelCase()} = newElement;""" }}
+                    value.${listElementName}.forEach((${listPropName}, index) => {
+                        if (JSON.stringify(${listPropName}) === JSON.stringify(editItem)) {
+                            value.${listElementName}[index] = newElement
+                        }
+                    })
+                    
+                    const newId = itemName + JSON.stringify(value);
+                    inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.set(newId, value);
+                    inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.delete(key);
+                    localStorage.setItem('specificData', JSON.stringify(value));
+                }
+            });
+            localStorage.${it.name().lowercase(Locale.getDefault())} = JSON.stringify(Array.from(inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.entries()));
+            localStorage.setItem('${it.name().lowercase(Locale.getDefault())}', localStorage.${it.name().lowercase(Locale.getDefault())});
+        """
+    }}
         }
     }
 }
@@ -413,7 +453,7 @@ ${isOpen().then("export ")}class ${this.name()
 
     @${c.n(angular.core.Input)}() ${this.name().lowercase(Locale.getDefault())}: ${c.n(this, AngularDerivedType.ApiBase)};
     @${c.n(angular.core.Input)}() parentName: String;
-    @${c.n(angular.core.Input)}() isDisabled: boolean = false;
+    @${c.n(angular.core.Input)}() isDisabled = false;
 
 ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> || it.type().generics().any {genericType -> genericType.type() is EntityI<*> || genericType.type() is ValuesI<*> ||genericType.type() is BasicI<*> || genericType.type() is EnumTypeI<*>}}) {
         """${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.distinctBy { if(it.type().name().equals("list", true)) {it.type().generics().first().type().name()} else {it.type().name()} }.joinSurroundIfNotEmptyToString("") {
@@ -523,7 +563,7 @@ export class ${this.name()
 
     @${c.n(angular.core.Input)}() ${this.name().lowercase(Locale.getDefault())}: ${c.n(this, AngularDerivedType.ApiBase)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }};
-    @${c.n(angular.core.Input)}() isDisabled: boolean = false;
+    @${c.n(angular.core.Input)}() isDisabled = false;
     @${c.n(angular.core.Output)}() ${this.name().lowercase(Locale.getDefault())}Change = new ${c.n(angular.core.EventEmitter)}<${c.n(this, AngularDerivedType.ApiBase)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>();
     
