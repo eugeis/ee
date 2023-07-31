@@ -79,7 +79,7 @@ fun <T : CompilationUnitI<*>> T.toPlantUmlClassDiagramComponent(c: GenerationCon
             {method} $nL ${operations().joinSurroundIfNotEmptyToString(""){ nL3Tab + "${it.toKotlinPacketOperation(c,genOperations = true)}()"}}
             """}}
         }
-        ${this.props().filter { !it.doc().isEMPTY() }.joinSurroundIfNotEmptyToString(nL2Tab) { it.toPlantUmlClassDiagramGeneratePropDoc(c) }}"""
+        ${this.props().filter { !it.doc().isEMPTY() }.joinSurroundIfNotEmptyToString(nL2Tab) { it.toPlantUmlClassDiagramGeneratePropDoc(c, this.name()) }}"""
 }
 
 fun <T : EnumTypeI<*>> T.toPlantUmlClassDiagramEnum(c: GenerationContext, componentName: String): String {

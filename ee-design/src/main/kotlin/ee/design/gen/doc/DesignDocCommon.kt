@@ -15,8 +15,8 @@ fun <T : AttributeI<*>> T.toPlantUmlClassDiagramGenerateRelation(c: GenerationCo
 fun <T : AttributeI<*>> T.toPlantUmlClassDiagramGenerateRelationToEntity(c: GenerationContext): String =
     """${if (!this.type().name().equals("list", true)) {this.type().name()} else {this.type().generics().filter { !it.isEMPTY() }.first().type().name()}} <.. ${this.parent().name()} : depends on"""
 
-fun <T : AttributeI<*>> T.toPlantUmlClassDiagramGeneratePropDoc(c: GenerationContext, generateNote: Boolean = true): String =
-    """${startNoteUmlRight(generateNote)} ${this.parent().name()}::${this.name()}
+fun <T : AttributeI<*>> T.toPlantUmlClassDiagramGeneratePropDoc(c: GenerationContext, parentName: String, generateNote: Boolean = true): String =
+    """${startNoteUmlRight(generateNote)} ${parentName}::${this.name()}
             ${this.doc().name()}
         ${endNote(generateNote)}
     """
