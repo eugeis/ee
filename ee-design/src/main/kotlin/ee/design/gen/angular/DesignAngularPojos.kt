@@ -293,6 +293,11 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
                 <span aria-hidden='true' class='iconUxt delete filled'></span> {{"delete" | translate}} {{"item" | translate}}
             </a>
         </ng-template>
+        
+        <a class="loadButton bg-dark normal-font-size" (click)="this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.addMockupServiceDataToLocalStorage(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.getDataFromMockupService())"
+           routerLinkActive="active-link">
+            <span aria-hidden='true' class='iconUxt paste filled'></span> {{"load" | translate}} {{"configuration" | translate}}
+        </a>
     </div>
 </ng-container>
 

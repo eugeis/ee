@@ -22,12 +22,14 @@ fun <T : ItemI<*>> T.toAngularGenerateDefaultTranslate(): String =
     "delete": "Delete",
     "items": "Items",
     "save": "Save",
+    "load": "Load",
     "cancel": "Cancel",
     "save changes": "Save Changes",
     "cancel edit": "Cancel Edit",
     "date": "Date",
     "format": "Format",
     "language": "Language",
+    "configuration": "Configuration"
     
     "shortDate": "Short Date",
     "mediumDate": "Medium Date",
