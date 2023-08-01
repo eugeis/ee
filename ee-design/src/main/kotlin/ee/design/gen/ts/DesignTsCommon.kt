@@ -29,7 +29,7 @@ fun <T : ItemI<*>> T.toAngularGenerateDefaultTranslate(): String =
     "date": "Date",
     "format": "Format",
     "language": "Language",
-    "configuration": "Configuration"
+    "configuration": "Configuration",
     
     "shortDate": "Short Date",
     "mediumDate": "Medium Date",
