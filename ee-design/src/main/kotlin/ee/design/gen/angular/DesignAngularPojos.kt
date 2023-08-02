@@ -447,7 +447,8 @@ fun <T : CompilationUnitI<*>> T.toAngularEnumHTMLComponent(c: GenerationContext)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                  [(ngModel)]="${this.name().lowercase(Locale.getDefault())}"
-                 [disabled]="isDisabled">
+                 [disabled]="isDisabled"
+                 [multipleSelect]="true">
         <ng-container *siDropdownOption="let value = value">
             <span matTooltip="{{ dataService.tooltipText }}" (mouseenter)="dataService.onMouseEnter(value)" (mouseleave)="dataService.onMouseLeave()">{{ value }}</span>
         </ng-container>
