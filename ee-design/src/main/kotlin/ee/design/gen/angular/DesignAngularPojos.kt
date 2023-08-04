@@ -173,31 +173,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(c: GenerationContext): String {
-    return """
-
-.first-button {
-    position: absolute;
-    left: 17%;
-    bottom: 15%;
-}
-
-.second-button {
-    position: absolute;
-    left: 23%;
-    bottom: 15%;
-}
-
-.first-button-edit {
-    position: absolute;
-    left: 17%;
-    bottom: 15%;
-}
-
-.second-button-edit {
-    position: absolute;
-    left: 25%;
-    bottom: 15%;
-}"""
+    return this.toAngularDefaultSCSS()
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
@@ -216,7 +192,7 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
                     "blob" -> it.toHTMLUploadForm(tab, false)
                     "float", "int" -> it.toHTMLNumberForm(tab, false)
                     else -> when(it.type()) {
-                        is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name(), it.type().parent().name(), true)
+                        is EnumTypeI<*> -> it.toHTMLEnumForm(tab, it.type().name(), it.type().parent().name())
                         else -> ""
                     }
                 }
@@ -234,7 +210,7 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name(), false)
-            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntity(it.type().name(), it.type().props(), it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
+            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntity(it.type().name(), it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
             else ->  when(it.type().name().lowercase(Locale.getDefault())) {
                 "list" -> when(it.type().generics().first().type()) {
                     is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityMultiple(it.type().generics().first().type().name(), it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
@@ -373,13 +349,6 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListSCSSComponent(c: GenerationCo
 
 .${this.name().lowercase(Locale.getDefault())}-list {
     @extend .${derived};
-    position: absolute;
-    width: 80% !important;
-    z-index: 1;
-    top: 40%;
-    left: 10%;
-    overflow-x: scroll;
-    overflow-y: scroll;
 }
 
 ${if(this.props().size > 3) { 
@@ -406,9 +375,9 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext
         <legend>{{parentName + ".navTitle" | translate}} {{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}</legend>
             ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
-            is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name(), it.type().parent().name(), true)
+            is EnumTypeI<*> -> it.toHTMLEnumForm("", it.type().name(), it.type().parent().name())
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name(), true)
-            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityForBasic(it.type().name(), it.type().props(), it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
+            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityForBasic(it.type().name(), it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
             else -> when(it.type().name().lowercase(Locale.getDefault())) {
                 "boolean" -> it.toHTMLBooleanForm("", true)
                 "date" -> it.toHTMLDateForm("", true)

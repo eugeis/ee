@@ -6,7 +6,7 @@ import ee.lang.*
 import java.util.*
 import kotlin.math.ceil
 
-fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, key: ListMultiHolder<AttributeI<*>>, toStr: List<AttributeI<*>>): String {
+fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, toStr: List<AttributeI<*>>): String {
     return """
         <fieldset>
             <legend>${elementType.toCamelCase()
@@ -87,7 +87,7 @@ fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String, isBasic: Boolean): Stri
         ${indent}</si-form-group>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementType: String, parentName: String, isBasic: Boolean): String {
+fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementType: String, parentName: String): String {
     return """
         ${indent}<enum-${parentName.lowercase()}-${elementType.lowercase(Locale.getDefault())} [${elementType.lowercase(Locale.getDefault())}]="${this.parent().name()
         .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" [isDisabled]="isDisabled" (${elementType.lowercase(
@@ -108,7 +108,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String, parentName: Stri
     )}>"""
 }
 
-fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, key: ListMultiHolder<AttributeI<*>>, toStr: List<AttributeI<*>>): String {
+fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, toStr: List<AttributeI<*>>): String {
     return """
         <fieldset>
             <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
@@ -219,58 +219,43 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEnumMultiple(elementType: String, elem
         </fieldset>"""
 }
 
-fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNonInternal: ItemI<*>?): String =
-    """
-        <ng-container matColumnDef="${this.name().lowercase(Locale.getDefault())}-entity">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> ${this.name().uppercase(Locale.getDefault())} </th>
-            <td mat-cell *matCellDef="let element; let i = index"> <a (click)="${this.parent().name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.searchItems(i, element['${this.name()
-        .lowercase(Locale.getDefault())}'], '${findParentNonInternal?.name()
-        ?.lowercase(Locale.getDefault())}/${elementName.lowercase(
-        Locale.getDefault()
-    )}', '${this.parent().name()
-        .lowercase(Locale.getDefault())}')">{{element['${this.name()
-        .lowercase(Locale.getDefault())}']}}</a> </td>
-        </ng-container>
-"""
-
 fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = "", basicParentName: String = "", isChild: Boolean, totalChild: Int, containAggregateProp: Boolean = false): String =
     this.props().filter { !isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props(), isChild, "Object", totalChild,  it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
+            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName, isChild, totalChild,  it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
             /*is BasicI<*> -> it.toAngularTableListBasics(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props(), isChild, "Object", totalChild,
                 it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })*/
             is BasicI<*> -> it.type().toAngularTableListBasic(parentName, it.name(), it.parent().name(),true, totalChild, containAggregateProp)
-            is EnumTypeI<*> -> it.toAngularTableListEnum(basicName, totalChild)
+            is EnumTypeI<*> -> it.toAngularTableListEnum(basicName, totalChild, parentName)
             else -> {
                 when(it.type().name()) {
                     "Date" -> it.toAngularTableListDate(basicName, totalChild)
                     "List" -> when(it.type().generics().first().type()) {
-                        is EntityI<*>, is ValuesI<*> ->  it.toAngularTableListEntityFromBasicMultiple(it.type().generics().first().type().name(), it.type().generics().first().type().findParentNonInternal(), parentName, it.type().generics().first().type().props(), isChild, "List", totalChild,  it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
-                        is EnumTypeI<*> -> it.toAngularTableListEntityFromBasicMultipleEnums(it.type().generics().first().type().name(), it.type().generics().first().type().findParentNonInternal(), parentName, it.type().generics().first().type().props(), isChild, "List", totalChild,  it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
-                        else -> it.toAngularTableList(parentName, basicName, basicParentName, totalChild, containAggregateProp)
+                        is EntityI<*>, is ValuesI<*> ->  it.toAngularTableListEntityFromBasicMultiple(it.type().generics().first().type().name(), parentName,  isChild, totalChild,  it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
+                        is EnumTypeI<*> -> it.toAngularTableListEntityFromBasicMultipleEnums(it.type().generics().first().type().findParentNonInternal(), parentName, totalChild,  it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
+                        else -> it.toAngularTableList(parentName, basicName, totalChild, containAggregateProp)
                     }
-                    else -> it.toAngularTableList(parentName, basicName, basicParentName, totalChild, containAggregateProp)
+                    else -> it.toAngularTableList(parentName, basicName, totalChild, containAggregateProp)
                 }
             }
         }
     }
 
-fun <T : ItemI<*>> T.toAngularTableListEnum(parentName: String = "", totalChild: Int): String =
+fun <T : ItemI<*>> T.toAngularTableListEnum(basicParentName: String = "", totalChild: Int, parentName: String): String =
     """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${if(parentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."}  else "$parentName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${if(basicParentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) }  else basicParentName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(basicParentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."}  else "$basicParentName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filterAll">
             <div *siTableCell="let row = row; let i = index">
-                <span>{{row${if(parentName.isEmpty()) {"['" + this.parent().name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) } + "']"}  else "['${parentName.toCamelCase()
+                <span>{{row${if(basicParentName.isEmpty()) {"['" + this.parent().name().toCamelCase()
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) } + "']"}  else "['${basicParentName.toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}['${this.name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']}}</span>
             </div>
         </siTableColumn>
 """
 
-fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean, type: String, totalChild: Int, toStr: List<AttributeI<*>>): String =
+fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, isChild: Boolean, totalChild: Int, toStr: List<AttributeI<*>>): String =
     """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true">
+        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}" name="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filterAll">
             <div *siTableCell="let row = row; let i = index">
                 <a matTooltip="{{ ${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.tooltipText }}" (mouseenter)="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(row${if(isChild) "['${this.parent().name()
         .lowercase(Locale.getDefault())}']['${this.name()
@@ -294,9 +279,9 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
         </siTableColumn>
 """
 
-fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultiple(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean, type: String, totalChild: Int, toStr: List<AttributeI<*>>): String =
+fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultiple(elementName: String, parentName: String, isChild: Boolean, totalChild: Int, toStr: List<AttributeI<*>>): String =
     """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true">
+        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}" name="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filterAll">
             <div *siTableCell="let row = row; let i = index">
                 <ng-container *ngFor="let ${elementName.toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }} of row['${this.name().lowercase(Locale.getDefault())}']">
@@ -305,39 +290,17 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultiple(elementName: Stri
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" else "['${this.name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"})" (mouseleave)="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">
                         {{  ${elementName.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}  }}
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}  }};
                     </span>
                 </ng-container>
             </div>
         </siTableColumn>
 """
 
-/*${type}Of(${if(isChild) "${this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}-${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${if (key.any { it.type().name() == "String" }) { key.first { it.type().name() == "String" }.name() } else {""}}" else "${
-    this.name()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-}${if (key.any { it.type().name() == "String" }) {
-    key.first { it.type().name() == "String" }.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-} else {""}}"})*/
-fun <T : ItemI<*>> T.toAngularTableListBasics(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean, type: String, totalChild: Int, toStr: List<AttributeI<*>>): String =
+fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultipleEnums(findParentNonInternal: ItemI<*>?, parentName: String, totalChild: Int, toStr: List<AttributeI<*>>): String =
     """
         <siTableColumn [widthFactor]="${roundToNearestHalf(if(findParentNonInternal.isEMPTY()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(this.findParentNonInternal()!!
-        .name().length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true">
-            <div *siTableCell="let row = row; let i = index">
-                <div matTooltip="{{ ${parentName.toCamelCase().replaceFirstChar {
-        it.lowercase(
-            Locale.getDefault()
-        )
-    }}DataService.tooltipText }}" (mouseenter)="${parentName.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(row['${this.name().lowercase(Locale.getDefault())}'])" (mouseleave)="${parentName.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">{{row['${this.name().lowercase(Locale.getDefault())}']${toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}</div>
-            </div>
-        </siTableColumn>
-"""
-
-fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultipleEnums(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, key: ListMultiHolder<AttributeI<*>>, isChild: Boolean, type: String, totalChild: Int, toStr: List<AttributeI<*>>): String =
-    """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(if(findParentNonInternal.isEMPTY()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(this.findParentNonInternal()!!
-        .name().length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true">
+        .name().length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) }${this.name().lowercase(Locale.getDefault())}" name="{{'${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filterAll">
             <div *siTableCell="let row = row; let i = index">
                 <div matTooltip="{{ ${parentName.toCamelCase().replaceFirstChar {
         it.lowercase(
@@ -349,7 +312,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultipleEnums(elementName:
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">
                     {{row${if(findParentNonInternal.isEMPTY()) "" else "['" + findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "']"}['${this.name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']${toStr.isNotEmpty().then{ """['${toStr.first().name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']""" }}}}
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']""" }}}};
                 </div>
             </div>
         </siTableColumn>
@@ -366,10 +329,10 @@ fun <T : ItemI<*>> T.toAngularTableListDate(parentName: String = "", totalChild:
         </siTableColumn>
 """
 
-fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: String = "", basicParentName: String = "", totalChild: Int, isAggregateView: Boolean): String =
+fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: String = "", totalChild: Int, isAggregateView: Boolean): String =
     """
         ${isAggregateView.then { """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(if(elementName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(elementName.length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+        <siTableColumn [widthFactor]="${roundToNearestHalf(if(elementName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(elementName.length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) } else elementName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filterAll">
             <div *siTableCell="let row = row; let i = index">
                 <a [routerLink]="'./view'" (click)="${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault())} else elementName}DataService.saveSpecificData(row, row['${this.name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}'])">{{row['${this.name().toCamelCase()
@@ -378,7 +341,7 @@ fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: St
         </siTableColumn>
         """}}       
         ${isAggregateView.not().then { """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(if(elementName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(elementName.length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${this.name().lowercase(Locale.getDefault())}" name="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+        <siTableColumn [widthFactor]="${roundToNearestHalf(if(elementName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(elementName.length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) } else elementName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filterAll">
             <div *siTableCell="let row = row; let i = index">
                 <span>{{row${elementName.isNotEmpty().then { "['${elementName.toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" }}['${this.name().toCamelCase()
