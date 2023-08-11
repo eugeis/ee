@@ -243,24 +243,24 @@ fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName:
 
 fun <T : ItemI<*>> T.toAngularTableListEnum(basicParentName: String = "", totalChild: Int, parentName: String): String =
     """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${if(basicParentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) }  else basicParentName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(basicParentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."}  else "$basicParentName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filterAll">
+        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${if(basicParentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) }  else basicParentName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(basicParentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."}  else "$basicParentName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${basicParentName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
             <div *siTableCell="let row = row; let i = index">
-                <span>{{row${if(basicParentName.isEmpty()) {"['" + this.parent().name().toCamelCase()
+                <span>{{ row${if(basicParentName.isEmpty()) {"['" + this.parent().name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) } + "']"}  else "['${basicParentName.toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}['${this.name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']}}</span>
+        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}'] }}</span>
             </div>
         </siTableColumn>
 """
 
 fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, isChild: Boolean, totalChild: Int, toStr: List<AttributeI<*>>): String =
     """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}" name="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filterAll">
+        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}" name="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
             <div *siTableCell="let row = row; let i = index">
-                <a matTooltip="{{ ${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.tooltipText }}" (mouseenter)="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(row${if(isChild) "['${this.parent().name()
-        .lowercase(Locale.getDefault())}']['${this.name()
-        .lowercase(Locale.getDefault())}']" else "['${this.name()
-        .lowercase(Locale.getDefault())}']"})" (mouseleave)="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()" (click)="${parentName.replaceFirstChar {
+                <a matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
+            .lowercase(Locale.getDefault())}']['${this.name()
+            .lowercase(Locale.getDefault())}']" else "['${this.name()
+            .lowercase(Locale.getDefault())}']"}) }}" (click)="${parentName.replaceFirstChar {
         it.lowercase(
             Locale.getDefault()
         )
@@ -281,14 +281,14 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
 
 fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultiple(elementName: String, parentName: String, isChild: Boolean, totalChild: Int, toStr: List<AttributeI<*>>): String =
     """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}" name="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filterAll">
+        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}" name="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
             <div *siTableCell="let row = row; let i = index">
                 <ng-container *ngFor="let ${elementName.toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }} of row['${this.name().lowercase(Locale.getDefault())}']">
-                    <span matTooltip="{{ ${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.tooltipText }}" (mouseenter)="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(row${if(isChild) "['${this.parent().name().toCamelCase()
+                    <span matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']['${this.name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" else "['${this.name().toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"})" (mouseleave)="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}) }}">
                         {{  ${elementName.toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}  }};
                     </span>
@@ -300,16 +300,10 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultiple(elementName: Stri
 fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultipleEnums(findParentNonInternal: ItemI<*>?, parentName: String, totalChild: Int, toStr: List<AttributeI<*>>): String =
     """
         <siTableColumn [widthFactor]="${roundToNearestHalf(if(findParentNonInternal.isEMPTY()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(this.findParentNonInternal()!!
-        .name().length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) }${this.name().lowercase(Locale.getDefault())}" name="{{'${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filterAll">
+        .name().length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) }${this.name().lowercase(Locale.getDefault())}" name="{{'${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${findParentNonInternal?.name()?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
             <div *siTableCell="let row = row; let i = index">
-                <div matTooltip="{{ ${parentName.toCamelCase().replaceFirstChar {
-        it.lowercase(
-            Locale.getDefault()
-        )
-    }}DataService.tooltipText }}" (mouseenter)="${parentName.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(row${if(findParentNonInternal.isEMPTY()) "" else "['${findParentNonInternal?.name()?.toCamelCase()
-        ?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}['${this.name().lowercase(Locale.getDefault())}'])" (mouseleave)="${parentName.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">
+                <div matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(findParentNonInternal.isEMPTY()) "" else "['${findParentNonInternal?.name()?.toCamelCase()
+            ?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}['${this.name().lowercase(Locale.getDefault())}']) }}">
                     {{row${if(findParentNonInternal.isEMPTY()) "" else "['" + findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "']"}['${this.name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']${toStr.isNotEmpty().then{ """['${toStr.first().name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']""" }}}};
@@ -332,7 +326,7 @@ fun <T : ItemI<*>> T.toAngularTableListDate(parentName: String = "", totalChild:
 fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: String = "", totalChild: Int, isAggregateView: Boolean): String =
     """
         ${isAggregateView.then { """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(if(elementName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(elementName.length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) } else elementName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filterAll">
+        <siTableColumn [widthFactor]="${roundToNearestHalf(if(elementName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(elementName.length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) } else elementName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${elementName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
             <div *siTableCell="let row = row; let i = index">
                 <a [routerLink]="'./view'" (click)="${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault())} else elementName}DataService.saveSpecificData(row, row['${this.name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}'])">{{row['${this.name().toCamelCase()
@@ -341,7 +335,7 @@ fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: St
         </siTableColumn>
         """}}       
         ${isAggregateView.not().then { """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(if(elementName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(elementName.length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) } else elementName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filterAll">
+        <siTableColumn [widthFactor]="${roundToNearestHalf(if(elementName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(elementName.length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) } else elementName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${elementName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
             <div *siTableCell="let row = row; let i = index">
                 <span>{{row${elementName.isNotEmpty().then { "['${elementName.toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" }}['${this.name().toCamelCase()

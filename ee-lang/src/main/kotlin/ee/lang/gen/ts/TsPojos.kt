@@ -46,8 +46,15 @@ fun <T : CompilationUnitI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: 
         it.toTypeScriptMember(c, derived, api, false, tab)
     }}${constructors().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toTypeScript(c, derived, api)
-    }}${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+    }}${props().filter { !it.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) {
+        when(it.type()) {
+            is BasicI<*> -> it.type().props().filter { basicProperty -> !basicProperty.isMeta() }.joinSurroundIfNotEmptyToString(nL, prefix = nL) { basicProperty -> basicProperty.toTypeScriptFindBy(c, derived, api, it.name(), this) }
+            else -> it.toTypeScriptFindBy(c, derived, api)
+        }
+    }}
+    ${operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
         it.toTypeScriptImpl(c, derived, api)
     }}
+    ${this.toTypeScriptTooltipFunction(c, derived, api)}
 }"""
 }

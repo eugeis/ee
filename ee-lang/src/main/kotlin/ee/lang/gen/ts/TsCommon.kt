@@ -233,6 +233,22 @@ fun <T : OperationI<*>> T.toTypeScriptImpl(c: GenerationContext, derived: String
     }"""
 }
 
+fun <T : AttributeI<*>> T.toTypeScriptFindBy(c: GenerationContext, derived: String, api: String, parentName: String = "", basicParent: CompilationUnitI<*> = CompilationUnitEmpty): String =
+        """
+    findBy${parentName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(element: ${if (basicParent == CompilationUnitEmpty) {c.n(this.parent(), LangDerivedKind.WithParentAsName)} else {c.n(basicParent, LangDerivedKind.WithParentAsName)}}, ${name()}: string = ''): boolean {
+        const parts = ${name()}.split(' ');
+        return parts.every(p => JSON.stringify(element${parentName.isNotEmpty().then { "." + parentName.replaceFirstChar { it.lowercase(Locale.getDefault()) } }}.${name()}).toLowerCase().includes(p.toLowerCase()));
+    }"""
+
+fun <T : CompilationUnitI<*>> T.toTypeScriptTooltipFunction(c: GenerationContext, derived: String = LangDerivedKind.IMPL,
+                                                 api: String = LangDerivedKind.API): String {
+    return """
+    tooltip(object: Object) {
+        return JSON.stringify(object)
+    }
+    """
+}
+
 /*fun <T : ItemI<*>> T.toAngularComponentAnnotation(c: GenerationContext): String {
     val selector = toAngularComponentSelector()
     val componentFileName = toAngularComponentFileNameBase()
