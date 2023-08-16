@@ -19,7 +19,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, to
                              [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
                             [isDisabled]="isDisabled">
                     <ng-container *siDropdownOption="let value = value">
-                        <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseEnter(value)" (mouseleave)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseLeave()">{{value${
+                        <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}.tooltip(value)}}" matTooltipClass="custom-tooltip">{{value${
         toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}</span>
                     </ng-container>
                 </si-dropdown>
@@ -126,7 +126,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementType: String, toStr: Lis
                              formControlName="${this.parent().name().lowercase(Locale.getDefault())}${this.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
                     <ng-container *siDropdownOption="let value = value">
-                        <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}DataService.tooltipText }}" (mouseenter)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseEnter(value)" (mouseleave)="${this.parent().name().lowercase(Locale.getDefault())}DataService.onMouseLeave()">{{value${
+                        <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}.tooltip(value) }}" matTooltipClass="custom-tooltip">{{value${
         toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}</span>
                     </ng-container>
                 </si-dropdown>
@@ -189,7 +189,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormBasicFromEntityMultiple(elementType: S
                              [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
                              [isDisabled]="isDisabled">
                     <ng-container *siDropdownOption="let value = value">
-                        <span matTooltip="{{ ${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.tooltipText }}" (mouseenter)="${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseEnter(value)" (mouseleave)="${elementType.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.onMouseLeave()">{{value${
+                        <span matTooltip="{{ ${elementType.lowercase(Locale.getDefault())}.tooltip(value) }}" matTooltipClass="custom-tooltip">{{value${
         toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}</span>
                     </ng-container>
                 </si-dropdown>
@@ -209,11 +209,8 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEnumMultiple(elementType: String, elem
                              [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
                              ${isBasic.then { """[disabled]="isDisabled"""" }}
                              ${isBasic.not().then { """formControlName="${this.parent().name().lowercase(Locale.getDefault())}${this.name()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}>
-                    <ng-container *siDropdownOption="let value = value">
-                        <span matTooltip="{{ dataService.tooltipText }}" (mouseenter)="dataService.onMouseEnter(value)" (mouseleave)="dataService.onMouseLeave()">{{value${
-        toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}</span>
-                    </ng-container>
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}
+                             [multipleSelect]="true">
                 </si-dropdown>
             </si-form-group>
         </fieldset>"""
@@ -260,7 +257,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
                 <a matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
             .lowercase(Locale.getDefault())}']['${this.name()
             .lowercase(Locale.getDefault())}']" else "['${this.name()
-            .lowercase(Locale.getDefault())}']"}) }}" (click)="${parentName.replaceFirstChar {
+            .lowercase(Locale.getDefault())}']"}) }}" matTooltipClass="custom-tooltip" (click)="${parentName.replaceFirstChar {
         it.lowercase(
             Locale.getDefault()
         )
@@ -288,7 +285,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultiple(elementName: Stri
                     <span matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']['${this.name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" else "['${this.name().toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}) }}">
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}) }}" matTooltipClass="custom-tooltip">
                         {{  ${elementName.toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}  }};
                     </span>
@@ -303,7 +300,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultipleEnums(findParentNo
         .name().length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) }${this.name().lowercase(Locale.getDefault())}" name="{{'${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${findParentNonInternal?.name()?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
             <div *siTableCell="let row = row; let i = index">
                 <div matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(findParentNonInternal.isEMPTY()) "" else "['${findParentNonInternal?.name()?.toCamelCase()
-            ?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}['${this.name().lowercase(Locale.getDefault())}']) }}">
+            ?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}['${this.name().lowercase(Locale.getDefault())}']) }}" matTooltipClass="custom-tooltip">
                     {{row${if(findParentNonInternal.isEMPTY()) "" else "['" + findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "']"}['${this.name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']${toStr.isNotEmpty().then{ """['${toStr.first().name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']""" }}}};
