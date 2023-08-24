@@ -280,7 +280,8 @@ fun <T : ItemI<*>> T.toAngularComponentSelector(): String {
 fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent: String, isAggregateView: Boolean = false): String {
     return """${indent}ngOnInit(): void {
         ${isAggregateView.not().then { """this._route.queryParams.subscribe(param => {
-            this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName = param['name'];
+            this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = param['name'];
             this.tabElement = param['tabElement'];
         })""" }}
         
@@ -288,18 +289,28 @@ fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = JSON.parse(localStorage.getItem('componentName'));
         """ }}
         
-        ${isAggregateView.not().then { """this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources =
-            ${c.n(rxjs.empty.of)} (this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.changeMapToArray(
-                this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.retrieveItemsFromCache()));
+        ${isAggregateView.not().then { """this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.dataSources =
+            ${c.n(rxjs.empty.of)} (this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.changeMapToArray(
+                this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.retrieveItemsFromCache()));
         """ }}
         
-        if(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName !== undefined && this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName.length > 0) {
+        if(this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName !== undefined && this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName.length > 0) {
             ${isAggregateView.not().then { """
             this.isSpecificView = true;
-            this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources = this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources.pipe(${c.n(rxjs.operators.map)}(datas => datas.filter((data) => JSON.stringify(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.getSpecificData()).includes(JSON.stringify(data)))))
+            this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.dataSources = this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.dataSources.pipe(${c.n(rxjs.operators.map)}(datas => datas.filter((data) => JSON.stringify(this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getSpecificData()).includes(JSON.stringify(data)))))
         """ }}
-            ${isAggregateView.then { """this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }} = this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.getFirst();
-            this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.checkRoute(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }});""" }}
+            ${isAggregateView.then { """this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }} = this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getFirst();
+            this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.checkRoute(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }});""" }}
         }
 
         ${isAggregateView.then {"""this.tabElement = this.generateTabElement();"""}} 

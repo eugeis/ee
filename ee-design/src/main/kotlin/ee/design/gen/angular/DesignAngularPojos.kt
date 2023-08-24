@@ -6,6 +6,7 @@ import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.*
 import java.util.*
+import javax.xml.crypto.Data
 import kotlin.collections.ArrayList
 
 fun <T : ModuleI<*>> T.toAngularModule(c: GenerationContext, Module: String = AngularDerivedType.Module): String {
@@ -138,9 +139,11 @@ fun <T : ModuleI<*>> T.toAngularDefaultSCSS(c: GenerationContext): String {
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
+    val serviceName = if(this.parent().name().equals(this.name(), ignoreCase = true)) {this.parent().name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
     return """
-<module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${this.name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
+<module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${serviceName}${DataService}.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
 
 <ng-container *ngIf="isSpecificView; else normalForm">
     <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}" [isDisabled]="true"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
@@ -153,10 +156,10 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
 </ng-template>
 
 <ng-container *ngIf="!isSpecificView">
-    <ng-container *ngIf="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isEdit; else notEdit">
+    <ng-container *ngIf="${serviceName}${DataService}.isEdit; else notEdit">
         <button type="button" class="first-button-edit btn btn-outline-danger" (click)="goBack()"
                 routerLinkActive="active-link">{{'cancel edit' | translate}}</button>
-        <button type="button" class="second-button-edit btn btn-outline-success" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editElement(${this.name()
+        <button type="button" class="second-button-edit btn btn-outline-success" (click)="${serviceName}${DataService}.editElement(${this.name()
             .lowercase(Locale.getDefault())}); goBack()"
                 routerLinkActive="active-link">{{'save changes' | translate}}</button>
     </ng-container>
@@ -164,7 +167,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
     <ng-template #notEdit>
         <button type="button" class="first-button btn btn-outline-danger" (click)="goBack()"
                 routerLinkActive="active-link">{{'cancel' | translate}}</button>
-        <button type="button" class="second-button btn btn-outline-success" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.inputElement(${this.name()
+        <button type="button" class="second-button btn btn-outline-success" (click)="${serviceName}${DataService}.inputElement(${this.name()
             .lowercase(Locale.getDefault())}); goBack()"
                 routerLinkActive="active-link">{{'save' | translate}}</button>
     </ng-template>
@@ -210,14 +213,14 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
         ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name(), false)
-            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntity(it.type().name(), it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
+            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntity(it.type().parent().name(), it.type().name(), it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
             else ->  when(it.type().name().lowercase(Locale.getDefault())) {
                 "list" -> when(it.type().generics().first().type()) {
-                    is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityMultiple(it.type().generics().first().type().name(), it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
-                    is EnumTypeI<*> -> it.toHTMLObjectFormEnumMultiple(it.type().generics().first().type().name(),
+                    is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityMultiple(it.type().generics().first().type().parent().name(), it.type().generics().first().type().name(), it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
+                    is EnumTypeI<*> -> it.toHTMLObjectFormEnumMultiple(it.type().generics().first().type().parent().name(), it.type().generics().first().type().name(),
                         this.parent().name().lowercase(Locale.getDefault()), false, it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() }
                     )
-                    else -> ""
+                    else -> it.toHTMLObjectFormEntityMultiple(it.type().generics().first().type().parent().name(), it.type().generics().first().type().name(), it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
                 }
                 else -> ""
             }
@@ -247,6 +250,9 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService, isAggregateView: Boolean = false, containAggregateProp: Boolean = false): String {
+    val serviceName = if(this.parent().name().equals(this.name(), true)) {this.parent().name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
     return """
 <ng-container *ngIf="!isSpecificView; else isSpecific">        
     <module-${this.parent().name().lowercase(Locale.getDefault())}></module-${this.parent().name().lowercase(Locale.getDefault())}>
@@ -256,21 +262,19 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
             <span aria-hidden='true' class='iconUxt addCircle filled'></span> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
         </a>
         
-        <ng-container *ngIf="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden; else showed">
-            <a class="showButton bg-dark normal-font-size" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.toggleHidden()">
+        <ng-container *ngIf="${serviceName}${DataService}.isHidden; else showed">
+            <a class="showButton bg-dark normal-font-size" (click)="${serviceName}${DataService}.toggleHidden()">
                 <span aria-hidden='true' class='iconUxt delete filled'></span> {{"delete" | translate}}...
             </a>
         </ng-container>
         
         <ng-template #showed>
-            <a class="deleteButton bg-dark normal-font-size" (click)="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.clearMultipleItems(${this.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.selected); ${this.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.toggleHidden()">
+            <a class="deleteButton bg-dark normal-font-size" (click)="${serviceName}${DataService}.clearMultipleItems(${serviceName}${DataService}.selection.selected); ${serviceName}${DataService}.toggleHidden()">
                 <span aria-hidden='true' class='iconUxt delete filled'></span> {{"delete" | translate}} {{"item" | translate}}
             </a>
         </ng-template>
         
-        <a class="loadButton bg-dark normal-font-size" (click)="this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.addMockupServiceDataToLocalStorage(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.getDataFromMockupService())"
+        <a class="loadButton bg-dark normal-font-size" (click)="this.${serviceName}${DataService}.addMockupServiceDataToLocalStorage(this.${serviceName}${DataService}.getDataFromMockupService())"
            routerLinkActive="active-link">
             <span aria-hidden='true' class='iconUxt paste filled'></span> {{"load" | translate}} {{"configuration" | translate}}
         </a>
@@ -278,31 +282,27 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
 </ng-container>
 
 <ng-template #isSpecific>
-    <module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
+    <module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${serviceName}${DataService}.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
 </ng-template>
     
 <div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list">
-    <si-table [rows]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async" [loading]="(${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.dataSources | async) === null" [bordered]="false" [condensed]="true" [rowsPerPage]="10">
+    <si-table [rows]="${serviceName}${DataService}.dataSources | async" [loading]="(${serviceName}${DataService}.dataSources | async) === null" [bordered]="false" [condensed]="true" [rowsPerPage]="10">
         <siTableColumn [disableSort]="true" [disableFilter]="true" [widthFactor]="0.5" key="box" name="Action">
             <div class="form-group" *siTableHeaderCell>
-                <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
+                <section [style.visibility]="${serviceName}${DataService}.isHidden? 'hidden': 'visible'">
                     <input class="form-check-input" type="checkbox"
-                                  (change)="${"$"}event ? ${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.masterToggle() : null"
-                                  [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && ${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()"
-                                  [indeterminate]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.hasValue() && !${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.allRowsSelected()">
+                                  (change)="${"$"}event ? ${serviceName}${DataService}.masterToggle() : null"
+                                  [checked]="${serviceName}${DataService}.selection.hasValue() && ${serviceName}${DataService}.allRowsSelected()"
+                                  [indeterminate]="${serviceName}${DataService}.selection.hasValue() && !${serviceName}${DataService}.allRowsSelected()">
                 </section>
             </div>
 
             <div *siTableCell="let row = row; let i = index">
-                <section [style.visibility]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.isHidden? 'hidden': 'visible'">
+                <section [style.visibility]="${serviceName}${DataService}.isHidden? 'hidden': 'visible'">
                     <input class="form-check-input" type="checkbox"
                                   (click)="${"$"}event.stopPropagation()"
-                                  (change)="${"$"}event ? ${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.toggle(row) : null"
-                                  [checked]="${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.selection.isSelected(row)">
+                                  (change)="${"$"}event ? ${serviceName}${DataService}.selection.toggle(row) : null"
+                                  [checked]="${serviceName}${DataService}.selection.isSelected(row)">
                 </section>
             </div>
         </siTableColumn>
@@ -310,11 +310,9 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
             <div *siTableCell="let row = row; let i = index">
                 <mat-menu #appMenu="matMenu">
                     <ng-template matMenuContent>
-                        <button mat-menu-item (click)="${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.editItems(i, row)"><mat-icon>edit</mat-icon>
+                        <button mat-menu-item (click)="${serviceName}${DataService}.editItems(i, row)"><mat-icon>edit</mat-icon>
                             <span>{{"edit" | translate}}</span></button>
-                        <button mat-menu-item (click)="${this.name()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${DataService}.removeItem(row)"><mat-icon>delete</mat-icon>
+                        <button mat-menu-item (click)="${serviceName}${DataService}.removeItem(row)"><mat-icon>delete</mat-icon>
                             <span>{{"delete" | translate}}</span></button>
                     </ng-template>
                 </mat-menu>
@@ -385,7 +383,7 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicHTMLComponent(c: GenerationContext
                 "blob" -> it.toHTMLUploadForm("", true)
                 "list" -> when(it.type().generics().first().type()) {
                     is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormBasicFromEntityMultiple(it.type().generics().first().type().name(), it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
-                    is EnumTypeI<*> -> it.toHTMLObjectFormEnumMultiple(it.type().generics().first().type().name(),
+                    is EnumTypeI<*> -> it.toHTMLObjectFormEnumMultiple(it.type().generics().first().type().parent().name(), it.type().generics().first().type().name(),
                         this.parent().name().lowercase(Locale.getDefault()), true, it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() }
                     )
                     else -> {it.toHTMLStringForm("", this.parent().name().lowercase(Locale.getDefault()), true)}

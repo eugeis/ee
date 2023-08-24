@@ -82,8 +82,7 @@ open class DesignTsContextFactory(alwaysImportTypes: Boolean = false) : LangTsCo
             { "${this.name()
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.RoutingModule}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.DataService,
-            { "${this.name()
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.DataService}" }, isNotPartOfNativeTypes))
+            { if (this.parent().name().equals(this.name(), true)) { "${this.name()}${it}" } else {"${this.parent().name()}${this.name()}${it}"} }, { "${this.namespace()}${AngularFileFormat.DataService}" }, isNotPartOfNativeTypes))
         derived.register(NameAndNamespaceTransformers(AngularDerivedType.ViewService,
             { "${this.name()
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${it}" }, { "${this.namespace()}${AngularFileFormat.ModuleViewService}" }, isNotPartOfNativeTypes))

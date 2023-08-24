@@ -426,10 +426,11 @@ open class TsContext(
                                 }
                                 else {
                                     su.parent().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }
-                                }}/${su.name().lowercase(Locale.getDefault())}/${it.name().replace(AngularDerivedType.DataService, "")
-                                .lowercase(Locale.getDefault())}/service/${
-                                it.name().replace(AngularDerivedType.DataService, "").lowercase(Locale.getDefault())
-                            }-${
+                                }}/${su.name().lowercase(Locale.getDefault())}/${if(it.name().replace(AngularDerivedType.DataService, "").equals(su.name(), ignoreCase = true)) {it.name().replace(AngularDerivedType.DataService, "")
+                                    .lowercase(Locale.getDefault())} else {it.name().replace(AngularDerivedType.DataService, "")
+                                    .lowercase(Locale.getDefault()).replace(su.name().lowercase(Locale.getDefault()), "")}}/service/${if(it.name().replace(AngularDerivedType.DataService, "").equals(su.name(), ignoreCase = true)) {it.name().replace(AngularDerivedType.DataService, "")
+                                    .lowercase(Locale.getDefault())} else {it.name().replace(AngularDerivedType.DataService, "")
+                                    .lowercase(Locale.getDefault()).replace(su.name().lowercase(Locale.getDefault()), "")}}-${
                                     it.namespace().substringAfterLast(su.namespace()).substringAfter("-")}'"""}
                         }
                     }.joinToString(nL)}$nL$nL"
