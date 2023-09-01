@@ -11,7 +11,9 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, to
         <fieldset>
             <legend>${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}</legend>
-            <si-form-group label="{{'select' | translate}} {{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+            <si-form-group label="{{'select' | translate}} {{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
                 <si-dropdown inputId="control${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [dropdownOptions]="option${this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
@@ -29,7 +31,9 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, to
 
 fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, parentName: String = "", isBasic: Boolean): String {
     return """
-        ${indent}<si-form-group label="{{'${if (parentName.isBlank()) {this.parent().name().lowercase(Locale.getDefault())} else {parentName.lowercase(Locale.getDefault())}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+        ${indent}<si-form-group label="{{'${if (parentName.isBlank()) {if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}} else {parentName.lowercase(Locale.getDefault())}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
             ${indent}<input siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${if (parentName.isBlank()) {
         this.parent().name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }
     } else {
@@ -41,7 +45,9 @@ fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, parentName: String = 
 
 fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String, isBasic: Boolean): String {
     return """
-        ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+        ${indent}<si-form-group label="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
             ${indent}<input type="number" siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}>
@@ -50,7 +56,9 @@ fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String, isBasic: Boolean): St
 
 fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String, isBasic: Boolean): String {
     return """
-        ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+        ${indent}<si-form-group label="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
             ${indent}<input type="file" siFormControl (change)="${this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
@@ -60,7 +68,9 @@ fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String, isBasic: Boolean): St
 
 fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String, isBasic: Boolean): String {
     return """
-        ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+        ${indent}<si-form-group label="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
             ${indent}<si-dropdown 
                          ${indent}inputId="control${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
@@ -78,7 +88,9 @@ fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String, isBasic: Boolean): S
 
 fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String, isBasic: Boolean): String {
     return """
-        ${indent}<si-form-group label="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}} MM/DD/YYYY">
+        ${indent}<si-form-group label="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}} MM/DD/YYYY">
             ${indent}<input siFormControl [matDatepicker]="picker" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}>
@@ -100,7 +112,9 @@ fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementType: String, pa
 
 fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String, parentName: String, isBasic: Boolean): String {
     return """
-        <basic-${parentName.lowercase()}-${elementType.lowercase(Locale.getDefault())} [isDisabled]="isDisabled" [parentName]="'${this.parent().name().lowercase(Locale.getDefault())}'" [${elementType.lowercase(
+        <basic-${parentName.lowercase()}-${elementType.lowercase(Locale.getDefault())} [isDisabled]="isDisabled" [parentName]="'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}'" [${elementType.lowercase(
         Locale.getDefault()
     )}]="${this.parent().name()
         .lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"></basic-${parentName.lowercase()}-${elementType.lowercase(
@@ -111,13 +125,17 @@ fun <T : AttributeI<*>> T.toHTMLObjectForm(elementType: String, parentName: Stri
 fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementTypeParent: String, elementType: String, toStr: List<AttributeI<*>>): String {
     return """
         <fieldset>
-            <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
+            <legend>{{"${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
                 <a class="newButton bg-dark normal-font-size" [routerLink]="'/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'"
                                                             routerLinkActive="active-link">
                     <span aria-hidden='true' class='iconUxt addCircle filled'></span>
                 </a>
             </legend>
-            <si-form-group label="{{'select' | translate}} {{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+            <si-form-group label="{{'select' | translate}} {{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
                 <si-dropdown inputId="control${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [dropdownOptions]="${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
@@ -139,15 +157,19 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementTypeParent: String, elem
 fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementTypeParent: String, elementType: String, toStr: List<AttributeI<*>>): String {
     return """
         <fieldset>
-            <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
-                <a class="newButton bg-dark normal-font-size" [routerLink]="'/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'" [queryParams]="{isList: true}"
+            <legend>{{"${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
+                <a class="newButton bg-dark normal-font-size" [routerLink]="'/${this.parent().parent().name().lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'" [queryParams]="{isList: true}"
                                                             routerLinkActive="active-link">
                     <span aria-hidden='true' class='iconUxt addCircle filled'></span>
                 </a>
             </legend>
             
             <mat-form-field>
-                <mat-label>{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}</mat-label>
+                <mat-label>{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}</mat-label>
                 <mat-chip-grid #chipGrid>
                     <mat-chip-row *ngFor="let ${elementType.toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }} of ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" (removed)="remove(${elementType.toCamelCase()
@@ -161,7 +183,9 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementTypeParent: Stri
                         </button>
                     </mat-chip-row>
                 </mat-chip-grid>
-                <input placeholder="{{'new' | translate}} {{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}"
+                <input placeholder="{{'new' | translate}} {{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}"
                        [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                        (matChipInputTokenEnd)="add(${'$'}event)"/>
@@ -186,8 +210,12 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementTypeParent: Stri
 fun <T : AttributeI<*>> T.toHTMLObjectFormBasicFromEntityMultiple(elementType: String, toStr: List<AttributeI<*>>): String {
     return """
         <fieldset>
-            <legend>{{"${this.parent().name().lowercase(Locale.getDefault())}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
-            <si-form-group label="{{'select' | translate}} {{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+            <legend>{{"${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
+            <si-form-group label="{{'select' | translate}} {{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
                 <si-dropdown inputId="control${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [dropdownOptions]="filteredOptions${this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
@@ -206,8 +234,8 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormBasicFromEntityMultiple(elementType: S
 fun <T : AttributeI<*>> T.toHTMLObjectFormEnumMultiple(elementTypeParent: String, elementType: String, elementName: String, isBasic: Boolean, toStr: List<AttributeI<*>>): String {
     return """
         <fieldset>
-            <legend>{{"${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
-            <si-form-group label="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}' | translate}}">
+            <legend>{{"${if(elementName.isEmpty()) {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
+            <si-form-group label="{{'${if(elementName.isEmpty()) {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}' | translate}}">
                 <si-dropdown inputId="control${elementType.toCamelCase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
                              [dropdownOptions]=${if (!isBasic) { """"${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
@@ -249,7 +277,7 @@ fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName:
 
 fun <T : ItemI<*>> T.toAngularTableListEnum(basicParentName: String = "", totalChild: Int, parentName: String): String =
     """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${if(basicParentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) }  else basicParentName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(basicParentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."}  else "$basicParentName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${basicParentName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
+        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${if(basicParentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) }  else basicParentName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(basicParentName.isEmpty()) {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().lowercase(Locale.getDefault()) + "."}  else "$basicParentName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${basicParentName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
             <div *siTableCell="let row = row; let i = index">
                 <span>{{ row${if(basicParentName.isEmpty()) {"['" + this.parent().name().toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) } + "']"}  else "['${basicParentName.toCamelCase()
@@ -264,7 +292,9 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault())} + parentName.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
     return """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}" name="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
+        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
             <div *siTableCell="let row = row; let i = index">
                 <a matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
             .lowercase(Locale.getDefault())}']['${this.name()
@@ -296,7 +326,9 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
 
 fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultiple(elementName: String, parentName: String, isChild: Boolean, totalChild: Int, toStr: List<AttributeI<*>>): String {
     return """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}" name="{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
+        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
             <div *siTableCell="let row = row; let i = index">
                 <ng-container *ngFor="let ${elementName.toCamelCase()
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }} of row['${this.name().lowercase(Locale.getDefault())}']">

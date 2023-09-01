@@ -138,7 +138,7 @@ fun <T : ModuleI<*>> T.toAngularDefaultSCSS(c: GenerationContext): String {
     return this.toAngularDefaultSCSS()
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(entities: List<EntityI<*>>, c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
     val serviceName = if(this.parent().name().equals(this.name(), ignoreCase = true)) {this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
@@ -146,6 +146,8 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
 <module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${serviceName}${DataService}.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
 
 <ng-container *ngIf="isSpecificView; else normalForm">
+    <span class="material-icons edit-button-specific" (click)="${serviceName}${DataService}.editItems(0, ${this.name()
+            .lowercase(Locale.getDefault())})">more_horiz</span>
     <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}" [isDisabled]="true"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
         .lowercase(Locale.getDefault())}-form>
 </ng-container>
@@ -168,7 +170,16 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
         <button type="button" class="first-button btn btn-outline-danger" (click)="goBack()"
                 routerLinkActive="active-link">{{'cancel' | translate}}</button>
         <button type="button" class="second-button btn btn-outline-success" (click)="${serviceName}${DataService}.inputElement(${this.name()
-            .lowercase(Locale.getDefault())}); goBack()"
+            .lowercase(Locale.getDefault())}); goBack() ${entities.filter { entity -> entity.props().any {property ->
+        (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
+            childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) } ||
+                property.type().props().any {
+                    childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) }
+                )
+    }
+    }.joinSurroundIfNotEmptyToString("") {"""; ${serviceName}${DataService}.saveElementFor${serviceName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${this.name()
+            .lowercase(Locale.getDefault())})""" }
+    }"
                 routerLinkActive="active-link">{{'save' | translate}}</button>
     </ng-template>
 </ng-container>
@@ -186,7 +197,9 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
         ${this.props().any {  it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.then { 
             """
         <fieldset>
-            <legend>{{"${this.name().lowercase(Locale.getDefault())}.navTitle" | translate}}</legend>
+            <legend>{{"${if(this.name().equals(this.parent().name(), true)) {
+                this.name().lowercase(Locale.getDefault())
+            } else {"""${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}"""}}.navTitle" | translate}}</legend>
             ${this.props().filter { it.type() !is BasicI<*> && it.type() !is EntityI<*> && it.type() !is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL) {
                 when(it.type().name().lowercase(Locale.getDefault())) {
                     "boolean" -> it.toHTMLBooleanForm(tab, false)
@@ -332,9 +345,15 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityAggregateViewHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService, isAggregateView: Boolean = false, containAggregateProp: Boolean = false): String {
+    val serviceName = if(this.parent().name().equals(this.name(), ignoreCase = true)) {this.parent().name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
     return """
-<module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
-    
+<module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${serviceName}${DataService}.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
+
+<span class="material-icons edit-button-specific" (click)="${serviceName}${DataService}.editItems(0, ${this.name()
+            .lowercase(Locale.getDefault())})">more_horiz</span>
+            
 <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}" [isDisabled]="true"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
     .lowercase(Locale.getDefault())}-form>   
 

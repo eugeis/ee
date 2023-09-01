@@ -37,8 +37,8 @@ open class DesignAngularTemplates : LangTsTemplates {
     open fun <T : ModuleI<*>> moduleSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("ModuleSCSSComponent", nameBuilder) { item, c -> item.toAngularDefaultSCSS(c) }
 
-    open fun <T : CompilationUnitI<*>> entityViewHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityViewHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityViewHTMLComponent(c, DataService = AngularDerivedType.DataService) }
+    open fun <T : CompilationUnitI<*>> entityViewHTML(entities: List<EntityI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EntityViewHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityViewHTMLComponent(entities, c, DataService = AngularDerivedType.DataService) }
 
     open fun <T : CompilationUnitI<*>> entityViewSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityViewSCSSComponent", nameBuilder) { item, c -> item.toAngularEntityViewSCSSComponent(c) }

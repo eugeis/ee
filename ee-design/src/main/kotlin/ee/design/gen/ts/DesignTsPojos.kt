@@ -206,10 +206,10 @@ ${this.toAngularListOnInit(c, tab, isAggregateView)}
 
 fun <T : AttributeI<*>> T.toAngularGenerateTabElement(c: GenerationContext, parentName: String = ""): String {
     return when (this.type()) {
-        is EntityI<*>, is ValuesI<*> -> """'${this.type().name().lowercase(Locale.getDefault())}', """
+        is EntityI<*>, is ValuesI<*> -> """'${this.parent().name().lowercase(Locale.getDefault())}${this.type().name().lowercase(Locale.getDefault())}', """
         else -> when(this.type().name().lowercase(Locale.getDefault())) {
             "list" -> when(this.type().generics().first().type()) {
-                is EntityI<*>, is ValuesI<*> -> """'${this.type().generics().first().type().name().lowercase(Locale.getDefault())}', """
+                is EntityI<*>, is ValuesI<*> -> """'${this.parent().name().lowercase(Locale.getDefault())}${this.type().generics().first().type().name().lowercase(Locale.getDefault())}', """
                 else -> ""
             }
             else -> ""
@@ -336,6 +336,26 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
         this.items.delete(oldId);
         this.saveItemToCache(this.items);
         this.editInheritedEntity(editItemEntity, element)
+        
+        if (JSON.stringify(editItem).includes(JSON.stringify(JSON.parse(localStorage.getItem('specificData'))))) {
+            this.saveSpecificData(element, ${this.props().any { !it.isEMPTY() && it.type().props().any { prop -> prop.isToStr() == true && !prop.isEMPTY() } }.then {  "element." + this.props().first { prop -> prop.isToStr() == true && !prop.isEMPTY() }.name()  }}${this.props().all { !it.isEMPTY() && it.type().props().all { prop -> prop.isToStr() == false && !prop.isEMPTY() } }.then { """''""" }});
+        } 
+    }
+    ${entities.filter { entity -> entity.props().any {property -> 
+            (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
+                childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) } ||
+                property.type().props().any {
+                        childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) }
+                )
+            } 
+        }.joinSurroundIfNotEmptyToString("") {"""
+    saveElementFor${c.n(this, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(element: ${c.n(this, AngularDerivedType.ApiBase)}) {
+        localStorage.setItem(this.itemName + '${it.name().lowercase(Locale.getDefault())}', JSON.stringify(element));
+    }
+    loadElementFrom${c.n(this, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() {
+        return JSON.parse(localStorage.getItem(this.itemName + '${it.name().lowercase(Locale.getDefault())}'));
+    }
+        """ }
     }
     
     editInheritedEntity(itemName: string, newElement: ${c.n(this, AngularDerivedType.ApiBase)}) {

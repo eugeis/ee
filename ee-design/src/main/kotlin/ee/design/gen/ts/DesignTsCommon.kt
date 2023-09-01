@@ -35,6 +35,9 @@ fun <T : ItemI<*>> T.toAngularGenerateDefaultTranslate(): String =
     "mediumDate": "Medium Date",
     "longDate": "Long Date",
     "fullDate": "Full Date",
+    "home": {
+        "navTitle": "Home"
+    },
     """
 
 fun <T : LiteralI<*>> T.toAngularGenerateModuleEnumsTranslate(): String =
@@ -74,7 +77,7 @@ fun <T : ModuleI<*>> T.toAngularGenerateModuleElementsTranslate(): String =
 
 fun <T : TypeI<*>> T.toAngularGeneratePropsFromEntityAndValuesTranslate(): String =
     """
-    "${this.name().lowercase(Locale.getDefault())}": {
+    "${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}": {
         "navTitle": "${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}",
         "table": {
             ${this.props().filter { !it.isEMPTY() && it.type() !is BasicI<*>}.joinSurroundIfNotEmptyToString(",$nL$tab$tab$tab") {
@@ -85,7 +88,7 @@ fun <T : TypeI<*>> T.toAngularGeneratePropsFromEntityAndValuesTranslate(): Strin
 
 fun <T : TypeI<*>> T.toAngularGeneratePropsFromEntityAndValuesOnlyBasicsTranslate(): String =
         """
-    "${this.name().lowercase(Locale.getDefault())}": {
+    "${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}": {
         "navTitle": "${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
     },"""
 
@@ -196,8 +199,12 @@ fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): 
 fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent: String): String {
 
     return """${indent}ng${c.n(angular.core.OnInit)}(): void {
-        ${this.props().filter { it.type() is BasicI<*> || it.type() is EntityI<*> || it.type() is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL + tab) {
+        ${this.props().filter { it.type() is BasicI<*> || it.type() is EntityI<*> }.joinSurroundIfNotEmptyToString(nL + tab) {
         it.toAngularEmptyProps(c, indent, it.type())
+    }.trim()}
+    
+        ${this.props().filter { it.type() is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL + tab) {
+        it.toAngularEmptyPropsValues(c, indent, it.type())
     }.trim()}
     
         ${this.props().filter { !it.isEMPTY() && it.type().name().equals("list", true) }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
@@ -250,6 +257,13 @@ fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, e
     return """${indent}if (this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} === undefined) {
             this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = new ${c.n(elementType, AngularDerivedType.ApiBase)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}();
+        }"""
+}
+
+fun <T : ItemI<*>> T.toAngularEmptyPropsValues(c: GenerationContext, indent: String, elementType: TypeI<*>): String {
+    return """${indent}if (this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} === undefined) {
+            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(elementType, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() || new ${c.n(elementType, AngularDerivedType.ApiBase)
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}();
         }"""
 }
 
@@ -331,23 +345,25 @@ $indent{ path: '${this.name().lowercase(Locale.getDefault())}/search', component
 }
 
 fun <T : ItemI<*>> T.toAngularAggregateEntityModulePath(c: GenerationContext, indent: String): String {
-    return """$indent{ path: '${this.name().lowercase(Locale.getDefault())}/view', component: ${c.n(this, AngularDerivedType.EntityAggregateViewComponent)} },"""
+    return """$indent{ path: '${this.name().lowercase(Locale.getDefault())}/view', component: ${c.n(this, AngularDerivedType.EntityAggregateViewComponent)} },
+    { path: '${this.name().lowercase(Locale.getDefault())}/view/edit/:id', component: ${c.n(this, AngularDerivedType.EntityViewComponent)} },
+    """
 }
 
 fun <T : EntityI<*>> T.toAngularAggregateEntityPropsModulePath(c: GenerationContext, indent: String): String {
-    return """$indent${this.props().filter { !it.isEMPTY() && (it.type() is EntityI<*> || (it.type().name().equals("list", true) && it.type().generics().first().type() is EntityI<*>)) }.joinSurroundIfNotEmptyToString(nL + indent) { """{ path: '${this.name().lowercase(Locale.getDefault())}/view/${if(it.type().generics().isEmpty()) {
+    return """$indent${this.props().filter { !it.isEMPTY() && (it.type() is EntityI<*> || (it.type().name().equals("list", true) && it.type().generics().first().type() is EntityI<*>)) }.joinSurroundIfNotEmptyToString(nL + indent) { """{ path: '${this.name().lowercase(Locale.getDefault())}/view/${this.name().lowercase(Locale.getDefault())}${if(it.type().generics().isEmpty()) {
         it.type().name().lowercase(Locale.getDefault())
     } else {it.type().generics().first().type().name().lowercase(Locale.getDefault())}}', component: ${if(it.type().generics().isEmpty()) {c.n(it.type(), AngularDerivedType.EntityViewComponent)} else {c.n(it.type().generics().first().type(), AngularDerivedType.EntityListComponent)}} },""" }}
 
-$indent${this.props().filter { !it.isEMPTY() && (it.type() is EntityI<*> || (it.type().name().equals("list", true) && it.type().generics().first().type() is EntityI<*>)) }.joinSurroundIfNotEmptyToString(nL + indent) { """{ path: '${this.name().lowercase(Locale.getDefault())}/view/${if(it.type().generics().isEmpty()) {
+$indent${this.props().filter { !it.isEMPTY() && (it.type() is EntityI<*> || (it.type().name().equals("list", true) && it.type().generics().first().type() is EntityI<*>)) }.joinSurroundIfNotEmptyToString(nL + indent) { """{ path: '${this.name().lowercase(Locale.getDefault())}/view/${this.name().lowercase(Locale.getDefault())}${if(it.type().generics().isEmpty()) {
         it.type().name().lowercase(Locale.getDefault())
     } else {it.type().generics().first().type().name().lowercase(Locale.getDefault())}}/edit/:id', component: ${if(it.type().generics().isEmpty()) {c.n(it.type(), AngularDerivedType.EntityViewComponent)} else {c.n(it.type().generics().first().type(), AngularDerivedType.EntityViewComponent)}} },""" }}
         
-$indent${this.props().filter { !it.isEMPTY() && (it.type() is ValuesI<*> || (it.type().name().equals("list", true) && it.type().generics().first().type() is ValuesI<*>)) }.joinSurroundIfNotEmptyToString(nL + indent) { """{ path: '${this.name().lowercase(Locale.getDefault())}/view/${if(it.type().generics().isEmpty()) {
+$indent${this.props().filter { !it.isEMPTY() && (it.type() is ValuesI<*> || (it.type().name().equals("list", true) && it.type().generics().first().type() is ValuesI<*>)) }.joinSurroundIfNotEmptyToString(nL + indent) { """{ path: '${this.name().lowercase(Locale.getDefault())}/view/${this.name().lowercase(Locale.getDefault())}${if(it.type().generics().isEmpty()) {
         it.type().name().lowercase(Locale.getDefault())
     } else {it.type().generics().first().type().name().lowercase(Locale.getDefault())}}', component: ${if(it.type().generics().isEmpty()) {c.n(it.type(), AngularDerivedType.ValueViewComponent)} else {c.n(it.type().generics().first().type(), AngularDerivedType.ValueListComponent)}} },""" }}
     
-$indent${this.props().filter { !it.isEMPTY() && (it.type() is ValuesI<*> || (it.type().name().equals("list", true) && it.type().generics().first().type() is ValuesI<*>)) }.joinSurroundIfNotEmptyToString(nL + indent) { """{ path: '${this.name().lowercase(Locale.getDefault())}/view/${if(it.type().generics().isEmpty()) {
+$indent${this.props().filter { !it.isEMPTY() && (it.type() is ValuesI<*> || (it.type().name().equals("list", true) && it.type().generics().first().type() is ValuesI<*>)) }.joinSurroundIfNotEmptyToString(nL + indent) { """{ path: '${this.name().lowercase(Locale.getDefault())}/view/${this.name().lowercase(Locale.getDefault())}${if(it.type().generics().isEmpty()) {
         it.type().name().lowercase(Locale.getDefault())
     } else {it.type().generics().first().type().name().lowercase(Locale.getDefault())}}/edit/:id', component: ${if(it.type().generics().isEmpty()) {c.n(it.type(), AngularDerivedType.ValueViewComponent)} else {c.n(it.type().generics().first().type(), AngularDerivedType.ValueViewComponent)}} },""" }}"""
 }
