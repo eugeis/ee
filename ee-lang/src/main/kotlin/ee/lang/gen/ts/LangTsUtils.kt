@@ -109,6 +109,12 @@ object angular : StructureUnit({namespace("@angular").name("angular")}) {
         object RouterModule : ExternalType()
         object ActivatedRoute: ExternalType()
     }
+
+    object platformbrowser: StructureUnit({namespace("platform-browser").name("platform-browser")}) {
+        object animations: StructureUnit() {
+            object BrowserAnimationsModule: ExternalType()
+        }
+    }
 }
 
 object rxjs : StructureUnit({namespace("rxjs").name("rxjs")}) {
@@ -156,6 +162,12 @@ object ngxtranslate: StructureUnit({namespace("ngx-translate").name("ngx-transla
     }
 }
 
+object siemens : StructureUnit({namespace("@siemens").name("siemens")}) {
+    object ixangular: StructureUnit({namespace("ix-angular").name("ix-angular")}) {
+        object IxModule: ExternalType()
+    }
+}
+
 open class TsContext(
     var alwaysImportTypes: Boolean = false,
     namespace: String = "",
@@ -195,6 +207,7 @@ open class TsContext(
                         joinToString(", ") {
                             it.name()
                         }}} from ${when(su.parent().name()) {
+                            "siemens" -> """'@${su.parent().name()}/${su.name()}'"""
                             "material", "cdk" -> """'@${su.parent().parent().name()}/${su.parent().name()}/${su.name()}'"""
                             "module" -> """'@template/${if(su.name().equals("services", true)) {"""${su.name()}/translate.service"""} else {"""${su.name()}.module"""}}'"""
                             else -> when(su.name()) {
@@ -523,6 +536,7 @@ fun <T : StructureUnitI<*>> T.initsForTsGeneration(): T {
     rxjs.initObjectTrees()
     service.initObjectTrees()
     module.initObjectTrees()
+    siemens.initObjectTrees()
     ngxtranslate.initObjectTrees()
     initObjectTrees()
     return this

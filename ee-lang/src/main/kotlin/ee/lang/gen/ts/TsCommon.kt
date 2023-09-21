@@ -279,33 +279,36 @@ fun <T : ItemI<*>> T.toAngularComponentSelector(): String {
 
 fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent: String, isAggregateView: Boolean = false): String {
     return """${indent}ngOnInit(): void {
-        ${isAggregateView.not().then { """this._route.queryParams.subscribe(param => {
+        ${isAggregateView.not().then { """if (this._location.path().includes('?')) {
+            this._location.path().split('?')[1].split('&').forEach(param => {
+                const [key, value]= param.split('=');
+                const decodedKey = decodeURIComponent(key.trim());
+                this.decodedParams[decodedKey] = decodeURIComponent(value.trim());
+            });
             this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = param['name'];
-            this.tabElement = param['tabElement'];
-        })""" }}
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = this.decodedParams['name '];
+            this.tabElement = this.decodedParams['tabElement '].split(',').map(value => value.trim());
+        }""" }}
         
         ${isAggregateView.then { """this.${c.n(this, AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = JSON.parse(localStorage.getItem('componentName'));
         """ }}
         
-        ${isAggregateView.not().then { """this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.dataSources =
-            ${c.n(rxjs.empty.of)} (this.${c.n(this, AngularDerivedType.DataService)
+        this.data = this.${c.n(this, AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.changeMapToArray(
                 this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.retrieveItemsFromCache()));
-        """ }}
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.retrieveItemsFromCache());
         
         if(this.${c.n(this, AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName !== undefined && this.${c.n(this, AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName.length > 0) {
             ${isAggregateView.not().then { """
             this.isSpecificView = true;
-            this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.dataSources = this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.dataSources.pipe(${c.n(rxjs.operators.map)}(datas => datas.filter((data) => JSON.stringify(this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getSpecificData()).includes(JSON.stringify(data)))))
+            this.data = this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.changeMapToArray(
+                this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.retrieveItemsFromCache()).filter((data) => JSON.stringify(this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getSpecificData()).includes(JSON.stringify(data)));
         """ }}
             ${isAggregateView.then { """this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }} = this.${c.n(this, AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getFirst();

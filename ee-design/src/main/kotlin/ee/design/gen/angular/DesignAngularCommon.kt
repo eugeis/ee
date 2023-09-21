@@ -10,93 +10,74 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, to
     return """
         <fieldset>
             <legend>${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}</legend>
-            <si-form-group label="{{'select' | translate}} {{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
-        this.parent().name().lowercase(Locale.getDefault())
-    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-                <si-dropdown inputId="control${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                             [dropdownOptions]="option${this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                             [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
-                            [isDisabled]="isDisabled">
-                    <ng-container *siDropdownOption="let value = value">
-                        <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}.tooltip(value)}}" matTooltipClass="custom-tooltip">{{value${
-        toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}</span>
-                    </ng-container>
-                </si-dropdown>
-            </si-form-group>
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}</legend>
+            
+            <ix-select (itemSelectionChange)="bindTo${this.parent().parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${"$"}event)" [selectedIndices]="selectedIndices" i18nSelectListHeader="{{'select' | translate}} {{'${this.parent().parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" i18nPlaceholder="{{'select' | translate}} {{'${this.parent().parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+                <ix-select-item *ngFor="let item of option${this.parent().parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}; let i = index" label="{{item${
+        toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}" value="{{i}}"></ix-select-item>
+            </ix-select>          
         </fieldset>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, parentName: String = "", isBasic: Boolean): String {
     return """
-        ${indent}<si-form-group label="{{'${if (parentName.isBlank()) {if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        ${indent}<ix-input-group>
+            ${indent}<span slot="input-start">{{'${if (parentName.isBlank()) {if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
-    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}} else {parentName.lowercase(Locale.getDefault())}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-            ${indent}<input siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${if (parentName.isBlank()) {
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}} else {parentName.lowercase(Locale.getDefault())}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}</span>
+            ${indent}<input type="text" class="form-control" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${if (parentName.isBlank()) {
         this.parent().name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }
     } else {
         parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }
     }}${this.name().toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}>
-        ${indent}</si-form-group>"""
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}/>
+        ${indent}</ix-input-group>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String, isBasic: Boolean): String {
     return """
-        ${indent}<si-form-group label="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        ${indent}<ix-input-group>
+            ${indent}<span slot="input-start">{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
-    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-            ${indent}<input type="number" siFormControl [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}>
-        ${indent}</si-form-group>"""
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}</span>
+            ${indent}<input type="number" class="form-control" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}/>
+        ${indent}</ix-input-group>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String, isBasic: Boolean): String {
     return """
-        ${indent}<si-form-group label="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        ${indent}<ix-upload selectFileText="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
-    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-            ${indent}<input type="file" siFormControl (change)="${this.parent().parent().name()
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" (change)="${this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}>
-        ${indent}</si-form-group>"""
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}></ix-upload>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String, isBasic: Boolean): String {
     return """
-        ${indent}<si-form-group label="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        ${indent}<ix-select [selectedIndices]="selectedIndices" i18nSelectListHeader="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" i18nPlaceholder="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-            ${indent}<si-dropdown 
-                         ${indent}inputId="control${this.name().toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                         ${indent}[dropdownOptions]="['true', 'false']"
-                         ${indent}[(ngModel)]="${this.parent().name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.${this.name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}"
-                         ${indent}${isBasic.then { """[disabled]="isDisabled"""" }}
-                         ${isBasic.not().then { """${indent}formControlName="${this.parent().name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}>
-            ${indent}</si-dropdown>
-        ${indent}</si-form-group>"""
+            ${indent}<ix-select-item *ngFor="let item of [true, false]; let i = index" label="{{item}}" value="{{i}}"></ix-select-item>
+        ${indent}</ix-select>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String, isBasic: Boolean): String {
     return """
-        ${indent}<si-form-group label="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        ${indent}<ix-select [selectedIndices]="selectedIndices" i18nSelectListHeader="{{'select' | translate}} {{'date' | translate}}" i18nPlaceholder="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}} MM/DD/YYYY">
-            ${indent}<input siFormControl [matDatepicker]="picker" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" [ngModel]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} | date: 'yyyy-MM-dd'" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}>
-            ${indent}<mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-            ${indent}<mat-datepicker #picker></mat-datepicker>
-        ${indent}</si-form-group>"""
+            ${indent}<ix-select-item><ix-date-picker [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}></ix-date-picker></ix-select-item>
+        ${indent}</ix-select>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLEnumForm(indent: String, elementType: String, parentName: String): String {
@@ -128,29 +109,25 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementTypeParent: String, elem
             <legend>{{"${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
-                <a class="newButton bg-dark normal-font-size" [routerLink]="'/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'"
-                                                            routerLinkActive="active-link">
-                    <span aria-hidden='true' class='iconUxt addCircle filled'></span>
+                <a class="newButton bg-dark normal-font-size" (click)="${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.locationNavigateTo('${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new', false)">
+                    <ix-icon name="add-circle" size="16"></ix-icon>
                 </a>
             </legend>
-            <si-form-group label="{{'select' | translate}} {{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+            
+            <ix-select (itemSelectionChange)="bindTo${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${"$"}event)" [selectedIndices]="selectedIndices" i18nSelectListHeader="{{'select' | translate}} {{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" i18nPlaceholder="{{'select' | translate}} {{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-                <si-dropdown inputId="control${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                             [dropdownOptions]="${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+                <ix-select-item *ngFor="let item of ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.option${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                             [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
-                             formControlName="${this.parent().name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
-                    <ng-container *siDropdownOption="let value = value">
-                        <span matTooltip="{{ ${this.parent().name().lowercase(Locale.getDefault())}.tooltip(value) }}" matTooltipClass="custom-tooltip">{{value${
-        toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}</span>
-                    </ng-container>
-                </si-dropdown>
-            </si-form-group>
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}; let i = index" label="{{item${
+        toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}" value="{{i}}"></ix-select-item>
+            </ix-select>          
         </fieldset>"""
 }
 
@@ -160,50 +137,29 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementTypeParent: Stri
             <legend>{{"${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
-                <a class="newButton bg-dark normal-font-size" [routerLink]="'/${this.parent().parent().name().lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'" [queryParams]="{isList: true}"
-                                                            routerLinkActive="active-link">
-                    <span aria-hidden='true' class='iconUxt addCircle filled'></span>
+                <a class="newButton bg-dark normal-font-size" (click)="${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault())
+    else it.toString() }}}DataService.locationNavigateTo('${this.parent().parent().name().lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new', false, 'isList: true')">
+                    <ix-icon name="add-circle" size="16"></ix-icon>
                 </a>
             </legend>
             
-            <mat-form-field>
-                <mat-label>{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
-        this.parent().name().lowercase(Locale.getDefault())
-    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}</mat-label>
-                <mat-chip-grid #chipGrid>
-                    <mat-chip-row *ngFor="let ${elementType.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }} of ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" (removed)="remove(${elementType.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }})">
-                        {{${elementType.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${
-        toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}
-                        <button matChipRemove [attr.aria-label]="'remove ' + ${elementType.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}">
-                            <mat-icon>cancel</mat-icon>
-                        </button>
-                    </mat-chip-row>
-                </mat-chip-grid>
-                <input placeholder="{{'new' | translate}} {{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
-        this.parent().name().lowercase(Locale.getDefault())
-    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}"
-                       [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
-                       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                       (matChipInputTokenEnd)="add(${'$'}event)"/>
-                <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected(${'$'}event)">
-                    <mat-option *ngFor="let ${elementType.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }} of ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) 
-    else it.toString() }}}DataService.filteredOptions${if(elementTypeParent.equals(elementType, true)) {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} 
+            <ix-select allowClear="true" mode="multiple" (itemSelectionChange)="bindTo${if(elementTypeParent.equals(elementType, true)) {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
     else {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } + elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}} | async" [value]="${elementType.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}">
-                        {{${elementType.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${
-        toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}
-                    </mat-option>
-                </mat-autocomplete>
-            </mat-form-field>
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}(${"$"}event)" [selectedIndices]="multipleSelectedIndices" i18nSelectListHeader="{{'select' | translate}} {{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" i18nPlaceholder="{{'select' | translate}} {{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault())
+    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+                <ix-select-item *ngFor="let item of ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault())
+    else it.toString() }}}DataService.option${if(elementTypeParent.equals(elementType, true)) {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
+    else {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } + elementType.toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}; let i = index" label="{{item${
+        toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}" value="{{i}}"></ix-select-item>
+            </ix-select>
         </fieldset>"""
 }
 
@@ -213,21 +169,12 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormBasicFromEntityMultiple(elementType: S
             <legend>{{"${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
-            <si-form-group label="{{'select' | translate}} {{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
-        this.parent().name().lowercase(Locale.getDefault())
-    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
-                <si-dropdown inputId="control${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                             [dropdownOptions]="filteredOptions${this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                             [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
-                             [isDisabled]="isDisabled">
-                    <ng-container *siDropdownOption="let value = value">
-                        <span matTooltip="{{ ${elementType.lowercase(Locale.getDefault())}.tooltip(value) }}" matTooltipClass="custom-tooltip">{{value${
-        toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}</span>
-                    </ng-container>
-                </si-dropdown>
-            </si-form-group>
+            
+            <ix-select allowClear="true" mode="multiple" (itemSelectionChange)="bindTo${this.parent().parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${"$"}event)" [selectedIndices]="multipleSelectedIndices" i18nSelectListHeader="{{'select' | translate}} {{'${this.parent().parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" i18nPlaceholder="{{'select' | translate}} {{'${this.parent().parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+                <ix-select-item *ngFor="let item of option${this.parent().parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}; let i = index" label="{{item['name']}}" value="{{i}}"></ix-select-item>
+            </ix-select>
         </fieldset>"""
 }
 
@@ -235,21 +182,15 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEnumMultiple(elementTypeParent: String
     return """
         <fieldset>
             <legend>{{"${if(elementName.isEmpty()) {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
-            <si-form-group label="{{'${if(elementName.isEmpty()) {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}' | translate}}">
-                <si-dropdown inputId="control${elementType.toCamelCase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-                             [dropdownOptions]=${if (!isBasic) { """"${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+            <ix-select allowClear="true" mode="multiple" (itemSelectionChange)="bindTo${if(elementTypeParent.equals(elementType, true)) {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
+    else {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } + elementType.toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}(${"$"}event)" [selectedIndices]="multipleSelectedIndices" i18nSelectListHeader="{{'select' | translate}} {{'${if(elementName.isEmpty()) {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}' | translate}}" i18nPlaceholder="{{'select' | translate}} {{'${if(elementName.isEmpty()) {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${elementType.toCamelCase().lowercase(Locale.getDefault())}' | translate}}">
+                <ix-select-item *ngFor="let item of ${if (!isBasic) { """${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.option${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" } else { """option${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}
-                             [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}"
-                             ${isBasic.then { """[disabled]="isDisabled"""" }}
-                             ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}
-                             [multipleSelect]="true">
-                </si-dropdown>
-            </si-form-group>
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}""" } else { """option${elementType.toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}""" }}; let i = index" label="{{item}}" value="{{i}}"></ix-select-item>
+            </ix-select>
         </fieldset>"""
 }
 
@@ -277,14 +218,12 @@ fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName:
 
 fun <T : ItemI<*>> T.toAngularTableListEnum(basicParentName: String = "", totalChild: Int, parentName: String): String =
     """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${if(basicParentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) }  else basicParentName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(basicParentName.isEmpty()) {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().lowercase(Locale.getDefault()) + "."}  else "$basicParentName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${basicParentName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
-            <div *siTableCell="let row = row; let i = index">
-                <span>{{ row${if(basicParentName.isEmpty()) {"['" + this.parent().name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) } + "']"}  else "['${basicParentName.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}['${this.name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}'] }}</span>
-            </div>
-        </siTableColumn>
+                <td>
+                    <span>{{ row${if(basicParentName.isEmpty()) {"['" + this.parent().name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) } + "']"}  else "['${basicParentName.toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}['${this.name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}'] }}</span>
+                </td>
 """
 
 fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, isChild: Boolean, totalChild: Int, toStr: List<AttributeI<*>>, props: ListMultiHolder<AttributeI<*>>): String {
@@ -292,106 +231,83 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault())} + parentName.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
     return """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
-        this.parent().name().lowercase(Locale.getDefault())
-    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
-            <div *siTableCell="let row = row; let i = index">
-                <a matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
-            .lowercase(Locale.getDefault())}']['${this.name()
-            .lowercase(Locale.getDefault())}']" else "['${this.name()
-            .lowercase(Locale.getDefault())}']"}) }}" matTooltipClass="custom-tooltip" (click)="${serviceName}DataService.searchItems(i, row${if(isChild) "['${this.parent().name().toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']['${this.name().toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" else "['${this.name().toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}, '${findParentNonInternal?.name()
-            ?.toCamelCase()?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}/${elementName.lowercase(
-            Locale.getDefault()
-    )}', '${parentName.lowercase(
-            Locale.getDefault()
-    )}')"> ... ; </a>
-            ${props.filter { !it.isEMPTY() && (it.type() is EntityI<*> || it.type() is ValuesI<*>) }.joinSurroundIfNotEmptyToString("") {
-            """
-                <a matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row['${this.name()
-                .lowercase(Locale.getDefault())}']['${it.name()
-                .lowercase(Locale.getDefault())}']) }}" matTooltipClass="custom-tooltip" (click)="${serviceName}DataService.searchItems(i, row['${this.name()
-                .lowercase(Locale.getDefault())}']['${it.name()
-                .lowercase(Locale.getDefault())}'], '${it.name()}/${parentName.lowercase(
-                Locale.getDefault())}', '${parentName.lowercase(
-                Locale.getDefault()
-            )}')"> ${it.name()} ; </a>"""}}
-            </div>
-        </siTableColumn>
+                <td>
+                    <a matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
+                    .lowercase(Locale.getDefault())}']['${this.name()
+                    .lowercase(Locale.getDefault())}']" else "['${this.name()
+                    .lowercase(Locale.getDefault())}']"}) }}" matTooltipClass="custom-tooltip" (click)="${serviceName}DataService.searchItems(i, row${if(isChild) "['${this.parent().name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']['${this.name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" else "['${this.name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}, '${findParentNonInternal?.name()
+                    ?.toCamelCase()?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}/${elementName.lowercase(
+                    Locale.getDefault()
+            )}', '${parentName.lowercase(
+                    Locale.getDefault()
+            )}')"> ... ; </a>
+                </td>
 """
 }
 
 
 fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultiple(elementName: String, parentName: String, isChild: Boolean, totalChild: Int, toStr: List<AttributeI<*>>): String {
     return """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(((this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()))}" key="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
-        this.parent().name().lowercase(Locale.getDefault())
-    } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
-            <div *siTableCell="let row = row; let i = index">
-                <ng-container *ngFor="let ${elementName.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }} of row['${this.name().lowercase(Locale.getDefault())}']">
-                    <span matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name().toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']['${this.name().toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" else "['${this.name().toCamelCase()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}) }}" matTooltipClass="custom-tooltip">
-                        {{  ${elementName.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}  }};
-                    </span>
-                </ng-container>
-            </div>
-        </siTableColumn>
+                <td>
+                    <ng-container *ngFor="let ${elementName.toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }} of row['${this.name().lowercase(Locale.getDefault())}']">
+                            <span matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']['${this.name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" else "['${this.name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}) }}" matTooltipClass="custom-tooltip">
+                                {{  ${elementName.toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}  }};
+                        </span>
+                    </ng-container>
+                </td>
 """
 }
 
 fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultipleEnums(findParentNonInternal: ItemI<*>?, parentName: String, totalChild: Int, toStr: List<AttributeI<*>>): String =
     """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(if(findParentNonInternal.isEMPTY()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(this.findParentNonInternal()!!
-        .name().length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) }${this.name().lowercase(Locale.getDefault())}" name="{{'${if(findParentNonInternal.isEMPTY()) "" else findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
-            <div *siTableCell="let row = row; let i = index">
-                <div matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(findParentNonInternal.isEMPTY()) "" else "['${findParentNonInternal?.name()?.toCamelCase()
-            ?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}['${this.name().lowercase(Locale.getDefault())}']) }}" matTooltipClass="custom-tooltip">
-                    {{row${if(findParentNonInternal.isEMPTY()) "" else "['" + findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "']"}['${this.name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']${toStr.isNotEmpty().then{ """['${toStr.first().name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']""" }}}};
-                </div>
-            </div>
-        </siTableColumn>
+                <td>
+                    <div matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(findParentNonInternal.isEMPTY()) "" else "['${findParentNonInternal?.name()?.toCamelCase()
+                    ?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}['${this.name().lowercase(Locale.getDefault())}']) }}" matTooltipClass="custom-tooltip">
+                            {{row${if(findParentNonInternal.isEMPTY()) "" else "['" + findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "']"}['${this.name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']${toStr.isNotEmpty().then{ """['${toStr.first().name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']""" }}}};
+                    </div>               
+                </td>
 """
 
 fun <T : ItemI<*>> T.toAngularTableListDate(parentName: String = "", totalChild: Int): String =
     """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(if(parentName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(parentName.length + this.name().length).toDouble() / totalChild.toDouble()})}" name="{{'${if(parentName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$parentName."}table.${this.name()}.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true">
-            <div *siTableCell="let row = row; let i = index">
-                {{element['${if(parentName.isEmpty()) "" else "${parentName.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}-"}${this.name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}'] | DateTimeTranslation}}
-            </div>
-        </siTableColumn>
+                <td>
+                    <div>
+                        {{element['${if(parentName.isEmpty()) "" else "${parentName.toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}-"}${this.name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}'] | DateTimeTranslation}}
+                    </div>
+                </td>
 """
 
 fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: String = "", totalChild: Int, isAggregateView: Boolean): String =
     """
         ${isAggregateView.then { """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(if(elementName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(elementName.length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) } else elementName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${elementName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
-            <div *siTableCell="let row = row; let i = index">
-                <a [routerLink]="'./view'" (click)="${if(elementName.isEmpty()) {if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name().lowercase(Locale.getDefault())
+                <td>
+                    <a (click)="${if(elementName.isEmpty()) {if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name().lowercase(Locale.getDefault())
+            } else {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+            }} else elementName}DataService.saveSpecificData(row, row['${this.name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']); ${if(elementName.isEmpty()) {if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name().lowercase(Locale.getDefault())
     } else {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-    }} else elementName}DataService.saveSpecificData(row, row['${this.name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}'])">{{row['${this.name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']}}</a>
-            </div>
-        </siTableColumn>
+    }} else elementName}DataService.locationNavigateTo('view', true)">{{row['${this.name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']}}</a>
+                </td>
         """}}       
         ${isAggregateView.not().then { """
-        <siTableColumn [widthFactor]="${roundToNearestHalf(if(elementName.isEmpty()) {(this.parent().name().length + this.name().length).toDouble() / totalChild.toDouble()} else {(elementName.length + this.name().length).toDouble() / totalChild.toDouble()})}" key="${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) } else elementName}${this.name().lowercase(Locale.getDefault())}" name="{{'${if(elementName.isEmpty()) {this.parent().name().lowercase(Locale.getDefault()) + "."} else "$elementName."}table.${this.name().lowercase(Locale.getDefault())}' | translate}}" [enableClearFilter]="true" [filterFunction]="${parentName.lowercase(Locale.getDefault())}.findBy${elementName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}">
-            <div *siTableCell="let row = row; let i = index">
-                <span>{{row${elementName.isNotEmpty().then { "['${elementName.toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" }}['${this.name().toCamelCase()
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']}}</span>
-            </div>
-        </siTableColumn>
+                <td>
+                    <span>{{row${elementName.isNotEmpty().then { "['${elementName.toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" }}['${this.name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']}}</span>
+                </td>
         """}}
         
 """

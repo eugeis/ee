@@ -556,7 +556,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
 
             templates = {
                 listOf(
-                    angularTemplates.angularModule(angularModule.ts),
+                    angularTemplates.angularModule(angularModule.ts, components.invoke(model)),
                     angularTemplates.angularRoutingModule(angularRoutingModule.ts),
                 ) }))
 

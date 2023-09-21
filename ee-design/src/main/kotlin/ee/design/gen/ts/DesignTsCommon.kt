@@ -4,10 +4,7 @@ import ee.common.ext.toCamelCase
 import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
-import ee.lang.gen.ts.AngularDerivedType
-import ee.lang.gen.ts.angular
-import ee.lang.gen.ts.rxjs
-import ee.lang.gen.ts.service
+import ee.lang.gen.ts.*
 import java.util.*
 
 
@@ -118,6 +115,38 @@ fun <T : ItemI<*>> T.toAngularPropOnConstructor(c: GenerationContext): String {
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.DataService)}, $nL"""
 }
 
+fun <T : ItemI<*>> T.toAngularFunctionBindTo(c: GenerationContext, propName: String, parent: CompilationUnitI<*>): String {
+    return """${tab}bindTo${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}({ detail: [id] }: CustomEvent<string[]>) {
+        this.${parent.name().lowercase(Locale.getDefault())}.${propName.lowercase(Locale.getDefault())} = this.${c.n(parent, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[id];
+    }$nL"""
+}
+
+fun <T : ItemI<*>> T.toAngularFunctionBindToBasic(c: GenerationContext, propName: String, parent: CompilationUnitI<*>): String {
+    return """${tab}bindTo${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}({ detail: [id] }: CustomEvent<string[]>) {
+        this.${parent.name().lowercase(Locale.getDefault())}.${propName.lowercase(Locale.getDefault())} = this.option${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[id];
+    }$nL"""
+}
+
+fun <T : ItemI<*>> T.toAngularFunctionBindToMultiple(c: GenerationContext, propName: String, parent: CompilationUnitI<*>): String {
+    return """${tab}bindTo${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(index: CustomEvent<string[]>) {
+        const temp = [];
+        index.detail.forEach(id => {
+            temp.push(this.${c.n(parent, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[id]);
+        });
+        this.${parent.name().lowercase(Locale.getDefault())}.${propName.lowercase(Locale.getDefault())} = temp;
+    }$nL"""
+}
+
+fun <T : ItemI<*>> T.toAngularFunctionBindToMultipleBasic(c: GenerationContext, propName: String, parent: CompilationUnitI<*>): String {
+    return """${tab}bindTo${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(index: CustomEvent<string[]>) {
+        const temp = [];
+        index.detail.forEach(id => {
+            temp.push(this.option${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[id]);
+        });
+        this.${parent.name().lowercase(Locale.getDefault())}.${propName.lowercase(Locale.getDefault())} = temp;
+    }$nL"""
+}
+
 fun <T : TypeI<*>> T.toAngularControlService(c: GenerationContext, isEnum: Boolean): String {
     val name = if(this.parent().name().equals(this.name())) {this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
     else {this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } + this.name().toCamelCase()
@@ -173,11 +202,17 @@ fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): 
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getFirst();
         this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.checkRoute(this.${this.name().lowercase(Locale.getDefault())});
     
-        this._route.queryParams.subscribe(param => {
+        if (this._location.path().includes('?') && this.isSpecificView) {
+            this._location.path().split('?')[1].split('&').forEach(param => {
+                const [key, value]= param.split('=');
+                const decodedKey = decodeURIComponent(key.trim());
+                this.decodedParams[decodedKey] = decodeURIComponent(value.trim());
+            });
+            
             this.${c.n(this, AngularDerivedType.DataService)
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = param['name'];
-            this.tabElement = param['tabElement'];
-        })
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = this.decodedParams['name '];
+            this.tabElement = this.decodedParams['tabElement '].split(',').map(value => value.trim());
+        }
 
         if(this.${c.n(this, AngularDerivedType.DataService)
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName !== undefined && this.${c.n(this, AngularDerivedType.DataService)

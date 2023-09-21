@@ -1,5 +1,6 @@
 package ee.design.gen.angular
 
+import ee.design.CompI
 import ee.design.EntityI
 import ee.design.ModuleI
 import ee.lang.*
@@ -25,8 +26,8 @@ import toAngularEnumSCSSComponent
 open class DesignAngularTemplates : LangTsTemplates {
     constructor(defaultNameBuilder: TemplateI<*>.(CompositeI<*>) -> NamesI) : super(defaultNameBuilder)
 
-    open fun <T : ModuleI<*>> angularModule(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("AngularModule", nameBuilder) { item, c -> item.toAngularModule(c, Module = AngularDerivedType.Module) }
+    open fun <T : ModuleI<*>> angularModule(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder, components: List<CompI<*>>) =
+        Template("AngularModule", nameBuilder) { item, c -> item.toAngularModule(c, Module = AngularDerivedType.Module, components) }
 
     open fun <T : ModuleI<*>> angularRoutingModule(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("AngularRoutingModule", nameBuilder) { item, c -> item.toAngularRoutingModule(c, RoutingModules = AngularDerivedType.RoutingModules) }
