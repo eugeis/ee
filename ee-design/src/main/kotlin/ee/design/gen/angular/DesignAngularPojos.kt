@@ -7,10 +7,9 @@ import ee.design.ModuleI
 import ee.lang.*
 import ee.lang.gen.ts.*
 import java.util.*
-import javax.xml.crypto.Data
 import kotlin.collections.ArrayList
 
-fun <T : ModuleI<*>> T.toAngularModule(c: GenerationContext, Module: String = AngularDerivedType.Module, components: List<CompI<*>>): String {
+fun <T : ModuleI<*>> T.toAngularModule(c: GenerationContext, Module: String = AngularDerivedType.Module, components: List<CompI<*>> = listOf()): String {
     return """ 
 export function HttpLoaderFactory(http: ${c.n(angular.commonhttp.HttpClient)}) {
     return new ${c.n(ngxtranslate.httploader.TranslateHttpLoader)}(http, '/app/shared/${components.first().name().lowercase(Locale.getDefault())}/assets/i18n/', '.json');
@@ -139,7 +138,7 @@ fun <T : ModuleI<*>> T.toAngularDefaultSCSS(c: GenerationContext): String {
     return this.toAngularDefaultSCSS()
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(entities: List<EntityI<*>>, c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationContext, entities: List<EntityI<*>> = listOf(), DataService: String = AngularDerivedType.DataService): String {
     val serviceName = if(this.parent().name().equals(this.name(), ignoreCase = true)) {this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
