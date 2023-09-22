@@ -256,6 +256,10 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
         }
     }
     }
+
+a {
+    @extend .entity-link
+}
 """
 }
 
@@ -268,23 +272,23 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
     <module-${this.parent().name().lowercase(Locale.getDefault())}></module-${this.parent().name().lowercase(Locale.getDefault())}>
     <div class="${this.name().lowercase(Locale.getDefault())}-list-button">
         <a class="newButton normal-font-size" (click)="${serviceName}${DataService}.locationNavigateTo('new', true)">
-            <ix-icon name="add-circle" size="16"></ix-icon> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
+            <ix-icon name="add-circle" size="20"></ix-icon> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
         </a>
         
         <ng-container *ngIf="${serviceName}${DataService}.isHidden; else showed">
             <a class="showButton normal-font-size" (click)="${serviceName}${DataService}.toggleHidden()">
-                <ix-icon name="trashcan" size="16"></ix-icon> {{"delete" | translate}}...
+                <ix-icon name="trashcan" size="20"></ix-icon> {{"delete" | translate}}...
             </a>
         </ng-container>
         
         <ng-template #showed>
             <a class="deleteButton normal-font-size" (click)="${serviceName}${DataService}.clearMultipleItems(${serviceName}${DataService}.selection.selected); ${serviceName}${DataService}.toggleHidden()">
-                <ix-icon name="trashcan" size="16"></ix-icon> {{"delete" | translate}} {{"item" | translate}}
+                <ix-icon name="trashcan" size="20"></ix-icon> {{"delete" | translate}} {{"item" | translate}}
             </a>
         </ng-template>
         
         <a class="loadButton normal-font-size" (click)="this.${serviceName}${DataService}.addMockupServiceDataToLocalStorage(this.${serviceName}${DataService}.getDataFromMockupService())">
-            <ix-icon name="paste" size="16"></ix-icon> {{"load" | translate}} {{"configuration" | translate}}
+            <ix-icon name="paste" size="20"></ix-icon> {{"load" | translate}} {{"configuration" | translate}}
         </a>
     </div>
 </ng-container>
@@ -312,7 +316,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
                 </th>
                 <th width="10%">{{"table.action" | translate}}</th>
                 ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL + tab + tab + tab + tab) { 
-                    """<th>{{"${this.name().lowercase(Locale.getDefault())}.table.${it.name().lowercase(Locale.getDefault())}" | translate}}</th>"""
+                    """<th>{{"${serviceName.lowercase(Locale.getDefault())}.table.${it.name().lowercase(Locale.getDefault())}" | translate}}</th>"""
                 }}
             </tr>
         </thead>

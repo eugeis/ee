@@ -109,10 +109,10 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementTypeParent: String, elem
             <legend>{{"${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
-                <a class="newButton bg-dark normal-font-size" (click)="${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+                <a class="newButton normal-font-size" (click)="${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.locationNavigateTo('${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new', false)">
-                    <ix-icon name="add-circle" size="16"></ix-icon>
+                    <ix-icon name="add-circle" size="20"></ix-icon>
                 </a>
             </legend>
             
@@ -137,11 +137,11 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementTypeParent: Stri
             <legend>{{"${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
-                <a class="newButton bg-dark normal-font-size" (click)="${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+                <a class="newButton normal-font-size" (click)="${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault())
     else it.toString() }}}DataService.locationNavigateTo('${this.parent().parent().name().lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new', false, 'isList: true')">
-                    <ix-icon name="add-circle" size="16"></ix-icon>
+                    <ix-icon name="add-circle" size="20"></ix-icon>
                 </a>
             </legend>
             
