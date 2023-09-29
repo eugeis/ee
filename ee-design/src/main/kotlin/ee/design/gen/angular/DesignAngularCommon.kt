@@ -219,9 +219,7 @@ fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName:
 fun <T : ItemI<*>> T.toAngularTableListEnum(basicParentName: String = "", totalChild: Int, parentName: String): String =
     """
                 <td>
-                    <span>{{ row${if(basicParentName.isEmpty()) {"['" + this.parent().name().toCamelCase()
-                    .replaceFirstChar { it.lowercase(Locale.getDefault()) } + "']"}  else "['${basicParentName.toCamelCase()
-                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}['${this.name().toCamelCase()
+                    <span>{{ row['${this.name().toCamelCase()
                     .replaceFirstChar { it.lowercase(Locale.getDefault()) }}'] }}</span>
                 </td>
 """
