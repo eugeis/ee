@@ -105,7 +105,6 @@ ${this.toTypeScriptFormProp(c, tab)}
     selectedIndices: string;
     multipleSelectedIndices: Array<string>;
     form: ${c.n(angular.forms.FormGroup)};
-    separatorKeysCodes: number[] = [${c.n(angular.cdk.keycodes.ENTER)}, ${c.n(angular.cdk.keycodes.COMMA)}];
     
     constructor(public ${c.n(this, AngularDerivedType.DataService)
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.DataService)}, 
@@ -122,39 +121,6 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
     }
 }}) {}
 ${this.toAngularFormOnInit(c, tab)}
-
-    ${this.props().filter { !it.isEMPTY() && it.type().name().equals("list", true) && it.type().generics().first().type() !is EnumTypeI<*> }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
-        """
-    add(event: ${c.n(angular.material.chips.MatChipInputEvent)}): void {
-        const value = (event.value || '').trim();
-        if (value) {
-            this.${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.${it.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.push(this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}[value]);
-        }
-    }
-
-    remove(${it.type().generics().first().type().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase)}): void {
-        const index = this.${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.${it.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.indexOf(${it.type().generics().first().type().name().replaceFirstChar { it.lowercase(Locale.getDefault()) }});
-        if (index >= 0) {
-            this.${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.${it.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.splice(index, 1);
-        }
-        localStorage.setItem('list-item-${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase)
-            .lowercase(Locale.getDefault())}', JSON.stringify(this.${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.${it.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}))
-    }
-
-    selected(event: ${c.n(angular.material.autocomplete.MatAutocompleteSelectedEvent)}): void {
-        this.${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.${it.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.push(this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}.find(data => data${it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() }.isNotEmpty().then{ "." + it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() }.first().name() }} === event.option.viewValue));
-        localStorage.setItem('list-item-${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase)
-            .lowercase(Locale.getDefault())}', JSON.stringify(this.${this.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.${it.name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}))
-    }"""
-    }}
     
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString("") {
     when(it.type()) {
@@ -185,8 +151,6 @@ ${this.toTypeScriptEntityPropInit(c, tab)}
     data: ${c.n(this, AngularDerivedType.ApiBase)}[];
     decodedParams = {}
     
-    @${c.n(angular.core.ViewChild)}(${c.n(angular.material.sort.MatSort)}) sort: ${c.n(angular.material.sort.MatSort)};
-
 ${this.toAngularConstructorDataService(c, tab, true)}
 
 ${this.toAngularListOnInit(c, tab, isAggregateView)}
@@ -211,8 +175,6 @@ ${this.toTypeScriptEntityPropInit(c, tab)}
     tabElement: Array<string>;
     data: ${c.n(this, AngularDerivedType.ApiBase)}[];
     decodedParams = {}
-    
-    @${c.n(angular.core.ViewChild)}(${c.n(angular.material.sort.MatSort)}) sort: ${c.n(angular.material.sort.MatSort)};
 
 ${this.toAngularConstructorDataService(c, tab, true)}
 
