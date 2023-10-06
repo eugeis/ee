@@ -85,9 +85,6 @@ ${this.toAngularViewOnInit(c, tab)}
 
     goBack() {
         this._location.back();
-        setTimeout(() => {
-            window.location.reload()
-        }, 10);
     }
 }
 """

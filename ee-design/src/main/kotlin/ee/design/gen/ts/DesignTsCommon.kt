@@ -202,17 +202,11 @@ fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): 
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getFirst();
         this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.checkRoute(this.${this.name().lowercase(Locale.getDefault())});
     
-        if (this._location.path().includes('?') && this.isSpecificView) {
-            this._location.path().split('?')[1].split('&').forEach(param => {
-                const [key, value]= param.split('=');
-                const decodedKey = decodeURIComponent(key.trim());
-                this.decodedParams[decodedKey] = decodeURIComponent(value.trim());
-            });
-            
+        this._route.queryParams.subscribe(param => {
             this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = this.decodedParams['name '];
-            this.tabElement = this.decodedParams['tabElement '].split(',').map(value => value.trim());
-        }
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = param['name'];
+            this.tabElement = param['tabElement'];
+        })
 
         if(this.${c.n(this, AngularDerivedType.DataService)
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName !== undefined && this.${c.n(this, AngularDerivedType.DataService)

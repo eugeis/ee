@@ -279,16 +279,11 @@ fun <T : ItemI<*>> T.toAngularComponentSelector(): String {
 
 fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent: String, isAggregateView: Boolean = false): String {
     return """${indent}ngOnInit(): void {
-        ${isAggregateView.not().then { """if (this._location.path().includes('?')) {
-            this._location.path().split('?')[1].split('&').forEach(param => {
-                const [key, value]= param.split('=');
-                const decodedKey = decodeURIComponent(key.trim());
-                this.decodedParams[decodedKey] = decodeURIComponent(value.trim());
-            });
+        ${isAggregateView.not().then { """this._route.queryParams.subscribe(param => {
             this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = this.decodedParams['name '];
-            this.tabElement = this.decodedParams['tabElement '].split(',').map(value => value.trim());
-        }""" }}
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = param['name'];
+            this.tabElement = param['tabElement'];
+        })""" }}
         
         ${isAggregateView.then { """this.${c.n(this, AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = JSON.parse(localStorage.getItem('componentName'));

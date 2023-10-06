@@ -271,7 +271,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
 <ng-container *ngIf="!isSpecificView; else isSpecific">        
     <module-${this.parent().name().lowercase(Locale.getDefault())}></module-${this.parent().name().lowercase(Locale.getDefault())}>
     <div class="${this.name().lowercase(Locale.getDefault())}-list-button">
-        <a class="newButton normal-font-size" (click)="${serviceName}${DataService}.locationNavigateTo('new', true)">
+        <a class="newButton normal-font-size" [routerLink]="'./new'" routerLinkActive="active-link">
             <ix-icon name="add-circle" size="20"></ix-icon> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
         </a>
         
