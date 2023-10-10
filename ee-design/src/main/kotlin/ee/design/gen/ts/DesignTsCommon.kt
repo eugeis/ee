@@ -18,6 +18,8 @@ fun <T : ItemI<*>> T.toAngularGenerateDefaultTranslate(): String =
     "select": "Select",
     "delete": "Delete",
     "items": "Items",
+    "hover": "Hover",
+    "on": "On",
     "save": "Save",
     "load": "Load",
     "cancel": "Cancel",
@@ -259,10 +261,12 @@ fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent
     
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString(tab + tab) {
     when(it.type()) {
-        is EntityI<*>, is ValuesI<*> -> it.toAngularInitOption(c, it.type())
+        is EntityI<*> -> it.toAngularInitOptionEntity(c, it.type())
+        is ValuesI<*> -> it.toAngularInitOptionValues(c, it.type())
         else -> when(it.type().name().lowercase(Locale.getDefault())) {
             "list" -> when(it.type().generics().first().type()) {
-                is EntityI<*>, is ValuesI<*> -> it.toAngularInitOption(c, it.type().generics().first().type())
+                is EntityI<*> -> it.toAngularInitOptionEntity(c, it.type().generics().first().type())
+                is ValuesI<*> -> it.toAngularInitOptionValues(c, it.type().generics().first().type())
                 is EnumTypeI<*> -> "this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadEnumElement(${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase)
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }});"
                 else -> ""
@@ -276,10 +280,16 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
     }"""
 }
 
-fun <T : ItemI<*>> T.toAngularInitOption(c: GenerationContext, elementType: TypeI<*>): String {
+fun <T : ItemI<*>> T.toAngularInitOptionEntity(c: GenerationContext, elementType: TypeI<*>): String {
     return """this.${c.n(this.parent(), AngularDerivedType.DataService)
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")} 
             = this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.changeMapToArray(this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.retrieveItemsFromCache()); $nL"""
+}
+
+fun <T : ItemI<*>> T.toAngularInitOptionValues(c: GenerationContext, elementType: TypeI<*>): String {
+    return """this.${c.n(this.parent(), AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")} 
+            = [this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}()]; $nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, elementType: TypeI<*>): String {

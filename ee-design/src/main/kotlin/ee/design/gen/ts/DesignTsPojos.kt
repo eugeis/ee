@@ -320,7 +320,7 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
         this.editInheritedEntity(editItemEntity, element)
         
         if (JSON.stringify(editItem).includes(JSON.stringify(JSON.parse(localStorage.getItem('specificData'))))) {
-            this.saveSpecificData(element, ${this.props().any { !it.isEMPTY() && it.type().props().any { prop -> prop.isToStr() == true && !prop.isEMPTY() } }.then {  "element." + this.props().first { prop -> prop.isToStr() == true && !prop.isEMPTY() }.name()  }}${this.props().all { !it.isEMPTY() && it.type().props().all { prop -> prop.isToStr() == false && !prop.isEMPTY() } }.then { """''""" }});
+            this.saveSpecificData(element, ${this.props().any { !it.isEMPTY() && it.isToStr() == true }.then {  "element." + this.props().first { prop -> prop.isToStr() == true && !prop.isEMPTY() }.name()  }}${this.props().all { !it.isEMPTY() && (it.isToStr() == false || (it.type() is EntityI<*> || it.type() is ValuesI<*> || it.type() is BasicI<*>)) }.then { """''""" }} );
         } 
     }
     ${entities.filter { entity -> entity.props().any {property -> 
@@ -581,10 +581,12 @@ export class ${this.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${EnumComponent} implements ${c.n(angular.core.OnInit)} {
 
     @${c.n(angular.core.Input)}() ${this.name().lowercase(Locale.getDefault())}: ${c.n(this, AngularDerivedType.ApiBase)
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }};
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} | Array<${c.n(this, AngularDerivedType.ApiBase)
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>;
     @${c.n(angular.core.Input)}() isDisabled = false;
-    @${c.n(angular.core.Output)}() ${this.name().lowercase(Locale.getDefault())}Change = new ${c.n(angular.core.EventEmitter)}<${c.n(this, AngularDerivedType.ApiBase)
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>();
+    @${c.n(angular.core.Input)}() mode: string;
+    @${c.n(angular.core.Input)}() componentName: string;
+    @${c.n(angular.core.Output)}() ${this.name().lowercase(Locale.getDefault())}Change = new ${c.n(angular.core.EventEmitter)}<typeof this.${this.name().lowercase(Locale.getDefault())}>();
     
     enumElements: Array<string>;
     multipleSelectedIndices: Array<string>;
@@ -595,8 +597,16 @@ export class ${this.name()
         this.enumElements = this.${DataService.replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadEnumElement(${c.n(this, AngularDerivedType.ApiBase)});
     }
     
-    changeValue(event: any) {
-        this.${this.name().lowercase(Locale.getDefault())}Change.emit(this.${this.name().lowercase(Locale.getDefault())});
+    changeValue({ detail: [id] }: CustomEvent<string[]>) {
+        this.${this.name().lowercase(Locale.getDefault())}Change.emit(this.enumElements[id]);
+    }
+    
+    changeValueMultiple(index: CustomEvent<string[]>) {
+        const temp = [];
+        index.detail.forEach(id => {
+            temp.push(this.enumElements[id]);
+        });
+        this.${this.name().lowercase(Locale.getDefault())}Change.emit(temp);
     }
 
 }

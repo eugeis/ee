@@ -223,7 +223,8 @@ fun <T : CompilationUnitI<*>> T.toAngularFormHTMLComponent(c: GenerationContext,
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "list", "string") }.joinSurroundIfNotEmptyToString(nL) {
         when(it.type()) {
             is BasicI<*> -> it.toHTMLObjectForm(it.type().name(), it.type().parent().name(), false)
-            is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntity(it.type().parent().name(), it.type().name(), it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
+            is EntityI<*> -> it.toHTMLObjectFormEntity(it.type().parent().name(), it.type().name(), it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
+            is ValuesI<*> -> it.toHTMLObjectFormValues(it.type().parent().name(), it.type().name(), it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
             else ->  when(it.type().name().lowercase(Locale.getDefault())) {
                 "list" -> when(it.type().generics().first().type()) {
                     is EntityI<*>, is ValuesI<*> -> it.toHTMLObjectFormEntityMultiple(it.type().generics().first().type().parent().name(), it.type().generics().first().type().name(), it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
@@ -440,8 +441,8 @@ fun <T : CompilationUnitI<*>> T.toAngularBasicSCSSComponent(c: GenerationContext
 fun <T : CompilationUnitI<*>> T.toAngularEnumHTMLComponent(c: GenerationContext): String {
     return """
 <fieldset>
-    <legend>{{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}</legend>
-    <ix-select allowClear="true" mode="multiple" (itemSelectionChange)="changeValue(${'$'}event)" [selectedIndices]="multipleSelectedIndices" i18nSelectListHeader="{{'select' | translate}} {{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" i18nPlaceholder="{{'select' | translate}} {{'${this.parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
+    <legend>{{ componentName | translate}}</legend>
+    <ix-select allowClear="true" mode="{{mode}}" (itemSelectionChange)="(mode === 'multiple') ? changeValueMultiple(${'$'}event) : changeValue(${'$'}event)" [selectedIndices]="multipleSelectedIndices" i18nSelectListHeader="{{'select' | translate}} {{ componentName | translate}}" i18nPlaceholder="{{'select' | translate}} {{ componentName | translate}}">
         <ix-select-item *ngFor="let item of enumElements; let i = index" label="{{item}}" value="{{i}}"></ix-select-item>
     </ix-select>
 </fieldset>"""
