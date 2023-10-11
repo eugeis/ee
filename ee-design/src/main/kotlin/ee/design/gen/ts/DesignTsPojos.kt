@@ -99,8 +99,18 @@ ${isOpen().then("export ")}class ${this.name()
     @${c.n(angular.core.Input)}() isDisabled = false;
 ${this.toTypeScriptFormProp(c, tab)}
     
-    selectedIndices: string;
-    multipleSelectedIndices: Array<string>;
+${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString(tab) {
+    when(it.type()) {
+        is EntityI<*>, is ValuesI<*> -> it.type().toAngularSelectedIndices(c)
+        else -> when(it.type().name().lowercase(Locale.getDefault())) {
+            "list" -> when(it.type().generics().first().type()) {
+                is EntityI<*>, is ValuesI<*> -> it.type().generics().first().type().toAngularSelectedMultipleIndices(c)
+                else -> ""
+            }
+            else -> ""
+        }
+    }
+}}
     form: ${c.n(angular.forms.FormGroup)};
     
     constructor(public ${c.n(this, AngularDerivedType.DataService)
@@ -119,18 +129,18 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
 }}) {}
 ${this.toAngularFormOnInit(c, tab)}
     
-${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString("") {
-    when(it.type()) {
-        is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> it.type().toAngularFunctionBindTo(c, it.name(), this)
-        else -> when(it.type().name().lowercase(Locale.getDefault())) {
-            "list" -> when(it.type().generics().first().type()) {
-                is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> it.type().generics().first().type().toAngularFunctionBindToMultiple(c, it.name(), this)
+    ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString("") {
+        when(it.type()) {
+            is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> it.type().toAngularFunctionBindTo(c, it.name(), this)
+            else -> when(it.type().name().lowercase(Locale.getDefault())) {
+                "list" -> when(it.type().generics().first().type()) {
+                    is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> it.type().generics().first().type().toAngularFunctionBindToMultiple(c, it.name(), this)
+                    else -> ""
+                }
                 else -> ""
             }
-            else -> ""
         }
-    }
-}}
+    }}
 }
 """
 }
