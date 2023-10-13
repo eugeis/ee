@@ -237,7 +237,20 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } + this.name()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}${DataService} extends ${c.n(service.template.DataService)}<${c.n(this, AngularDerivedType.ApiBase)}> {
     itemName = '${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}';
-    
+    componentChild = [${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
+        when(it.type()) {
+            is EntityI<*>, is ValuesI<*> -> """'${it.type().name().lowercase(Locale.getDefault())}', """
+            else -> {
+                when(it.type().name()) {
+                    "List" -> when(it.type().generics().first().type()) {
+                        is EntityI<*>, is ValuesI<*> -> """'${it.type().generics().first().type().name().lowercase(Locale.getDefault())}', """
+                        else -> ""
+                    }
+                    else -> ""
+                }
+            }
+        }
+    }}]
     isHidden = true;  
     
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString("") {
@@ -599,12 +612,22 @@ export class ${this.name()
     @${c.n(angular.core.Output)}() ${this.name().lowercase(Locale.getDefault())}Change = new ${c.n(angular.core.EventEmitter)}<typeof this.${this.name().lowercase(Locale.getDefault())}>();
     
     enumElements: Array<string>;
-    multipleSelectedIndices: Array<string>;
+    multipleSelectedIndices: Array<string> = [];
     
     constructor(public ${DataService.replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(service.template.DataService)}<any>) { }
     
     ngOnInit(): void {
         this.enumElements = this.${DataService.replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadEnumElement(${c.n(this, AngularDerivedType.ApiBase)});
+    
+        if (this.${this.name().lowercase(Locale.getDefault())} !== undefined) {
+            const temp = [];
+            this.enumElements.forEach((data, index) => {
+                if (this.${this.name().lowercase(Locale.getDefault())}.toString().toLowerCase().includes(data.toLowerCase())) {
+                    temp.push(index.toString())
+                }
+            });
+            this.multipleSelectedIndices = temp;
+        }
     }
     
     changeValue({ detail: [id] }: CustomEvent<string[]>) {

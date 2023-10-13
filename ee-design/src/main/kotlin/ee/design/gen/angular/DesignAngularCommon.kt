@@ -227,10 +227,8 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEnumMultiple(elementTypeParent: String
 fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = "", basicParentName: String = "", isChild: Boolean, totalChild: Int, containAggregateProp: Boolean = false): String =
     this.props().filter { !isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntityFromBasic(it.type().name(), it.type().findParentNonInternal(), parentName, isChild, totalChild,  it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() }, it.type().props())
-            /*is BasicI<*> -> it.toAngularTableListBasics(it.type().name(), it.type().findParentNonInternal(), parentName, it.type().props(), isChild, "Object", totalChild,
-                it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })*/
-            is BasicI<*> -> it.type().toAngularTableListBasic(parentName, it.name(), it.parent().name(),true, totalChild, containAggregateProp)
+            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntity(it.type().name(), it.type().findParentNonInternal(), parentName, isChild, totalChild,  it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() }, it.type().props())
+            is BasicI<*>  -> it.toAngularTableListBasic(parentName, isChild)
             is EnumTypeI<*> -> it.toAngularTableListEnum(basicName, totalChild, parentName)
             else -> {
                 when(it.type().name()) {
@@ -254,7 +252,7 @@ fun <T : ItemI<*>> T.toAngularTableListEnum(basicParentName: String = "", totalC
                 </td>
 """
 
-fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, isChild: Boolean, totalChild: Int, toStr: List<AttributeI<*>>, props: ListMultiHolder<AttributeI<*>>): String {
+fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, isChild: Boolean, totalChild: Int, toStr: List<AttributeI<*>>, props: ListMultiHolder<AttributeI<*>>): String {
     val serviceName = if(this.parent().parent().name().equals(parentName, true)) {this.parent().parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault())} + parentName.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
@@ -272,6 +270,17 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasic(elementName: String, find
             )}', '${parentName.lowercase(
                     Locale.getDefault()
             )}')"> ... ; </a>
+                </td>
+"""
+}
+
+fun <T : ItemI<*>> T.toAngularTableListBasic(parentName: String, isChild: Boolean): String {
+    return """
+                <td>
+                    <span matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
+            .lowercase(Locale.getDefault())}']['${this.name()
+            .lowercase(Locale.getDefault())}']" else "['${this.name()
+            .lowercase(Locale.getDefault())}']"}) }}" matTooltipClass="custom-tooltip"> ... ; </span>
                 </td>
 """
 }

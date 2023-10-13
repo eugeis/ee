@@ -279,6 +279,11 @@ fun <T : ItemI<*>> T.toAngularComponentSelector(): String {
 
 fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent: String, isAggregateView: Boolean = false): String {
     return """${indent}ngOnInit(): void {
+        localStorage.setItem('${if(this.name().equals(this.parent().name(), true)) {
+        this.parent().name().lowercase(Locale.getDefault()) } else {this.parent().name().lowercase(Locale.getDefault()) + this.name().lowercase(Locale.getDefault())}}-childComponent', JSON.stringify(this.${if(this.name().equals(this.parent().name(), true)) {this.parent().name()
+            .lowercase(Locale.getDefault())} else {this.parent().name().lowercase(Locale.getDefault()) + this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    }}DataService.componentChild))
+        
         ${isAggregateView.not().then { """this._route.queryParams.subscribe(param => {
             this.${c.n(this, AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = param['name'];

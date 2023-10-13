@@ -161,14 +161,14 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
     <ng-container *ngIf="${serviceName}${DataService}.isEdit; else notEdit">
         <button type="button" class="first-button-edit btn btn-outline-danger" (click)="goBack()">{{'cancel edit' | translate}}</button>
         <button type="button" class="second-button-edit btn btn-outline-success" (click)="${serviceName}${DataService}.editElement(${this.name()
-            .lowercase(Locale.getDefault())}); goBack()">{{'save changes' | translate}}</button>
+            .lowercase(Locale.getDefault())}); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} goBack()">{{'save changes' | translate}}</button>
     </ng-container>
     
     <ng-template #notEdit>
         <button type="button" class="first-button btn btn-outline-danger" (click)="goBack()"
                 >{{'cancel' | translate}}</button>
         <button type="button" class="second-button btn btn-outline-success" (click)="${serviceName}${DataService}.inputElement(${this.name()
-            .lowercase(Locale.getDefault())}); goBack() ${entities.filter { entity -> entity.props().any {property ->
+            .lowercase(Locale.getDefault())}); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} goBack() ${entities.filter { entity -> entity.props().any {property ->
         (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
             childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) } ||
                 property.type().props().any {

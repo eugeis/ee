@@ -297,7 +297,7 @@ fun <T : ItemI<*>> T.toAngularInitOption(c: GenerationContext, elementType: Type
             
         this.${c.n(this.parent(), AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}.forEach((data, index) => {
-            if (JSON.stringify(this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}).includes(JSON.stringify(data))) {
+            if (JSON.stringify(this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}).toLowerCase().includes(JSON.stringify(data).toLowerCase())) {
                 this.selectedIndices${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")} = index.toString();
             }
         }); $nL"""
@@ -310,7 +310,7 @@ fun <T : ItemI<*>> T.toAngularInitOptionMultiple(c: GenerationContext, elementTy
             
         this.${c.n(this.parent(), AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}.forEach((data, index) => {
-            if (JSON.stringify(this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}).includes(JSON.stringify(data))) {
+            if (JSON.stringify(this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}).toLowerCase().includes(JSON.stringify(data).toLowerCase())) {
                 this.multipleSelectedIndices${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}.push(index.toString());
             }
         });"""
