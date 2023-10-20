@@ -50,8 +50,8 @@ open class DesignAngularTemplates : LangTsTemplates {
     open fun <T : CompilationUnitI<*>> entityFormSCSS(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityFormSCSSComponent", nameBuilder) { item, c -> item.toAngularFormSCSSComponent(c, derived = AngularFileFormat.EntityForm) }
 
-    open fun <T : CompilationUnitI<*>> entityListHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder, aggregateEntity: List<EntityI<*>>) =
-        Template("EntityListHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityListHTMLComponent(c, DataService = AngularDerivedType.DataService, false, (aggregateEntity.isNotEmpty() && aggregateEntity.any {prop -> prop.name().equals(item.name(), true)})) }
+    open fun <T : CompilationUnitI<*>> entityListHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder, aggregateEntity: List<EntityI<*>>, entity: List<EntityI<*>>) =
+        Template("EntityListHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityListHTMLComponent(c, DataService = AngularDerivedType.DataService, false, (aggregateEntity.isNotEmpty() && aggregateEntity.any {prop -> prop.name().equals(item.name(), true)}), entity) }
 
     open fun <T : CompilationUnitI<*>> entityAggregateViewHTML(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
             Template("EntityAggregateViewHTMLComponent", nameBuilder) { item, c -> item.toAngularEntityAggregateViewHTMLComponent(c, DataService = AngularDerivedType.DataService, true) }

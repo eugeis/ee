@@ -58,8 +58,8 @@ fun <T : ModuleI<*>> T.toAngularModuleService(modules: List<ModuleI<*>>, c: Gene
         .any { entity -> entity.isBase() && entity.belongsToAggregate().isNotEMPTY() }
     }.joinSurroundIfNotEmptyToString(", ") { """'${it.name()}'""" }}];
 
-    tabElement = [${this.entities().filter { !it.isEMPTY() && !it.props().isEmpty() && it.belongsToAggregate().isNotEMPTY() }.joinSurroundIfNotEmptyToString() {
-        it.belongsToAggregate().toAngularModuleTabElementEntity()
+    tabElement = [${this.entities().filter { !it.isEMPTY() && it.belongsToAggregate().isEMPTY() }.joinSurroundIfNotEmptyToString(", ") {
+        it.toAngularModuleTabElementEntity()
     }}];
 
     pageName = '${this.name()}';
@@ -82,10 +82,6 @@ ${this.toTypeScriptEntityProp(c, tab)}
     
 ${this.toAngularConstructorDataService(c, tab, true)}
 ${this.toAngularViewOnInit(c, tab)}
-
-    goBack() {
-        this._location.back();
-    }
 }
 """
 }
@@ -332,7 +328,7 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
 
     editElement(element: ${c.n(this, AngularDerivedType.ApiBase)}) {
         this.items = this.retrieveItemsFromCache();
-        const editItem = JSON.parse(localStorage.getItem('edit'));
+        const editItem = JSON.parse(localStorage.getItem('edit' + this.itemName));
         const editItemEntity = localStorage.getItem('edit-entity');
         const oldId = this.itemName + JSON.stringify(editItem);
         const newId = this.itemName + JSON.stringify(element);
@@ -355,10 +351,22 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
             } 
         }.joinSurroundIfNotEmptyToString("") {"""
     saveElementFor${c.n(this, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(element: ${c.n(this, AngularDerivedType.ApiBase)}) {
-        localStorage.setItem(this.itemName + '${it.name().lowercase(Locale.getDefault())}', JSON.stringify(element));
+        localStorage.setItem('list-item-for-' + '${it.name().lowercase(Locale.getDefault())}' + this.itemName, JSON.stringify(element));
     }
     loadElementFrom${c.n(this, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() {
-        return JSON.parse(localStorage.getItem(this.itemName + '${it.name().lowercase(Locale.getDefault())}'));
+        return JSON.parse(localStorage.getItem('list-item-for-' + '${it.name().lowercase(Locale.getDefault())}' + this.itemName));
+    }
+        """ }
+    }
+    
+    ${entities.filter { entity -> entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true) }.joinSurroundIfNotEmptyToString("") {"""
+    saveElementFor${c.n(this, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(element: ${c.n(this, AngularDerivedType.ApiBase)}) {
+        const current${c.n(this, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = this.loadElementFrom${c.n(this, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() ? this.loadElementFrom${c.n(this, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() : [];
+        current${c.n(this, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.push(element);
+        localStorage.setItem('list-item-for-' + '${it.name().lowercase(Locale.getDefault())}' + this.itemName, JSON.stringify(current${c.n(this, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}));
+    }
+    loadElementFrom${c.n(this, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() {
+        return JSON.parse(localStorage.getItem('list-item-for-' + '${it.name().lowercase(Locale.getDefault())}' + this.itemName));
     }
         """ }
     }
@@ -441,6 +449,17 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
     }}
         }
     }
+    
+    ${entities.filter {!it.isEMPTY() && !it.props().isEMPTY() && !it.belongsToAggregate().isEMPTY() && it.belongsToAggregate().name().equals(this.name(), true)}.joinSurroundIfNotEmptyToString { 
+        """
+    removeAggregateItem(element: Array<${c.n(it, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>, elementName: string = '${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}') {
+        element.forEach((content) => {
+            const item = this.retrieveItemsFromCache(elementName);
+            item.delete(elementName + JSON.stringify(content))
+            this.saveItemToCache(item, elementName)
+        })
+    }"""
+    }}
 }
 
 declare global {

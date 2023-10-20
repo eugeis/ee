@@ -250,17 +250,27 @@ fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent
         it.toAngularEmptyPropsValues(c, indent, it.type())
     }.trim()}
     
-        ${this.props().filter { !it.isEMPTY() && it.type().name().equals("list", true) }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
+        ${this.props().filter { !it.isEMPTY() && it.type().name().equals("list", true) && it.type().generics().first().type() is EntityI<*> }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
         """
         if (this.${this.name()
                 .lowercase(Locale.getDefault())}.${it.name()
                 .replaceFirstChar { it.lowercase(Locale.getDefault()) }} == null) {
             this.${this.name()
                 .lowercase(Locale.getDefault())}.${it.name()
-                .replaceFirstChar { it.lowercase(Locale.getDefault()) }} = JSON.parse(localStorage.getItem('list-item-${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase)
-            .lowercase(Locale.getDefault())}')) || [];
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }} = this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() || [];
         }"""
         }}
+        
+        ${this.props().filter { !it.isEMPTY() && it.type().name().equals("list", true) && it.type().generics().first().type() !is EntityI<*> }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
+        """
+        if (this.${this.name()
+                .lowercase(Locale.getDefault())}.${it.name()
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }} == null) {
+            this.${this.name()
+                .lowercase(Locale.getDefault())}.${it.name()
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }} = [];
+        }"""
+    }}
     
         this.form = new ${c.n(angular.forms.FormGroup)}({ 
             ${this.props().filter { !it.isEMPTY() && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString(",$nL$tab$tab$tab") {
@@ -331,7 +341,7 @@ fun <T : ItemI<*>> T.toAngularEmptyPropsValues(c: GenerationContext, indent: Str
 }
 
 fun <T : TypeI<*>> T.toAngularModuleTabElementEntity(): String =
-    "'${this.name()}'"
+    "'${if(this.parent().name().equals(this.name())) {this.name()} else {this.parent().name() + this.name()}}'"
 
 fun <T : TypeI<*>> T.toAngularModuleTabElementValue(): String =
     ", '${this.name()}'"

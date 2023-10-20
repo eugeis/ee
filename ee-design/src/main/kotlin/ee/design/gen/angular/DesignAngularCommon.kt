@@ -12,7 +12,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityForBasic(elementType: String, to
             <legend>${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}</legend>
             
-            <ix-select (itemSelectionChange)="bindTo${this.parent().parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
+            <ix-select [readonly]="isDisabled" (itemSelectionChange)="bindTo${this.parent().parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${"$"}event)" [selectedIndices]="selectedIndices${this.parent().parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" i18nSelectListHeader="{{'select' | translate}} {{'${this.parent().parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" i18nPlaceholder="{{'select' | translate}} {{'${this.parent().parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
                 <ix-select-item *ngFor="let item of option${this.parent().parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
@@ -28,7 +28,7 @@ fun <T : AttributeI<*>> T.toHTMLStringForm(indent: String, parentName: String = 
             ${indent}<span slot="input-start">{{'${if (parentName.isBlank()) {if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}} else {parentName.lowercase(Locale.getDefault())}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}</span>
-            ${indent}<input type="text" class="form-control" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${if (parentName.isBlank()) {
+            ${indent}<input type="text" class="form-control" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[readonly]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${if (parentName.isBlank()) {
         this.parent().name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }
     } else {
         parentName.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }
@@ -43,7 +43,7 @@ fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String, isBasic: Boolean): St
             ${indent}<span slot="input-start">{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}</span>
-            ${indent}<input type="number" class="form-control" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
+            ${indent}<input type="number" class="form-control" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[readonly]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}/>
         ${indent}</ix-input-group>"""
@@ -51,17 +51,17 @@ fun <T : AttributeI<*>> T.toHTMLNumberForm(indent: String, isBasic: Boolean): St
 
 fun <T : AttributeI<*>> T.toHTMLUploadForm(indent: String, isBasic: Boolean): String {
     return """
-        ${indent}<ix-upload selectFileText="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        ${indent}<ix-upload [readonly]="isDisabled" selectFileText="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" (change)="${this.parent().parent().name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.selectFiles(${"$"}event)" [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[readonly]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}></ix-upload>"""
 }
 
 fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String, isBasic: Boolean): String {
     return """
-        ${indent}<ix-select [selectedIndices]="selectedIndices${this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" i18nSelectListHeader="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        ${indent}<ix-select [readonly]="isDisabled" [selectedIndices]="selectedIndices${this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" i18nSelectListHeader="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" i18nPlaceholder="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
@@ -72,10 +72,10 @@ fun <T : AttributeI<*>> T.toHTMLBooleanForm(indent: String, isBasic: Boolean): S
 
 fun <T : AttributeI<*>> T.toHTMLDateForm(indent: String, isBasic: Boolean): String {
     return """
-        ${indent}<ix-select [selectedIndices]="selectedIndices${this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" i18nSelectListHeader="{{'select' | translate}} {{'date' | translate}}" i18nPlaceholder="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
+        ${indent}<ix-select [readonly]="isDisabled" [selectedIndices]="selectedIndices${this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" i18nSelectListHeader="{{'select' | translate}} {{'date' | translate}}" i18nPlaceholder="{{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}' | translate}} MM/DD/YYYY">
-            ${indent}<ix-select-item><ix-date-picker [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[disabled]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
+            ${indent}<ix-select-item><ix-date-picker [(ngModel)]="${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()}" ${isBasic.then { """[readonly]="isDisabled"""" }} ${isBasic.not().then { """formControlName="${this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${this.name().toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"""" }}></ix-date-picker></ix-select-item>
         ${indent}</ix-select>"""
@@ -114,12 +114,14 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementTypeParent: String, elem
             <legend>{{"${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
-                <a class="newButton normal-font-size" [routerLink]="'/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'" routerLinkActive="active-link">
-                    <ix-icon name="add-circle" size="20"></ix-icon>
-                </a>
+                <ng-container *ngIf="!isDisabled">
+                    <a class="newButton normal-font-size" [routerLink]="'/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'" routerLinkActive="active-link">
+                        <ix-icon name="add-circle" size="20"></ix-icon>
+                    </a>
+                </ng-container>
             </legend>
             
-            <ix-select (itemSelectionChange)="bindTo${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
+            <ix-select [readonly]="isDisabled" (itemSelectionChange)="bindTo${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${"$"}event)" [selectedIndices]="selectedIndices${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" i18nSelectListHeader="{{'select' | translate}} {{'${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
@@ -141,22 +143,20 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormValues(elementTypeParent: String, elem
             <legend>{{"${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
-                <a class="newButton normal-font-size" [routerLink]="'/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'" routerLinkActive="active-link">
-                    <ix-icon name="add-circle" size="20"></ix-icon>
-                </a>
-                <a class="newButton normal-font-size" (click)="${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.editItems(0, ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())})" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" routerLinkActive="active-link">
-                    <ix-icon name="more-menu" size="20"></ix-icon>
-                </a>
+                <ng-container *ngIf="!isDisabled">
+                    <a class="newButton normal-font-size" [routerLink]="'/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'" routerLinkActive="active-link">
+                        <ix-icon name="add-circle" size="20"></ix-icon>
+                    </a>
+                </ng-container>
             </legend>
             
-            <ix-select matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())})}}" matTooltipClass="custom-tooltip" [disabled]="true" (itemSelectionChange)="bindTo${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
+            <ix-select [readonly]="isDisabled" matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())})}}" matTooltipClass="custom-tooltip" [readonly]="true" (itemSelectionChange)="bindTo${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${"$"}event)" [selectedIndices]="selectedIndices${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" i18nSelectListHeader="{{'hover' | translate}} {{'on' | translate}}" i18nPlaceholder="{{'hover' | translate}} {{'on' | translate}}">
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" i18nSelectListHeader="{{'${elementTypeParent.lowercase(Locale.getDefault())}${elementType.lowercase(Locale.getDefault())}.navTitle' | translate}}" i18nPlaceholder="{{'${elementTypeParent.lowercase(Locale.getDefault())}${elementType.lowercase(Locale.getDefault())}.navTitle' | translate}}">
                 <ix-select-item *ngFor="let item of ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.option${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}; let i = index" label="{{'${this.name().lowercase(Locale.getDefault())}' | translate}}" value="{{i}}"></ix-select-item>
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}; let i = index" label="{{'${elementTypeParent.lowercase(Locale.getDefault())}${elementType.lowercase(Locale.getDefault())}.navTitle' | translate}}" value="{{i}}"></ix-select-item>
             </ix-select>          
         </fieldset>"""
 }
@@ -167,13 +167,15 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementTypeParent: Stri
             <legend>{{"${if(this.parent().name().equals(this.parent().parent().name(), true)) {
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
-                <a class="newButton normal-font-size" [routerLink]="'/${this.parent().parent().name().lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'"
-                        routerLinkActive="active-link">
-                    <ix-icon name="add-circle" size="20"></ix-icon>
-                </a>
+                <ng-container *ngIf="!isDisabled">
+                    <a class="newButton normal-font-size" [routerLink]="'/${this.parent().parent().name().lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'"
+                            routerLinkActive="active-link">
+                        <ix-icon name="add-circle" size="20"></ix-icon>
+                    </a>
+                </ng-container>
             </legend>
             
-            <ix-select allowClear="true" mode="multiple" (itemSelectionChange)="bindTo${if(elementTypeParent.equals(elementType, true)) {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
+            <ix-select [readonly]="isDisabled" [allowClear]="!isDisabled" mode="multiple" (itemSelectionChange)="bindTo${if(elementTypeParent.equals(elementType, true)) {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
     else {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } + elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}(${"$"}event)" [selectedIndices]="multipleSelectedIndices${if(elementTypeParent.equals(elementType, true)) {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
     else {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } + elementType.toCamelCase()
@@ -200,7 +202,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormBasicFromEntityMultiple(elementType: S
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${elementType.toCamelCase().lowercase(Locale.getDefault())}" | translate}}</legend>
             
-            <ix-select allowClear="true" mode="multiple" (itemSelectionChange)="bindTo${this.parent().parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
+            <ix-select [readonly]="isDisabled" [allowClear]="!isDisabled" mode="multiple" (itemSelectionChange)="bindTo${this.parent().parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${"$"}event)" [selectedIndices]="multipleSelectedIndices${this.parent().parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}" i18nSelectListHeader="{{'select' | translate}} {{'${this.parent().parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}" i18nPlaceholder="{{'select' | translate}} {{'${this.parent().parent().name().lowercase(Locale.getDefault())}.table.${this.name().lowercase(Locale.getDefault())}' | translate}}">
                 <ix-select-item *ngFor="let item of option${this.parent().parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
@@ -258,18 +260,27 @@ fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNon
             .replaceFirstChar { it.lowercase(Locale.getDefault())} + parentName.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
     return """
                 <td>
-                    <a matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
-                    .lowercase(Locale.getDefault())}']['${this.name()
-                    .lowercase(Locale.getDefault())}']" else "['${this.name()
-                    .lowercase(Locale.getDefault())}']"}) }}" matTooltipClass="custom-tooltip" (click)="${serviceName}DataService.searchItems(i, row${if(isChild) "['${this.parent().name().toCamelCase()
-                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']['${this.name().toCamelCase()
-                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" else "['${this.name().toCamelCase()
-                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}, '${findParentNonInternal?.name()
-                    ?.toCamelCase()?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}/${elementName.lowercase(
-                    Locale.getDefault()
-            )}', '${parentName.lowercase(
-                    Locale.getDefault()
-            )}')"> ... ; </a>
+                
+                    <ng-container *ngIf="!isSpecificView; else showLink">
+                        <a matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
+            .lowercase(Locale.getDefault())}']['${this.name()
+            .lowercase(Locale.getDefault())}']" else "['${this.name()
+            .lowercase(Locale.getDefault())}']"}) }}" matTooltipClass="custom-tooltip" (click)="${serviceName}DataService.searchItems(i, row${if(isChild) "['${this.parent().name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']['${this.name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" else "['${this.name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}, '${findParentNonInternal?.name()
+            ?.toCamelCase()?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}/${elementName.lowercase(
+            Locale.getDefault()
+    )}', '${parentName.lowercase(
+            Locale.getDefault()
+    )}')"> ... </a>
+                    </ng-container>
+                    <ng-template #showLink>
+                        <span matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
+            .lowercase(Locale.getDefault())}']['${this.name()
+            .lowercase(Locale.getDefault())}']" else "['${this.name()
+            .lowercase(Locale.getDefault())}']"}) }}" matTooltipClass="custom-tooltip"> ... </span>
+                    </ng-template>
                 </td>
 """
 }

@@ -146,41 +146,48 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
 <module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${serviceName}${DataService}.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
 
 <ng-container *ngIf="isSpecificView; else normalForm">
-    <span class="material-icons edit-button-specific" (click)="${serviceName}${DataService}.editItems(0, ${this.name()
+
+    <ng-container *ngIf="${serviceName}${DataService}.isEdit; else notSpecificEdit">
+        <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}" [isDisabled]="false"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
+            .lowercase(Locale.getDefault())}-form>
+        <button type="button" class="first-button-edit btn btn-outline-danger" (click)="${serviceName}${DataService}.goBackAndClearStorage()">{{'cancel edit' | translate}}</button>
+        <button type="button" class="second-button-edit btn btn-outline-success" (click)="${serviceName}${DataService}.editElement(${this.name()
+            .lowercase(Locale.getDefault())}); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack()">{{'save changes' | translate}}</button>
+    </ng-container>
+
+    <ng-template #notSpecificEdit>
+        <span class="material-icons edit-button-specific" (click)="${serviceName}${DataService}.editItems(0, ${this.name()
             .lowercase(Locale.getDefault())})">more_horiz</span>
-    <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}" [isDisabled]="true"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
-        .lowercase(Locale.getDefault())}-form>
+        <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}" [isDisabled]="true"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
+            .lowercase(Locale.getDefault())}-form>
+    </ng-template>
 </ng-container>
 
 <ng-template #normalForm>
     <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
         .lowercase(Locale.getDefault())}-form>
-</ng-template>
-
-<ng-container *ngIf="!isSpecificView">
     <ng-container *ngIf="${serviceName}${DataService}.isEdit; else notEdit">
-        <button type="button" class="first-button-edit btn btn-outline-danger" (click)="goBack()">{{'cancel edit' | translate}}</button>
+        <button type="button" class="first-button-edit btn btn-outline-danger" (click)="${serviceName}${DataService}.goBackAndClearStorage()">{{'cancel edit' | translate}}</button>
         <button type="button" class="second-button-edit btn btn-outline-success" (click)="${serviceName}${DataService}.editElement(${this.name()
-            .lowercase(Locale.getDefault())}); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} goBack()">{{'save changes' | translate}}</button>
+            .lowercase(Locale.getDefault())}); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack()">{{'save changes' | translate}}</button>
     </ng-container>
     
     <ng-template #notEdit>
-        <button type="button" class="first-button btn btn-outline-danger" (click)="goBack()"
+        <button type="button" class="first-button btn btn-outline-danger" (click)="${serviceName}${DataService}.goBackAndClearStorage()"
                 >{{'cancel' | translate}}</button>
         <button type="button" class="second-button btn btn-outline-success" (click)="${serviceName}${DataService}.inputElement(${this.name()
-            .lowercase(Locale.getDefault())}); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} goBack() ${entities.filter { entity -> entity.props().any {property ->
-        (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
+            .lowercase(Locale.getDefault())}); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack() ${entities.filter { entity -> entity.props().any {property ->
+        ((property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
             childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) } ||
                 property.type().props().any {
                     childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) }
-                )
+                ) || (entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true)))
     }
     }.joinSurroundIfNotEmptyToString("") {"""; ${serviceName}${DataService}.saveElementFor${serviceName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${this.name()
             .lowercase(Locale.getDefault())})""" }
     }"  >{{'save' | translate}}</button>
     </ng-template>
-</ng-container>
-"""
+</ng-template>"""
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityViewSCSSComponent(c: GenerationContext): String {
@@ -264,7 +271,7 @@ a {
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService, isAggregateView: Boolean = false, containAggregateProp: Boolean = false): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService, isAggregateView: Boolean = false, containAggregateProp: Boolean = false, entities: List<EntityI<*>>): String {
     val serviceName = if(this.parent().name().equals(this.name(), true)) {this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
@@ -278,9 +285,17 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
 </ng-template>
 
 <div class="${this.name().lowercase(Locale.getDefault())}-list-button">
-    <a class="newButton normal-font-size" [routerLink]="'./new'" routerLinkActive="active-link">
-        <ix-icon name="add-circle" size="20"></ix-icon> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
-    </a>
+    <ng-container *ngIf="!isSpecificView; else isSpecificButton">
+        <a class="newButton normal-font-size" [routerLink]="'./new'" routerLinkActive="active-link">
+            <ix-icon name="add-circle" size="20"></ix-icon> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
+        </a>
+    </ng-container>
+
+    <ng-template #isSpecificButton>
+        <a class="newButton normal-font-size" [routerLink]="'/${this.parent().name().lowercase(Locale.getDefault())}/${this.name().lowercase(Locale.getDefault())}/new'" routerLinkActive="active-link">
+            <ix-icon name="add-circle" size="20"></ix-icon> {{"add" | translate}} {{"new" | translate}} {{"item" | translate}}
+        </a>
+    </ng-template>
     
     <ng-container *ngIf="${serviceName}${DataService}.isHidden; else showed">
         <a class="showButton normal-font-size" (click)="${serviceName}${DataService}.toggleHidden()">
@@ -289,7 +304,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
     </ng-container>
     
     <ng-template #showed>
-        <a class="deleteButton normal-font-size" (click)="${serviceName}${DataService}.clearMultipleItems(${serviceName}${DataService}.selection.selected); ${serviceName}${DataService}.toggleHidden()">
+        <a class="deleteButton normal-font-size" (click)="${serviceName}${DataService}.clearMultipleItems(${serviceName}${DataService}.selection.selected); ${serviceName}${DataService}.toggleHidden(); ${if(containAggregateProp) {"""${serviceName}${DataService}.removeAggregateItem(${serviceName}${DataService}.selection.selected)"""} else {""""""}}">
             <ix-icon name="trashcan" size="20"></ix-icon> {{"delete" | translate}} {{"item" | translate}}
         </a>
     </ng-template>
@@ -344,7 +359,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
                             </a>
                         </ix-dropdown-item>
                         <ix-dropdown-item>
-                            <a (click)="${serviceName}${DataService}.removeItem(row)">
+                            <a (click)="${serviceName}${DataService}.removeItem(row); ${if(containAggregateProp) {"""${serviceName}${DataService}.removeAggregateItem(row['${entities.filter { !it.isEMPTY() && !it.props().isEMPTY() && !it.belongsToAggregate().isEMPTY() }.joinSurroundIfNotEmptyToString { it.belongsToAggregate().props().filter { prop -> prop.name().contains(it.name(), true) }.joinSurroundIfNotEmptyToString { prop -> prop.name() } }}'])"""} else {""""""}}">
                                 <ix-icon name="trashcan" size="16"></ix-icon> {{'delete' | translate}}
                             </a>
                         </ix-dropdown-item>
@@ -443,7 +458,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEnumHTMLComponent(c: GenerationContext)
     return """
 <fieldset>
     <legend>{{ componentName | translate}}</legend>
-    <ix-select allowClear="true" mode="{{mode}}" (itemSelectionChange)="(mode === 'multiple') ? changeValueMultiple(${'$'}event) : changeValue(${'$'}event)" [selectedIndices]="multipleSelectedIndices" i18nSelectListHeader="{{'select' | translate}} {{ componentName | translate}}" i18nPlaceholder="{{'select' | translate}} {{ componentName | translate}}">
+    <ix-select [readonly]="isDisabled" [allowClear]="!isDisabled" mode="{{mode}}" (itemSelectionChange)="(mode === 'multiple') ? changeValueMultiple(${'$'}event) : changeValue(${'$'}event)" [selectedIndices]="multipleSelectedIndices" i18nSelectListHeader="{{'select' | translate}} {{ componentName | translate}}" i18nPlaceholder="{{'select' | translate}} {{ componentName | translate}}">
         <ix-select-item *ngFor="let item of enumElements; let i = index" label="{{item}}" value="{{i}}"></ix-select-item>
     </ix-select>
 </fieldset>"""

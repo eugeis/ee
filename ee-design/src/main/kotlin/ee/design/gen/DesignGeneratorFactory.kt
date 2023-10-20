@@ -586,7 +586,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                     angularTemplates.entityFormSCSS(angularEntityFormComponent.scss),
 
                     tsTemplates.entityListTypeScript(angularEntityListComponent.ts),
-                    angularTemplates.entityListHTML(angularEntityListComponent.html, aggregateEntities.invoke(model)),
+                    angularTemplates.entityListHTML(angularEntityListComponent.html, aggregateEntities.invoke(model), entities.invoke(model)),
                     angularTemplates.entityListSCSS(angularEntityListComponent.scss),
 
                     tsTemplates.entityDataService(entities.invoke(model), angularEntityService.ts)
@@ -620,7 +620,7 @@ open class DesignGeneratorFactory(targetAsSingleModule: Boolean = true) : LangGe
                     angularTemplates.entityFormSCSS(angularEntityFormComponent.scss),
 
                     tsTemplates.valueListTypeScript(angularEntityListComponent.ts),
-                    angularTemplates.entityListHTML(angularEntityListComponent.html, aggregateEntities.invoke(model)),
+                    angularTemplates.entityListHTML(angularEntityListComponent.html, aggregateEntities.invoke(model), entities.invoke(model)),
                     angularTemplates.entityListSCSS(angularEntityListComponent.scss),
 
                     tsTemplates.entityDataService(entities.invoke(model), angularEntityService.ts)
