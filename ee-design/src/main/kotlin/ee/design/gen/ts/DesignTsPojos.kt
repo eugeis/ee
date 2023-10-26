@@ -342,6 +342,38 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
             this.saveSpecificData(element, ${this.props().any { !it.isEMPTY() && it.isToStr() == true }.then {  "element." + this.props().first { prop -> prop.isToStr() == true && !prop.isEMPTY() }.name()  }}${this.props().all { !it.isEMPTY() && (it.isToStr() == false || (it.type() is EntityI<*> || it.type() is ValuesI<*> || it.type() is BasicI<*>)) }.then { """''""" }} );
         } 
     }
+    
+    editSpecificElement(element: ${c.n(this, AngularDerivedType.ApiBase)}, elementName: String) {
+        this.items = this.retrieveItemsFromCache();
+        const editItem = JSON.parse(localStorage.getItem('edit' + this.itemName));
+        const oldId = this.itemName + JSON.stringify(editItem);
+        const newId = this.itemName + JSON.stringify(element);
+
+        this.addItemToTableArray(element, newId);
+        this.items.delete(oldId);
+        this.saveItemToCache(this.items);
+
+        const specificData = JSON.parse(localStorage.getItem('specificData'));
+        if (JSON.stringify(specificData).includes(JSON.stringify(editItem)) && JSON.stringify(editItem) !== JSON.stringify(specificData)) {
+            for (const key in specificData) {
+                if (specificData.hasOwnProperty(key)) {
+                    if ((key.toLowerCase().includes(elementName.toLowerCase()) || elementName.toLowerCase().includes(key.toLowerCase())) 
+                        && Array.isArray(specificData[key])) {
+                        const index = specificData[key].findIndex((item) => JSON.stringify(item) === JSON.stringify(editItem));
+                        specificData[key][index] = element;
+                    } else if ((key.toLowerCase().includes(elementName.toLowerCase()) || elementName.toLowerCase().includes(key.toLowerCase())) 
+                        && !Array.isArray(specificData[key])) {
+                        specificData[key] = element;
+                    }
+                }
+            }
+
+            this.saveSpecificData(specificData, JSON.parse(localStorage.getItem('componentName')))
+        } else if (JSON.stringify(editItem) === JSON.stringify(specificData)) {
+            this.saveSpecificData(element, JSON.parse(localStorage.getItem('componentName')))
+        }
+    }
+    
     ${entities.filter { entity -> entity.props().any {property -> 
             (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
                 childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) } ||
@@ -355,8 +387,7 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
     }
     loadElementFrom${c.n(this, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() {
         return JSON.parse(localStorage.getItem('list-item-for-' + '${it.name().lowercase(Locale.getDefault())}' + this.itemName));
-    }
-        """ }
+    }""" }
     }
     
     ${entities.filter { entity -> entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true) }.joinSurroundIfNotEmptyToString("") {"""

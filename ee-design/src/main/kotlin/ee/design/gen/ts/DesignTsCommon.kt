@@ -216,6 +216,12 @@ fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): 
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getFirst();
         this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.checkRoute(this.${this.name().lowercase(Locale.getDefault())});
     
+        if (this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.isSpecificNew === undefined) {
+            this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.isSpecificNew = JSON.parse(localStorage.getItem('isSpecificNew'));
+        }
+        
         this._route.queryParams.subscribe(param => {
             this.${c.n(this, AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = param['name'];
@@ -226,15 +232,6 @@ fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): 
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName !== undefined && this.${c.n(this, AngularDerivedType.DataService)
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName.length > 0) {
             this.isSpecificView = true;
-            this.${c.n(this, AngularDerivedType.DataService)
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.changeMapToArray(
-                this.${c.n(this, AngularDerivedType.DataService)
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.retrieveItemsFromCache()).forEach((data) => {
-                if (JSON.stringify(this.${c.n(this, AngularDerivedType.DataService)
-        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getSpecificData()).includes(JSON.stringify(data))) {
-                    Object.assign(this.${this.name().lowercase(Locale.getDefault())}, data)
-                }
-            })
         }
     }"""
 }

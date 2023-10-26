@@ -151,8 +151,8 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
         <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}" [isDisabled]="false"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
             .lowercase(Locale.getDefault())}-form>
         <button type="button" class="first-button-edit btn btn-outline-danger" (click)="${serviceName}${DataService}.goBackAndClearStorage()">{{'cancel edit' | translate}}</button>
-        <button type="button" class="second-button-edit btn btn-outline-success" (click)="${serviceName}${DataService}.editElement(${this.name()
-            .lowercase(Locale.getDefault())}); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack()">{{'save changes' | translate}}</button>
+        <button type="button" class="second-button-edit btn btn-outline-success" (click)="${serviceName}${DataService}.editSpecificElement(${this.name()
+            .lowercase(Locale.getDefault())}, '${this.name().lowercase(Locale.getDefault())}'); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack()">{{'save changes' | translate}}</button>
     </ng-container>
 
     <ng-template #notSpecificEdit>
@@ -173,9 +173,15 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
     </ng-container>
     
     <ng-template #notEdit>
-        <button type="button" class="first-button btn btn-outline-danger" (click)="${serviceName}${DataService}.goBackAndClearStorage()"
-                >{{'cancel' | translate}}</button>
-        <button type="button" class="second-button btn btn-outline-success" (click)="${serviceName}${DataService}.inputElement(${this.name()
+        <ng-container *ngIf="${serviceName}${DataService}.isSpecificNew; else notSpecific">
+            <button type="button" class="first-button btn btn-outline-danger" (click)="${serviceName}${DataService}.goBackAndClearStorage()">{{'cancel' | translate}}</button>
+            <button type="button" class="second-button btn btn-outline-success" (click)="${serviceName}${DataService}.inputElementSpecific(${this.name()
+                .lowercase(Locale.getDefault())}, '${this.name().lowercase(Locale.getDefault())}'); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack()">{{'save' | translate}}</button>
+        </ng-container>
+        
+        <ng-template #notSpecific>
+            <button type="button" class="first-button btn btn-outline-danger" (click)="${serviceName}${DataService}.goBackAndClearStorage()">{{'cancel' | translate}}</button>
+            <button type="button" class="second-button btn btn-outline-success" (click)="${serviceName}${DataService}.inputElement(${this.name()
             .lowercase(Locale.getDefault())}); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack() ${entities.filter { entity -> entity.props().any {property ->
         ((property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
             childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) } ||
@@ -185,7 +191,8 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
     }
     }.joinSurroundIfNotEmptyToString("") {"""; ${serviceName}${DataService}.saveElementFor${serviceName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${this.name()
             .lowercase(Locale.getDefault())})""" }
-    }"  >{{'save' | translate}}</button>
+    }">{{'save' | translate}}</button>
+        </ng-template>
     </ng-template>
 </ng-template>"""
 }
@@ -313,63 +320,76 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
         <ix-icon name="paste" size="20"></ix-icon> {{"load" | translate}} {{"configuration" | translate}}
     </a>
 </div>
-    
-<div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list">
-    <table class="table table-striped theme-classic-dark">
-        <thead>
-            <tr>
-                <th width="10%">
-                    <div class="form-group">
+
+<ng-container *ngIf="data.length > 0; else emptyState">
+    <div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list">
+        <table class="table table-striped theme-classic-dark">
+            <thead>
+                <tr>
+                    <th width="10%">
+                        <div class="form-group">
+                            <section [style.visibility]="${serviceName}${DataService}.isHidden? 'hidden': 'visible'">
+                                <div style="margin-bottom: 1rem">
+                                    <input type="checkbox"  id="checkbox"
+                                           (change)="${"$"}event ? ${serviceName}${DataService}.masterToggle() : null"
+                                           [checked]="${serviceName}${DataService}.selection.hasValue() && ${serviceName}${DataService}.allRowsSelected()"
+                                           [indeterminate]="${serviceName}${DataService}.selection.hasValue() && !${serviceName}${DataService}.allRowsSelected()"/>
+                                    <label for="checkbox"></label>
+                                </div>
+                            </section>
+                        </div>
+                    </th>
+                    <th width="10%">{{"table.action" | translate}}</th>
+                    ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL + tab + tab + tab + tab) {
+            """<th>{{"${serviceName.lowercase(Locale.getDefault())}.table.${it.name().lowercase(Locale.getDefault())}" | translate}}</th>"""
+        }}
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let row of data; let i = index">
+                    <td>
                         <section [style.visibility]="${serviceName}${DataService}.isHidden? 'hidden': 'visible'">
                             <div style="margin-bottom: 1rem">
-                                <input type="checkbox"  id="checkbox"
-                                       (change)="${"$"}event ? ${serviceName}${DataService}.masterToggle() : null"
-                                       [checked]="${serviceName}${DataService}.selection.hasValue() && ${serviceName}${DataService}.allRowsSelected()"
-                                       [indeterminate]="${serviceName}${DataService}.selection.hasValue() && !${serviceName}${DataService}.allRowsSelected()"/>
-                                <label for="checkbox"></label>
+                                <input type="checkbox" id="checkbox_{{i}}"
+                                       (click)="${"$"}event.stopPropagation()"
+                                       (change)="${"$"}event ? ${serviceName}${DataService}.selection.toggle(row) : null"
+                                       [checked]="${serviceName}${DataService}.selection.isSelected(row) || ${serviceName}${DataService}.allRowsSelected()"/>
+                                <label for="checkbox_{{i}}"></label>
                             </div>
                         </section>
-                    </div>
-                </th>
-                <th width="10%">{{"table.action" | translate}}</th>
-                ${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString(nL + tab + tab + tab + tab) { 
-                    """<th>{{"${serviceName.lowercase(Locale.getDefault())}.table.${it.name().lowercase(Locale.getDefault())}" | translate}}</th>"""
-                }}
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let row of data; let i = index">
-                <td>
-                    <section [style.visibility]="${serviceName}${DataService}.isHidden? 'hidden': 'visible'">
-                        <div style="margin-bottom: 1rem">
-                            <input type="checkbox" id="checkbox_{{i}}"
-                                   (click)="${"$"}event.stopPropagation()"
-                                   (change)="${"$"}event ? ${serviceName}${DataService}.selection.toggle(row) : null"
-                                   [checked]="${serviceName}${DataService}.selection.isSelected(row) || ${serviceName}${DataService}.allRowsSelected()"/>
-                            <label for="checkbox_{{i}}"></label>
-                        </div>
-                    </section>
-                </td>
-                <td>
-                    <ix-icon name="context-menu" size="16" #trigger></ix-icon>
-                    <ix-dropdown [ixDropdownTrigger]="trigger">
-                        <ix-dropdown-item>
-                            <a (click)="${serviceName}${DataService}.editItems(i, row)">
-                                <ix-icon name="pen" size="16"></ix-icon> {{'edit' | translate}}
-                            </a>
-                        </ix-dropdown-item>
-                        <ix-dropdown-item>
-                            <a (click)="${serviceName}${DataService}.removeItem(row); ${if(containAggregateProp) {"""${serviceName}${DataService}.removeAggregateItem(row['${entities.filter { !it.isEMPTY() && !it.props().isEMPTY() && !it.belongsToAggregate().isEMPTY() }.joinSurroundIfNotEmptyToString { it.belongsToAggregate().props().filter { prop -> prop.name().contains(it.name(), true) }.joinSurroundIfNotEmptyToString { prop -> prop.name() } }}'])"""} else {""""""}}">
-                                <ix-icon name="trashcan" size="16"></ix-icon> {{'delete' | translate}}
-                            </a>
-                        </ix-dropdown-item>
-                    </ix-dropdown>
-                </td>
-                ${toAngularTableListBasic(this.name(), "", "",false, this.props().size, containAggregateProp)}
-            </tr>
-        </tbody>
-    </table>
-</div>"""
+                    </td>
+                    <td>
+                        <ix-icon name="context-menu" size="16" #trigger></ix-icon>
+                        <ix-dropdown [ixDropdownTrigger]="trigger">
+                            <ix-dropdown-item>
+                                <a (click)="${serviceName}${DataService}.editItems(i, row)">
+                                    <ix-icon name="pen" size="16"></ix-icon> {{'edit' | translate}}
+                                </a>
+                            </ix-dropdown-item>
+                            <ix-dropdown-item>
+                                <a (click)="${serviceName}${DataService}.removeItem(row); ${if(containAggregateProp) {"""${serviceName}${DataService}.removeAggregateItem(row['${entities.filter { !it.isEMPTY() && !it.props().isEMPTY() && !it.belongsToAggregate().isEMPTY() }.joinSurroundIfNotEmptyToString { it.belongsToAggregate().props().filter { prop -> prop.name().contains(it.name(), true) }.joinSurroundIfNotEmptyToString { prop -> prop.name() } }}'])"""} else {""""""}}">
+                                    <ix-icon name="trashcan" size="16"></ix-icon> {{'delete' | translate}}
+                                </a>
+                            </ix-dropdown-item>
+                        </ix-dropdown>
+                    </td>
+                    ${toAngularTableListBasic(this.name(), "", "",false, this.props().size, containAggregateProp)}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</ng-container>
+
+<ng-template class ="emptyState" #emptyState>
+    <ix-empty-state
+        header="No elements available"
+        subHeader="Create an element first"
+        icon="add"
+        action="Create New Item"
+        [routerLink]="'/${this.parent().name().lowercase(Locale.getDefault())}/${this.name().lowercase(Locale.getDefault())}/new'"
+        routerLinkActive="active-link"
+    ></ix-empty-state>
+</ng-template>"""
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityAggregateViewHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService, isAggregateView: Boolean = false, containAggregateProp: Boolean = false): String {
@@ -405,6 +425,12 @@ si-table {
 
 .${this.name().lowercase(Locale.getDefault())}-list-button {
     @extend .${derived}-button
+}
+
+.emptyState {
+    position: absolute;
+    top: 30%;
+    left: 45%;
 }
 
 a {

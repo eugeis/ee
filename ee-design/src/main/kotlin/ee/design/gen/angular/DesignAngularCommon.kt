@@ -344,7 +344,9 @@ fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: St
                     <a routerLink="view" routerLinkActive="active-link" (click)="${if(elementName.isEmpty()) {if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name().lowercase(Locale.getDefault())
             } else {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
             }} else elementName}DataService.saveSpecificData(row, row['${this.name().toCamelCase()
-                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}'])">{{row['${this.name().toCamelCase()
+                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']); ${if(elementName.isEmpty()) {if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name().lowercase(Locale.getDefault())
+    } else {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    }} else elementName}DataService.saveCurrentSpecificData(row)">{{row['${this.name().toCamelCase()
                     .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']}}</a>
                 </td>
         """}}       
