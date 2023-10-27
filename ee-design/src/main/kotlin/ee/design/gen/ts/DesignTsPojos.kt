@@ -127,10 +127,10 @@ ${this.toAngularFormOnInit(c, tab)}
     
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> it.type().toAngularFunctionBindTo(c, it.name(), this)
+            is EntityI<*>, is ValuesI<*> -> it.type().toAngularFunctionRemove(c, it.name(), this)
             else -> when(it.type().name().lowercase(Locale.getDefault())) {
                 "list" -> when(it.type().generics().first().type()) {
-                    is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> it.type().generics().first().type().toAngularFunctionBindToMultiple(c, it.name(), this)
+                    is EntityI<*>, is ValuesI<*> -> it.type().generics().first().type().toAngularFunctionRemoveMultiple(c, it.name(), this)
                     else -> ""
                 }
                 else -> ""
@@ -611,10 +611,10 @@ ${if (props().any { it.type() is EntityI<*> || it.type() is ValuesI<*> || it.typ
         
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString("") {
     when(it.type()) {
-        is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> it.type().toAngularFunctionBindToBasic(c, it.name(), this)
+        is EntityI<*>, is ValuesI<*> -> it.type().toAngularFunctionRemove(c, it.name(), this)
         else -> when(it.type().name().lowercase(Locale.getDefault())) {
             "list" -> when(it.type().generics().first().type()) {
-                is EntityI<*>, is ValuesI<*>, is EnumTypeI<*> -> it.type().generics().first().type().toAngularFunctionBindToMultipleBasic(c, it.name(), this)
+                is EntityI<*>, is ValuesI<*> -> it.type().generics().first().type().toAngularFunctionRemoveMultiple(c, it.name(), this)
                 else -> ""
             }
             else -> ""

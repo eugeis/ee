@@ -129,35 +129,19 @@ fun <T : ItemI<*>> T.toAngularPropOnConstructor(c: GenerationContext): String {
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}: ${c.n(this, AngularDerivedType.DataService)}, $nL"""
 }
 
-fun <T : ItemI<*>> T.toAngularFunctionBindTo(c: GenerationContext, propName: String, parent: CompilationUnitI<*>): String {
-    return """${tab}bindTo${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}({ detail: [id] }: CustomEvent<string[]>) {
-        this.${parent.name().lowercase(Locale.getDefault())}.${propName.lowercase(Locale.getDefault())} = this.${c.n(parent, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[id];
+fun <T : ItemI<*>> T.toAngularFunctionRemove(c: GenerationContext, propName: String, parent: CompilationUnitI<*>): String {
+    return """
+    removeChip${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(i: number) {
+        this.${parent.name().lowercase(Locale.getDefault())}.${propName.lowercase(Locale.getDefault())} = new ${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}();
+        this.selectedIndices${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = '';
     }$nL"""
 }
 
-fun <T : ItemI<*>> T.toAngularFunctionBindToBasic(c: GenerationContext, propName: String, parent: CompilationUnitI<*>): String {
-    return """${tab}bindTo${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}({ detail: [id] }: CustomEvent<string[]>) {
-        this.${parent.name().lowercase(Locale.getDefault())}.${propName.lowercase(Locale.getDefault())} = this.option${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[id];
-    }$nL"""
-}
-
-fun <T : ItemI<*>> T.toAngularFunctionBindToMultiple(c: GenerationContext, propName: String, parent: CompilationUnitI<*>): String {
-    return """${tab}bindTo${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(index: CustomEvent<string[]>) {
-        const temp = [];
-        index.detail.forEach(id => {
-            temp.push(this.${c.n(parent, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[id]);
-        });
-        this.${parent.name().lowercase(Locale.getDefault())}.${propName.lowercase(Locale.getDefault())} = temp;
-    }$nL"""
-}
-
-fun <T : ItemI<*>> T.toAngularFunctionBindToMultipleBasic(c: GenerationContext, propName: String, parent: CompilationUnitI<*>): String {
-    return """${tab}bindTo${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(index: CustomEvent<string[]>) {
-        const temp = [];
-        index.detail.forEach(id => {
-            temp.push(this.option${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}[id]);
-        });
-        this.${parent.name().lowercase(Locale.getDefault())}.${propName.lowercase(Locale.getDefault())} = temp;
+fun <T : ItemI<*>> T.toAngularFunctionRemoveMultiple(c: GenerationContext, propName: String, parent: CompilationUnitI<*>): String {
+    return """
+    removeChip${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(i: number) {
+        this.${parent.name().lowercase(Locale.getDefault())}.${propName.lowercase(Locale.getDefault())}.splice(this.multipleSelectedIndices${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.indexOf(i.toString()), 1)
+        this.multipleSelectedIndices${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.splice(this.multipleSelectedIndices${c.n(this, AngularDerivedType.ApiBase).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.indexOf(i.toString()), 1)
     }$nL"""
 }
 
@@ -255,6 +239,14 @@ fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent
             this.${this.name()
                 .lowercase(Locale.getDefault())}.${it.name()
                 .replaceFirstChar { it.lowercase(Locale.getDefault()) }} = this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() || [];
+        } else {
+            if (this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() !== null) {
+                this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}().forEach((element: ${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}) => {
+                    this.${this.name()
+                .lowercase(Locale.getDefault())}.${it.name()
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.push(element);
+                })
+            }
         }"""
         }}
         
@@ -334,6 +326,10 @@ fun <T : ItemI<*>> T.toAngularEmptyPropsValues(c: GenerationContext, indent: Str
     return """${indent}if (this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} === undefined) {
             this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(elementType, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() || new ${c.n(elementType, AngularDerivedType.ApiBase)
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}();
+        } else {
+            if (this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(elementType, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() !== null) {
+                this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(elementType, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}();
+            }
         }"""
 }
 

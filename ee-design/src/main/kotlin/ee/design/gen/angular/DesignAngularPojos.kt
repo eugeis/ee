@@ -176,7 +176,16 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
         <ng-container *ngIf="${serviceName}${DataService}.isSpecificNew; else notSpecific">
             <button type="button" class="first-button btn btn-outline-danger" (click)="${serviceName}${DataService}.goBackAndClearStorage()">{{'cancel' | translate}}</button>
             <button type="button" class="second-button btn btn-outline-success" (click)="${serviceName}${DataService}.inputElementSpecific(${this.name()
-                .lowercase(Locale.getDefault())}, '${this.name().lowercase(Locale.getDefault())}'); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack()">{{'save' | translate}}</button>
+                .lowercase(Locale.getDefault())}, '${this.name().lowercase(Locale.getDefault())}'); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack() ${entities.filter { entity -> entity.props().any {property ->
+        ((property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
+            childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) } ||
+                property.type().props().any {
+                    childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) }
+                ) || (entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true)))
+    }
+    }.joinSurroundIfNotEmptyToString("") {"""; ${serviceName}${DataService}.saveElementFor${serviceName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${this.name()
+            .lowercase(Locale.getDefault())})""" }
+    }">{{'save' | translate}}</button>
         </ng-container>
         
         <ng-template #notSpecific>
