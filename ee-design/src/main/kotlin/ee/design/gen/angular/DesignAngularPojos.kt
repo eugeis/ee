@@ -320,7 +320,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
     </ng-container>
     
     <ng-template #showed>
-        <a class="deleteButton normal-font-size" (click)="${serviceName}${DataService}.clearMultipleItems(${serviceName}${DataService}.selection.selected); ${serviceName}${DataService}.toggleHidden(); ${if(containAggregateProp) {"""${serviceName}${DataService}.removeAggregateItem(${serviceName}${DataService}.selection.selected)"""} else {""""""}}">
+        <a class="deleteButton normal-font-size" (click)="${serviceName}${DataService}.clearMultipleItems(${serviceName}${DataService}.selection.selected); ${serviceName}${DataService}.toggleHidden(); ${if(containAggregateProp) {"""${serviceName}${DataService}.removeAggregateItem(${serviceName}${DataService}.selection.selected) ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """; ${serviceName}${DataService}.generateYAML();""" }}"""} else {""""""}}">
             <ix-icon name="trashcan" size="20"></ix-icon> {{"delete" | translate}} {{"item" | translate}}
         </a>
     </ng-template>
@@ -376,7 +376,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
                                 </a>
                             </ix-dropdown-item>
                             <ix-dropdown-item>
-                                <a (click)="${serviceName}${DataService}.removeItem(row); ${if(containAggregateProp) {"""${serviceName}${DataService}.removeAggregateItem(row['${entities.filter { !it.isEMPTY() && !it.props().isEMPTY() && !it.belongsToAggregate().isEMPTY() }.joinSurroundIfNotEmptyToString { it.belongsToAggregate().props().filter { prop -> prop.name().contains(it.name(), true) }.joinSurroundIfNotEmptyToString { prop -> prop.name() } }}'])"""} else {""""""}}">
+                                <a (click)="${serviceName}${DataService}.removeItem(row); ${if(containAggregateProp) {"""${serviceName}${DataService}.removeAggregateItem(row['${entities.filter { !it.isEMPTY() && !it.props().isEMPTY() && !it.belongsToAggregate().isEMPTY() }.joinSurroundIfNotEmptyToString { it.belongsToAggregate().props().filter { prop -> prop.name().contains(it.name(), true) }.joinSurroundIfNotEmptyToString { prop -> prop.name() } }}'])"""} else {""""""}} ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """; ${serviceName}${DataService}.generateYAML();""" }}">
                                     <ix-icon name="trashcan" size="16"></ix-icon> {{'delete' | translate}}
                                 </a>
                             </ix-dropdown-item>
