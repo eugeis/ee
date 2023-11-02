@@ -152,7 +152,8 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
             .lowercase(Locale.getDefault())}-form>
         <button type="button" class="first-button-edit btn btn-outline-danger" (click)="${serviceName}${DataService}.goBackAndClearStorage()">{{'cancel edit' | translate}}</button>
         <button type="button" class="second-button-edit btn btn-outline-success" (click)="${serviceName}${DataService}.editSpecificElement(${this.name()
-            .lowercase(Locale.getDefault())}, '${this.name().lowercase(Locale.getDefault())}'); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack()">{{'save changes' | translate}}</button>
+            .lowercase(Locale.getDefault())}, '${this.name().lowercase(Locale.getDefault())}'); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML(); ${serviceName}${DataService}.saveCurrentSpecificData(${this.name()
+            .lowercase(Locale.getDefault())});""" }} ${serviceName}${DataService}.goBack()">{{'save changes' | translate}}</button>
     </ng-container>
 
     <ng-template #notSpecificEdit>

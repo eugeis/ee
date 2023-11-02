@@ -115,8 +115,8 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementTypeParent: String, elem
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
                 <ng-container *ngIf="!isDisabled">
-                    <a class="newButton normal-font-size" [routerLink]="'/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'" routerLinkActive="active-link">
-                        <ix-icon name="add-circle" size="20"></ix-icon>
+                    <a class="material-icons newButton normal-font-size" [routerLink]="'/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'" routerLinkActive="active-link">
+                        more_horiz
                     </a>
                 </ng-container>
             </legend>
@@ -128,7 +128,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementTypeParent: String, elem
                 <ng-container *ngIf="selectedIndices${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.includes(i.toString())">
                     <ix-chip [closable]="!isDisabled" [outline]="true" (closeChip)="removeChip${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(i)"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> {{'${elementTypeParent.lowercase(Locale.getDefault())}${elementType.lowercase(Locale.getDefault())}.navTitle' | translate}} </span> </ix-chip>
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(i)"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> ... </span> </ix-chip>
                 </ng-container>
             </ng-container>        
         </fieldset>"""
@@ -141,8 +141,8 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormValues(elementTypeParent: String, elem
         this.parent().name().lowercase(Locale.getDefault())
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
                 <ng-container *ngIf="!isDisabled">
-                    <a class="newButton normal-font-size" [routerLink]="'/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'" routerLinkActive="active-link">
-                        <ix-icon name="add-circle" size="20"></ix-icon>
+                    <a class="material-icons newButton normal-font-size" [routerLink]="'/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/new'" routerLinkActive="active-link">
+                        more_horiz
                     </a>
                 </ng-container>
             </legend>
@@ -154,7 +154,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormValues(elementTypeParent: String, elem
                 <ng-container *ngIf="selectedIndices${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.includes(i.toString())">
                     <ix-chip [closable]="!isDisabled" [outline]="true" (closeChip)="removeChip${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(i)"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> {{'${elementTypeParent.lowercase(Locale.getDefault())}${elementType.lowercase(Locale.getDefault())}.navTitle' | translate}} </span> </ix-chip>
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(i)"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> ... </span> </ix-chip>
                 </ng-container>
             </ng-container>        
         </fieldset>"""
