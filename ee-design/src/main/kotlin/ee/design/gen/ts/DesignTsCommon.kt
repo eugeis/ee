@@ -238,10 +238,10 @@ fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent
                 .replaceFirstChar { it.lowercase(Locale.getDefault()) }} == null) {
             this.${this.name()
                 .lowercase(Locale.getDefault())}.${it.name()
-                .replaceFirstChar { it.lowercase(Locale.getDefault()) }} = this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() || [];
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }} = this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem('${it.type().generics().first().type().name().lowercase(Locale.getDefault())}') || [];
         } else {
-            if (this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() !== null) {
-                this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}().forEach((element: ${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}) => {
+            if (this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem('${it.type().generics().first().type().name().lowercase(Locale.getDefault())}') !== null) {
+                this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem('${it.type().generics().first().type().name().lowercase(Locale.getDefault())}').forEach((element: ${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}) => {
                     this.${this.name()
                 .lowercase(Locale.getDefault())}.${it.name()
                 .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.push(element);
@@ -324,11 +324,11 @@ fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, e
 
 fun <T : ItemI<*>> T.toAngularEmptyPropsValues(c: GenerationContext, indent: String, elementType: TypeI<*>): String {
     return """${indent}if (this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} === undefined) {
-            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(elementType, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() || new ${c.n(elementType, AngularDerivedType.ApiBase)
+            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem('${elementType.name().lowercase(Locale.getDefault())}') || new ${c.n(elementType, AngularDerivedType.ApiBase)
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}();
         } else {
-            if (this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(elementType, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}() !== null) {
-                this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFrom${c.n(elementType, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}();
+            if (this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem('${elementType.name().lowercase(Locale.getDefault())}') !== null) {
+                this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem('${elementType.name().lowercase(Locale.getDefault())}');
             }
         }"""
 }

@@ -150,9 +150,9 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
     <ng-container *ngIf="${serviceName}${DataService}.isEdit; else notSpecificEdit">
         <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}" [isDisabled]="false"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
             .lowercase(Locale.getDefault())}-form>
-        <button type="button" class="first-button-edit btn btn-outline-danger" (click)="${serviceName}${DataService}.goBackAndClearStorage()">{{'cancel edit' | translate}}</button>
+        <button type="button" class="first-button-edit btn btn-outline-danger" (click)="${serviceName}${DataService}.goBack()">{{'cancel edit' | translate}}</button>
         <button type="button" class="second-button-edit btn btn-outline-success" (click)="${serviceName}${DataService}.editSpecificElement(${this.name()
-            .lowercase(Locale.getDefault())}, '${this.name().lowercase(Locale.getDefault())}'); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML(); ${serviceName}${DataService}.saveCurrentSpecificData(${this.name()
+            .lowercase(Locale.getDefault())}, '${this.name().lowercase(Locale.getDefault())}', ${if(entities.filter { entity -> entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true) }.isNotEmpty()) {"""true"""} else {"""false"""}}); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML(); ${serviceName}${DataService}.saveCurrentSpecificData(${this.name()
             .lowercase(Locale.getDefault())});""" }} ${serviceName}${DataService}.goBack()">{{'save changes' | translate}}</button>
     </ng-container>
 
@@ -168,14 +168,20 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
     <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
         .lowercase(Locale.getDefault())}-form>
     <ng-container *ngIf="${serviceName}${DataService}.isEdit; else notEdit">
-        <button type="button" class="first-button-edit btn btn-outline-danger" (click)="${serviceName}${DataService}.goBackAndClearStorage()">{{'cancel edit' | translate}}</button>
+        <button type="button" class="first-button-edit btn btn-outline-danger" (click)="${serviceName}${DataService}.goBack()">{{'cancel edit' | translate}}</button>
         <button type="button" class="second-button-edit btn btn-outline-success" (click)="${serviceName}${DataService}.editElement(${this.name()
-            .lowercase(Locale.getDefault())}); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack()">{{'save changes' | translate}}</button>
+            .lowercase(Locale.getDefault())}, '${this.name().lowercase(Locale.getDefault())}', ${
+        if (entities.filter { entity -> entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true) }.isNotEmpty()) {
+            """true"""
+        } else {
+            """false"""
+        }
+    }); ${serviceName}${DataService}.goBack()">{{'save changes' | translate}}</button>
     </ng-container>
     
     <ng-template #notEdit>
         <ng-container *ngIf="${serviceName}${DataService}.isSpecificNew; else notSpecific">
-            <button type="button" class="first-button btn btn-outline-danger" (click)="${serviceName}${DataService}.goBackAndClearStorage()">{{'cancel' | translate}}</button>
+            <button type="button" class="first-button btn btn-outline-danger" (click)="${serviceName}${DataService}.goBack()">{{'cancel' | translate}}</button>
             <button type="button" class="second-button btn btn-outline-success" (click)="${serviceName}${DataService}.inputElementSpecific(${this.name()
                 .lowercase(Locale.getDefault())}, '${this.name().lowercase(Locale.getDefault())}'); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack() ${entities.filter { entity -> entity.props().any {property ->
         ((property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
@@ -184,13 +190,14 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
                     childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) }
                 ) || (entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true)))
     }
-    }.joinSurroundIfNotEmptyToString("") {"""; ${serviceName}${DataService}.saveElementFor${serviceName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${this.name()
-            .lowercase(Locale.getDefault())})""" }
+    }.joinSurroundIfNotEmptyToString("") {"""; ${serviceName}${DataService}.saveElementForListItem(${this.name()
+            .lowercase(Locale.getDefault())}, '${this.name()
+            .lowercase(Locale.getDefault())}', ${if(entities.filter { entity -> entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true) }.isNotEmpty()) {"""true"""} else {"""false"""}})""" }
     }">{{'save' | translate}}</button>
         </ng-container>
         
         <ng-template #notSpecific>
-            <button type="button" class="first-button btn btn-outline-danger" (click)="${serviceName}${DataService}.goBackAndClearStorage()">{{'cancel' | translate}}</button>
+            <button type="button" class="first-button btn btn-outline-danger" (click)="${serviceName}${DataService}.goBack()">{{'cancel' | translate}}</button>
             <button type="button" class="second-button btn btn-outline-success" (click)="${serviceName}${DataService}.inputElement(${this.name()
             .lowercase(Locale.getDefault())}); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack() ${entities.filter { entity -> entity.props().any {property ->
         ((property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
@@ -199,8 +206,9 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
                     childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) }
                 ) || (entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true)))
     }
-    }.joinSurroundIfNotEmptyToString("") {"""; ${serviceName}${DataService}.saveElementFor${serviceName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${this.name()
-            .lowercase(Locale.getDefault())})""" }
+    }.joinSurroundIfNotEmptyToString("") {"""; ${serviceName}${DataService}.saveElementForListItem(${this.name()
+            .lowercase(Locale.getDefault())}, '${this.name()
+            .lowercase(Locale.getDefault())}', ${if(entities.filter { entity -> entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true) }.isNotEmpty()) {"""true"""} else {"""false"""}})""" }
     }">{{'save' | translate}}</button>
         </ng-template>
     </ng-template>
