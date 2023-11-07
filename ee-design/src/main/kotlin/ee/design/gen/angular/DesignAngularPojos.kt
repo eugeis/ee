@@ -287,7 +287,7 @@ a {
 """
 }
 
-fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService, isAggregateView: Boolean = false, containAggregateProp: Boolean = false, entities: List<EntityI<*>>): String {
+fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationContext, DataService: String = AngularDerivedType.DataService, isAggregateView: Boolean = false, containAggregateProp: Boolean = false, entities: List<EntityI<*>> = emptyList()): String {
     val serviceName = if(this.parent().name().equals(this.name(), true)) {this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
