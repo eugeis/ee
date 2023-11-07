@@ -359,14 +359,14 @@ fun <T : StructureUnitI<*>> T.extendForGoGenerationLang(): T {
     return this
 }
 
-fun AttributeI<*>.nameForGoMember(): String = storage.getOrPut(this, "nameForGoMember", {
+fun AttributeI<*>.nameForGoMember(): String = storage.getOrPut(this, "nameForGoMember") {
     val name = name()
     isReplaceable().notSetOrTrue().ifElse({
         name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     }, {
         name.replaceFirstChar { it.lowercase(Locale.getDefault()) }
     })
-})
+}
 
 val itemAndTemplateNameAsGoFileName: TemplateI<*>.(CompositeI<*>) -> Names = {
     Names("${it.name().toUnderscoredLowerCase()}_${name.toUnderscoredLowerCase()}.go")

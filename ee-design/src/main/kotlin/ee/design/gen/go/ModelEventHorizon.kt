@@ -49,7 +49,7 @@ fun StructureUnitI<*>.addEsArtifacts() {
             controller {
                 name(DesignDerivedType.HttpRouter).derivedAsType(DesignDerivedType.Http)
                 entities.forEach { entity ->
-                    val entityProj = "${entity.name()}Projector"
+                    val entityProj = "${entity.name()}${DesignDerivedType.Projector}"
                     val p = prop {
                         name(entityProj.replaceFirstChar { it.lowercase(Locale.getDefault()) }).type(Type().name(entityProj)).default().notInitByDefaultTypeValue()
                     }
