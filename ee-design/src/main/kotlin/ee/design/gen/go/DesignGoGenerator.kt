@@ -9,7 +9,7 @@ import java.nio.file.Path
 
 open class DesignGoGenerator(private val models: List<StructureUnitI<*>>, targetAsSingleModule: Boolean = true) {
     private val log = LoggerFactory.getLogger(javaClass)
-    private val generatorFactory = DesignGeneratorFactory(targetAsSingleModule)
+    val generatorFactory = DesignGeneratorFactory(targetAsSingleModule)
 
     init {
         models.extendForGoGeneration()
