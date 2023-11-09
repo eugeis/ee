@@ -367,6 +367,7 @@ fun StructureUnitI<*>.addAggregateHandler() {
         handler {
             name("Handler")
             val initial = state { name("Initial") }
+            defaultState(initial)
         }
     }
 }
