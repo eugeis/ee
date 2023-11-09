@@ -547,13 +547,13 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
             ConstructorI<*>::toGoHttpModuleClientBeforeBody
         )
 
-        macros.registerMacro(ConstructorI<*>::toGoCliBeforeBody.name, ConstructorI<*>::toGoCliBeforeBody)
+        macros.registerMacro(ConstructorI<*>::toGoCobraBeforeBody.name, ConstructorI<*>::toGoCobraBeforeBody)
 
-        macros.registerMacro(OperationI<*>::toGoCliBuildCommands.name, OperationI<*>::toGoCliBuildCommands)
-        macros.registerMacro(OperationI<*>::toGoCliDeleteByIdBody.name, OperationI<*>::toGoCliDeleteByIdBody)
-        macros.registerMacro(OperationI<*>::toGoCliDeleteByIdsBody.name, OperationI<*>::toGoCliDeleteByIdsBody)
-        macros.registerMacro(OperationI<*>::toGoCliImportJsonBody.name, OperationI<*>::toGoCliImportJsonBody)
-        macros.registerMacro(OperationI<*>::toGoCliExportJsonBody.name, OperationI<*>::toGoCliExportJsonBody)
+        macros.registerMacro(OperationI<*>::toGoCobraBuildCommands.name, OperationI<*>::toGoCobraBuildCommands)
+        macros.registerMacro(OperationI<*>::toGoCobraDeleteByIdBody.name, OperationI<*>::toGoCobraDeleteByIdBody)
+        macros.registerMacro(OperationI<*>::toGoCobraDeleteByIdsBody.name, OperationI<*>::toGoCobraDeleteByIdsBody)
+        macros.registerMacro(OperationI<*>::toGoCobraImportJsonBody.name, OperationI<*>::toGoCobraImportJsonBody)
+        macros.registerMacro(OperationI<*>::toGoCobraExportJsonBody.name, OperationI<*>::toGoCobraExportJsonBody)
 
         macros.registerMacro(OperationI<*>::toGoFindByBody.name, OperationI<*>::toGoFindByBody)
         macros.registerMacro(OperationI<*>::toGoCountByBody.name, OperationI<*>::toGoCountByBody)

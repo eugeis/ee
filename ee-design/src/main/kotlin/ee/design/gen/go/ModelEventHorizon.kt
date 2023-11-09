@@ -133,7 +133,7 @@ fun StructureUnitI<*>.addEsArtifacts() {
                             p(it) { default().value("New${it.name()}(client.${entityClient.dataTypeParentNameAndName()})") }
                         }.toTypedArray()
                     )
-                    macrosBeforeBody(ConstructorI<*>::toGoCliBeforeBody.name)
+                    macrosBeforeBody(ConstructorI<*>::toGoCobraBeforeBody.name)
                 }
             }
         }
@@ -635,6 +635,8 @@ private fun EntityI<*>.addCli(client: ControllerI<*>): BusinessControllerI<*> {
     return controller {
         name(DesignDerivedType.Cli).derivedAsType(DesignDerivedType.Cli)
         val entityClient = prop { type(client).name("client") }
+        val optsPropId = propS { name(propId.name()) }
+        val optsPropIds = propS { name(propId.name().toPlural()) }
 
         constr {
             params(entityClient)
@@ -642,35 +644,35 @@ private fun EntityI<*>.addCli(client: ControllerI<*>): BusinessControllerI<*> {
 
         op {
             name("BuildCommands")
-            ret(n.List.GT(g.cli.Command)).notErr()
+            ret(n.List.GT(g.cobra.Command)).notErr()
 
-            macrosBody(OperationI<*>::toGoCliBuildCommands.name)
+            macrosBody(OperationI<*>::toGoCobraBuildCommands.name)
         }
 
         op {
             name("BuildCommandImportJSON")
-            ret(g.cli.Command).notErr()
-            macrosBody(OperationI<*>::toGoCliImportJsonBody.name)
+            ret(g.cobra.Command).notErr()
+            macrosBody(OperationI<*>::toGoCobraImportJsonBody.name)
         }
 
         op {
             name("BuildCommandExportJSON")
-            ret(g.cli.Command).notErr()
-            macrosBody(OperationI<*>::toGoCliExportJsonBody.name)
+            ret(g.cobra.Command).notErr()
+            macrosBody(OperationI<*>::toGoCobraExportJsonBody.name)
         }
 
         op {
             name("BuildCommandDeleteBy${propId.name().toPlural()
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}")
-            ret(g.cli.Command).notErr()
-            macrosBody(OperationI<*>::toGoCliDeleteByIdsBody.name)
+            ret(g.cobra.Command).notErr()
+            macrosBody(OperationI<*>::toGoCobraDeleteByIdsBody.name)
         }
 
         op {
             name("BuildCommandDeleteBy${propId.name()
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}")
-            ret(g.cli.Command).notErr()
-            macrosBody(OperationI<*>::toGoCliDeleteByIdBody.name)
+            ret(g.cobra.Command).notErr()
+            macrosBody(OperationI<*>::toGoCobraDeleteByIdBody.name)
         }
     }
 }

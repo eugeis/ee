@@ -265,10 +265,8 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         }
     }
 
-    object cli : StructureUnit({ namespace("github.com.urfave.cli").name("cli") }) {
-        val Command = ExternalType { ifc() }
-        val Context = ExternalType()
-        val NewApp = Operation()
+    object cobra : StructureUnit({ namespace("github.com.spf13.cobra").name("cobra") }) {
+        val Command = ExternalType { }
     }
 
     object logrus : StructureUnit({ namespace("github.com.sirupsen.logrus") }) {

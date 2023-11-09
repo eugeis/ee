@@ -5,6 +5,7 @@ import ee.design.DesignDerivedKind
 import ee.design.EntityI
 import ee.lang.*
 import ee.lang.gen.go.g
+import ee.lang.gen.go.toGo
 import java.util.*
 
 
@@ -113,7 +114,7 @@ fun <T : ConstructorI<*>> T.toGoHttpClientBeforeBody(
     url = url + "/" + "${item.name().toPlural().replaceFirstChar { it.lowercase(Locale.getDefault()) }}""""
 }
 
-fun <T : ConstructorI<*>> T.toGoCliBeforeBody(
+fun <T : ConstructorI<*>> T.toGoCobraBeforeBody(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
 
@@ -121,18 +122,18 @@ fun <T : ConstructorI<*>> T.toGoCliBeforeBody(
     client := NewClient(url, httpClient)"""
 }
 
-fun <T : OperationI<*>> T.toGoCliBuildCommands(
+fun <T : OperationI<*>> T.toGoCobraBuildCommands(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
 
     return """
-    ret = []cli.Command{
-    	o.BuildCommandImportJSON(),o.BuildCommandExportJSON(),o.BuildCommandDeleteById(),o.BuildCommandDeleteByIds(),
+    ret = []*cobra.Command{
+    	o.BuildCommandImportJSON(), o.BuildCommandExportJSON(), o.BuildCommandDeleteById(), o.BuildCommandDeleteByIds(),
 	}        
     """
 }
 
-fun <T : OperationI<*>> T.toGoCliImportJsonBody(
+fun <T : OperationI<*>> T.toGoCobraImportJsonBody(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
 
@@ -141,7 +142,7 @@ fun <T : OperationI<*>> T.toGoCliImportJsonBody(
     """
 }
 
-fun <T : OperationI<*>> T.toGoCliExportJsonBody(
+fun <T : OperationI<*>> T.toGoCobraExportJsonBody(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
 
@@ -150,7 +151,7 @@ fun <T : OperationI<*>> T.toGoCliExportJsonBody(
     """
 }
 
-fun <T : OperationI<*>> T.toGoCliDeleteByIdsBody(
+fun <T : OperationI<*>> T.toGoCobraDeleteByIdsBody(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
 
@@ -158,21 +159,14 @@ fun <T : OperationI<*>> T.toGoCliDeleteByIdsBody(
     val propId = entity.propIdOrAdd()
 
     return """
-	ret = cli.Command{
-		Name:  "deleteBy${propId.name().toPlural()
+	ret = &cobra.Command{
+		Short:  "deleteBy${propId.name().toPlural()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}",
-		Usage: "delete ${entity.name()} by ${propId.name().toPlural()}",
-		Flags: []cli.Flag{&cli.StringFlag{
-			Name:     "${propId.name().toPlural()}",
-			Usage:    "${propId.name().toPlural()} of the ${
-        entity.name().toPlural()
-    } to delete, separated by semicolon",
-			Required: true,
-		}},
-		Action: func(c *cli.Context) (err error) {
+		Use: "delete ${entity.name()} by ${propId.name().toPlural()}",
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
             var ${propId.name()} ${c.n(g.google.uuid.UUID, api)}			
             var ${propId.name().toPlural()} []${c.n(g.google.uuid.UUID, api)}
-			for _, idString := range ${c.n(g.strings.Split, api)}(c.String("${propId.name().toPlural()}"),",") {
+			for _, idString := range ${c.n(g.strings.Split, api)}(o.${propId.name().toPlural().toGo()},",") {
 				if id, err = uuid.Parse(idString); err != nil {
 					return
 				}
@@ -182,10 +176,11 @@ fun <T : OperationI<*>> T.toGoCliDeleteByIdsBody(
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(${propId.name().toPlural()})
             return
 		},
-	}"""
+	}
+    ret.PersistentFlags().StringVar(&o.${propId.name().toPlural().toGo()}, "${propId.name().toPlural()}", "", "${propId.name().toPlural()} of the ${entity.name().toPlural()} to delete, separated by semicolon")"""
 }
 
-fun <T : OperationI<*>> T.toGoCliDeleteByIdBody(
+fun <T : OperationI<*>> T.toGoCobraDeleteByIdBody(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
 
@@ -193,22 +188,18 @@ fun <T : OperationI<*>> T.toGoCliDeleteByIdBody(
     val propId = entity.propIdOrAdd()
 
     return """
-	ret = cli.Command{
-		Name:  "deleteBy${propId.name()
+	ret = &cobra.Command{
+		Short:  "deleteBy${propId.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}",
-		Usage: "delete ${entity.name()} by ${propId.name()}",
-		Flags: []cli.Flag{&cli.StringFlag{
-			Name:     "${propId.name()}",
-			Usage:    "${propId.name()} of the ${entity.name()} to delete",
-			Required: true,
-		}},
-		Action: func(c *cli.Context) (err error) {
+		Use: "delete ${entity.name()} by ${propId.name()}",
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			var ${propId.name()} ${c.n(g.google.uuid.UUID, api)}
-			if ${propId.name()}, err = uuid.Parse(c.String("${propId.name()}")); err == nil {
+			if ${propId.name()}, err = uuid.Parse(o.${propId.toGo()}); err == nil {
 				err = o.Client.DeleteBy${propId.name()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(&${propId.name()})	
 			}
 			return
 		},
-	}"""
+	}
+    ret.PersistentFlags().StringVar(&o.${propId.toGo()}, "${propId.name()}", "", "${propId.name().toPlural()} of the ${entity.name().toPlural()} to delete")"""
 }
