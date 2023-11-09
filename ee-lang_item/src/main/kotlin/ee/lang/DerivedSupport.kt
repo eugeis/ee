@@ -68,7 +68,7 @@ open class DerivedController {
     }
 
     open fun <T : ItemI<*>> register(kind: DerivedKind<T>): DerivedKind<T> {
-        nameToDerivedKind.put(kind.name, kind)
+        nameToDerivedKind[kind.name] = kind
         return kind
     }
 

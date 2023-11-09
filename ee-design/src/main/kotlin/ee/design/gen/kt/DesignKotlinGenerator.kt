@@ -1,23 +1,22 @@
 package ee.design.gen.kt
 
 import ee.design.ModuleI
-import ee.design.gen.DesignGeneratorFactory
 import ee.design.renameControllersAccordingParentType
 import ee.design.markReplaceableConfigProps
 import ee.lang.*
+import ee.lang.gen.kt.LangKotlinGenerator
 import ee.lang.gen.kt.prepareForKotlinGeneration
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
-open class DesignKotlinGenerator(val model: StructureUnitI<*>, targetAsSingleModule: Boolean = false) {
+open class DesignKotlinGenerator(model: StructureUnitI<*>, targetAsSingleModule: Boolean = false): LangKotlinGenerator(model, targetAsSingleModule) {
     private val log = LoggerFactory.getLogger(javaClass)
-    val generatorFactory = DesignGeneratorFactory(targetAsSingleModule)
 
     init {
         model.extendForKotlinGeneration()
     }
 
-    fun generate(target: Path, generatorContexts: GeneratorContexts<StructureUnitI<*>> = generatorFactory.pojoKt(),
+    fun generate(target: Path, generatorContexts: GeneratorContexts<StructureUnitI<*>> = pojoKt(),
                  shallSkip: GeneratorI<*>.(model: Any?) -> Boolean = { false }) {
         val generator = generatorContexts.generator
         log.info("generate ${generator.names()} to $target for ${model.name()}")
