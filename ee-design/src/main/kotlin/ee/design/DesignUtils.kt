@@ -255,7 +255,7 @@ fun StructureUnitI<*>.addDefaultReturnValuesForQueries() {
 }
 
 fun StructureUnitI<*>.addCommandsAndEventsForAggregates() {
-    findDownByType(EntityI::class.java).filter { !it.isVirtual() }.extend {
+    findDownByType(EntityI::class.java).filter { it.isAggregate() }.extend {
 
         if (isDefaultCommands()) {
             commandCreate()
@@ -475,6 +475,10 @@ fun <T : CompilationUnitI<*>> T.propagateItemToSubtypes(item: CompilationUnitI<*
 }
 
 const val PROP_DELETED_AT = "deletedAt"
+
+fun EntityI<*>.isAggregate(): Boolean {
+    return !isVirtual() && belongsToAggregate().isEMPTY() && derivedAsType().isEmpty()
+}
 
 fun EntityI<*>.addPropDeletedAt(): AttributeI<*> {
     return prop {
