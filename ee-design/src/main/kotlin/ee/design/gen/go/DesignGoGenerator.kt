@@ -86,7 +86,7 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
 
         addEsArtifacts()
 
-        renameControllersAccordingParentType()
+        renameArtifactsAccordingParentType()
 
         //setOptionalTagToEventsAndCommandsProps()
 
@@ -154,15 +154,15 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
             }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
         }
 
-        val controllersWithOutOps: StructureUnitI<*>.() -> List<ControllerI<*>> = {
-            val ret = findDownByType(ControllerI::class.java).filter {
+        val controllersWithoutOps: StructureUnitI<*>.() -> List<BusinessControllerI<*>> = {
+            val ret = findDownByType(BusinessControllerI::class.java).filter {
                 !it.isIfc() && it.derivedAsType().isEmpty() && it.operations().isEmpty()
             }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
             ret
         }
 
-        val controllersWithOps: StructureUnitI<*>.() -> List<ControllerI<*>> = {
-            val ret = findDownByType(ControllerI::class.java).filter {
+        val controllersWithOps: StructureUnitI<*>.() -> List<BusinessControllerI<*>> = {
+            val ret = findDownByType(BusinessControllerI::class.java).filter {
                 !it.isIfc() && it.derivedAsType().isEmpty() && it.operations().isNotEmpty()
             }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
             ret
@@ -202,7 +202,7 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
                                 ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = basics,
                                     fragments = { listOf(goTemplates.pojo()) }),
                                 ItemsFragment(items = enums, fragments = { listOf(goTemplates.enum()) }),
-                                ItemsFragment(items = controllersWithOutOps, fragments = { listOf(goTemplates.pojo()) })
+                                ItemsFragment(items = controllersWithoutOps, fragments = { listOf(goTemplates.pojo()) })
                             )
                         })
                 ),
@@ -328,8 +328,8 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
 
         derivedTypes.forEach { derivedType ->
 
-            val controllers: StructureUnitI<*>.() -> Collection<ControllerI<*>> = {
-                findDownByType(type = ControllerI::class.java, stopSteppingDownIfFound = false).filter {
+            val controllers: StructureUnitI<*>.() -> Collection<BusinessControllerI<*>> = {
+                findDownByType(type = BusinessControllerI::class.java, stopSteppingDownIfFound = false).filter {
                     !it.isIfc() && it.derivedAsType().equals(derivedType, true)
                 }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
             }

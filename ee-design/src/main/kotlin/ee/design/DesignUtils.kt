@@ -186,7 +186,7 @@ fun EntityI<*>.hasNoEvents() = events().isEmpty() && created().isEmpty() && upda
 fun EntityI<*>.hasNoCommands() =
     commands().isEmpty() && createBys().isEmpty() && updateBys().isEmpty() && deleteBys().isEmpty()
 
-fun StructureUnitI<*>.renameControllersAccordingParentType() {
+fun StructureUnitI<*>.renameArtifactsAccordingParentType() {
     findDownByType(ControllerI::class.java).forEach { item ->
         item.extendAdapt {
             val parent = findParent(CompilationUnitI::class.java)
@@ -366,7 +366,7 @@ fun StructureUnitI<*>.addAggregateHandler() {
     findDownByType(EntityI::class.java).filter { !it.isVirtual() && it.handlers().isEmpty() }.extend {
         handler {
             name("Handler")
-            val initial = state { name("initial") }
+            val initial = state { name("Initial") }
         }
     }
 }

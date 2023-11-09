@@ -1,7 +1,7 @@
 package ee.design.gen.kt
 
 import ee.design.ModuleI
-import ee.design.renameControllersAccordingParentType
+import ee.design.renameArtifactsAccordingParentType
 import ee.design.markReplaceableConfigProps
 import ee.lang.*
 import ee.lang.gen.kt.LangKotlinGenerator
@@ -33,7 +33,7 @@ open class DesignKotlinGenerator(model: StructureUnitI<*>, targetAsSingleModule:
         prepareForKotlinGeneration()
 
         //define names for data type controllers
-        renameControllersAccordingParentType()
+        renameArtifactsAccordingParentType()
 
         markReplaceableConfigProps()
     }
