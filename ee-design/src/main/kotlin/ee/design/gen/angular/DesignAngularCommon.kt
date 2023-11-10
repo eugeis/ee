@@ -128,15 +128,17 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementTypeParent: String, elem
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}; let i = index">
                 <ng-container *ngIf="selectedIndices${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.includes(i.toString())">
-                    <ng-container *ngIf="isDisabled; else toEdit">#
-                        <ix-chip [closable]="!isDisabled" [outline]="true" [routerLink]="['./${elementTypeParent.lowercase(Locale.getDefault())}${elementType.lowercase(Locale.getDefault())}']" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+                    <ng-container *ngIf="isDisabled; else toEdit">
+                        <ix-chip [closable]="!isDisabled" [outline]="true" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/view', i]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.componentName, isDisabled: true}" routerLinkActive="active-link"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> ... </span> </ix-chip>
                     </ng-container>
                     <ng-template #toEdit>
                         <ix-chip [closable]="!isDisabled" [outline]="true" (closeChip)="removeChip${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(i)" (click)="${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.editItems(i, ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())})" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" routerLinkActive="active-link"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> ... </span> </ix-chip>
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.editItems(i, ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())})" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.componentName}" routerLinkActive="active-link"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> ... </span> </ix-chip>
                     </ng-template>
                 </ng-container>
             </ng-container>        
@@ -164,14 +166,16 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormValues(elementTypeParent: String, elem
                 <ng-container *ngIf="selectedIndices${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.includes(i.toString())">
                     <ng-container *ngIf="isDisabled; else toEdit">
-                        <ix-chip [closable]="!isDisabled" [outline]="true" [routerLink]="['./${elementTypeParent.lowercase(Locale.getDefault())}${elementType.lowercase(Locale.getDefault())}']" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+                        <ix-chip [closable]="!isDisabled" [outline]="true" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/view', i]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.componentName, isDisabled: true}" routerLinkActive="active-link"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> ... </span> </ix-chip>
                     </ng-container>
                     <ng-template #toEdit>
                         <ix-chip [closable]="!isDisabled" [outline]="true" (closeChip)="removeChip${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(i)" (click)="${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.editItems(i, ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())})" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" routerLinkActive="active-link"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> ... </span> </ix-chip>
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.editItems(i, ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())})" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.componentName}" routerLinkActive="active-link"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> ... </span> </ix-chip>
                     </ng-template>
                 </ng-container>
             </ng-container>        
@@ -202,21 +206,19 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementTypeParent: Stri
     else {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } + elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}.includes(i.toString())">
                     <ng-container *ngIf="isDisabled; else toEdit">
-                        <ix-chip [closable]="!isDisabled" [outline]="true" [routerLink]="['./${if(elementTypeParent.equals(elementType, true)) {
-        elementTypeParent.lowercase(Locale.getDefault())
-    }
-    else {
-        elementTypeParent.lowercase(Locale.getDefault()) + elementType.lowercase(Locale.getDefault())
-    }}/edit', i]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+                        <ix-chip [closable]="!isDisabled" [outline]="true" [routerLink]="['/${this.parent().parent().name().lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/view', i]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault())
-    else it.toString() }}}DataService.componentName, isDisabled: true, elementName: '${elementType.lowercase(Locale.getDefault())}'}" routerLinkActive="active-link"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> {{item${
+    else it.toString() }}}DataService.componentName, isDisabled: true, isList: true}" routerLinkActive="active-link"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> {{item${
         toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}  </span> </ix-chip>
                     </ng-container>
                     <ng-template #toEdit>
                         <ix-chip [closable]="!isDisabled" [outline]="true" (closeChip)="removeChip${if(elementTypeParent.equals(elementType, true)) {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
     else {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } + elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}(i)" (click)="${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) } + elementType.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.editItems(i, item)" [routerLink]="['/${this.parent().parent().name().lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" routerLinkActive="active-link"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> {{item${
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}(i)" (click)="${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) } + elementType.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.editItems(i, item)" [routerLink]="['/${this.parent().parent().name().lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault())
+    else it.toString() }}}DataService.componentName}" routerLinkActive="active-link"> <span matTooltip="{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}" matTooltipClass="custom-tooltip"> {{item${
         toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}}}  </span> </ix-chip>
                     </ng-template>
                 </ng-container>
@@ -331,10 +333,8 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultiple(elementName: Stri
                 <td>
                     <ng-container *ngFor="let ${elementName.toCamelCase()
                     .replaceFirstChar { it.lowercase(Locale.getDefault()) }} of row['${this.name().lowercase(Locale.getDefault())}']">
-                            <span matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name().toCamelCase()
-                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']['${this.name().toCamelCase()
-                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" else "['${this.name().toCamelCase()
-                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}) }}" matTooltipClass="custom-tooltip">
+                            <span matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(${elementName.toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}) }}" matTooltipClass="custom-tooltip">
                                 {{  ${elementName.toCamelCase()
                     .replaceFirstChar { it.lowercase(Locale.getDefault()) }}${toStr.isNotEmpty().then{ """['${toStr.first().name()}']""" }}  }};
                         </span>

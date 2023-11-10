@@ -80,6 +80,8 @@ ${this.toTypeScriptEntityProp(c, tab)}
     isSpecificView = false;
     decodedParams = {}
     
+    protected readonly location = location;
+    
 ${this.toAngularConstructorDataService(c, tab, true)}
 ${this.toAngularViewOnInit(c, tab)}
 }
@@ -94,6 +96,7 @@ ${isOpen().then("export ")}class ${this.name()
 
     @${c.n(angular.core.Input)}() isDisabled = false;
 ${this.toTypeScriptFormProp(c, tab)}
+    protected readonly location = location;
     
 ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString(tab) {
     when(it.type()) {
@@ -335,8 +338,11 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
         let currentData = this.loadElementFromListItem(elementName) ? this.loadElementFromListItem(elementName) : [];
 
         if(JSON.stringify(newId) !== JSON.stringify(oldId)) {
-            this.addItemToTableArray(element, newId);
-            this.deleteItemFromTableArray(oldId, this.itemName);
+            if (JSON.stringify(editItem) === '{}') {
+                this.addItemToTableArray(element, this.itemName)
+            } else {
+                this.editItemFromTableArray(element, oldId, this.itemName);
+            }
             
             if (isArray) {
                 currentData.push(element);

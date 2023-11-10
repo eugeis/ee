@@ -302,15 +302,10 @@ fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent
         for (const key of allData.keys()) {
             const currentData = JSON.parse(localStorage.getItem('currentSpecificData'));
             const editedData = JSON.parse(localStorage.getItem('specificData'));
-            if (key.toLowerCase().includes(JSON.stringify(currentData)) && JSON.stringify(currentData) !== JSON.stringify(editedData)) {
-                const newKey = this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.itemName + JSON.stringify(editedData);
-                allData.set(newKey, editedData);
-                allData.delete(key);
-
+            if (key.includes(JSON.stringify(currentData)) && JSON.stringify(currentData) !== JSON.stringify(editedData)) {
+                
                 this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.saveItemToCache(allData);
-            
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.editItemFromTableArray(editedData, key)
                 localStorage.removeItem('currentSpecificData');
             }
         }""" }}
