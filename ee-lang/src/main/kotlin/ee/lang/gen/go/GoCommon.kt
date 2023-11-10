@@ -280,10 +280,10 @@ fun <T : AttributeI<*>> T.toGoCall(c: GenerationContext, api: String): String =
 fun <T : AttributeI<*>> T.toGoMember(c: GenerationContext, api: String): String =
     isAnonymous().ifElse({ "    ${toGoTypeDef(c, api)}" }, { "    ${nameForGoMember()} ${toGoTypeDef(c, api)}" })
 
-fun <T : AttributeI<*>> T.toGoJsonTags(): String {
+fun <T : AttributeI<*>> T.toGoYamlJsonEhTags(): String {
     val replaceable = isReplaceable()
     return (replaceable != null && !replaceable).ifElse({ "" },
-        { """ `json:"${externalName() ?: name().replaceFirstChar { it.lowercase(Locale.getDefault()) }},omitempty" eh:"optional"`""" })
+        { """ `json:"${externalName() ?: name().replaceFirstChar { it.lowercase(Locale.getDefault()) }},omitempty" yaml:"${externalName()?.toHyphenLowerCase() ?: name().toHyphenLowerCase()},omitempty" eh:"optional"`""" })
 }
 
 fun <T : AttributeI<*>> T.toGoEnumMember(c: GenerationContext, api: String): String =

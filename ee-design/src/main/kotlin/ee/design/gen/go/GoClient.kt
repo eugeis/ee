@@ -14,7 +14,7 @@ fun <T : OperationI<*>> T.toGoHttpClientReadFileJsonBody(
 ): String {
 
     return """
-    jsonBytes, _ := ${c.n(g.io.ioutil.ReadFile)}(fileJSON)
+    jsonBytes, _ := ${c.n(g.os.ReadFile)}(fileJSON)
 
 	err = ${c.n(g.encoding.json.Unmarshal)}(jsonBytes, &ret)"""
 }

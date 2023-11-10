@@ -247,7 +247,7 @@ type $name struct {${toGoMacrosBeforeBody(c, derived, api)}${
         currentProps.joinSurroundIfNotEmptyToString(
             nL,
             prefix = nL
-        ) { "${it.toGoMember(c, api)}${(this is DataTypeI<*>).then { it.toGoJsonTags() }}" }
+        ) { "${it.toGoMember(c, api)}${(this is DataTypeI<*>).then { it.toGoYamlJsonEhTags() }}" }
     }${
         toGoMacrosAfterBody(c, derived, api)
     }

@@ -21,10 +21,8 @@ object g : StructureUnit({ namespace("").name("Go") }) {
         val New = Operation { ret(error) }
     }
 
-    object io : StructureUnit({ namespace("io") }) {
-        object ioutil : StructureUnit({ namespace("io.ioutil") }) {
-            val ReadFile = Operation { ret(error) }
-        }
+    object os : StructureUnit({ namespace("os") }) {
+        val ReadFile = Operation { ret(error) }
     }
 
     object time : StructureUnit({ namespace("time") }) {
