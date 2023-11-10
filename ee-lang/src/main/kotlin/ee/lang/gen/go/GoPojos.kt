@@ -4,7 +4,8 @@ import ee.common.ext.*
 import ee.lang.*
 import java.util.*
 
-fun LiteralI<*>.toGo(): String = name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+fun String.toGo(): String = replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+fun LiteralI<*>.toGo(): String = name().toGo()
 fun EnumTypeI<*>.toGoAccess(): String = "${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}s"
 fun EnumTypeI<*>.toGoLiterals(): String = toGoAccess().replaceFirstChar { it.lowercase(Locale.getDefault()) }
 

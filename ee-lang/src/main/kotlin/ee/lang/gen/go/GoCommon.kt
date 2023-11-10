@@ -197,7 +197,7 @@ fun <T : AttributeI<*>> T.toGoValueByPropName(
                 type().findByNameOrPrimaryOrFirstConstructorFull(parentConstrName)
                     .toGoCallValueByPropName(c, derived, derived, saltIntName, parentConstrName)
             } else {
-                (this.parent() == n).ifElse("\"\"", { "${c.n(this, derived)}.EMPTY" })
+                (this.parent() == n).ifElse("\"\"") { "${c.n(this, derived)}.EMPTY" }
             }
         }
     }

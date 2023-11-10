@@ -186,7 +186,7 @@ fun EntityI<*>.hasNoEvents() = events().isEmpty() && created().isEmpty() && upda
 fun EntityI<*>.hasNoCommands() =
     commands().isEmpty() && createBys().isEmpty() && updateBys().isEmpty() && deleteBys().isEmpty()
 
-fun StructureUnitI<*>.renameControllersAccordingParentType() {
+fun StructureUnitI<*>.renameArtifactsAccordingParentType() {
     findDownByType(ControllerI::class.java).forEach { item ->
         item.extendAdapt {
             val parent = findParent(CompilationUnitI::class.java)
@@ -255,7 +255,7 @@ fun StructureUnitI<*>.addDefaultReturnValuesForQueries() {
 }
 
 fun StructureUnitI<*>.addCommandsAndEventsForAggregates() {
-    findDownByType(EntityI::class.java).filter { !it.isVirtual() }.extend {
+    findDownByType(EntityI::class.java).filter { it.isAggregate() }.extend {
 
         if (isDefaultCommands()) {
             commandCreate()
@@ -366,7 +366,8 @@ fun StructureUnitI<*>.addAggregateHandler() {
     findDownByType(EntityI::class.java).filter { !it.isVirtual() && it.handlers().isEmpty() }.extend {
         handler {
             name("Handler")
-            val initial = state { name("initial") }
+            val initial = state { name("Initial") }
+            defaultState(initial)
         }
     }
 }
@@ -474,6 +475,10 @@ fun <T : CompilationUnitI<*>> T.propagateItemToSubtypes(item: CompilationUnitI<*
 }
 
 const val PROP_DELETED_AT = "deletedAt"
+
+fun EntityI<*>.isAggregate(): Boolean {
+    return !isVirtual() && belongsToAggregate().isEMPTY() && derivedAsType().isEmpty()
+}
 
 fun EntityI<*>.addPropDeletedAt(): AttributeI<*> {
     return prop {
