@@ -8,7 +8,7 @@ import java.util.*
 
 fun StructureUnitI<*>.addEsArtifacts() {
 
-    findDownByType(EntityI::class.java).filter { it.isAggregate() }.groupBy {
+    findAggregates().groupBy {
         it.findParentMust(ModuleI::class.java)
     }.forEach { (module, entities) ->
         module.extend {

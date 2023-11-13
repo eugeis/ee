@@ -164,14 +164,14 @@ fun <T : AttributeI<*>> T.toGoTestInstance(
     val baseType = type().findDerivedOrThis()
     return if (baseType is n.List) {
         val firstGenericType = type().generics().first().type()
-        if (firstGenericType is NativeTypeI) {
+        if (firstGenericType is NativeTypeI || firstGenericType is EnumTypeI<*>) {
             toGoValueByPropName(c, derived, salt, parentConstrName)
         } else {
             val constr = firstGenericType.findByNameOrPrimaryOrFirstConstructorFull(parentConstrName)
             val constrName = "${c.n(constr, derived).toPlural()}ByPropNames"
             "${constrName}(salt, childrenPropCount)"
         }
-    } else if (baseType is NativeTypeI<*>) {
+    } else if (baseType is NativeTypeI<*> || baseType is EnumTypeI<*>) {
         toGoValueByPropName(c, derived, salt, parentConstrName)
     } else {
         val constr = type().findByNameOrPrimaryOrFirstConstructorFull(parentConstrName)

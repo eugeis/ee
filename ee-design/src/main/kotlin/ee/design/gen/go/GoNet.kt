@@ -219,11 +219,11 @@ fun <T : ConstructorI<*>> T.toGoHttpModuleRouterBeforeBody(
     derived: String = DesignDerivedKind.IMPL, api: String = DesignDerivedKind.API
 ): String {
     val structureUnit = findParentMust(StructureUnitI::class.java)
-    val entities = structureUnit.findDownByType(EntityI::class.java)
+    val aggregates = structureUnit.findAggregates()
     return """
     pathPrefix = pathPrefix + "/" + "${structureUnit.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}"
     ${
-        entities.joinSurroundIfNotEmptyToString("") { entity ->
+        aggregates.joinSurroundIfNotEmptyToString("") { entity ->
             val aggregateHandler = "${entity.name()}AggregateHandler"
             val projectEventHandler = "${entity.name()}Projector"
 
