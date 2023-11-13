@@ -140,26 +140,48 @@ fun <T : TypeI<*>> T.toGoDefault(
 
 fun <T : LogicUnitI<*>> T.toGoCallValueByPropName(
     c: GenerationContext, derived: String, api: String,
-    saltIntName: String, parentConstrName: String = ""
+    salt: String, parentConstrName: String = ""
 ): String =
     if (isNotEMPTY()) {
         val logicUnitName = c.n(this, derived)
-        """$logicUnitName(${
+        """${logicUnitName}(${
             params().nonDefaultAndNonDerived()
-                .toGoCallValueByPropName(c, api, saltIntName, parentConstrName)
+                .toGoCallValueByPropName(c, api, salt, parentConstrName)
         })"""
     } else ""
 
 fun List<AttributeI<*>>.toGoCallValueByPropName(
-    c: GenerationContext, api: String, saltIntName: String, parentConstrName: String = ""
+    c: GenerationContext, api: String, salt: String, parentConstrName: String = ""
 ): String =
 
     joinWrappedToString(", ", "        ") {
-        it.toGoValueByPropName(c, api, saltIntName, parentConstrName)
+        it.toGoValueByPropName(c, api, salt, parentConstrName)
     }
 
+fun <T : AttributeI<*>> T.toGoTestInstance(
+    c: GenerationContext, derived: String, salt: String, parentConstrName: String = ""
+): String {
+    val baseType = type().findDerivedOrThis()
+    return if (baseType is n.List) {
+        val firstGenericType = type().generics().first().type()
+        if (firstGenericType is NativeTypeI) {
+            toGoValueByPropName(c, derived, salt, parentConstrName)
+        } else {
+            val constr = firstGenericType.findByNameOrPrimaryOrFirstConstructorFull(parentConstrName)
+            val constrName = "${c.n(constr, derived).toPlural()}ByPropNames"
+            "${constrName}(salt, childrenPropCount)"
+        }
+    } else if (baseType is NativeTypeI<*>) {
+        toGoValueByPropName(c, derived, salt, parentConstrName)
+    } else {
+        val constr = type().findByNameOrPrimaryOrFirstConstructorFull(parentConstrName)
+        val constrName = "${c.n(constr, derived)}ByPropNames"
+        "${constrName}(salt, childrenPropCount)"
+    }
+}
+
 fun <T : AttributeI<*>> T.toGoValueByPropName(
-    c: GenerationContext, derived: String, saltIntName: String, parentConstrName: String = ""
+    c: GenerationContext, derived: String, salt: String, parentConstrName: String = ""
 ): String {
     val baseType = type().findDerivedOrThis()
     val ret = when (baseType) {
@@ -167,20 +189,20 @@ fun <T : AttributeI<*>> T.toGoValueByPropName(
             if (it.isLowerCase()) it.titlecase(
                 Locale.getDefault()
             ) else it.toString()
-        }} %v\", $saltIntName)"
+        }} %v\", $salt)"
         n.Boolean -> "false"
-        n.Byte -> saltIntName
-        n.Int -> saltIntName
-        n.Long -> saltIntName
-        n.Short -> saltIntName
-        n.UShort -> "ushort($saltIntName)"
-        n.UInt -> "uint32($saltIntName)"
-        n.ULong -> "uint64($saltIntName)"
-        n.Float -> "float32($saltIntName)"
-        n.Double -> "float64($saltIntName)"
+        n.Byte -> salt
+        n.Int -> salt
+        n.Long -> salt
+        n.Short -> salt
+        n.UShort -> "ushort($salt)"
+        n.UInt -> "uint32($salt)"
+        n.ULong -> "uint64($salt)"
+        n.Float -> "float32($salt)"
+        n.Double -> "float64($salt)"
         n.Date -> "${c.n(g.gee.PtrTime)}(${g.time.Now.toGoCall(c, derived, derived)})"
         n.Path -> "\"/\""
-        n.Blob -> "[]byte(${c.n(g.fmt.Sprintf)}(\"${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} %v\", $saltIntName))"
+        n.Blob -> "[]byte(${c.n(g.fmt.Sprintf)}(\"${name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} %v\", $salt))"
         n.Void -> ""
         n.Error -> "nil"
         n.Exception -> "nil"
@@ -195,7 +217,7 @@ fun <T : AttributeI<*>> T.toGoValueByPropName(
                 baseType.literals().first().toGoValue(c, derived)
             } else if (baseType is TypeI<*>) {
                 type().findByNameOrPrimaryOrFirstConstructorFull(parentConstrName)
-                    .toGoCallValueByPropName(c, derived, derived, saltIntName, parentConstrName)
+                    .toGoCallValueByPropName(c, derived, derived, salt, parentConstrName)
             } else {
                 (this.parent() == n).ifElse("\"\"") { "${c.n(this, derived)}.EMPTY" }
             }

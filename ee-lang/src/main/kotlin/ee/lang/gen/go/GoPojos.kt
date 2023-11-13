@@ -295,29 +295,29 @@ private fun <T : CompilationUnitI<*>> T.toGoNewTestInstance(
     val constrNames = "${c.n(constr, derived).toPlural()}ByPropNames"
 
     return """
-func $constrNames(count int) []*$name {
+func $constrNames(salt int, count int) []*$name {
 	items := make([]*$name, count)
 	for i := 0; i < count; i++ {
-		items[i] = $constrName(i)
+		items[i] = $constrName(i + salt, count)
 	}
 	return items
 }
 
-func $constrName(intSalt int) (ret *$name)  {
+func $constrName(salt int, childrenPropCount int) (ret *$name)  {
     ret = ${
         findByNameOrPrimaryOrFirstConstructorFull(constr.name())
-            .toGoCallValueByPropName(c, derived, api, "intSalt", constr.name())
+            .toGoCallValueByPropName(c, derived, api, "salt", constr.name())
     }
     ${
         propsNoMetaNoValue().joinSurroundIfNotEmptyToString("\n    ") { prop ->
             if (!prop.isAnonymous()) {
                 "ret.${prop.name()
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = ${
-                    prop.toGoValueByPropName(c, derived, "intSalt", constr.name())
+                    prop.toGoTestInstance(c, derived, "salt", constr.name())
                 }"
             } else {
                 "ret.${prop.type().name()} = ${
-                    prop.toGoValueByPropName(c, derived, "intSalt", constr.name())
+                    prop.toGoTestInstance(c, derived, "salt", constr.name())
                 }"
             }
         }
