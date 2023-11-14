@@ -276,6 +276,7 @@ fun <T : TypeI<*>> T.toGoIfNative(c: GenerationContext, derived: String): String
         n.Exception, n.Error -> "error"
         n.Void -> ""
         n.Any -> "any"
+        n.Comparable -> "comparable"
         n.Url -> c.n(j.net.URL)
         n.UUID -> c.n(g.google.uuid.UUID)
         n.List -> "[]${generics()[0].toGo(c, derived)}"
