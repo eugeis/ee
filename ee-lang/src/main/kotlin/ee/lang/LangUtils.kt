@@ -322,6 +322,10 @@ fun TypeI<*>.propsNoMetaNoValue(): List<AttributeI<*>> = storage.getOrPut(this, 
     props().filter { !it.isMeta() && it.value() == null }
 }
 
+fun TypeI<*>.propsNoMetaNoGenericOrValue(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoMetaNoValue") {
+    props().filter { !it.isMeta() && (it.type() !is Generic || it.value() != null) }
+}
+
 fun TypeI<*>.propsNoMetaNoValueNoId(): List<AttributeI<*>> = storage.getOrPut(this, "propsNoMetaNoValueNoId") {
     props().filter { !it.isMeta() && it.value() == null && !it.isKey() }
 }
@@ -554,8 +558,8 @@ fun <T : CompositeI<*>> T.declareAsBaseWithNonImplementedOperation() {
 }
 
 fun <T : CompositeI<*>> T.prepareAttributesOfEnums() {
-    findDownByType(EnumTypeI::class.java).forEach {
-        it.props().forEach { it.replaceable(false).initByDefaultTypeValue(false) }
+    findDownByType(EnumTypeI::class.java).forEach { enumTypeI ->
+        enumTypeI.props().forEach { it.replaceable(false).initByDefaultTypeValue(false) }
     }
 }
 
@@ -565,12 +569,11 @@ fun <B : TypeI<B>> B.superUnit(value: TypeI<*>): B = superUnits(value)
 fun <T : TypeI<*>> T.constructorOwnPropsOnly(adapt: ConstructorI<*>.() -> Unit = {}): ConstructorI<*> {
     val primary = this is EnumTypeI<*>
     storage.reset(this)
-    val parent = this
     return constr {
-        parent(parent)
+        parent(this@constructorOwnPropsOnly)
         primary(primary).params(*propsNoMeta().toTypedArray())
         namespace(this@constructorOwnPropsOnly.namespace())
-        superUnit(parent.superUnit().primaryOrFirstConstructorOrFull())
+        superUnit(this@constructorOwnPropsOnly.superUnit().primaryOrFirstConstructorOrFull())
         adapt()
     }
 }
@@ -596,13 +599,12 @@ fun <T : TypeI<*>> T.constructorNoProps(adapt: ConstructorI<*>.() -> Unit = {}):
             p(it).default(true).anonymous(it.isAnonymous())
         }
         storage.reset(this)
-        val parent = this
         constr {
             name("Default")
-            parent(parent)
+            parent(this@constructorNoProps)
             primary(true).params(*constrProps.toTypedArray())
-            namespace(parent.namespace())
-            superUnit(parent.superUnit().primaryOrFirstConstructorOrFull())
+            namespace(this@constructorNoProps.namespace())
+            superUnit(this@constructorNoProps.superUnit().primaryOrFirstConstructorOrFull())
             adapt()
         }
     } else Constructor.EMPTY

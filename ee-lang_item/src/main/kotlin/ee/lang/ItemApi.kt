@@ -245,7 +245,8 @@ abstract class MultiHolder<I, B : MultiHolderI<I, B>>(private val _type: Class<I
                 if (child.isInternal() || !this.isInternal()) {
                     child.parent(this)
                 } else {
-                    child.parent(findParentNonInternal() ?: this)
+                    val parent = findParentNonInternal() ?: this
+                    child.parent(parent)
                 }
                 if (isInitialized() && !child.isInitialized()) {
                     child.init()

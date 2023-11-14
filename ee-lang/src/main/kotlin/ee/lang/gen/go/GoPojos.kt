@@ -225,7 +225,7 @@ fun <T : CompilationUnitI<*>> T.toGoIfc(
 
     val name = c.n(this, derived)
     return """${toGoMacrosBefore(c, derived, api)}
-type $name interface {${toGoMacrosBeforeBody(c, derived, api)}${
+type $name${toGoGenerics(c, derived)} interface {${toGoMacrosBeforeBody(c, derived, api)}${
         superUnits().joinSurroundIfNotEmptyToString(nL, nL) {
             "    ${c.n(it, derived)}"
         }
@@ -241,9 +241,10 @@ fun <T : CompilationUnitI<*>> T.toGoImpl(
 ): String {
 
     val name = c.n(this, derived)
+    val nameWithGenericNames = "$name${toGoGenericNames(c, derived)}"
     val currentProps = excludePropsWithValue.ifElse({ props().filter { it.value() == null } }, props())
     return """${toGoMacrosBefore(c, derived, api)}
-type $name struct {${toGoMacrosBeforeBody(c, derived, api)}${
+type $name${toGoGenerics(c, derived)} struct {${toGoMacrosBeforeBody(c, derived, api)}${
         currentProps.joinSurroundIfNotEmptyToString(
             nL,
             prefix = nL
@@ -260,19 +261,19 @@ type $name struct {${toGoMacrosBeforeBody(c, derived, api)}${
     }${
         currentProps.filter { it.isAccessible().setAndTrue() && !it.isMutable().setAndTrue() }
             .joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-                it.toGoGetMethod(name, c, derived)
+                it.toGoGetMethod(nameWithGenericNames, c, derived)
             }
     }${
         currentProps.filter { it.type().isOrDerived(n.List) }
             .joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-                """${it.toGoAddMethod(name, c, derived)}
-                    ${it.toGoRemoveMethod(name, c, derived)}
-                    ${it.toGoReplaceMethod(name, c, derived)}                  
-                    ${it.toGoFindMethod(name, c, derived)}"""
+                """${it.toGoAddMethod(nameWithGenericNames, c, derived)}
+                    ${it.toGoRemoveMethod(nameWithGenericNames, c, derived)}
+                    ${it.toGoReplaceMethod(nameWithGenericNames, c, derived)}                  
+                    ${it.toGoFindMethod(nameWithGenericNames, c, derived)}"""
             }
     }${
         operations().joinSurroundIfNotEmptyToString(nL, prefix = nL) {
-            it.toGoImpl(name, c, api)
+            it.toGoImpl(nameWithGenericNames, c, api)
         }
     }"""
 }
@@ -291,25 +292,28 @@ private fun <T : CompilationUnitI<*>> T.toGoNewTestInstance(
 ): String {
 
     val name = c.n(this, derived)
+    val genericNames = toGoGenericNames(c, derived)
+    val generics = toGoGenerics(c, derived)
+    val nameWithGenericNames = "$name$genericNames"
     val constrName = "${c.n(constr, derived)}ByPropNames"
     val constrNames = "${c.n(constr, derived).toPlural()}ByPropNames"
 
     return """
-func $constrNames(salt int, count int) []*$name {
-	items := make([]*$name, count)
+func $constrNames$generics(salt int, count int) []*$nameWithGenericNames {
+	items := make([]*$nameWithGenericNames, count)
 	for i := 0; i < count; i++ {
-		items[i] = $constrName(i + salt, count)
+		items[i] = $constrName$genericNames(i + salt, count)
 	}
 	return items
 }
 
-func $constrName(salt int, childrenPropCount int) (ret *$name)  {
+func $constrName$generics(salt int, childrenPropCount int) (ret *$nameWithGenericNames)  {
     ret = ${
         findByNameOrPrimaryOrFirstConstructorFull(constr.name())
-            .toGoCallValueByPropName(c, derived, api, "salt", constr.name())
+            .toGoCallValueByPropName(c, derived, api, "salt", constr.name(), genericNames)
     }
     ${
-        propsNoMetaNoValue().joinSurroundIfNotEmptyToString("\n    ") { prop ->
+        propsNoMetaNoGenericOrValue().joinSurroundIfNotEmptyToString("\n    ") { prop ->
             if (!prop.isAnonymous()) {
                 "ret.${prop.name()
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = ${
