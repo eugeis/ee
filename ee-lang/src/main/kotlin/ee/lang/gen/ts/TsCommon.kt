@@ -296,8 +296,6 @@ fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent
             this.tabElement = param['tabElement'];
         });
         
-        this.projectDataService.checkIfDataChangedFromSpecificView();
-        
         this.${c.n(this, AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.checkIfDataChangedFromSpecificView();""" }}
         
