@@ -257,10 +257,10 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEnumMultiple(elementTypeParent: String
         </fieldset>"""
 }
 
-fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = "", basicParentName: String = "", isChild: Boolean, totalChild: Int, containAggregateProp: Boolean = false): String =
+fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName: String = "", basicParentName: String = "", isChild: Boolean, totalChild: Int, containAggregateProp: Boolean = false, toStr: List<AttributeI<*>>): String =
     this.props().filter { !isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntity(it.type().name(), it.type().findParentNonInternal(), parentName, isChild, totalChild,  it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() }, it.type().props())
+            is EntityI<*>, is ValuesI<*> -> it.toAngularTableListEntity(it.type().name(), it.type().findParentNonInternal(), parentName, isChild, totalChild,  it.type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() }, it.type().props(), toStr)
             is BasicI<*>  -> it.toAngularTableListBasic(parentName, isChild)
             is EnumTypeI<*> -> it.toAngularTableListEnum(basicName, totalChild, parentName)
             else -> {
@@ -285,7 +285,7 @@ fun <T : ItemI<*>> T.toAngularTableListEnum(basicParentName: String = "", totalC
                 </td>
 """
 
-fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, isChild: Boolean, totalChild: Int, toStr: List<AttributeI<*>>, props: ListMultiHolder<AttributeI<*>>): String {
+fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNonInternal: ItemI<*>?, parentName: String, isChild: Boolean, totalChild: Int, toStr: List<AttributeI<*>>, props: ListMultiHolder<AttributeI<*>>, parentToStr: List<AttributeI<*>>): String {
     val serviceName = if(this.parent().parent().name().equals(parentName, true)) {this.parent().parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault())} + parentName.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
@@ -302,9 +302,7 @@ fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNon
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}, '${findParentNonInternal?.name()
             ?.toCamelCase()?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}/${elementName.lowercase(
             Locale.getDefault()
-    )}', '${parentName.lowercase(
-            Locale.getDefault()
-    )}')"> ... </a>
+    )}', row${if(parentToStr.isNotEmpty()) { """['${parentToStr.first().name()}']""" } else {"""['name']"""} }); ${serviceName}DataService.saveSpecificData(row, row${if(parentToStr.isNotEmpty()) { """['${parentToStr.first().name()}']""" } else {"""['name']"""} }); ${serviceName}DataService.saveCurrentSpecificData(row)"> ... </a>
                     </ng-container>
                     <ng-template #showLink>
                         <span matTooltip="{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()

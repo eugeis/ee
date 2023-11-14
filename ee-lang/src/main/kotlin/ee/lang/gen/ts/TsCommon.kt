@@ -296,19 +296,10 @@ fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent
             this.tabElement = param['tabElement'];
         });
         
-        const allData = this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.retrieveItemsFromCache();
+        this.projectDataService.checkIfDataChangedFromSpecificView();
         
-        for (const key of allData.keys()) {
-            const currentData = JSON.parse(localStorage.getItem('currentSpecificData'));
-            const editedData = JSON.parse(localStorage.getItem('specificData'));
-            if (key.includes(JSON.stringify(currentData)) && JSON.stringify(currentData) !== JSON.stringify(editedData)) {
-                
-                this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.editItemFromTableArray(editedData, key)
-                localStorage.removeItem('currentSpecificData');
-            }
-        }""" }}
+        this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.checkIfDataChangedFromSpecificView();""" }}
         
         ${isAggregateView.then { """this.${c.n(this, AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = JSON.parse(localStorage.getItem('componentName'));

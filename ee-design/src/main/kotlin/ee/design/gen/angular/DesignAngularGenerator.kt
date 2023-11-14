@@ -15,6 +15,7 @@ open class DesignAngularGenerator(val model: StructureUnitI<*>) {
     }
 
     fun generate(target: Path) {
+        model.prepareForTsGeneration()
 
         val generatorApiBase = DesignTypeScriptGenerator(model).typeScriptApiBase("", model).generator
         val generatorAngular = angular("", model).generator

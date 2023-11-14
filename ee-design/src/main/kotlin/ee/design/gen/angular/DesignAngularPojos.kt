@@ -396,7 +396,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
                             </ix-dropdown-item>
                         </ix-dropdown>
                     </td>
-                    ${toAngularTableListBasic(this.name(), "", "",false, this.props().size, containAggregateProp)}
+                    ${toAngularTableListBasic(this.name(), "", "",false, this.props().size, containAggregateProp, this.props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })}
                 </tr>
             </tbody>
         </table>
