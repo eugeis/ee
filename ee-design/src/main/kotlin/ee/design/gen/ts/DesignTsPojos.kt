@@ -342,6 +342,7 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
                 this.addItemToTableArray(element, this.itemName)
             } else {
                 this.editItemFromTableArray(element, oldId, this.itemName);
+                this.editInheritedEntity(element);
             }
             
             if (isArray) {
@@ -358,6 +359,85 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
         if (JSON.stringify(editItem).includes(JSON.stringify(JSON.parse(localStorage.getItem('specificData'))))) {
             this.saveSpecificData(element, ${this.props().any { !it.isEMPTY() && it.isToStr() == true }.then {  "element." + this.props().first { prop -> prop.isToStr() == true && !prop.isEMPTY() }.name()  }}${this.props().all { !it.isEMPTY() && (it.isToStr() == false || (it.type() is EntityI<*> || it.type() is ValuesI<*> || it.type() is BasicI<*>)) }.then { """''""" }} );
         } 
+    }
+    
+    editInheritedEntity(newElement: ${c.n(this, AngularDerivedType.ApiBase)}) {
+        const editItem = JSON.parse(localStorage.getItem('edit' + this.itemName));
+        if (JSON.stringify(newElement) !== JSON.stringify(editItem)) {
+        ${entities.filter { entity -> entity.props().any {property ->
+        (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
+            childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) } ||
+                property.type().props().any {
+                    childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) }
+                )
+    }
+    }.joinSurroundIfNotEmptyToString("") {
+        """
+            const inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: Map<string, ${c.n(it, AngularDerivedType.ApiBase)}> = new Map(JSON.parse(localStorage.getItem('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}')));
+            inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.forEach((value, key) => {
+                if (JSON.stringify(${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}}""" }}).includes(JSON.stringify(editItem))) {               
+                    ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}} = newElement;""" }}
+                    const newId = '${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}' + JSON.stringify(value);
+                    inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.set(newId, value);
+                    inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.delete(key);
+                }
+            });
+            localStorage.${it.name().lowercase(Locale.getDefault())} = JSON.stringify(Array.from(inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.entries()));
+            localStorage.setItem('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', localStorage.${it.name().lowercase(Locale.getDefault())});
+        """
+    }}
+    
+    ${entities.filter { entity -> entity.props().any {property ->
+        (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
+            childProperty -> childProperty.type().name().equals("list", true) && childProperty.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && childProperty.type().generics().first().type().namespace().equals(this.namespace(), true) } ||
+                property.type().props().any {
+                    childProperty -> childProperty.type().name().equals("list", true) && childProperty.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && childProperty.type().generics().first().type().namespace().equals(this.namespace(), true) }
+                )
+    }
+    }.joinSurroundIfNotEmptyToString("") {
+        val listElementName = it.props().filter { property -> property.type().name().equals("list", true) && property.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && property.type().generics().first().type().namespace().equals(this.namespace(), true) }.joinSurroundIfNotEmptyToString { it.name() }
+        val listPropName = it.props().filter { property -> property.type().name().equals("list", true) && property.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && property.type().generics().first().type().namespace().equals(this.namespace(), true) }.joinSurroundIfNotEmptyToString { it.type().generics().first().type().name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) } };
+        """
+            const inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: Map<string, ${c.n(it, AngularDerivedType.ApiBase)}> = new Map(JSON.parse(localStorage.getItem('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}')));
+            inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.forEach((value, key) => {
+                if (JSON.stringify(value.${listElementName}).includes(JSON.stringify(editItem))) {               
+                    ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}.${this.name().toCamelCase()} = newElement;""" }}
+                    value.${listElementName}.forEach((${listPropName}, index) => {
+                        if (JSON.stringify(${listPropName}) === JSON.stringify(editItem)) {
+                            value.${listElementName}[index] = newElement
+                        }
+                    })
+                    
+                    const newId = '${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}' + JSON.stringify(value);
+                    inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.set(newId, value);
+                    inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.delete(key);
+                    localStorage.setItem('specificData', JSON.stringify(value));
+                }
+            });
+            localStorage.${it.name().lowercase(Locale.getDefault())} = JSON.stringify(Array.from(inheritedElement${it.name()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.entries()));
+            localStorage.setItem('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', localStorage.${it.name().lowercase(Locale.getDefault())});
+        """
+    }}
+        }
     }
     
     ${entities.filter {!it.isEMPTY() && !it.props().isEMPTY() && !it.belongsToAggregate().isEMPTY() && it.belongsToAggregate().name().equals(this.name(), true)}.joinSurroundIfNotEmptyToString { 

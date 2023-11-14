@@ -160,7 +160,8 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
         <button type="button" class="first-button-edit btn btn-outline-danger" (click)="${serviceName}${DataService}.goBack()">{{'cancel edit' | translate}}</button>
         <button type="button" class="second-button-edit btn btn-outline-success" (click)="${serviceName}${DataService}.editSpecificElement(${this.name()
             .lowercase(Locale.getDefault())}, '${serviceName.lowercase(Locale.getDefault())}', ${if(entities.filter { entity -> entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true) }.isNotEmpty()) {"""true"""} else {"""false"""}}); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML(); ${serviceName}${DataService}.saveCurrentSpecificData(${this.name()
-            .lowercase(Locale.getDefault())});""" }} ${serviceName}${DataService}.goBack()">{{'save changes' | translate}}</button>
+            .lowercase(Locale.getDefault())});""" }} ${serviceName}${DataService}.editInheritedEntity(${this.name()
+            .lowercase(Locale.getDefault())}); ${serviceName}${DataService}.goBack()">{{'save changes' | translate}}</button>
     </ng-container>
 
     <ng-template #notSpecificEdit>
