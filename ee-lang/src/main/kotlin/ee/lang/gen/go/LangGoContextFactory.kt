@@ -35,13 +35,14 @@ open class LangGoContextFactory(targetAsSingleModule: Boolean) : LangCommonConte
     }
 
     override fun buildName(item: ItemI<*>, kind: String): String {
-        return if (item is ConstructorI) {
+        val ret = if (item is ConstructorI) {
             buildNameForConstructor(item, kind)
         } else if (item is OperationI) {
             buildNameForOperation(item, kind)
         } else {
             super.buildName(item, kind)
         }
+        return ret
     }
 
     override fun buildNameForConstructor(item: ConstructorI<*>, kind: String) =

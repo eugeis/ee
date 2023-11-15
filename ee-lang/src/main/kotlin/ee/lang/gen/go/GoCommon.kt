@@ -108,6 +108,30 @@ fun AttributeI<*>.toGoInitForConstructorFunc(c: GenerationContext, derived: Stri
 fun <T : AttributeI<*>> T.toGoTypeDef(c: GenerationContext, api: String): String =
     "${type().toGo(c, api)}${toGoMacrosAfterBody(c, api, api)}"
 
+
+fun TypeI<*>.toGoGenerics(c: GenerationContext, derived: String,
+                              subTypeGenerics: List<GenericI<*>>? = null): String =
+    generics().joinWrappedToString(", ", "", "[", "]") { myGen ->
+        if (subTypeGenerics == null) {
+            "${myGen.name()}${
+                myGen.type().isNotEMPTY().then { " ${myGen.type().toGo(c, derived)}" }}"
+        } else if (subTypeGenerics.find { it.name() == myGen.name() } != null) {
+            myGen.name()
+        } else {
+            myGen.type().toGo(c, derived)
+        }
+    }
+
+fun TypeI<*>.toGoGenericNames(c: GenerationContext, derived: String): String =
+    generics().joinWrappedToString(", ", "", "[", "]") {
+        it.toGoTypeName(c, derived)
+    }
+
+fun GenericI<*>.toGoTypeName(c: GenerationContext, derived: String): String = this.name()
+
+fun GenericI<*>.toGoName(c: GenerationContext, derived: String): String =
+    c.n(this, derived)
+
 fun <T : TypeI<*>> T.toGoDefault(
     c: GenerationContext, derived: String, attr: AttributeI<*>, parentConstrName: String = ""
 ): String {
@@ -140,27 +164,30 @@ fun <T : TypeI<*>> T.toGoDefault(
 
 fun <T : LogicUnitI<*>> T.toGoCallValueByPropName(
     c: GenerationContext, derived: String, api: String,
-    salt: String, parentConstrName: String = ""
+    salt: String, parentConstrName: String = "", genericNames: String = ""
 ): String =
     if (isNotEMPTY()) {
         val logicUnitName = c.n(this, derived)
-        """${logicUnitName}(${
+        """${logicUnitName}$genericNames(${
             params().nonDefaultAndNonDerived()
                 .toGoCallValueByPropName(c, api, salt, parentConstrName)
         })"""
     } else ""
 
 fun List<AttributeI<*>>.toGoCallValueByPropName(
-    c: GenerationContext, api: String, salt: String, parentConstrName: String = ""
+    c: GenerationContext, api: String, salt: String, parentConstrName: String = "", genericNames: String = ""
 ): String =
-
     joinWrappedToString(", ", "        ") {
-        it.toGoValueByPropName(c, api, salt, parentConstrName)
+        it.toGoValueByPropName(c, api, salt, parentConstrName, genericNames)
     }
 
 fun <T : AttributeI<*>> T.toGoTestInstance(
     c: GenerationContext, derived: String, salt: String, parentConstrName: String = ""
 ): String {
+    if (value() != null) {
+        return value().toString()
+    }
+
     val baseType = type().findDerivedOrThis()
     return if (baseType is n.List) {
         val firstGenericType = type().generics().first().type()
@@ -169,19 +196,20 @@ fun <T : AttributeI<*>> T.toGoTestInstance(
         } else {
             val constr = firstGenericType.findByNameOrPrimaryOrFirstConstructorFull(parentConstrName)
             val constrName = "${c.n(constr, derived).toPlural()}ByPropNames"
-            "${constrName}(salt, childrenPropCount)"
+            "$constrName(salt, childrenPropCount)"
         }
     } else if (baseType is NativeTypeI<*> || baseType is EnumTypeI<*>) {
         toGoValueByPropName(c, derived, salt, parentConstrName)
     } else {
+        val genericNames = type().toGoGenericNames(c, derived)
         val constr = type().findByNameOrPrimaryOrFirstConstructorFull(parentConstrName)
         val constrName = "${c.n(constr, derived)}ByPropNames"
-        "${constrName}(salt, childrenPropCount)"
+        "$constrName$genericNames(salt, childrenPropCount)"
     }
 }
 
 fun <T : AttributeI<*>> T.toGoValueByPropName(
-    c: GenerationContext, derived: String, salt: String, parentConstrName: String = ""
+    c: GenerationContext, derived: String, salt: String, parentConstrName: String = "", genericNames: String = ""
 ): String {
     val baseType = type().findDerivedOrThis()
     val ret = when (baseType) {
@@ -217,7 +245,7 @@ fun <T : AttributeI<*>> T.toGoValueByPropName(
                 baseType.literals().first().toGoValue(c, derived)
             } else if (baseType is TypeI<*>) {
                 type().findByNameOrPrimaryOrFirstConstructorFull(parentConstrName)
-                    .toGoCallValueByPropName(c, derived, derived, salt, parentConstrName)
+                    .toGoCallValueByPropName(c, derived, derived, salt, parentConstrName, genericNames)
             } else {
                 (this.parent() == n).ifElse("\"\"") { "${c.n(this, derived)}.EMPTY" }
             }
@@ -247,7 +275,8 @@ fun <T : TypeI<*>> T.toGoIfNative(c: GenerationContext, derived: String): String
         n.Blob -> "[]byte"
         n.Exception, n.Error -> "error"
         n.Void -> ""
-        n.Any -> "interface{}"
+        n.Any -> "any"
+        n.Comparable -> "comparable"
         n.Url -> c.n(j.net.URL)
         n.UUID -> c.n(g.google.uuid.UUID)
         n.List -> "[]${generics()[0].toGo(c, derived)}"
@@ -271,7 +300,7 @@ fun <T : TypeI<*>> T.toGoNilOrEmpty(c: GenerationContext): String {
 fun GenericI<*>.toGo(c: GenerationContext, derived: String): String = type().toGo(c, derived)
 
 fun <T : TypeI<*>> T.toGo(c: GenerationContext, derived: String): String =
-    toGoIfNative(c, derived) ?: "${(isIfc()).not().then("*")}${c.n(this, derived)}"
+    toGoIfNative(c, derived) ?: "${(isIfc()).not().then("*")}${c.n(this, derived)}${toGoGenericNames(c, derived)}"
 
 fun OperationI<*>.toGoIfc(c: GenerationContext, api: String = LangDerivedKind.API): String {
     return """
@@ -333,14 +362,14 @@ fun <T : ConstructorI<*>> T.toGo(c: GenerationContext, derived: String, api: Str
     val type = findParentMust(CompilationUnitI::class.java)
     val name = c.n(type, derived)
     return if (isNotEMPTY()) """${toGoMacrosBefore(c, derived, api)}
-func ${c.n(this, derived)}(${
+func ${c.n(this, derived)}${type.toGoGenerics(c, derived)}(${
         params().nonDefaultAndNonDerived().joinWrappedToString(
             ", ",
             "                "
         ) {
             it.toGoSignature(c, api)
         }
-    }) (ret *$name${isErrorHandling().then(", err error")}) {${toGoMacrosBeforeBody(c, derived, api)}${
+    }) (ret *$name${type.toGoGenericNames(c, derived)}${isErrorHandling().then(", err error")}) {${toGoMacrosBeforeBody(c, derived, api)}${
         macrosBody().isNotEmpty().ifElse({
             """
     ${toGoMacrosBody(c, derived, api)}"""
@@ -351,7 +380,7 @@ func ${c.n(this, derived)}(${
     ${it.toGoInitVariables(c, derived, name())}"""
                 }
             }
-    ret = &$name{${
+    ret = &$name${type.toGoGenericNames(c, derived)}{${
                 paramsForType().joinSurroundIfNotEmptyToString(
                     ",$nL        ", "$nL        ", ",$nL    "
                 ) {

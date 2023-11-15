@@ -4,6 +4,7 @@ object n : StructureUnit({ name("native") }) {
     //types
     val Void = NativeType()
     val Any = NativeType()
+    val Comparable = NativeType()
     val Path = NativeType()
     val Text = NativeType()
     val Blob = NativeType()

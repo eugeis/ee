@@ -97,7 +97,7 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
 
         defineSuperUnitsAsAnonymousProps()
 
-        defineConstructorNoProps { constructors().isEmpty() && this !is CommandI<*> && this !is EventI<*> }
+        defineConstructorNoProps { constructors().isEmpty() && this !is Generic && this !is CommandI<*> && this !is EventI<*>}
     }
 
     open fun go(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {
