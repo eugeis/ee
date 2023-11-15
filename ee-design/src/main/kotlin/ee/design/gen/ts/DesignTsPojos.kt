@@ -440,7 +440,8 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
         }
     }
     
-    ${entities.filter {!it.isEMPTY() && !it.props().isEMPTY() && !it.belongsToAggregate().isEMPTY() && it.belongsToAggregate().name().equals(this.name(), true)}.joinSurroundIfNotEmptyToString { 
+    ${entities.filter {!it.isEMPTY() && !it.props().isEMPTY() && !it.belongsToAggregate().isEMPTY() && it.belongsToAggregate().name().equals(this.name(), true)}.joinSurroundIfNotEmptyToString {
+        val propName = this.props().filter {prop -> !prop.isEMPTY() && prop.name().contains(it.name(), true)}.first()
         """
     removeAggregateItem(element: Array<${c.n(it, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>, elementName: string = '${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}') {
         element.forEach((content) => {
@@ -448,6 +449,17 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
             item.delete(elementName + JSON.stringify(content))
             this.saveItemToCache(item, elementName)
         })
+        
+        const ${this.name().lowercase(Locale.getDefault())} = this.changeMapToArray(this.retrieveItemsFromCache());
+        ${this.name().lowercase(Locale.getDefault())}.forEach((item) => {
+            element.forEach((content) => {
+                if (JSON.stringify(item).includes(JSON.stringify(content))) {
+                    const index = item.${propName.name().lowercase(Locale.getDefault())}.findIndex((${it.name().lowercase(Locale.getDefault())}) => JSON.stringify(${it.name().lowercase(Locale.getDefault())}) === JSON.stringify(content));
+                    item.${propName.name().lowercase(Locale.getDefault())}.splice(index, 1)
+                }
+            })
+        });
+        this.saveItemToCache(this.changeArrayToMap(${this.name().lowercase(Locale.getDefault())}));
     }"""
     }}
 }
