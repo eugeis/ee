@@ -511,6 +511,6 @@ fun <T : EntityI<*>> T.toGoEntityImpl(
     return """
         ${toGoImpl(c, derived, api, true)}
 func (o *$name) EntityID() ${c.n(g.google.uuid.UUID)} { return o.${propIdOrAdd().nameForGoMember()} }
-func (o *$name) Deleted() *${c.n(g.time.Time)} { return o.${propDeletedAt().nameForGoMember()} }
+func (o *$name) Deleted() *${c.n(g.time.Time)} { return o.${propDeletedAtOrAdd().nameForGoMember()} }
 """
 }

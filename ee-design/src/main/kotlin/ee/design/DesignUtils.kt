@@ -379,6 +379,13 @@ fun StructureUnitI<*>.addIdPropToEntities() {
         }
 }
 
+fun StructureUnitI<*>.addDeletedAtToEntities() {
+    findDownByType(EntityI::class.java).filter { item -> !item.isVirtual() }
+        .forEach {
+            it.propDeletedAtOrAdd()
+        }
+}
+
 fun StructureUnitI<*>.addIdPropToCommands() {
     findDownByType(EntityI::class.java).filter { !it.isVirtual() }.forEach { entity ->
         entity.findDownByType(CommandI::class.java).forEach { command ->
@@ -488,12 +495,15 @@ fun EntityI<*>.addPropDeletedAt(): AttributeI<*> {
     }
 }
 
-fun EntityI<*>.propDeletedAt(): AttributeI<*> = storage.getOrPut(this, "propDeletedAt") {
+fun EntityI<*>.propDeletedAtOrAdd(): AttributeI<*> = storage.getOrPut(this, "propDeletedAt") {
     initIfNotInitialized()
     var ret = props().find { it.name() == PROP_DELETED_AT }
+
     if (ret == null && superUnit() is EntityI<*>) {
-        ret = (superUnit() as EntityI<*>).propDeletedAt()
-    } else if (ret == null) {
+        ret = (superUnit() as EntityI<*>).propDeletedAtOrAdd()
+    }
+
+    if (ret == null) {
         log.debug("prop 'deleted' can't be found for '$this', build default one")
         ret = addPropDeletedAt()
     }

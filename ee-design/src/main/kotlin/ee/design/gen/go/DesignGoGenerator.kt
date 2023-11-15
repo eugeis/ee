@@ -72,6 +72,8 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
 
         addIdPropToEntities()
 
+        addDeletedAtToEntities()
+
         addCommandsAndEventsForAggregates()
 
         addQueriesForAggregates()
@@ -376,7 +378,7 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
                 }.sortedBy { "${it.javaClass.simpleName} ${name()}" }
                 retEntities.forEach {
                     it.propIdOrAdd()
-                    it.propDeletedAt()
+                    it.propDeletedAtOrAdd()
                 }
                 retEntities
             }
