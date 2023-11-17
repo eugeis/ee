@@ -236,13 +236,14 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } + this.name()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}${DataService} extends ${c.n(service.template.DataService)}<${c.n(this, AngularDerivedType.ApiBase)}> {
     itemName = '${c.n(this, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}';
+    moduleName = '${this.parent().name().lowercase(Locale.getDefault())}';
     componentChild = [${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> """'${it.type().name().lowercase(Locale.getDefault())}', """
+            is EntityI<*>, is ValuesI<*> -> """'${it.name().lowercase(Locale.getDefault()) + it.type().name().lowercase(Locale.getDefault())}', """
             else -> {
                 when(it.type().name()) {
                     "List" -> when(it.type().generics().first().type()) {
-                        is EntityI<*>, is ValuesI<*> -> """'${it.type().generics().first().type().name().lowercase(Locale.getDefault())}', """
+                        is EntityI<*>, is ValuesI<*> -> """'${it.name().lowercase(Locale.getDefault()) + it.type().generics().first().type().name().lowercase(Locale.getDefault())}', """
                         else -> ""
                     }
                     else -> ""
