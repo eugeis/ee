@@ -21,13 +21,8 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
     companion object {
         fun buildGoTemplates() = DesignGoTemplates(itemNameAsGoFileName)
 
-
         fun buildSwaggerContextFactory() = DesignSwaggerContextFactory()
         fun buildSwaggerTemplates() = DesignSwaggerTemplates(itemNameAsSwaggerFileName)
-    }
-
-    init {
-        models.extendForGoGeneration()
     }
 
     constructor(model: StructureUnitI<*>, targetAsSingleModule: Boolean = true) :
@@ -35,7 +30,7 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
 
     fun generate(
             target: Path,
-            generatorContexts: GeneratorContexts<StructureUnitI<*>> = go(),
+            generatorContexts: GeneratorContexts<StructureUnitI<*>> = goPocketBaseGeneration(),
             shallSkip: GeneratorI<*>.(model: Any?) -> Boolean = { false }) {
 
         models.forEach {
@@ -59,50 +54,9 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
         }
     }
 
-    private fun List<StructureUnitI<*>>.extendForGoGeneration() {
-        forEach {
-            it.extendForGoGeneration()
-        }
-    }
+    open fun goPocketBaseGeneration(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {
 
-    private fun StructureUnitI<*>.extendForGoGeneration() {
-        initsForGoGeneration()
-
-        addIdPropToEntityValues()
-
-        addIdPropToEntities()
-
-        addDeletedAtToEntities()
-
-        addCommandsAndEventsForAggregates()
-
-        addQueriesForAggregates()
-
-        addAggregateHandler()
-
-        addDefaultReturnValuesForQueries()
-
-        addIdPropToCommands()
-
-        addIdPropToEvents()
-
-        addEsArtifacts()
-
-        renameArtifactsAccordingParentType()
-
-        //setOptionalTagToEventsAndCommandsProps()
-
-        //extendForGoGenerationLang()
-        declareAsBaseWithNonImplementedOperation()
-
-        prepareAttributesOfEnums()
-
-        defineSuperUnitsAsAnonymousProps()
-
-        defineConstructorNoProps { constructors().isEmpty() && this !is Generic && this !is CommandI<*> && this !is EventI<*>}
-    }
-
-    open fun go(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {
+        models.extendForGoPocketBaseGeneration()
 
         val goTemplates = buildGoTemplates()
         val contextFactory = buildGoContextFactory()
@@ -278,6 +232,8 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
 
     open fun goEventDriven(fileNamePrefix: String = ""): GeneratorContexts<StructureUnitI<*>> {
 
+        models.extendForGoEsGeneration()
+
         val swaggerTemplates = buildSwaggerTemplates()
         val swaggerContextFactory = buildSwaggerContextFactory()
         val swaggerContextBuilder = swaggerContextFactory.build()
@@ -316,10 +272,6 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
 
         val derivedTypes = mutableListOf(
             "",
-            DesignDerivedType.Aggregate,
-            DesignDerivedType.AggregateEvents,
-            DesignDerivedType.AggregateCommands,
-            DesignDerivedType.Query,
             DesignDerivedType.Http,
             DesignDerivedType.Client,
             DesignDerivedType.Cli,
@@ -400,7 +352,7 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
                     template = FragmentsTemplate(name = "${fileNamePrefix}${derivedType}ApiBase",
                         nameBuilder = itemAndTemplateNameAsGoFileName, fragments = {
                             listOf(
-                                ItemsFragment(items = entities, fragments = { listOf(goTemplates.entity()) }),
+                                ItemsFragment(items = entities, fragments = { listOf(goTemplates.entityEs()) }),
                                 ItemsFragment(items = controllers, fragments = { listOf(goTemplates.pojo()) }),
                                 ItemsFragment<StructureUnitI<*>, CompilationUnitI<*>>(items = values,
                                     fragments = { listOf(goTemplates.pojo()) }),
@@ -458,6 +410,69 @@ open class DesignGoGenerator(private val models: List<StructureUnitI<*>>,
         }
 
         return GeneratorContexts(generator, swaggerContextBuilder, goContextBuilder)
+    }
+
+    private fun List<StructureUnitI<*>>.extendForGoPocketBaseGeneration() {
+        forEach {
+            it.extendForGoPocketBaseGeneration()
+        }
+    }
+
+    private fun StructureUnitI<*>.extendForGoPocketBaseGeneration() {
+        initsForGoGeneration()
+        //setOptionalTagToEventsAndCommandsProps()
+
+        //extendForGoGenerationLang()
+        declareAsBaseWithNonImplementedOperation()
+
+        prepareAttributesOfEnums()
+
+        defineSuperUnitsAsAnonymousProps()
+
+        defineConstructorNoProps { constructors().isEmpty() && this !is Generic && this !is CommandI<*> && this !is EventI<*>}
+    }
+
+    private fun List<StructureUnitI<*>>.extendForGoEsGeneration() {
+        forEach {
+            it.extendForGoEsGeneration()
+        }
+    }
+
+    private fun StructureUnitI<*>.extendForGoEsGeneration() {
+        initsForGoGeneration()
+
+        addIdPropToEntityValues()
+
+        addIdPropToEntities()
+
+        addDeletedAtToEntities()
+
+        addCommandsAndEventsForAggregates()
+
+        addQueriesForAggregates()
+
+        addAggregateHandler()
+
+        addDefaultReturnValuesForQueries()
+
+        addIdPropToCommands()
+
+        addIdPropToEvents()
+
+        addEsArtifacts()
+
+        renameArtifactsAccordingParentType()
+
+        //setOptionalTagToEventsAndCommandsProps()
+
+        //extendForGoGenerationLang()
+        declareAsBaseWithNonImplementedOperation()
+
+        prepareAttributesOfEnums()
+
+        defineSuperUnitsAsAnonymousProps()
+
+        defineConstructorNoProps { constructors().isEmpty() && this !is Generic && this !is CommandI<*> && this !is EventI<*>}
     }
 
     protected fun registerGoMacros(contextFactory: LangCommonContextFactory) {

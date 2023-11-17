@@ -19,7 +19,10 @@ open class DesignGoTemplates(
             Template("EventTypes", nameBuilder) { item, c -> item.toGoEventTypes(c) }
 
     open fun <T : EntityI<*>> entity(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-            Template("Entity", nameBuilder) { item, c -> item.toGoEntityImpl(c) }
+        Template("Entity", nameBuilder) { item, c -> item.toGoEntity(c) }
+
+    open fun <T : EntityI<*>> entityEs(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+            Template("Entity", nameBuilder) { item, c -> item.toGoEntityEs(c) }
 
     open fun stateHandler(nameBuilder: TemplateI<StateI<*>>.(StateI<*>) -> NamesI = defaultNameBuilder) =
             Template("StateHandler", nameBuilder) { item, c -> item.toGoStateHandler(c) }

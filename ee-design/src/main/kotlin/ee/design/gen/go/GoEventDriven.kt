@@ -503,7 +503,16 @@ fun <T : AttributeI<*>> T.toGoPropOptionalAfterBody(
 ): String = """`eh:"optional"`"""
 
 
-fun <T : EntityI<*>> T.toGoEntityImpl(
+fun <T : EntityI<*>> T.toGoEntity(
+    c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
+    api: String = DesignDerivedKind.API
+): String {
+    val name = c.n(this, derived)
+    return """
+        ${toGoImpl(c, derived, api, true)}
+"""
+}
+fun <T : EntityI<*>> T.toGoEntityEs(
     c: GenerationContext, derived: String = DesignDerivedKind.IMPL,
     api: String = DesignDerivedKind.API
 ): String {
