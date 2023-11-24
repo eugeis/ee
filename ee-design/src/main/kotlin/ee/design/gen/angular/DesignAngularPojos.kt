@@ -376,8 +376,8 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
                             <div style="margin-bottom: 1rem">
                                 <input type="checkbox" id="checkbox_{{i}}"
                                        (click)="${"$"}event.stopPropagation()"
-                                       (change)="${"$"}event ? ${serviceName}${DataService}.selection.toggle(row) : null"
-                                       [checked]="${serviceName}${DataService}.selection.isSelected(row) || ${serviceName}${DataService}.allRowsSelected()"/>
+                                       (change)="${"$"}event ? ${serviceName}${DataService}.toggle(row) : null"
+                                       [checked]="${serviceName}${DataService}.isSelected(row)"/>
                                 <label for="checkbox_{{i}}"></label>
                             </div>
                         </section>
