@@ -345,6 +345,14 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
     </a>
 </div>
 
+<ix-category-filter
+    class="filterTable"
+    placeholder="Filter by"
+    [repeatCategories]="true"
+    [categories]="categories"
+    (filterChanged)="data = ${serviceName}${DataService}.filterChange(${'$'}event)"
+></ix-category-filter>
+
 <ng-container *ngIf="data.length > 0; else emptyState">
     <div class="mat-elevation-z8 ${this.name().lowercase(Locale.getDefault())}-list">
         <table class="table table-striped theme-classic-dark">
@@ -459,6 +467,13 @@ si-table {
 
 a {
     @extend .entity-link
+}
+
+.filterTable {
+    position: absolute;
+    width: 80% !important;
+    left: 10%;
+    top: 22%;
 }
 """
 }

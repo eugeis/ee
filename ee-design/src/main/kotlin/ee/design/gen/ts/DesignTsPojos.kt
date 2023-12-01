@@ -157,6 +157,16 @@ ${this.toTypeScriptEntityPropInit(c, tab)}
     data: ${c.n(this, AngularDerivedType.ApiBase)}[];
     decodedParams = {}
     
+    categories = {
+        ${props().filter { it.isNotEMPTY() }.joinSurroundIfNotEmptyToString("") {
+            """
+        ${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}: {
+            label: '${it.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}',
+            options: [],
+        },"""
+        }}
+    };
+    
 ${this.toAngularConstructorDataService(c, tab, true)}
 
 ${this.toAngularListOnInit(c, tab, isAggregateView)}

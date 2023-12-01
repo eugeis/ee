@@ -131,7 +131,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementTypeParent: String, elem
                     <ng-container *ngIf="isDisabled; else toEdit">
                         <ix-chip class="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}{{i}}" [closable]="!isDisabled" [outline]="true" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/view', i]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.componentName, isDisabled: true}" routerLinkActive="active-link"> ... </ix-chip>
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.componentName, isDisabled: true, isList: false}" routerLinkActive="active-link"> ... </ix-chip>
                         <ix-tooltip for=".${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}{{i}}">{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}</ix-tooltip>
                     </ng-container>
                     <ng-template #toEdit>
@@ -170,7 +170,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormValues(elementTypeParent: String, elem
                     <ng-container *ngIf="isDisabled; else toEdit">
                         <ix-chip class="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}{{i}}" [closable]="!isDisabled" [outline]="true" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/view', i]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.componentName, isDisabled: true}" routerLinkActive="active-link"> ... </ix-chip>
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.componentName, isDisabled: true, isList: false}" routerLinkActive="active-link"> ... </ix-chip>
                         <ix-tooltip for=".${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}{{i}}">{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}</ix-tooltip>
                     </ng-container>
                     <ng-template #toEdit>

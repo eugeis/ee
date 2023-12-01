@@ -326,6 +326,16 @@ fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent
         }
 
         ${isAggregateView.then {"""this.tabElement = this.generateTabElement();"""}} 
+        
+        ${isAggregateView.not().then {"""
+        this.data.forEach((item) => {
+            ${props().filter { it.isNotEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+        """
+            if (!this.categories.${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.options.includes(JSON.stringify(item.${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}))) {
+                this.categories.${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.options.push(JSON.stringify(item.${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}))
+            }"""
+    }}
+        })"""}} 
     }"""
 }
 
