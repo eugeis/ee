@@ -121,6 +121,7 @@ object rxjs : StructureUnit({namespace("rxjs").name("rxjs")}) {
     object empty : StructureUnit({namespace("").name("")}) {
         object Observable : ExternalType()
         object of : ExternalType()
+        object forkJoin : ExternalType()
     }
 
     object operators : StructureUnit({namespace("").name("")}) {

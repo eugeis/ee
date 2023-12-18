@@ -164,7 +164,7 @@ open class DesignAngularGenerator(val model: StructureUnitI<*>) {
                     angularTemplates.entityListHTML(angularEntityListComponent.html, aggregateEntities.invoke(model), entities.invoke(model)),
                     angularTemplates.entityListSCSS(angularEntityListComponent.scss),
 
-                    tsTemplates.entityDataService(entities.invoke(model), angularEntityService.ts)
+                    tsTemplates.entityDataService(entities.invoke(model), values.invoke(model), angularEntityService.ts)
                 ) })
         )
 
@@ -202,7 +202,7 @@ open class DesignAngularGenerator(val model: StructureUnitI<*>) {
                     angularTemplates.entityListHTML(angularEntityListComponent.html, aggregateEntities.invoke(model), entities.invoke(model)),
                     angularTemplates.entityListSCSS(angularEntityListComponent.scss),
 
-                    tsTemplates.entityDataService(entities.invoke(model), angularEntityService.ts)
+                    tsTemplates.entityDataService(entities.invoke(model), values.invoke(model), angularEntityService.ts)
                 ) })
         )
 

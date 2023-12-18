@@ -165,8 +165,8 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
     </ng-container>
 
     <ng-template #notSpecificEdit>
-        <span class="material-icons edit-button-specific" (click)="${serviceName}${DataService}.editItems(0, ${this.name()
-            .lowercase(Locale.getDefault())})" [routerLink]="location.search.includes('isList') ? ['../../edit', 0] : ['./edit', 0]" [queryParams]="{name: ${serviceName}${DataService}.componentName}" routerLinkActive="active-link">more_horiz</span>
+        <span class="material-icons edit-button-specific" (click)="${serviceName}${DataService}.saveEditData(${serviceName}${DataService}.itemName, ${this.name()
+            .lowercase(Locale.getDefault())}, true)" [routerLink]="location.search.includes('isList') ? ['../../edit', 0] : ['./edit', 0]" [queryParams]="{name: ${serviceName}${DataService}.componentName}" routerLinkActive="active-link">more_horiz</span>
         <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}" [isDisabled]="true"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
             .lowercase(Locale.getDefault())}-form>
     </ng-template>
@@ -191,7 +191,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
         <ng-container *ngIf="${serviceName}${DataService}.isSpecificNew; else notSpecific">
             <button type="button" class="first-button btn btn-outline-danger" (click)="${serviceName}${DataService}.goBack()">{{'cancel' | translate}}</button>
             <button type="button" class="second-button btn btn-outline-success" (click)="${serviceName}${DataService}.inputElementSpecific(${this.name()
-                .lowercase(Locale.getDefault())}, '${this.name().lowercase(Locale.getDefault())}'); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack() ${entities.filter { entity -> entity.props().any {property ->
+                .lowercase(Locale.getDefault())}, '${entities.filter { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() }.first().belongsToAggregate().name().lowercase(Locale.getDefault())}'); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }} ${serviceName}${DataService}.goBack() ${entities.filter { entity -> entity.props().any { property ->
         ((property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
             childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) } ||
                 property.type().props().any {
@@ -343,6 +343,10 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
     <a class="loadButton normal-font-size" (click)="this.${serviceName}${DataService}.addMockupServiceDataToLocalStorage(this.${serviceName}${DataService}.getDataFromMockupService())">
         <ix-icon name="paste" size="20"></ix-icon> {{"load" | translate}} {{"configuration" | translate}}
     </a>
+    
+    <a class="saveConfigButton normal-font-size" (click)="this.${serviceName}${DataService}.generateYAML()">
+        <ix-icon name="disk-filled" size="20"></ix-icon> {{"save" | translate}} {{"configuration" | translate}}
+    </a>
 </div>
 
 <ix-category-filter
@@ -350,7 +354,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
     placeholder="Filter by"
     [repeatCategories]="true"
     [categories]="categories"
-    (filterChanged)="data = ${serviceName}${DataService}.filterChange(${'$'}event)"
+    (filterChanged)="filteredData(${'$'}event)"
 ></ix-category-filter>
 
 <ng-container *ngIf="data.length > 0; else emptyState">
@@ -364,8 +368,8 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
                                 <div style="margin-bottom: 1rem">
                                     <input type="checkbox"  id="checkbox"
                                            (change)="${"$"}event ? ${serviceName}${DataService}.masterToggle() : null"
-                                           [checked]="${serviceName}${DataService}.selection.hasValue() && ${serviceName}${DataService}.allRowsSelected()"
-                                           [indeterminate]="${serviceName}${DataService}.selection.hasValue() && !${serviceName}${DataService}.allRowsSelected()"/>
+                                           [checked]="${serviceName}${DataService}.selection.hasValue() && (${serviceName}${DataService}.selection.selected.length === data.length)"
+                                           [indeterminate]="${serviceName}${DataService}.selection.hasValue() && !(${serviceName}${DataService}.selection.selected.length === data.length)"/>
                                     <label for="checkbox"></label>
                                 </div>
                             </section>
@@ -393,11 +397,22 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
                     <td>
                         <ix-icon name="context-menu" size="16" #trigger></ix-icon>
                         <ix-dropdown [ixDropdownTrigger]="trigger">
-                            <ix-dropdown-item>
-                                <a (click)="${serviceName}${DataService}.editItems(i, row)" [routerLink]="['./edit', i]" routerLinkActive="active-link">
-                                    <ix-icon name="pen" size="16"></ix-icon> {{'edit' | translate}}
-                                </a>
-                            </ix-dropdown-item>
+                            <ng-container *ngIf="isSpecificView; else normalEdit">
+                                <ix-dropdown-item>
+                                    <a (click)="${serviceName}${DataService}.saveEditData(${serviceName}${DataService}.itemName, row, true)" [routerLink]="['./edit', i]" [queryParams]="{name: ${serviceName}${DataService}.componentName}" routerLinkActive="active-link">
+                                        <ix-icon name="pen" size="16"></ix-icon> {{'edit' | translate}}
+                                    </a>
+                                </ix-dropdown-item>
+                            </ng-container>
+
+                            <ng-template #normalEdit>
+                                <ix-dropdown-item>
+                                    <a (click)="${serviceName}${DataService}.saveEditData(${serviceName}${DataService}.itemName, row, true)" [routerLink]="['./edit', i]" routerLinkActive="active-link">
+                                        <ix-icon name="pen" size="16"></ix-icon> {{'edit' | translate}}
+                                    </a>
+                                </ix-dropdown-item>
+                            </ng-template>
+                            
                             <ix-dropdown-item>
                                 <a (click)="${serviceName}${DataService}.removeItem(row); ${if(containAggregateProp) {"""${serviceName}${DataService}.removeAggregateItem(row['${entities.filter { !it.isEMPTY() && !it.props().isEMPTY() && !it.belongsToAggregate().isEMPTY() }.joinSurroundIfNotEmptyToString { it.belongsToAggregate().props().filter { prop -> prop.name().contains(it.name(), true) }.joinSurroundIfNotEmptyToString { prop -> prop.name() } }}'])"""} else {""""""}} ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """; ${serviceName}${DataService}.generateYAML();""" }}">
                                     <ix-icon name="trashcan" size="16"></ix-icon> {{'delete' | translate}}
@@ -429,10 +444,12 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityAggregateViewHTMLComponent(c: Gen
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
     return """
-<module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${serviceName}${DataService}.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
+<div *ngIf="${serviceName}${DataService}.componentName">
+    <module-${this.parent().name().lowercase(Locale.getDefault())} [componentName]="${serviceName}${DataService}.componentName" [tabElement]="tabElement"></module-${this.parent().name().lowercase(Locale.getDefault())}>
+</div>
 
-<span class="material-icons edit-button-specific" (click)="${serviceName}${DataService}.editItems(0, ${this.name()
-            .lowercase(Locale.getDefault())})" [routerLink]="['./edit', 0]" [queryParams]="{name: ${serviceName}${DataService}.componentName}" routerLinkActive="active-link">more_horiz</span>
+<span class="material-icons edit-button-specific" (click)="${serviceName}${DataService}.saveEditData(${serviceName}${DataService}.itemName, ${this.name()
+            .lowercase(Locale.getDefault())}, true)" [routerLink]="['./edit', 0]" [queryParams]="{name: ${serviceName}${DataService}.componentName}" routerLinkActive="active-link">more_horiz</span>
             
 <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}" [isDisabled]="true"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
     .lowercase(Locale.getDefault())}-form>   

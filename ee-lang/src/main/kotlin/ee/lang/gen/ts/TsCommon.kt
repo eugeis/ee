@@ -279,13 +279,13 @@ fun <T : ItemI<*>> T.toAngularComponentSelector(): String {
 
 fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent: String, isAggregateView: Boolean = false): String {
     return """${indent}ngOnInit(): void {
-        localStorage.setItem('${if(this.name().equals(this.parent().name(), true)) {
-        this.parent().name().lowercase(Locale.getDefault()) } else {this.parent().name().lowercase(Locale.getDefault()) + this.name().lowercase(Locale.getDefault())}}-childComponent', JSON.stringify(this.${if(this.name().equals(this.parent().name(), true)) {this.parent().name()
-            .lowercase(Locale.getDefault())} else {this.parent().name().lowercase(Locale.getDefault()) + this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-    }}DataService.componentChild));
-    
-        localStorage.setItem('isSpecificNew', JSON.stringify(false));
-        localStorage.removeItem('isSpecificNewNavigation');
+        this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.saveChildComponent(this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentChild)
+        this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.saveIsSpecificNew(JSON.stringify(false));
+        this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.saveIsSpecificNewNavigation('');
     
         this.${c.n(this, AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.clearStorage();
@@ -300,42 +300,71 @@ fun <T : CompilationUnitI<*>> T.toAngularListOnInit(c: GenerationContext, indent
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.checkIfDataChangedFromSpecificView();""" }}
         
         ${isAggregateView.then { """this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = JSON.parse(localStorage.getItem('componentName'));
-        """ }}
-        
-        this.data = this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.changeMapToArray(
-                this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.retrieveItemsFromCache());
-        
-        if(this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName !== undefined && this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName.length > 0) {
-            ${isAggregateView.not().then { """
-            this.isSpecificView = true;
-            this.data = this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.changeMapToArray(
-                this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.retrieveItemsFromCache()).filter((data) => JSON.stringify(this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getSpecificData()).includes(JSON.stringify(data)));
-        """ }}
-            ${isAggregateView.then { """this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }} = this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getFirst();
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getComponentName().subscribe((componentName) => {
             this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.checkRoute(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }});""" }}
-        }
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName = componentName;
+        })""" }}
+        
+        this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getData().subscribe((data) => {
+            this.data = data;
+            
+            ${isAggregateView.not().then {"""
+            this.data.forEach((item) => {
+            ${props().filter { it.isNotEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
+            """
+                if (!this.categories.${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.options.includes(JSON.stringify(item.${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}))) {
+                    this.categories.${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.options.push(JSON.stringify(item.${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}))
+                }""" }}
+            })"""}} 
+            
+            if(this.${c.n(this, AngularDerivedType.DataService)
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName !== undefined && this.${c.n(this, AngularDerivedType.DataService)
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.componentName.length > 0) {
+                ${isAggregateView.not().then { """
+                this.isSpecificView = true;
+                this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getSpecificData().subscribe((specificData) => {
+                    this.data = data.filter(element => JSON.stringify(specificData).includes(JSON.stringify(element)))
+                })
+            """ }}
+                ${isAggregateView.then { """this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }} = this.${c.n(this, AngularDerivedType.DataService)
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getFirst();
+                this.${c.n(this, AngularDerivedType.DataService)
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.checkRoute(this.${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }});""" }}
+                
+                ${isAggregateView.then { """
+                ${c.n(rxjs.empty.forkJoin)}([this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getSpecificData(), ${props().filter { it.type().name().lowercase(Locale.getDefault()) !in arrayOf("string", "boolean", "date", "int", "double", "list") }.joinSurroundIfNotEmptyToString("") { 
+                """this.${c.n(this, AngularDerivedType.DataService)
+                        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getAnySpecificData('${this.parent().name().lowercase(Locale.getDefault())}${it.type().name().lowercase(Locale.getDefault())}'), """
+            }} ${props().filter { it.type().name().lowercase(Locale.getDefault()).equals("list", true) }.joinSurroundIfNotEmptyToString("") {
+                """this.${c.n(this, AngularDerivedType.DataService)
+                        .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getAnySpecificData('${this.parent().name().lowercase(Locale.getDefault())}${it.type().generics().first().type().name().lowercase(Locale.getDefault())}'), """
+            }}]).subscribe(
+                    ([${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}, ${props().filter { it.type().name().lowercase(Locale.getDefault()) !in arrayOf("string", "boolean", "date", "int", "double", "list") }.joinSurroundIfNotEmptyToString("") {
+                        """${this.parent().name().lowercase(Locale.getDefault())}${it.type().name().lowercase(Locale.getDefault())}, """
+                    }} ${props().filter { it.type().name().lowercase(Locale.getDefault()).equals("list", true) }.joinSurroundIfNotEmptyToString("") {
+                        """${this.parent().name().lowercase(Locale.getDefault())}${it.type().generics().first().type().name().lowercase(Locale.getDefault())}, """
+                    }}]) => {
+                        ${props().filter { it.type().name().lowercase(Locale.getDefault()) !in arrayOf("string", "boolean", "date", "int", "double", "list") }.joinSurroundIfNotEmptyToString("") {
+                        """${this.name().lowercase(Locale.getDefault())}.${it.name().lowercase(Locale.getDefault())} = ${this.parent().name().lowercase(Locale.getDefault())}${it.type().name().lowercase(Locale.getDefault())}"""
+                    }}
+                        ${props().filter { it.type().name().lowercase(Locale.getDefault()).equals("list", true) }.joinSurroundIfNotEmptyToString("") {
+                        """${this.name().lowercase(Locale.getDefault())}.${it.name().lowercase(Locale.getDefault())} = ${this.parent().name().lowercase(Locale.getDefault())}${it.type().generics().first().type().name().lowercase(Locale.getDefault())}"""
+                    }}
+                        this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getComponentName().subscribe((componentName) => {
+                            this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.saveSpecificData(${this.name().replaceFirstChar { it.lowercase(Locale.getDefault()) }}, componentName)
+                        })
+                    }
+                )
+                """}}
+            }
+        })
 
         ${isAggregateView.then {"""this.tabElement = this.generateTabElement();"""}} 
-        
-        ${isAggregateView.not().then {"""
-        this.data.forEach((item) => {
-            ${props().filter { it.isNotEMPTY() }.joinSurroundIfNotEmptyToString(nL) {
-        """
-            if (!this.categories.${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.options.includes(JSON.stringify(item.${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}))) {
-                this.categories.${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.options.push(JSON.stringify(item.${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}))
-            }"""
-    }}
-        })"""}} 
     }"""
 }
 

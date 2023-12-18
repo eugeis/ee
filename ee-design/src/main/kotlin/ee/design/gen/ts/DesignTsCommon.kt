@@ -194,7 +194,7 @@ fun <T : TypeI<*>> T.toAngularInitObservable(c: GenerationContext, key: ListMult
         );$nL"""
 }
 
-fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): String {
+fun <T : CompilationUnitI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): String {
     return """${indent}ng${c.n(angular.core.OnInit)}(): void {
         this.${this.name().lowercase(Locale.getDefault())} = this.${c.n(this, AngularDerivedType.DataService)
         .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getFirst();
@@ -203,7 +203,10 @@ fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): 
         if (this.${c.n(this, AngularDerivedType.DataService)
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.isSpecificNew === undefined) {
             this.${c.n(this, AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.isSpecificNew = JSON.parse(localStorage.getItem('isSpecificNew'));
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getIsSpecificNew().subscribe((status) => {
+                this.${c.n(this, AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.isSpecificNew = status;
+            });
         }
         
         this._route.queryParams.subscribe(param => {
@@ -223,43 +226,51 @@ fun <T : ItemI<*>> T.toAngularViewOnInit(c: GenerationContext, indent: String): 
 fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent: String): String {
 
     return """${indent}ng${c.n(angular.core.OnInit)}(): void {
-        ${this.props().filter { it.type() is BasicI<*> || it.type() is EntityI<*> }.joinSurroundIfNotEmptyToString(nL + tab) {
+        
+    ${this.props().filter { it.type() is BasicI<*> || it.type() is EntityI<*> }.joinSurroundIfNotEmptyToString(nL + tab) {
         it.toAngularEmptyProps(c, indent, it.type())
     }.trim()}
     
-        ${this.props().filter { it.type() is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL + tab) {
+    ${this.props().filter { it.type() is ValuesI<*> }.joinSurroundIfNotEmptyToString(nL + tab) {
         it.toAngularEmptyPropsValues(c, indent, it.type())
     }.trim()}
-    
-        ${this.props().filter { !it.isEMPTY() && it.type().name().equals("list", true) && it.type().generics().first().type() is EntityI<*> }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
-        """
-        if (this.${this.name()
-                .lowercase(Locale.getDefault())}.${it.name()
-                .replaceFirstChar { it.lowercase(Locale.getDefault()) }} == null) {
-            this.${this.name()
-                .lowercase(Locale.getDefault())}.${it.name()
-                .replaceFirstChar { it.lowercase(Locale.getDefault()) }} = this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem('${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "").lowercase(Locale.getDefault())}') || [];
-        } else {
-            if (this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem('${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "").lowercase(Locale.getDefault())}') !== null) {
-                this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem('${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "").lowercase(Locale.getDefault())}').forEach((element: ${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}) => {
-                    this.${this.name()
-                .lowercase(Locale.getDefault())}.${it.name()
-                .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.push(element);
-                })
-            }
-        }"""
-        }}
         
-        ${this.props().filter { !it.isEMPTY() && it.type().name().equals("list", true) && it.type().generics().first().type() !is EntityI<*> }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
+    ${this.props().filter { !it.isEMPTY() && it.type().name().equals("list", true) && it.type().generics().first().type() is EntityI<*> }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
         """
         if (this.${this.name()
-                .lowercase(Locale.getDefault())}.${it.name()
-                .replaceFirstChar { it.lowercase(Locale.getDefault()) }} == null) {
-            this.${this.name()
-                .lowercase(Locale.getDefault())}.${it.name()
-                .replaceFirstChar { it.lowercase(Locale.getDefault()) }} = [];
+            .lowercase(Locale.getDefault())}.${it.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} == null) {
+            this.${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadMultipleElementFromListItem('${c.n(it.type().generics().first().type(), AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "").lowercase(Locale.getDefault())}').subscribe((elements) => {
+                if (elements !== null && elements.length > 0) {
+                    this.${this.name()
+            .lowercase(Locale.getDefault())}.${it.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} = [];
+                    elements.forEach((element) => {
+                        this.${this.name()
+            .lowercase(Locale.getDefault())}.${it.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.push(element)
+                    })
+                } else {
+                    this.${this.name()
+            .lowercase(Locale.getDefault())}.${it.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} = [];
+                }
+            })
         }"""
     }}
+            
+    ${this.props().filter { !it.isEMPTY() && it.type().name().equals("list", true) && it.type().generics().first().type() !is EntityI<*> }.joinSurroundIfNotEmptyToString(",$nL$tab$tab") {
+        """
+        if (this.${this.name()
+            .lowercase(Locale.getDefault())}.${it.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} == null) {
+            this.${this.name()
+            .lowercase(Locale.getDefault())}.${it.name()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }} = [];
+        }"""
+    }}
+    
+        this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.checkRoute(this.${this.name().lowercase(Locale.getDefault())})
     
         this.form = new ${c.n(angular.forms.FormGroup)}({ 
             ${this.props().filter { !it.isEMPTY() && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString(",$nL$tab$tab$tab") {
@@ -268,51 +279,93 @@ fun <T : CompilationUnitI<*>> T.toAngularFormOnInit(c: GenerationContext, indent
                     .lowercase(Locale.getDefault())}.${it.name()
                     .replaceFirstChar { it.lowercase(Locale.getDefault()) }}, disabled: this.isDisabled})"""
             }}
-        })
-    
-${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString(tab + tab) {
-    when(it.type()) {
-        is EntityI<*>, is ValuesI<*>-> it.toAngularInitOption(c, it.type())
-        else -> when(it.type().name().lowercase(Locale.getDefault())) {
-            "list" -> when(it.type().generics().first().type()) {
-                is EntityI<*>, is ValuesI<*> -> it.toAngularInitOptionMultiple(c, it.type().generics().first().type())
-                is EnumTypeI<*> -> "this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadEnumElement(${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase)
-                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }});"
-                else -> ""
-            }
-            else -> ""
+        })  
+        
+        if (this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.isEdit) {
+            this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getEditData().subscribe((data) => {
+                Object.assign(this.${this.name().lowercase(Locale.getDefault())}, data);
+                setTimeout(() => {
+                    this.loadIxOption();
+                }, 100)
+            })
+        } else if (this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.isView) {
+            this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getSpecificData().subscribe((data) => {
+                this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getSpecificViewData(this.${this.name().lowercase(Locale.getDefault())})
+                setTimeout(() => {
+                    this.loadIxOption();
+                }, 100)
+            })
+        } else {  
+            setTimeout(() => {
+                this.loadIxOption();
+            }, 100)
         }
-    }
-}}
     
         this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.initObservable();
     }"""
 }
 
 fun <T : ItemI<*>> T.toAngularInitOption(c: GenerationContext, elementType: TypeI<*>): String {
-    return """this.${c.n(this.parent(), AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")} 
-            = this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.changeMapToArray(this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.retrieveItemsFromCache()); 
-            
-        this.${c.n(this.parent(), AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}.forEach((data, index) => {
-            if (JSON.stringify(this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}).toLowerCase().includes(JSON.stringify(data).toLowerCase())) {
-                this.selectedIndices${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")} = index.toString();
-            }
-        }); $nL"""
+    return """
+        this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getData().subscribe((data) => {
+            this.${c.n(this.parent(), AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}  = data;
+
+            this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem().subscribe((listItem) => {
+                if (JSON.stringify(this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())} ) !== '{}' && JSON.stringify(this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())} ) !== '[]'
+                && (JSON.stringify(listItem) === '{}' || JSON.stringify(listItem) === '[]')) {
+                    this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.saveListItemData(this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.itemName,
+                        this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())} )
+                }
+            })
+  
+            setTimeout(() => {
+                this.${c.n(this.parent(), AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}.forEach((option, index) => {
+                    this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem().subscribe((listItem) => {
+                        if (JSON.stringify(listItem).toLowerCase().includes(JSON.stringify(option).toLowerCase())
+                            && (JSON.stringify(listItem) !== '{}' || JSON.stringify(listItem) !== '[]')) {
+                            this.selectedIndices${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")} = index.toString();
+                            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())} = option;
+                        } else if ((JSON.stringify(listItem) === '{}' || JSON.stringify(listItem) === '[]')) {
+                            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())} = listItem;
+                        }
+                    })
+                });
+            }, 100)
+        })$nL"""
 }
 
 fun <T : ItemI<*>> T.toAngularInitOptionMultiple(c: GenerationContext, elementType: TypeI<*>): String {
-    return """this.${c.n(this.parent(), AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")} 
-            = this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.changeMapToArray(this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.retrieveItemsFromCache()); 
-            
-        this.${c.n(this.parent(), AngularDerivedType.DataService)
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}.forEach((data, index) => {
-            if (JSON.stringify(this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}).toLowerCase().includes(JSON.stringify(data).toLowerCase())) {
-                this.multipleSelectedIndices${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}.push(index.toString());
-            }
-        });"""
+    return """
+        this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.getData().subscribe((data) => {
+            this.${c.n(this.parent(), AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}  = data;
+            this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadMultipleElementFromListItem().subscribe((listItem) => {
+                if (JSON.stringify(this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}) !== '{}' && JSON.stringify(this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}) !== '[]'
+                && listItem.length < this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}.length) {
+                    this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.saveMultipleListItemData(this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.itemName, this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())});
+                }
+            })
+            setTimeout(() => {
+                this.${c.n(this.parent(), AngularDerivedType.DataService)
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}.forEach((option, index) => {
+                    this.multipleSelectedIndices${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")} = [];
+                    this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadMultipleElementFromListItem().subscribe((listItem) => {
+                        if ((JSON.stringify(listItem).toLowerCase().includes(JSON.stringify(option).toLowerCase())
+                            && (JSON.stringify(listItem) !== '{}' || JSON.stringify(listItem) !== '[]'))) {
+                            this.multipleSelectedIndices${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}.push(index.toString());
+                            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())} = listItem.filter((value) => {
+                                return JSON.stringify(data).includes(JSON.stringify(value));
+                            });
+                        } else if ((JSON.stringify(listItem) === '{}' || JSON.stringify(listItem) === '[]')) {
+                            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())} = listItem;
+                        }
+                    })
+                });
+            }, 100)
+
+        })"""
 }
 
 fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, elementType: TypeI<*>): String {
@@ -324,12 +377,15 @@ fun <T : ItemI<*>> T.toAngularEmptyProps(c: GenerationContext, indent: String, e
 
 fun <T : ItemI<*>> T.toAngularEmptyPropsValues(c: GenerationContext, indent: String, elementType: TypeI<*>): String {
     return """${indent}if (this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} === undefined) {
-            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem('${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "").lowercase(Locale.getDefault())}') || new ${c.n(elementType, AngularDerivedType.ApiBase)
+            this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem('${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "").lowercase(Locale.getDefault())}').subscribe((${this.name().toCamelCase()}) => {
+                if (${this.name().toCamelCase()} !== null) {
+                    this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = ${this.name().toCamelCase()} || new ${c.n(elementType, AngularDerivedType.ApiBase)
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}();
-        } else {
-            if (this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem('${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "").lowercase(Locale.getDefault())}') !== null) {
-                this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = this.${c.n(elementType, AngularDerivedType.DataService).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadElementFromListItem('${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "").lowercase(Locale.getDefault())}');
-            }
+                } else {
+                    this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().toCamelCase()} = new ${c.n(elementType, AngularDerivedType.ApiBase)
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}();
+                }
+            })
         }"""
 }
 

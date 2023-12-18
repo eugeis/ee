@@ -264,8 +264,8 @@ export class SimpleEntityListComponent implements OnInit, AfterViewInit {
                 <section [style.visibility]="simpleentityDataService.isHidden? 'hidden': 'visible'">
                     <mat-checkbox color="warn"
                                   (change)="${'$'}event ? simpleentityDataService.masterToggle() : null"
-                                  [checked]="simpleentityDataService.selection.hasValue() && simpleentityDataService.allRowsSelected()"
-                                  [indeterminate]="simpleentityDataService.selection.hasValue() && !simpleentityDataService.allRowsSelected()"></mat-checkbox>
+                                  [checked]="simpleentityDataService.selection.hasValue() && (simpleentityDataService.selection.selected.length === data.length)"
+                                  [indeterminate]="simpleentityDataService.selection.hasValue() && !(simpleentityDataService.selection.selected.length === data.length)"></mat-checkbox>
                 </section>
             </th>
             <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'box'">
@@ -283,7 +283,7 @@ export class SimpleEntityListComponent implements OnInit, AfterViewInit {
             <td mat-cell *matCellDef="let element; let i = index" [attr.data-label]="'actions'">
                 <mat-menu #appMenu="matMenu">
                     <ng-template matMenuContent>
-                        <button mat-menu-item (click)="simpleentityDataService.editItems(i, element)"><mat-icon>edit</mat-icon>
+                        <button mat-menu-item (click)="simpleentityDataService.saveEditData(simpleentityDataService.itemName, element, true)"><mat-icon>edit</mat-icon>
                             <span>{{"edit" | translate}}</span></button>
                         <button mat-menu-item (click)="simpleentityDataService.removeItem(element)"><mat-icon>delete</mat-icon>
                             <span>{{"delete" | translate}}</span></button>

@@ -3,6 +3,7 @@ import ee.common.ext.then
 import ee.common.ext.toCamelCase
 import ee.design.EntityI
 import ee.lang.*
+import ee.lang.gen.ts.AngularDerivedType
 import java.util.*
 import kotlin.math.ceil
 
@@ -116,7 +117,8 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementTypeParent: String, elem
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
                 <ng-container *ngIf="!isDisabled">
                     <a class="material-icons newButton normal-font-size" (click)="${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.editItems(0, ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())})" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" routerLinkActive="active-link">
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.saveEditData(${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${elementType.toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.itemName, ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}, true)" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" routerLinkActive="active-link">
                         more_horiz
                     </a>
                 </ng-container>
@@ -137,7 +139,8 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntity(elementTypeParent: String, elem
                     <ng-template #toEdit>
                         <ix-chip class="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}{{i}}" [closable]="!isDisabled" [outline]="true" (closeChip)="removeChip${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(i)" (click)="${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.editItems(i, ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())})" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.saveEditData(${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${elementType.toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.itemName, ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}, true)" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.componentName}" routerLinkActive="active-link"> ... </ix-chip>
                         <ix-tooltip for=".${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}{{i}}">{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}</ix-tooltip>
@@ -155,7 +158,8 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormValues(elementTypeParent: String, elem
     } else {"""${this.parent().parent().name().lowercase(Locale.getDefault())}${this.parent().name().lowercase(Locale.getDefault())}"""}}.table.${this.name().lowercase(Locale.getDefault())}" | translate}}
                 <ng-container *ngIf="!isDisabled">
                     <a class="material-icons newButton normal-font-size" (click)="${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.editItems(0, ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())})" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" routerLinkActive="active-link">
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.saveEditData(${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${elementType.toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.itemName, ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}, true)" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" routerLinkActive="active-link">
                         more_horiz
                     </a>
                 </ng-container>
@@ -176,7 +180,8 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormValues(elementTypeParent: String, elem
                     <ng-template #toEdit>
                         <ix-chip class="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}{{i}}" [closable]="!isDisabled" [outline]="true" (closeChip)="removeChip${elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}${elementType.toCamelCase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}(i)" (click)="${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.editItems(i, ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())})" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.saveEditData(${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}${elementType.toCamelCase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.itemName, ${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())}, true)" [routerLink]="['/${this.type().findParentNonInternal()?.name()?.lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}DataService.componentName}" routerLinkActive="active-link"> ... </ix-chip>
                         <ix-tooltip for=".${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}{{i}}">{{${this.parent().name().lowercase(Locale.getDefault())}.tooltip(item)}}</ix-tooltip>
@@ -220,7 +225,7 @@ fun <T : AttributeI<*>> T.toHTMLObjectFormEntityMultiple(elementTypeParent: Stri
                     <ng-template #toEdit>
                         <ix-chip class="${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}{{i}}" [closable]="!isDisabled" [outline]="true" (closeChip)="removeChip${if(elementTypeParent.equals(elementType, true)) {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}
     else {elementTypeParent.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } + elementType.toCamelCase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}(i)" (click)="${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) } + elementType.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.editItems(i, item)" [routerLink]="['/${this.parent().parent().name().lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}}(i)" (click)="${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) } + elementType.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.saveEditData(${elementTypeParent.toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) } + elementType.toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}DataService.itemName, item, true)" [routerLink]="['/${this.parent().parent().name().lowercase(Locale.getDefault())}/${elementType.lowercase(Locale.getDefault())}/edit', 0]" [queryParams]="{name: ${if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }} else {this.parent().parent().name()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) } + this.parent().name().toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault())
     else it.toString() }}}DataService.componentName}" routerLinkActive="active-link"> {{item${
@@ -275,9 +280,9 @@ fun <T : TypeI<*>> T.toAngularTableListBasic(parentName: String = "", basicName:
                     "List" -> when(it.type().generics().first().type()) {
                         is EntityI<*>, is ValuesI<*> ->  it.toAngularTableListEntityFromBasicMultiple(it.type().generics().first().type().name(), parentName,  isChild, totalChild,  it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
                         is EnumTypeI<*> -> it.toAngularTableListEntityFromBasicMultipleEnums(it.type().generics().first().type().findParentNonInternal(), parentName, totalChild,  it.type().generics().first().type().props().filter { prop -> prop.isToStr() == true && !prop.isEMPTY() })
-                        else -> it.toAngularTableList(parentName, basicName, totalChild, containAggregateProp)
+                        else -> it.toAngularTableList(parentName, basicName, totalChild, containAggregateProp, this.props())
                     }
-                    else -> it.toAngularTableList(parentName, basicName, totalChild, containAggregateProp)
+                    else -> it.toAngularTableList(parentName, basicName, totalChild, containAggregateProp, this.props())
                 }
             }
         }
@@ -375,28 +380,34 @@ fun <T : ItemI<*>> T.toAngularTableListDate(parentName: String = "", totalChild:
                 </td>
 """
 
-fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: String = "", totalChild: Int, isAggregateView: Boolean): String =
-    """
+fun <T : ItemI<*>> T.toAngularTableList(parentName: String = "", elementName: String = "", totalChild: Int, isAggregateView: Boolean, props: ListMultiHolder<AttributeI<*>>): String {
+    val componentName = if(elementName.isEmpty()) {if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name().lowercase(Locale.getDefault())
+    } else {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    }} else elementName
+    return """
         ${isAggregateView.then { """
                 <td>
-                    <a routerLink="view" routerLinkActive="active-link" (click)="${if(elementName.isEmpty()) {if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name().lowercase(Locale.getDefault())
-            } else {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-            }} else elementName}DataService.saveSpecificData(row, row['${this.name().toCamelCase()
-                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']); ${if(elementName.isEmpty()) {if(this.parent().parent().name().equals(this.parent().name(), true)) {this.parent().parent().name().lowercase(Locale.getDefault())
-    } else {this.parent().parent().name().lowercase(Locale.getDefault()) + this.parent().name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-    }} else elementName}DataService.saveCurrentSpecificData(row)">{{row['${this.name().toCamelCase()
-                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']}}</a>
+                    <a routerLink="view" routerLinkActive="active-link" (click)="${componentName}DataService.saveSpecificData(row, row['${this.name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']); ${props.filter { it.type() is EntityI<*> || it.type() is ValuesI<*> }.joinSurroundIfNotEmptyToString("") {
+        """${componentName}DataService.saveSpecificData(row['${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}'], row['${this.name().toCamelCase()
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }}'], '${componentName}${it.type().name().lowercase(Locale.getDefault())}');"""
+    }} ${props.filter { it.type().name().lowercase(Locale.getDefault()).equals("list") && (it.type().generics().first().type() is EntityI<*> || it.type().generics().first().type() is ValuesI<*>)  }.joinSurroundIfNotEmptyToString("") {
+        """${componentName}DataService.saveSpecificData(row['${it.name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}'], row['${this.name().toCamelCase()
+                .replaceFirstChar { it.lowercase(Locale.getDefault()) }}'], '${componentName}${it.type().generics().first().type().name().lowercase(Locale.getDefault())}');"""
+    }} ${componentName}DataService.saveCurrentSpecificData(row)">{{row['${this.name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']}}</a>
                 </td>
         """}}       
         ${isAggregateView.not().then { """
                 <td>
                     <span>{{row${elementName.isNotEmpty().then { "['${elementName.toCamelCase()
-                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" }}['${this.name().toCamelCase()
-                    .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']}}</span>
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" }}['${this.name().toCamelCase()
+            .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']}}</span>
                 </td>
         """}}
         
 """
+}
 
 fun <T : ItemI<*>> T.toAngularDefaultSCSS(): String =
     """host{}"""

@@ -61,8 +61,8 @@ open class DesignTsTemplates : LangTsTemplates {
     open fun <T : CompilationUnitI<*>> valueListTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("EntityListTypeScriptComponent", nameBuilder) { item, c -> item.toAngularEntityListTypeScript(c, Model = AngularDerivedType.Value, ListComponent = AngularDerivedType.ListComponent) }
 
-    open fun <T : CompilationUnitI<*>> entityDataService(entities: List<EntityI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
-        Template("EntityDataService", nameBuilder) { item, c -> item.toAngularEntityDataService(entities, c, DataService = AngularDerivedType.DataService) }
+    open fun <T : CompilationUnitI<*>> entityDataService(entities: List<EntityI<*>>, values: List<ValuesI<*>>, nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
+        Template("EntityDataService", nameBuilder) { item, c -> item.toAngularEntityDataService(entities, values, c, DataService = AngularDerivedType.DataService) }
 
     open fun <T : CompilationUnitI<*>> basicTypeScript(nameBuilder: TemplateI<T>.(T) -> NamesI = defaultNameBuilder) =
         Template("BasicTypeScriptComponent", nameBuilder) { item, c -> item.toAngularBasicTSComponent(c, BasicComponent = AngularDerivedType.BasicComponent) }

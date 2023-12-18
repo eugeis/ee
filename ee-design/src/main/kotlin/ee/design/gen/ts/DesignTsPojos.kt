@@ -127,6 +127,23 @@ ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in array
     }
 }}) {}
 ${this.toAngularFormOnInit(c, tab)}
+
+    loadIxOption() {
+        ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString(tab + tab) {
+            when(it.type()) {
+                is EntityI<*>, is ValuesI<*>-> it.toAngularInitOption(c, it.type())
+                else -> when(it.type().name().lowercase(Locale.getDefault())) {
+                    "list" -> when(it.type().generics().first().type()) {
+                        is EntityI<*>, is ValuesI<*> -> it.toAngularInitOptionMultiple(c, it.type().generics().first().type())
+                        is EnumTypeI<*> -> "this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.option${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} = this.${c.n(this, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadEnumElement(${c.n(it.type().generics().first().type(), AngularDerivedType.ApiBase)
+                                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }});"
+                        else -> ""
+                    }
+                    else -> ""
+                }
+            }
+        }}
+    }
     
     ${this.props().filter { it.type() !is EnumTypeI<*> && it.type().name() !in arrayOf("boolean", "date", "string") }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
@@ -154,7 +171,7 @@ ${this.toTypeScriptEntityPropInit(c, tab)}
     
     tabElement: Array<string>;
     isSpecificView = false;
-    data: ${c.n(this, AngularDerivedType.ApiBase)}[];
+    data: ${c.n(this, AngularDerivedType.ApiBase)}[] = [];
     decodedParams = {}
     
     categories = {
@@ -170,6 +187,12 @@ ${this.toTypeScriptEntityPropInit(c, tab)}
 ${this.toAngularConstructorDataService(c, tab, true)}
 
 ${this.toAngularListOnInit(c, tab, isAggregateView)}
+
+    filteredData(event: any) {
+        this.${c.n(this, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) }}DataService.filterChange(event).then((result: ${c.n(this, AngularDerivedType.ApiBase)}[]) => {
+            this.data = result;
+        })
+    }
 
     ${isAggregateView.then {"""generateTabElement() { 
         return [${props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
@@ -237,7 +260,7 @@ fun <T : AttributeI<*>> T.toAngularGenerateTableHeader(c: GenerationContext, par
 }
 
 fun <T : CompilationUnitI<*>> T.toAngularEntityDataService(
-    entities: List<EntityI<*>>, c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
+        entities: List<EntityI<*>>, values: List<ValuesI<*>>, c: GenerationContext, DataService: String = AngularDerivedType.DataService): String {
     return """
 
 @${c.n(angular.core.Injectable)}({ providedIn: 'root' })
@@ -340,43 +363,137 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
     """ 
     }}
 
-    editElement(element: ${c.n(this, AngularDerivedType.ApiBase)}, elementName: String, isArray: boolean) {
-        this.items = this.retrieveItemsFromCache();
-        const editItem = JSON.parse(localStorage.getItem('edit' + this.itemName));
-        const oldId = this.itemName + JSON.stringify(editItem);
+    editElement(element: ${c.n(this, AngularDerivedType.ApiBase)}, elementName: string, isArray: boolean) {
         const newId = this.itemName + JSON.stringify(element);
-        
-        let currentData = this.loadElementFromListItem(elementName) ? this.loadElementFromListItem(elementName) : [];
 
-        if(JSON.stringify(newId) !== JSON.stringify(oldId)) {
-            if (JSON.stringify(editItem) === '{}') {
-                this.addItemToTableArray(element, this.itemName)
-            } else {
-                this.editItemFromTableArray(element, oldId, this.itemName);
-                this.editInheritedEntity(element);
-            }
-            
-            if (isArray) {
-                currentData.push(element);
-                currentData = currentData.filter(function(item) {
-                    return JSON.stringify(item) !== JSON.stringify(editItem)
-                });
-                localStorage.setItem('list-item-for-' + elementName, JSON.stringify(currentData));
-            } else {
-                localStorage.setItem('list-item-for-' + elementName, JSON.stringify(element));
-            }
-        }
-        
-        if (JSON.stringify(editItem).includes(JSON.stringify(JSON.parse(localStorage.getItem('specificData'))))) {
-            this.saveSpecificData(element, ${this.props().any { !it.isEMPTY() && it.isToStr() == true }.then {  "element." + this.props().first { prop -> prop.isToStr() == true && !prop.isEMPTY() }.name()  }}${this.props().all { !it.isEMPTY() && (it.isToStr() == false || (it.type() is EntityI<*> || it.type() is ValuesI<*> || it.type() is BasicI<*>)) }.then { """''""" }} );
-        } 
+        this.getData(this.itemName).subscribe((data) => {
+            this.getEditData(this.itemName).subscribe((editData) => {
+                this.loadMultipleElementFromListItem(elementName).subscribe((currentData) => {
+                    if(!JSON.stringify(data).includes(JSON.stringify(element)) 
+                        || (JSON.stringify(data) === '{}' || JSON.stringify(data) === '[]')) {
+                        if (JSON.stringify(editData) === '{}' || JSON.stringify(editData) === '[]') {
+                            this.saveData(this.itemName, element);
+                        } else {
+                            this.editItemFromTableArray(element, newId, this.itemName);
+                            this.editInheritedEntity(element);
+                        }
+
+                        if (isArray) {
+                            const updatedItems = currentData.map(function(item) {
+                                if (JSON.stringify(item) === JSON.stringify(editData)) {
+                                    item = element;
+                                }
+                                return item;
+                            });
+                            this.saveMultipleListItemData(elementName, updatedItems);
+                        } else {
+                            this.saveListItemData(elementName, element);
+                        }
+                    }
+
+                    if (JSON.stringify(editData).includes(JSON.stringify(JSON.parse(localStorage.getItem('specificData'))))) {
+                        this.saveSpecificData(element, ${this.props().any { !it.isEMPTY() && it.isToStr() == true }.then {  "element." + this.props().first { prop -> prop.isToStr() == true && !prop.isEMPTY() }.name()  }}${this.props().all { !it.isEMPTY() && (it.isToStr() == false || (it.type() is EntityI<*> || it.type() is ValuesI<*> || it.type() is BasicI<*>)) }.then { """''""" }} );
+                    } 
+                })
+            })
+        })
     }
     
     editInheritedEntity(newElement: ${c.n(this, AngularDerivedType.ApiBase)}) {
-        const editItem = JSON.parse(localStorage.getItem('edit' + this.itemName));
-        if (JSON.stringify(newElement) !== JSON.stringify(editItem)) {
-        ${entities.filter { entity -> entity.props().any {property ->
-        (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
+        this.getEditData(this.itemName).subscribe((editItem) => {
+            if (JSON.stringify(newElement) !== JSON.stringify(editItem)) {
+            ${entities.filter { entity -> entity.props().any {property ->
+            (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
+                childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) } ||
+                    property.type().props().any {
+                        childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) }
+                    )
+        }
+        }.joinSurroundIfNotEmptyToString("") {
+            """
+                
+                this.getAnyEditData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}').subscribe((${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) => {
+                    if ((JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '{}' || JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '[]')) {
+                        ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
+                    ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                    property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
+                    ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}} = newElement;""" }}
+                        this.saveEditData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}, false)
+                    }
+                })
+                
+                this.getAnySpecificData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}').subscribe((${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) => {
+                    if ((JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '{}' || JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '[]')) {
+
+                        if (Array.isArray(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})) {
+                            ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.forEach((element) => {
+                                if (JSON.stringify(element).includes(JSON.stringify(editItem))) {
+                                   ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                        property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}} = newElement;""" }}
+                                }
+                            })
+                        } else {
+                            ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
+                    ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                    property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
+                    ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}} = newElement;""" }}
+                        }
+                        this.getComponentName().subscribe((componentName) => {
+                            this.saveSpecificData(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}, componentName, '${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}')
+                            this.saveMultipleListItemData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})
+                        })
+                    }
+                })
+                
+                this.loadAnyElementFromListItem('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}').subscribe((${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) => {
+                    if ((JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '{}' || JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '[]')
+                        && JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}).includes(JSON.stringify(editItem))) {
+                        if (Array.isArray(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})) {
+                            ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.forEach((element) => {
+                                if (JSON.stringify(element).includes(JSON.stringify(editItem))) {
+                                   ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                    property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}} = newElement;""" }}
+                                    this.saveMultipleListItemData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})
+                                }
+                            })
+                        } else {
+                            ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
+                    ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                    property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
+                    ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}} = newElement;""" }}
+                            this.saveListItemData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})
+                        }
+                    }
+                })
+                
+                this.getAnyData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}').subscribe((${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) => {
+                    if ((JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '{}' || JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '[]')
+                        && JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}).includes(JSON.stringify(editItem))) {
+                        ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.forEach((element) => {
+                            if (Array.isArray(${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                    property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}""" }})) {
+                                ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                        property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}""" }}.forEach((parentData, index) => {
+                                    if (JSON.stringify(editItem).includes(JSON.stringify(parentData))) {
+                                        ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}[index] = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                        property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}[index] = newElement;""" }}
+                                    }
+                                })
+                            } else {
+                                ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
+                    ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                    property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
+                    ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}} = newElement;""" }}   
+                            }
+                        })
+                        this.replaceData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})
+                    }
+                })
+            """
+        }}
+        
+        ${values.filter { basic -> basic.props().any { property ->
+        (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( basic.props().any {
             childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) } ||
                 property.type().props().any {
                     childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && !childProperty.type().name().equals("list", true) && childProperty.type().namespace().equals(this.namespace(), true) }
@@ -384,75 +501,144 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
     }
     }.joinSurroundIfNotEmptyToString("") {
         """
-            const inheritedElement${it.name()
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: Map<string, ${c.n(it, AngularDerivedType.ApiBase)}> = new Map(JSON.parse(localStorage.getItem('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}')));
-            inheritedElement${it.name()
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.forEach((value, key) => {
-                if ((JSON.stringify(editItem) === '{}'
-                    && !JSON.stringify(${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
-                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
-                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
-                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}}""" }}).includes(JSON.stringify(newElement))
-                    && JSON.stringify(${it.props().all {property -> !property.isEMPTY() && property.isToStr() == false }.then {  "value" }}${it.props().any {property -> !property.isEMPTY() && property.isToStr() == true }.then {  "value." + it.props().first { prop -> prop.isToStr() == true && !prop.isEMPTY() }.name()  }}) === JSON.stringify(JSON.parse(localStorage.getItem('componentName')))) 
-                    || (JSON.stringify(${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
-                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
-                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
-                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}}""" }}).includes(JSON.stringify(editItem))
-                        && !JSON.stringify(${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
-                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
-                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
-                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}}""" }}).includes(JSON.stringify(newElement))
-                        && JSON.stringify(editItem) !== '{}')) {
-                    ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
-                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
-                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
-                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}} = newElement;""" }}
-                    this.editItemFromTableArray(value, key, '${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}');
-                }
-            });
-        """
-    }}
-    
-    ${entities.filter { entity -> entity.props().any {property ->
-        (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
-            childProperty -> childProperty.type().name().equals("list", true) && childProperty.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && childProperty.type().generics().first().type().namespace().equals(this.namespace(), true) } ||
-                property.type().props().any {
-                    childProperty -> childProperty.type().name().equals("list", true) && childProperty.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && childProperty.type().generics().first().type().namespace().equals(this.namespace(), true) }
-                )
-    }
-    }.joinSurroundIfNotEmptyToString("") {
-        val listElementName = it.props().filter { property -> property.type().name().equals("list", true) && property.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && property.type().generics().first().type().namespace().equals(this.namespace(), true) }.joinSurroundIfNotEmptyToString { it.name() }
-        val listPropName = it.props().filter { property -> property.type().name().equals("list", true) && property.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && property.type().generics().first().type().namespace().equals(this.namespace(), true) }.joinSurroundIfNotEmptyToString { it.type().generics().first().type().name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) } };
-        """
-            const inheritedElement${it.name()
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}: Map<string, ${c.n(it, AngularDerivedType.ApiBase)}> = new Map(JSON.parse(localStorage.getItem('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}')));
-            inheritedElement${it.name()
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.forEach((value, key) => {
-                if (JSON.stringify(value.${listElementName}).includes(JSON.stringify(editItem))) {               
-                    ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)
-                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
-                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) }
-                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """value.${elementName.name().toCamelCase()}.${this.name().toCamelCase()} = newElement;""" }}
-                    value.${listElementName}.forEach((${listPropName}, index) => {
-                        if (JSON.stringify(${listPropName}) === JSON.stringify(editItem)) {
-                            value.${listElementName}[index] = newElement
+                
+                this.getAnyEditData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}').subscribe((${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) => {
+                    if ((JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '{}' || JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '[]')) {
+                        ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true) && (property.name().equals(this.parent().name(), ignoreCase = true))
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && (childProperty.name().equals(this.parent().name(), ignoreCase = true)) }
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}} = newElement;""" }}
+                        this.saveEditData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}, false)
+                    }
+                })
+                
+                this.getAnySpecificData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}').subscribe((${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) => {
+                    if ((JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '{}' || JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '[]')) {
+
+                        if (Array.isArray(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})) {
+                            ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.forEach((element) => {
+                                if (JSON.stringify(element).includes(JSON.stringify(editItem))) {
+                                   ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)) && (property.name().equals(this.parent().name(), ignoreCase = true)) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && (childProperty.name().equals(this.parent().name(), ignoreCase = true)) }) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}} = newElement;""" }}
+                                }
+                            })
+                        } else {
+                            ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true) && (property.name().equals(this.parent().name(), ignoreCase = true))
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && (childProperty.name().equals(this.parent().name(), ignoreCase = true)) }
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}} = newElement;""" }}
                         }
-                    })
-                    
-                    const newId = '${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}' + JSON.stringify(value);
-                    inheritedElement${it.name()
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.set(newId, value);
-                    inheritedElement${it.name()
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.delete(key);
-                    localStorage.setItem('specificData', JSON.stringify(value));
-                }
-            });
-            localStorage.${it.name().lowercase(Locale.getDefault())} = JSON.stringify(Array.from(inheritedElement${it.name()
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.entries()));
-            localStorage.setItem('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', localStorage.${it.name().lowercase(Locale.getDefault())});
-        """
+                        this.getComponentName().subscribe((componentName) => {
+                            this.saveSpecificData(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}, componentName, '${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}')
+                            this.saveMultipleListItemData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})
+                        })
+                    }
+                })
+                
+                this.loadAnyElementFromListItem('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}').subscribe((${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) => {
+                    if ((JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '{}' || JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '[]')
+                        && JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}).includes(JSON.stringify(editItem))) {
+                        if (Array.isArray(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})) {
+                            ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.forEach((element) => {
+                                if (JSON.stringify(element).includes(JSON.stringify(editItem))) {
+                                   ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)) && (property.name().equals(this.parent().name(), ignoreCase = true)) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && (childProperty.name().equals(this.parent().name(), ignoreCase = true))}) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}} = newElement;""" }}
+                                    this.saveMultipleListItemData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})
+                                }
+                            })
+                        } else {
+                            ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true) && (property.name().equals(this.parent().name(), ignoreCase = true))
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && (childProperty.name().equals(this.parent().name(), ignoreCase = true)) }
+                ) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.${elementName.name().toCamelCase()}.${elementName.type().props().filter { elementNameProp -> elementNameProp.isNotEMPTY() && elementNameProp.type().name().equals(this.name(), ignoreCase = true) && elementNameProp.type().namespace().equals(this.namespace(), ignoreCase = true) }.joinSurroundIfNotEmptyToString {elementNameProp -> elementNameProp.name().toCamelCase()}} = newElement;""" }}
+                            this.saveListItemData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})
+                        }
+                    }
+                })
+                
+                this.getAnyData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}').subscribe((${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) => {
+                    if ((JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '{}' || JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '[]')
+                        && JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}).includes(JSON.stringify(editItem))) {
+                            ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.forEach((element) => {
+                            if (Array.isArray(${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)) && (property.name().equals(this.parent().name(), ignoreCase = true)) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && (childProperty.name().equals(this.parent().name(), ignoreCase = true)) }) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}""" }})) {
+                                ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)) && (property.name().equals(this.parent().name(), ignoreCase = true)) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && (childProperty.name().equals(this.parent().name(), ignoreCase = true)) }) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}""" }}.forEach((parentData, index) => {
+                                    if (JSON.stringify(editItem).includes(JSON.stringify(parentData))) {
+                                        ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)) && (property.name().equals(this.parent().name(), ignoreCase = true)) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}[index] = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && (childProperty.name().equals(this.parent().name(), ignoreCase = true)) }) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}[index] = newElement;""" }}
+                                    }
+                                })
+                            } else {
+                                if (JSON.stringify(editItem).includes(JSON.stringify(${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)) && (property.name().equals(this.parent().name(), ignoreCase = true)) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && (childProperty.name().equals(this.parent().name(), ignoreCase = true)) }) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()}""" }}))) {
+                                    ${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( property.type().name().equals(this.name(), ignoreCase = true)) && (property.name().equals(this.parent().name(), ignoreCase = true)) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()} = newElement;""" }}${it.props().filter { property -> (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && (
+                property.type().props().any {childProperty -> childProperty.type().name().equals(this.name(), ignoreCase = true) && (childProperty.name().equals(this.parent().name(), ignoreCase = true)) }) }.joinSurroundIfNotEmptyToString(nL + tabs5) { elementName -> """element.${elementName.name().toCamelCase()} = newElement;""" }}
+                                }
+                            }
+                        })
+                        this.replaceData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})
+                    }
+                })
+            """
     }}
+        
+        ${entities.filter { entity -> entity.props().any {property ->
+            (property.type() is BasicI<*> || property.type() is EntityI<*> || property.type() is ValuesI<*>) && ( entity.props().any {
+                childProperty -> childProperty.type().name().equals("list", true) && childProperty.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && childProperty.type().generics().first().type().namespace().equals(this.namespace(), true) } ||
+                    property.type().props().any {
+                        childProperty -> childProperty.type().name().equals("list", true) && childProperty.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && childProperty.type().generics().first().type().namespace().equals(this.namespace(), true) }
+                    )
         }
+        }.joinSurroundIfNotEmptyToString("") {
+            val listElementName = it.props().filter { property -> property.type().name().equals("list", true) && property.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && property.type().generics().first().type().namespace().equals(this.namespace(), true) }.joinSurroundIfNotEmptyToString { it.name() }
+            val listPropName = it.props().filter { property -> property.type().name().equals("list", true) && property.type().generics().first().type().name().equals(this.name(), ignoreCase = true) && property.type().generics().first().type().namespace().equals(this.namespace(), true) }.joinSurroundIfNotEmptyToString { it.type().generics().first().type().name().toCamelCase().replaceFirstChar { it.lowercase(Locale.getDefault()) } };
+            """
+                this.getAnyEditData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}').subscribe((${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) => {
+                    if ((JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '{}' || JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '[]')
+                        && JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}).includes(JSON.stringify(editItem))) {
+                        ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.forEach((element) => {
+                            element.${listElementName}.forEach((${listPropName}, index) => {
+                                if (JSON.stringify(editItem).includes(JSON.stringify(${listPropName}))) {
+                                    element.${listElementName}[index] = newElement
+                                }
+                            })
+                        })
+                        this.saveEditData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}, false)
+                    }
+                })
+
+                this.getAnySpecificData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}').subscribe((${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) => {
+                    if ((JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '{}' || JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '[]')) {
+                        ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.forEach((element) => {
+                            element.${listElementName}.forEach((${listPropName}, index) => {
+                                if (JSON.stringify(editItem).includes(JSON.stringify(${listPropName}))) {
+                                    element.${listElementName}[index] = newElement
+                                }
+                            })
+                        })
+                        this.getComponentName().subscribe((componentName) => {
+                            this.saveSpecificData(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}, componentName, '${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}')
+                            this.saveMultipleListItemData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})
+                        })
+                    }
+                })
+                
+                this.getAnyData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}').subscribe((${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) => {
+                    if ((JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '{}' || JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}) !== '[]')
+                        && JSON.stringify(${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}).includes(JSON.stringify(editItem))) {
+                        ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}.forEach((element) => {
+                            element.${listElementName}.forEach((${listPropName}, index) => {
+                                if (JSON.stringify(editItem).includes(JSON.stringify(${listPropName}))) {
+                                    element.${listElementName}[index] = newElement
+                                }
+                            })
+                        })
+                        this.replaceData('${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}', ${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())})
+                    }
+                })"""}}
+            }
+        })
     }
     
     ${entities.filter {!it.isEMPTY() && !it.props().isEMPTY() && !it.belongsToAggregate().isEMPTY() && it.belongsToAggregate().name().equals(this.name(), true)}.joinSurroundIfNotEmptyToString {
@@ -460,21 +646,28 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
         """
     removeAggregateItem(element: Array<${c.n(it, AngularDerivedType.ApiBase).toCamelCase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}>, elementName: string = '${c.n(it, AngularDerivedType.ApiBase).lowercase(Locale.getDefault())}') {
         element.forEach((content) => {
-            const item = this.retrieveItemsFromCache(elementName);
-            item.delete(elementName + JSON.stringify(content))
-            this.saveItemToCache(item, elementName)
-        })
-        
-        const ${this.name().lowercase(Locale.getDefault())} = this.changeMapToArray(this.retrieveItemsFromCache());
-        ${this.name().lowercase(Locale.getDefault())}.forEach((item) => {
-            element.forEach((content) => {
+            this.getAnyData(elementName).subscribe((item) => {
                 if (JSON.stringify(item).includes(JSON.stringify(content))) {
-                    const index = item.${propName.name().lowercase(Locale.getDefault())}.findIndex((${it.name().lowercase(Locale.getDefault())}) => JSON.stringify(${it.name().lowercase(Locale.getDefault())}) === JSON.stringify(content));
-                    item.${propName.name().lowercase(Locale.getDefault())}.splice(index, 1)
+                    const index = item.findIndex((${it.name().lowercase(Locale.getDefault())}) => JSON.stringify(${it.name().lowercase(Locale.getDefault())}) === JSON.stringify(content));
+                    item.splice(index, 1)
+                    this.replaceAnyData(elementName, item)
                 }
             })
-        });
-        this.saveItemToCache(this.changeArrayToMap(${this.name().lowercase(Locale.getDefault())}));
+        })
+        
+        setTimeout(() => {
+            this.getData().subscribe((${this.name().lowercase(Locale.getDefault())}) => {
+               ${this.name().lowercase(Locale.getDefault())}.forEach((item) => {
+                    element.forEach((content) => {
+                        if (JSON.stringify(item).includes(JSON.stringify(content))) {
+                            const index = item.${propName.name().lowercase(Locale.getDefault())}.findIndex((${it.name().lowercase(Locale.getDefault())}) => JSON.stringify(${it.name().lowercase(Locale.getDefault())}) === JSON.stringify(content));
+                            item.${propName.name().lowercase(Locale.getDefault())}.splice(index, 1)
+                        }
+                    })
+                });
+                this.replaceData(this.itemName, ${this.name().lowercase(Locale.getDefault())})
+            })
+        }, 100)
     }"""
     }}
 }
@@ -654,16 +847,18 @@ export class ${this.name()
     
     ngOnInit(): void {
         this.enumElements = this.${DataService.replaceFirstChar { it.lowercase(Locale.getDefault()) }}.loadEnumElement(${c.n(this, AngularDerivedType.ApiBase)});
-    
-        if (this.${this.name().lowercase(Locale.getDefault())} !== undefined) {
-            const temp = [];
-            this.enumElements.forEach((data, index) => {
-                if (this.${this.name().lowercase(Locale.getDefault())}.toString().toLowerCase().includes(data.toLowerCase())) {
-                    temp.push(index.toString())
-                }
-            });
-            this.multipleSelectedIndices = temp;
-        }
+
+        setTimeout(() => {
+            if (this.${this.name().lowercase(Locale.getDefault())} !== undefined) {
+                const temp = [];
+                this.enumElements.forEach((data, index) => {
+                    if (this.${this.name().lowercase(Locale.getDefault())}.toString().toLowerCase().includes(data.toLowerCase())) {
+                        temp.push(index.toString())
+                    }
+                });
+                this.multipleSelectedIndices = temp;
+            }
+        }, 100)
     }
     
     changeValue({ detail: [id] }: CustomEvent<string[]>) {
