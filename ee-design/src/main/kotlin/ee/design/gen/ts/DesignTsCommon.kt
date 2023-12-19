@@ -328,7 +328,7 @@ fun <T : ItemI<*>> T.toAngularInitOption(c: GenerationContext, elementType: Type
                             this.selectedIndices${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")} = index.toString();
                             this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())} = option;
                         } else if ((JSON.stringify(listItem) === '{}' || JSON.stringify(listItem) === '[]')) {
-                            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())} = listItem;
+                            this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())} = new ${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}();
                         }
                     })
                 });
