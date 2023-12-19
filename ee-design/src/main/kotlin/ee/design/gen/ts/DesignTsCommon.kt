@@ -316,6 +316,8 @@ fun <T : ItemI<*>> T.toAngularInitOption(c: GenerationContext, elementType: Type
                 && (JSON.stringify(listItem) === '{}' || JSON.stringify(listItem) === '[]')) {
                     this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.saveListItemData(this.${c.n(elementType, AngularDerivedType.DataService).replaceFirstChar { it.lowercase(Locale.getDefault()) }}.itemName,
                         this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())} )
+                } else {
+                    this.${this.parent().name().lowercase(Locale.getDefault())}.${this.name().lowercase(Locale.getDefault())} = new ${c.n(elementType, AngularDerivedType.DataService).replace(AngularDerivedType.DataService, "")}();
                 }
             })
   
