@@ -304,21 +304,25 @@ fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNon
                 <td>
                 
                     <ng-container *ngIf="!isSpecificView; else showLink">
-                        <a class="${serviceName.lowercase(Locale.getDefault())}Specific{{i}}" (click)="${serviceName}DataService.searchItems(i, row${if(isChild) "['${this.parent().name().toCamelCase()
+                        <a class="${serviceName.lowercase(Locale.getDefault())}Specific${findParentNonInternal?.name()
+            ?.toCamelCase()?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}{{i}}" (click)="${serviceName}DataService.searchItems(i, row${if(isChild) "['${this.parent().name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']['${this.name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']" else "['${this.name().toCamelCase()
             .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}, '${findParentNonInternal?.name()
             ?.toCamelCase()?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}/${elementName.lowercase(
             Locale.getDefault()
     )}', row${if(parentToStr.isNotEmpty()) { """['${parentToStr.first().name()}']""" } else {"""['name']"""} }); ${serviceName}DataService.saveSpecificData(row, row${if(parentToStr.isNotEmpty()) { """['${parentToStr.first().name()}']""" } else {"""['name']"""} }); ${serviceName}DataService.saveCurrentSpecificData(row)"> ... </a>
-                        <ix-tooltip for=".${serviceName.lowercase(Locale.getDefault())}Specific{{i}}">{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
+                        <ix-tooltip for=".${serviceName.lowercase(Locale.getDefault())}Specific${findParentNonInternal?.name()
+            ?.toCamelCase()?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}{{i}}">{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
             .lowercase(Locale.getDefault())}']['${this.name()
             .lowercase(Locale.getDefault())}']" else "['${this.name()
             .lowercase(Locale.getDefault())}']"}) }}</ix-tooltip>
                     </ng-container>
                     <ng-template #showLink>
-                        <span class="${serviceName.lowercase(Locale.getDefault())}ShowLink{{i}}"> ... </span>
-                        <ix-tooltip for=".${serviceName.lowercase(Locale.getDefault())}ShowLink{{i}}">{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
+                        <span class="${serviceName.lowercase(Locale.getDefault())}ShowLink${findParentNonInternal?.name()
+            ?.toCamelCase()?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}{{i}}"> ... </span>
+                        <ix-tooltip for=".${serviceName.lowercase(Locale.getDefault())}ShowLink${findParentNonInternal?.name()
+            ?.toCamelCase()?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}{{i}}">{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
             .lowercase(Locale.getDefault())}']['${this.name()
             .lowercase(Locale.getDefault())}']" else "['${this.name()
             .lowercase(Locale.getDefault())}']"}) }}</ix-tooltip>
@@ -330,8 +334,8 @@ fun <T : ItemI<*>> T.toAngularTableListEntity(elementName: String, findParentNon
 fun <T : ItemI<*>> T.toAngularTableListBasic(parentName: String, isChild: Boolean): String {
     return """
                 <td>
-                    <span class="${parentName.lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}"> ... ; </span>
-                    <ix-tooltip for=".${parentName.lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}">{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
+                    <span class="${parentName.lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}{{i}}"> ... ; </span>
+                    <ix-tooltip for=".${parentName.lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}{{i}}">{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(isChild) "['${this.parent().name()
             .lowercase(Locale.getDefault())}']['${this.name()
             .lowercase(Locale.getDefault())}']" else "['${this.name()
             .lowercase(Locale.getDefault())}']"}) }}</ix-tooltip>
@@ -359,12 +363,12 @@ fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultiple(elementName: Stri
 fun <T : ItemI<*>> T.toAngularTableListEntityFromBasicMultipleEnums(findParentNonInternal: ItemI<*>?, parentName: String, totalChild: Int, toStr: List<AttributeI<*>>): String =
     """
                 <td>
-                    <div class="${parentName.lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}">
+                    <div class="${parentName.lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}{{i}}">
                             {{row${if(findParentNonInternal.isEMPTY()) "" else "['" + findParentNonInternal?.name()?.lowercase(Locale.getDefault()) + "']"}['${this.name().toCamelCase()
                     .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']${toStr.isNotEmpty().then{ """['${toStr.first().name().toCamelCase()
                     .replaceFirstChar { it.lowercase(Locale.getDefault()) }}']""" }}}};
                     </div>
-                    <ix-tooltip for=".${parentName.lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}">{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(findParentNonInternal.isEMPTY()) "" else "['${findParentNonInternal?.name()?.toCamelCase()
+                    <ix-tooltip for=".${parentName.lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}{{i}}">{{ ${parentName.lowercase(Locale.getDefault())}.tooltip(row${if(findParentNonInternal.isEMPTY()) "" else "['${findParentNonInternal?.name()?.toCamelCase()
             ?.replaceFirstChar { it.lowercase(Locale.getDefault()) }}']"}['${this.name().lowercase(Locale.getDefault())}']) }}</ix-tooltip>
                 </td>
 """

@@ -272,11 +272,11 @@ ${isOpen().then("export ")}class ${if(this.name().equals(this.parent().name(), t
     moduleName = '${this.parent().name().lowercase(Locale.getDefault())}';
     componentChild = [${this.props().filter { !it.isEMPTY() }.joinSurroundIfNotEmptyToString("") {
         when(it.type()) {
-            is EntityI<*>, is ValuesI<*> -> """'${it.name().lowercase(Locale.getDefault()) + it.type().name().lowercase(Locale.getDefault())}', """
+            is EntityI<*>, is ValuesI<*> -> """'${it.name().lowercase(Locale.getDefault()) + it.type().parent().name().lowercase(Locale.getDefault()) + it.type().name().lowercase(Locale.getDefault())}', """
             else -> {
                 when(it.type().name()) {
                     "List" -> when(it.type().generics().first().type()) {
-                        is EntityI<*>, is ValuesI<*> -> """'${it.name().lowercase(Locale.getDefault()) + it.type().generics().first().type().name().lowercase(Locale.getDefault())}', """
+                        is EntityI<*>, is ValuesI<*> -> """'${it.name().lowercase(Locale.getDefault()) + it.type().generics().first().type().parent().name().lowercase(Locale.getDefault()) + it.type().generics().first().type().name().lowercase(Locale.getDefault())}', """
                         else -> ""
                     }
                     else -> ""

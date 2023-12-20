@@ -88,7 +88,12 @@ fun <T : TypeI<*>> T.toAngularGeneratePropsFromEntityAndValuesTranslate(): Strin
 fun <T : TypeI<*>> T.toAngularGeneratePropsFromEntityAndValuesOnlyBasicsTranslate(): String =
         """
     "${this.parent().name().lowercase(Locale.getDefault())}${this.name().lowercase(Locale.getDefault())}": {
-        "navTitle": "${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
+        "navTitle": "${this.name().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}",
+        "table": {
+            ${this.props().filter { !it.isEMPTY() && it.type() is BasicI<*>}.joinSurroundIfNotEmptyToString(",$nL$tab$tab$tab") {
+                it.toAngularGenerateEntityPropsTranslate()
+            }}
+        }
     },"""
 
 fun <T : TypeI<*>> T.toAngularGeneratePropsForTableTranslate(): String =
