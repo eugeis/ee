@@ -176,7 +176,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
     <entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name().lowercase(Locale.getDefault())}-form class="form-style" [${this.name().lowercase(Locale.getDefault())}]="${this.name().lowercase(Locale.getDefault())}"></entity-${this.parent().name().lowercase(Locale.getDefault())}-${this.name()
         .lowercase(Locale.getDefault())}-form>
     <ng-container *ngIf="${serviceName}${DataService}.isEdit; else notEdit">
-        <button type="button" class="first-button-edit btn btn-outline-danger" (click)="${serviceName}${DataService}.goBack()">{{'cancel edit' | translate}}</button>
+        <button type="button" class="first-button-edit btn btn-outline-danger" (click)="${ if (entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true)}) {"""${serviceName}${DataService}.goBackAndReloadData();"""} else {"""${serviceName}${DataService}.goBack();"""}}">{{'cancel edit' | translate}}</button>
         <button type="button" class="second-button-edit btn btn-outline-success" (click)="${serviceName}${DataService}.editElement(${this.name()
             .lowercase(Locale.getDefault())}, '${serviceName.lowercase(Locale.getDefault())}', ${
         if (entities.filter { entity -> entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true) }.isNotEmpty()) {
@@ -200,7 +200,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
     }
     }.joinSurroundIfNotEmptyToString("") {"""; ${serviceName}${DataService}.saveElementForListItem(${this.name()
             .lowercase(Locale.getDefault())}, '${serviceName.lowercase(Locale.getDefault())}', ${if(entities.filter { entity -> entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true) }.isNotEmpty()) {"""true"""} else {"""false"""}})""" }
-    }">{{'save' | translate}}</button>
+    }; ${this.props().filter { it.type() is EntityI<*> || it.type() is ValuesI<*> }.joinSurroundIfNotEmptyToString("; ") { """${serviceName}${DataService}.saveAnyListItemData('${it.type().parent().name().lowercase(Locale.getDefault())}${it.type().name().lowercase(Locale.getDefault())}', {})""" }}; ${this.props().filter { it.type().name().equals("list", ignoreCase = true) }.joinSurroundIfNotEmptyToString("; ") { """${serviceName}${DataService}.saveAnyListItemData('${this.parent().name().lowercase(Locale.getDefault())}${it.type().generics().first().type().name().lowercase(Locale.getDefault())}', [])""" }}">{{'save' | translate}}</button>
         </ng-container>
         
         <ng-template #notSpecific>
@@ -215,7 +215,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityViewHTMLComponent(c: GenerationCo
     }
     }.joinSurroundIfNotEmptyToString("") {"""; ${serviceName}${DataService}.saveElementForListItem(${this.name()
             .lowercase(Locale.getDefault())}, '${serviceName.lowercase(Locale.getDefault())}', ${if(entities.filter { entity -> entity.isNotEMPTY() && entity.name().equals(this.name(), true) && entity.namespace().equals(this.namespace(), true) }.isNotEmpty()) {"""true"""} else {"""false"""}})""" }
-    }">{{'save' | translate}}</button>
+    }; ${this.props().filter { it.type() is EntityI<*> || it.type() is ValuesI<*> }.joinSurroundIfNotEmptyToString("; ") { """${serviceName}${DataService}.saveAnyListItemData('${it.type().parent().name().lowercase(Locale.getDefault())}${it.type().name().lowercase(Locale.getDefault())}', {})""" }}; ${this.props().filter { it.type().name().equals("list", ignoreCase = true) }.joinSurroundIfNotEmptyToString("; ") { """${serviceName}${DataService}.saveAnyListItemData('${this.parent().name().lowercase(Locale.getDefault())}${it.type().generics().first().type().name().lowercase(Locale.getDefault())}', [])""" }}">{{'save' | translate}}</button>
         </ng-template>
     </ng-template>
 </ng-template>"""
@@ -399,7 +399,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
                         <ix-dropdown [ixDropdownTrigger]="trigger">
                             <ng-container *ngIf="isSpecificView; else normalEdit">
                                 <ix-dropdown-item>
-                                    <a (click)="${serviceName}${DataService}.saveEditData(${serviceName}${DataService}.itemName, row, true)" [routerLink]="['./edit', i]" [queryParams]="{name: ${serviceName}${DataService}.componentName}" routerLinkActive="active-link">
+                                    <a (click)="${serviceName}${DataService}.saveEditData(${serviceName}${DataService}.itemName, row, true);" [routerLink]="['./edit', i]" [queryParams]="{name: ${serviceName}${DataService}.componentName}" routerLinkActive="active-link">
                                         <ix-icon name="pen" size="16"></ix-icon> {{'edit' | translate}}
                                     </a>
                                 </ix-dropdown-item>
@@ -407,7 +407,7 @@ fun <T : CompilationUnitI<*>> T.toAngularEntityListHTMLComponent(c: GenerationCo
 
                             <ng-template #normalEdit>
                                 <ix-dropdown-item>
-                                    <a (click)="${serviceName}${DataService}.saveEditData(${serviceName}${DataService}.itemName, row, true)" [routerLink]="['./edit', i]" routerLinkActive="active-link">
+                                    <a (click)="${serviceName}${DataService}.saveEditData(${serviceName}${DataService}.itemName, row, true); ${entities.any { it.belongsToAggregate().derivedAsType().isEmpty() && it.belongsToAggregate().isNotEMPTY() && it.belongsToAggregate().name().equals(this.name(), true) }.then { """${serviceName}${DataService}.generateYAML();""" }}" [routerLink]="['./edit', i]" routerLinkActive="active-link">
                                         <ix-icon name="pen" size="16"></ix-icon> {{'edit' | translate}}
                                     </a>
                                 </ix-dropdown-item>
